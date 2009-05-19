@@ -72,7 +72,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleInvisibility,                              // 18 SPELL_AURA_MOD_INVISIBILITY
     &Aura::HandleInvisibilityDetect,                        // 19 SPELL_AURA_MOD_INVISIBILITY_DETECTION
     &Aura::HandleAuraModTotalHealthPercentRegen,            // 20 SPELL_AURA_OBS_MOD_HEALTH
-    &Aura::HandleAuraModTotalManaPercentRegen,              // 21 SPELL_AURA_OBS_MOD_MANA
+    &Aura::HandleAuraModTotalEnergyPercentRegen,            // 21 SPELL_AURA_OBS_MOD_ENERGY
     &Aura::HandleAuraModResistance,                         // 22 SPELL_AURA_MOD_RESISTANCE
     &Aura::HandlePeriodicTriggerSpell,                      // 23 SPELL_AURA_PERIODIC_TRIGGER_SPELL
     &Aura::HandlePeriodicEnergize,                          // 24 SPELL_AURA_PERIODIC_ENERGIZE
@@ -6199,7 +6199,7 @@ void Aura::HandleAuraModTotalHealthPercentRegen(bool apply, bool /*Real*/)
     m_isPeriodic = apply;
 }
 
-void Aura::HandleAuraModTotalManaPercentRegen(bool apply, bool /*Real*/)
+void Aura::HandleAuraModTotalEnergyPercentRegen(bool apply, bool /*Real*/)
 {
     if(m_modifier.periodictime == 0)
         m_modifier.periodictime = 1000;
@@ -8055,17 +8055,12 @@ void Aura::PeriodicTick()
             }
             break;
         }
+        case SPELL_AURA_OBS_MOD_ENERGY:
         case SPELL_AURA_PERIODIC_ENERGIZE:
         {
             // don't energize target if not alive, possible death persistent effects
             if (!target->isAlive())
                 return;
-
-            // ignore non positive values (can be result apply spellmods to aura damage
-            uint32 pdamage = m_modifier.m_amount > 0 ? m_modifier.m_amount : 0;
-
-            DETAIL_FILTER_LOG(LOG_FILTER_PERIODIC_AFFECTS, "PeriodicTick: %s energize %s for %u dmg inflicted by %u",
-                GetCasterGuid().GetString().c_str(), target->GetGuidStr().c_str(), pdamage, GetId());
 
             if(m_modifier.m_miscvalue < 0 || m_modifier.m_miscvalue >= MAX_POWERS)
                 break;
@@ -8075,39 +8070,24 @@ void Aura::PeriodicTick()
             if(target->GetMaxPower(power) == 0)
                 break;
 
-            SpellPeriodicAuraLogInfo pInfo(this, pdamage, 0, 0, 0, 0.0f);
-            target->SendPeriodicAuraLog(&pInfo);
-
-            int32 gain = target->ModifyPower(power,pdamage);
-
-            if(Unit* pCaster = GetCaster())
-                target->getHostileRefManager().threatAssist(pCaster, float(gain) * 0.5f * sSpellMgr.GetSpellThreatMultiplier(spellProto), spellProto);
-            break;
-        }
-        case SPELL_AURA_OBS_MOD_MANA:
-        {
-            // don't energize target if not alive, possible death persistent effects
-            if (!target->isAlive())
-                return;
-
             Powers powerType = ( (m_modifier.m_miscvalue > POWER_RUNIC_POWER || m_modifier.m_miscvalue < 0) ? POWER_MANA : Powers(m_modifier.m_miscvalue));
 
             // ignore non positive values (can be result apply spellmods to aura damage
             uint32 amount = m_modifier.m_amount > 0 ? m_modifier.m_amount : 0;
 
-            uint32 pdamage = uint32(target->GetMaxPower(powerType) * amount / 100);
+            uint32 pdamage;
+            if( m_modifier.m_auraname == SPELL_AURA_OBS_MOD_ENERGY )
+                pdamage = uint32(target->GetMaxPower(powerType) * amount/100);
+            else
+                pdamage = amount;
 
             DETAIL_FILTER_LOG(LOG_FILTER_PERIODIC_AFFECTS, "PeriodicTick: %s energize %s for %u power %u inflicted by %u",
                 GetCasterGuid().GetString().c_str(), target->GetGuidStr().c_str(), pdamage, powerType, GetId());
-
-            if(target->GetMaxPower(powerType) == 0)
-                break;
 
             SpellPeriodicAuraLogInfo pInfo(this, pdamage, 0, 0, 0, 0.0f);
             target->SendPeriodicAuraLog(&pInfo);
 
             int32 gain = target->ModifyPower(powerType, pdamage);
-
             if(Unit* pCaster = GetCaster())
                 target->getHostileRefManager().threatAssist(pCaster, float(gain) * 0.5f * sSpellMgr.GetSpellThreatMultiplier(spellProto), spellProto);
             break;

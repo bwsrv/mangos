@@ -361,7 +361,7 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
                             break;
                         // Drink
                         case SPELL_AURA_MOD_POWER_REGEN:
-                        case SPELL_AURA_OBS_MOD_MANA:
+                        case SPELL_AURA_OBS_MOD_ENERGY:
                             drink = true;
                             break;
                         default:
@@ -1497,7 +1497,7 @@ void SpellMgr::LoadSpellBonuses()
                 case SPELL_AURA_PERIODIC_HEAL:
                 case SPELL_AURA_OBS_MOD_HEALTH:
                 case SPELL_AURA_PERIODIC_MANA_LEECH:
-                case SPELL_AURA_OBS_MOD_MANA:
+                case SPELL_AURA_OBS_MOD_ENERGY:
                 case SPELL_AURA_POWER_BURN_MANA:
                     need_dot = true;
                     ++x;
