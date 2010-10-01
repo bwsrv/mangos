@@ -2163,6 +2163,39 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 }
                 break;
             }
+            case SPELLFAMILY_ROGUE:
+            {
+                // Honor Among Thieves
+                if (GetId() == 52916)
+                {
+                    if (!target || target->HasAura(51699, EFFECT_INDEX_1) || target->GetTypeId() != TYPEID_PLAYER || target->getClass() != CLASS_ROGUE)
+                        return;
+
+                    Unit::AuraList const &aury = target->GetAurasByType(SPELL_AURA_PROC_TRIGGER_SPELL);
+                    for (Unit::AuraList::const_iterator i = aury.begin(); i != aury.end(); i++)
+                    {
+                        SpellEntry const *spellInfo = (*i)->GetSpellProto();
+
+                        if (!spellInfo)
+                            continue;
+
+                        if (spellInfo->EffectTriggerSpell[0] == 52916)
+                        {
+                            if (roll_chance_i(spellInfo->CalculateSimpleValue(EFFECT_INDEX_0)) )
+                            {
+                                Unit *pVictim = ObjectAccessor::GetUnit(*target,((Player*)target)->GetComboTarget());
+                                if (!pVictim)
+                                    pVictim = target->getVictim();
+
+                                if (pVictim)
+                                    target->CastSpell(pVictim, 51699, true );
+                                return;
+                            }
+                        }
+                    }
+                }
+                break;
+            }
             case SPELLFAMILY_MAGE:
             {
                 // hack for Fingers of Frost stacks
