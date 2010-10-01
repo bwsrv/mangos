@@ -356,6 +356,15 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                         damage+= uint32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.12f);
                         break;
                     }
+                    // Mana Detonation
+                    case 27820:
+                    {
+                        if (unitTarget == m_caster)
+                            damage = 0;
+                        else                                
+                            damage = m_caster->GetMaxPower(POWER_MANA);
+                        break;
+                    }
                     // percent max target health
                     case 29142:                             // Eyesore Blaster
                     case 35139:                             // Throw Boom's Doom
@@ -1183,6 +1192,22 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     if (unitTarget && unitTarget->GetTypeId() == TYPEID_UNIT && unitTarget->IsHostileTo(m_caster))
                         m_caster->CastSpell(unitTarget,32835,true);
 
+                    return;
+                }
+                case 29969:                                 // Activate Blizzard (Naxxramas: Sapphiron)
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->CastSpell(unitTarget, 29952, true);
+                    return;
+                }
+                case 29970:                                 // Deactivate Blizzard (Naxxramas: Sapphiron)
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->RemoveAurasDueToSpell(29952);
                     return;
                 }
                 case 30458:                                 // Nigh Invulnerability
@@ -6023,6 +6048,23 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     else
                         unitTarget->CastSpell(unitTarget, 26655, false);
 
+                    return;
+                }
+                case 54097:                                 // Widow's Embrace (Naxxramas Worshipper)
+                {                                           // kill worshipper after using
+                    if (m_caster->GetTypeId() != TYPEID_UNIT || !m_caster->isAlive())
+                        return;
+
+                    m_caster->DealDamage(m_caster, m_caster->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    return;
+                }
+                case 28374:                                 // Decimate (Naxxramas: Gluth)
+                {
+                    if (!unitTarget || unitTarget->GetHealthPercent() <= 5.0f)
+                        return;
+
+                    int32 damage = unitTarget->GetHealth() - unitTarget->GetMaxHealth() * 0.05;
+                    unitTarget->CastCustomSpell(unitTarget, 28375, &damage, NULL, NULL, true, NULL, NULL, m_originalCasterGUID);
                     return;
                 }
                 case 29830:                                 // Mirren's Drinking Hat
