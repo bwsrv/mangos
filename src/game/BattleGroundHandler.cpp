@@ -643,6 +643,14 @@ void WorldSession::HandleBattlemasterJoinArena( WorldPacket & recv_data )
     if(!unit->isBattleMaster())                             // it's not battle master
         return;
 
+    // -- Disable rated arena matches from 1:00AM to 9:00AM
+    time_t curTime = time(NULL);
+    tm localTm = *localtime(&curTime);
+
+    if (isRated && localTm.tm_hour > 1 && localTm.tm_hour < 9)
+        return;
+    // -- end "Disable rated arena matches..."
+
     uint8 arenatype = 0;
     uint32 arenaRating = 0;
 
