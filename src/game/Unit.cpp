@@ -6648,6 +6648,14 @@ uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, u
                     if (Aura *aur = GetAura(55692, EFFECT_INDEX_0))
                         DoneTotalMod *= (aur->GetModifier()->m_amount+100.0f) / 100.0f;
             }
+            // Glyph of Mind Flay
+            if (spellProto->SpellFamilyFlags & UI64LIT(0x800000))
+            {
+                // Mind Flay
+               if (pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, UI64LIT(0x8000), 0, GetGUID()))
+                      if (Aura *aur = GetAura(55687, EFFECT_INDEX_0))
+                         DoneTotalMod *= (aur->GetModifier()->m_amount+100.0f) / 100.0f;
+            }
             break;
         }
         case SPELLFAMILY_DRUID:
@@ -6779,6 +6787,11 @@ uint32 Unit::SpellDamageBonusTaken(Unit *pCaster, SpellEntry const *spellProto, 
     {
         if ((*i)->GetCasterGUID() == pCaster->GetGUID() && (*i)->isAffectedOnSpell(spellProto))
             TakenTotalMod *= ((*i)->GetModifier()->m_amount + 100.0f) / 100.0f;
+
+        // Glyph of Salvation
+        if ((*i)->GetId() == 1038 && (*i)->GetCasterGUID() == GetGUID())
+            if (Aura *dummy = GetDummyAura(63225))
+                TakenTotalMod *= (-(dummy->GetModifier()->m_amount) + 100.0f) / 100.0f;
     }
 
     // Mod damage from spell mechanic
@@ -7710,6 +7723,15 @@ uint32 Unit::MeleeDamageBonusTaken(Unit *pCaster, uint32 pdamage,WeaponAttackTyp
     if (spellProto && spellProto->SpellFamilyName==SPELLFAMILY_DRUID && spellProto->SpellFamilyFlags & UI64LIT(0x00008800))
         mechanicMask |= (1 << (MECHANIC_BLEED-1));
 
+    // ..taken (SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN)
+    AuraList const& mModDamagePercentTaken = GetAurasByType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN);
+    for(AuraList::const_iterator i = mModDamagePercentTaken.begin(); i != mModDamagePercentTaken.end(); ++i)
+    {
+        // Glyph of Salvation
+        if ((*i)->GetId() == 1038 && (*i)->GetCasterGUID() == GetGUID())
+            if (Aura *dummy = GetDummyAura(63225))
+                TakenPercent *= (-(dummy->GetModifier()->m_amount) + 100.0f) / 100.0f;
+    }
 
     // FLAT damage bonus auras
     // =======================
