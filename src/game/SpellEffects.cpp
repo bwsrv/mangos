@@ -965,6 +965,30 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     }
                     return;
                 }
+                case 14537:
+                {
+                    if (!unitTarget)
+                        return;
+                    
+                    if (urand(0, 99) < 10)                  //10% chance for rare effects
+                        switch(urand(1, 4))
+                        {
+                            case 1: m_caster->CastSpell(unitTarget, 31718, true); break; //enveloping winds
+                            case 2: m_caster->CastSpell(unitTarget, 118, true); break;   //polymorph target
+                            case 3: m_caster->CastSpell(m_caster, 118, true); break;     //polymorph self
+                            case 4: m_caster->CastSpell(m_caster, 8176, true); break;    //summon fellhunter
+                        }
+                    else                                    //common effects
+                        switch(urand(1, 3))
+                        {
+                            case 1: m_caster->CastSpell(unitTarget, 8401, true); break;  //fireball
+                            case 2: m_caster->CastSpell(unitTarget, 8407, true); break;  //frostbolt
+                            case 3: m_caster->CastSpell(unitTarget, 421, true); break;   //chain lightning
+
+                        }
+                    
+                    return;
+                }
                 case 15998:                                 // Capture Worg Pup
                 case 29435:                                 // Capture Female Kaliri Hatchling
                 {
@@ -6032,6 +6056,19 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     // Shadow Flame
                     m_caster->CastSpell(unitTarget, 22682, true);
+                    return;
+                }
+                // Mistletoe
+                case 26218:
+                {
+                    if (!m_caster || !unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+                        return;
+                    switch(urand(0,2))
+                    {
+                        case 0: m_caster->CastSpell(unitTarget,26207,true); break; // Create Fresh Holly
+                        case 1: m_caster->CastSpell(unitTarget,45036,true); break; // Create Snowflakes
+                        case 2: m_caster->CastSpell(unitTarget,26206,true); break; // Create Mistletoe
+                    }
                     return;
                 }
                 case 26656:                                 // Summon Black Qiraji Battle Tank
