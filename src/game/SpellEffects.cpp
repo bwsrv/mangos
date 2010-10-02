@@ -268,17 +268,20 @@ void Spell::EffectResurrectNew(SpellEffectIndex eff_idx)
 
 void Spell::EffectInstaKill(SpellEffectIndex /*eff_idx*/)
 {
-    if( !unitTarget || !unitTarget->isAlive() )
+    if (!unitTarget || !unitTarget->isAlive())
         return;
 
-    if(m_caster == unitTarget)                              // prevent interrupt message
+    if (m_caster == unitTarget)                             // prevent interrupt message
         finish();
 
+    WorldObject* caster = GetCastingObject();               // we need the original casting object
+
     WorldPacket data(SMSG_SPELLINSTAKILLLOG, (8+8+4));
-    data << uint64(m_caster->GetTypeId() != TYPEID_GAMEOBJECT ? m_caster->GetGUID() : 0); //Caster GUID
-    data << uint64(unitTarget->GetGUID());  //Victim GUID
+    data << (caster && caster->GetTypeId() != TYPEID_GAMEOBJECT ? m_caster->GetObjectGuid() : ObjectGuid()); // Caster GUID
+    data << unitTarget->GetObjectGuid();                    // Victim GUID
     data << uint32(m_spellInfo->Id);
     m_caster->SendMessageToSet(&data, true);
+
     m_caster->DealDamage(unitTarget, unitTarget->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
 }
 
@@ -2034,7 +2037,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 }
                 case 64385:                                 // Spinning (from Unusual Compass)
                 {
-                    m_caster->SetFacingTo(frand(0, M_PI*2), true);
+                    m_caster->SetFacingTo(frand(0, M_PI_F*2), true);
                     return;
                 }
                 case 67019:                                 // Flask of the North
@@ -2846,12 +2849,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
             {
                 if (m_caster->GetTypeId() != TYPEID_PLAYER)
                     return;
-                if (m_caster->GetPet())
-                {
-                    SendCastResult(SPELL_FAILED_ALREADY_HAVE_SUMMON);
-                    ((Player*)m_caster)->SendCooldownEvent(m_spellInfo);
-                    return;
-                }
 
                 uint32 SpellID = 0;
                 if (m_caster->HasSpell(52143))
@@ -2859,14 +2856,14 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 else
                     SpellID = m_spellInfo->EffectBasePoints[EFFECT_INDEX_1]+1;
 
-                if (m_caster->HasAura(60200))
+                if (unitTarget && !unitTarget->isAlive())
                 {
-                    m_caster->CastSpell(m_caster,SpellID,true);
+                    m_caster->CastSpell(unitTarget->GetPositionX(),unitTarget->GetPositionY(),unitTarget->GetPositionZ(),SpellID,true);
+                    unitTarget->RemoveFromWorld();
                     return;
                 }
-                if (unitTarget && unitTarget->GetObjectGuid().IsCorpse())
+                else if (m_caster->HasAura(60200))
                 {
-                    unitTarget->RemoveFromWorld();
                     m_caster->CastSpell(m_caster,SpellID,true);
                     return;
                 }
@@ -2877,9 +2874,12 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     return;
                 }
                 else
+                {
                     SendCastResult(SPELL_FAILED_REAGENTS);
                     ((Player*)m_caster)->SendCooldownEvent(m_spellInfo);
-                return;
+                    finish();
+                    return;
+                }
             }
             // Death Grip
             else if (m_spellInfo->Id == 49576)
@@ -7541,6 +7541,9 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     break;
                 }
+                // Raise dead effect - prevent ScriptEffect execution
+                case 46584:
+                       return;
                 default:
                     break;
             }
