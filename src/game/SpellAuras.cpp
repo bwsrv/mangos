@@ -2123,10 +2123,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     case 58591:                                 // Stoneclaw Totem X
                         target->CastSpell(target, 58585, true);
                         return;
-                    case 50141:                             // Blood Oath
-                        if (Unit* caster = GetCaster())
-                            caster->CastSpell(caster, 50001, true, NULL, this);
-                        return;
                     case 62061:                             // Festive Holiday Mount
                         if (target->HasAuraType(SPELL_AURA_MOUNTED))
                             // Reindeer Transformation
@@ -5234,12 +5230,12 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
             target->CastSpell(target, 41915, true);
 
         // Deathbloom (Naxxramas - Loatheb normal)
-        if (m_spellProto->Id == 29865)
-            m_target->CastSpell(m_target, 55594, true);
+        if (spellProto->Id == 29865)
+            target->CastSpell(target, 55594, true);
 
         // Deathbloom (Naxxramas - Loatheb heroic)
-        if (m_spellProto->Id == 55053)
-            m_target->CastSpell(m_target, 55601, true);
+        if (spellProto->Id == 55053)
+            target->CastSpell(target, 55601, true);
 
         else if (spellProto->Id == 74562) // SPELL_FIERY_COMBUSTION - Ruby sanctum boss Halion
             target->CastSpell(target, 74607, true, NULL, NULL, GetCasterGUID());

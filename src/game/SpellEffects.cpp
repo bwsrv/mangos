@@ -4531,7 +4531,7 @@ void Spell::DoSummonGroupPets(SpellEffectIndex eff_idx)
     }
 
     // Pet not found in database
-    for (int32 count = 0; count < amount; ++count)
+    for (uint32 count = 0; count < amount; ++count)
     {
         Pet* pet = new Pet(SUMMON_PET);
         pet->SetPetCounter(amount - count - 1);
@@ -6494,7 +6494,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     Creature* pCreature = NULL;
 
                     MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck creature_check(*m_caster, IlsaEntry, true, fSpellRange);
-                    MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(m_caster, pCreature, creature_check);
+                    MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(pCreature, creature_check);
                     Cell::VisitGridObjects(m_caster, searcher, fSpellRange);
 
                     // if found Ilsa alive cast Send Second Mug
