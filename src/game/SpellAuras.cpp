@@ -2123,6 +2123,10 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     case 58591:                                 // Stoneclaw Totem X
                         target->CastSpell(target, 58585, true);
                         return;
+                    case 50141:                             // Blood Oath
+                        if (Unit* caster = GetCaster())
+                            caster->CastSpell(caster, 50001, true, NULL, this);
+                        return;
                     case 62061:                             // Festive Holiday Mount
                         if (target->HasAuraType(SPELL_AURA_MOUNTED))
                             // Reindeer Transformation
