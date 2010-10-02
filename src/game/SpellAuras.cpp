@@ -1911,6 +1911,12 @@ void Aura::TriggerSpell()
             case 48094:                                      // Intense Cold
                 triggerTarget->CastSpell(triggerTarget, trigger_spell_id, true, NULL, this);
                 return;
+            // Static Charge (Lady Vashj in Serpentshrine Cavern)
+            case 38280:
+            // Static Overload normal (Ionar in Halls of Lightning)
+            case 52658:
+            // Static Overload heroic (Ionar in Halls of Lightning)
+            case 59795:
             case 53563:                                     // Beacon of Light
                 // original caster must be target (beacon)
                 target->CastSpell(target, trigger_spell_id, true, NULL, this, target->GetGUID());
@@ -2092,6 +2098,9 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     case 50141:                             // Blood Oath
                         // Blood Oath
                         target->CastSpell(target, 50001, true, NULL, this);
+                        return;
+                    case 52921:                             // Arc Lightning (Halls of Lighning: Loken)
+                        target->CastSpell(target, 52924, false);
                         return;
                     case 55328:                                 // Stoneclaw Totem I
                         target->CastSpell(target, 5728, true);
