@@ -7735,7 +7735,7 @@ void Player::CastItemCombatSpell(Unit* Target, WeaponAttackType attType)
             if (spellInfo->Id == 52781)
             {
                 uint32 target = Target->GetEntry();
-                if (target == 28939 || target == 28940 || target == 28610))
+                if (target == 28939 || target == 28940 || target == 28610)
                     CastSpell(Target, spellInfo->Id, true, item);
             }
             else

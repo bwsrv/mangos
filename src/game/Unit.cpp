@@ -7723,16 +7723,6 @@ uint32 Unit::MeleeDamageBonusTaken(Unit *pCaster, uint32 pdamage,WeaponAttackTyp
     if (spellProto && spellProto->SpellFamilyName==SPELLFAMILY_DRUID && spellProto->SpellFamilyFlags & UI64LIT(0x00008800))
         mechanicMask |= (1 << (MECHANIC_BLEED-1));
 
-    // ..taken (SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN)
-    AuraList const& mModDamagePercentTaken = GetAurasByType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN);
-    for(AuraList::const_iterator i = mModDamagePercentTaken.begin(); i != mModDamagePercentTaken.end(); ++i)
-    {
-        // Glyph of Salvation
-        if ((*i)->GetId() == 1038 && (*i)->GetCasterGUID() == GetGUID())
-            if (Aura *dummy = GetDummyAura(63225))
-                TakenPercent *= (-(dummy->GetModifier()->m_amount) + 100.0f) / 100.0f;
-    }
-
     // FLAT damage bonus auras
     // =======================
     int32 TakenFlat = 0;
