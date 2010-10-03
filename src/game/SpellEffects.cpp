@@ -6421,7 +6421,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                 }
                 case 45668:                                 // Ultra-Advanced Proto-Typical Shortening Blaster
                 {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT || m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
 
                     if (roll_chance_i(25))                  // chance unknown, using 25
@@ -6447,6 +6447,8 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     m_caster->CastSpell(m_caster, spellPlayer[urand(0,4)], true);
                     unitTarget->CastSpell(unitTarget, spellTarget[urand(0,4)], true);
+
+                    ((Player*)m_caster)->KilledMonsterCredit(25505, unitTarget->GetGUID());
 
                     return;
                 }
@@ -6759,6 +6761,12 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, 54522, true);
                     break;
                 }
+                case 52124:                                 // Sky Darkener Assault
+                {
+                    if (unitTarget && unitTarget != m_caster)
+                        m_caster->CastSpell(unitTarget, 52125, false);
+                    break;
+                }
                 case 52694:                                 // Recall Eye of Acherus
                 {
                     if(!m_caster || m_caster->GetTypeId() != TYPEID_UNIT)
@@ -6919,6 +6927,22 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     unitTarget->CastSpell(unitTarget, 57085, true);
                     break;
+                }
+                case 55965:                                 // Shadowstep (Ahn'Kahet dummy)
+                {
+                    if (!unitTarget)
+                        return;
+                    // set Vanish
+                    m_caster->CastSpell(m_caster, 55964, false);
+                    // delete threat list
+                    m_caster->DeleteThreatList();
+                    // add new target to threat list
+                    m_caster->AddThreat(unitTarget);
+                    // cast Shadowstep
+                    m_caster->CastSpell(unitTarget, 55966, true);
+                    // remove Vanish auras
+                    m_caster->RemoveAurasDueToSpell(55964);
+                return;
                 }
                 case 58418:                                 // Portal to Orgrimmar
                 case 58420:                                 // Portal to Stormwind
