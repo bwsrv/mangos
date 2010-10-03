@@ -4154,6 +4154,26 @@ void Aura::HandleAuraModStun(bool apply, bool Real)
             return;
         }
     }
+
+    // Seduction (Succubus spell)
+    if (GetSpellProto()->Id == 6358)
+    {
+        Unit* pCaster = GetCaster();
+        if (!pCaster)
+            return;
+        
+        if (!apply)
+            pCaster->InterruptSpell(CURRENT_CHANNELED_SPELL, false);
+        else
+        {
+        if(pCaster->GetOwner() && target->isAlive())
+           if(pCaster->GetOwner()->HasAura(56250, EFFECT_INDEX_0))
+           {
+              target->RemoveSpellsCausingAura(SPELL_AURA_PERIODIC_DAMAGE);
+              target->RemoveSpellsCausingAura(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+           }
+        }
+    }
 }
 
 void Aura::HandleModStealth(bool apply, bool Real)
