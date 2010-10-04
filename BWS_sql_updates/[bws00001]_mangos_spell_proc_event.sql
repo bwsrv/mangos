@@ -70,7 +70,7 @@ INSERT INTO spell_proc_event VALUES
 (49208,0,15,4194304,0,0,65536,0,0,0,0,0,0,0,0,0,0);
 
 -- (71228) Item - Death Knight T10 Tank Relic (Runestrike)
-DELETE FROM spell_proc_event WHERE entry IN = 71228;
+DELETE FROM spell_proc_event WHERE entry = 71228;
 INSERT INTO spell_proc_event VALUES (71228, 0x00, 0x0F, 0x00000000, 0x00000000, 0x00000000, 0x20000000, 0x20000000, 0x20000000, 0x00000000, 0x00000000, 0x00000000, 0x00000010, 0x00000000, 0, 100, 0);
 
 -- (71226) Item - Death Knight T10 DPS Relic (Obliterate, Scourge Strike, Death Strike)
