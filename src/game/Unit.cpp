@@ -2734,13 +2734,29 @@ void Unit::CalculateHealAbsorb(const uint32 heal, uint32 *absorb)
 
 void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool extra )
 {
-    if(hasUnitState(UNIT_STAT_CAN_NOT_REACT) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED) )
-        return;
+    if (hasUnitState(UNIT_STAT_CAN_NOT_REACT) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
+    {
+        bool bAllowMeleeAttack = false;
+        
+        VehicleKit* pVehicle = GetVehicle();
+        if (pVehicle)
+        {
+            Unit* pVehicleUnit = pVehicle->GetBase();
+            uint32 uiEntry = 0;
+            if (pVehicleUnit)
+                uiEntry = pVehicleUnit->GetEntry();
+            if (uiEntry == 30248)
+                bAllowMeleeAttack = true;
+        }
+
+        if (!bAllowMeleeAttack)
+            return;
+    }
 
     if (!pVictim->isAlive())
         return;
 
-    if(IsNonMeleeSpellCasted(false))
+    if (IsNonMeleeSpellCasted(false))
         return;
 
     uint32 hitInfo;

@@ -579,7 +579,7 @@ void WorldSession::HandleSpellClick( WorldPacket & recv_data )
     uint64 guid;
     recv_data >> guid;
 
-    if (_player->isInCombat())                              // client prevent click and set different icon at combat state
+    if (_player->isInCombat() && _player->GetMapId() != 616)   // client prevent click and set different icon at combat state
         return;
 
     Creature *unit = _player->GetMap()->GetAnyTypeCreature(guid);
