@@ -727,7 +727,6 @@ void ChatLog::ChatBadLexicsAction(Player* player, std::string& msg)
     if (LexicsCutterNoActionOnGM && player->GetSession()->GetSecurity()) return;
 
     // special action
-
     switch (LexicsCutterAction)
     {
         case LEXICS_ACTION_SHEEP:
