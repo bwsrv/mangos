@@ -349,7 +349,7 @@ pAuraProcHandler AuraProcHandler[TOTAL_AURAS]=
     &Unit::HandleNULLProc,                                      //313 0 spells in 3.3
     &Unit::HandleNULLProc,                                      //314 1 test spell (reduce duration of silince/magic)
     &Unit::HandleNULLProc,                                      //315 underwater walking
-    &Unit::HandleNULLProc                                       //316 makes haste affect HOT/DOT ticks
+    &Unit::HandleNULLProc                                       //316 SPELL_AURA_MOD_PERIODIC_HASTE
 };
 
 bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, SpellAuraHolder* holder, SpellEntry const* procSpell, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, bool isVictim, SpellProcEventEntry const*& spellProcEvent )
