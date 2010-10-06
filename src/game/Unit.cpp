@@ -6670,7 +6670,7 @@ uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, u
             if (spellProto->SpellFamilyFlags & UI64LIT(0x800000))
             {
                 // Mind Flay
-               if (pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, UI64LIT(0x8000), 0, GetGUID()))
+               if (pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, UI64LIT(0x8000)))
                       if (Aura *aur = GetAura(55687, EFFECT_INDEX_0))
                          DoneTotalMod *= (aur->GetModifier()->m_amount+100.0f) / 100.0f;
             }
