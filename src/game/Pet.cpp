@@ -879,8 +879,6 @@ bool Pet::InitStatsForLevel(uint32 petlevel, Unit* owner)
         createResistance[SPELL_SCHOOL_NORMAL] = petlevel*50;
     }
 
-    float attack_bonus = 0.0f;
-
     switch(getPetType())
     {
         case SUMMON_PET:
