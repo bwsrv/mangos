@@ -376,6 +376,7 @@ void BattleGroundAB::EventPlayerClickedOnFlag(Player *source, GameObject* target
         if (m_prevNodes[node] < BG_AB_NODE_TYPE_OCCUPIED)
         {
             UpdatePlayerScore(source, SCORE_BASES_ASSAULTED, 1);
+            source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE,1,0);
             m_prevNodes[node] = m_Nodes[node];
             m_Nodes[node] = teamIndex + BG_AB_NODE_TYPE_CONTESTED;
             // create new contested banner
@@ -392,6 +393,7 @@ void BattleGroundAB::EventPlayerClickedOnFlag(Player *source, GameObject* target
         else
         {
             UpdatePlayerScore(source, SCORE_BASES_DEFENDED, 1);
+            source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE,1,1);
             m_prevNodes[node] = m_Nodes[node];
             m_Nodes[node] = teamIndex + BG_AB_NODE_TYPE_OCCUPIED;
             // create new occupied banner
@@ -411,6 +413,7 @@ void BattleGroundAB::EventPlayerClickedOnFlag(Player *source, GameObject* target
     else
     {
         UpdatePlayerScore(source, SCORE_BASES_ASSAULTED, 1);
+        source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE,1,0);
         m_prevNodes[node] = m_Nodes[node];
         m_Nodes[node] = teamIndex + BG_AB_NODE_TYPE_CONTESTED;
         // create new contested banner

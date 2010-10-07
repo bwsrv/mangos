@@ -437,6 +437,23 @@ void AchievementMgr::ResetAchievementCriteria(AchievementCriteriaTypes type, uin
                 if (achievementCriteria->win_rated_arena.flag == miscvalue1)
                     SetCriteriaProgress(achievementCriteria, achievement, 0, PROGRESS_SET);
                 break;
+            case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
+            case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL:
+            case ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL:
+            case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
+            case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
+            {
+                switch(achievementCriteria->referredAchievement)
+                {
+                    case 200:
+                    case 206:
+                    case 1252:
+                    case 158:
+                    case 157:
+                        continue;
+                }
+                SetCriteriaProgress(achievementCriteria, achievement, 0, PROGRESS_SET);
+            }
             default:                                        // reset all cases
                 break;
         }
@@ -860,10 +877,34 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
 
                 if (achievementCriteria->win_bg.additionalRequirement1_type || achievementCriteria->win_bg.additionalRequirement2_type)
                 {
-                    // those requirements couldn't be found in the dbc
-                    AchievementCriteriaRequirementSet const* data = sAchievementMgr.GetCriteriaRequirementSet(achievementCriteria);
-                    if (!data || !data->Meets(GetPlayer(),unit))
-                        continue;
+                    // some hardcoded requirements
+                    switch(achievementCriteria->referredAchievement)
+                    {
+                        case 214:              // EY, win under 6 minutes
+                        case 226:              // AV, win under 6 minutes
+                        case 159:              // AB, win under 6 minutes
+                        {
+                            // set 8 minutes because there is 2 minutes long preparation
+                            if(GetPlayer()->GetBattleGround()->GetStartTime() > (8 * MINUTE * IN_MILLISECONDS))
+                                continue;     
+                            break;
+                        }
+                        case 201:              // WS, win under 7 minutes
+                        {
+                            // set 9 minutes because there is 2 minutes long preparation
+                            if(GetPlayer()->GetBattleGround()->GetStartTime() > (9 * MINUTE * IN_MILLISECONDS))
+                                continue;
+                            break;
+                        }
+                        default:
+                        {
+                            // those requirements couldn't be found in the dbc
+                            AchievementCriteriaRequirementSet const* data = sAchievementMgr.GetCriteriaRequirementSet(achievementCriteria);
+                            if (!data || !data->Meets(GetPlayer(),unit))
+                                continue;
+                            break;
+                        }
+                    }
                 }
                 // some hardcoded requirements
                 else
@@ -1597,6 +1638,121 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 change = GetPlayer()->GetMoney();
                 progressType = PROGRESS_HIGHEST;
                 break;
+            case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL:
+            case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
+            {	
+                BattleGround* bg = GetPlayer()->GetBattleGround();
+                if (!bg || !miscvalue1 || GetPlayer()->GetMapId() != achievementCriteria->healing_done.mapid)
+                    continue;
+
+                // some hardcoded requirements
+                switch(achievementCriteria->referredAchievement)
+                {
+                    case 231:					// Wrecking Ball
+                    {
+                        if(bg->GetPlayerScore(GetPlayer(),SCORE_DEATHS) != 0)
+                            continue;
+                        break;
+                    }
+                    case 233:					// Bloodthirsty Berserker
+                    {
+                        if(bg->GetTypeID() != BATTLEGROUND_EY)
+                            continue;
+                        if(!GetPlayer()->HasAura(23505))
+                            continue;
+                        break;
+                    }
+                }
+
+                SetCriteriaProgress(achievementCriteria, achievement, miscvalue1, PROGRESS_ACCUMULATE);
+                break;
+            }
+            case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
+            {
+                if(GetPlayer()->GetAreaId() != achievementCriteria->honorable_kill_at_area.areaID)
+                    continue;
+
+                SetCriteriaProgress(achievementCriteria, achievement, miscvalue1, PROGRESS_ACCUMULATE);
+                break;
+            }
+            case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
+            {
+                BattleGround* bg = GetPlayer()->GetBattleGround();
+                if (!miscvalue1 || !bg)
+                    continue;
+
+                // some hardcoded requirements
+                switch(achievementCriteria->objective_capture.captureID)
+                {
+                    case 42:							// WS, capture a flag
+                    {
+                        if(bg->GetTypeID() != BATTLEGROUND_WS)
+                            continue;
+
+                        if(miscvalue2 == 1)
+                            continue;
+                        break;
+                    }
+                    case 44:                           // WS, return a flag
+                    {
+                        if(bg->GetTypeID() != BATTLEGROUND_WS)
+                            continue;
+                        break;
+                    }
+                    case 183:							// EY, capture a flag
+                    {
+                        if(bg->GetTypeID() != BATTLEGROUND_EY)
+                            continue;
+
+                        switch(achievementCriteria->referredAchievement)
+                        {
+                            case 211:					// EY, capture flag while controling all 4 bases
+                            {
+                                if(!bg->IsAllNodesConrolledByTeam(GetPlayer()->GetTeam()))
+                                    continue;
+                                break;
+                            }
+                            case 216:					// EY, capture 3 flags without dying
+                            {
+                                if(bg->GetPlayerScore(GetPlayer(),SCORE_DEATHS) != 0)
+                                    continue;
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    case 122:                           // AB, assault a base
+                    {
+                        error_log("ide tedy 1");
+                        if(bg->GetTypeID() != BATTLEGROUND_AB)
+                            continue;
+                        
+                        if(miscvalue2 == 1)
+                            continue;
+                        error_log("ide tedy 2");
+
+                        break;
+                    }
+                    case 123:                           // AB, defend a base
+                    {
+                        if(bg->GetTypeID() != BATTLEGROUND_AB)
+                            continue;
+                        
+                        if(miscvalue2 == 0)
+                            continue;
+
+                        break;
+                    }
+                    case 61:							// AV, assault a tower
+                    case 63:	                        // AV, take a graveyard
+                    case 64:	                        // AV, defend a tower
+                    case 65:	                        // AV, defend a graveyard
+                        continue;
+
+                }
+                SetCriteriaProgress(achievementCriteria, achievement, miscvalue1, PROGRESS_ACCUMULATE);
+                break;
+            }           
             // std case: not exist in DBC, not triggered in code as result
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEALTH:
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_SPELLPOWER:
@@ -1608,15 +1764,11 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             // FIXME: not triggered in code as result, need to implement
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST_DAILY:
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_RAID:
-            case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
-            case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA:
             case ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA:
-            case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL:
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING:
             case ACHIEVEMENT_CRITERIA_TYPE_REACH_TEAM_RATING:
             case ACHIEVEMENT_CRITERIA_TYPE_OWN_RANK:
-            case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
             case ACHIEVEMENT_CRITERIA_TYPE_EARNED_PVP_TITLE:
             case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE:
             case ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS:
@@ -1648,6 +1800,8 @@ uint32 AchievementMgr::GetCriteriaProgressMaxCounter(AchievementCriteriaEntry co
             return achievementCriteria->complete_quests_in_zone.questCount;
         case ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE:
         case ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE:
+        case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
+        case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL:
             return achievementCriteria->healing_done.count;
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST:
             return achievementCriteria->complete_daily_quest.questCount;
@@ -1716,6 +1870,10 @@ uint32 AchievementMgr::GetCriteriaProgressMaxCounter(AchievementCriteriaEntry co
             return achievementCriteria->learn_skill_line.spellCount;
         case ACHIEVEMENT_CRITERIA_TYPE_EARN_HONORABLE_KILL:
             return achievementCriteria->honorable_kill.killCount;
+        case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
+            return achievementCriteria->honorable_kill_at_area.killCount;
+        case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
+            return achievementCriteria->objective_capture.captureCount;
 
         // handle all statistic-only criteria here
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND:

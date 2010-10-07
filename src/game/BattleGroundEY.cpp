@@ -642,6 +642,7 @@ void BattleGroundEY::EventPlayerCapturedFlag(Player *Source, BG_EY_Nodes node)
         AddPoints(Source->GetTeam(), BG_EY_FlagPoints[m_TeamPointsCount[team_id] - 1]);
 
     UpdatePlayerScore(Source, SCORE_FLAG_CAPTURES, 1);
+    Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE,1);
 }
 
 void BattleGroundEY::UpdatePlayerScore(Player *Source, uint32 type, uint32 value)
