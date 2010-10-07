@@ -537,10 +537,6 @@ void Creature::Update(uint32 diff)
             // CORPSE/DEAD state will processed at next tick (in other case death timer will be updated unexpectedly)
             if(!isAlive())
                 break;
-
-            if (isInCombat() && !isPet())
-                break;
-
             if(m_regenTimer > 0)
             {
                 if(diff >= m_regenTimer)
