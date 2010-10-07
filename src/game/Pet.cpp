@@ -872,6 +872,8 @@ bool Pet::InitStatsForLevel(uint32 petlevel, Unit* owner)
         createResistance[SPELL_SCHOOL_NORMAL] = petlevel*50;
     }
 
+    float attack_bonus = 0.0f;
+
     switch(getPetType())
     {
         case SUMMON_PET:
@@ -1965,6 +1967,10 @@ void Pet::CastPetAuras(bool current)
         else
             CastPetAura(pa);
     }
+
+    // Feral Spirit
+    if (GetEntry() == 29264)
+        CastSpell(this, 58877, true);
 }
 
 void Pet::CastPetAura(PetAura const* aura)
