@@ -1363,6 +1363,18 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 triggered_spell_id = 26654;
                 break;
             }
+            // Glyph of Blocking
+            if (dummySpell->Id == 58375)
+            {
+                triggered_spell_id = 58374;
+                break;
+            }
+             // Glyph of Devastate
+            if (dummySpell->Id == 58388)
+            {
+                triggered_spell_id = 58567;
+                break;
+            }
             break;
         }
         case SPELLFAMILY_WARLOCK:
