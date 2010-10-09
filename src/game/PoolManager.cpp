@@ -339,7 +339,7 @@ void PoolGroup<T>::SpawnObject(SpawnedPoolData& spawns, uint32 limit, uint32 tri
 
         if (obj->guid == triggerFrom)
         {
-            if (spawns.IsSpawnedObject<T>(obj->guid) && spawns.GetSpawnedObjects(poolId) > 0))
+            if (spawns.IsSpawnedObject<T>(obj->guid) && spawns.GetSpawnedObjects(poolId) > 0)
 			{
 				ReSpawn1Object(obj);
 				triggerFrom = 0;
