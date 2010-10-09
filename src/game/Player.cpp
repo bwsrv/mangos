@@ -18296,6 +18296,9 @@ void Player::VehicleSpellInitialize()
 
     time_t curTime = time(NULL);
 
+    if (charm->m_CreatureSpellCooldowns.empty())
+        return;
+
     for (CreatureSpellCooldowns::const_iterator itr = charm->m_CreatureSpellCooldowns.begin(); itr != charm->m_CreatureSpellCooldowns.end(); ++itr)
     {
         time_t cooldown = (itr->second > curTime) ? (itr->second - curTime) * IN_MILLISECONDS : 0;
