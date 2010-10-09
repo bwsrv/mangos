@@ -2799,8 +2799,17 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     int32 bp = unitTarget->GetMaxHealth()*0.25f;
                     unitTarget->CastCustomSpell(unitTarget,47496,&bp,NULL,NULL,true);
                 }
-                else
-                    return;
+                // other target (died)
+                else   
+                {
+                    if (!unitTarget->isDead())
+                        return;
+
+                    int32 bp = m_currentBasePoints[0]+1;
+                    m_caster->CastCustomSpell(unitTarget,50444,&bp,NULL,NULL,true);
+                }
+                unitTarget->SetDisplayId(25537+urand(0,3));
+                return;
             }
             // Death Coil
             if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x002000))
