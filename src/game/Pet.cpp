@@ -550,7 +550,7 @@ void Pet::Update(uint32 diff)
             if(m_regenTimer <= diff)
             {
                 Regenerate(getPowerType(), diff);
-                m_regenTimer = 2000;
+                m_regenTimer = 2300;
             }
             else
                 m_regenTimer -= diff;
