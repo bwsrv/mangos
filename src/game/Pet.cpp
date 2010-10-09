@@ -550,7 +550,7 @@ void Pet::Update(uint32 diff)
             if(m_regenTimer <= diff)
             {
                 Regenerate(getPowerType(), diff);
-                m_regenTimer = 2300;
+                m_regenTimer = 2000;
             }
             else
                 m_regenTimer -= diff;
@@ -3071,7 +3071,7 @@ void Pet::Regenerate(Powers power, uint32 diff)
         }
         case POWER_FOCUS:                                   // Hunter pets
         {
-            addvalue = 24 * sWorld.getConfig(CONFIG_FLOAT_RATE_POWER_FOCUS);
+            addvalue = 26 * sWorld.getConfig(CONFIG_FLOAT_RATE_POWER_FOCUS);
             break;
         }
         case POWER_RUNIC_POWER:
