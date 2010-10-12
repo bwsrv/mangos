@@ -4602,6 +4602,9 @@ void Spell::DoSummonGroupPets(SpellEffectIndex eff_idx)
 
 void Spell::EffectSummonPossessed(SpellEffectIndex eff_idx)
 {
+    if (!m_caster || m_caster->GetTypeId() != TYPEID_PLAYER)
+        return;
+
     uint32 creature_entry = m_spellInfo->EffectMiscValue[eff_idx];
     if(!creature_entry)
         return;
@@ -4621,29 +4624,18 @@ void Spell::EffectSummonPossessed(SpellEffectIndex eff_idx)
     else
         m_caster->GetClosePoint(px,py,pz,1.0f);
 
+
     TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_OR_DEAD_DESPAWN;
-    Creature *summon = m_caster->SummonCreature(creature_entry,px,py,pz,m_caster->GetOrientation(),summonType,duration);
+    Creature* summon = m_caster->SummonCreature(creature_entry,px,py,pz,m_caster->GetOrientation(),summonType,duration,true);
 
-    summon->CombatStop(true);
-    summon->addUnitState(UNIT_STAT_CONTROLLED);
-    summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
-    summon->SetCharmerGUID(m_caster->GetGUID());
-    summon->setFaction(m_caster->getFaction());
-
-    ((Player*)m_caster)->GetCamera().SetView(summon);
-
-    m_caster->SetCharm(summon);
-    ((Player*)m_caster)->SetClientControl(summon, 1);
-    ((Player*)m_caster)->SetMover(summon);
-
-    if(CharmInfo *charmInfo = summon->InitCharmInfo(summon))
+    if (summon)
     {
-        charmInfo->InitPossessCreateSpells();
-        charmInfo->SetReactState(REACT_PASSIVE);
-        charmInfo->SetCommandState(COMMAND_STAY);
+        summon->AIM_Initialize();
+        // Prevent from AI reinitialized
+        summon->LockAI(true);
+        m_caster->CastSpell(summon, 530, true);
+        summon->LockAI(false);
     }
-
-    ((Player*)m_caster)->PossessSpellInitialize();
 }
 
 void Spell::EffectLearnSpell(SpellEffectIndex eff_idx)
@@ -6058,6 +6050,17 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
         {
             switch(m_spellInfo->Id)
             {
+                case 6962:                                  // Called pet
+                {
+                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    if (((Player*)m_caster)->GetTemporaryUnsummonedPetNumber() != 0 )
+                        ((Player*)m_caster)->ResummonPetTemporaryUnSummonedIfAny();
+                    else
+                        ((Player*)m_caster)->LoadPet();
+                    return;
+                }
                 case 8856:                                  // Bending Shinbone
                 {
                     if (!itemTarget && m_caster->GetTypeId()!=TYPEID_PLAYER)
@@ -6782,25 +6785,10 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                 }
                 case 52694:                                 // Recall Eye of Acherus
                 {
-                    if(!m_caster || m_caster->GetTypeId() != TYPEID_UNIT)
+                    if (!m_caster || m_caster->GetTypeId() != TYPEID_UNIT)
                         return;
-
-                    Unit *target = m_caster->GetCharmer();
-
-                    if(!target || target->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    m_caster->SetCharmerGUID(0);
-                    target->RemoveAurasDueToSpell(51852);
-                    target->SetCharm(NULL);
-
-                    ((Player*)target)->GetCamera().ResetView();
-                    ((Player*)target)->SetClientControl(m_caster,0);
-                    ((Player*)target)->SetMover(NULL);
-
-                    m_caster->CleanupsBeforeDelete();
-                    m_caster->AddObjectToRemoveList();
-                        return;
+                    m_caster->RemoveAurasDueToSpell(530);
+                    return;
                 }
                 case 51962:                                 //Offer Jungle Punch
                 {
@@ -8813,6 +8801,8 @@ void Spell::EffectSpiritHeal(SpellEffectIndex /*eff_idx*/)
 
     ((Player*)unitTarget)->ResurrectPlayer(1.0f);
     ((Player*)unitTarget)->SpawnCorpseBones();
+
+    ((Player*)unitTarget)->CastSpell(unitTarget, 6962, true);
 }
 
 // remove insignia spell effect
