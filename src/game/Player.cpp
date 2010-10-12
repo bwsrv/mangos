@@ -22700,3 +22700,17 @@ void Player::_LoadRandomBGStatus(QueryResult *result)
         delete result;
     }
 }
+
+std::string Player::GetKnownPetName(uint32 petnumber)
+{
+    KnownPetNames::const_iterator itr = m_knownPetNames.find(petnumber);
+    if (itr != m_knownPetNames.end())
+        return itr->second;
+
+    return "";
+}
+
+void Player::AddKnownPetName(uint32 petnumber, std::string name)
+{
+    m_knownPetNames[petnumber] = name;
+}
