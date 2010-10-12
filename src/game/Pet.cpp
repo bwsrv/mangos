@@ -3071,7 +3071,7 @@ void Pet::Regenerate(Powers power, uint32 diff)
         }
         case POWER_FOCUS:                                   // Hunter pets
         {
-            addvalue = 26 * sWorld.getConfig(CONFIG_FLOAT_RATE_POWER_FOCUS);
+            addvalue = 82 * sWorld.getConfig(CONFIG_FLOAT_RATE_POWER_FOCUS);
             break;
         }
         case POWER_RUNIC_POWER:
