@@ -8130,11 +8130,19 @@ void Aura::HandleAuraControlVehicle(bool apply, bool Real)
     if(!Real)
         return;
 
-    Unit *caster = GetCaster();
+    Unit* caster = GetCaster();
+
+    if (!caster)
+        return;
+
     Unit* target = GetTarget();
+
+    if (!target)
+        return;
+
     VehicleKit* pVehicle = target->GetVehicleKit();
 
-    if (!caster || target->GetTypeId() != TYPEID_UNIT || !pVehicle)
+    if (target->GetTypeId() != TYPEID_UNIT || !pVehicle)
         return;
 
     if (apply)
@@ -8970,7 +8978,7 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                     }
                     break;
                 }
-                case 69260:
+                case 69290:
                 {
                     if (!apply)
                     {
