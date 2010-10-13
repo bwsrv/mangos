@@ -1551,6 +1551,10 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 50988:                                 // Glare of the Tribunal (Halls of Stone)
                 case 59870:                                 // Glare of the Tribunal (h) (Halls of Stone)
                 case 68950:                                 // Fear (ICC: Forge of Souls)
+                case 63018:                                 // XT002's Light Bomb
+                case 65121:                                 // XT002's Light Bomb (h)
+                case 63024:                                 // XT002's Gravitiy Bomb
+                case 64234:                                 // XT002's Gravitiy Bomb (h)
                 case 55479:                                 // Forced Obedience (Naxxramas - Razovius encounter)
                     unMaxTargets = 1;
                     break;
