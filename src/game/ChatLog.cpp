@@ -767,21 +767,21 @@ void ChatLog::ChatBadLexicsAction(Player* player, std::string& msg)
 
         case LEXICS_ACTION_STUCK:
         {
-            // yo, the Matrix has had you :) [by KAPATEJIb]
+            // yo, the Matrix has had you :)
             player->_AddAura(23312,LexicsCutterActionDuration);
         }
         break;
 
         case LEXICS_ACTION_SICKNESS:
         {
-            // for absence of censorship, there is punishment [by Koshei]
+            // for absence of censorship, there is punishment
             player->_AddAura(15007,LexicsCutterActionDuration);
         }
         break;
 
         case LEXICS_ACTION_SHEAR:
         {
-            // Lord Illidan to watch you [by Koshei]
+            // Lord Illidan to watch you
             player->_AddAura(41032,LexicsCutterActionDuration);
         }
         break;

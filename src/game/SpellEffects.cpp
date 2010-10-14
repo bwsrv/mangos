@@ -588,6 +588,7 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                         // Save value of further damage
                         m_currentBasePoints[1] = damagetick * 2 / 3;
                         damage += damagetick * 3;
+
                         // Glyph of Conflagrate
                         if (!m_caster->HasAura(56235))
                             unitTarget->RemoveAurasByCasterSpell(aura->GetId(), m_caster->GetGUID());
@@ -758,7 +759,6 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                     float ap = m_caster->GetTotalAttackPowerValue(RANGED_ATTACK);
                     ap += unitTarget->GetTotalAuraModifier(SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS);
                     ap += m_caster->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_RANGED_ATTACK_POWER_VERSUS, unitTarget->GetCreatureTypeMask());
-
                     damage += int32(ap*0.15f);
                 }
                 // Steady Shot
@@ -3267,7 +3267,14 @@ void Spell::EffectJump(SpellEffectIndex eff_idx)
         return;
     }
 
-    m_caster->NearTeleportTo(x, y, z, o, true);
+    uint32 speed_z = m_spellInfo->EffectMiscValue[eff_idx];
+    if (!speed_z)
+        speed_z = 10;
+    uint32 time = m_spellInfo->EffectMiscValueB[eff_idx];
+    if (!time)
+        time = speed_z * 10;
+
+    m_caster->MonsterJump(x, y, z, o, time, speed_z);
 }
 
 void Spell::EffectTeleportUnits(SpellEffectIndex eff_idx)

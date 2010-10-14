@@ -1450,15 +1450,15 @@ void GameObject::Use(Unit* user)
                     {
                         case 179785:                        // Silverwing Flag
                             // check if it's correct bg
-                            if(bg->GetTypeID(true) == BATTLEGROUND_WS)
+                            if (bg->GetTypeID(true) == BATTLEGROUND_WS)
                                 bg->EventPlayerClickedOnFlag(player, this);
                             break;
                         case 179786:                        // Warsong Flag
-                            if(bg->GetTypeID(true) == BATTLEGROUND_WS)
+                            if (bg->GetTypeID(true) == BATTLEGROUND_WS)
                                 bg->EventPlayerClickedOnFlag(player, this);
                             break;
                         case 184142:                        // Netherstorm Flag
-                            if(bg->GetTypeID(true) == BATTLEGROUND_EY)
+                            if (bg->GetTypeID(true) == BATTLEGROUND_EY)
                                 bg->EventPlayerClickedOnFlag(player, this);
                             break;
                     }

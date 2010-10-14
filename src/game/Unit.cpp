@@ -419,13 +419,11 @@ void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, SplineTy
 
     data << uint32(flags);                                  // splineflags
     data << uint32(moveTime);                               // Time in between points
-
-    if(flags & SPLINEFLAG_TRAJECTORY)
+    if (flags & SPLINEFLAG_TRAJECTORY)
     {
-        data << float(0);
-        data << uint32(0);
+        data << float(va_arg(vargs, double));               // Z jump speed
+        data << uint32(0);                                  // walk time after jump
     }
-
     data << uint32(1);                                      // 1 single waypoint
     data << NewPosX << NewPosY << NewPosZ;                  // the single waypoint Point B
 
@@ -741,18 +739,30 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
         pVictim->RemoveSpellbyDamageTaken(SPELL_AURA_MOD_ROOT, damage);
 
     // no xp,health if type 8 /critters/
-    if(pVictim->GetTypeId() != TYPEID_PLAYER && pVictim->GetCreatureType() == CREATURE_TYPE_CRITTER)
+    if (pVictim->GetTypeId() == TYPEID_UNIT && pVictim->GetCreatureType() == CREATURE_TYPE_CRITTER)
     {
+        // TODO: fix this part
+        // Critter may not die of damage taken, instead expect it to run away (no fighting back)
+        // If (this) is TYPEID_PLAYER, (this) will enter combat w/victim, but after some time, automatically leave combat.
+        // It is unclear how it should work for other cases.
+
+        ((Creature*)pVictim)->SetLootRecipient(this);
+
         pVictim->setDeathState(JUST_DIED);
         pVictim->SetHealth(0);
 
         // allow loot only if has loot_id in creature_template
         ((Creature*)pVictim)->PrepareBodyLootState();
+        ((Creature*)pVictim)->AllLootRemovedFromCorpse();
 
         // some critters required for quests (need normal entry instead possible heroic in any cases)
-        if(GetTypeId() == TYPEID_PLAYER)
-            if(CreatureInfo const* normalInfo = ObjectMgr::GetCreatureTemplate(pVictim->GetEntry()))
-                ((Player*)this)->KilledMonster(normalInfo,pVictim->GetObjectGuid());
+        if (GetTypeId() == TYPEID_PLAYER)
+        {
+            if (CreatureInfo const* normalInfo = ObjectMgr::GetCreatureTemplate(pVictim->GetEntry()))
+                ((Player*)this)->KilledMonster(normalInfo, pVictim->GetObjectGuid());
+        }
+
+        DEBUG_FILTER_LOG(LOG_FILTER_DAMAGE, "DealDamage critter, critter dies");
 
         return damage;
     }
@@ -2249,9 +2259,9 @@ void Unit::CalculateDamageAbsorbAndResist(Unit *pCaster, SpellSchoolMask schoolM
                 if (spellProto->SpellIconID == 2135 && GetTypeId() == TYPEID_PLAYER)
                 {
                     int32 remainingHealth = GetHealth() - RemainingDamage;
-                    int32 allowedHealth = GetMaxHealth() * 0.35f;
+                    uint32 allowedHealth = GetMaxHealth() * 0.35f;
                     // If damage kills us
-                    if (remainingHealth <= 0 && !((Player*)this)->HasSpellCooldown(66235))
+                    if (remainingHealth <= 0 && !HasAura(66233))
                     {
                         // Cast healing spell, completely avoid damage
                         RemainingDamage = 0;
@@ -2264,21 +2274,19 @@ void Unit::CalculateDamageAbsorbAndResist(Unit *pCaster, SpellSchoolMask schoolM
                             ? 1.0f
                             : float(defenseSkillValue) / float(reqDefForMaxHeal);
 
-                        int32 healAmount = GetMaxHealth() * ((*i)->GetSpellProto()->EffectBasePoints[EFFECT_INDEX_1] + 1) / 100.0f * pctFromDefense;
+                        int32 healAmount = GetMaxHealth() * ((*i)->GetSpellProto()->EffectBasePoints[1] + 1) / 100.0f * pctFromDefense;
                         CastSpell(this, 66233, true);
                         CastCustomSpell(this, 66235, &healAmount, NULL, NULL, true);
-                        ((Player*)this)->AddSpellCooldown(66235,0,time(NULL) + 120);
                     }
-                    else if (remainingHealth < allowedHealth)
+                    else if (remainingHealth < int32(allowedHealth))
                     {
                         // Reduce damage that brings us under 35% (or full damage if we are already under 35%) by x%
-                        int32 damageToReduce = ((int32)GetHealth() < allowedHealth)
+                        uint32 damageToReduce = (GetHealth() < allowedHealth)
                             ? RemainingDamage
                             : allowedHealth - remainingHealth;
                         RemainingDamage -= damageToReduce * currentAbsorb / 100;
                     }
                     continue;
-
                 }
                 break;
             }
@@ -3019,16 +3027,23 @@ uint32 Unit::CalculateDamage (WeaponAttackType attType, bool normalized)
 
 float Unit::CalculateLevelPenalty(SpellEntry const* spellProto) const
 {
-    if(!spellProto->spellLevel || !spellProto->maxLevel)
+    if(spellProto->maxLevel <= 0)
+        return 1.0f;
+    //if caster level is lower that max caster level
+    if(getLevel() < spellProto->maxLevel)
         return 1.0f;
 
-    if (getLevel() < spellProto->maxLevel)
-        return 1.0f;
+    float LvlPenalty = 0.0f;
 
-    if (22 + spellProto->maxLevel > getLevel())
-        return (22 + spellProto->maxLevel - getLevel()) / 20.0f;
-    else
+    LvlPenalty = (22.0f + float (spellProto->maxLevel) - float (getLevel())) / 20.0f;
+    //to prevent positive effect
+    if(LvlPenalty > 1.0f)
+        return 1.0f;
+    //level penalty is capped at 0
+    if(LvlPenalty < 0.0f)
         return 0.0f;
+
+    return LvlPenalty;
 }
 
 void Unit::SendMeleeAttackStart(Unit* pVictim)
@@ -5115,6 +5130,38 @@ void Unit::_ApplyAllAuraMods()
     for (SpellAuraHolderMap::const_iterator i = m_spellAuraHolders.begin(); i != m_spellAuraHolders.end(); ++i)
     {
         (*i).second->ApplyAuraModifiers(true);
+    }
+}
+
+void Unit::_AddAura(uint32 spellID, uint32 duration)
+{
+    if (IsTaxiFlying())
+        return;
+
+    SpellEntry const *spellInfo = sSpellStore.LookupEntry( spellID );
+
+    if(spellInfo)
+    {
+        if (IsSpellAppliesAura(spellInfo, (1 << EFFECT_INDEX_0) | (1 << EFFECT_INDEX_1) | (1 << EFFECT_INDEX_2)) || IsSpellHaveEffect(spellInfo, SPELL_EFFECT_PERSISTENT_AREA_AURA))
+        {
+            SpellAuraHolder* holder = CreateSpellAuraHolder(spellInfo, this, this);
+
+            for(uint8 i = 0; i < MAX_EFFECT_INDEX; ++i)
+            {
+                if (spellInfo->Effect[i] >= TOTAL_SPELL_EFFECTS)
+                    continue;
+                if( IsAreaAuraEffect(spellInfo->Effect[i])           ||
+                    spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA  ||
+                    spellInfo->Effect[i] == SPELL_EFFECT_PERSISTENT_AREA_AURA )
+                {
+                    Aura *aura = CreateAura(spellInfo, SpellEffectIndex(i), NULL, holder, this);
+                    aura->SetAuraDuration(duration);
+                    holder->AddAura(aura, SpellEffectIndex(i));
+                    DEBUG_FILTER_LOG(LOG_FILTER_SPELL_CAST, "Manually adding aura of spell %u, index %u, duration %u ms", spellID, i, duration);
+                }
+            }
+            AddSpellAuraHolder(holder);
+        }
     }
 }
 
@@ -11211,6 +11258,28 @@ void Unit::MonsterMoveWithSpeed(float x, float y, float z, uint32 transitTime)
                 movgen->Interrupt(*c);
 
         GetMap()->CreatureRelocation((Creature*)this, x, y, z, 0.0f);
+
+        // finished relocation, movegen can different from top before creature relocation,
+        // but apply Reset expected to be safe in any case
+        if (!c->GetMotionMaster()->empty())
+            if (MovementGenerator *movgen = c->GetMotionMaster()->top())
+                movgen->Reset(*c);
+    }
+}
+
+void Unit::MonsterJump(float x, float y, float z, float o, uint32 transitTime, uint32 verticalSpeed)
+{
+    SendMonsterMove(x, y, z, SPLINETYPE_NORMAL, SplineFlags(SPLINEFLAG_TRAJECTORY | SPLINEFLAG_WALKMODE), transitTime, NULL, double(verticalSpeed));
+
+    if (GetTypeId() != TYPEID_PLAYER)
+    {
+        Creature* c = (Creature*)this;
+        // Creature relocation acts like instant movement generator, so current generator expects interrupt/reset calls to react properly
+        if (!c->GetMotionMaster()->empty())
+            if (MovementGenerator *movgen = c->GetMotionMaster()->top())
+                movgen->Interrupt(*c);
+
+        GetMap()->CreatureRelocation((Creature*)this, x, y, z, o);
 
         // finished relocation, movegen can different from top before creature relocation,
         // but apply Reset expected to be safe in any case

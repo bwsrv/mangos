@@ -413,7 +413,11 @@ LexicsCutInRaid = 1
 LexicsCutInBattleGround = 1
 
 # Ignore word spaces like: W O R D
+<<<<<<< HEAD
 LexicsCutterIgnoreSpaces = 1
+=======
+LexicsCutterIgnoreSpaces = 0
+>>>>>>> 30c4ac0a937e5f6adc3a1133cb5d4037dee76cf6
 
 # Ignore repeats like: WWOOOORRRRRD
 LexicsCutterIgnoreRepeats = 1

@@ -329,7 +329,6 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
             delete result;
         }
     }
-
     return true;
 }
 

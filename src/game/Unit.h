@@ -1484,6 +1484,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 
         void MonsterMove(float x, float y, float z, uint32 transitTime);
         void MonsterMoveWithSpeed(float x, float y, float z, uint32 transitTime = 0);
+        void MonsterJump(float x, float y, float z, float o, uint32 transitTime, uint32 verticalSpeed);
 
         // recommend use MonsterMove/MonsterMoveWithSpeed for most case that correctly work with movegens
         // if used additional args in ... part then floats must explicitly casted to double
@@ -1593,6 +1594,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         bool AddSpellAuraHolder(SpellAuraHolder *holder);
         void AddAuraToModList(Aura *aura);
 
+        // Lexics Cutter Helper
         void _AddAura(uint32 spellID, uint32 duration = 60000);
 
         // removing specific aura stack

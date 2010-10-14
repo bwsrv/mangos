@@ -342,7 +342,6 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
                 break;
 
             sChatLog.RaidMsg(GetPlayer(), msg, type);
-
             // if player is in battleground, he cannot say to battleground members by /ra
             Group *group = GetPlayer()->GetOriginalGroup();
             if(!group)
@@ -425,7 +424,6 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
                 break;
 
             sChatLog.BattleGroundMsg(GetPlayer(), msg, type);
-
             // battleground raid is always in Player->GetGroup(), never in GetOriginalGroup()
             Group *group = GetPlayer()->GetGroup();
             if(!group || !group->isBGGroup())
