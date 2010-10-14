@@ -1235,11 +1235,6 @@ void BattleGround::AddPlayer(Player *plr)
 
         if(GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
         {
-            WorldPacket status;
-            BattleGroundQueueTypeId bgQueueTypeId = BattleGroundMgr::BGQueueTypeId(m_TypeID, GetArenaType());
-            uint32 queueSlot = plr->GetBattleGroundQueueIndex(bgQueueTypeId);
-            sBattleGroundMgr.BuildBattleGroundStatusPacket(&status, this, queueSlot,GetStatus(),0, GetStartTime(), GetArenaType(),isArena()? 0 : 1);
-
             plr->CastSpell(plr, SPELL_ARENA_PREPARATION, true);
 
             plr->SetHealth(plr->GetMaxHealth());
