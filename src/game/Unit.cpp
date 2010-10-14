@@ -1912,22 +1912,6 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
                 uint32 damage=(*i)->GetModifier()->m_amount;
                 SpellEntry const *i_spellProto = (*i)->GetSpellProto();
 
-                // Thorns
-                if (i_spellProto->SpellFamilyName == SPELLFAMILY_DRUID && i_spellProto->SpellFamilyFlags & UI64LIT(0x00000100))
-                {
-                    Unit::AuraList const& dummyList = pVictim->GetAurasByType(SPELL_AURA_DUMMY);
-                    for(Unit::AuraList::const_iterator iter = dummyList.begin(); iter != dummyList.end(); ++iter)
-                    {
-                        // Brambles
-                        if((*iter)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_DRUID &&
-                            (*iter)->GetSpellProto()->SpellIconID == 53)
-                        {
-                            damage += uint32(damage * (*iter)->GetModifier()->m_amount / 100);
-                            break;
-                        }
-                    }
-                }
-
                 //Calculate absorb resist ??? no data in opcode for this possibly unable to absorb or resist?
                 //uint32 absorb;
                 //uint32 resist;
@@ -6696,6 +6680,18 @@ uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, u
                             DoneTotalMod *= ((*iter)->GetModifier()->m_amount+100.0f) / 100.0f;
                             break;
                         }
+                    }
+                }
+            // Brambles
+            else if (spellProto->SpellFamilyFlags & UI64LIT(0x00000000100))
+            {
+                Unit::AuraList const& dummyAuras = GetAurasByType(SPELL_AURA_DUMMY);
+                for(Unit::AuraList::const_iterator i = dummyAuras.begin(); i != dummyAuras.end(); ++i)
+                {
+                    if ((*i)->isAffectedOnSpell(spellProto))
+                    {
+                        DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f) / 100.0f;
+                        break;
                     }
                 }
             }
