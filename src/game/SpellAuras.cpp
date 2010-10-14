@@ -3817,6 +3817,11 @@ void Aura::HandleModPossess(bool apply, bool Real)
 
         if(target->GetTypeId() == TYPEID_UNIT)
         {
+            // Add threat to the caster after possess expires
+            target->CombatStop();
+            target->getHostileRefManager().deleteReferences();
+            target->getThreatManager().addThreat(p_caster, 9999999.0f);
+
             ((Creature*)target)->AIM_Initialize();
 
             if (((Creature*)target)->AI())
