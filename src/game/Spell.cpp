@@ -4476,8 +4476,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 return SPELL_FAILED_DONT_REPORT;
 
     //Check Caster for combat
-    if(m_caster->isInCombat() && IsNonCombatSpell(m_spellInfo) &&
-        !m_IsTriggeredSpell && !m_caster->isIgnoreUnitState(m_spellInfo))
+    if (m_caster->isInCombat() && IsNonCombatSpell(m_spellInfo) && !m_IsTriggeredSpell && !m_caster->isIgnoreUnitState(m_spellInfo))
         return SPELL_FAILED_AFFECTING_COMBAT;
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER && !((Player*)m_caster)->isGameMaster() &&
