@@ -43,6 +43,7 @@
 #include "VMapFactory.h"
 #include "BattleGround.h"
 #include "Util.h"
+#include "Vehicle.h"
 
 #define SPELL_CHANNEL_UPDATE_INTERVAL (1 * IN_MILLISECONDS)
 
@@ -4782,7 +4783,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     bool castOnVehicleAllowed = false;
 
     if (m_caster->GetVehicle())
-        if ( VehicleSeatEntry const* seatInfo = m_caster->GetVehicle()->GetSeatInfo(m_caster))
+        if (VehicleSeatEntry const* seatInfo = m_caster->GetVehicle()->GetSeatInfo(m_caster))
             if (seatInfo->m_flags & SEAT_FLAG_CAN_CAST || seatInfo->m_flags & SEAT_FLAG_CAN_ATTACK)
                 castOnVehicleAllowed = true;
 
