@@ -43,7 +43,6 @@
 #include "VMapFactory.h"
 #include "BattleGround.h"
 #include "Util.h"
-#include "Vehicle.h"
 
 #define SPELL_CHANNEL_UPDATE_INTERVAL (1 * IN_MILLISECONDS)
 
@@ -4787,7 +4786,6 @@ SpellCastResult Spell::CheckCast(bool strict)
             if (seatInfo->m_flags & SEAT_FLAG_CAN_CAST || seatInfo->m_flags & SEAT_FLAG_CAN_ATTACK)
                 castOnVehicleAllowed = true;
 
-
     // not let players cast spells at mount (and let do it to creatures)
     if ((m_caster->IsMounted() || (m_caster->GetVehicle() && !castOnVehicleAllowed)) && m_caster->GetTypeId() == TYPEID_PLAYER && !m_IsTriggeredSpell && 
         !IsPassiveSpell(m_spellInfo) && !(m_spellInfo->Attributes & SPELL_ATTR_CASTABLE_WHILE_MOUNTED))
@@ -4795,13 +4793,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         if (m_caster->IsTaxiFlying())
             return SPELL_FAILED_NOT_ON_TAXI;
         else
-        {
-            uint32 uiEntry = 0;
-            if (pVehicle && pVehicle->GetBase())
-                uiEntry = pVehicle->GetBase()->GetEntry();
-            if (uiEntry != 30248 && uiEntry != 33118)
-                return SPELL_FAILED_NOT_MOUNTED;
-        }
+            return SPELL_FAILED_NOT_MOUNTED;
     }
 
     // always (except passive spells) check items (focus object can be required for any type casts)
