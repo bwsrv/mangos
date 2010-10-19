@@ -1960,6 +1960,9 @@ void Aura::TriggerSpell()
             // Searing Light (normal&heroic) (XT-002 in Ulduar)
             case 63018:
             case 65121:
+            // Gravity Bomb (normal&heroic) (XT-002 in Ulduar)
+            case 63024:
+            case 64234:
                 // original caster must be target (beacon)
                 target->CastSpell(target, trigger_spell_id, true, NULL, this, target->GetGUID());
                 return;
