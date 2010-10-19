@@ -199,7 +199,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectHealPct,                                  //136 SPELL_EFFECT_HEAL_PCT
     &Spell::EffectEnergisePct,                              //137 SPELL_EFFECT_ENERGIZE_PCT
     &Spell::EffectLeapBack,                                 //138 SPELL_EFFECT_LEAP_BACK                Leap back
-    &Spell::EffectNULL,                                     //139 SPELL_EFFECT_CLEAR_QUEST              (misc - is quest ID)
+    &Spell::EffectClearQuest,                               //139 SPELL_EFFECT_CLEAR_QUEST              (misc - is quest ID)
     &Spell::EffectForceCast,                                //140 SPELL_EFFECT_FORCE_CAST
     &Spell::EffectNULL,                                     //141 SPELL_EFFECT_141                      damage and reduce speed?
     &Spell::EffectTriggerSpellWithValue,                    //142 SPELL_EFFECT_TRIGGER_SPELL_WITH_VALUE
@@ -2880,43 +2880,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 m_caster->CastCustomSpell(m_caster, 45470, &bp, NULL, NULL, true);
                 return;
             }
-            // Raise dead effect
-            else if(m_spellInfo->Id == 46584)
-            {
-                if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                uint32 SpellID = 0;
-                if (m_caster->HasSpell(52143))
-                    SpellID = m_spellInfo->EffectBasePoints[EFFECT_INDEX_2]+1;
-                else
-                    SpellID = m_spellInfo->EffectBasePoints[EFFECT_INDEX_1]+1;
-
-                if (unitTarget && !unitTarget->isAlive())
-                {
-                    m_caster->CastSpell(unitTarget->GetPositionX(),unitTarget->GetPositionY(),unitTarget->GetPositionZ(),SpellID,true);
-                    unitTarget->RemoveFromWorld();
-                    return;
-                }
-                else if (m_caster->HasAura(60200))
-                {
-                    m_caster->CastSpell(m_caster,SpellID,true);
-                    return;
-                }
-                else  if (((Player*)m_caster)->HasItemCount(37201,1))
-                {
-                    ((Player*)m_caster)->DestroyItemCount(37201,1,true);
-                    m_caster->CastSpell(m_caster,SpellID,true);
-                    return;
-                }
-                else
-                {
-                    SendCastResult(SPELL_FAILED_REAGENTS);
-                    ((Player*)m_caster)->SendCooldownEvent(m_spellInfo);
-                    finish();
-                    return;
-                }
-            }
             // Death Grip
             else if (m_spellInfo->Id == 49576)
             {
@@ -2954,6 +2917,8 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 // consume diseases
                 unitTarget->RemoveAurasWithDispelType(DISPEL_DISEASE, m_caster->GetGUID());
             }
+            else if (m_spellInfo->Id == 46584)
+                return;
             break;
         }
     }
@@ -3006,6 +2971,38 @@ void Spell::EffectTriggerRitualOfSummoning(SpellEffectIndex eff_idx)
     finish();
 
     m_caster->CastSpell(unitTarget,spellInfo,false);
+}
+
+void Spell::EffectClearQuest(SpellEffectIndex eff_idx)
+{
+    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    Player *player = (Player*)m_caster;
+
+    uint32 quest_id = m_spellInfo->EffectMiscValue[eff_idx];
+
+    if (!sObjectMgr.GetQuestTemplate(quest_id))
+    {
+        sLog.outError("Spell::EffectClearQuest spell entry %u attempt clear quest entry %u but this quest does not exist.", m_spellInfo->Id, quest_id);
+        return;
+    }
+
+    // remove quest possibly in quest log (is that expected?)
+    for(uint16 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot)
+    {
+        uint32 quest = player->GetQuestSlotQuestId(slot);
+
+        if (quest == quest_id)
+        {
+            player->SetQuestSlot(slot, 0);
+            // ignore unequippable quest items in this case, it will still be equipped
+            player->TakeQuestSourceItem(quest_id, false);
+        }
+    }
+
+    player->SetQuestStatus(quest_id, QUEST_STATUS_NONE);
+    player->getQuestStatusMap()[quest_id].m_rewarded = false;
 }
 
 void Spell::EffectForceCast(SpellEffectIndex eff_idx)
@@ -4524,6 +4521,8 @@ void Spell::DoSummonGroupPets(SpellEffectIndex eff_idx)
 
     uint32 amount = damage;
 
+    uint32 originalSpellID = (m_IsTriggeredSpell && m_triggeredBySpellInfo) ? m_triggeredBySpellInfo->Id : m_spellInfo->Id;
+
     if (amount > 5)
         amount = 1;  // Don't find any cast, summons over 3 pet.
 
@@ -4556,7 +4555,7 @@ void Spell::DoSummonGroupPets(SpellEffectIndex eff_idx)
                     Pet* pet = new Pet(SUMMON_PET);
                     // set timer for unsummon
                     pet->SetDuration(duration);
-                    pet->SetCreateSpellID(m_spellInfo->Id);
+                    pet->SetCreateSpellID(originalSpellID);
                     pet->SetPetCounter(amount-1);
                     if (pet->LoadPetFromDB((Player*)m_caster,pet_entry, petnumber[i]))
                     {
@@ -4580,7 +4579,7 @@ void Spell::DoSummonGroupPets(SpellEffectIndex eff_idx)
     {
         Pet* pet = new Pet(SUMMON_PET);
         pet->SetPetCounter(amount - count - 1);
-        pet->SetCreateSpellID(m_spellInfo->Id);
+        pet->SetCreateSpellID(originalSpellID);
         pet->SetDuration(duration);
 
         if (!pet->Create(m_caster, uint32(m_spellInfo->EffectMiscValue[eff_idx])))
@@ -5009,6 +5008,8 @@ void Spell::DoSummonGuardian(SpellEffectIndex eff_idx, uint32 forceFaction)
     if(Player* modOwner = m_caster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
 
+    uint32 originalSpellID = (m_IsTriggeredSpell && m_triggeredBySpellInfo) ? m_triggeredBySpellInfo->Id : m_spellInfo->Id;
+
     int32 amount = damage > 0 ? damage : 1;
 
     switch(m_spellInfo->EffectMiscValueB[eff_idx])
@@ -5028,7 +5029,7 @@ void Spell::DoSummonGuardian(SpellEffectIndex eff_idx, uint32 forceFaction)
     {
         Pet* spawnCreature = new Pet(GUARDIAN_PET);
 
-        spawnCreature->SetCreateSpellID(m_spellInfo->Id);
+        spawnCreature->SetCreateSpellID(originalSpellID);
         spawnCreature->SetDuration(duration);
         spawnCreature->SetPetCounter(amount - count - 1);
 
@@ -5043,7 +5044,7 @@ void Spell::DoSummonGuardian(SpellEffectIndex eff_idx, uint32 forceFaction)
         spawnCreature->SetLevel(level);
 
         float px, py, pz;
-        // If dest location if present
+        // If dest location present
         if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
         {
             // Summon 1 unit in dest location
@@ -5541,8 +5542,10 @@ void Spell::EffectSummonPet(SpellEffectIndex eff_idx)
         return;
     }
 
+    uint32 originalSpellID = (m_IsTriggeredSpell && m_triggeredBySpellInfo) ? m_triggeredBySpellInfo->Id : m_spellInfo->Id;
+
     NewSummon->setPetType(SUMMON_PET);
-    NewSummon->SetCreateSpellID(m_spellInfo->Id);
+    NewSummon->SetCreateSpellID(originalSpellID);
     NewSummon->SetPetCounter(0);
     if(!NewSummon->Create(m_caster, petentry))
     {
@@ -7701,9 +7704,46 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     break;
                 }
-                // Raise dead effect - prevent ScriptEffect execution
+                // Raise dead script effect
                 case 46584:
-                       return;
+                {
+                    if ( !unitTarget || m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    // If have 52143 spell - summoned pet from dummy effect
+                    // Another case summoned guardian from script effect
+                    uint32 triggered_spell_id;
+                    if (!m_caster->HasSpell(52143))
+                        triggered_spell_id = m_spellInfo->EffectBasePoints[eff_idx]+1;
+                    else
+                        triggered_spell_id = m_spellInfo->EffectBasePoints[EFFECT_INDEX_2]+1;
+
+                    float x,y,z;
+
+                    m_caster->GetClosePoint(x, y, z, m_caster->GetObjectBoundingRadius(), PET_FOLLOW_DIST);
+
+                    if ( unitTarget != m_caster )
+                    {
+                        m_caster->CastSpell(unitTarget->GetPositionX(),unitTarget->GetPositionY(),unitTarget->GetPositionZ(),triggered_spell_id, true, NULL, NULL, m_caster->GetObjectGuid(), m_spellInfo);
+                        unitTarget->RemoveFromWorld();
+                    }
+                    else if (m_caster->HasAura(60200))
+                    {
+                        m_caster->CastSpell(x,y,z,triggered_spell_id, true, NULL, NULL, m_caster->GetObjectGuid(), m_spellInfo);
+                    }
+                    else  if (((Player*)m_caster)->HasItemCount(37201,1))
+                    {
+                        ((Player*)m_caster)->DestroyItemCount(37201,1,true);
+                        m_caster->CastSpell(x,y,z,triggered_spell_id, true, NULL, NULL, m_caster->GetObjectGuid(), m_spellInfo);
+                    }
+                    else
+                    {
+                        SendCastResult(SPELL_FAILED_REAGENTS);
+                        return;
+                    }
+                    ((Player*)m_caster)->RemoveSpellCooldown(triggered_spell_id,true);
+                    break;
+                }
                 default:
                     break;
             }
@@ -8552,7 +8592,9 @@ void Spell::DoSummonCritter(SpellEffectIndex eff_idx, uint32 forceFaction)
     // summon new pet
     Pet* critter = new Pet(MINI_PET);
 
-    critter->SetCreateSpellID(m_spellInfo->Id);
+    uint32 originalSpellID = (m_IsTriggeredSpell && m_triggeredBySpellInfo) ? m_triggeredBySpellInfo->Id : m_spellInfo->Id;
+
+    critter->SetCreateSpellID(originalSpellID);
     critter->SetDuration(GetSpellDuration(m_spellInfo));
 
     if(!critter->Create(m_caster, pet_entry))

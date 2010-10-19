@@ -2295,8 +2295,8 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 // hack for Fingers of Frost stacks
                 if (GetId() == 74396)
                 {
-                    if (Aura *aur = target->GetAura(74396, EFFECT_INDEX_0))
-                        aur->GetHolder()->SetAuraCharges(2);
+                    if (Aura *aura = target->GetAura(74396, EFFECT_INDEX_0))
+                        aura->GetHolder()->SetAuraCharges(2);
                 }
                 break;
             }
