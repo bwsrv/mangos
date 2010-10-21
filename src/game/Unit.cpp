@@ -6187,6 +6187,7 @@ void Unit::Uncharm()
     {
         charm->RemoveSpellsCausingAura(SPELL_AURA_MOD_CHARM);
         charm->RemoveSpellsCausingAura(SPELL_AURA_MOD_POSSESS);
+        charm->SetCharmerGUID(0);
     }
 }
 
@@ -6269,8 +6270,8 @@ void Unit::RemoveGuardians()
         if(Pet* pet = GetMap()->GetPet(guid))
         {
             pet->_Remove(PET_SAVE_AS_DELETED);
-            m_guardianPets.erase(guid);
         }
+        m_guardianPets.erase(guid);
     }
     m_guardianPets.clear();
 }
