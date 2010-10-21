@@ -6741,6 +6741,7 @@ uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, u
                         }
                     }
                 }
+            }
             // Brambles
             else if (spellProto->SpellFamilyFlags & UI64LIT(0x00000000100))
             {
@@ -6754,7 +6755,6 @@ uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, u
                     }
                 }
             }
-         }
             break;
         }
         case SPELLFAMILY_DEATHKNIGHT:
