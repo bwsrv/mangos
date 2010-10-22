@@ -1903,8 +1903,18 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     (spellInfo_2->Id == 46796 && spellInfo_1->Id == 46789))
                     return false;
             }
+            if (spellInfo_2->SpellFamilyName == SPELLFAMILY_PRIEST)
+            {
+                // Runescroll of Fortitude & Prayer/PW  Fortitude
+                if (spellInfo_1->Id == 72590 && spellInfo_2->SpellVisual[0] == 278)
+                    return true;
+            }
             // Dragonmaw Illusion, Blood Elf Illusion, Human Illusion, Illidari Agent Illusion, Scarlet Crusade Disguise
             if(spellInfo_1->SpellIconID == 1691 && spellInfo_2->SpellIconID == 1691)
+                return false;
+            
+            // BloodBoil and other spells with the same icon like BloodPact
+            if (spellInfo_1->Id == 42005 && spellInfo_2->SpellIconID == 541)
                 return false;
             break;
         case SPELLFAMILY_MAGE:
@@ -1937,8 +1947,10 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 // Arcane Missiles and Moonfire
                 if( spellInfo_1->SpellIconID == 225 && spellInfo_2->SpellIconID == 225 )
                     return false;
-
             }
+            // BloodPact & Bloodboil
+            if (spellInfo_1->SpellIconID == 541 && spellInfo_2->Id == 42005)
+                return false;
             break;
         case SPELLFAMILY_WARLOCK:
             if (spellInfo_2->SpellFamilyName == SPELLFAMILY_WARLOCK)
@@ -2027,6 +2039,16 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     (spellInfo_2->SpellIconID == 566 && spellInfo_1->SpellIconID == 2820))
                     return false;
             }
+            else if (spellInfo_2->SpellFamilyName == SPELLFAMILY_GENERIC)
+            {
+             // Mind Trauma and Berserk/Enrage (PvE spells)
+             if(spellInfo_1->Id == 48301 && spellInfo_2->SpellIconID == 95)
+                return false;
+
+             // Prayer/PW  Fortitude && Runescroll of Fortitude
+             if (spellInfo_1->SpellVisual[0] == 278 && spellInfo_2->Id == 72590)
+                return true;
+            }
             break;
         case SPELLFAMILY_DRUID:
             if (spellInfo_2->SpellFamilyName == SPELLFAMILY_DRUID)
@@ -2081,6 +2103,10 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
 
                 // Rejuvenation and Forethought Talisman (item 40258)
                 if (spellInfo_1->Id == 60530 && spellInfo_2->SpellIconID == 64 || spellInfo_2->Id == 60530 && spellInfo_1->SpellIconID == 64)
+                    return false;
+
+                // Rip and Flurry
+                if (spellInfo_1->SpellIconID == 108 && spellInfo_2->SpellIconID == 108)
                     return false;
             }
             break;
