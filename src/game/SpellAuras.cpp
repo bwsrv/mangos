@@ -2275,7 +2275,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         {
                             if (roll_chance_i(spellInfo->CalculateSimpleValue(EFFECT_INDEX_0)) )
                             {
-                                Unit *pVictim = ObjectAccessor::GetUnit(*target,((Player*)target)->GetComboTarget());
+                                Unit *pVictim = ObjectAccessor::GetUnit(*target,((Player*)target)->GetComboTargetGuid());
                                 if (!pVictim)
                                     pVictim = target->getVictim();
 
