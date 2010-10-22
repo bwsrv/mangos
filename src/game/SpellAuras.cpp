@@ -6235,20 +6235,6 @@ void Aura::HandleModDamagePercentDone(bool apply, bool Real)
     if(target->GetTypeId() == TYPEID_PLAYER)
         for(int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
             target->ApplyModSignedFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT + i, m_modifier.m_amount/100.0f, apply);
-
-    // Elemental Oath - Damage increase on Clearcasting
-    if (apply && GetId() == 16246)
-    {
-        Unit::AuraList const& auras = target->GetAurasByType(SPELL_AURA_PROC_TRIGGER_SPELL);
-        for (Unit::AuraList::const_iterator i = auras.begin(); i != auras.end(); ++i)
-            
-            if ((*i)->GetId() == 51466 ||
-                (*i)->GetId() == 51470)
-            {
-                m_modifier.m_amount += (*i)->GetSpellProto()->CalculateSimpleValue(EFFECT_INDEX_1);
-                break;
-            }
-    }
 }
 
 void Aura::HandleModOffhandDamagePercent(bool apply, bool Real)
