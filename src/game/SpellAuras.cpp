@@ -2120,6 +2120,21 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         if (roll_chance_i(20))              // backfire stun
                             target->CastSpell(target, 51581, true, NULL, this);
                         return;
+                    case 43351:
+                        if(Unit* pCaster = GetCaster())
+                        {
+                            if(pCaster->GetTypeId() == TYPEID_PLAYER)
+                            {
+                                Player* pPlayer = (Player*)pCaster;
+
+                                if(!pPlayer)
+                                    return;
+
+                                pPlayer->SetStandState(UNIT_STAND_STATE_SIT);
+                                pPlayer->SetClientControl(pPlayer, 0);
+                            }
+                        }
+                        return;
                     case 43873:                             // Headless Horseman Laugh
                         target->PlayDistanceSound(11965);
                         return;
