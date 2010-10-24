@@ -1662,6 +1662,11 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                             continue;
                         break;
                     }
+                    case 1261:                                  // G.N.E.R.D. Rage
+                    {
+                       if(!GetPlayer()->HasAura(48890))
+                           continue;
+                    }
                 }
 
                 SetCriteriaProgress(achievementCriteria, achievement, miscvalue1, PROGRESS_ACCUMULATE);
