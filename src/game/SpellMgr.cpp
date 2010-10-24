@@ -1739,6 +1739,10 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
     // Mistletoe debuff stack with everything
     if (spellInfo_1->Id == 26218 || spellInfo_2->Id == 26218)
         return false;
+		
+    // Ardent Defender cooldown debuff stacks with everything
+    if (spellInfo_1->Id == 66233 || spellInfo_2->Id == 66233)
+        return false;
 
     // Improved Mind Blast debuff stacks with everything
     if (spellInfo_1->Id == 48301 || spellInfo_2->Id == 48301)
