@@ -8118,7 +8118,14 @@ void Aura::PeriodicDummyTick()
                     if (rune == RUNE_DEATH)
                         plr->ConvertRune(i, plr->GetBaseRune(i));
                 }
-
+                return;
+            }
+            // Hysteria Health Decreasing
+            if (spell->Id == 49016 )
+            {
+                uint32 dam = GetTarget()->GetMaxHealth()*0.01;
+                GetTarget()->DealDamage(GetTarget(), dam, NULL, NODAMAGE, SPELL_SCHOOL_MASK_NORMAL, spell, false);
+                GetTarget()->SendSpellNonMeleeDamageLog(GetTarget(), spell->Id, dam, SPELL_SCHOOL_MASK_NORMAL, 0, 0, false, 0, false);
                 return;
             }
             break;
@@ -8448,16 +8455,16 @@ void Aura::HandleAuraModAllCritChance(bool apply, bool Real)
 
 void Aura::SetAuraMaxDuration( int32 duration )
 {
-	m_maxduration = duration;
+    m_maxduration = duration;
 
-	// possible overwrite persistent state
-	if (duration > 0)
-	{
-		if (!(GetHolder()->IsPassive() && GetSpellProto()->DurationIndex == 0))
-			GetHolder()->SetPermanent(false);
+    // possible overwrite persistent state
+    if (duration > 0)
+    {
+        if (!(GetHolder()->IsPassive() && GetSpellProto()->DurationIndex == 0))
+            GetHolder()->SetPermanent(false);
 
-		GetHolder()->SetAuraFlags(GetHolder()->GetAuraFlags() | AFLAG_DURATION);
-	}
+        GetHolder()->SetAuraFlags(GetHolder()->GetAuraFlags() | AFLAG_DURATION);
+    }
 }
 
 bool Aura::IsLastAuraOnHolder()
