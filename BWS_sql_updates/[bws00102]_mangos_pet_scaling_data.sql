@@ -18,3 +18,8 @@ DELETE FROM `pet_levelstats` WHERE `creature_entry` = 24207;
 INSERT INTO `pet_levelstats` (`creature_entry`, `level`, `hp`, `mana`, `armor`, `mindmg`, `maxdmg`, `attackpower`, `str`, `agi`, `sta`, `inte`, `spi`) VALUES
 (24207,  1,   42, 0, 20, 2, 3, 10, 22, 0, 22, 0, 0),
 (24207, 80, 5200, 0, 4000, 400, 500, 24, 62, 0, 92, 0, 0);
+
+-- Pet 89 - warlock infernal
+DELETE FROM `pet_scaling_data` WHERE `creature_entry` = 89;
+INSERT INTO `pet_scaling_data` (`creature_entry`, `aura`, `healthbase`, `health`, `powerbase`, `power`, `str`, `agi`, `sta`, `inte`, `spi`, `armor`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `apbase`, `apbasescale`, `attackpower`, `damage`, `spelldamage`, `spellhit`, `hit`, `expertize`, `attackspeed`, `crit`, `regen`) VALUES
+(89, 0, 0, 1100, 0, 1150, 0, 0, 89, 30, 0, 35, 40, 40, 40, 40, 40, 40, 20, 240, 60, 0, 30, 100, 100, 100, 100, 0, 20);
