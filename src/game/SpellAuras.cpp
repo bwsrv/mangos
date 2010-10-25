@@ -4315,6 +4315,8 @@ void Aura::HandleAuraModStun(bool apply, bool Real)
 void Aura::HandleModStealth(bool apply, bool Real)
 {
     Unit *target = GetTarget();
+    Unit* caster = GetCaster();
+    SpellEntry const* spellProto = GetSpellProto();
 
     if (apply)
     {
@@ -4399,7 +4401,7 @@ void Aura::HandleModStealth(bool apply, bool Real)
                 }
             }
         }
-        else if (caster && caster->GetTypeId() == TYPEID_PLAYER && spellProto->Id == 47788 && 
+        else if (caster && caster->GetTypeId() == TYPEID_PLAYER && spellProto && spellProto->Id == 47788 && 
             m_removeMode == AURA_REMOVE_BY_EXPIRE)
         {
             Player* plr = (Player*)caster;
