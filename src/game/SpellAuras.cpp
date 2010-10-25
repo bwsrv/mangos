@@ -6955,26 +6955,24 @@ void Aura::HandleSchoolAbsorb(bool apply, bool Real)
                 }
             }
         }
-        //Glyph of Guardian Spirit
-        if (spellProto->Id == 47788)
+        else if (caster && caster->GetTypeId() == TYPEID_PLAYER && spellProto->Id == 47788 && 
+            m_removeMode == AURA_REMOVE_BY_EXPIRE)
         {
-            if (!(m_removeMode == AURA_REMOVE_BY_EXPIRE))
-                return;
-            if (target->IsInWorld() && GetStackAmount()>0)
+            Player* plr = (Player*)caster;
+            if (Aura *aur = plr->GetAura(63231, EFFECT_INDEX_0))
             {
-                if (caster)
-                    if (caster->HasAura(63231))
-                    {
-                        ((Player*)caster)->RemoveSpellCooldown(47788,true); //server CD set
-                        ((Player*)caster)->AddSpellCooldown(47788,0,time(NULL)+60);
-                        WorldPacket data(SMSG_SPELL_COOLDOWN,8+1+4+4); //client CD set
-                        data << caster->GetGUID();
-                        data << uint8(0x0);
-                        data << spellProto->Id;
-                        data << uint32(60000);
-                        ((Player*)caster)->GetSession()->SendPacket(&data);
-                    }
-                        
+                int32 base_time = aur->GetSpellProto()->CalculateSimpleValue(EFFECT_INDEX_0);
+                int32 end_time = -(plr->GetSpellCooldownDelay(spellProto->Id) - base_time);
+
+                // start new cooldown at server side
+                plr->AddSpellCooldown(spellProto->Id, 0, time_t(NULL) + time_t(base_time));
+
+                // Send activate cooldown timer (possible 0) at client side
+                WorldPacket data(SMSG_MODIFY_COOLDOWN, (4+8+4));
+                data << spellProto->Id;
+                data << plr->GetGUID();
+                data << end_time*IN_MILLISECONDS;
+                plr->SendDirectMessage(&data);
             }
         }
     }
@@ -9309,16 +9307,30 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
             break;
         case SPELLFAMILY_HUNTER:
         {
-            // The Beast Within and Bestial Wrath - immunity
-            if (GetId() == 19574 || GetId() == 34471)
+            switch (GetId())
             {
-                spellId1 = 24395;
-                spellId2 = 24396;
-                spellId3 = 24397;
-                spellId4 = 26592;
+                case 34455:          // Ferocious inspiration and ranks
+                    spellId1 = 75593;
+                    break;
+                case 34459:
+                    spellId1 = 75446;
+                    break;
+                case 34460:
+                    spellId1 = 75447;
+                    break;
+                case 19574:          // The Beast Within and Bestial Wrath - immunity
+                case 34471:
+                    spellId1 = 24395;
+                    spellId2 = 24396;
+                    spellId3 = 24397;
+                    spellId4 = 26592;
+                    break;
+                default:
+                    break;
             }
+
             // Freezing Trap Effect
-            else if (m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000000008))
+            if (m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000000008))
             {
                 if(!apply)
                 {
@@ -9603,22 +9615,6 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                 else
                     return;
                 break;
-            }
-            break;
-        }
-        case SPELLFAMILY_PET:
-        {
-            switch (GetId())
-            {
-                case 34455:
-                    spellId1 = 75593;
-                    break;
-                case 34459:
-                    spellId1 = 75446;
-                    break;
-                case 34460:
-                    spellId1 = 75447;
-                    break;
             }
             break;
         }
