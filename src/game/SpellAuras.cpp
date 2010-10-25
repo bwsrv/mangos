@@ -4315,8 +4315,6 @@ void Aura::HandleAuraModStun(bool apply, bool Real)
 void Aura::HandleModStealth(bool apply, bool Real)
 {
     Unit *target = GetTarget();
-    Unit* caster = GetCaster();
-    SpellEntry const* spellProto = GetSpellProto();
 
     if (apply)
     {
@@ -4399,26 +4397,6 @@ void Aura::HandleModStealth(bool apply, bool Real)
                         aura->GetHolder()->RefreshHolder();
                     }
                 }
-            }
-        }
-        else if (caster && caster->GetTypeId() == TYPEID_PLAYER && spellProto && spellProto->Id == 47788 && 
-            m_removeMode == AURA_REMOVE_BY_EXPIRE)
-        {
-            Player* plr = (Player*)caster;
-            if (Aura *aur = plr->GetAura(63231, EFFECT_INDEX_0))
-            {
-                int32 base_time = aur->GetSpellProto()->CalculateSimpleValue(EFFECT_INDEX_0);
-                int32 end_time = -(plr->GetSpellCooldownDelay(spellProto->Id) - base_time);
-
-                // start new cooldown at server side
-                plr->AddSpellCooldown(spellProto->Id, 0, time_t(NULL) + time_t(base_time));
-
-                // Send activate cooldown timer (possible 0) at client side
-                WorldPacket data(SMSG_MODIFY_COOLDOWN, (4+8+4));
-                data << spellProto->Id;
-                data << plr->GetGUID();
-                data << end_time*IN_MILLISECONDS;
-                plr->SendDirectMessage(&data);
             }
         }
     }
