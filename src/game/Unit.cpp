@@ -4214,19 +4214,28 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
     SpellEntry const* aurSpellInfo = holder->GetSpellProto();
 
     // ghost spell check, allow apply any auras at player loading in ghost mode (will be cleanup after load)
-    if( !isAlive() && !IsDeathPersistentSpell(aurSpellInfo) &&
+    if (!isAlive() && !IsDeathPersistentSpell(aurSpellInfo) &&
         !IsDeathOnlySpell(aurSpellInfo) &&
-        (GetTypeId()!=TYPEID_PLAYER || !((Player*)this)->GetSession()->PlayerLoading()) )
+        (GetTypeId()!=TYPEID_PLAYER || !((Player*)this)->GetSession()->PlayerLoading()))
     {
         delete holder;
         return false;
     }
 
-    if(holder->GetTarget() != this)
+    if (holder->GetTarget() != this)
     {
         sLog.outError("Holder (spell %u) add to spell aura holder list of %s (lowguid: %u) but spell aura holder target is %s (lowguid: %u)",
             holder->GetId(),(GetTypeId()==TYPEID_PLAYER?"player":"creature"),GetGUIDLow(),
             (holder->GetTarget()->GetTypeId()==TYPEID_PLAYER?"player":"creature"),holder->GetTarget()->GetGUIDLow());
+        delete holder;
+        return false;
+    }
+
+    // Alterac Valley Marshals' and Warmasters' buffs should affect only mobs
+    if (this->GetTypeId() != TYPEID_UNIT &&
+        (holder->GetId() == 45828 || holder->GetId() == 45829 || holder->GetId() == 45831 || holder->GetId() == 45830 ||
+         holder->GetId() == 45826 || holder->GetId() == 45822 || holder->GetId() == 45823 || holder->GetId() == 45824))
+    {
         delete holder;
         return false;
     }
