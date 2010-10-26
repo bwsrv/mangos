@@ -5344,13 +5344,13 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
             {
                 // Serpent Sting
                 if (spellProto->SpellFamilyFlags & UI64LIT(0x0000000000004000))
-				{
+                {
                     // $RAP*0.2/5 bonus per tick
                     float ap = caster->GetTotalAttackPowerValue(RANGED_ATTACK);
                     ap += target->GetTotalAuraModifier(SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS);
                     ap += caster->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_RANGED_ATTACK_POWER_VERSUS, target->GetCreatureTypeMask());
                     m_modifier.m_amount += int32(ap * 0.2 / 5);
-				}
+                }
                 // Black Arrow
                 if (spellProto->SpellFamilyFlags & UI64LIT(0x0800000000000080))
                 {
