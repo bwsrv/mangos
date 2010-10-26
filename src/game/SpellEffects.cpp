@@ -3795,7 +3795,9 @@ void Spell::EffectHealPct(SpellEffectIndex /*eff_idx*/)
         Unit *caster = GetAffectiveCaster();
         if (!caster)
             return;
-
+        //Glyph of Rune Tap
+        if(caster == unitTarget && m_spellInfo->Id == 59754)
+            return;
         uint32 addhealth = unitTarget->GetMaxHealth() * damage / 100;
 
         addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, HEAL);
