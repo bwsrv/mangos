@@ -5177,7 +5177,12 @@ void Aura::HandleAuraPeriodicDummy(bool apply, bool Real)
 
             // Explosive Shot
             if (apply && !loading && caster)
-                m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(RANGED_ATTACK) * 14 / 100);
+            {
+                float ap = caster->GetTotalAttackPowerValue(RANGED_ATTACK);
+                ap += target->GetTotalAuraModifier(SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS);
+                ap += caster->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_RANGED_ATTACK_POWER_VERSUS, target->GetCreatureTypeMask());                 
+                m_modifier.m_amount += int32(ap * 14 / 100);
+            }
             break;
         }
     }
@@ -5339,8 +5344,22 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
             {
                 // Serpent Sting
                 if (spellProto->SpellFamilyFlags & UI64LIT(0x0000000000004000))
+				{
                     // $RAP*0.2/5 bonus per tick
-                    m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.2 / 5);
+                    float ap = caster->GetTotalAttackPowerValue(RANGED_ATTACK);
+                    ap += target->GetTotalAuraModifier(SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS);
+                    ap += caster->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_RANGED_ATTACK_POWER_VERSUS, target->GetCreatureTypeMask());
+                    m_modifier.m_amount += int32(ap * 0.2 / 5);
+				}
+                // Black Arrow
+                if (spellProto->SpellFamilyFlags & UI64LIT(0x0800000000000080))
+                {
+                    // $RAP*0.1/5 bonus per tick
+                    float ap = caster->GetTotalAttackPowerValue(RANGED_ATTACK);
+                    ap += target->GetTotalAuraModifier(SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS);
+                    ap += caster->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_RANGED_ATTACK_POWER_VERSUS, target->GetCreatureTypeMask());
+                    m_modifier.m_amount += int32(ap * 0.1 / 5);
+                }
                 // Immolation Trap
                 if ((spellProto->SpellFamilyFlags & UI64LIT(0x0000000000000004)) && spellProto->SpellIconID == 678)
                     // $RAP*0.1/5 bonus per tick
