@@ -1054,6 +1054,11 @@ float Map::GetHeight(float x, float y, float z, bool pUseVmaps, float maxSearchD
     {
         mapHeight  += 200.0f;
         vmapHeight += 200.0f;
+    }
+    else if (GetAreaId(x,y,z) == 4655)
+    {
+        mapHeight  += 0.2f;
+        vmapHeight += 0.2f;
     } 
 
     // mapHeight set for any above raw ground Z or <= INVALID_HEIGHT
