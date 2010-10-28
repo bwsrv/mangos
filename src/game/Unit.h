@@ -1185,7 +1185,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         uint32 getAttackTimer(WeaponAttackType type) const { return m_attackTimer[type]; }
         bool isAttackReady(WeaponAttackType type = BASE_ATTACK) const { return m_attackTimer[type] == 0; }
         bool haveOffhandWeapon() const;
-        bool IsUseEquipedWeapon(WeaponAttackType attackType) const
+        bool IsUseEquippedWeapon(WeaponAttackType attackType) const
         {
             bool disarmed = false;
             switch(attackType)
