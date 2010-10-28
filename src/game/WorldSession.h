@@ -44,6 +44,7 @@ class QueryResult;
 class LoginQueryHolder;
 class CharacterHandler;
 class GMTicket;
+class MovementInfo;
 
 struct OpcodeHandler;
 
@@ -153,9 +154,6 @@ class MANGOS_DLL_SPEC WorldSession
         bool PlayerLoading() const { return m_playerLoading; }
         bool PlayerLogout() const { return m_playerLogout; }
         bool PlayerLogoutWithSave() const { return m_playerLogout && m_playerSave; }
-
-        inline bool Anti__CheatOccurred(uint32 CurTime,const char* Reason,float Speed,const char* Op=NULL,float Val1=0.0f,uint32 Val2=0);
-        bool Anti__ReportCheat(const char* Reason,float Speed,const char* Op=NULL,float Val1=0.0f,uint32 Val2=0);
 
         void SizeError(WorldPacket const& packet, uint32 size) const;
 
@@ -789,6 +787,8 @@ class MANGOS_DLL_SPEC WorldSession
     private:
         // private trade methods
         void moveItems(Item* myItems[], Item* hisItems[]);
+        bool VerifyMovementInfo(MovementInfo&,ObjectGuid&, Unit*) const;
+        void HandleMoverRelocation(MovementInfo&, Unit*, Player*);
 
         void ExecuteOpcode( OpcodeHandler const& opHandle, WorldPacket* packet );
 
