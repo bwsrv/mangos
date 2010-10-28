@@ -7301,8 +7301,7 @@ uint32 Unit::SpellHealingBonusDone(Unit *pVictim, SpellEntry const *spellProto, 
     AuraList const& mOverrideClassScript= owner->GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
     for(AuraList::const_iterator i = mOverrideClassScript.begin(); i != mOverrideClassScript.end(); ++i)
     {
-        // Hack for Twisted Faith not affecting Mind Flay 
-        if (!(*i)->isAffectedOnSpell(spellProto) && !((*i)->GetModifier()->m_miscvalue == 7377 && spellProto->SpellFamilyName == SPELLFAMILY_PRIEST && (spellProto->SpellFamilyFlags & UI64LIT(0x800000))))
+        if (!(*i)->isAffectedOnSpell(spellProto))
             continue;
         switch((*i)->GetModifier()->m_miscvalue)
         {
