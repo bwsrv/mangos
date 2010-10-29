@@ -1026,8 +1026,7 @@ void SpellMgr::LoadSpellTargetPositions()
         bool found = false;
         for(int i = 0; i < MAX_EFFECT_INDEX; ++i)
         {
-            if (spellInfo->EffectImplicitTargetA[i] == TARGET_TABLE_X_Y_Z_COORDINATES || spellInfo->EffectImplicitTargetB[i] == TARGET_TABLE_X_Y_Z_COORDINATES ||
-                spellInfo->EffectImplicitTargetB[i] == TARGET_SELF2)
+         if (spellInfo->EffectImplicitTargetA[i]==TARGET_TABLE_X_Y_Z_COORDINATES || spellInfo->EffectImplicitTargetB[i]==TARGET_TABLE_X_Y_Z_COORDINATES)
             {
                 // additional requirements
                 if (spellInfo->Effect[i]==SPELL_EFFECT_BIND && spellInfo->EffectMiscValue[i])
@@ -1515,7 +1514,7 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const * spellP
         return false;
 
     // Always trigger for this
-    if (EventProcFlag & (PROC_FLAG_KILLED | PROC_FLAG_KILL | PROC_FLAG_ON_TRAP_ACTIVATION | PROC_FLAG_ON_DEATH))
+    if (EventProcFlag & (PROC_FLAG_KILLED | PROC_FLAG_KILL | PROC_FLAG_ON_TRAP_ACTIVATION))
         return true;
 
     if (spellProcEvent)     // Exist event data
@@ -2277,7 +2276,7 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             break;
     }
 
-    if (spellInfo_1->SpellFamilyName == SPELLFAMILY_GENERIC || spellInfo_2->SpellFamilyName == SPELLFAMILY_GENERIC)
+    if (spellInfo_1->SpellFamilyName == 0 || spellInfo_2->SpellFamilyName == 0)
         return false;
 
     if (spellInfo_1->SpellFamilyName != spellInfo_2->SpellFamilyName)
