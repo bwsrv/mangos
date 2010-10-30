@@ -1,7 +1,7 @@
 -- Pet 1 - default hunter pet
-UPDATE pet_scaling_data SET sta = 75, apbasescale = 428 WHERE creature_entry = 1 AND aura = 0;
-UPDATE pet_scaling_data SET sta = 15 WHERE creature_entry = 1 AND aura = 62758;
-UPDATE pet_scaling_data SET sta = 30 WHERE creature_entry = 1 AND aura = 62762;
+UPDATE pet_scaling_data SET sta = 75, apbasescale = 310, spelldamage = 12 WHERE creature_entry = 1 AND aura = 0;
+UPDATE pet_scaling_data SET sta = 15, spelldamage = 2  WHERE creature_entry = 1 AND aura = 62758;
+UPDATE pet_scaling_data SET sta = 30, spelldamage = 4  WHERE creature_entry = 1 AND aura = 62762;
 
 UPDATE pet_scaling_data SET sta = 66 WHERE creature_entry = 27829; -- Guardian 27829 - DK Gargoyle
 
