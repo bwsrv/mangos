@@ -793,7 +793,6 @@ bool Item::IsEquipped() const
 
 bool Item::CanBeTraded(bool mail) const
 {
-
     if(!mail && IsBoundAccountWide()) // Dirty hack, because trade window is closing
         return false;
 
