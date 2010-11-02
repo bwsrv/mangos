@@ -36,6 +36,7 @@
 #include "MapManager.h"
 #include "BattleGround.h"
 #include "BattleGroundAB.h"
+#include "BattleGroundAV.h"
 #include "Map.h"
 #include "InstanceData.h"
 
@@ -944,6 +945,10 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if (achievementCriteria->win_bg.bgMapID != GetPlayer()->GetMapId())
                     continue;
 
+                BattleGround* bg = GetPlayer()->GetBattleGround();
+                if (!bg)
+                    continue;
+
                 if (achievementCriteria->win_bg.additionalRequirement1_type || achievementCriteria->win_bg.additionalRequirement2_type)
                 {
                     // some hardcoded requirements
@@ -954,14 +959,23 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                         case 159:              // AB, win under 6 minutes
                         {
                             // set 8 minutes because there is 2 minutes long preparation
-                            if(GetPlayer()->GetBattleGround()->GetStartTime() > (8 * MINUTE * IN_MILLISECONDS))
+                            if(bg->GetStartTime() > (8 * MINUTE * IN_MILLISECONDS))
                                 continue;     
                             break;
                         }
                         case 201:              // WS, win under 7 minutes
                         {
                             // set 9 minutes because there is 2 minutes long preparation
-                            if(GetPlayer()->GetBattleGround()->GetStartTime() > (9 * MINUTE * IN_MILLISECONDS))
+                            if(bg->GetStartTime() > (9 * MINUTE * IN_MILLISECONDS))
+                                continue;
+                            break;
+                        }
+                        case 1164:             // AV, own both mines (horde)
+                        case 225:              // AV, own both mines (alliance)
+                        {
+
+                            int8 team = bg->GetTeamIndexByTeamId(GetPlayer()->GetTeam());
+                            if(!((BattleGroundAV*)bg)->IsMineOwnedBy(BG_AV_NORTH_MINE,team) || !((BattleGroundAV*)bg)->IsMineOwnedBy(BG_AV_SOUTH_MINE,team))
                                 continue;
                             break;
                         }
@@ -978,9 +992,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 // some hardcoded requirements
                 else
                 {
-                    BattleGround* bg = GetPlayer()->GetBattleGround();
-                    if (!bg)
-                        continue;
 
                     switch(achievementCriteria->referredAchievement)
                     {
