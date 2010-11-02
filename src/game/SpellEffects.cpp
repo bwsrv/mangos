@@ -609,7 +609,7 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                     if (Aura* pAura = m_caster->GetAura(55682, EFFECT_INDEX_1))
                         if (unitTarget->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT))
                             damage += int32(damage / 100 * pAura->GetModifier()->m_amount);
-	                     m_caster->CastCustomSpell(m_caster, 32409, &damage, 0, 0, true);
+	                        m_caster->CastCustomSpell(m_caster, 32409, &damage, 0, 0, true);
                 }
                 // Improved Mind Blast (Mind Blast in shadow form bonus)
                 else if (m_caster->m_form == FORM_SHADOW && (m_spellInfo->SpellFamilyFlags & UI64LIT(0x00002000)))
@@ -4558,7 +4558,7 @@ void Spell::EffectSummonType(SpellEffectIndex eff_idx)
 
 void Spell::DoSummonGroupPets(SpellEffectIndex eff_idx)
 {
-    if (m_caster->GetPetGUID())
+    if (!m_caster->GetPetGuid().IsEmpty())
         return;
 
     if (!unitTarget)
@@ -4617,7 +4617,20 @@ void Spell::DoSummonGroupPets(SpellEffectIndex eff_idx)
                     pet->SetDuration(duration);
                     pet->SetCreateSpellID(originalSpellID);
                     pet->SetPetCounter(amount-1);
-                    if (pet->LoadPetFromDB((Player*)m_caster,pet_entry, petnumber[i]))
+                    bool _summoned = false;
+
+                    if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
+                    {
+                        if (pet->LoadPetFromDB((Player*)m_caster,pet_entry, petnumber[i]), false, m_targets.m_destX,m_targets.m_destY,m_targets.m_destZ)
+                            _summoned = true;
+                    }
+                    else
+                    {
+                        if (pet->LoadPetFromDB((Player*)m_caster,pet_entry, petnumber[i]))
+                            _summoned = true;
+                    }
+
+                    if ( _summoned )
                     {
                          --amount;
                         DEBUG_LOG("Pet (guidlow %d, entry %d) summoned (from database). Counter is %d ",
@@ -5038,7 +5051,7 @@ void Spell::DoSummonWild(SpellEffectIndex eff_idx, uint32 forceFaction)
         if(Creature *summon = m_caster->SummonCreature(creature_entry, px, py, pz, m_caster->GetOrientation(), summonType, duration))
         {
             summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
-            summon->SetCreatorGUID(m_caster->GetGUID());
+            summon->SetCreatorGuid(m_caster->GetObjectGuid());
 
             if(forceFaction)
                 summon->setFaction(forceFaction);
