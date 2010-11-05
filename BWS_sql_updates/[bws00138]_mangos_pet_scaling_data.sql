@@ -34,4 +34,13 @@ DELETE FROM `pet_scaling_data` WHERE `creature_entry` = 15438;
 INSERT INTO `pet_scaling_data` (`creature_entry`, `aura`, `healthbase`, `health`, `powerbase`, `power`, `str`, `agi`, `sta`, `inte`, `spi`, `armor`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `apbase`, `apbasescale`, `attackpower`, `damage`, `spelldamage`, `spellhit`, `hit`, `expertize`, `attackspeed`, `crit`, `regen`) VALUES
 (15438, 0, 0, 1000, 0, 1500, 0, 0, 20, 10, 0, 0, 0, 0, 0, 0, 0, 0, 20, 200, 85, 0, 55, 100, 100, 100, 100, 0, 0);
 
+-- Mage water elemental
+DELETE FROM `spell_pet_auras` WHERE `spell` = 0 AND `pet` = 510;
+INSERT INTO `spell_pet_auras` VALUES
+(0,0,510,34947),
+(0,0,510,34956);
 
+-- Pet 37994 - Mage water elemental
+DELETE FROM `pet_scaling_data` WHERE `creature_entry` = 510;
+INSERT INTO `pet_scaling_data` (`creature_entry`, `aura`, `healthbase`, `health`, `powerbase`, `power`, `str`, `agi`, `sta`, `inte`, `spi`, `armor`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `apbase`, `apbasescale`, `attackpower`, `damage`, `spelldamage`, `spellhit`, `hit`, `expertize`, `attackspeed`, `crit`, `regen`) VALUES
+(510, 0, 0, 1000, 0, 1500, 0, 0, 50, 30, 0, 35, 0, 0, 0, 0, 0, 0, 20, 200, 0, 0, 55, 100, 100, 100, 100, 0, 0);
