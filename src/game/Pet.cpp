@@ -470,7 +470,7 @@ void Pet::SetDeathState(DeathState s)                       // overwrite virtual
     }
 }
 
-void Pet::Update(uint32 diff)
+void Pet::Update(uint32 update_diff, uint32 tick_diff)
 {
     if (!IsInWorld())                               // pet already removed, just wait in remove queue, no updates
         return;
@@ -479,7 +479,7 @@ void Pet::Update(uint32 diff)
     {
         case CORPSE:
         {
-            if (m_corpseDecayTimer <= diff)
+            if (m_corpseDecayTimer <= update_diff)
             {
                 MANGOS_ASSERT(getPetType()!=SUMMON_PET && "Must be already removed.");
                 Remove(PET_SAVE_NOT_IN_SLOT);               //hunters' pets never get removed because of death, NEVER!
@@ -525,8 +525,8 @@ void Pet::Update(uint32 diff)
 
             if (m_duration > 0)
             {
-                if(m_duration > (int32)diff)
-                    m_duration -= (int32)diff;
+                if (m_duration > (int32)update_diff)
+                    m_duration -= (int32)update_diff;
                 else
                 {
                     DEBUG_LOG("Pet %d removed with duration expired.", GetGUID());
@@ -536,7 +536,7 @@ void Pet::Update(uint32 diff)
             }
 
             //regenerate focus for hunter pets or energy for deathknight's ghoul
-            if(m_regenTimer <= diff)
+            if (m_regenTimer <= update_diff)
             {
                 Regenerate(getPowerType(), REGEN_TIME_FULL);
                 m_regenTimer = REGEN_TIME_FULL;
@@ -548,14 +548,13 @@ void Pet::Update(uint32 diff)
                     RegenerateHealth(REGEN_TIME_FULL);
             }
             else
-                m_regenTimer -= diff;
+                m_regenTimer -= update_diff;
 
             break;
         }
         default:
             break;
     }
-
     // Update scaling auras from queue
     while (!m_scalingQueue.empty())
     {
@@ -564,7 +563,7 @@ void Pet::Update(uint32 diff)
     };
 
     if (IsInWorld())
-        Creature::Update(diff);
+        Creature::Update(update_diff, tick_diff);
 }
 
 HappinessState Pet::GetHappinessState()

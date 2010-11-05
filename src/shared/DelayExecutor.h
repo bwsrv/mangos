@@ -16,28 +16,40 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef MANGOSSERVER_TEMPSUMMON_H
-#define MANGOSSERVER_TEMPSUMMON_H
+#ifndef _M_DELAY_EXECUTOR_H
+#define _M_DELAY_EXECUTOR_H
 
-#include "Creature.h"
-#include "ObjectAccessor.h"
+#include <ace/Task.h>
+#include <ace/Activation_Queue.h>
+#include <ace/Method_Request.h>
 
-class TemporarySummon : public Creature
+class DelayExecutor : protected ACE_Task_Base
 {
     public:
-        explicit TemporarySummon(ObjectGuid summoner = ObjectGuid());
-        virtual ~TemporarySummon(){};
-        void Summon(TempSummonType type, uint32 lifetime);
-        void MANGOS_DLL_SPEC UnSummon();
-        void SaveToDB();
-        ObjectGuid const& GetSummonerGuid() const { return m_summoner ; }
-        Unit* GetSummoner() const { return ObjectAccessor::GetUnit(*this, m_summoner); }
-    protected:
-        void Update(uint32 update_diff, uint32 tick_diff);  // overwrite Creature::Update
+
+        DelayExecutor();
+        virtual ~DelayExecutor();
+
+        static DelayExecutor* instance();
+
+        int execute(ACE_Method_Request* new_req);
+
+        int activate(int num_threads = 1, ACE_Method_Request* pre_svc_hook = NULL, ACE_Method_Request* post_svc_hook = NULL);
+
+        int deactivate();
+
+        bool activated();
+
+        virtual int svc();
+
     private:
-        TempSummonType m_type;
-        uint32 m_timer;
-        uint32 m_lifetime;
-        ObjectGuid m_summoner;
+
+        ACE_Activation_Queue queue_;
+        ACE_Method_Request* pre_svc_hook_;
+        ACE_Method_Request* post_svc_hook_;
+        bool activated_;
+
+        void activated(bool s);
 };
-#endif
+
+#endif // _M_DELAY_EXECUTOR_H

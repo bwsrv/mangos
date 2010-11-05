@@ -184,6 +184,7 @@ enum eConfigUInt32Values
     CONFIG_UINT32_CHARDELETE_KEEP_DAYS,
     CONFIG_UINT32_CHARDELETE_METHOD,
     CONFIG_UINT32_CHARDELETE_MIN_LEVEL,
+    CONFIG_UINT32_NUMTHREADS,
     CONFIG_UINT32_RANDOM_BG_RESET_HOUR,
     CONFIG_UINT32_VALUE_COUNT
 };
@@ -323,6 +324,7 @@ enum eConfigBoolValues
     CONFIG_BOOL_VMAP_INDOOR_CHECK,
     CONFIG_BOOL_LOOT_CHESTS_IGNORE_DB,
     CONFIG_BOOL_PET_UNSUMMON_AT_MOUNT,
+    CONFIG_BOOL_ALLOW_FLIGHT_ON_OLD_MAPS,
     CONFIG_BOOL_VALUE_COUNT
 };
 
@@ -515,7 +517,7 @@ class World
         static void StopNow(uint8 exitcode) { m_stopEvent = true; m_ExitCode = exitcode; }
         static bool IsStopped() { return m_stopEvent; }
 
-        void Update(uint32 diff);
+        void Update(uint32 time_, uint32 diff);
 
         void UpdateSessions( uint32 diff );
 

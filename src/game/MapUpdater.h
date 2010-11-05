@@ -16,28 +16,43 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef MANGOSSERVER_TEMPSUMMON_H
-#define MANGOSSERVER_TEMPSUMMON_H
+#ifndef _MAP_UPDATER_H_INCLUDED
+#define _MAP_UPDATER_H_INCLUDED
 
-#include "Creature.h"
-#include "ObjectAccessor.h"
+#include <ace/Thread_Mutex.h>
+#include <ace/Condition_Thread_Mutex.h>
 
-class TemporarySummon : public Creature
+#include "DelayExecutor.h"
+
+class Map;
+
+class MapUpdater
 {
     public:
-        explicit TemporarySummon(ObjectGuid summoner = ObjectGuid());
-        virtual ~TemporarySummon(){};
-        void Summon(TempSummonType type, uint32 lifetime);
-        void MANGOS_DLL_SPEC UnSummon();
-        void SaveToDB();
-        ObjectGuid const& GetSummonerGuid() const { return m_summoner ; }
-        Unit* GetSummoner() const { return ObjectAccessor::GetUnit(*this, m_summoner); }
-    protected:
-        void Update(uint32 update_diff, uint32 tick_diff);  // overwrite Creature::Update
+
+        MapUpdater();
+        virtual ~MapUpdater();
+
+        friend class MapUpdateRequest;
+
+        int schedule_update(Map& map, ACE_UINT32 time_, ACE_UINT32 diff);
+
+        int wait();
+
+        int activate(size_t num_threads);
+
+        int deactivate();
+
+        bool activated();
+
     private:
-        TempSummonType m_type;
-        uint32 m_timer;
-        uint32 m_lifetime;
-        ObjectGuid m_summoner;
+
+        DelayExecutor m_executor;
+        ACE_Condition_Thread_Mutex m_condition;
+        ACE_Thread_Mutex m_mutex;
+        size_t pending_requests;
+
+        void update_finished();
 };
-#endif
+
+#endif //_MAP_UPDATER_H_INCLUDED

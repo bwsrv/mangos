@@ -1176,7 +1176,7 @@ void Player::SetDrunkValue(uint16 newDrunkenValue, uint32 itemId)
     SendMessageToSet(&data, true);
 }
 
-void Player::Update( uint32 p_time )
+void Player::Update(uint32 update_diff, uint32 tick_diff)
 {
     if(!IsInWorld())
         return;
@@ -1196,25 +1196,21 @@ void Player::Update( uint32 p_time )
 
     //used to implement delayed far teleports
     SetCanDelayTeleport(true);
-    Unit::Update( p_time );
+    Unit::Update(update_diff, tick_diff);
     SetCanDelayTeleport(false);
 
     // update player only attacks
-    if(uint32 ranged_att = getAttackTimer(RANGED_ATTACK))
-    {
-        setAttackTimer(RANGED_ATTACK, (p_time >= ranged_att ? 0 : ranged_att - p_time) );
-    }
+    if (uint32 ranged_att = getAttackTimer(RANGED_ATTACK))
+        setAttackTimer(RANGED_ATTACK, (update_diff >= ranged_att ? 0 : ranged_att - update_diff) );
 
-    if(uint32 off_att = getAttackTimer(OFF_ATTACK))
-    {
-        setAttackTimer(OFF_ATTACK, (p_time >= off_att ? 0 : off_att - p_time) );
-    }
+    if (uint32 off_att = getAttackTimer(OFF_ATTACK))
+        setAttackTimer(OFF_ATTACK, (update_diff >= off_att ? 0 : off_att - update_diff) );
 
     time_t now = time (NULL);
 
     UpdatePvPFlag(now);
 
-    UpdateContestedPvP(p_time);
+    UpdateContestedPvP(update_diff);
 
     UpdateDuelFlag(now);
 
@@ -1232,7 +1228,7 @@ void Player::Update( uint32 p_time )
         while (iter != m_timedquests.end())
         {
             QuestStatusData& q_status = mQuestStatus[*iter];
-            if( q_status.m_timer <= p_time )
+            if (q_status.m_timer <= update_diff)
             {
                 uint32 quest_id  = *iter;
                 ++iter;                                     // current iter will be removed in FailQuest
@@ -1240,7 +1236,7 @@ void Player::Update( uint32 p_time )
             }
             else
             {
-                q_status.m_timer -= p_time;
+                q_status.m_timer -= update_diff;
                 if (q_status.uState != QUEST_NEW) q_status.uState = QUEST_CHANGED;
                 ++iter;
             }
@@ -1343,49 +1339,49 @@ void Player::Update( uint32 p_time )
 
     if (m_regenTimer)
     {
-        if(p_time >= m_regenTimer)
+        if (update_diff >= m_regenTimer)
             m_regenTimer = 0;
         else
-            m_regenTimer -= p_time;
+            m_regenTimer -= update_diff;
     }
 
     if (m_weaponChangeTimer > 0)
     {
-        if(p_time >= m_weaponChangeTimer)
+        if (update_diff >= m_weaponChangeTimer)
             m_weaponChangeTimer = 0;
         else
-            m_weaponChangeTimer -= p_time;
+            m_weaponChangeTimer -= update_diff;
     }
 
     if (m_zoneUpdateTimer > 0)
     {
-        if(p_time >= m_zoneUpdateTimer)
+        if (update_diff >= m_zoneUpdateTimer)
         {
             uint32 newzone, newarea;
             GetZoneAndAreaId(newzone,newarea);
 
-            if( m_zoneUpdateId != newzone )
+            if (m_zoneUpdateId != newzone)
                 UpdateZone(newzone,newarea);                // also update area
             else
             {
                 // use area updates as well
                 // needed for free far all arenas for example
-                if( m_areaUpdateId != newarea )
+                if (m_areaUpdateId != newarea)
                     UpdateArea(newarea);
 
                 m_zoneUpdateTimer = ZONE_UPDATE_INTERVAL;
             }
         }
         else
-            m_zoneUpdateTimer -= p_time;
+            m_zoneUpdateTimer -= update_diff;
     }
 
     if (m_timeSyncTimer > 0)
     {
-        if(p_time >= m_timeSyncTimer)
+        if (update_diff >= m_timeSyncTimer)
             SendTimeSync();
         else
-            m_timeSyncTimer -= p_time;
+            m_timeSyncTimer -= update_diff;
     }
 
     if (isAlive())
@@ -1404,31 +1400,31 @@ void Player::Update( uint32 p_time )
     if (m_deathState == JUST_DIED)
         KillPlayer();
 
-    if(m_nextSave > 0)
+    if (m_nextSave > 0)
     {
-        if(p_time >= m_nextSave)
+        if (update_diff >= m_nextSave)
         {
             // m_nextSave reseted in SaveToDB call
             SaveToDB();
             DETAIL_LOG("Player '%s' (GUID: %u) saved", GetName(), GetGUIDLow());
         }
         else
-            m_nextSave -= p_time;
+            m_nextSave -= update_diff;
     }
 
     //Handle Water/drowning
-    HandleDrowning(p_time);
+    HandleDrowning(update_diff);
 
     //Handle detect stealth players
     if (m_DetectInvTimer > 0)
     {
-        if (p_time >= m_DetectInvTimer)
+        if (update_diff >= m_DetectInvTimer)
         {
             HandleStealthedUnitsDetection();
             m_DetectInvTimer = 3000;
         }
         else
-            m_DetectInvTimer -= p_time;
+            m_DetectInvTimer -= update_diff;
     }
 
     // Played time
@@ -1442,27 +1438,27 @@ void Player::Update( uint32 p_time )
 
     if (m_drunk)
     {
-        m_drunkTimer += p_time;
+        m_drunkTimer += update_diff;
 
         if (m_drunkTimer > 10*IN_MILLISECONDS)
             HandleSobering();
     }
 
     // not auto-free ghost from body in instances
-    if(m_deathTimer > 0  && !GetBaseMap()->Instanceable())
+    if (m_deathTimer > 0  && !GetBaseMap()->Instanceable())
     {
-        if(p_time >= m_deathTimer)
+        if(update_diff >= m_deathTimer)
         {
             m_deathTimer = 0;
             BuildPlayerRepop();
             RepopAtGraveyard();
         }
         else
-            m_deathTimer -= p_time;
+            m_deathTimer -= update_diff;
     }
 
-    UpdateEnchantTime(p_time);
-    UpdateHomebindTime(p_time);
+    UpdateEnchantTime(update_diff);
+    UpdateHomebindTime(update_diff);
 
     // group update
     SendUpdateToOutOfRangeGroupMembers();
@@ -6476,31 +6472,22 @@ void Player::RewardReputation(Unit *pVictim, float rate)
     if(!Rep)
         return;
 
-     uint32 Repfaction1 = Rep->repfaction1;
-     uint32 Repfaction2 = Rep->repfaction2;
-     uint32 tabardFactionID = 0;
-     
-     // Championning tabard reputation system
-     // aura 57818 is a hidden aura common to northrend tabards allowing championning.
-     if(HasAura(57818))
-     {
-         InstanceTemplate const* mInstance = sObjectMgr.GetInstanceTemplate(pVictim->GetMapId());
-         MapEntry const* StoredMap = sMapStore.LookupEntry(pVictim->GetMapId());
-
-         // only for expansion 2 map (wotlk), and : min level >= lv75 or dungeon only heroic mod
-         // entering a lv80 designed instance require a min level>=75. note : min level != suggested level
-         if ( StoredMap->Expansion() == 2 && ( mInstance->levelMin >= 75 || pVictim->GetMap()->GetDifficulty() == DUNGEON_DIFFICULTY_HEROIC ) )
-         {             
-             if( Item* pItem = GetItemByPos( INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_TABARD ) )
-             {                 
-                 if ( tabardFactionID = pItem->GetProto()->RequiredReputationFaction ) 
-                 {
-                      Repfaction1 = tabardFactionID;
-                      Repfaction2 = tabardFactionID;
-                 }
-             }
-         }
-     }
+    uint32 Repfaction1 = Rep->repfaction1;
+    uint32 Repfaction2 = Rep->repfaction2;
+    uint32 tabardFactionID = 0;
+    
+    // Championning tabard reputation system
+    if(HasAura(Rep->championingAura))
+    {
+        if( Item* pItem = GetItemByPos( INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_TABARD ) )
+        {                 
+            if ( tabardFactionID = pItem->GetProto()->RequiredReputationFaction ) 
+            {
+                Repfaction1 = tabardFactionID;
+                Repfaction2 = tabardFactionID;
+            }
+        }
+    }
 
     if(Rep->repfaction1 && (!Rep->team_dependent || GetTeam()==ALLIANCE))
     {
@@ -11051,9 +11038,7 @@ uint8 Player::CanUseItem( Item *pItem, bool not_loading ) const
                 }
             }
 
-            // reputation for BOA items checked only at buy/quest rewarding (quest accepting in fact by quest rep requirements)
-            if (!(pProto->Flags & ITEM_FLAG_BOA) && pProto->RequiredReputationFaction &&
-                uint32(GetReputationRank(pProto->RequiredReputationFaction)) < pProto->RequiredReputationRank)
+            if (pProto->RequiredReputationFaction && uint32(GetReputationRank(pProto->RequiredReputationFaction)) < pProto->RequiredReputationRank)
                 return EQUIP_ERR_CANT_EQUIP_REPUTATION;
 
             return EQUIP_ERR_OK;
@@ -13085,7 +13070,8 @@ void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId)
                 case GOSSIP_OPTION_VENDOR:
                 {
                     VendorItemData const* vItems = pCreature->GetVendorItems();
-                    if (!vItems || vItems->Empty())
+                    VendorItemData const* tItems = pCreature->GetVendorTemplateItems();
+                    if ((!vItems || vItems->Empty()) && (!tItems || tItems->Empty()))
                     {
                         sLog.outErrorDb("Creature %u (Entry: %u) have UNIT_NPC_FLAG_VENDOR but have empty trading item list.", pCreature->GetGUIDLow(), pCreature->GetEntry());
                         hasMenuItem = false;
@@ -19104,19 +19090,23 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
     }
 
     VendorItemData const* vItems = pCreature->GetVendorItems();
-    if(!vItems || vItems->Empty())
+    VendorItemData const* tItems = pCreature->GetVendorTemplateItems();
+    if ((!vItems || vItems->Empty()) && (!tItems || tItems->Empty()))
     {
         SendBuyError( BUY_ERR_CANT_FIND_ITEM, pCreature, item, 0);
         return false;
     }
 
-    if (vendorslot >= vItems->GetItemCount())
+    uint32 vCount = vItems ? vItems->GetItemCount() : 0;
+    uint32 tCount = tItems ? tItems->GetItemCount() : 0;
+
+    if (vendorslot >= vCount+tCount)
     {
         SendBuyError( BUY_ERR_CANT_FIND_ITEM, pCreature, item, 0);
         return false;
     }
 
-    VendorItem const* crItem = vItems->GetItem(vendorslot);
+    VendorItem const* crItem = vendorslot < vCount ? vItems->GetItem(vendorslot) : tItems->GetItem(vendorslot - vCount);
     if(!crItem || crItem->item != item)                     // store diff item (cheating)
     {
         SendBuyError( BUY_ERR_CANT_FIND_ITEM, pCreature, item, 0);
