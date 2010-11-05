@@ -550,7 +550,8 @@ void WorldSession::HandleMoverRelocation(MovementInfo& movementInfo, Unit* mover
         plMover->SetPosition(movementInfo.GetPos()->x, movementInfo.GetPos()->y, movementInfo.GetPos()->z, movementInfo.GetPos()->o);
         plMover->m_movementInfo = movementInfo;
 
-        if(movementInfo.GetPos()->z < -500.0f)
+        if((movementInfo.GetPos()->z < -500.0f) || (plMover->GetMapId() == 617 && movementInfo.GetPos()->z < 2.0f) || (plMover->GetMapId() == 572 && movementInfo.GetPos()->z < 20.0f) 
+        || (plMover->GetMapId() == 562 && movementInfo.GetPos()->z < -20.0f)) // Prevent falling under textures on some arenas
         {
             if(plMover->InBattleGround()
                 && plMover->GetBattleGround()
