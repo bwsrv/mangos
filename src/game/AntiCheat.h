@@ -21,7 +21,7 @@
 #include <string>
 
 class Player;
-struct MovementInfo;
+class MovementInfo;
 
 struct AntiCheat
 {
