@@ -4241,6 +4241,13 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
         return false;
     }
 
+    // Strength of the Pack must affect only Sanctum Sentries and exclude caster too (Auriaya encounter, Ulduar)
+    if (holder->GetId() == 64381 && (this->GetEntry() != 34014 || this->GetGUID() == holder->GetCasterGUID()))
+    {
+        delete holder;
+        return false;
+    }
+
     // passive and persistent auras can stack with themselves any number of times
     if ((!holder->IsPassive() && !holder->IsPersistent()) || holder->IsAreaAura())
     {
@@ -4306,6 +4313,10 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
 
                 // m_auraname can be modified to SPELL_AURA_NONE for area auras, use original
                 AuraType aurNameReal = AuraType(aurSpellInfo->EffectApplyAuraName[i]);
+
+                // Strength of the Pack must stuck from different casters (Auriaya encounter, Ulduar)
+                if (foundHolder->GetId() == 64381)
+                    continue;
 
                 switch(aurNameReal)
                 {
