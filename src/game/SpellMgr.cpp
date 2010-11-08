@@ -193,7 +193,7 @@ uint32 GetSpellCastTimeForBonus( SpellEntry const *spellProto, DamageEffectType 
     for(int j = 0; j < MAX_EFFECT_INDEX; ++j)
     {
         if (spellProto->Effect[j] == SPELL_EFFECT_HEALTH_LEECH ||
-            spellProto->Effect[j] == SPELL_EFFECT_APPLY_AURA && spellProto->EffectApplyAuraName[j] == SPELL_AURA_PERIODIC_LEECH)
+            (spellProto->Effect[j] == SPELL_EFFECT_APPLY_AURA && spellProto->EffectApplyAuraName[j] == SPELL_AURA_PERIODIC_LEECH))
         {
             CastingTime /= 2;
             break;
@@ -1063,7 +1063,7 @@ void SpellMgr::LoadSpellTargetPositions()
                 if (spellInfo->Effect[i]==SPELL_EFFECT_BIND && spellInfo->EffectMiscValue[i])
                 {
                     uint32 zone_id = sMapMgr.GetAreaId(st.target_mapId, st.target_X, st.target_Y, st.target_Z);
-                    if (zone_id != spellInfo->EffectMiscValue[i])
+                    if (int32(zone_id) != spellInfo->EffectMiscValue[i])
                     {
                         sLog.outErrorDb("Spell (Id: %u) listed in `spell_target_position` expected point to zone %u bit point to zone %u.",Spell_ID, spellInfo->EffectMiscValue[i], zone_id);
                         break;
@@ -1798,7 +1798,7 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             return true;
     }
 
-    // Specific spell family spells
+     // Specific spell family spells
     switch(spellInfo_1->SpellFamilyName)
     {
         case SPELLFAMILY_GENERIC:
@@ -1962,34 +1962,34 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 return false;
             break;
         case SPELLFAMILY_MAGE:
-            if( spellInfo_2->SpellFamilyName == SPELLFAMILY_MAGE )
+            if (spellInfo_2->SpellFamilyName == SPELLFAMILY_MAGE)
             {
                 // Blizzard & Chilled (and some other stacked with blizzard spells
-                if( (spellInfo_1->SpellFamilyFlags & UI64LIT(0x80)) && (spellInfo_2->SpellFamilyFlags & UI64LIT(0x100000)) ||
-                    (spellInfo_2->SpellFamilyFlags & UI64LIT(0x80)) && (spellInfo_1->SpellFamilyFlags & UI64LIT(0x100000)) )
+                if ((spellInfo_1->SpellFamilyFlags & UI64LIT(0x80)) && (spellInfo_2->SpellFamilyFlags & UI64LIT(0x100000)) ||
+                    (spellInfo_2->SpellFamilyFlags & UI64LIT(0x80)) && (spellInfo_1->SpellFamilyFlags & UI64LIT(0x100000)))
                     return false;
 
                 // Blink & Improved Blink
-                if( (spellInfo_1->SpellFamilyFlags & UI64LIT(0x0000000000010000)) && (spellInfo_2->SpellVisual[0] == 72 && spellInfo_2->SpellIconID == 1499) ||
-                    (spellInfo_2->SpellFamilyFlags & UI64LIT(0x0000000000010000)) && (spellInfo_1->SpellVisual[0] == 72 && spellInfo_1->SpellIconID == 1499) )
+                if ((spellInfo_1->SpellFamilyFlags & UI64LIT(0x0000000000010000)) && (spellInfo_2->SpellVisual[0] == 72 && spellInfo_2->SpellIconID == 1499) ||
+                    (spellInfo_2->SpellFamilyFlags & UI64LIT(0x0000000000010000)) && (spellInfo_1->SpellVisual[0] == 72 && spellInfo_1->SpellIconID == 1499))
                     return false;
 
                 // Fingers of Frost effects
-                if( spellInfo_1->SpellIconID == 2947 && spellInfo_2->SpellIconID == 2947)
+                if (spellInfo_1->SpellIconID == 2947 && spellInfo_2->SpellIconID == 2947)
                     return false;
 
                 // Living Bomb & Ignite (Dots)
-                if( (spellInfo_1->SpellFamilyFlags & UI64LIT(0x2000000000000)) && (spellInfo_2->SpellFamilyFlags & UI64LIT(0x8000000)) ||
-                    (spellInfo_2->SpellFamilyFlags & UI64LIT(0x2000000000000)) && (spellInfo_1->SpellFamilyFlags & UI64LIT(0x8000000)) )
+                if ((spellInfo_1->SpellFamilyFlags & UI64LIT(0x2000000000000)) && (spellInfo_2->SpellFamilyFlags & UI64LIT(0x8000000)) ||
+                    (spellInfo_2->SpellFamilyFlags & UI64LIT(0x2000000000000)) && (spellInfo_1->SpellFamilyFlags & UI64LIT(0x8000000)))
                     return false;
 
                 // Fireball & Pyroblast (Dots)
-                if( (spellInfo_1->SpellFamilyFlags & UI64LIT(0x1)) && (spellInfo_2->SpellFamilyFlags & UI64LIT(0x400000)) ||
-                    (spellInfo_2->SpellFamilyFlags & UI64LIT(0x1)) && (spellInfo_1->SpellFamilyFlags & UI64LIT(0x400000)) )
+                if ((spellInfo_1->SpellFamilyFlags & UI64LIT(0x1)) && (spellInfo_2->SpellFamilyFlags & UI64LIT(0x400000)) ||
+                    (spellInfo_2->SpellFamilyFlags & UI64LIT(0x1)) && (spellInfo_1->SpellFamilyFlags & UI64LIT(0x400000)))
                     return false;
 
                 // Arcane Missiles and Moonfire
-                if( spellInfo_1->SpellIconID == 225 && spellInfo_2->SpellIconID == 225 )
+                if (spellInfo_1->SpellIconID == 225 && spellInfo_2->SpellIconID == 225)
                     return false;
             }
             // BloodPact & Bloodboil
@@ -2086,7 +2086,7 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             else if (spellInfo_2->SpellFamilyName == SPELLFAMILY_GENERIC)
             {
              // Mind Trauma and Berserk/Enrage (PvE spells)
-             if(spellInfo_1->Id == 48301 && spellInfo_2->SpellIconID == 95)
+             if (spellInfo_1->Id == 48301 && spellInfo_2->SpellIconID == 95)
                 return false;
 
              // Prayer/PW  Fortitude && Runescroll of Fortitude
@@ -2158,13 +2158,14 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             if (spellInfo_2->SpellFamilyName == SPELLFAMILY_ROGUE)
             {
                 // Master of Subtlety
-                if (spellId_1 == 31665 && spellId_2 == 31666 || spellId_1 == 31666 && spellId_2 == 31665)
+                if ((spellId_1 == 31665 && spellId_2 == 31666) ||
+                    (spellId_1 == 31666 && spellId_2 == 31665))
                     return false;
 
                 // Sprint & Sprint (waterwalk)
                 if (spellInfo_1->SpellIconID == 516 && spellInfo_2->SpellIconID == 516 &&
-                    (spellInfo_1->Category == 44 && spellInfo_2->Category == 0 ||
-                    spellInfo_2->Category == 44 && spellInfo_1->Category == 0))
+                    ((spellInfo_1->Category == 44 && spellInfo_2->Category == 0) ||
+                    (spellInfo_2->Category == 44 && spellInfo_1->Category == 0)))
                     return false;
             }
             //Overkill
@@ -2181,28 +2182,28 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
 
             break;
         case SPELLFAMILY_HUNTER:
-            if( spellInfo_2->SpellFamilyName == SPELLFAMILY_HUNTER )
+            if (spellInfo_2->SpellFamilyName == SPELLFAMILY_HUNTER)
             {
                 // Rapid Fire & Quick Shots
-                if( (spellInfo_1->SpellFamilyFlags & UI64LIT(0x20)) && (spellInfo_2->SpellFamilyFlags & UI64LIT(0x20000000000)) ||
-                    (spellInfo_2->SpellFamilyFlags & UI64LIT(0x20)) && (spellInfo_1->SpellFamilyFlags & UI64LIT(0x20000000000)) )
+                if ((spellInfo_1->SpellFamilyFlags & UI64LIT(0x20)) && (spellInfo_2->SpellFamilyFlags & UI64LIT(0x20000000000)) ||
+                    (spellInfo_2->SpellFamilyFlags & UI64LIT(0x20)) && (spellInfo_1->SpellFamilyFlags & UI64LIT(0x20000000000)))
                     return false;
 
                 // Serpent Sting & (Immolation/Explosive Trap Effect)
-                if( (spellInfo_1->SpellFamilyFlags & UI64LIT(0x4)) && (spellInfo_2->SpellFamilyFlags & UI64LIT(0x00000004000)) ||
-                    (spellInfo_2->SpellFamilyFlags & UI64LIT(0x4)) && (spellInfo_1->SpellFamilyFlags & UI64LIT(0x00000004000)) )
+                if ((spellInfo_1->SpellFamilyFlags & UI64LIT(0x4)) && (spellInfo_2->SpellFamilyFlags & UI64LIT(0x00000004000)) ||
+                    (spellInfo_2->SpellFamilyFlags & UI64LIT(0x4)) && (spellInfo_1->SpellFamilyFlags & UI64LIT(0x00000004000)))
                     return false;
 
                 // Deterrence
-                if( spellInfo_1->SpellIconID == 83 && spellInfo_2->SpellIconID == 83 )
+                if (spellInfo_1->SpellIconID == 83 && spellInfo_2->SpellIconID == 83)
                     return false;
 
                 // Misdirection
-                if( spellInfo_1->SpellIconID == 2231 && spellInfo_2->SpellIconID == 2231 )
+                if (spellInfo_1->SpellIconID == 2231 && spellInfo_2->SpellIconID == 2231)
                     return false;
 
                 // Bestial Wrath
-                if( spellInfo_1->SpellIconID == 1680 && spellInfo_2->SpellIconID == 1680 )
+                if (spellInfo_1->SpellIconID == 1680 && spellInfo_2->SpellIconID == 1680)
                     return false;
             }
             break;
@@ -2218,8 +2219,8 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     return true;
 
                 // Swift Retribution / Improved Devotion Aura (talents) and Paladin Auras
-                if ((spellInfo_1->SpellFamilyFlags2 & 0x00000020) && (spellInfo_2->SpellIconID == 291 || spellInfo_2->SpellIconID == 3028) ||
-                    (spellInfo_2->SpellFamilyFlags2 & 0x00000020) && (spellInfo_1->SpellIconID == 291 || spellInfo_1->SpellIconID == 3028))
+                if (((spellInfo_1->SpellFamilyFlags2 & 0x00000020) && (spellInfo_2->SpellIconID == 291 || spellInfo_2->SpellIconID == 3028)) ||
+                    ((spellInfo_2->SpellFamilyFlags2 & 0x00000020) && (spellInfo_1->SpellIconID == 291 || spellInfo_1->SpellIconID == 3028)))
                     return false;
 
                 // Beacon of Light and Light's Beacon
@@ -2239,7 +2240,7 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     return false;
 
                 // Seal of Vengeance and Righteous Vengeance
-                if(spellInfo_1->Id == 61840 && spellInfo_2->SpellIconID == 2292 || spellInfo_2->Id == 61840 && spellInfo_1->SpellIconID == 2292 )
+                if (spellInfo_1->Id == 61840 && spellInfo_2->SpellIconID == 2292 || spellInfo_2->Id == 61840 && spellInfo_1->SpellIconID == 2292)
                     return false;
 
                 // Blessing of Sanctuary (multi-family check, some from 16 spell icon spells)
@@ -2247,30 +2248,29 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     return false;
 
                 // Inner Fire and Consecration
-                if(spellInfo_2->SpellFamilyName == SPELLFAMILY_PRIEST)
-                    if(spellInfo_1->SpellIconID == 51 && spellInfo_2->SpellIconID == 51)
+                if (spellInfo_2->SpellFamilyName == SPELLFAMILY_PRIEST)
+                    if (spellInfo_1->SpellIconID == 51 && spellInfo_2->SpellIconID == 51)
                         return false;
 
                 // Combustion and Fire Protection Aura (multi-family check)
-                if( spellInfo_2->Id == 11129 && spellInfo_1->SpellIconID == 33 && spellInfo_1->SpellVisual[0] == 321 )
+                if (spellInfo_2->Id == 11129 && spellInfo_1->SpellIconID == 33 && spellInfo_1->SpellVisual[0] == 321)
                     return false;
 
                 // *Sanctity Aura -> Unstable Currents and other (multi-family check)
-                if( spellInfo_1->SpellIconID==502 && spellInfo_2->SpellFamilyName == SPELLFAMILY_GENERIC && spellInfo_2->SpellIconID==502 && spellInfo_2->SpellVisual[0]==969 )
+                if (spellInfo_1->SpellIconID==502 && spellInfo_2->SpellFamilyName == SPELLFAMILY_GENERIC && spellInfo_2->SpellIconID==502 && spellInfo_2->SpellVisual[0]==969)
                     return false;
 
                 // *Seal of Command and Band of Eternal Champion (multi-family check)
-                if( spellInfo_1->SpellIconID==561 && spellInfo_1->SpellVisual[0]==7992 && spellId_2 == 35081)
+                if (spellInfo_1->SpellIconID==561 && spellInfo_1->SpellVisual[0]==7992 && spellId_2 == 35081)
                     return false;
             }
             break;
-
         case SPELLFAMILY_SHAMAN:
-            if( spellInfo_2->SpellFamilyName == SPELLFAMILY_SHAMAN )
+            if (spellInfo_2->SpellFamilyName == SPELLFAMILY_SHAMAN)
             {
                 // Windfury weapon
-                if( spellInfo_1->SpellIconID==220 && spellInfo_2->SpellIconID==220 &&
-                    spellInfo_1->SpellFamilyFlags != spellInfo_2->SpellFamilyFlags )
+                if (spellInfo_1->SpellIconID==220 && spellInfo_2->SpellIconID==220 &&
+                    spellInfo_1->SpellFamilyFlags != spellInfo_2->SpellFamilyFlags)
                     return false;
 
                 // Ghost Wolf
@@ -3668,7 +3668,7 @@ void SpellMgr::LoadSpellAreas()
                     continue;
             }
 
-            if(abs(spellArea.auraSpell)==spellArea.spellId)
+            if(uint32(abs(spellArea.auraSpell))==spellArea.spellId)
             {
                 sLog.outErrorDb("Spell %u listed in `spell_area` have aura spell (%u) requirement for itself", spell,abs(spellArea.auraSpell));
                 continue;
@@ -3975,7 +3975,7 @@ void SpellMgr::CheckUsedSpells(char const* table)
         }
 
         // TODO: for spellCategory better check need dbc loading
-        if (category < -1 || category >=0 && sSpellCategoryStore.find(category) == sSpellCategoryStore.end())
+        if (category < -1 || (category >=0 && sSpellCategoryStore.find(category) == sSpellCategoryStore.end()))
         {
             sLog.outError("Table '%s' for spell %u have wrong SpellCategory value(%u), skipped.",table,spell,category);
             continue;
