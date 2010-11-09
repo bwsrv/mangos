@@ -2886,14 +2886,14 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit *pVictim, WeaponAttack
         return MELEE_HIT_CRIT;
     }
 
-    // Dodge chance
+    bool from_behind = !pVictim->HasInArc(M_PI_F,this);
 
+    if (from_behind)
+        DEBUG_FILTER_LOG(LOG_FILTER_COMBAT, "RollMeleeOutcomeAgainst: attack came from behind.");
+
+    // Dodge chance
     // only players can't dodge if attacker is behind
-    if (pVictim->GetTypeId() == TYPEID_PLAYER && !pVictim->HasInArc(M_PI_F,this))
-    {
-        DEBUG_FILTER_LOG(LOG_FILTER_COMBAT, "RollMeleeOutcomeAgainst: attack came from behind and victim was a player.");
-    }
-    else
+    if (pVictim->GetTypeId() != TYPEID_PLAYER || !from_behind)
     {
         // Reduce dodge chance by attacker expertise rating
         if (GetTypeId() == TYPEID_PLAYER)
@@ -2914,14 +2914,9 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit *pVictim, WeaponAttack
         }
     }
 
-    // parry & block chances
-
+    // parry chances
     // check if attack comes from behind, nobody can parry or block if attacker is behind
-    if (!pVictim->HasInArc(M_PI_F,this) && !pVictim->HasAura(19263))
-    {
-        DEBUG_FILTER_LOG(LOG_FILTER_COMBAT, "RollMeleeOutcomeAgainst: attack came from behind.");
-    }
-    else
+    if (!from_behind)
     {
         // Reduce parry chance by attacker expertise rating
         if (GetTypeId() == TYPEID_PLAYER)
@@ -2940,27 +2935,6 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit *pVictim, WeaponAttack
                 return MELEE_HIT_PARRY;
             }
         }
-
-        if(pVictim->GetTypeId()==TYPEID_PLAYER || !(((Creature*)pVictim)->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_NO_BLOCK) )
-        {
-            tmp = block_chance;
-            if (   (tmp > 0)                                    // check if unit _can_ block
-                && ((tmp -= skillBonus) > 0)
-                && (roll < (sum += tmp)))
-            {
-                DEBUG_FILTER_LOG(LOG_FILTER_COMBAT, "RollMeleeOutcomeAgainst: BLOCK <%d, %d)", sum-tmp, sum);
-                return MELEE_HIT_BLOCK;
-            }
-        }
-    }
-
-    // Critical chance
-    tmp = crit_chance;
-
-    if (tmp > 0 && roll < (sum += tmp))
-    {
-        DEBUG_FILTER_LOG(LOG_FILTER_COMBAT, "RollMeleeOutcomeAgainst: CRIT <%d, %d)", sum-tmp, sum);
-        return MELEE_HIT_CRIT;
     }
 
     // Max 40% chance to score a glancing blow against mobs that are higher level (can do only players and pets and not with ranged weapon)
@@ -2981,6 +2955,32 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit *pVictim, WeaponAttack
             DEBUG_FILTER_LOG(LOG_FILTER_COMBAT, "RollMeleeOutcomeAgainst: GLANCING <%d, %d)", sum-4000, sum);
             return MELEE_HIT_GLANCING;
         }
+    }
+
+    // block chances
+    // check if attack comes from behind, nobody can parry or block if attacker is behind
+    if (!from_behind)
+    {
+        if(pVictim->GetTypeId()==TYPEID_PLAYER || !(((Creature*)pVictim)->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_NO_BLOCK) )
+        {
+            tmp = block_chance;
+            if (   (tmp > 0)                                    // check if unit _can_ block
+                && ((tmp -= skillBonus) > 0)
+                && (roll < (sum += tmp)))
+            {
+                DEBUG_FILTER_LOG(LOG_FILTER_COMBAT, "RollMeleeOutcomeAgainst: BLOCK <%d, %d)", sum-tmp, sum);
+                return MELEE_HIT_BLOCK;
+            }
+        }
+    }
+
+    // Critical chance
+    tmp = crit_chance;
+
+    if (tmp > 0 && roll < (sum += tmp))
+    {
+        DEBUG_FILTER_LOG(LOG_FILTER_COMBAT, "RollMeleeOutcomeAgainst: CRIT <%d, %d)", sum-tmp, sum);
+        return MELEE_HIT_CRIT;
     }
 
     // mobs can score crushing blows if they're 4 or more levels above victim
@@ -3102,33 +3102,41 @@ void Unit::SendMeleeAttackStop(Unit* victim)
     ((Creature*)victim)->AI().EnterEvadeMode(this);*/
 }
 
-bool Unit::IsSpellBlocked(Unit *pCaster, SpellEntry const * /*spellProto*/, WeaponAttackType attackType)
+bool Unit::IsSpellBlocked(Unit *pCaster, SpellEntry const *spellEntry, WeaponAttackType attackType)
 {
-    if (HasInArc(M_PI_F,pCaster))
+    if (!HasInArc(M_PI_F, pCaster))
+        return false;
+
+    if (spellEntry)
     {
-        /* Currently not exist spells with ignore block
-        // Ignore combat result aura (parry/dodge check on prepare)
-        AuraList const& ignore = GetAurasByType(SPELL_AURA_IGNORE_COMBAT_RESULT);
-        for(AuraList::const_iterator i = ignore.begin(); i != ignore.end(); ++i)
-        {
-            if (!(*i)->isAffectedOnSpell(spellProto))
-                continue;
-            if ((*i)->GetModifier()->m_miscvalue == )
-                return false;
-        }
-        */
-
-        // Check creatures flags_extra for disable block
-        if(GetTypeId()==TYPEID_UNIT &&
-           ((Creature*)this)->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_NO_BLOCK )
-                return false;
-
-        float blockChance = GetUnitBlockChance();
-        blockChance += (int32(pCaster->GetWeaponSkillValue(attackType)) - int32(GetMaxSkillValueForLevel()))*0.04f;
-        if (roll_chance_f(blockChance))
-            return true;
+        // Some spells cannot be blocked
+        if (spellEntry->Attributes & SPELL_ATTR_IMPOSSIBLE_DODGE_PARRY_BLOCK)
+            return false;
     }
-    return false;
+
+    /*
+    // Ignore combat result aura (parry/dodge check on prepare)
+    AuraList const& ignore = GetAurasByType(SPELL_AURA_IGNORE_COMBAT_RESULT);
+    for(AuraList::const_iterator i = ignore.begin(); i != ignore.end(); ++i)
+    {
+        if (!(*i)->isAffectedOnSpell(spellProto))
+            continue;
+        if ((*i)->GetModifier()->m_miscvalue == )
+            return false;
+    }
+    */
+
+    // Check creatures flags_extra for disable block
+    if (GetTypeId() == TYPEID_UNIT)
+    {
+        if (((Creature*)this)->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_NO_BLOCK)
+            return false;
+    }
+
+    float blockChance = GetUnitBlockChance();
+    blockChance += (int32(pCaster->GetWeaponSkillValue(attackType)) - int32(GetMaxSkillValueForLevel()))*0.04f;
+    
+    return roll_chance_f(blockChance);
 }
 
 // Melee based spells can be miss, parry or dodge on this step
