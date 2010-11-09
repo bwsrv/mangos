@@ -293,6 +293,10 @@ void WorldSession::LogoutPlayer(bool Save)
 
         if (uint64 lguid = GetPlayer()->GetLootGUID())
             DoLootRelease(lguid);
+        sLFGMgr.Leave(_player);
+        GetPlayer()->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
+        GetPlayer()->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
+        GetPlayer()->GetSession()->SendLfgUpdateSearch(false);
 
         ///- If the player just died before logging out, make him appear as a ghost
         //FIXME: logout must be delayed in case lost connection with client in time of combat

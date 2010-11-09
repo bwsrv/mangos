@@ -816,7 +816,7 @@ void WorldSession::HandleMeetingStoneInfoOpcode( WorldPacket & /*recv_data*/ )
 {
     DEBUG_LOG( "WORLD: Received CMSG_MEETING_STONE_INFO" );
 
-    SendLfgUpdate(0, 0, 0);
+    //SendLfgUpdate(0, 0, 0);
 }
 
 void WorldSession::HandleTutorialFlagOpcode( WorldPacket & recv_data )

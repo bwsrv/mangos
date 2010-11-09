@@ -26,6 +26,7 @@
 #include "Common.h"
 #include "SharedDefines.h"
 #include "ObjectGuid.h"
+#include "LFGMgr.h"
 
 struct ItemPrototype;
 struct AuctionEntry;
@@ -45,6 +46,7 @@ class LoginQueryHolder;
 class CharacterHandler;
 class GMTicket;
 class MovementInfo;
+class Quest;
 
 struct OpcodeHandler;
 
@@ -696,15 +698,15 @@ class MANGOS_DLL_SPEC WorldSession
         void HandleSetDungeonDifficultyOpcode(WorldPacket& recv_data);
         void HandleSetRaidDifficultyOpcode(WorldPacket& recv_data);
         void HandleMoveSetCanFlyAckOpcode(WorldPacket& recv_data);
-        void HandleLfgJoinOpcode(WorldPacket& recv_data);
-        void HandleLfgLeaveOpcode(WorldPacket& recv_data);
-        void HandleSearchLfgJoinOpcode(WorldPacket& recv_data);
-        void HandleSearchLfgLeaveOpcode(WorldPacket& recv_data);
+        //void HandleLfgJoinOpcode(WorldPacket& recv_data);
+        //void HandleLfgLeaveOpcode(WorldPacket& recv_data);
+        //void HandleSearchLfgJoinOpcode(WorldPacket& recv_data);
+        //void HandleSearchLfgLeaveOpcode(WorldPacket& recv_data);
         void HandleLfgClearOpcode(WorldPacket& recv_data);
         void HandleLfmClearOpcode(WorldPacket& recv_data);
         void HandleSetLfmOpcode(WorldPacket& recv_data);
-        void HandleSetLfgCommentOpcode(WorldPacket& recv_data);
-        void HandleLfgSetRoles(WorldPacket& recv_data);
+        //void HandleSetLfgCommentOpcode(WorldPacket& recv_data);
+        //void HandleLfgSetRoles(WorldPacket& recv_data);
         void HandleSetTitleOpcode(WorldPacket& recv_data);
         void HandleRealmSplitOpcode(WorldPacket& recv_data);
         void HandleTimeSyncResp(WorldPacket& recv_data);
@@ -787,6 +789,33 @@ class MANGOS_DLL_SPEC WorldSession
         void HandleReadyForAccountDataTimesOpcode(WorldPacket& recv_data);
         void HandleQueryQuestsCompletedOpcode(WorldPacket& recv_data);
         void HandleQuestPOIQueryOpcode(WorldPacket& recv_data);
+
+        // Looking for Dungeon/Raid
+        void HandleSetLfgCommentOpcode(WorldPacket & recv_data);
+        void HandleLfgPlayerLockInfoRequestOpcode(WorldPacket& recv_data);
+        void HandleLfgPartyLockInfoRequestOpcode(WorldPacket& recv_data);
+        void HandleLfgJoinOpcode(WorldPacket &recv_data);
+        void HandleLfgLeaveOpcode(WorldPacket &);// recv_data
+        void HandleLfgSetRolesOpcode(WorldPacket &recv_data);
+        void HandleLfgProposalResultOpcode(WorldPacket &recv_data);
+        void HandleLfgSetBootVoteOpcode(WorldPacket &recv_data);
+        void HandleLfgTeleportOpcode(WorldPacket &recv_data);
+        void HandleLfrSearchOpcode(WorldPacket &recv_data);
+        void HandleLfrLeaveOpcode(WorldPacket &recv_data);
+
+        void SendLfgUpdatePlayer(uint8 updateType);
+        void SendLfgUpdateParty(uint8 updateType);
+        void SendLfgRoleChosen(uint64 guid, uint8 roles);
+        void SendLfgRoleCheckUpdate(LfgRoleCheck *pRoleCheck);
+        void SendLfgUpdateSearch(bool update);
+        void SendLfgJoinResult(uint8 checkResult, uint8 checkValue = 0, std::map<uint32, std::set<LfgLockStatus*>*> *playersLockMap = NULL /* LfgLockStatusMap *playersLockMap = NULL */);
+        void SendLfgQueueStatus(uint32 dungeon, int32 waitTime, int32 avgWaitTime, int32 waitTimeTanks, int32 waitTimeHealer, int32 waitTimeDps, uint32 queuedTime, uint8 tanks, uint8 healers, uint8 dps);
+        void SendLfgPlayerReward(uint32 rdungeonEntry, uint32 sdungeonEntry, uint8 done, const LfgReward *reward, const Quest *qRew);
+        void SendLfgBootPlayer(LfgPlayerBoot *pBoot);
+        void SendUpdateProposal(uint32 proposalId, LfgProposal *pProp);
+        void SendLfgDisabled();
+        void SendLfgOfferContinue(uint32 dungeonEntry);
+        void SendLfgTeleportError(uint8 err);
 
     private:
         // private trade methods

@@ -161,6 +161,8 @@ void WorldSession::HandleGroupInviteOpcode( WorldPacket & recv_data )
     data << uint32(0);                                      // unk
     player->GetSession()->SendPacket(&data);
 
+    SendLfgUpdatePlayer(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
+    SendLfgUpdateParty(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
     SendPartyResult(PARTY_OP_INVITE, membername, ERR_PARTY_RESULT_OK);
 }
 
@@ -209,6 +211,14 @@ void WorldSession::HandleGroupAcceptOpcode( WorldPacket & recv_data )
     if(!group->AddMember(GetPlayer()->GetObjectGuid(), GetPlayer()->GetName()))
         return;
 
+    SendLfgUpdatePlayer(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
+    for (GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+        if (Player *plrg = itr->getSource())
+        {
+            plrg->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_CLEAR_LOCK_LIST);
+            plrg->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_CLEAR_LOCK_LIST);
+        }
+
     // Frozen Mod
     group->BroadcastGroupUpdate();
     // Frozen Mod
@@ -238,8 +248,9 @@ void WorldSession::HandleGroupDeclineOpcode( WorldPacket & /*recv_data*/ )
 void WorldSession::HandleGroupUninviteGuidOpcode(WorldPacket & recv_data)
 {
     ObjectGuid guid;
+    std::string reason;
     recv_data >> guid;
-    recv_data.read_skip<std::string>();                     // reason
+    recv_data >> reason;                     // reason
 
     // can't uninvite yourself
     if (guid == GetPlayer()->GetObjectGuid())
@@ -261,7 +272,10 @@ void WorldSession::HandleGroupUninviteGuidOpcode(WorldPacket & recv_data)
 
     if (grp->IsMember(guid))
     {
-        Player::RemoveFromGroup(grp, guid);
+        if (grp->isLFGGroup())
+            sLFGMgr.InitBoot(grp, GetPlayer()->GetObjectGuid().GetCounter(), guid.GetCounter(), reason);
+        else
+            Player::RemoveFromGroup(grp, guid);
         return;
     }
 
@@ -304,7 +318,10 @@ void WorldSession::HandleGroupUninviteOpcode(WorldPacket & recv_data)
     ObjectGuid guid = grp->GetMemberGuid(membername);
     if (!guid.IsEmpty())
     {
-        Player::RemoveFromGroup(grp, guid);
+        if (grp->isLFGGroup())
+            sLFGMgr.InitBoot(grp, GetPlayer()->GetObjectGuid().GetCounter(), guid.GetCounter(), "");
+        else
+            Player::RemoveFromGroup(grp, guid);
         return;
     }
 
