@@ -1602,6 +1602,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         bool CheckAllControlledUnits(Func const& func, bool withTotems, bool withGuardians, bool withCharms, bool withMiniPet = false) const;
 
         bool AddSpellAuraHolder(SpellAuraHolder *holder);
+        void ReapplyModifers(Aura *Aur);
         void AddAuraToModList(Aura *aura);
 
         // Lexics Cutter Helper
