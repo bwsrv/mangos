@@ -2168,6 +2168,12 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     (spellInfo_2->Category == 44 && spellInfo_1->Category == 0)))
                     return false;
             }
+            else if (spellInfo_2->SpellFamilyName == SPELLFAMILY_GENERIC) 
+            {
+                // Honor Among Thieves dummy auras (multi-family check)
+                if (spellId_1 == 52916 && spellId_2 == 51699)
+                    return false;
+            }
             //Overkill
             if (spellInfo_1->SpellIconID == 2285 && spellInfo_2->SpellIconID == 2285)
                 return false;
@@ -2250,6 +2256,9 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 // Inner Fire and Consecration
                 if (spellInfo_2->SpellFamilyName == SPELLFAMILY_PRIEST)
                     if (spellInfo_1->SpellIconID == 51 && spellInfo_2->SpellIconID == 51)
+                        return false;
+                    // Honor Among Thieves dummy auras (multi-family check)
+                    if (spellId_1 == 51699 && spellId_2 == 52916)
                         return false;
 
                 // Combustion and Fire Protection Aura (multi-family check)
