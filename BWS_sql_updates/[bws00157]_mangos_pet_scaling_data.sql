@@ -3,8 +3,6 @@ UPDATE pet_scaling_data SET sta = 75, apbasescale = 310, spelldamage = 12 WHERE 
 UPDATE pet_scaling_data SET sta = 15, spelldamage = 2  WHERE creature_entry = 1 AND aura = 62758;
 UPDATE pet_scaling_data SET sta = 30, spelldamage = 4  WHERE creature_entry = 1 AND aura = 62762;
 
-UPDATE pet_scaling_data SET sta = 66 WHERE creature_entry = 27829; -- Guardian 27829 - DK Gargoyle
-
 -- Army of the Dead Ghoul
 DELETE FROM `spell_pet_auras` WHERE `aura` = 54566;
 DELETE FROM `spell_pet_auras` WHERE `spell` = 0 AND `pet` = 24207;
@@ -54,3 +52,11 @@ INSERT INTO `pet_scaling_data` (`creature_entry`, `aura`, `healthbase`, `health`
 DELETE FROM `pet_scaling_data` WHERE `creature_entry` = 416;
 INSERT INTO `pet_scaling_data` (`creature_entry`, `aura`, `healthbase`, `health`, `powerbase`, `power`, `str`, `agi`, `sta`, `inte`, `spi`, `armor`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `apbase`, `apbasescale`, `attackpower`, `damage`, `spelldamage`, `spellhit`, `hit`, `expertize`, `attackspeed`, `crit`, `regen`) VALUES
 (416, 0, 0, 840, 0, 495, 0, 0, 80, 45, 0, 35, 40, 40, 40, 40, 40, 40, 10, 100, 57, 0, 15, 100, 100, 100, 100, 0, 20);
+
+-- DK Gargoyle
+DELETE FROM `spell_pet_auras` WHERE `aura` = 54566;
+DELETE FROM `spell_pet_auras` WHERE `spell` = 0 AND `pet` = 27829;
+INSERT INTO `spell_pet_auras` VALUES
+(0,0,27829,51996),
+(0,0,27829,54566),
+(0,0,27829,61697);
