@@ -3210,6 +3210,13 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 // triggered_spell_id in spell data
                 break;
             }
+            // Rune strike
+            if (dummySpell->Id == 56817)
+            {   
+                //Must proc only from Rune strike (56815)
+                if (procSpell && procSpell->Id != 56815)
+                    return SPELL_AURA_PROC_FAILED;
+            }
             break;
         }
         case SPELLFAMILY_PET:
