@@ -3091,6 +3091,9 @@ void Spell::cast(bool skipCheck)
             // Berserk (Bear Mangle part)
             else if (m_spellInfo->Id == 50334)
                 AddTriggeredSpell(58923);
+           // Item - Druid T10 Balance 2P Bonus
+            else if (m_spellInfo->Id == 16870 && m_caster->HasAura(70718))
+                AddTriggeredSpell(70721);
             break;
         }
         case SPELLFAMILY_ROGUE:

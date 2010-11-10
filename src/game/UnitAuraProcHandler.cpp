@@ -1668,6 +1668,22 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                     triggered_spell_id = 56161;
                     break;
                 }
+                // Priest T10 Healer 2P Bonus
+                case 70770: 
+                {
+                    // Flash Heal
+                    if (procSpell->SpellFamilyFlags & 0x800)
+                    {
+                       triggered_spell_id = 70772;
+                       SpellEntry const* blessHealing = sSpellStore.LookupEntry(triggered_spell_id);
+
+                       if (!blessHealing)
+                           return SPELL_AURA_PROC_FAILED;
+
+                        basepoints[0] = int32(triggerAmount * damage / 100 / (GetSpellMaxDuration(blessHealing) / blessHealing->EffectAmplitude[0]));
+                    }
+                    break;
+                }
             }
             break;
         }
@@ -1807,8 +1823,8 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 // Item - Druid T10 Balance 4P Bonus
                 case 70723:
                 {
-                    basepoints[0] = int32( triggerAmount * damage / 100 );
-                    basepoints[0] = int32( basepoints[0] / 2);
+                    basepoints[0] = int32(triggerAmount * damage / 100);
+                    basepoints[0] = int32(basepoints[0] / 2);
                     triggered_spell_id = 71023;
                     break;
                 } 
