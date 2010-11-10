@@ -754,7 +754,7 @@ void Spell::prepareDataForTriggerSystem()
         {
             case SPELLFAMILY_MAGE:
                 // Arcane Missles / Blizzard triggers need do it
-                if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000000000200080))
+                if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000000000200080)) || m_spellInfo->SpellIconID == 212)
                     m_canTrigger = true;
                 // Clearcasting trigger need do it
                 else if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000000200000000) && m_spellInfo->SpellFamilyFlags2 & 0x8)
@@ -1251,6 +1251,11 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             // not break stealth by cast targeting
             if (!(m_spellInfo->AttributesEx & SPELL_ATTR_EX_NOT_BREAK_STEALTH) && m_spellInfo->Id != 51690 && m_spellInfo->Id != 53055 && 
                 m_spellInfo->Id != 3600 && m_spellInfo->Id != 44416 && m_spellInfo->SpellIconID != 1954 && m_spellInfo->SpellIconID != 2267)
+                unit->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+
+            // Rogue sap and Mass dispel, etc. 
+            if (!(m_spellInfo->Id == 39897 || m_spellInfo->Id == 32592 || m_spellInfo->Id == 32375 || m_spellInfo->Id == 1725
+                || m_spellInfo->Id == 1038 || (m_spellInfo->SpellFamilyFlags2 & UI64LIT(0x00000100))) || m_spellInfo->SpellFamilyFlags == SPELLFAMILYFLAG_ROGUE_SAP)
                 unit->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
 
             // can cause back attack (if detected), stealth removed at Spell::cast if spell break it
