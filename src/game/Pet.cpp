@@ -459,6 +459,8 @@ void Pet::SetDeathState(DeathState s)                       // overwrite virtual
             MapEntry const* mapEntry = sMapStore.LookupEntry(GetMapId());
             if(!mapEntry || (mapEntry->map_type != MAP_ARENA && mapEntry->map_type != MAP_BATTLEGROUND))
                 ModifyPower(POWER_HAPPINESS, -HAPPINESS_LEVEL_SIZE);
+            if( HasSpell(55709) && GetOwner())
+                GetOwner()->CastSpell(GetOwner(), 54114, false);
 
             SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
         }
