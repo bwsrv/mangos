@@ -1925,7 +1925,10 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                     if (spellProto->SpellFamilyName == SPELLFAMILY_ROGUE &&
                         (spellProto->SpellFamilyFlags & UI64LIT(0x0000000000040000)))
                     {
-                        (*itr)->SetAuraMaxDuration(GetSpellMaxDuration(spellProto));
+                        int32 duration = GetSpellMaxDuration(spellProto);
+                        if(GetTypeId() == TYPEID_PLAYER)
+                            static_cast<Player*>(this)->ApplySpellMod(spellProto->Id, SPELLMOD_DURATION, duration);
+                        (*itr)->SetAuraMaxDuration(duration);
                         (*itr)->GetHolder()->RefreshHolder();
                         return SPELL_AURA_PROC_OK;
                     }
