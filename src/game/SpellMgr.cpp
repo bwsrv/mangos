@@ -2185,7 +2185,6 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             // Garrote -> Garrote-Silence (multi-family check)
             if (spellInfo_1->SpellIconID == 498 && spellInfo_2->SpellIconID == 498 && spellInfo_2->SpellVisual[0] == 0)
                 return false;
-
             break;
         case SPELLFAMILY_HUNTER:
             if (spellInfo_2->SpellFamilyName == SPELLFAMILY_HUNTER)
@@ -2256,9 +2255,6 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 // Inner Fire and Consecration
                 if (spellInfo_2->SpellFamilyName == SPELLFAMILY_PRIEST)
                     if (spellInfo_1->SpellIconID == 51 && spellInfo_2->SpellIconID == 51)
-                        return false;
-                    // Honor Among Thieves dummy auras (multi-family check)
-                    if (spellId_1 == 51699 && spellId_2 == 52916)
                         return false;
 
                 // Combustion and Fire Protection Aura (multi-family check)

@@ -207,8 +207,8 @@ bool Creature::InitEntry(uint32 Entry, uint32 team, const CreatureData *data )
     // difficulties for dungeons/battleground ordered in normal way
     // and if more high version not exist must be used lesser version
     // for raid order different:
-    // 10 man normal version must be used instead not existed 10 man heroic version
-    // 25 man normal version must be used instead not existed 25 man heroic version
+    // 10 man normal version must be used instead nonexistent 10 man heroic version
+    // 25 man normal version must be used instead nonexistent 25 man heroic version
     CreatureInfo const *cinfo = normalInfo;
     for (uint8 diff = uint8(GetMap()->GetDifficulty()); diff > 0;)
     {
@@ -406,7 +406,7 @@ uint32 Creature::ChooseDisplayId(const CreatureInfo *cinfo, const CreatureData *
     return display_id;
 }
 
-void Creature::Update(uint32 update_diff, uint32 tick_diff)
+void Creature::Update(uint32 diff)
 {
     if (m_needNotify)
     {
@@ -467,7 +467,7 @@ void Creature::Update(uint32 update_diff, uint32 tick_diff)
             if (m_isDeadByDefault)
                 break;
 
-            if (m_corpseDecayTimer <= update_diff)
+            if (m_corpseDecayTimer <= diff)
             {
                 // since pool system can fail to roll unspawned object, this one can remain spawned, so must set respawn nevertheless
                 uint16 poolid = GetDBTableGUIDLow() ? sPoolMgr.IsPartOfAPool<Creature>(GetDBTableGUIDLow()) : 0;
@@ -482,11 +482,11 @@ void Creature::Update(uint32 update_diff, uint32 tick_diff)
             }
             else
             {
-                m_corpseDecayTimer -= update_diff;
+                m_corpseDecayTimer -= diff;
                 if (m_groupLootId)
                 {
-                    if(update_diff < m_groupLootTimer)
-                        m_groupLootTimer -= update_diff;
+                    if(diff < m_groupLootTimer)
+                        m_groupLootTimer -= diff;
                     else
                         StopGroupLoot();
                 }
@@ -498,7 +498,7 @@ void Creature::Update(uint32 update_diff, uint32 tick_diff)
         {
             if (m_isDeadByDefault)
             {
-                if (m_corpseDecayTimer <= update_diff)
+                if (m_corpseDecayTimer <= diff)
                 {
                     // since pool system can fail to roll unspawned object, this one can remain spawned, so must set respawn nevertheless
                     uint16 poolid = GetDBTableGUIDLow() ? sPoolMgr.IsPartOfAPool<Creature>(GetDBTableGUIDLow()) : 0;
@@ -516,11 +516,11 @@ void Creature::Update(uint32 update_diff, uint32 tick_diff)
                 }
                 else
                 {
-                    m_corpseDecayTimer -= update_diff;
+                    m_corpseDecayTimer -= diff;
                 }
             }
 
-            Unit::Update(update_diff, tick_diff);
+            Unit::Update( diff );
 
             // creature can be dead after Unit::Update call
             // CORPSE/DEAD state will processed at next tick (in other case death timer will be updated unexpectedly)
@@ -531,7 +531,7 @@ void Creature::Update(uint32 update_diff, uint32 tick_diff)
             {
                 // do not allow the AI to be changed during update
                 m_AI_locked = true;
-                i_AI->UpdateAI(tick_diff);                  // AI not react good at real update delays (while freeze in non-active part of map)
+                i_AI->UpdateAI(diff);
                 m_AI_locked = false;
             }
 
@@ -545,10 +545,10 @@ void Creature::Update(uint32 update_diff, uint32 tick_diff)
 
             if(m_regenTimer > 0)
             {
-                if(update_diff >= m_regenTimer)
+                if(diff >= m_regenTimer)
                     m_regenTimer = 0;
                 else
-                    m_regenTimer -= update_diff;
+                    m_regenTimer -= diff;
             }
             if (m_regenTimer != 0)
                 break;

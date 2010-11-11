@@ -795,6 +795,11 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                 {
                     damage += int32(m_caster->GetTotalAttackPowerValue(RANGED_ATTACK)*0.1f);
                 }
+                // Black Arrow
+                else if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x0800000000000080))
+                {
+                    damage += int32(m_caster->GetTotalAttackPowerValue(RANGED_ATTACK)*0.1f);
+                }
                 // Volley
                 else if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x00002000))
                 {
@@ -4112,6 +4117,8 @@ void Spell::EffectEnergize(SpellEffectIndex eff_idx)
             break;
         case 31930:                                         // Judgements of the Wise
         case 48542:                                         // Revitalize (mana restore case)
+            damage = damage * unitTarget->GetMaxPower(POWER_MANA) / 100;
+            break;
         case 63375:                                         // Improved Stormstrike
         case 67545:                                         // Empowered Fire
         case 68082:                                         // Glyph of Seal of Command
