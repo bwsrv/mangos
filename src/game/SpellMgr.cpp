@@ -278,22 +278,6 @@ WeaponAttackType GetWeaponAttackType(SpellEntry const *spellInfo)
     }
 }
 
-
-
-int32 ApplyHasteToChannelSpell(int32 orginalDuration, SpellEntry const* spellInfo, Spell const* spell)
-{
-    if (!spell)
-        return orginalDuration;
-
-    if(Player* modOwner = spell->GetCaster()->GetSpellModOwner())
-        modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_CASTING_TIME, orginalDuration, spell);
-
-    if( !(spellInfo->Attributes & (SPELL_ATTR_UNK4|SPELL_ATTR_TRADESPELL)) )
-        orginalDuration = int32(orginalDuration * spell->GetCaster()->GetFloatValue(UNIT_MOD_CAST_SPEED));
-
-    return orginalDuration;
-}
-
 bool IsPassiveSpell(uint32 spellId)
 {
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);

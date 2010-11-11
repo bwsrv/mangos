@@ -4112,9 +4112,6 @@ void Spell::SendChannelStart(uint32 duration)
         }
     }
 
-    //Apply haste rating
-    duration = ApplyHasteToChannelSpell(duration, m_spellInfo, this);
-
     WorldPacket data( MSG_CHANNEL_START, (8+4+4) );
     data << m_caster->GetPackGUID();
     data << uint32(m_spellInfo->Id);

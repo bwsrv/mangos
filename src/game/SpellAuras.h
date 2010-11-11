@@ -393,8 +393,6 @@ class MANGOS_DLL_SPEC Aura
         void SetAuraMaxDuration(int32 duration);
         int32 GetAuraDuration() const { return m_duration; }
         void SetAuraDuration(int32 duration) { m_duration = duration; }
-        int32 GetAuraOrigDuration() const { return m_origDuration; }
-        void SetAuraOrigDuration(int32 duration) { m_origDuration = duration; }
         time_t GetAuraApplyTime() const { return m_applyTime; }
         uint32 GetAuraTicks() const { return m_periodicTick; }
         uint32 GetAuraMaxTicks() const { return m_maxduration > 0 && m_modifier.periodictime > 0 ? m_maxduration / m_modifier.periodictime : 0; }
@@ -443,8 +441,6 @@ class MANGOS_DLL_SPEC Aura
         uint32 const *getAuraSpellClassMask() const { return  m_spellAuraHolder->GetSpellProto()->GetEffectSpellClassMask(m_effIndex); }
         bool isAffectedOnSpell(SpellEntry const *spell) const;
         bool CanProcFrom(SpellEntry const *spell, uint32 EventProcEx, uint32 procEx, bool active) const;
-        
-        void ApplyHasteToPeriodic();
 
         //SpellAuraHolder const* GetHolder() const { return m_spellHolder; }
         SpellAuraHolder* GetHolder() { return m_spellAuraHolder; }
@@ -475,7 +471,6 @@ class MANGOS_DLL_SPEC Aura
         int32 m_timeCla;                                    // Timer for power per sec calcultion
         int32 m_periodicTimer;                              // Timer for periodic auras
         uint32 m_periodicTick;                              // Tick count pass (including current if use in tick code) from aura apply, used for some tick count dependent aura effects
-        uint32 m_origDuration;                              // Duration before applying haste, etc...
 
         AuraRemoveMode m_removeMode:8;                      // Store info for know remove aura reason
 
