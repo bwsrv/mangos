@@ -12,3 +12,7 @@ INSERT INTO spell_bonus_data VALUES ('30451','0.714286','0.122','0','Mage - Arca
 
 -- Judgement
 DELETE FROM spell_bonus_data WHERE entry = 54158;
+
+-- Gargoyle Strike
+DELETE FROM spell_bonus_data WHERE entry = 51963;
+INSERT INTO spell_bonus_data VALUES ('51963','0','0.4','0','DK - Gargoyle Strike');
