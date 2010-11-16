@@ -772,7 +772,7 @@ void Spell::prepareDataForTriggerSystem()
                     m_canTrigger = true;
                 break;
             case SPELLFAMILY_PRIEST:
-                // For Penance,Mind Sear,Mind Flay heal/damage triggers need do it
+                // For Penance, Mind Sear, Mind Flay heal/damage triggers need do it
                 if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x0001800000800000) || (m_spellInfo->SpellFamilyFlags2 & 0x00000040))
                     m_canTrigger = true;
                 break;
@@ -789,6 +789,11 @@ void Spell::prepareDataForTriggerSystem()
             case SPELLFAMILY_PALADIN:
                 // For Judgements (all) / Holy Shock triggers need do it
                 if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x0001000900B80400))
+                    m_canTrigger = true;
+                break;
+            case SPELLFAMILY_WARRIOR:
+                // Whirlwind trigger need do it
+                if (m_spellInfo->Id == 50622)
                     m_canTrigger = true;
                 break;
             default:
