@@ -6750,7 +6750,7 @@ uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, u
                     }
                 }
                 else
-                    DoneTotalMod *= ((*i)->GetModifier()->m_amount+105.0f)/100.0f;
+                    DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
         }
     }
 
