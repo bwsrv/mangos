@@ -5420,7 +5420,16 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
                 //Frost Fever and Blood Plague AP scale
                 if (spellProto->SpellFamilyFlags & UI64LIT(0x400080000000000))
                 {
-                    m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.055f * 1.15f);
+                    float ap_bonus = 1.0f;
+
+                    // Impurity
+                    if (caster->GetTypeId() == TYPEID_PLAYER)
+                    {
+                        if (SpellEntry const* spell = ((Player*)caster)->GetKnownTalentRankById(2005))
+                            ap_bonus += ((spell->CalculateSimpleValue(EFFECT_INDEX_0) * ap_bonus) / 100.0f);
+                    }
+                    m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.055f * 1.15f*ap_bonus);
+
                 }
                 break;
             }
