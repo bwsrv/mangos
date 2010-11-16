@@ -15,4 +15,3 @@ DELETE FROM spell_bonus_data WHERE entry = 54158;
 
 -- Gargoyle Strike
 DELETE FROM spell_bonus_data WHERE entry = 51963;
-INSERT INTO spell_bonus_data VALUES ('51963','0','0','0.4','DK - Gargoyle Strike');
