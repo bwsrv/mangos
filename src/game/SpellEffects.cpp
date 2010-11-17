@@ -4840,7 +4840,7 @@ void Spell::EffectDispel(SpellEffectIndex eff_idx)
                 if (unitTarget->HasAura(50536))
                     continue;
 
-            if (holder->GetAuraCharges() > 0)
+            if (holder->GetAuraCharges() > 1)
                 dispel_list.push_back(std::pair<SpellAuraHolder* ,uint32>(holder, holder->GetAuraCharges()));
             else
                 dispel_list.push_back(std::pair<SpellAuraHolder* ,uint32>(holder, holder->GetStackAmount()));
