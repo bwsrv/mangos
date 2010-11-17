@@ -915,7 +915,7 @@ void World::SetInitialWorldSettings()
     ///- Initialize config settings
     LoadConfigSettings();
 
-    ///- Check the existence of the map files for all races' startup areas.
+    ///- Check the existence of the map files for all races start areas.
     if (!MapManager::ExistMapAndVMap(0,-6240.32f, 331.033f) ||
         !MapManager::ExistMapAndVMap(0,-8949.95f,-132.493f) ||
         !MapManager::ExistMapAndVMap(0,-8949.95f,-132.493f) ||
@@ -1583,6 +1583,9 @@ void World::Update(uint32 diff)
 
     // And last, but not least handle the issued cli commands
     ProcessCliCommands();
+
+    //cleanup unused GridMap objects as well as VMaps
+    sTerrainMgr.Update(diff);
 }
 
 /// Send a packet to all players (except self if mentioned)
@@ -1954,8 +1957,7 @@ void World::SendServerMessage(ServerMessageType type, const char *text, Player* 
 {
     WorldPacket data(SMSG_SERVER_MESSAGE, 50);              // guess size
     data << uint32(type);
-    if(type <= SERVER_MSG_STRING)
-        data << text;
+    data << text;
 
     if(player)
         player->GetSession()->SendPacket(&data);
