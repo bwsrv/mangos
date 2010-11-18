@@ -1040,7 +1040,9 @@ void SpellMgr::LoadSpellTargetPositions()
         bool found = false;
         for(int i = 0; i < MAX_EFFECT_INDEX; ++i)
         {
-         if (spellInfo->EffectImplicitTargetA[i]==TARGET_TABLE_X_Y_Z_COORDINATES || spellInfo->EffectImplicitTargetB[i]==TARGET_TABLE_X_Y_Z_COORDINATES)
+         if (spellInfo->EffectImplicitTargetA[i] == TARGET_TABLE_X_Y_Z_COORDINATES || spellInfo->EffectImplicitTargetB[i] == TARGET_TABLE_X_Y_Z_COORDINATES ||
+             spellInfo->EffectImplicitTargetB[i] == TARGET_SELF2)
+
             {
                 // additional requirements
                 if (spellInfo->Effect[i]==SPELL_EFFECT_BIND && spellInfo->EffectMiscValue[i])
@@ -1529,7 +1531,7 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const * spellP
         return false;
 
     // Always trigger for this
-    if (EventProcFlag & (PROC_FLAG_KILLED | PROC_FLAG_KILL | PROC_FLAG_ON_TRAP_ACTIVATION))
+    if (EventProcFlag & (PROC_FLAG_KILLED | PROC_FLAG_KILL | PROC_FLAG_ON_TRAP_ACTIVATION | PROC_FLAG_ON_DEATH))
         return true;
 
     if (spellProcEvent)     // Exist event data
@@ -3539,7 +3541,7 @@ void SpellMgr::LoadSpellAreas()
 
     uint32 count = 0;
 
-    //                                                0      1     2            3                   4          5           6         7       8
+    //                                                0       1          2              3              4          5           6         7              8
     QueryResult *result = WorldDatabase.Query("SELECT spell, area, quest_start, quest_start_active, quest_end, aura_spell, racemask, gender, autocast FROM spell_area");
 
     if( !result )
@@ -3664,20 +3666,20 @@ void SpellMgr::LoadSpellAreas()
             }
 
             // not allow autocast chains by auraSpell field (but allow use as alternative if not present)
-            if(spellArea.autocast && spellArea.auraSpell > 0)
+            if (spellArea.autocast && spellArea.auraSpell > 0)
             {
                 bool chain = false;
                 SpellAreaForAuraMapBounds saBound = GetSpellAreaForAuraMapBounds(spellArea.spellId);
                 for(SpellAreaForAuraMap::const_iterator itr = saBound.first; itr != saBound.second; ++itr)
                 {
-                    if(itr->second->autocast && itr->second->auraSpell > 0)
+                    if (itr->second->autocast && itr->second->auraSpell > 0)
                     {
                         chain = true;
                         break;
                     }
                 }
 
-                if(chain)
+                if (chain)
                 {
                     sLog.outErrorDb("Spell %u listed in `spell_area` have aura spell (%u) requirement that itself autocast from aura", spell,spellArea.auraSpell);
                     continue;
@@ -3686,7 +3688,7 @@ void SpellMgr::LoadSpellAreas()
                 SpellAreaMapBounds saBound2 = GetSpellAreaMapBounds(spellArea.auraSpell);
                 for(SpellAreaMap::const_iterator itr2 = saBound2.first; itr2 != saBound2.second; ++itr2)
                 {
-                    if(itr2->second.autocast && itr2->second.auraSpell > 0)
+                    if (itr2->second.autocast && itr2->second.auraSpell > 0)
                     {
                         chain = true;
                         break;
@@ -4002,7 +4004,7 @@ void SpellMgr::CheckUsedSpells(char const* table)
                 continue;
             }
 
-            if(family >= 0 && spellEntry->SpellFamilyName != family)
+            if (family >= 0 && spellEntry->SpellFamilyName != uint32(family))
             {
                 sLog.outError("Spell %u '%s' family(%u) <> %u but used in %s.",spell,name.c_str(),spellEntry->SpellFamilyName,family,code.c_str());
                 continue;
@@ -4031,19 +4033,19 @@ void SpellMgr::CheckUsedSpells(char const* table)
                 }
             }
 
-            if(spellIcon >= 0 && spellEntry->SpellIconID != spellIcon)
+            if (spellIcon >= 0 && spellEntry->SpellIconID != uint32(spellIcon))
             {
                 sLog.outError("Spell %u '%s' icon(%u) <> %u but used in %s.",spell,name.c_str(),spellEntry->SpellIconID,spellIcon,code.c_str());
                 continue;
             }
 
-            if(spellVisual >= 0 && spellEntry->SpellVisual[0] != spellVisual)
+            if (spellVisual >= 0 && spellEntry->SpellVisual[0] != uint32(spellVisual))
             {
                 sLog.outError("Spell %u '%s' visual(%u) <> %u but used in %s.",spell,name.c_str(),spellEntry->SpellVisual[0],spellVisual,code.c_str());
                 continue;
             }
 
-            if(category >= 0 && spellEntry->Category != category)
+            if (category >= 0 && spellEntry->Category != uint32(category))
             {
                 sLog.outError("Spell %u '%s' category(%u) <> %u but used in %s.",spell,name.c_str(),spellEntry->Category,category,code.c_str());
                 continue;
@@ -4051,13 +4053,13 @@ void SpellMgr::CheckUsedSpells(char const* table)
 
             if (effectIdx >= EFFECT_INDEX_0)
             {
-                if(effectType >= 0 && spellEntry->Effect[effectIdx] != effectType)
+                if (effectType >= 0 && spellEntry->Effect[effectIdx] != uint32(effectType))
                 {
                     sLog.outError("Spell %u '%s' effect%d <> %u but used in %s.",spell,name.c_str(),effectIdx+1,effectType,code.c_str());
                     continue;
                 }
 
-                if(auraType >= 0 && spellEntry->EffectApplyAuraName[effectIdx] != auraType)
+                if (auraType >= 0 && spellEntry->EffectApplyAuraName[effectIdx] != uint32(auraType))
                 {
                     sLog.outError("Spell %u '%s' aura%d <> %u but used in %s.",spell,name.c_str(),effectIdx+1,auraType,code.c_str());
                     continue;
@@ -4066,13 +4068,13 @@ void SpellMgr::CheckUsedSpells(char const* table)
             }
             else
             {
-                if(effectType >= 0 && !IsSpellHaveEffect(spellEntry,SpellEffects(effectType)))
+                if (effectType >= 0 && !IsSpellHaveEffect(spellEntry,SpellEffects(effectType)))
                 {
                     sLog.outError("Spell %u '%s' not have effect %u but used in %s.",spell,name.c_str(),effectType,code.c_str());
                     continue;
                 }
 
-                if(auraType >= 0 && !IsSpellHaveAura(spellEntry,AuraType(auraType)))
+                if (auraType >= 0 && !IsSpellHaveAura(spellEntry, AuraType(auraType)))
                 {
                     sLog.outError("Spell %u '%s' not have aura %u but used in %s.",spell,name.c_str(),auraType,code.c_str());
                     continue;
@@ -4087,13 +4089,13 @@ void SpellMgr::CheckUsedSpells(char const* table)
             for(uint32 spellId = 1; spellId < sSpellStore.GetNumRows(); ++spellId)
             {
                 SpellEntry const* spellEntry = sSpellStore.LookupEntry(spellId);
-                if(!spellEntry)
+                if (!spellEntry)
                     continue;
 
-                if(family >=0 && spellEntry->SpellFamilyName != family)
+                if (family >=0 && spellEntry->SpellFamilyName != uint32(family))
                     continue;
 
-                if(familyMaskA != UI64LIT(0xFFFFFFFFFFFFFFFF) || familyMaskB != 0xFFFFFFFF)
+                if (familyMaskA != UI64LIT(0xFFFFFFFFFFFFFFFF) || familyMaskB != 0xFFFFFFFF)
                 {
                     if(familyMaskA == UI64LIT(0x0000000000000000) && familyMaskB == 0x00000000)
                     {
@@ -4102,23 +4104,23 @@ void SpellMgr::CheckUsedSpells(char const* table)
                     }
                     else
                     {
-                        if((spellEntry->SpellFamilyFlags & familyMaskA)==0 && (spellEntry->SpellFamilyFlags2 & familyMaskB)==0)
+                        if ((spellEntry->SpellFamilyFlags & familyMaskA)==0 && (spellEntry->SpellFamilyFlags2 & familyMaskB)==0)
                             continue;
                     }
                 }
 
-                if(spellIcon >= 0 && spellEntry->SpellIconID != spellIcon)
+                if (spellIcon >= 0 && spellEntry->SpellIconID != uint32(spellIcon))
                     continue;
 
-                if(spellVisual >= 0 && spellEntry->SpellVisual[0] != spellVisual)
+                if (spellVisual >= 0 && spellEntry->SpellVisual[0] != uint32(spellVisual))
                     continue;
 
-                if(category >= 0 && spellEntry->Category != category)
+                if (category >= 0 && spellEntry->Category != uint32(category))
                     continue;
 
-                if(effectIdx >= 0)
+                if (effectIdx >= 0)
                 {
-                    if(effectType >=0 && spellEntry->Effect[effectIdx] != effectType)
+                    if (effectType >=0 && spellEntry->Effect[effectIdx] != uint32(effectType))
                         continue;
 
                     if (auraType >=0 && spellEntry->EffectApplyAuraName[effectIdx] != uint32(auraType))
@@ -4126,10 +4128,10 @@ void SpellMgr::CheckUsedSpells(char const* table)
                 }
                 else
                 {
-                    if(effectType >=0 && !IsSpellHaveEffect(spellEntry,SpellEffects(effectType)))
+                    if (effectType >=0 && !IsSpellHaveEffect(spellEntry,SpellEffects(effectType)))
                         continue;
 
-                    if(auraType >=0 && !IsSpellHaveAura(spellEntry,AuraType(auraType)))
+                    if (auraType >=0 && !IsSpellHaveAura(spellEntry,AuraType(auraType)))
                         continue;
                 }
 
@@ -4137,9 +4139,9 @@ void SpellMgr::CheckUsedSpells(char const* table)
                 break;
             }
 
-            if(!found)
+            if (!found)
             {
-                if(effectIdx >= 0)
+                if (effectIdx >= 0)
                     sLog.outError("Spells '%s' not found for family %i (" I64FMT "," I32FMT ") icon(%i) visual(%i) category(%i) effect%d(%i) aura%d(%i) but used in %s",
                         name.c_str(),family,familyMaskA,familyMaskB,spellIcon,spellVisual,category,effectIdx+1,effectType,effectIdx+1,auraType,code.c_str());
                 else
