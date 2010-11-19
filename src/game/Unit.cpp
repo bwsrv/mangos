@@ -4332,7 +4332,7 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
                 AuraType aurNameReal = AuraType(aurSpellInfo->EffectApplyAuraName[i]);
 
                 // Strength of the Pack must stuck from different casters (Auriaya encounter, Ulduar)
-                if (foundHolder->GetId() == 64381)
+                if (foundHolder->GetId() == 64381 || foundHolder->GetId() == 61474)
                     continue;
 
                 switch(aurNameReal)
