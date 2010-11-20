@@ -63,7 +63,7 @@ void WorldSession::HandleRepopRequestOpcode( WorldPacket & recv_data )
     }
 
     //this is spirit release confirm?
-    GetPlayer()->RemovePet(NULL,PET_SAVE_NOT_IN_SLOT, true);
+    GetPlayer()->RemovePet(PET_SAVE_REAGENTS);
     GetPlayer()->BuildPlayerRepop();
     GetPlayer()->RepopAtGraveyard();
 }
@@ -963,13 +963,17 @@ void WorldSession::HandleNextCinematicCamera( WorldPacket & /*recv_data*/ )
 void WorldSession::HandleMoveTimeSkippedOpcode( WorldPacket & recv_data )
 {
     /*  WorldSession::Update( getMSTime() );*/
-    DEBUG_LOG( "WORLD: Time Lag/Synchronization Resent/Update" );
 
     ObjectGuid guid;
+    uint32 time_skipped;
 
     recv_data >> guid.ReadAsPacked();
-    recv_data >> Unused<uint32>();
+    recv_data >> time_skipped;
 
+    DEBUG_LOG( "WORLD: Time Lag/Synchronization Resent/Update, data = %d", time_skipped);
+
+    if (GetPlayer()->GetObjectGuid() == guid)
+        GetPlayer()->GetAntiCheat()->SetTimeSkipped(time_skipped);
     /*
         ObjectGuid guid;
         uint32 time_skipped;

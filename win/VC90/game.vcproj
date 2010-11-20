@@ -535,15 +535,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\game\ArenaTeamHandler.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\game\AntiCheat.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\src\game\AntiCheat.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\ArenaTeamHandler.cpp"
 				>
 			</File>
 			<File

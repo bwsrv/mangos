@@ -1536,11 +1536,12 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         ObjectGuid const& GetChannelObjectGuid() const { return GetGuidValue(UNIT_FIELD_CHANNEL_OBJECT); }
         void SetChannelObjectGuid(ObjectGuid targetGuid) { SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, targetGuid); }
 
-        void SetCritterGUID(uint64 critter) { SetUInt64Value(UNIT_FIELD_CRITTER, critter); }
-        uint64 GetCritterGUID() const { return GetUInt64Value(UNIT_FIELD_CRITTER); }
+        void SetCritterGuid(ObjectGuid critter) { SetGuidValue(UNIT_FIELD_CRITTER, critter); }
+        ObjectGuid const& GetCritterGuid() const { return GetGuidValue(UNIT_FIELD_CRITTER); }
+
         void RemoveMiniPet();
         Pet* GetMiniPet() const;
-        void SetMiniPet(Unit* pet) { SetCritterGUID(pet->GetGUID()); }
+        void SetMiniPet(Unit* pet) { SetCritterGuid(pet ? pet->GetObjectGuid() : ObjectGuid()); }
 
         ObjectGuid const& GetCharmerOrOwnerGuid() const { return !GetCharmerGuid().IsEmpty() ? GetCharmerGuid() : GetOwnerGuid(); }
         ObjectGuid const& GetCharmerOrOwnerOrOwnGuid() const
@@ -1584,6 +1585,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         void RemoveGuardians();
         Pet* FindGuardianWithEntry(uint32 entry);
         GuardianPetList const& GetGuardians() const { return m_guardianPets; }
+        Pet* GetProtectorPet();                             // expected single case in guardian list
 
         bool isCharmed() const { return !GetCharmerGuid().IsEmpty(); }
 
@@ -1949,9 +1951,9 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         bool IsStopped() const { return !(hasUnitState(UNIT_STAT_MOVING)); }
         void StopMoving();
 
-        void SetFeared(bool apply, uint64 const& casterGUID = 0, uint32 spellID = 0, uint32 time = 0);
-        void SetConfused(bool apply, uint64 const& casterGUID = 0, uint32 spellID = 0);
-        void SetFeignDeath(bool apply, uint64 const& casterGUID = 0, uint32 spellID = 0);
+        void SetFeared(bool apply, ObjectGuid casterGuid = ObjectGuid(), uint32 spellID = 0, uint32 time = 0);
+        void SetConfused(bool apply, ObjectGuid casterGuid = ObjectGuid(), uint32 spellID = 0);
+        void SetFeignDeath(bool apply, ObjectGuid casterGuid = ObjectGuid(), uint32 spellID = 0);
 
         void AddComboPointHolder(uint32 lowguid) { m_ComboPointHolders.insert(lowguid); }
         void RemoveComboPointHolder(uint32 lowguid) { m_ComboPointHolders.erase(lowguid); }

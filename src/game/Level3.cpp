@@ -1404,6 +1404,17 @@ bool ChatHandler::HandleReloadSpellDisabledCommand(char* /*arg*/)
     return true;
 }
 
+bool ChatHandler::HandleReloadAntiCheatCommand(char* /*arg*/)
+{
+    sLog.outString( "Re-Loading anticheat config table...");
+
+    sObjectMgr.LoadAntiCheatConfig();
+
+    SendGlobalSysMessage("Anticheat config reloaded.");
+
+    return true;
+}
+
 bool ChatHandler::HandleLoadScriptsCommand(char* args)
 {
     if (!LoadScriptingModule(args))
@@ -5087,7 +5098,7 @@ bool ChatHandler::HandleListAurasCommand (char* /*args*/)
                     aur->GetModifier()->m_auraname, aur->GetAuraDuration(), aur->GetAuraMaxDuration(),
                     ss_name.str().c_str(),
                     (holder->IsPassive() ? passiveStr : ""),(talent ? talentStr : ""),
-                    IS_PLAYER_GUID(holder->GetCasterGUID()) ? "player" : "creature",GUID_LOPART(holder->GetCasterGUID()));
+                    holder->GetCasterGuid().GetString().c_str());
             }
             else
             {
@@ -5095,7 +5106,7 @@ bool ChatHandler::HandleListAurasCommand (char* /*args*/)
                     aur->GetModifier()->m_auraname, aur->GetAuraDuration(), aur->GetAuraMaxDuration(),
                     name,
                     (holder->IsPassive() ? passiveStr : ""),(talent ? talentStr : ""),
-                    IS_PLAYER_GUID(holder->GetCasterGUID()) ? "player" : "creature",GUID_LOPART(holder->GetCasterGUID()));
+                    holder->GetCasterGuid().GetString().c_str());
             }
         }
     }
@@ -6189,8 +6200,6 @@ bool ChatHandler::HandleGMFlyCommand(char* args)
     Player *target = getSelectedPlayer();
     if (!target)
         target = m_session->GetPlayer();
-
-    target->GetAntiCheat()->SetCanFly(value ? true : false);
 
     WorldPacket data(12);
     data.SetOpcode(value ? SMSG_MOVE_SET_CAN_FLY : SMSG_MOVE_UNSET_CAN_FLY);

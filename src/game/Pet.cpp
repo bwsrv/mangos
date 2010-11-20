@@ -28,14 +28,6 @@
 #include "Unit.h"
 #include "Util.h"
 
-char const* petTypeSuffix[MAX_PET_TYPE] =
-{
-    "'s Minion",                                            // SUMMON_PET
-    "'s Pet",                                               // HUNTER_PET
-    "'s Guardian",                                          // GUARDIAN_PET
-    "'s Companion"                                          // MINI_PET
-};
-
 Pet::Pet(PetType type) :
 Creature(CREATURE_SUBTYPE_PET),
 m_resetTalentsCost(0), m_resetTalentsTime(0), m_usedTalentCount(0),
@@ -55,6 +47,8 @@ m_petFollowAngle(PET_FOLLOW_ANGLE), m_needSave(true), m_petCounter(0), m_PetScal
 
     if (type == MINI_PET)                                    // always passive
         GetCharmInfo()->SetReactState(REACT_PASSIVE);
+    else if(type == PROTECTOR_PET)                          // always defensive 
+        GetCharmInfo()->SetReactState(REACT_DEFENSIVE);
     else if (type == GUARDIAN_PET)                           // always aggressive
         GetCharmInfo()->SetReactState(REACT_AGGRESSIVE);
 
@@ -350,8 +344,11 @@ void Pet::SavePetToDB(PetSaveMode mode)
     // current/stable/not_in_slot
     if (mode >= PET_SAVE_AS_CURRENT)
     {
+        // reagents must be returned before save call
+        if (mode == PET_SAVE_REAGENTS)
+            mode = PET_SAVE_NOT_IN_SLOT;
         // not save pet as current if another pet temporary unsummoned
-        if (mode == PET_SAVE_AS_CURRENT && pOwner->GetTemporaryUnsummonedPetNumber() &&
+        else if (mode == PET_SAVE_AS_CURRENT && pOwner->GetTemporaryUnsummonedPetNumber() &&
             pOwner->GetTemporaryUnsummonedPetNumber() != m_charmInfo->GetPetNumber())
         {
             // pet will lost anyway at restore temporary unsummoned
@@ -447,7 +444,7 @@ void Pet::SetDeathState(DeathState s)                       // overwrite virtual
     {
         //remove summoned pet (no corpse)
         if(getPetType()==SUMMON_PET)
-            Remove(PET_SAVE_NOT_IN_SLOT);
+            Unsummon(PET_SAVE_NOT_IN_SLOT);
         // other will despawn at corpse desppawning (Pet::Update code)
         else
         {
@@ -487,7 +484,7 @@ void Pet::Update(uint32 diff)
             if (m_corpseDecayTimer <= diff)
             {
                 MANGOS_ASSERT(getPetType()!=SUMMON_PET && "Must be already removed.");
-                Remove(PET_SAVE_NOT_IN_SLOT);               //hunters' pets never get removed because of death, NEVER!
+                Unsummon(PET_SAVE_NOT_IN_SLOT);             //hunters' pets never get removed because of death, NEVER!
                 return;
             }
             break;
@@ -499,14 +496,14 @@ void Pet::Update(uint32 diff)
             if (!owner)
             {
                 sLog.outError("Pet %d lost owner, removed. ", GetGUID());
-                Remove(PET_SAVE_NOT_IN_SLOT, true);
+                Unsummon(PET_SAVE_NOT_IN_SLOT);
                 return;
             }
 
             if (isControlled() && !IsWithinDistInMap(owner, GetMap()->GetVisibilityDistance()))
             {
                 DEBUG_LOG("Pet %d lost control, removed. Owner = %d, distance = %d, pet GUID = ", GetGUID(),owner->GetGUID(), GetDistance2d(owner), owner->GetPetGuid().GetCounter());
-                Remove(PET_SAVE_NOT_IN_SLOT, true);
+                Unsummon(PET_SAVE_REAGENTS);
                 return;
             }
 
@@ -516,7 +513,7 @@ void Pet::Update(uint32 diff)
                 if (m_groupPets.find(GetObjectGuid().GetRawValue()) == m_groupPets.end())
                 {
                     sLog.outError("Pet %d controlled, but not in list, removed.", GetGUID());
-                    Remove(getPetType() == HUNTER_PET ? PET_SAVE_AS_DELETED : PET_SAVE_NOT_IN_SLOT);
+                    Unsummon(getPetType() == HUNTER_PET ? PET_SAVE_AS_DELETED : PET_SAVE_NOT_IN_SLOT, owner);
                     return;
                 }
             }
@@ -524,7 +521,7 @@ void Pet::Update(uint32 diff)
                 if (!IsWithinDistInMap(owner, GetMap()->GetVisibilityDistance()))
                 {
                     sLog.outError("Not controlled pet %d lost view from owner, removed. Owner = %d, distance = %d, pet GUID = ", GetGUID(),owner->GetGUID(), GetDistance2d(owner), owner->GetPetGuid().GetCounter());
-                    Remove(PET_SAVE_AS_DELETED);
+                    Unsummon(PET_SAVE_AS_DELETED);
                     return;
                 }
 
@@ -535,7 +532,7 @@ void Pet::Update(uint32 diff)
                 else
                 {
                     DEBUG_LOG("Pet %d removed with duration expired.", GetGUID());
-                    Remove(PET_SAVE_NOT_IN_SLOT);
+                    Unsummon(getPetType() != SUMMON_PET ? PET_SAVE_AS_DELETED : PET_SAVE_NOT_IN_SLOT, owner);
                     return;
                 }
             }
@@ -620,54 +617,89 @@ bool Pet::CanTakeMoreActiveSpells(uint32 spellid)
     return true;
 }
 
-void Pet::Remove(PetSaveMode mode, bool returnreagent)
+void Pet::Unsummon(PetSaveMode mode, Unit* owner /*= NULL*/)
 {
-    Unit* owner = GetOwner();
-    m_removed = true;
 
-    if (owner && owner->GetTypeId() == TYPEID_PLAYER && owner->GetPetGuid() == GetObjectGuid())
-    {
-        ((Player*)owner)->RemovePet(this,mode,returnreagent);
+    if (!owner)
+        owner = GetOwner();
 
-        if(isControlled() && !GetPetCounter())
-        {
-            ((Player*)owner)->RemovePetActionBar();
-
-            if(((Player*)owner)->GetGroup())
-               ((Player*)owner)->SetGroupUpdateFlag(GROUP_UPDATE_PET);
-        }
-    }
-    else
-        _Remove(mode, returnreagent);
-}
-
-void Pet::_Remove(PetSaveMode mode, bool returnreagent)
-{
-    Unit* owner = GetOwner();
     m_removed = true;
 
     CombatStop();
 
-    if(owner)
+    if (owner)
     {
+        if (GetOwnerGuid() != owner->GetObjectGuid())
+            return;
+
+        Player* p_owner = owner->GetTypeId()==TYPEID_PLAYER ? (Player*)owner : NULL;
+
+        if (p_owner)
+        {
+
+            // not save secondary permanent pet as current
+            if (mode == PET_SAVE_AS_CURRENT && p_owner->GetTemporaryUnsummonedPetNumber() &&
+                p_owner->GetTemporaryUnsummonedPetNumber() != GetCharmInfo()->GetPetNumber())
+                mode = PET_SAVE_NOT_IN_SLOT;
+
+            if (mode == PET_SAVE_REAGENTS)
+            {
+                //returning of reagents only for players, so best done here
+                uint32 spellId = GetUInt32Value(UNIT_CREATED_BY_SPELL);
+                SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
+
+                if (spellInfo)
+                {
+                    for(uint32 i = 0; i < MAX_SPELL_REAGENTS; ++i)
+                    {
+                        if (spellInfo->Reagent[i] > 0)
+                        {
+                            ItemPosCountVec dest;           //for succubus, voidwalker, felhunter and felguard credit soulshard when despawn reason other than death (out of range, logout)
+                            uint8 msg = p_owner->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, spellInfo->Reagent[i], spellInfo->ReagentCount[i]);
+                            if (msg == EQUIP_ERR_OK)
+                            {
+                                Item* item = p_owner->StoreNewItem(dest, spellInfo->Reagent[i], true);
+                                if (p_owner->IsInWorld())
+                                    p_owner->SendNewItem(item, spellInfo->ReagentCount[i], true, false);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (isControlled()  && !GetPetCounter())
+            {
+                p_owner->RemovePetActionBar();
+
+                if (p_owner->GetGroup())
+                    p_owner->SetGroupUpdateFlag(GROUP_UPDATE_PET);
+            }
+        }
+
+        // only if current pet in slot
         switch(getPetType())
         {
             case MINI_PET:
-                owner->SetCritterGUID(0);
+                if (p_owner)
+                    p_owner->SetMiniPet(NULL);
+//                    owner->SetCritterGUID(0);
                 break;
+            case PROTECTOR_PET:
             case GUARDIAN_PET:
                 owner->RemoveGuardian(this);
                 break;
             default:
-                owner->RemovePetFromList(this);
-                if(owner->GetPetGuid() == GetObjectGuid())
-                    owner->SetPet(0);
+                if (owner->GetPetGuid() == GetObjectGuid())
+                    owner->SetPet(NULL);
                 break;
         }
+
         if (GetNeedSave())
             SavePetToDB(mode);
     }
+
     AddObjectToRemoveList();
+
 }
 
 void Pet::GivePetXP(uint32 xp)
@@ -875,6 +907,7 @@ bool Pet::InitStatsForLevel(uint32 petlevel, Unit* owner)
             break;
         }
         case GUARDIAN_PET:
+        case PROTECTOR_PET:
         {
             SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
             SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, 1000);
@@ -2196,6 +2229,7 @@ void Pet::ApplyAttackPowerScalingBonus(bool apply)
     switch(getPetType())
     {
         case GUARDIAN_PET:
+        case PROTECTOR_PET:
         {
             if (owner->getClass() == CLASS_SHAMAN)
             {
@@ -2309,6 +2343,7 @@ void Pet::ApplyDamageScalingBonus(bool apply)
     {
         case SUMMON_PET:
         case GUARDIAN_PET:
+        case PROTECTOR_PET:
         case HUNTER_PET:
         {
             switch(owner->getClass())
@@ -2396,6 +2431,7 @@ void Pet::ApplySpellDamageScalingBonus(bool apply)
     switch(getPetType())
     {
         case GUARDIAN_PET:
+        case PROTECTOR_PET:
         {
             if (owner->getClass() == CLASS_SHAMAN)
             {
@@ -2738,7 +2774,7 @@ bool Pet::Summon()
     if (GetCreateSpellID())
         SetUInt32Value(UNIT_CREATED_BY_SPELL, GetCreateSpellID());
 
-    if (isTemporarySummoned())
+    if (isTemporarySummoned() && getPetType() !=  PROTECTOR_PET)
         GetCharmInfo()->SetReactState(REACT_AGGRESSIVE);
     else
         GetCharmInfo()->SetReactState(REACT_DEFENSIVE);
@@ -2748,11 +2784,13 @@ bool Pet::Summon()
     switch (getPetType())
     {
         case GUARDIAN_PET:
+        case PROTECTOR_PET:
         {
             SetUInt32Value(UNIT_NPC_FLAGS, GetCreatureInfo()->npcflag);
             SetUInt32Value(UNIT_FIELD_FLAGS, 0);
             SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
             SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+//            SetName("");
             SetNeedSave(false);
             owner->AddGuardian(this);
             break;
@@ -2765,10 +2803,7 @@ bool Pet::Summon()
             SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
             SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
             SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, 1000);
-            // generate new name for summon pet
-            std::string new_name = sObjectMgr.GeneratePetName(GetEntry());
-            if(!new_name.empty())
-                SetName(new_name);
+//            SetName("");
             SetNeedSave(true);
             owner->SetPet(this);
             break;
@@ -2793,13 +2828,8 @@ bool Pet::Summon()
         {
             SelectLevel(GetCreatureInfo());
             SetUInt32Value(UNIT_NPC_FLAGS, GetCreatureInfo()->npcflag);
-            std::string name = owner->GetName();
-            name.append(petTypeSuffix[getPetType()]);
-            SetName( name );
-            if (owner->GetTypeId() == TYPEID_PLAYER)
-                ((Player*)owner)->SetMiniPet(this);
-            else
-                SetCritterGUID(GetGUID());
+            SetName("");
+            owner->SetMiniPet((Unit*)this);
             InitPetCreateSpells();
             AIM_Initialize();
             SetNeedSave(false);
@@ -2865,7 +2895,7 @@ bool Pet::Summon()
 
         if (!GetPetCounter() && getPetType() == HUNTER_PET)
             SavePetToDB(PET_SAVE_AS_CURRENT);
-        else if (getPetType() != GUARDIAN_PET)
+        else if (getPetType() == SUMMON_PET)
             SavePetToDB(PET_SAVE_NOT_IN_SLOT);
         else
             SetNeedSave(false);
@@ -2940,6 +2970,7 @@ void Pet::CastPetPassiveAuras(bool current)
     {
         case SUMMON_PET:
         case GUARDIAN_PET:
+        case PROTECTOR_PET:
             creature_id = GetEntry();
             break;
         case HUNTER_PET:
@@ -2988,7 +3019,7 @@ PetScalingData* Pet::CalculateScalingData(bool recalculate)
         pScalingDataList = sObjectMgr.GetPetScalingData(0);
     else if (getPetType() == HUNTER_PET)                      // Using creature_id = 1 for hunter pets
         pScalingDataList = sObjectMgr.GetPetScalingData(1);
-    else if (getPetType() == SUMMON_PET || getPetType() == GUARDIAN_PET)
+    else if (getPetType() == SUMMON_PET || getPetType() == GUARDIAN_PET || getPetType() == PROTECTOR_PET )
     {
         pScalingDataList = sObjectMgr.GetPetScalingData(GetEntry());
         if (!pScalingDataList)
