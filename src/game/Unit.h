@@ -757,6 +757,8 @@ struct Position
 
 class MovementInfo
 {
+    friend class AntiCheat;
+
     public:
         MovementInfo() : moveFlags(MOVEFLAG_NONE), moveFlags2(MOVEFLAG2_NONE), time(0),
             t_time(0), t_seat(-1), t_seatInfo(NULL), t_time2(0), s_pitch(0.0f), fallTime(0), u_unk1(0.0f) {}
@@ -1149,6 +1151,14 @@ enum ReactiveType
 
 #define MAX_REACTIVE 3
 
+// Used as MiscValue for SPELL_AURA_IGNORE_UNIT_STATE
+enum IgnoreUnitState
+{
+    IGNORE_UNIT_TARGET_STATE      = 0,                      // target health, aura states, or combopoints
+    IGNORE_UNIT_COMBAT_STATE      = 1,                      // ignore caster in combat state
+    IGNORE_UNIT_TARGET_NON_FROZEN = 126,                    // ignore absent of frozen state
+};
+
 typedef std::set<uint64> GuardianPetList;
 typedef std::set<uint64> GroupPetList;
 
@@ -1467,7 +1477,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         bool IsPolymorphed() const;
 
         bool isFrozen() const;
-        bool isIgnoreUnitState(SpellEntry const *spell);
+        bool IsIgnoreUnitState(SpellEntry const *spell, IgnoreUnitState ignoreState);
 
         void RemoveSpellbyDamageTaken(AuraType auraType, uint32 damage);
 

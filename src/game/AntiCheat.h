@@ -70,20 +70,23 @@ enum AntiCheatAction
 struct AntiCheatCheckEntry;
 struct AntiCheatConfig;
 
-struct AntiCheat
+class AntiCheat
 {
+
+    public:
         explicit AntiCheat(Player* player);
         ~AntiCheat();
 
-    public:
         // External used for set variables
-        void       SetLastTeleTime(uint32 TeleTime) { m_TeleTime = TeleTime; }
         void       SetTimeSkipped(uint32 time_skipped) { m_currentTimeSkipped = time_skipped; }
         void       SetInFall(bool isFall) { m_isFall = isFall; }
         bool       isCanFly();
         bool       isInFall();
         bool       isActiveMover() { return m_isActiveMover; }
         void       SetActiveMover(bool isActive) { m_isActiveMover = isActive; }
+        bool       isImmune();
+        void       SetImmune(uint32 timeDelta);
+        void       SetLastLiveState(DeathState state);
 
         // Checks
         bool CheckNeeded(AntiCheatCheck checktype);
@@ -150,11 +153,13 @@ struct AntiCheat
 
         // Saved variables
         float                                   m_MovedLen;          //Length of traveled way
-        uint32                                  m_TeleTime;
+        uint32                                  m_immuneTime;
         bool                                    m_isFall;
         bool                                    m_isTeleported;
         bool                                    m_isActiveMover;
         uint32                                  m_lastfalltime;
+        uint32                                  m_lastClientTime;
+        DeathState                              m_lastLiveState;
         float                                   m_lastfallz;
         Player*                                 m_player;
         std::map<AntiCheatCheck, uint32>        m_counters;               // counter of alarms
