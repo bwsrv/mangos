@@ -44,8 +44,6 @@ class Unit;
 #define MAX_RAID_SIZE 40
 #define MAX_RAID_SUBGROUPS (MAX_RAID_SIZE / MAX_GROUP_SIZE)
 #define TARGET_ICON_COUNT 8
-#define GROUP_MAX_LFG_KICKS 3
-#define GROUP_LFG_KICK_VOTES_NEEDED 3
 
 enum LootMethod
 {
@@ -68,13 +66,6 @@ enum RollVote
 
     ROLL_NOT_EMITED_YET    = 4,                             // send to client
     ROLL_NOT_VALID         = 5                              // not send to client
-};
-
-enum LfgDungeonStatus
-{
-    LFG_STATUS_SAVED     = 0,
-    LFG_STATUS_NOT_SAVED = 1,
-    LFG_STATUS_COMPLETE  = 2,
 };
 
 // set what votes allowed
@@ -108,7 +99,7 @@ enum GroupType                                              // group type flags?
     GROUPTYPE_BG     = 0x01,
     GROUPTYPE_RAID   = 0x02,
     GROUPTYPE_BGRAID = GROUPTYPE_BG | GROUPTYPE_RAID,       // mask
-    GROUPTYPE_UNK1   = 0x04,                                // 0x04?
+    // 0x04?
     GROUPTYPE_LFD    = 0x08,
     // 0x10, leave/change group?, I saw this flag when leaving group and after leaving BG while in group
 };
@@ -145,13 +136,6 @@ enum GroupUpdateFlags
     GROUP_UPDATE_FLAG_VEHICLE_SEAT      = 0x00080000,       // uint32 vehicle_seat_id (index from VehicleSeat.dbc)
     GROUP_UPDATE_PET                    = 0x0007FC00,       // all pet flags
     GROUP_UPDATE_FULL                   = 0x0007FFFF,       // all known flags
-};
-
-enum RemoveMethod
-{
-    GROUP_REMOVEMETHOD_DEFAULT = 0,
-    GROUP_REMOVEMETHOD_KICK    = 1,
-    GROUP_REMOVEMETHOD_LEAVE   = 2,
 };
 
 #define GROUP_UPDATE_FLAGS_COUNT          20
@@ -211,7 +195,6 @@ class MANGOS_DLL_SPEC Group
             std::string name;
             uint8       group;
             bool        assistant;
-            uint8       roles;
         };
         typedef std::list<MemberSlot> MemberSlotList;
         typedef MemberSlotList::const_iterator member_citerator;
@@ -230,49 +213,19 @@ class MANGOS_DLL_SPEC Group
         // group manipulation methods
         bool   Create(ObjectGuid guid, const char * name);
         bool   LoadGroupFromDB(Field *fields);
-        bool   LoadMemberFromDB(uint32 guidLow, uint8 subgroup, uint8 roles, bool assistant);
+        bool   LoadMemberFromDB(uint32 guidLow, uint8 subgroup, bool assistant);
         bool   AddInvite(Player *player);
         uint32 RemoveInvite(Player *player);
         void   RemoveAllInvites();
         bool   AddLeaderInvite(Player *player);
         bool   AddMember(ObjectGuid guid, const char* name);
-        uint32 RemoveMember(ObjectGuid guid, RemoveMethod method = GROUP_REMOVEMETHOD_DEFAULT);
+        uint32 RemoveMember(ObjectGuid guid, uint8 method); // method: 0=just remove, 1=kick
         void   ChangeLeader(ObjectGuid guid);
         void   SetLootMethod(LootMethod method) { m_lootMethod = method; }
         void   SetLooterGuid(ObjectGuid guid) { m_looterGuid = guid; }
         void   UpdateLooterGuid(WorldObject* object, bool ifneed = false );
         void   SetLootThreshold(ItemQualities threshold) { m_lootThreshold = threshold; }
         void   Disband(bool hideDestroy=false);
-
-        // Dungeon Finder
-        void   SetLfgQueued(bool queued) { m_LfgQueued = queued; }
-        bool   isLfgQueued() { return m_LfgQueued; }
-        void   SetLfgStatus(uint8 status) { m_LfgStatus = status; }
-        uint8  GetLfgStatus() { return m_LfgStatus; }
-        bool   isLfgDungeonComplete() const { return m_LfgStatus == LFG_STATUS_COMPLETE; }
-        void   SetLfgDungeonEntry(uint32 dungeonEntry) { m_LfgDungeonEntry = dungeonEntry; }
-        uint32 GetLfgDungeonEntry(bool id = true)
-        {
-            if (id)
-                return (m_LfgDungeonEntry & 0x00FFFFFF);
-            else
-                return m_LfgDungeonEntry;
-        }
-        bool   isLfgKickActive() const { return m_LfgkicksActive; }
-        void   SetLfgKickActive(bool active) { m_LfgkicksActive = active; }
-        uint8  GetLfgKicks() const { return m_Lfgkicks; }
-        void   SetLfgKicks(uint8 kicks) { m_Lfgkicks = kicks; }
-        void   SetLfgRoles(ObjectGuid guid, const uint8 roles)
-        {
-            member_witerator slot = _getMemberWSlot(guid);
-            if (slot == m_memberSlots.end())
-                return;
-
-            slot->roles = roles;
-            SendUpdate();
-        }
-        bool isLFGGroup()  const { return m_groupType & GROUPTYPE_LFD; }
-        void ConvertToLFG();
 
         // properties accessories
         uint32 GetId() const { return m_Id; }
@@ -506,11 +459,5 @@ class MANGOS_DLL_SPEC Group
         Rolls               RollId;
         BoundInstancesMap   m_boundInstances[MAX_DIFFICULTY];
         uint8*              m_subGroupsCounts;
-
-        bool                m_LfgQueued;
-        uint8               m_LfgStatus;
-        uint32              m_LfgDungeonEntry;
-        uint8               m_Lfgkicks;
-        bool                m_LfgkicksActive;
 };
 #endif

@@ -39,7 +39,6 @@
 #include "BattleGroundAV.h"
 #include "Map.h"
 #include "InstanceData.h"
-#include "LFGMgr.h"
 
 #include "Policies/SingletonImp.h"
 
@@ -1877,24 +1876,11 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_EARNED_PVP_TITLE:
             case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE:
             case ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS:
-                break;// Not implemented yet :(
-
             case ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS:
-                // AchievementMgr::UpdateAchievementCriteria might also be called on login - skip in this case
-                if (!miscvalue1)
-                    continue;
-                change = 1;
-                progressType = PROGRESS_ACCUMULATE;
-                break;
-        }        
-        
-        SetCriteriaProgress(achievementCriteria, achievement, change, progressType);
-
-        if (const uint32 dungeonId = sLFGMgr.GetDungeonIdForAchievement(achievement->ID))
-        {
-            //sLog.outString("REWARD DUNGEON DONE FOR ID=%u, PLAYER=%s",achievement->ID, GetPlayer()->GetName());
-            sLFGMgr.RewardDungeonDoneFor(dungeonId, GetPlayer());
+                break;                                   // Not implemented yet :(
         }
+
+        SetCriteriaProgress(achievementCriteria, achievement, change, progressType);
     }
 }
 
@@ -1988,8 +1974,6 @@ uint32 AchievementMgr::GetCriteriaProgressMaxCounter(AchievementCriteriaEntry co
             return achievementCriteria->learn_skill_line.spellCount;
         case ACHIEVEMENT_CRITERIA_TYPE_EARN_HONORABLE_KILL:
             return achievementCriteria->honorable_kill.killCount;
-        case ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS:
-            return achievementCriteria->use_lfg.dungeonsComplete;
         case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
             return achievementCriteria->honorable_kill_at_area.killCount;
         case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
@@ -2186,7 +2170,6 @@ void AchievementMgr::SetCriteriaProgress(AchievementCriteriaEntry const* criteri
     }
     else
     {
-
         progress = &iter->second;
 
         old_value = progress->counter;

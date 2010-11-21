@@ -3808,8 +3808,8 @@ void ObjectMgr::LoadGroups()
 
     // -- loading members --
     count = 0;
-    //                                       0           1          2         3      4
-    result = CharacterDatabase.Query("SELECT memberGuid, assistant, subgroup, roles, groupId FROM group_member ORDER BY groupId");
+    //                                       0           1          2         3
+    result = CharacterDatabase.Query("SELECT memberGuid, assistant, subgroup, groupId FROM group_member ORDER BY groupId");
     if (!result)
     {
         barGoLink bar2( 1 );
@@ -3830,8 +3830,7 @@ void ObjectMgr::LoadGroups()
             ObjectGuid memberGuid = ObjectGuid(HIGHGUID_PLAYER, memberGuidlow);
             bool   assistent     = fields[1].GetBool();
             uint8  subgroup      = fields[2].GetUInt8();
-            uint8  roles         = fields[3].GetUInt8();
-            uint32 groupId       = fields[4].GetUInt32();
+            uint32 groupId       = fields[3].GetUInt32();
             if (!group || group->GetId() != groupId)
             {
                 group = GetGroupById(groupId);
@@ -3844,7 +3843,7 @@ void ObjectMgr::LoadGroups()
                 }
             }
 
-            if (!group->LoadMemberFromDB(memberGuidlow, subgroup, roles, assistent))
+            if (!group->LoadMemberFromDB(memberGuidlow, subgroup, assistent))
             {
                 sLog.outErrorDb("Incorrect entry in group_member table : member %s cannot be added to group (Id: %u)!",
                     memberGuid.GetString().c_str(), groupId);
@@ -9909,101 +9908,6 @@ void ObjectMgr::RemoveArenaTeam( uint32 Id )
     mArenaTeamMap.erase(Id);
 }
 
-void ObjectMgr::LoadAccessRequirements()
-{
-    mAccessRequirements.clear();                                  // need for reload case
-
-    uint32 count = 0;
-
-    //                                                           0           1          2          3     4      5             6             7                      8                  9
-    QueryResult* result = WorldDatabase.Query("SELECT mapid, difficulty, level_min, level_max, item, item2, quest_done_A, quest_done_H, completed_achievement, quest_failed_text FROM access_requirement");
-    if (!result)
-    {
-
-        barGoLink bar(1);
-
-        bar.step();
-
-        sLog.outString();
-        sLog.outString(">> Loaded %u access requirement definitions", count);
-        return;
-    }
-    barGoLink bar(result->GetRowCount());
-
-    do
-    {
-        Field *fields = result->Fetch();
-
-        bar.step();
-
-        ++count;
-
-        uint32 mapid = fields[0].GetUInt32();
-        uint8 difficulty = fields[1].GetUInt8();
-        uint32 requirement_ID = MAKE_PAIR32(mapid,difficulty);
-        AccessRequirement ar;
-        ar.levelMin                 = fields[2].GetUInt8();
-        ar.levelMax                 = fields[3].GetUInt8();
-        ar.item                     = fields[4].GetUInt32();
-        ar.item2                    = fields[5].GetUInt32();
-        ar.quest_A                  = fields[6].GetUInt32();
-        ar.quest_H                  = fields[7].GetUInt32();
-        ar.achievement              = fields[8].GetUInt32();
-        ar.questFailedText          = fields[9].GetCppString();
-
-        if (ar.item)
-        {
-            ItemPrototype const *pProto = GetItemPrototype(ar.item);
-            if (!pProto)
-            {
-                sLog.outError("Key item %u does not exist for map %u difficulty %u, removing key requirement.", ar.item, mapid, difficulty);
-                ar.item = 0;
-            }
-        }
-
-        if (ar.item2)
-        {
-            ItemPrototype const *pProto = GetItemPrototype(ar.item2);
-            if (!pProto)
-            {
-                sLog.outError("Second item %u does not exist for map %u difficulty %u, removing key requirement.", ar.item2, mapid, difficulty);
-                ar.item2 = 0;
-            }
-        }
-
-        if (ar.quest_A)
-        {
-            if (!GetQuestTemplate(ar.quest_A))
-            {
-                sLog.outErrorDb("Required Alliance Quest %u not exist for map %u difficulty %u, remove quest done requirement.", ar.quest_A, mapid, difficulty);
-                ar.quest_A = 0;
-            }
-        }
-
-        if (ar.quest_H)
-        {
-            if (!GetQuestTemplate(ar.quest_H))
-            {
-                sLog.outErrorDb("Required Horde Quest %u not exist for map %u difficulty %u, remove quest done requirement.", ar.quest_H, mapid, difficulty);
-                ar.quest_H = 0;
-            }
-        }
-
-        if (ar.achievement)
-        {
-            if (!sAchievementStore.LookupEntry(ar.achievement))
-            {
-                sLog.outErrorDb("Required Achievement %u not exist for map %u difficulty %u, remove quest done requirement.", ar.achievement, mapid, difficulty);
-                ar.achievement = 0;
-            }
-        }
-        mAccessRequirements[requirement_ID] = ar;
-    } while (result->NextRow());
-
-    sLog.outString();
-    sLog.outString(">> Loaded %u access requirement definitions", count);
-}
-
 // Functions for scripting access
 uint32 GetAreaTriggerScriptId(uint32 trigger_id)
 {
@@ -10073,7 +9977,7 @@ bool FindCreatureData::operator()( CreatureDataPair const& dataPair )
         i_mapDist = new_dist;
     }
 
-    // skip not spawned (in any state),
+    // skip not spawned (in any state), 
     uint16 pool_id = sPoolMgr.IsPartOfAPool<Creature>(dataPair.first);
     if (pool_id && !sPoolMgr.IsSpawnedObject<Creature>(dataPair.first))
         return false;

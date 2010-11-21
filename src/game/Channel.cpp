@@ -83,7 +83,7 @@ void Channel::Join(uint64 p, const char *pass)
     {
         if(HasFlag(CHANNEL_FLAG_LFG) &&
             sWorld.getConfig(CONFIG_BOOL_RESTRICTED_LFG_CHANNEL) && plr->GetSession()->GetSecurity() == SEC_PLAYER &&
-            (plr->GetGroup()))// || plr->m_lookingForGroup.Empty()) ) //Must be verified!
+            (plr->GetGroup() || plr->m_lookingForGroup.Empty()) )
         {
             MakeNotInLfg(&data);
             SendToOne(&data, p);

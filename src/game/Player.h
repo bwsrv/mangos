@@ -37,7 +37,6 @@
 #include "ReputationMgr.h"
 #include "BattleGround.h"
 #include "DBCEnums.h"
-#include "LFG.h"
 #include "SharedDefines.h"
 #include "AntiCheat.h"
 
@@ -409,6 +408,25 @@ struct EnchantDuration
 typedef std::list<EnchantDuration> EnchantDurationList;
 typedef std::list<Item*> ItemDurationList;
 
+enum LfgType
+{
+    LFG_TYPE_NONE                 = 0,
+    LFG_TYPE_DUNGEON              = 1,
+    LFG_TYPE_RAID                 = 2,
+    LFG_TYPE_QUEST                = 3,
+    LFG_TYPE_ZONE                 = 4,
+    LFG_TYPE_HEROIC_DUNGEON       = 5,
+    LFG_TYPE_RANDOM_DUNGEON       = 6
+};
+
+enum LfgRoles
+{
+    LEADER  = 0x01,
+    TANK    = 0x02,
+    HEALER  = 0x04,
+    DAMAGE  = 0x08
+};
+
 struct LookingForGroupSlot
 {
     LookingForGroupSlot() : entry(0), type(0) {}
@@ -423,6 +441,40 @@ struct LookingForGroupSlot
 };
 
 #define MAX_LOOKING_FOR_GROUP_SLOT 3
+
+struct LookingForGroup
+{
+    LookingForGroup() {}
+    bool HaveInSlot(LookingForGroupSlot const& slot) const { return HaveInSlot(slot.entry, slot.type); }
+    bool HaveInSlot(uint32 _entry, uint32 _type) const
+    {
+        for(int i = 0; i < MAX_LOOKING_FOR_GROUP_SLOT; ++i)
+            if(slots[i].Is(_entry, _type))
+                return true;
+        return false;
+    }
+
+    bool canAutoJoin() const
+    {
+        for(int i = 0; i < MAX_LOOKING_FOR_GROUP_SLOT; ++i)
+            if(slots[i].canAutoJoin())
+                return true;
+        return false;
+    }
+
+    bool Empty() const
+    {
+        for(int i = 0; i < MAX_LOOKING_FOR_GROUP_SLOT; ++i)
+            if(!slots[i].Empty())
+                return false;
+        return more.Empty();
+    }
+
+    LookingForGroupSlot slots[MAX_LOOKING_FOR_GROUP_SLOT];
+    LookingForGroupSlot more;
+    std::string comment;
+    uint8 roles;
+};
 
 enum RaidGroupError
 {
@@ -1093,7 +1145,6 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         bool IsInWater() const { return m_isInWater; }
         bool IsUnderWater() const;
-        bool IsFalling() { return GetPositionZ() < m_lastFallZ; }
 
         void SendInitialPacketsBeforeAddToMap();
         void SendInitialPacketsAfterAddToMap();
@@ -2366,19 +2417,6 @@ class MANGOS_DLL_SPEC Player : public Unit
         void SetTitle(CharTitlesEntry const* title, bool lost = false);
 
         bool canSeeSpellClickOn(Creature const* creature) const;
-
-        // Dungeon Finder
-        LfgDungeonSet* GetLfgDungeons() { return &m_LookingForGroup.applyDungeons; }
-        std::string GetLfgComment() { return m_LookingForGroup.comment; }
-        void SetLfgComment(std::string _comment) { m_LookingForGroup.comment = _comment; }
-        uint8 GetLfgRoles() { return m_LookingForGroup.roles; }
-        void SetLfgRoles(uint8 _roles) { m_LookingForGroup.roles = _roles; }
-        bool GetLfgUpdate() { return m_LookingForGroup.update; }
-        void SetLfgUpdate(bool update) { m_LookingForGroup.update = update; }
-        LfgState GetLfgState() { return m_LookingForGroup.state; }
-        void SetLfgState(LfgState state) { m_LookingForGroup.state = state; }
-        bool isUsingLfg() { return GetLfgState() != LFG_STATE_NONE; }
-
     protected:
 
         uint32 m_contestedPvPTimer;
@@ -2689,8 +2727,6 @@ class MANGOS_DLL_SPEC Player : public Unit
         uint32 m_timeSyncTimer;
         uint32 m_timeSyncClient;
         uint32 m_timeSyncServer;
-
-        LookingForGroup m_LookingForGroup;
 };
 
 void AddItemsSetItem(Player*player,Item *item);

@@ -40,7 +40,6 @@
 #include "Pet.h"
 #include "SocialMgr.h"
 #include "DBCEnums.h"
-#include "LFGMgr.h"
 
 void WorldSession::HandleRepopRequestOpcode( WorldPacket & recv_data )
 {
@@ -809,11 +808,8 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
             return;
         }
     }
-    // Check if we are in LfgGroup and trying to get out the dungeon
-    if (GetPlayer()->GetGroup() && GetPlayer()->GetGroup()->isLFGGroup() && GetPlayer()->GetMap()->IsDungeon() && at->target_mapId != GetPlayer()->GetMapId())
-        sLFGMgr.TeleportPlayer(GetPlayer(), true);
-    else
-        GetPlayer()->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, at->target_Orientation, TELE_TO_NOT_LEAVE_TRANSPORT);
+
+    GetPlayer()->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, at->target_Orientation, TELE_TO_NOT_LEAVE_TRANSPORT);
 }
 
 void WorldSession::HandleUpdateAccountData(WorldPacket &recv_data)
