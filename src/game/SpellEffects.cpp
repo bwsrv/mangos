@@ -2039,10 +2039,10 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 
                     switch(urand(0,3))
                     {
-                        case 0: unitTarget->MonsterSay("Let us fight the Irons together!",LANG_UNIVERSAL,pCaster->GetGUID());break;
-                        case 1: unitTarget->MonsterSay("Thank you! I thought I was doomed.",LANG_UNIVERSAL,pCaster->GetGUID());break;
-                        case 2: unitTarget->MonsterSay("Let me fight by your side!",LANG_UNIVERSAL,pCaster->GetGUID());break;
-                        case 3: unitTarget->MonsterSay("I was certain I was going to die out here.",LANG_UNIVERSAL,pCaster->GetGUID());break;
+                        case 0: unitTarget->MonsterSay("Let us fight the Irons together!",LANG_UNIVERSAL);break;
+                        case 1: unitTarget->MonsterSay("Thank you! I thought I was doomed.",LANG_UNIVERSAL);break;
+                        case 2: unitTarget->MonsterSay("Let me fight by your side!",LANG_UNIVERSAL);break;
+                        case 3: unitTarget->MonsterSay("I was certain I was going to die out here.",LANG_UNIVERSAL);break;
                     }
                     ((Creature*)unitTarget)->ForcedDespawn(30000);
                     unitTarget->SetByteValue(UNIT_FIELD_BYTES_1,0,UNIT_STAND_STATE_STAND);
