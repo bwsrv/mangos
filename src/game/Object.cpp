@@ -830,7 +830,13 @@ void Object::_SetCreateBits(UpdateMask *updateMask, Player* /*target*/) const
 
 void Object::SetInt32Value( uint16 index, int32 value )
 {
-    MANGOS_ASSERT( index < m_valuesCount || PrintIndexError( index, true ) );
+    //MANGOS_ASSERT( index < m_valuesCount || PrintIndexError( index, true ) );
+
+    if (index >= m_valuesCount)
+    {
+        PrintIndexError(index, true);
+        return;
+    }
 
     if(m_int32Values[ index ] != value)
     {
@@ -849,7 +855,13 @@ void Object::SetInt32Value( uint16 index, int32 value )
 
 void Object::SetUInt32Value( uint16 index, uint32 value )
 {
-    MANGOS_ASSERT( index < m_valuesCount || PrintIndexError( index, true ) );
+    //MANGOS_ASSERT( index < m_valuesCount || PrintIndexError( index, true ) );
+
+    if (index >= m_valuesCount)
+    {
+        PrintIndexError(index, true);
+        return;
+    }
 
     if(m_uint32Values[ index ] != value)
     {
@@ -868,7 +880,14 @@ void Object::SetUInt32Value( uint16 index, uint32 value )
 
 void Object::SetUInt64Value( uint16 index, const uint64 &value )
 {
-    MANGOS_ASSERT( index + 1 < m_valuesCount || PrintIndexError( index, true ) );
+    //MANGOS_ASSERT( index + 1 < m_valuesCount || PrintIndexError( index, true ) );
+
+    if (index + 1 >= m_valuesCount)
+    {
+        PrintIndexError(index, true);
+        return;
+    }
+
     if(*((uint64*)&(m_uint32Values[ index ])) != value)
     {
         m_uint32Values[ index ] = *((uint32*)&value);
@@ -887,7 +906,13 @@ void Object::SetUInt64Value( uint16 index, const uint64 &value )
 
 void Object::SetFloatValue( uint16 index, float value )
 {
-    MANGOS_ASSERT( index < m_valuesCount || PrintIndexError( index, true ) );
+    //MANGOS_ASSERT( index < m_valuesCount || PrintIndexError( index, true ) );
+
+    if (index >= m_valuesCount)
+    {
+        PrintIndexError(index, true);
+        return;
+    }
 
     if(m_floatValues[ index ] != value)
     {
@@ -906,7 +931,13 @@ void Object::SetFloatValue( uint16 index, float value )
 
 void Object::SetByteValue( uint16 index, uint8 offset, uint8 value )
 {
-    MANGOS_ASSERT( index < m_valuesCount || PrintIndexError( index, true ) );
+    //MANGOS_ASSERT( index < m_valuesCount || PrintIndexError( index, true ) );
+
+    if (index >= m_valuesCount)
+    {
+        PrintIndexError(index, true);
+        return;
+    }
 
     if(offset > 4)
     {
@@ -932,7 +963,13 @@ void Object::SetByteValue( uint16 index, uint8 offset, uint8 value )
 
 void Object::SetUInt16Value( uint16 index, uint8 offset, uint16 value )
 {
-    MANGOS_ASSERT( index < m_valuesCount || PrintIndexError( index, true ) );
+    //MANGOS_ASSERT( index < m_valuesCount || PrintIndexError( index, true ) );
+
+    if (index >= m_valuesCount)
+    {
+        PrintIndexError(index, true);
+        return;
+    }
 
     if(offset > 2)
     {
