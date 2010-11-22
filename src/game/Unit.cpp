@@ -4293,7 +4293,7 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
         for (SpellAuraHolderMap::iterator iter = spair.first; iter != spair.second; ++iter)
         {
             SpellAuraHolder *foundHolder = iter->second;
-            if(foundHolder->GetCasterGUID() == holder->GetCasterGUID())
+            if(foundHolder->GetCasterGUID() == holder->GetCasterGUID() || foundHolder->GetId() == 61474) //Grip of Slad'ran (Slad'ran encounter, Gundrak) can stack in one stack from different casters
             {
                 // Aura can stack on self -> Stack it;
                 if(aurSpellInfo->StackAmount)
@@ -4350,8 +4350,8 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
                 // m_auraname can be modified to SPELL_AURA_NONE for area auras, use original
                 AuraType aurNameReal = AuraType(aurSpellInfo->EffectApplyAuraName[i]);
 
-                // Strength of the Pack must stuck from different casters (Auriaya encounter, Ulduar)
-                if (foundHolder->GetId() == 64381 || foundHolder->GetId() == 61474)
+                // Strength of the Pack must stack from different casters (Auriaya encounter, Ulduar)
+                if (foundHolder->GetId() == 64381)
                     continue;
 
                 switch(aurNameReal)
