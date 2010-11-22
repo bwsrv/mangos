@@ -261,8 +261,9 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
 
         NGridType* getNGrid(uint32 x, uint32 y) const
         {
-            MANGOS_ASSERT(x < MAX_NUMBER_OF_GRIDS);
-            MANGOS_ASSERT(y < MAX_NUMBER_OF_GRIDS);
+            if (x >= MAX_NUMBER_OF_GRIDS || y >= MAX_NUMBER_OF_GRIDS) 
+                return NULL;
+
             return i_grids[x][y];
         }
 
