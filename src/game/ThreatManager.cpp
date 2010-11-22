@@ -533,7 +533,7 @@ void ThreatManager::processThreatEvent(ThreatRefStatusChangeEvent* threatRefStat
                     setCurrentVictim(NULL);
                     setDirty(true);
                 }
-                iOwner->SendThreatRemove(hostileReference);
+                //iOwner->SendThreatRemove(hostileReference);
                 iThreatContainer.remove(hostileReference);
                 iUpdateNeed = true;
                 iThreatOfflineContainer.addReference(hostileReference);

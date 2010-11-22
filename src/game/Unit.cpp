@@ -3425,8 +3425,7 @@ SpellMissInfo Unit::SpellHitResult(Unit *pVictim, SpellEntry const *spell, bool 
     if (pVictim->GetTypeId()==TYPEID_UNIT && ((Creature*)pVictim)->IsInEvadeMode())
         return SPELL_MISS_EVADE;
 
-    if (!(spell->Id == 64380 || spell->Id == 64382 || spell->Id == 32375 ||
-        spell->Id == 32592 || spell->Id == 39897))
+    if (!(spell->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY))
     {
         // Check for immune
         if (pVictim->IsImmuneToSpell(spell))
