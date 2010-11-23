@@ -327,7 +327,6 @@ void PoolGroup<T>::SpawnObject(SpawnedPoolData& spawns, uint32 limit, uint32 tri
         else
             triggerFrom = 0;
     }
-
     // This will try to spawn the rest of pool, not guaranteed
     for (int i = 0; i < count; ++i)
     {
@@ -339,11 +338,10 @@ void PoolGroup<T>::SpawnObject(SpawnedPoolData& spawns, uint32 limit, uint32 tri
 
         if (obj->guid == triggerFrom)
         {
-            if (spawns.IsSpawnedObject<T>(obj->guid) && spawns.GetSpawnedObjects(poolId) > 0)
-			{
-				ReSpawn1Object(obj);
-				triggerFrom = 0;
-			}
+            MANGOS_ASSERT(spawns.IsSpawnedObject<T>(obj->guid));
+            MANGOS_ASSERT(spawns.GetSpawnedObjects(poolId) > 0);
+            ReSpawn1Object(obj);
+            triggerFrom = 0;
             continue;
         }
 
