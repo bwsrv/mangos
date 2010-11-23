@@ -13137,6 +13137,11 @@ void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId)
                     break;
                 }
                 case GOSSIP_OPTION_TRAINER:
+                    // pet trainers not have spells in fact now
+                    /* FIXME: gossip menu with single unlearn pet talents option not show by some reason 
+                    if (pCreature->GetCreatureInfo()->trainer_type == TRAINER_TYPE_PETS)
+                        hasMenuItem = false;
+                    else */
                     if (!pCreature->IsTrainerOf(this, false))
                         hasMenuItem = false;
                     break;
@@ -13149,7 +13154,14 @@ void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId)
                         hasMenuItem = false;
                     break;
                 case GOSSIP_OPTION_UNLEARNPETSKILLS:
-                    if (!GetPet() || GetPet()->getPetType() != HUNTER_PET || GetPet()->m_spells.size() <= 1 || pCreature->GetCreatureInfo()->trainer_type != TRAINER_TYPE_PETS || pCreature->GetCreatureInfo()->trainer_class != CLASS_HUNTER)
+                    if (pCreature->GetCreatureInfo()->trainer_type != TRAINER_TYPE_PETS || pCreature->GetCreatureInfo()->trainer_class != CLASS_HUNTER) 
+                        hasMenuItem = false;
+                    else if (Pet * pet = GetPet())
+                    {
+                        if (pet->getPetType() != HUNTER_PET || pet->m_spells.size() <= 1)
+                            hasMenuItem = false;
+                    }
+                    else
                         hasMenuItem = false;
                     break;
                 case GOSSIP_OPTION_TAXIVENDOR:
@@ -22188,7 +22200,18 @@ void Player::UnsummonPetTemporaryIfAny()
     if(!m_temporaryUnsummonedPetNumber && pet->isControlled() && !pet->isTemporarySummoned() )
         m_temporaryUnsummonedPetNumber = pet->GetCharmInfo()->GetPetNumber();
 
-    pet->Unsummon(PET_SAVE_AS_CURRENT, this);
+    GroupPetList m_groupPetsTmp = GetPets();  // Original list may be modified in this function
+    for (GroupPetList::const_iterator itr = m_groupPetsTmp.begin(); itr != m_groupPetsTmp.end(); ++itr)
+    {
+        if (Pet* _pet = GetMap()->GetPet(*itr))
+        {
+            if (!_pet->isTemporarySummoned())
+                _pet->Unsummon(PET_SAVE_AS_CURRENT, this);
+            else 
+                _pet->Unsummon(PET_SAVE_NOT_IN_SLOT, this);
+        }
+    }
+
 }
 
 void Player::ResummonPetTemporaryUnSummonedIfAny()
