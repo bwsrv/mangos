@@ -5645,6 +5645,8 @@ SpellCastResult Spell::CheckCast(bool strict)
         }
     }
 
+    if (m_spellInfo->Id == 781 && !m_caster->isInCombat()) //Disengage
+         return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
     // all ok
     return SPELL_CAST_OK;
 }

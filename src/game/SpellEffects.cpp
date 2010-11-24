@@ -8644,6 +8644,15 @@ void Spell::EffectLeapBack(SpellEffectIndex eff_idx)
         return;
 
     m_caster->KnockBackFrom(unitTarget,float(m_spellInfo->EffectMiscValue[eff_idx])/10,float(damage)/10);
+    // Disengage - combat stop
+    if (m_spellInfo->Id == 781)
+    {
+        m_caster->CombatStop();
+        // prevent interrupt message
+        m_caster->FinishSpell(CURRENT_GENERIC_SPELL,false);
+        m_caster->InterruptNonMeleeSpells(true);
+        m_caster->getHostileRefManager().deleteReferences();
+    }
 }
 
 void Spell::EffectReputation(SpellEffectIndex eff_idx)
