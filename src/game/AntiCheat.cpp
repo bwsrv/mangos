@@ -67,6 +67,7 @@ AntiCheat::AntiCheat(Player* player)
     m_currentOpcode       = 0;
     m_currentConfig       = NULL;
     m_currentDelta        = 0.0f;
+    m_currentDeltaZ       = 0.0f;
     m_lastfalltime        = 0;
     m_lastfallz           = 0.0f;
     //
@@ -213,16 +214,34 @@ void AntiCheat::DoAntiCheatAction(AntiCheatCheck checkType, std::string reason)
         m_lastactiontime[checkType] = getMSTime();
 
         std::string name = GetPlayer()->GetName();
-
         std::string namechat;
+        MapEntry const* mapEntry = sMapStore.LookupEntry(GetPlayer()->GetMapId());
+        uint32 zone_id, area_id;
+        GetPlayer()->GetZoneAndAreaId(zone_id,area_id);
+        AreaTableEntry const* zoneEntry = GetAreaEntryByAreaID(zone_id);
+        AreaTableEntry const* areaEntry = GetAreaEntryByAreaID(area_id);
+        char buffer[255];
+
         namechat.clear();
         namechat.append(" |cddff0000|Hplayer:");
-        namechat.append(GetPlayer()->GetName());
+        namechat.append(name);
         namechat.append("|h[");
-        namechat.append(GetPlayer()->GetName());
+        namechat.append(name);
         namechat.append("]|h|r ");
-        namechat.append("Map: ");
-        namechat.append(GetPlayer()->GetMap()->GetMapName());
+        sprintf(buffer," Map %u (%s), Zone %u (%s) Area |cbbdd0000|Harea:%u|h[%s]|h|r ",
+        GetPlayer()->GetMapId(), (mapEntry ? mapEntry->name[sWorld.GetDefaultDbcLocale()] : "<unknown>" ),
+        zone_id, (zoneEntry ? zoneEntry->area_name[sWorld.GetDefaultDbcLocale()] : "<unknown>" ),
+        area_id, (areaEntry ? areaEntry->area_name[sWorld.GetDefaultDbcLocale()] : "<unknown>" ));
+
+        if (m_currentspellID)
+        {
+            SpellEntry const *spellInfo = sSpellStore.LookupEntry(m_currentspellID);
+            if (spellInfo)
+                sprintf(buffer,", last spell |cbbee0000|Hspell:%u|h[%s]|h|r  ",
+                    m_currentspellID, spellInfo->SpellName[sWorld.GetDefaultDbcLocale()]);
+        }
+
+        namechat.append(buffer);
 
         for (int i=0; i < ANTICHEAT_ACTIONS; ++i )
         {
@@ -403,6 +422,10 @@ bool AntiCheat::CheckNeeded(AntiCheatCheck checktype)
             if (isCanFly() || !isActiveMover())
                 return false;
             break;
+        case CHECK_MOVEMENT_MOUNTAIN:
+            if (isCanFly() || !isActiveMover())
+                return false;
+            break;
         default:
             break;
     }
@@ -434,16 +457,13 @@ bool AntiCheat::CheckMovement()
 
     SetLastLiveState(GetPlayer()->getDeathState());
 
-    float delta_x = GetMover()->GetPositionX() - m_currentmovementInfo->GetPos()->x;
-    float delta_y = GetMover()->GetPositionY() - m_currentmovementInfo->GetPos()->y;
-    float delta_z = GetMover()->GetPositionZ() - m_currentmovementInfo->GetPos()->z;
+    float delta_x   = GetMover()->GetPositionX() - m_currentmovementInfo->GetPos()->x;
+    float delta_y   = GetMover()->GetPositionY() - m_currentmovementInfo->GetPos()->y;
+    m_currentDeltaZ = GetMover()->GetPositionZ() - m_currentmovementInfo->GetPos()->z;
 
-    m_currentDelta = sqrt(delta_x * delta_x + delta_y * delta_y + delta_z * delta_z);
-
-    float m_current_angle = asin(delta_z / m_currentDelta);
+    m_currentDelta = sqrt(delta_x * delta_x + delta_y * delta_y);
 
     m_MovedLen += m_currentDelta;
-
 
     return true;
 }
@@ -451,7 +471,6 @@ bool AntiCheat::CheckMovement()
 bool AntiCheat::CheckSpeed()
 {
     float speedRate   = 1.0f;
-    float delta_t     = 0.0f;
     int   serverDelta = getMSTimeDiff(m_oldCheckTime[CHECK_MOVEMENT_SPEED],getMSTime());
 
     if (m_currentTimeSkipped > 0 && (float)m_currentTimeSkipped < serverDelta)
@@ -465,16 +484,13 @@ bool AntiCheat::CheckSpeed()
         return true;
     }
     uint32 clientTime  = m_currentmovementInfo->time;
-    uint32 clientDelta = clientTime - m_lastClientTime;
+    int clientDelta = clientTime - m_lastClientTime;
 
     m_lastClientTime   = clientTime;
 
-    if (serverDelta < clientDelta)
-        delta_t = float(clientDelta);
-    else
-        delta_t = float(serverDelta);
+    float delta_t     = float(std::max(clientDelta,serverDelta));
 
-    float delta_moved = m_MovedLen / delta_t;
+    float moveSpeed = m_MovedLen / delta_t;
 
     m_MovedLen = 0.0f;
 
@@ -501,12 +517,12 @@ bool AntiCheat::CheckSpeed()
             mode = "MOVE_RUN";
         }
 
-    if ( delta_moved / speedRate <= m_currentConfig->checkFloatParam[0] )
+    if ( moveSpeed / speedRate <= m_currentConfig->checkFloatParam[0] )
         return true;
 
     char buffer[255];
     sprintf(buffer," Speed is %f but allowed %f Mode is %s, opcode is %s, client delta is %d, server delta is %d",
-                 delta_moved / speedRate, m_currentConfig->checkFloatParam[0],mode.c_str(), LookupOpcodeName(m_currentOpcode), clientDelta, serverDelta);
+                 moveSpeed / speedRate, m_currentConfig->checkFloatParam[0],mode.c_str(), LookupOpcodeName(m_currentOpcode), clientDelta, serverDelta);
     m_currentCheckResult.clear();
     m_currentCheckResult.append(buffer);
     return false;
@@ -544,26 +560,26 @@ bool AntiCheat::CheckTeleport()
 
 bool AntiCheat::CheckMountain()
 {
-
     if (m_currentmovementInfo->HasMovementFlag(MovementFlags(MOVEFLAG_FLYING | MOVEFLAG_SWIMMING)))
         return true;
 
-    float delta_x = GetMover()->GetPositionX() - m_currentmovementInfo->GetPos()->x;
-    float delta_y = GetMover()->GetPositionY() - m_currentmovementInfo->GetPos()->y;
-    float delta_z = GetMover()->GetPositionZ() - m_currentmovementInfo->GetPos()->z;
-    float delta_xy2 = delta_x * delta_x + delta_y * delta_y;
+    if ( m_currentDeltaZ > 0 )
+        return true;
 
-    float tg_z = (delta_xy2 > 0) ? (delta_z * delta_z / delta_xy2) : -99999;
+    int  serverDelta = getMSTimeDiff(m_oldCheckTime[CHECK_MOVEMENT_MOUNTAIN],getMSTime());
 
-    if ((delta_z > -m_currentConfig->checkFloatParam[0]) || (tg_z < m_currentConfig->checkFloatParam[1]))
+    float zSpeed = - m_currentDeltaZ / serverDelta;
+
+    float tg_z = (m_currentDelta > 0.0f) ? (-m_currentDeltaZ / m_currentDelta) : -99999;
+
+    if (tg_z < m_currentConfig->checkFloatParam[1] || zSpeed < m_currentConfig->checkFloatParam[0] )
         return true;
 
     char buffer[255];
-    sprintf(buffer," deltaZ %e, angle %e",
-                 delta_z, tg_z);
+    sprintf(buffer," deltaZ %e, angle %e, speedZ %e ",
+                 m_currentDeltaZ, tg_z, zSpeed);
     m_currentCheckResult.clear();
     m_currentCheckResult.append(buffer);
-
 
     return false;
 }
@@ -592,10 +608,7 @@ bool AntiCheat::CheckFly()
     if (!m_currentmovementInfo->HasMovementFlag(MovementFlags(MOVEFLAG_CAN_FLY | MOVEFLAG_FLYING | MOVEFLAG_ROOT)))
         return true;
 
-    if (GetMover()->HasAuraType(SPELL_AURA_FEATHER_FALL) && GetPlayer()->GetPositionZ() - m_currentmovementInfo->GetPos()->z > 0.0f)
-        return true;
-
-    if (GetMover()->HasAura(55164) || GetPlayer()->HasAura(55001))
+    if (GetMover()->HasAuraType(SPELL_AURA_FEATHER_FALL))
         return true;
 
     float ground_z = GetMover()->GetTerrain()->GetHeight(GetPlayer()->GetPositionX(),GetPlayer()->GetPositionY(),MAX_HEIGHT);
@@ -605,7 +618,7 @@ bool AntiCheat::CheckFly()
     if (map_z + m_currentConfig->checkFloatParam[0] > GetPlayer()->GetPositionZ() && map_z > (INVALID_HEIGHT + m_currentConfig->checkFloatParam[0] + 5.0f))
         return true;
 
-    if (GetPlayer()->GetPositionZ() - m_currentmovementInfo->GetPos()->z > 0.0f)
+    if (m_currentDeltaZ > 0.0f)
         return true;
 
     char buffer[255];
@@ -629,7 +642,7 @@ bool AntiCheat::CheckAirJump()
          (map_z + m_currentConfig->checkFloatParam[0] < GetMover()->GetPositionZ() && m_currentOpcode == MSG_MOVE_JUMP)))
         return true;
 
-    if (GetMover()->GetPositionZ() > m_currentmovementInfo->GetPos()->z)
+    if (m_currentDeltaZ > 0.0f)
         return true;
 
     char buffer[255];
@@ -674,7 +687,6 @@ bool AntiCheat::CheckOnTransport()
     if (trans_rad < + m_currentConfig->checkFloatParam[0])
         return true;
 
-
     char buffer[255];
     sprintf(buffer," Transport radius = %f, opcode = %s ",
                  trans_rad, LookupOpcodeName(m_currentOpcode));
@@ -699,8 +711,14 @@ bool AntiCheat::CheckSpellValid()
 
 bool AntiCheat::CheckSpellOndeath()
 {
-// in process
-    return true;
+
+    if (GetPlayer()->getDeathState() == ALIVE)
+        return true;
+
+    char buffer[255];
+    sprintf(buffer," player is not in ALIVE state, but cast spell %u ",
+                 m_currentspellID);
+
 }
 
 bool AntiCheat::CheckSpellFamily()

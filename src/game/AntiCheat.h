@@ -177,7 +177,7 @@ class AntiCheat
         std::string                m_currentCheckResult;
         AntiCheatConfig const*     m_currentConfig;
         float                      m_currentDelta;
-        float                      m_current_angle;
+        float                      m_currentDeltaZ;
 
 };
 
