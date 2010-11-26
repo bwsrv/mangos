@@ -35,7 +35,7 @@ struct VehicleSeat
 
 typedef std::map<int8, VehicleSeat> SeatMap;
 
-class VehicleKit
+class MANGOS_DLL_SPEC VehicleKit
 {
 public:
     explicit VehicleKit(Unit* base, VehicleEntry const* vehicleInfo);
