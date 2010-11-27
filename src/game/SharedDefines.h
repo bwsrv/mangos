@@ -1087,6 +1087,7 @@ enum Targets
     TARGET_DYNAMIC_OBJECT_BEHIND       = 48,
     TARGET_DYNAMIC_OBJECT_LEFT_SIDE    = 49,
     TARGET_DYNAMIC_OBJECT_RIGHT_SIDE   = 50,
+    TARGET_OBJECT_AREA_SRC             = 51,
     TARGET_AREAEFFECT_CUSTOM_2         = 52,
     TARGET_CURRENT_ENEMY_COORDINATES   = 53,                // set unit coordinates as dest, only 16 target B imlemented
     TARGET_LARGE_FRONTAL_CONE          = 54,
@@ -1224,8 +1225,8 @@ enum GameObjectFlags
     GO_FLAG_TRIGGERED       = 0x00000040,                   //typically, summoned objects. Triggered by spell or other events
     GO_FLAG_UNK_8           = 0x00000080,
     GO_FLAG_UNK_9           = 0x00000100,                   //? Seen on type 33, possible meaning "destruct in progress"
-    GO_FLAG_UNK_10          = 0x00000200,                   //? Seen on type 33
-    GO_FLAG_UNK_11          = 0x00000400                    //? Seen on type 33, possibly meaning "destructed"
+    GO_FLAG_DAMAGED         = 0x00000200,                   //Seen on type 33
+    GO_FLAG_DESTROYED       = 0x00000400                    //Seen on type 33, meaning "destroyed"
 };
 
 enum GameObjectDynamicLowFlags
