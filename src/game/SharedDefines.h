@@ -273,7 +273,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX_UNK4                        0x00000010            // 4
 #define SPELL_ATTR_EX_NOT_BREAK_STEALTH           0x00000020            // 5 Not break stealth
 #define SPELL_ATTR_EX_CHANNELED_2                 0x00000040            // 6 channeled 2
-#define SPELL_ATTR_EX_NEGATIVE                    0x00000080            // 7
+#define SPELL_ATTR_EX_NEG_NO_REFLECT              0x00000080            // 7 ? used for detection whether a spell can or can not be reflected
 #define SPELL_ATTR_EX_NOT_IN_COMBAT_TARGET        0x00000100            // 8 Spell req target not to be in combat state
 #define SPELL_ATTR_EX_UNK9                        0x00000200            // 9
 #define SPELL_ATTR_EX_NO_INITIAL_AGGRO            0x00000400            // 10 no generates threat on cast 100% (UNUSED changed to SPELL_ATTR_EX3_NO_INITIAL_AGGRO)
@@ -301,7 +301,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 
 #define SPELL_ATTR_EX2_UNK0                       0x00000001            // 0
 #define SPELL_ATTR_EX2_UNK1                       0x00000002            // 1
-#define SPELL_ATTR_EX2_CANT_REFLECTED             0x00000004            // 2 ? used for detect can or not spell reflected // do not need LOS (e.g. 18220 since 3.3.3)
+#define SPELL_ATTR_EX2_UNK2                       0x00000004            // 2
 #define SPELL_ATTR_EX2_UNK3                       0x00000008            // 3 auto targeting? (e.g. fishing skill enhancement items since 3.3.3)
 #define SPELL_ATTR_EX2_UNK4                       0x00000010            // 4
 #define SPELL_ATTR_EX2_AUTOREPEAT_FLAG            0x00000020            // 5

@@ -7171,7 +7171,7 @@ void Aura::PeriodicTick()
             if (pCaster->GetTypeId() == TYPEID_PLAYER)
                 pdamage -= target->GetSpellDamageReduction(pdamage);
 
-            target->CalculateDamageAbsorbAndResist(pCaster, GetSpellSchoolMask(spellProto), DOT, pdamage, &absorb, &resist, !(GetSpellProto()->AttributesEx2 & SPELL_ATTR_EX2_CANT_REFLECTED));
+            target->CalculateDamageAbsorbAndResist(pCaster, GetSpellSchoolMask(spellProto), DOT, pdamage, &absorb, &resist, !(GetSpellProto()->AttributesEx & SPELL_ATTR_EX_NEG_NO_REFLECT));
             cleanDamage.absorb += absorb;
 
             DETAIL_FILTER_LOG(LOG_FILTER_PERIODIC_AFFECTS, "PeriodicTick: %s attacked %s for %u dmg inflicted by %u abs is %u",
@@ -7264,7 +7264,7 @@ void Aura::PeriodicTick()
             if (GetCasterGuid().IsPlayer())
                 pdamage -= target->GetSpellDamageReduction(pdamage);
 
-            target->CalculateDamageAbsorbAndResist(pCaster, GetSpellSchoolMask(spellProto), DOT, pdamage, &absorb, &resist, !(spellProto->AttributesEx2 & SPELL_ATTR_EX2_CANT_REFLECTED));
+            target->CalculateDamageAbsorbAndResist(pCaster, GetSpellSchoolMask(spellProto), DOT, pdamage, &absorb, &resist, !(spellProto->AttributesEx & SPELL_ATTR_EX_NEG_NO_REFLECT));
             cleanDamage.absorb += absorb;
 
             DETAIL_FILTER_LOG(LOG_FILTER_PERIODIC_AFFECTS, "PeriodicTick: %s health leech of %s for %u dmg inflicted by %u abs is %u",

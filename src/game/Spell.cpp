@@ -394,7 +394,9 @@ Spell::Spell( Unit* caster, SpellEntry const *info, bool triggered, ObjectGuid o
     // determine reflection
     m_canReflect = false;
 
-    if(m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC && !(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_CANT_REFLECTED))
+    if(m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC && (m_spellInfo->AttributesEx & SPELL_ATTR_EX_NEG_NO_REFLECT)==0 && !IsPositiveSpell(m_spellInfo->Id))
+        m_canReflect = true;
+    /* This check seems to be incorrect
     {
         for(int j = 0; j < MAX_EFFECT_INDEX; ++j)
         {
@@ -411,7 +413,7 @@ Spell::Spell( Unit* caster, SpellEntry const *info, bool triggered, ObjectGuid o
             else
                 break;
         }
-    }
+    }*/
 
     CleanupTargetList();
 }
@@ -1921,7 +1923,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
         {
             if (EffectChainTarget <= 1)
             {
-                if(Unit* pUnitTarget = m_caster->SelectMagnetTarget(m_targets.getUnitTarget(), m_spellInfo))
+                if(Unit *pUnitTarget = m_caster->SelectMagnetTarget(m_targets.getUnitTarget(), m_spellInfo))
                 {
                     m_targets.setUnitTarget(pUnitTarget);
                     targetUnitMap.push_back(pUnitTarget);
@@ -2332,7 +2334,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 }
                 else
                 {
-                    if(Unit* pUnitTarget = m_caster->SelectMagnetTarget(m_targets.getUnitTarget(), m_spellInfo))
+                    if(Unit *pUnitTarget = m_caster->SelectMagnetTarget(m_targets.getUnitTarget(), m_spellInfo))
                     {
                         m_targets.setUnitTarget(pUnitTarget);
                         targetUnitMap.push_back(pUnitTarget);
@@ -2362,7 +2364,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             break;
         case TARGET_SINGLE_ENEMY:
         {
-            if(Unit* pUnitTarget = m_caster->SelectMagnetTarget(m_targets.getUnitTarget(), m_spellInfo))
+            if(Unit *pUnitTarget = m_caster->SelectMagnetTarget(m_targets.getUnitTarget(), m_spellInfo))
             {
                 m_targets.setUnitTarget(pUnitTarget);
                 targetUnitMap.push_back(pUnitTarget);

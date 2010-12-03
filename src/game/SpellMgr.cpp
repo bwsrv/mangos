@@ -874,7 +874,7 @@ bool IsPositiveEffect(uint32 spellId, SpellEffectIndex effIndex)
         return false;
 
     // AttributesEx check
-    if(spellproto->AttributesEx & SPELL_ATTR_EX_NEGATIVE)
+    if(spellproto->AttributesEx & SPELL_ATTR_EX_NEG_NO_REFLECT)
         return false;
 
     // ok, positive
