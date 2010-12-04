@@ -367,6 +367,7 @@ class MANGOS_DLL_SPEC Aura
         void HandleAuraMirrorImage(bool Apply, bool Real);
         void HandleAuraLinked(bool Apply, bool Real);
         void HandleAuraOpenStable(bool apply, bool Real);
+        void HandleAuraReflectSpells(bool Apply, bool Real);
 
         virtual ~Aura();
 
