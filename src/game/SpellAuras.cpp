@@ -443,38 +443,6 @@ m_isPersistent(false), m_in_use(0), m_spellAuraHolder(holder)
             m_maxduration = 1;
     }
 
-    DEBUG_FILTER_LOG(LOG_FILTER_SPELL_CAST, "Aura: construct Spellid : %u, Aura : %u Duration : %d Target : %d Damage : %d", spellproto->Id, spellproto->EffectApplyAuraName[eff], m_maxduration, spellproto->EffectImplicitTargetA[eff],damage);
-
-    SetModifier(AuraType(spellproto->EffectApplyAuraName[eff]), damage, spellproto->EffectAmplitude[eff], spellproto->EffectMiscValue[eff]);
-
-    //Apply haste to channeled spells and some DoT/HoT auras
-    uint32 spellfamily = GetSpellProto()->SpellFamilyName;
-    uint64 spellfamilyflag = GetSpellProto()->SpellFamilyFlags;
-
-    if(caster && ((GetSpellProto()->AttributesEx & (SPELL_ATTR_EX_CHANNELED_1 | SPELL_ATTR_EX_CHANNELED_2))
-        || (GetSpellProto()->AttributesEx5 & SPELL_ATTR_EX5_AFFECTED_BY_HASTE)
-    //Glyph of Quick Decay
-        || (spellfamily == SPELLFAMILY_WARLOCK && (spellfamilyflag & UI64LIT(0x00000002))&& caster->HasAura(70947))
-    //Devouring Plague in Shadow Form
-        || (spellfamily == SPELLFAMILY_PRIEST && (spellfamilyflag & UI64LIT(0x02000000))&& caster->HasAura(15473))
-    //Vampiric Touch in Shadow Form
-        || (spellfamily == SPELLFAMILY_PRIEST && (spellfamilyflag & UI64LIT(0x0000040000000000))&& caster->HasAura(15473))
-    //Glyph of Rapid Rejuvenation
-        || (spellfamily == SPELLFAMILY_DRUID && (spellfamilyflag & UI64LIT(0x00000010))&& caster->HasAura(71013))))
-        if (m_modifier.periodictime)
-            ApplyHasteToPeriodic();
-    //This case for nonperiodic effect of periodic spells
-        else
-        {
-            if( !(GetSpellProto()->Attributes & (SPELL_ATTR_UNK4|SPELL_ATTR_TRADESPELL)) )
-	            m_maxduration = int32(m_origDuration * GetCaster()->GetFloatValue(UNIT_MOD_CAST_SPEED));
-        }
-
-    // Apply periodic time mod
-    else if(modOwner && m_modifier.periodictime)
-        modOwner->ApplySpellMod(spellproto->Id, SPELLMOD_ACTIVATION_TIME, m_modifier.periodictime);
-
->>>>>>> bda5a1a... Revert "Revert "[bws120] ReapplyModifiers and Totem stacking rule. Patch provided by SeT.""
     m_duration = m_maxduration;
 
     DEBUG_FILTER_LOG(LOG_FILTER_SPELL_CAST, "Aura: construct Spellid : %u, Aura : %u Duration : %d Target : %d Damage : %d", spellproto->Id, spellproto->EffectApplyAuraName[eff], m_maxduration, spellproto->EffectImplicitTargetA[eff],damage);
