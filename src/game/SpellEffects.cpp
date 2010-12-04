@@ -1618,7 +1618,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, 47172, true);
 
                     ((Creature*)unitTarget)->AI()->AttackStart(m_caster);
->>>>>>> 3bd1a581ee87705092f43aaccc46210ed43c0f43
                     return;
                 }
                 case 47176:                                 // Infect Ice Troll

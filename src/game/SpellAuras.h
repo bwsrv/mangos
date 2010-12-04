@@ -26,7 +26,6 @@ struct Modifier
 {
     AuraType m_auraname;
     int32 m_amount;
-    int32 m_amount2;
     int32 m_miscvalue;
     uint32 periodictime;
 };
@@ -371,7 +370,7 @@ class MANGOS_DLL_SPEC Aura
 
         virtual ~Aura();
 
-        void SetModifier(AuraType t, int32 a, uint32 pt, int32 miscValue, int32 a2 = 0);
+        void SetModifier(AuraType t, int32 a, uint32 pt, int32 miscValue);
         Modifier*       GetModifier()       { return &m_modifier; }
         Modifier const* GetModifier() const { return &m_modifier; }
         int32 GetMiscValue() const { return m_spellAuraHolder->GetSpellProto()->EffectMiscValue[m_effIndex]; }

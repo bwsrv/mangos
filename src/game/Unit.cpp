@@ -4452,68 +4452,6 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
         }
     }
 
-    for (int32 j = 0; j < MAX_EFFECT_INDEX; ++j)
-    {
-        // no need to check non stacking auras that weren't/won't be applied on this target
-        if (!holder->m_auras[j])
-            continue;
-
-        AuraType aurName = AuraType(aurSpellInfo->EffectApplyAuraName[j]);
-        AuraList const& mModStat = GetAurasByType(aurName);
-        for(AuraList::const_iterator i = mModStat.begin(); i != mModStat.end(); ++i)
-        {
-            Modifier *i_mod = (*i)->GetModifier();
-            Modifier *a_mod = holder->GetAuraByEffectIndex(SpellEffectIndex(j))->GetModifier();
-            
-            if (i_mod->m_miscvalue != a_mod->m_miscvalue)
-                continue;
-
-            if (Unit *caster = (*i)->GetCaster())
-                if (!((Creature *)caster)->IsTotem() && (*i)->GetHolder()->IsPassive())
-                    continue;
-
-            if (Unit *caster = holder->GetCaster())
-                if (!((Creature *)caster)->IsTotem() && holder->IsPassive())
-                    continue;
-
-            if (holder->GetSpellProto()->SpellFamilyName == SPELLFAMILY_POTION || 
-                (*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_POTION)
-                continue;
-            if (sSpellMgr.GetSpellElixirSpecific((*i)->GetSpellProto()->Id) ||
-                sSpellMgr.GetSpellElixirSpecific(aurSpellInfo->Id))
-                continue;
-            if (holder->GetCastItemGUID() || (*i)->GetCastItemGUID())
-                continue;
-
-            switch (aurName)
-            {
-            case SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT:
-            case SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE:
-            case SPELL_AURA_MOD_POWER_REGEN:
-            case SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE:
-            case SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN:
-            case SPELL_AURA_MOD_RANGED_ATTACK_POWER:
-            case SPELL_AURA_MOD_ATTACK_POWER:
-            case SPELL_AURA_MOD_DAMAGE_DONE:
-            case SPELL_AURA_MOD_HEALING_DONE:
-            case SPELL_AURA_MOD_STAT:
-                {
-                    if (i_mod->m_amount <= 0 || a_mod->m_amount < 0)     // don't check negative and proved auras
-                        continue;
-                    if (i_mod->m_amount >= a_mod->m_amount)
-                        holder->GetAuraByEffectIndex(SpellEffectIndex(j))->SetModifier(aurName,0,a_mod->periodictime,a_mod->m_miscvalue,a_mod->m_amount2);
-                    else
-                    {
-                        (*i)->ApplyModifier(false,false);
-                        (*i)->SetModifier(aurName,0,i_mod->periodictime,i_mod->m_miscvalue,i_mod->m_amount2);
-                    }
-                    break;
-                }
-            default:
-                break;
-            }
-        }
-    }
     // add aura, register in lists and arrays
     holder->_AddSpellAuraHolder();
     m_spellAuraHolders.insert(SpellAuraHolderMap::value_type(holder->GetId(), holder));
@@ -4533,79 +4471,6 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
     holder->HandleSpellSpecificBoosts(true);
 
     return true;
-}
-
-void Unit::ReapplyModifers(Aura *Aur)
-{
-    AuraType aurName = Aur->GetModifier()->m_auraname;
-    Aura *temp = NULL;
-    int32 damage, damage_temp = 0;
-    bool found = false;
-
-    AuraList const& mModStat = GetAurasByType(aurName);
-    for(AuraList::const_iterator i = mModStat.begin(); i != mModStat.end(); ++i)
-    {
-        if (Aur == (*i))                                //don't reapply self
-            continue;
-
-        if (Unit *caster = (*i)->GetCaster())
-            if (!((Creature *)caster)->IsTotem() && (*i)->GetHolder()->IsPassive())
-                continue;
-
-        if (Unit *caster = Aur->GetCaster())
-            if (!((Creature *)caster)->IsTotem() && Aur->GetHolder()->IsPassive())
-                continue;
-
-        if (Aur->GetSpellProto()->SpellFamilyName == SPELLFAMILY_POTION || 
-            (*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_POTION)
-            continue;
-        if (sSpellMgr.GetSpellElixirSpecific((*i)->GetSpellProto()->Id) ||
-            sSpellMgr.GetSpellElixirSpecific(Aur->GetSpellProto()->Id))
-            continue;
-        if (Aur->GetCastItemGUID() || (*i)->GetCastItemGUID())
-            continue;
-
-        switch (aurName)
-        {
-        case SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT:
-        case SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE:
-        case SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE:
-        case SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN:
-        case SPELL_AURA_MOD_RANGED_ATTACK_POWER:
-        case SPELL_AURA_MOD_ATTACK_POWER:
-        case SPELL_AURA_MOD_DAMAGE_DONE:
-        case SPELL_AURA_MOD_HEALING_DONE:
-        case SPELL_AURA_MOD_STAT:
-        case SPELL_AURA_MOD_POWER_REGEN:
-            {
-                if ((*i)->GetModifier()->m_miscvalue != Aur->GetModifier()->m_miscvalue)
-                    continue;
-                if (Aur->GetModifier()->m_amount < (*i)->GetModifier()->m_amount)   // don't reapply upper aura 
-                {
-                    found = true;
-                    break;
-                }
-
-                damage = (*i)->GetModifier()->m_amount2;
-
-                if (damage > damage_temp)
-                {
-                    damage_temp = damage;
-                    temp = (*i);
-                }
-                break;
-            }
-        default:
-            break;
-        }
-        if (found)
-            break;
-    }
-    if (temp && !found)
-    {
-        temp->SetModifier(aurName,damage_temp,temp->GetModifier()->periodictime,temp->GetModifier()->m_miscvalue,damage_temp);
-        temp->ApplyModifier(true,true);
-    }
 }
 
 void Unit::AddAuraToModList(Aura *aura)
@@ -5283,11 +5148,7 @@ void Unit::RemoveAura(Aura *Aur, AuraRemoveMode mode)
         }
     }
     else
-    {
         Aur->ApplyModifier(false,true);
-        if (Aur->GetTarget())
-            Aur->GetTarget()->ReapplyModifers(Aur);
-    }
 
     // If aura in use (removed from code that plan access to it data after return)
     // store it in aura list with delayed deletion

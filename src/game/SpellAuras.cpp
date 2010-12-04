@@ -443,6 +443,38 @@ m_isPersistent(false), m_in_use(0), m_spellAuraHolder(holder)
             m_maxduration = 1;
     }
 
+    DEBUG_FILTER_LOG(LOG_FILTER_SPELL_CAST, "Aura: construct Spellid : %u, Aura : %u Duration : %d Target : %d Damage : %d", spellproto->Id, spellproto->EffectApplyAuraName[eff], m_maxduration, spellproto->EffectImplicitTargetA[eff],damage);
+
+    SetModifier(AuraType(spellproto->EffectApplyAuraName[eff]), damage, spellproto->EffectAmplitude[eff], spellproto->EffectMiscValue[eff]);
+
+    //Apply haste to channeled spells and some DoT/HoT auras
+    uint32 spellfamily = GetSpellProto()->SpellFamilyName;
+    uint64 spellfamilyflag = GetSpellProto()->SpellFamilyFlags;
+
+    if(caster && ((GetSpellProto()->AttributesEx & (SPELL_ATTR_EX_CHANNELED_1 | SPELL_ATTR_EX_CHANNELED_2))
+        || (GetSpellProto()->AttributesEx5 & SPELL_ATTR_EX5_AFFECTED_BY_HASTE)
+    //Glyph of Quick Decay
+        || (spellfamily == SPELLFAMILY_WARLOCK && (spellfamilyflag & UI64LIT(0x00000002))&& caster->HasAura(70947))
+    //Devouring Plague in Shadow Form
+        || (spellfamily == SPELLFAMILY_PRIEST && (spellfamilyflag & UI64LIT(0x02000000))&& caster->HasAura(15473))
+    //Vampiric Touch in Shadow Form
+        || (spellfamily == SPELLFAMILY_PRIEST && (spellfamilyflag & UI64LIT(0x0000040000000000))&& caster->HasAura(15473))
+    //Glyph of Rapid Rejuvenation
+        || (spellfamily == SPELLFAMILY_DRUID && (spellfamilyflag & UI64LIT(0x00000010))&& caster->HasAura(71013))))
+        if (m_modifier.periodictime)
+            ApplyHasteToPeriodic();
+    //This case for nonperiodic effect of periodic spells
+        else
+        {
+            if( !(GetSpellProto()->Attributes & (SPELL_ATTR_UNK4|SPELL_ATTR_TRADESPELL)) )
+	            m_maxduration = int32(m_origDuration * GetCaster()->GetFloatValue(UNIT_MOD_CAST_SPEED));
+        }
+
+    // Apply periodic time mod
+    else if(modOwner && m_modifier.periodictime)
+        modOwner->ApplySpellMod(spellproto->Id, SPELLMOD_ACTIVATION_TIME, m_modifier.periodictime);
+
+>>>>>>> bda5a1a... Revert "Revert "[bws120] ReapplyModifiers and Totem stacking rule. Patch provided by SeT.""
     m_duration = m_maxduration;
 
     DEBUG_FILTER_LOG(LOG_FILTER_SPELL_CAST, "Aura: construct Spellid : %u, Aura : %u Duration : %d Target : %d Damage : %d", spellproto->Id, spellproto->EffectApplyAuraName[eff], m_maxduration, spellproto->EffectImplicitTargetA[eff],damage);
@@ -556,11 +588,10 @@ SpellAuraHolder* CreateSpellAuraHolder(SpellEntry const* spellproto, Unit *targe
     return new SpellAuraHolder(spellproto, target, caster, castItem);
 }
 
-void Aura::SetModifier(AuraType t, int32 a, uint32 pt, int32 miscValue, int32 a2)
+void Aura::SetModifier(AuraType t, int32 a, uint32 pt, int32 miscValue)
 {
     m_modifier.m_auraname = t;
     m_modifier.m_amount = a;
-    m_modifier.m_amount2 = a2;
     m_modifier.m_miscvalue = miscValue;
     m_modifier.periodictime = pt;
 }
@@ -813,62 +844,6 @@ void AreaAura::Update(uint32 diff)
 
                     if (addedToExisting)
                     {
-                        AuraType aurName = AuraType(aur->GetModifier()->m_auraname);
-                        Unit::AuraList const& mModStat = (*tIter)->GetAurasByType(aurName);
-                        for(Unit::AuraList::const_iterator i = mModStat.begin(); i != mModStat.end(); ++i)
-                        {
-                            Modifier *i_mod = (*i)->GetModifier();
-                            Modifier *a_mod = aur->GetModifier();
-
-                            if (i_mod->m_miscvalue != a_mod->m_miscvalue)
-                                continue;
-
-                            if (Unit *caster = (*i)->GetCaster())
-                                if (!((Creature *)caster)->IsTotem() && (*i)->GetHolder()->IsPassive())
-                                    continue;
-
-                            if (Unit *caster = holder->GetCaster())
-                                if (!((Creature *)caster)->IsTotem() && holder->IsPassive())
-                                    continue;
-
-                            if (actualSpellInfo->SpellFamilyName == SPELLFAMILY_POTION || 
-                                (*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_POTION)
-                                continue;
-                            if (sSpellMgr.GetSpellElixirSpecific((*i)->GetSpellProto()->Id) ||
-                                sSpellMgr.GetSpellElixirSpecific(actualSpellInfo->Id))
-                                continue;
-                            if (holder->GetCastItemGUID() || (*i)->GetCastItemGUID())
-                                continue;
-
-                            switch (aurName)
-                            {
-                            case SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT:
-                            case SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE:
-                            case SPELL_AURA_MOD_POWER_REGEN:
-                            case SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE:
-                            case SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN:
-                            case SPELL_AURA_MOD_RANGED_ATTACK_POWER:
-                            case SPELL_AURA_MOD_ATTACK_POWER:
-                            case SPELL_AURA_MOD_DAMAGE_DONE:
-                            case SPELL_AURA_MOD_HEALING_DONE:
-                            case SPELL_AURA_MOD_STAT:
-                                {
-                                    if (i_mod->m_amount <= 0 || a_mod->m_amount < 0)     // don't check negative and proved auras
-                                        continue;
-                                    if (i_mod->m_amount >= a_mod->m_amount)
-                                        aur->SetModifier(aurName,0,a_mod->periodictime,a_mod->m_miscvalue);
-                                    else
-                                    {
-                                        (*i)->ApplyModifier(false,false);
-                                        (*i)->SetModifier(aurName,0,i_mod->periodictime,i_mod->m_miscvalue);
-                                    }
-                                    break;
-                                }
-                            default:
-                                break;
-                            }
-                        }
-
                         (*tIter)->AddAuraToModList(aur);
                         holder->SetInUse(true);
                         aur->ApplyModifier(true,true);
