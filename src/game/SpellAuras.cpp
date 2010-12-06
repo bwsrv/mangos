@@ -4266,41 +4266,19 @@ void Aura::HandleAuraModStun(bool apply, bool Real)
         target->SendMessageToSet(&data, true);
 
         // Summon the Naj'entus Spine GameObject on target if spell is Impaling Spine
-        switch(GetId())
+        if(GetId() == 39837)
         {
-            case 39837:
+            GameObject* pObj = new GameObject;
+            if(pObj->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), 185584, target->GetMap(), target->GetPhaseMask(),
+                target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, GO_ANIMPROGRESS_DEFAULT, GO_STATE_READY))
             {
-                GameObject* pObj = new GameObject;
-                if(pObj->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), 185584, target->GetMap(), target->GetPhaseMask(),
-                    target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, GO_ANIMPROGRESS_DEFAULT, GO_STATE_READY))
-                {
-                    pObj->SetRespawnTime(GetAuraDuration()/IN_MILLISECONDS);
-                    pObj->SetSpellId(GetId());
-                    target->AddGameObject(pObj);
-                    target->GetMap()->Add(pObj);
-                }
-                else
-                    delete pObj;
-
-                break;
+                pObj->SetRespawnTime(GetAuraDuration()/IN_MILLISECONDS);
+                pObj->SetSpellId(GetId());
+                target->AddGameObject(pObj);
+                target->GetMap()->Add(pObj);
             }
-            case 6358: // Seduction
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if(!apply)
-                    {
-                        if (caster->GetOwner() && caster->GetOwner()->HasAura(56250)) // Glyph of Seduction
-                        {
-                            target->RemoveSpellsCausingAura(SPELL_AURA_PERIODIC_DAMAGE);
-                            target->RemoveSpellsCausingAura(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
-                        }
-                    }
-                    else
-                        caster->InterruptSpell(CURRENT_CHANNELED_SPELL, false);
-                }
-                break;
-            }
+            else
+                delete pObj;
         }
     }
     else
