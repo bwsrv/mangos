@@ -4427,7 +4427,12 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
         for (SpellAuraHolderMap::iterator iter = spair.first; iter != spair.second; ++iter)
         {
             SpellAuraHolder *foundHolder = iter->second;
-            if(foundHolder->GetCasterGUID() == holder->GetCasterGUID() || foundHolder->GetId() == 61474) //Grip of Slad'ran (Slad'ran encounter, Gundrak) can stack in one stack from different casters
+            if (foundHolder->GetCasterGUID() == holder->GetCasterGUID() ||
+                // Exceptions - auras can stack on self from different casters
+                foundHolder->GetId() == 61474 ||            // Grip of Slad'ran (Slad'ran encounter, Gundrak)
+                foundHolder->GetId() == 49381 ||            // Consume buff normal (Trollgore encounter, Drak'Tharon Keep)
+                foundHolder->GetId() == 59805               // Consume buff normal (Trollgore encounter, Drak'Tharon Keep)
+                )
             {
                 // Aura can stack on self -> Stack it;
                 if(aurSpellInfo->StackAmount)
