@@ -6434,19 +6434,6 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(unitTarget, spells[urand(0, 2)], true);
                     return;
                 }
-                // Mistletoe
-                case 26218:
-                {
-                    if (!m_caster || !unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
-                        return;
-                    switch(urand(0,2))
-                    {
-                        case 0: m_caster->CastSpell(unitTarget,26207,true); break; // Create Fresh Holly
-                        case 1: m_caster->CastSpell(unitTarget,45036,true); break; // Create Snowflakes
-                        case 2: m_caster->CastSpell(unitTarget,26206,true); break; // Create Mistletoe
-                    }
-                    return;
-                }
                 case 26465:                                 // Mercurial Shield - need remove one 26464 Mercurial Shield aura
                     unitTarget->RemoveAuraHolderFromStack(26464);
                     return;
