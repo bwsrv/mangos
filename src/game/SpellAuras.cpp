@@ -7961,14 +7961,7 @@ void Aura::PeriodicDummyTick()
 //              case 49313: break; // Proximity Mine Area Aura
 //              // Mole Machine Portal Schedule
 //              case 49466: break;
-                case 49555:                                 // Corpse Explode (Trollgore - Drak'Tharon Keep Normal)
-                    target->CastSpell(target, 51270, true); // Corpse Visual
-                    target->CastSpell(target, 49618, true); // dmg spell
-                    return;
-                case 59807:                                 // Corpse Explode (Trollgore - Drak'Tharon Keep Hero)
-                    target->CastSpell(target, 51270, true); // Corpse Visual
-                    target->CastSpell(target, 59809, true); // dmg spell
-                    return;
+//              case 49555: break; // Corpse Explode
 //              case 49592: break; // Temporal Rift
 //              case 49957: break; // Cutting Laser
 //              case 50085: break; // Slow Fall
