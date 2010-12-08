@@ -1992,38 +1992,8 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             // Select friendly targets for positive effect
             if (IsPositiveEffect(m_spellInfo->Id, effIndex))
                 targetB = SPELL_TARGETS_FRIENDLY;
-            if (m_spellInfo->EffectImplicitTargetA[effIndex] == TARGET_CASTER_COORDINATES)
-            {
-                FillAreaTargets(targetUnitMap,m_caster->GetPositionX(), m_caster->GetPositionY(),radius, PUSH_DEST_CENTER, SPELL_TARGETS_ALL);
 
-                if (targetUnitMap.empty())
-                    break;
-
-                SpellScriptTargetBounds bounds = sSpellMgr.GetSpellScriptTargetBounds(m_spellInfo->Id);
-                if (bounds.first != bounds.second)
-                {
-                    for (UnitList::const_iterator itr = targetUnitMap.begin(),next; itr != targetUnitMap.end(); itr = next)
-                    {
-                        bool found = false;
-                        if (!(*itr)) 
-                            continue;
-
-                        next = itr;
-                        ++next;
-
-                        for (SpellScriptTarget::const_iterator i_spellST = bounds.first; i_spellST != bounds.second; ++i_spellST)
-                        {
-                            if (i_spellST->second.targetEntry == (*itr)->GetEntry())
-                                found = true;
-                        }
-
-                        if (!found)
-                            targetUnitMap.remove(*itr);
-                    }
-                }
-            }
-            else
-                FillAreaTargets(targetUnitMap, m_caster->GetPositionX(), m_caster->GetPositionY(), radius, PUSH_DEST_CENTER, targetB);
+            FillAreaTargets(targetUnitMap, m_caster->GetPositionX(), m_caster->GetPositionY(), radius, PUSH_DEST_CENTER, targetB);
 
             // exclude caster
             targetUnitMap.remove(m_caster);
@@ -4938,14 +4908,13 @@ SpellCastResult Spell::CheckCast(bool strict)
                (m_spellInfo->EffectImplicitTargetB[j] == TARGET_SCRIPT && m_spellInfo->EffectImplicitTargetA[j] != TARGET_SELF) ||
                m_spellInfo->EffectImplicitTargetA[j] == TARGET_SCRIPT_COORDINATES ||
                m_spellInfo->EffectImplicitTargetB[j] == TARGET_SCRIPT_COORDINATES ||
-               m_spellInfo->EffectImplicitTargetA[j] == TARGET_FOCUS_OR_SCRIPTED_GAMEOBJECT ||
-               m_spellInfo->EffectImplicitTargetB[j] == TARGET_AREAEFFECT_INSTANT)
+               m_spellInfo->EffectImplicitTargetA[j] == TARGET_FOCUS_OR_SCRIPTED_GAMEOBJECT)
             {
 
                 SpellScriptTargetBounds bounds = sSpellMgr.GetSpellScriptTargetBounds(m_spellInfo->Id);
 
                 if (bounds.first == bounds.second)
-                    sLog.outErrorDb("Spell (ID: %u) has effect EffectImplicitTargetA/EffectImplicitTargetB = TARGET_SCRIPT or TARGET_SCRIPT_COORDINATES or EffectImplicitTargetB = TARGET_AREAEFFECT_INSTANT, but does not have record in `spell_script_target`", m_spellInfo->Id);
+                    sLog.outErrorDb("Spell (ID: %u) has effect EffectImplicitTargetA/EffectImplicitTargetB = TARGET_SCRIPT or TARGET_SCRIPT_COORDINATES, but does not have record in `spell_script_target`", m_spellInfo->Id);
 
                 SpellRangeEntry const* srange = sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex);
                 float range = GetSpellMaxRange(srange);
@@ -6773,8 +6742,7 @@ bool Spell::CheckTarget( Unit* target, SpellEffectIndex eff )
             m_spellInfo->EffectImplicitTargetA[eff] != TARGET_SCRIPT &&
             m_spellInfo->EffectImplicitTargetB[eff] != TARGET_SCRIPT &&
             m_spellInfo->EffectImplicitTargetA[eff] != TARGET_AREAEFFECT_CUSTOM &&
-            m_spellInfo->EffectImplicitTargetB[eff] != TARGET_AREAEFFECT_CUSTOM &&
-            m_spellInfo->EffectImplicitTargetB[eff] != TARGET_AREAEFFECT_INSTANT)
+            m_spellInfo->EffectImplicitTargetB[eff] != TARGET_AREAEFFECT_CUSTOM )
             return false;
     }
 
