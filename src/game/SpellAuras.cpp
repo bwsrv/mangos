@@ -5207,6 +5207,30 @@ void Aura::HandleAuraPeriodicDummy(bool apply, bool Real)
     SpellEntry const*spell = GetSpellProto();
     switch( spell->SpellFamilyName)
     {
+        case SPELLFAMILY_GENERIC:
+        {
+            if (!apply)
+            {
+                switch(spell->Id)
+                {
+                    case 49555:                                     // Corpse Explode (Trollgore - Drak'Tharon Keep Normal)
+                        if (target)
+                        {
+                            target->CastSpell(target, 49618, true);
+                            ((Creature*)target)->ForcedDespawn(1000);
+                        }
+                        break;
+                    case 59807:                                  // Corpse Explode (Trollgore - Drak'Tharon Keep Hero)
+                        if (target)
+                        {
+                            target->CastSpell(target, 59809, true);
+                            ((Creature*)target)->ForcedDespawn(1000);
+                        }
+                        break;
+                }
+            }
+            break;
+        }
         case SPELLFAMILY_ROGUE:
         {
             if(!apply)
