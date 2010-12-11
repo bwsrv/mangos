@@ -5222,6 +5222,34 @@ void Aura::HandleAuraPeriodicDummy(bool apply, bool Real)
     SpellEntry const*spell = GetSpellProto();
     switch( spell->SpellFamilyName)
     {
+        case SPELLFAMILY_GENERIC:
+        {
+            if (!apply)
+            {
+                switch(spell->Id)
+                {
+                    case 49555:                             // Corpse Explode (Trollgore - Drak'Tharon Keep Normal)
+                        if (target)
+                        {
+                            target->CastSpell(target, 49618, true);
+                            target->CastSpell(target, 51270, true);
+                            target->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);
+                            target->SetDeathState(JUST_DIED);
+                        }
+                        break;
+                    case 59807:                             // Corpse Explode (Trollgore - Drak'Tharon Keep Hero)
+                        if (target)
+                        {
+                            target->CastSpell(target, 59809, true);
+                            target->CastSpell(target, 51270, true);
+                            target->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);
+                            target->SetDeathState(JUST_DIED);
+                        }
+                        break;
+                }
+            }
+            break;
+        }
         case SPELLFAMILY_ROGUE:
         {
             if(!apply)
@@ -7950,14 +7978,10 @@ void Aura::PeriodicDummyTick()
 //              case 49313: break; // Proximity Mine Area Aura
 //              // Mole Machine Portal Schedule
 //              case 49466: break;
-                case 49555:                                 // Corpse Explode (Trollgore - Drak'Tharon Keep Normal)
-                    target->CastSpell(target, 51270, true); // Corpse Visual
-                    target->CastSpell(target, 49618, true); // dmg spell
-                    return;
-                case 59807:                                 // Corpse Explode (Trollgore - Drak'Tharon Keep Hero)
-                    target->CastSpell(target, 51270, true); // Corpse Visual
-                    target->CastSpell(target, 59809, true); // dmg spell
-                    return;
+                case 49555:                                 // Corpse Explode (Trollgore, Drak'Tharon Keep)
+                case 59807:
+                    target->SetFloatValue(OBJECT_FIELD_SCALE_X, target->GetFloatValue(OBJECT_FIELD_SCALE_X)*1.2f);
+                    break;
 //              case 49592: break; // Temporal Rift
 //              case 49957: break; // Cutting Laser
 //              case 50085: break; // Slow Fall

@@ -6903,7 +6903,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(m_caster, 49381, false);
 
                     // Corpse Explode (prepare corpse to explode)
-                    m_caster->CastSpell(unitTarget, 49555, false);
+                    m_caster->CastSpell(m_caster, 49555, false);
 
                     return;
                 }
@@ -6988,7 +6988,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(m_caster, 59805, false);
 
                     // Corpse Explode (prepare corpse to explode)
-                    m_caster->CastSpell(unitTarget, 59807, false);
+                    m_caster->CastSpell(m_caster, 59807, false);
                     return;
                 }
                 case 51770:                                 // Emblazon Runeblade
