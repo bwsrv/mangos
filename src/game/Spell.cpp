@@ -795,8 +795,8 @@ void Spell::prepareDataForTriggerSystem()
                     m_canTrigger = true;
                 break;
             case SPELLFAMILY_WARRIOR:
-                // Whirlwind trigger need do it
-                if (m_spellInfo->Id == 50622)
+                //For Whirlwind triggers need do it
+                if (m_spellInfo->Id== 50622)
                     m_canTrigger = true;
                 break;
             default:
