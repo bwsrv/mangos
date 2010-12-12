@@ -1212,7 +1212,9 @@ void WorldSession::HandleCharFactionOrRaceChangeOpcode(WorldPacket& recv_data)
         // Delete all current quests
         CharacterDatabase.PExecute("DELETE FROM `character_queststatus` WHERE `status` = 3 AND guid ='%u'", guid.GetCounter());
         // Reset guild
-        CharacterDatabase.PExecute("DELETE FROM `guild_member` WHERE `guid`= '%u'", guid.GetCounter());
+        if (uint32 guildId = Player::GetGuildIdFromDB(guid))
+            if (Guild* guild = sObjectMgr.GetGuildById(guildId))
+                guild->DelMember(guid);
         // Delete Friend List
         CharacterDatabase.PExecute("DELETE FROM `character_social` WHERE `guid`= '%u'", guid.GetCounter());
         CharacterDatabase.PExecute("DELETE FROM `character_social` WHERE `friend`= '%u'", guid.GetCounter());
