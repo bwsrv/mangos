@@ -7155,7 +7155,7 @@ uint32 Unit::SpellDamageBonusTaken(Unit *pCaster, SpellEntry const *spellProto, 
         //Cheat Death
         if (Aura *dummy = GetDummyAura(45182))
         {
-            float mod = -((Player*)this)->GetRatingBonusValue(CR_CRIT_TAKEN_SPELL)*2*4;
+            float mod = -((Player*)this)->GetRatingBonusValue(CR_CRIT_TAKEN_SPELL)*20;
             if (mod < float(dummy->GetModifier()->m_amount))
                 mod = float(dummy->GetModifier()->m_amount);
             TakenTotalMod *= (mod+100.0f)/100.0f;
@@ -8173,7 +8173,7 @@ uint32 Unit::MeleeDamageBonusTaken(Unit *pCaster, uint32 pdamage,WeaponAttackTyp
                     if(GetTypeId() != TYPEID_PLAYER)
                         continue;
 
-                    float mod = ((Player*)this)->GetRatingBonusValue(CR_CRIT_TAKEN_MELEE)*(-8.0f);
+                    float mod = ((Player*)this)->GetRatingBonusValue(CR_CRIT_TAKEN_MELEE)*(-20.0f);
                     if (mod < float((*i)->GetModifier()->m_amount))
                         mod = float((*i)->GetModifier()->m_amount);
 
