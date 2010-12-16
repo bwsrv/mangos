@@ -8979,7 +8979,7 @@ void Spell::EffectPlayerPull(SpellEffectIndex eff_idx)
         return;
 
     float dist = unitTarget->GetDistance2d(m_caster);
-    if (damage && dist > damage)
+    if (damage && damage> 1 && dist > damage)
         dist = float(damage);
 
     unitTarget->KnockBackFrom(m_caster,-dist,float(m_spellInfo->EffectMiscValue[eff_idx])/30);
