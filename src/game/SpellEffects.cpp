@@ -2234,8 +2234,8 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     if (!unitTarget)
                         return;
 
-                    unitTarget->ModifyPower(unitTarget->getPowerType(), m_spellInfo->CalculateSimpleValue(eff_idx));
-                    return;
+                    unitTarget->CastSpell(unitTarget, 72195, true);
+                    break;
                 }
             }
             break;
@@ -7568,6 +7568,18 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         return;
 
                     m_caster->CastSpell(unitTarget, 71480, true);
+                    return;
+                }
+                case 72195:                                 // Blood link
+                {
+                    if (!unitTarget)
+                        return;
+                    if (unitTarget->HasAura(72371))
+                    {
+                        unitTarget->RemoveAurasDueToSpell(72371);
+                        int32 power = unitTarget->GetPower(unitTarget->getPowerType());
+                        unitTarget->CastCustomSpell(unitTarget, 72371, &power, &power, NULL, true);
+                    }
                     return;
                 }
             }
