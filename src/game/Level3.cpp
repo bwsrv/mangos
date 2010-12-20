@@ -4552,6 +4552,10 @@ bool ChatHandler::HandleNpcInfoCommand(char* /*args*/)
     uint32 nativeid = target->GetNativeDisplayId();
     uint32 Entry = target->GetEntry();
     CreatureInfo const* cInfo = target->GetCreatureInfo();
+    uint32 VehicleId = cInfo ? cInfo->VehicleId : 0;
+    uint32 difficulty_entry_1 = cInfo ? cInfo->DifficultyEntry[0] : 0;
+    uint32 difficulty_entry_2 = cInfo ? cInfo->DifficultyEntry[1] : 0;
+    uint32 difficulty_entry_3 = cInfo ? cInfo->DifficultyEntry[2] : 0;
 
     time_t curRespawnDelay = target->GetRespawnTimeEx()-time(NULL);
     if(curRespawnDelay < 0)
@@ -4561,8 +4565,8 @@ bool ChatHandler::HandleNpcInfoCommand(char* /*args*/)
 
     PSendSysMessage(LANG_NPCINFO_CHAR,  target->GetDBTableGUIDLow(), faction, npcflags, Entry, displayid, nativeid);
 
-    if (cInfo->VehicleId)
-        PSendSysMessage("VehicleId: %u", cInfo->VehicleId);
+    PSendSysMessage("VehicleId: %u", VehicleId);
+    PSendSysMessage("difficulty_entry_1: %u, difficulty_entry_2: %u, difficulty_entry_3: %u", difficulty_entry_1, difficulty_entry_2, difficulty_entry_3);
 
     PSendSysMessage(LANG_NPCINFO_LEVEL, target->getLevel());
     PSendSysMessage(LANG_NPCINFO_HEALTH,target->GetCreateHealth(), target->GetMaxHealth(), target->GetHealth());
