@@ -1444,16 +1444,14 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     return;
                 }
                 // Demon Broiled Surprise
-                /* FIX ME: Required for correct work implementing implicit target 7 (in pair (22,7))
                 case 43723:
                 {
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
 
-                    ((Player*)m_caster)->CastSpell(unitTarget, 43753, true);
+                    ((Player*)m_caster)->CastSpell(unitTarget, 43753, true, m_CastItem, NULL, m_originalCasterGUID, m_spellInfo);
                     return;
                 }
-                */
                 case 43882:                                 // Scourging Crystal Controller Dummy
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
@@ -3029,16 +3027,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 m_caster->CastCustomSpell(m_caster, 45470, &bp, NULL, NULL, true);
                 return;
             }
-            // Raise ally
-            else if (m_spellInfo->Id == 61999)
-            {
-                if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER || unitTarget->isAlive())
-                    return;
-
-                // hack remove death
-                unitTarget->CastSpell(unitTarget, m_spellInfo->CalculateSimpleValue(eff_idx), true);
-                return;
-            }
             // Death Grip
             else if (m_spellInfo->Id == 49576)
             {
@@ -3078,6 +3066,12 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
             }
             else if (m_spellInfo->Id == 46584)
                 return;
+            else if (m_spellInfo->Id == 61999)
+            {
+                if (m_caster->GetTypeId() == TYPEID_PLAYER)
+                    ((Player*)m_caster)->RemoveSpellCooldown(m_spellInfo->Id,true);
+                return;
+            }
             break;
         }
     }
@@ -8052,6 +8046,22 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     ((Player*)m_caster)->RemoveSpellCooldown(triggered_spell_id,true);
                     break;
                 }
+                // Raise ally
+                case 61999:
+                {
+                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER || unitTarget->isAlive())
+                    {
+                        ((Player*)m_caster)->RemoveSpellCooldown(m_spellInfo->Id,true);
+                        return;
+                    }
+
+                    // hack remove death
+                    unitTarget->CastSpell(unitTarget, m_spellInfo->CalculateSimpleValue(EFFECT_INDEX_0), true);
+                    return;
+                }
                 default:
                     break;
             }
@@ -8792,13 +8802,11 @@ void Spell::EffectReputation(SpellEffectIndex eff_idx)
 
 void Spell::EffectQuestComplete(SpellEffectIndex eff_idx)
 {
-    if(m_caster->GetTypeId() != TYPEID_PLAYER)
+    if (unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    Player *_player = (Player*)m_caster;
-
     uint32 quest_id = m_spellInfo->EffectMiscValue[eff_idx];
-    _player->AreaExploredOrEventHappens(quest_id);
+    ((Player*)unitTarget)->AreaExploredOrEventHappens(quest_id);
 }
 
 void Spell::EffectSelfResurrect(SpellEffectIndex eff_idx)

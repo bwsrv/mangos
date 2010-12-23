@@ -482,11 +482,21 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             }
         break;
 
+
         case 47496: // Ghoul's explode
             {
                 FillAreaTargets(targetUnitMap,m_targets.m_destX, m_targets.m_destY,radius,PUSH_DEST_CENTER,SPELL_TARGETS_AOE_DAMAGE);
                 break;
             }
+        break;
+
+        case 61999: // Raise ally
+        {
+            WorldObject* result = FindCorpseUsing <MaNGOS::RaiseAllyObjectCheck>  ();
+            if (result)
+                targetUnitMap.push_back((Unit*)result);
+            break;
+        }
         break;
 
         case 65045: // Flame of demolisher
@@ -2058,6 +2068,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             }
             break;
         }
+        case TARGET_OBJECT_AREA_SRC:
         case TARGET_AREAEFFECT_GO_AROUND_DEST:
         {
             // It may be possible to fill targets for some spell effects
@@ -2091,8 +2102,41 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             std::list<GameObject*> goList;
             MaNGOS::GameObjectListSearcher<MaNGOS::GameObjectInRangeCheck> searcher(goList, check);
             Cell::VisitAllObjects(m_caster, searcher, radius);
-            for (std::list<GameObject*>::const_iterator itr = goList.begin(); itr != goList.end(); ++itr)
-                AddGOTarget(*itr, effIndex);
+            if (!goList.empty())
+            {
+                for (std::list<GameObject*>::const_iterator itr = goList.begin(); itr != goList.end(); ++itr)
+                    AddGOTarget(*itr, effIndex);
+            }
+
+            if (targetMode == TARGET_OBJECT_AREA_SRC || !goList.empty() )
+                break;
+
+            // It may be possible to fill targets for some spell effects
+            // automatically (SPELL_EFFECT_WMO_REPAIR(88) for example) but
+            // for some/most spells we clearly need/want to limit with spell_target_script
+
+            // Some spells untested, for affected GO type 33. May need further adjustments for spells related.
+
+            SpellScriptTargetBounds bounds = sSpellMgr.GetSpellScriptTargetBounds(m_spellInfo->Id);
+
+            std::list<GameObject*> tempTargetGOList;
+
+            for(SpellScriptTarget::const_iterator i_spellST = bounds.first; i_spellST != bounds.second; ++i_spellST)
+            {
+                if (i_spellST->second.type == SPELL_TARGET_TYPE_GAMEOBJECT)
+                {
+                    // search all GO's with entry, within range of m_destN
+                    MaNGOS::GameObjectEntryInPosRangeCheck go_check(*m_caster, i_spellST->second.targetEntry, m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, radius);
+                    MaNGOS::GameObjectListSearcher<MaNGOS::GameObjectEntryInPosRangeCheck> checker(tempTargetGOList, go_check);
+                    Cell::VisitGridObjects(m_caster, checker, radius);
+                }
+            }
+
+            if (!tempTargetGOList.empty())
+            {
+                for(std::list<GameObject*>::iterator iter = tempTargetGOList.begin(); iter != tempTargetGOList.end(); ++iter)
+                    AddGOTarget(*iter, effIndex);
+            }
 
             break;
         }
@@ -2854,6 +2898,10 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     {
                         case SPELL_AURA_ADD_FLAT_MODIFIER:  // some spell mods auras have 0 target modes instead expected TARGET_SELF(1) (and present for other ranks for same spell for example)
                         case SPELL_AURA_ADD_PCT_MODIFIER:
+                        case SPELL_AURA_MOD_RANGED_ATTACK_POWER:
+                        case SPELL_AURA_MOD_ATTACK_POWER:
+                        case SPELL_AURA_MOD_HEALING_DONE:
+                        case SPELL_AURA_MOD_DAMAGE_DONE:
                             targetUnitMap.push_back(m_caster);
                             break;
                         default:                            // apply to target in other case
@@ -6177,6 +6225,11 @@ bool Spell::IgnoreItemRequirements() const
         if (Item* targetItem = m_targets.getItemTarget())
             if (targetItem->GetOwnerGuid() != m_caster->GetObjectGuid())
                 return false;
+
+        /// Some triggered spells have same reagents that have master spell
+        /// expected in test: master spell have reagents in first slot then triggered don't must use own
+        if (m_triggeredBySpellInfo && !m_triggeredBySpellInfo->Reagent[0])
+            return false;
 
         return true;
     }
