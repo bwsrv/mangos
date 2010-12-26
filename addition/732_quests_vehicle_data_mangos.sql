@@ -278,3 +278,53 @@ WHERE `entry` IN (27061);
 DELETE FROM `npc_spellclick_spells` WHERE npc_entry IN (27061);
 INSERT INTO `npc_spellclick_spells` VALUES (27061, 67373, 0, 0, 0, 1);
 REPLACE INTO `spell_script_target` VALUES (47939, 2, 188539);
+
+-- Argent Cannon (quest 13086)
+UPDATE `creature_template` SET
+    spell1 = 57485,
+    spell2 = 57412,
+    spell3 = 0,
+    spell4 = 0,
+    spell5 = 0,
+    spell6 = 0,
+    VehicleId = 244
+WHERE `entry` IN (30236);
+
+DELETE FROM `npc_spellclick_spells` WHERE npc_entry IN (30236);
+INSERT INTO `npc_spellclick_spells` VALUES
+(30236, 57573, 13086, 1, 13086, 1);
+
+-- Wyrmrest Vanquisher (quest 12498)
+UPDATE `creature_template` SET
+    spell1 = 55987,
+    spell2 = 50348,
+    spell3 = 50430,
+    spell4 = 0,
+    spell5 = 0,
+    spell6 = 0,
+    VehicleId = 99
+WHERE `entry` IN (27996);
+
+DELETE FROM `npc_spellclick_spells` WHERE npc_entry IN (27996);
+INSERT INTO `npc_spellclick_spells` VALUES
+(27996, 50343, 12498, 1, 12498, 1);
+
+REPLACE INTO `creature_template_addon` (entry, auras) VALUES (27996, '53112 0 53112 1 53112 2');
+
+-- from me
+-- Quest Reclamation (12546)
+UPDATE `creature_template` SET `spell1` = 50978,`spell2` = 50980,`spell3` = 50983,`spell4` = 50985,
+`VehicleId` = 111
+WHERE  `entry` = 28222;
+
+-- from YTDB/TC 578
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (27850,27881,28094,28312,28319,28670,32627,32629);
+INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_start`, `quest_start_active`, `quest_end`, `cast_flags`) VALUES
+(27850, 60968, 0, 0, 0, 1),
+(27881, 60968, 0, 0, 0, 1),
+(28094, 60968, 0, 0, 0, 1),
+(28312, 60968, 0, 0, 0, 1),
+(28319, 60968, 0, 0, 0, 1),
+(28670, 52196, 0, 0, 0, 1),
+(32627, 60968, 0, 0, 0, 1),
+(32629, 60968, 0, 0, 0, 1);
