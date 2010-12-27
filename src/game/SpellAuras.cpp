@@ -9461,6 +9461,22 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                 else
                     return;
             }
+            // Health Funnel
+            else if (m_spellProto->SpellFamilyFlags & 0x01000000)
+            {
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+                // Improved Health Funnel
+                // rank 1
+                if (caster->HasAura(18703))
+                    spellId1 = 60955;
+                // rank 2
+                else if (caster->HasAura(18704))
+                    spellId1 = 60956;
+                else
+                    return;
+            }
             // Shadowflame (DoT)
             else if (m_spellProto->SpellFamilyFlags2 & 0x00000002)
             {

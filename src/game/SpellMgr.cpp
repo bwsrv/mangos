@@ -1966,6 +1966,10 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 if ((spellInfo_1->Id == 46796 && spellInfo_2->Id == 46789) ||
                     (spellInfo_2->Id == 46796 && spellInfo_1->Id == 46789))
                     return false;
+
+                // Health Funnel and Improved Health Funnel (Ranks 1,2)
+                if (spellInfo_1->SpellFamilyFlags & 0x01000000 && (spellInfo_2->Id == 60955 || spellInfo_2->Id == 60956))
+                    return false;
             }
             if (spellInfo_2->SpellFamilyName == SPELLFAMILY_PRIEST)
             {
@@ -2024,6 +2028,10 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     spellInfo_2->SpellIconID == 152 && spellInfo_1->SpellIconID == 546)
                     return false;
 
+                // Health Funnel and Improved Health Funnel (Ranks 1,2)
+                    if( spellInfo_2->SpellFamilyFlags & 0x01000000 && (spellInfo_1->Id == 60955 || spellInfo_1->Id == 60956))
+                        return false;
+
                 //Corruption & Seed of corruption
                 if (spellInfo_1->SpellIconID == 313 && spellInfo_2->SpellIconID == 1932 ||
                     spellInfo_2->SpellIconID == 313 && spellInfo_1->SpellIconID == 1932)
@@ -2056,6 +2064,17 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
 
                 // Nether Protection effects
                 if (spellInfo_2->SpellIconID == 1985 && spellInfo_1->SpellIconID == 1985 && spellInfo_1->SpellVisual[0] == 9750)
+                    return false;
+            }
+
+            // Detect Invisibility and Mana Shield (multi-family check)
+            if (spellInfo_1->Id == 132 && spellInfo_2->SpellIconID == 209 && spellInfo_2->SpellVisual[0] == 968)
+                return false;
+
+            // Health Funnel and Improved Health Funnel (Ranks 1,2)
+            if (spellInfo_2->SpellFamilyName == SPELLFAMILY_GENERIC)
+            {
+                if (spellInfo_1->SpellFamilyFlags & 0x01000000 && (spellInfo_2->Id == 60955 || spellInfo_2->Id == 60956))
                     return false;
             }
             break;
