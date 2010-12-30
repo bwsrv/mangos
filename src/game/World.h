@@ -588,6 +588,7 @@ class World
         //used Script version
         void SetScriptsVersion(char const* version) { m_ScriptsVersion = version ? version : "unknown scripting library"; }
         char const* GetScriptsVersion() { return m_ScriptsVersion.c_str(); }
+        ACE_Thread_Mutex m_spellUpdateLock;
 
     protected:
         void _UpdateGameTime();
