@@ -1229,7 +1229,7 @@ void WorldSession::HandleCharFactionOrRaceChangeOpcode(WorldPacket& recv_data)
         {
             case RACE_ORC:
             case RACE_TAUREN:
-            case RACE_UNDEAD_PLAYER:
+            case RACE_UNDEAD:
             case RACE_TROLL:
             case RACE_BLOODELF:
             //case RACE_GOBLIN: for cataclysm

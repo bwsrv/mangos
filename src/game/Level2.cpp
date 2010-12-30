@@ -2545,7 +2545,7 @@ bool ChatHandler::HandlePInfoCommand(char* args)
         case RACE_ORC:              race_s = "Orc";         break;
         case RACE_DWARF:            race_s = "Dwarf";       break;
         case RACE_NIGHTELF:         race_s = "Night Elf";   break;
-        case RACE_UNDEAD_PLAYER:    race_s = "Undead";      break;
+        case RACE_UNDEAD:    race_s = "Undead";      break;
         case RACE_TAUREN:           race_s = "Tauren";      break;
         case RACE_GNOME:            race_s = "Gnome";       break;
         case RACE_TROLL:            race_s = "Troll";       break;
