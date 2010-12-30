@@ -39,7 +39,7 @@
 #include "Formulas.h"
 #include "BattleGround.h"
 #include "CreatureAI.h"
-#include "ScriptCalls.h"
+#include "ScriptMgr.h"
 #include "Util.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
@@ -2049,7 +2049,7 @@ void Aura::TriggerSpell()
     {
         if (Unit* caster = GetCaster())
         {
-            if (triggerTarget->GetTypeId() != TYPEID_UNIT || !Script->EffectDummyCreature(caster, GetId(), GetEffIndex(), (Creature*)triggerTarget))
+            if (triggerTarget->GetTypeId() != TYPEID_UNIT || !sScriptMgr.OnEffectDummy(caster, GetId(), GetEffIndex(), (Creature*)triggerTarget))
                 sLog.outError("Aura::TriggerSpell: Spell %u have 0 in EffectTriggered[%d], not handled custom case?",GetId(),GetEffIndex());
         }
     }
@@ -3084,7 +3084,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
 
     // script has to "handle with care", only use where data are not ok to use in the above code.
     if (target->GetTypeId() == TYPEID_UNIT)
-        Script->EffectAuraDummy(this, apply);
+        sScriptMgr.OnAuraDummy(this, apply);
 }
 
 void Aura::HandleAuraMounted(bool apply, bool Real)
@@ -3554,60 +3554,58 @@ void Aura::HandleAuraTransform(bool apply, bool Real)
                 case 42365:                                 // Murloc costume
                     target->SetDisplayId(21723);
                     break;
-                //Dread Corsair
-                case 51926:
-                case 50517:
-                {
-                    switch(target->getGender())
-                    {
-                        case GENDER_MALE:
-                        {
-                            switch(target->getRace())
-                            {
-                                case RACE_UNDEAD: target->SetDisplayId(25042); break;
-                                case RACE_TROLL: target->SetDisplayId(25041); break;
-                                case RACE_TAUREN: target->SetDisplayId(25040); break;
-                                case RACE_ORC: target->SetDisplayId(25039); break;
-                                case RACE_NIGHTELF: target->SetDisplayId(25038); break;
-                                case RACE_HUMAN: target->SetDisplayId(25037); break;
-                                case RACE_GNOME: target->SetDisplayId(25035); break;
-                                case RACE_DWARF: target->SetDisplayId(25034); break;
-                                case RACE_DRAENEI: target->SetDisplayId(25033); break;
-                                case RACE_BLOODELF: target->SetDisplayId(25032); break;
-                            }
-                            break;
-                        }
-                        case GENDER_FEMALE:
-                        {
-                            switch(target->getRace())
-                            {
-                                case RACE_UNDEAD: target->SetDisplayId(25053); break;
-                                case RACE_TROLL: target->SetDisplayId(25052); break;
-                                case RACE_TAUREN: target->SetDisplayId(25051); break;
-                                case RACE_ORC: target->SetDisplayId(25050); break;
-                                case RACE_NIGHTELF: target->SetDisplayId(25049); break;
-                                case RACE_HUMAN: target->SetDisplayId(25048); break;
-                                case RACE_GNOME: target->SetDisplayId(25046); break;
-                                case RACE_DWARF: target->SetDisplayId(25045); break;
-                                case RACE_DRAENEI: target->SetDisplayId(25044); break;
-                                case RACE_BLOODELF: target->SetDisplayId(25043); break;
-                            }
-                            break;
-                        }
-                    }
-                    break;
-                }
                 //case 44186:                               // Gossip NPC Appearance - All, Brewfest
                     //break;
                 //case 48305:                               // Gossip NPC Appearance - All, Spirit of Competition
                     //break;
-                //case 50517:                               // Dread Corsair
-                    //break;
+                case 50517:                                 // Dread Corsair
+                case 51926:                                 // Corsair Costume
+                {
+                    // expected for players
+                    uint32 race = target->getRace();
+
+                    switch(race)
+                    {
+                        case RACE_HUMAN:
+                            target->SetDisplayId(target->getGender() == GENDER_MALE ? 25037 : 25048);
+                            break;
+                        case RACE_ORC:
+                            target->SetDisplayId(target->getGender() == GENDER_MALE ? 25039 : 25050);
+                            break;
+                        case RACE_DWARF:
+                            target->SetDisplayId(target->getGender() == GENDER_MALE ? 25034 : 25045);
+                            break;
+                        case RACE_NIGHTELF:
+                            target->SetDisplayId(target->getGender() == GENDER_MALE ? 25038 : 25049);
+                            break;
+                        case RACE_UNDEAD:
+                            target->SetDisplayId(target->getGender() == GENDER_MALE ? 25042 : 25053);
+                            break;
+                        case RACE_TAUREN:
+                            target->SetDisplayId(target->getGender() == GENDER_MALE ? 25040 : 25051);
+                            break;
+                        case RACE_GNOME:
+                            target->SetDisplayId(target->getGender() == GENDER_MALE ? 25035 : 25046);
+                            break;
+                        case RACE_TROLL:
+                            target->SetDisplayId(target->getGender() == GENDER_MALE ? 25041 : 25052);
+                            break;
+                        case RACE_GOBLIN:                   // not really player race (3.x), but model exist
+                            target->SetDisplayId(target->getGender() == GENDER_MALE ? 25036 : 25047);
+                            break;
+                        case RACE_BLOODELF:
+                            target->SetDisplayId(target->getGender() == GENDER_MALE ? 25032 : 25043);
+                            break;
+                        case RACE_DRAENEI:
+                            target->SetDisplayId(target->getGender() == GENDER_MALE ? 25033 : 25044);
+                            break;
+                    }
+
+                    break;
+                }
                 //case 50531:                               // Gossip NPC Appearance - All, Pirate Day
                     //break;
                 //case 51010:                               // Dire Brew
-                    //break;
-                //case 51926:                               // Corsair Costume
                     //break;
                 //case 53806:                               // Pygmy Oil
                     //break;
