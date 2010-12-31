@@ -33,6 +33,15 @@ VehicleKit::VehicleKit(Unit* base, VehicleEntry const* vehicleInfo) : m_vehicleI
         if (!seatId)
             continue;
 
+        if(base)
+        {
+            if(m_vehicleInfo->m_flags & VEHICLE_FLAG_NO_STRAFE)
+                base->m_movementInfo.AddMovementFlag2(MOVEFLAG2_NO_STRAFE);
+
+            if(m_vehicleInfo->m_flags & VEHICLE_FLAG_NO_JUMPING)
+                base->m_movementInfo.AddMovementFlag2(MOVEFLAG2_NO_JUMPING);
+        }
+
         if (VehicleSeatEntry const *seatInfo = sVehicleSeatStore.LookupEntry(seatId))
         {
             m_Seats.insert(std::make_pair(i, VehicleSeat(seatInfo)));
@@ -200,6 +209,14 @@ bool VehicleKit::AddPassenger(Unit *passenger, int8 seatId)
         }
 
         ((Creature*)m_pBase)->AIM_Initialize();
+
+        if(m_pBase->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE))
+        {
+            WorldPacket data2(SMSG_FORCE_MOVE_ROOT, 8+4);
+            data2 << m_pBase->GetPackGUID();
+            data2 << (uint32)(2);
+            m_pBase->SendMessageToSet(&data2,false);
+        }
     }
 
     passenger->SendMonsterMoveTransport(m_pBase, SPLINETYPE_FACINGANGLE, SPLINEFLAG_UNKNOWN5, 0, 0.0f);
