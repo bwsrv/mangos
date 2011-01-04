@@ -37,6 +37,7 @@
 #include "BattleGround.h"
 #include "BattleGroundAB.h"
 #include "BattleGroundAV.h"
+#include "BattleGroundSA.h"
 #include "Map.h"
 #include "InstanceData.h"
 
@@ -961,7 +962,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                         {
                             // set 8 minutes because there is 2 minutes long preparation
                             if(bg->GetStartTime() > (8 * MINUTE * IN_MILLISECONDS))
-                                continue;     
+                                continue;
                             break;
                         }
                         case 201:              // WS, win under 7 minutes
@@ -1013,7 +1014,14 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                         }
                         case 1762:                          // SA, win without losing any siege vehicles
                         case 2192:                          // SA, win without losing any siege vehicles
-                            continue;                       // not implemented
+                        {
+                            if (bg->GetTypeID(true) != BATTLEGROUND_SA)
+                                continue;
+
+                            if (((BattleGroundSA*)bg)->isDemolisherDestroyed[GetPlayer()->GetTeam() == ALLIANCE ? 0 : 1])
+                                continue;
+                            break;
+                        }
                     }
                 }
 
