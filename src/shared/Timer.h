@@ -27,7 +27,7 @@ class WorldTimer
     public:
 
         //get current server time
-        static uint32 getMSTime();
+        static MANGOS_DLL_SPEC uint32 getMSTime();
 
         //get time difference between two timestamps
         static inline uint32 getMSTimeDiff(const uint32& oldMSTime, const uint32& newMSTime)
