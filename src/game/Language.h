@@ -908,6 +908,8 @@ enum MangosStrings
     //                                    10000-10999
 
     // Use for custom patches             11000-11999
+    LANG_ARENA_STARTED_ANNOUNCE_WORLD   = 17898,
+
     LANG_BG_SA_START_TWO_MINUTE             = 20000,
     LANG_BG_SA_START_ONE_MINUTE             = 20001,
     LANG_BG_SA_START_HALF_MINUTE            = 20002,
