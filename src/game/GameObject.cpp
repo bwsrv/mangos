@@ -1613,8 +1613,6 @@ void GameObject::DamageTaken(Unit* pDoneBy, uint32 damage)
             
             if (pWho)
             {
-                sScriptMgr.OnGameObjectDestroyed(pWho, this);
-
                 if (BattleGround *bg = pWho->GetBattleGround())
                     bg->EventPlayerDamageGO(pWho, this, m_goInfo->destructibleBuilding.destroyedEvent);
             }

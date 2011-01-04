@@ -405,7 +405,6 @@ class ScriptMgr
         uint32 (MANGOS_IMPORT* m_pGetNPCDialogStatus) (Player*, Creature*);
         uint32 (MANGOS_IMPORT* m_pGetGODialogStatus) (Player*, GameObject*);
         bool (MANGOS_IMPORT* m_pOnGOUse) (Player*, GameObject*);
-        bool (MANGOS_IMPORT* m_pOnGODestroyed) (Unit*, GameObject*);
         bool (MANGOS_IMPORT* m_pOnItemUse) (Player*, Item*, SpellCastTargets const&);
         bool (MANGOS_IMPORT* m_pOnAreaTrigger) (Player*, AreaTriggerEntry const*);
         bool (MANGOS_IMPORT* m_pOnProcessEvent) (uint32, Object*, Object*, bool);
