@@ -355,6 +355,7 @@ class ScriptMgr
         uint32 GetDialogStatus(Player* pPlayer, Creature* pCreature);
         uint32 GetDialogStatus(Player* pPlayer, GameObject* pGameObject);
         bool OnGameObjectUse(Player* pPlayer, GameObject* pGameObject);
+        bool OnGameObjectDestroyed(Unit* pWho, GameObject* pGameObject);
         bool OnItemUse(Player* pPlayer, Item* pItem, SpellCastTargets const& targets);
         bool OnAreaTrigger(Player* pPlayer, AreaTriggerEntry const* atEntry);
         bool OnProcessEvent(uint32 eventId, Object* pSource, Object* pTarget, bool isStart);
@@ -404,6 +405,7 @@ class ScriptMgr
         uint32 (MANGOS_IMPORT* m_pGetNPCDialogStatus) (Player*, Creature*);
         uint32 (MANGOS_IMPORT* m_pGetGODialogStatus) (Player*, GameObject*);
         bool (MANGOS_IMPORT* m_pOnGOUse) (Player*, GameObject*);
+        bool (MANGOS_IMPORT* m_pOnGODestroyed) (Unit*, GameObject*);
         bool (MANGOS_IMPORT* m_pOnItemUse) (Player*, Item*, SpellCastTargets const&);
         bool (MANGOS_IMPORT* m_pOnAreaTrigger) (Player*, AreaTriggerEntry const*);
         bool (MANGOS_IMPORT* m_pOnProcessEvent) (uint32, Object*, Object*, bool);

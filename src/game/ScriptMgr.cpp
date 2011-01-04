@@ -58,6 +58,7 @@ ScriptMgr::ScriptMgr() :
     m_pGetNPCDialogStatus(NULL),
     m_pGetGODialogStatus(NULL),
     m_pOnGOUse(NULL),
+    m_pOnGODestroyed(NULL),
     m_pOnItemUse(NULL),
     m_pOnAreaTrigger(NULL),
     m_pOnProcessEvent(NULL),
@@ -997,6 +998,11 @@ bool ScriptMgr::OnGameObjectUse(Player* pPlayer, GameObject* pGameObject)
     return m_pOnGOUse != NULL && m_pOnGOUse(pPlayer, pGameObject);
 }
 
+bool ScriptMgr::OnGameObjectDestroyed(Unit* pWho, GameObject* pGameObject)
+{
+    return m_pOnGODestroyed != NULL && m_pOnGODestroyed(pWho, pGameObject);
+}
+
 bool ScriptMgr::OnItemUse(Player* pPlayer, Item* pItem, SpellCastTargets const& targets)
 {
     return m_pOnItemUse != NULL && m_pOnItemUse(pPlayer, pItem, targets);
@@ -1067,6 +1073,7 @@ ScriptLoadResult ScriptMgr::LoadScriptLibrary(const char* libName)
     GetScriptHookPtr(m_pGetNPCDialogStatus,         "GetNPCDialogStatus");
     GetScriptHookPtr(m_pGetGODialogStatus,          "GetGODialogStatus");
     GetScriptHookPtr(m_pOnGOUse,                    "GOUse");
+    GetScriptHookPtr(m_pOnGODestroyed,              "GODestroyed");
     GetScriptHookPtr(m_pOnItemUse,                  "ItemUse");
     GetScriptHookPtr(m_pOnAreaTrigger,              "AreaTrigger");
     GetScriptHookPtr(m_pOnProcessEvent,             "ProcessEvent");
@@ -1076,7 +1083,7 @@ ScriptLoadResult ScriptMgr::LoadScriptLibrary(const char* libName)
     GetScriptHookPtr(m_pOnAuraDummy,                "AuraDummy");
 
     if (!m_pOnInitScriptLibrary || !m_pOnFreeScriptLibrary    || !m_pGetScriptLibraryVersion  ||
-        !m_pGetCreatureAI       || !m_pCreateInstanceData     ||
+        !m_pGetCreatureAI       || !m_pCreateInstanceData     || !m_pOnGODestroyed            ||
         !m_pOnGossipHello       || !m_pOnGOGossipHello        || !m_pOnGossipSelect           ||
         !m_pOnGOGossipSelect    || !m_pOnGossipSelectWithCode || !m_pOnGOGossipSelectWithCode ||
         !m_pOnQuestAccept       || !m_pOnGOQuestAccept        || !m_pOnItemQuestAccept        ||

@@ -7331,7 +7331,16 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         {
                             std::list<Creature*> unitList;
                             // use 99 because it is 3d search
-                            m_caster->GetCreatureListWithEntryInGrid(unitList, 33114, 99.0f);
+                            CellPair pair(MaNGOS::ComputeCellPair(m_caster->GetPositionX(), m_caster->GetPositionY()));
+                            Cell cell(pair);
+                            cell.SetNoCreate();
+
+                            MaNGOS::AllCreaturesOfEntryInRange check(m_caster, 33114, 99.0f);
+                            MaNGOS::CreatureListSearcher<MaNGOS::AllCreaturesOfEntryInRange> searcher(unitList, check);
+                            TypeContainerVisitor<MaNGOS::CreatureListSearcher<MaNGOS::AllCreaturesOfEntryInRange>, GridTypeMapContainer> visitor(searcher);
+
+                            m_caster->GetMap()->Visit(cell, visitor);
+                            //m_caster->GetCreatureListWithEntryInGrid(unitList, 33114, 99.0f);
                             //SearchAreaTarget(unitList, 99, PUSH_DST_CENTER, SPELL_TARGETS_ENTRY, 33114);
                             float minDist = 99 * 99;
                             VehicleKit *target = NULL;
