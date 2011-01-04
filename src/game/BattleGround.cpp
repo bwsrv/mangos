@@ -473,6 +473,12 @@ void BattleGround::Update(uint32 diff)
                         plr->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
                     }
 
+                //Announce Arena starting
+                if (sWorld.getConfig(CONFIG_BOOL_ARENA_QUEUE_ANNOUNCER_START))
+                {
+                    sWorld.SendWorldText(LANG_ARENA_STARTED_ANNOUNCE_WORLD, GetArenaType(), GetArenaType(), GetName());
+                }
+
                 CheckArenaWinConditions();
             }
             else
