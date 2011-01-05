@@ -1,4 +1,4 @@
-REPLACE INTO gameobject_template (entry, type, displayId, name, IconName, castBarCaption, unk1, faction, flags, size, questItem1, questItem2, questItem3, questItem4, questItem5, questItem6, data0, data1, data2, data3, data4, data5, data6, data7, data8, data9, data10, data11, data12, data13, data14, data15, data16, data17, data18, data19, data20, data21, data22, data23, ScriptName) VALUES
+﻿REPLACE INTO gameobject_template (entry, type, displayId, name, IconName, castBarCaption, unk1, faction, flags, size, questItem1, questItem2, questItem3, questItem4, questItem5, questItem6, data0, data1, data2, data3, data4, data5, data6, data7, data8, data9, data10, data11, data12, data13, data14, data15, data16, data17, data18, data19, data20, data21, data22, data23, ScriptName) VALUES
 (300000, 0, 7203, 'Forcefield 000', '', '', '', 1375, 32, 0.05, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '');
 UPDATE creature_template SET npcflag=1 WHERE entry in (29260, 29262);
 
@@ -147,64 +147,64 @@ INSERT INTO creature_battleground (guid, event1, event2) VALUES
 
 DELETE FROM mangos_string WHERE entry in (650,651,20000,20001,20002,20003,20004,20005,20006,20007,20008,20009,20010,20011,20012,20013,20014,20015,20016,20017,20018,20019,20020,20021,20022);
 INSERT INTO mangos_string (entry, content_default, content_loc1, content_loc2, content_loc3, content_loc4, content_loc5, content_loc6, content_loc7, content_loc8) VALUES
-(20000, 'The battle for Strand of the Ancients begins in 2 minutes.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20001, 'The battle for Strand of the Ancients begins in 1 minute.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20002, 'The battle for Strand of the Ancients begins in 30 seconds.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20003, 'Let the battle for Strand of the Ancients begin!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(20000, 'The battle for Strand of the Ancients begins in 2 minutes.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Битва за Берег Древних начнется через 2 минуты'),
+(20001, 'The battle for Strand of the Ancients begins in 1 minute.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Битва за Берег Древних начнется через 1 минуту'),
+(20002, 'The battle for Strand of the Ancients begins in 30 seconds.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Битва за Берег Древних начнется через 30 секунд'),
+(20003, 'Let the battle for Strand of the Ancients begin!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Битва за Берег Древних началась'),
 
-(20004, 'Doors %s are under attack!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20005, 'Doors %s are damaged!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20006, 'Doors %s has been destroyed!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(20004, 'Doors %s are under attack!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Двери %s атакованы!'),
+(20005, 'Doors %s are damaged!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Двери %s повреждены!'),
+(20006, 'Doors %s has been destroyed!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Двери %s разрушены!'),
 
-(20007, 'Emerald Green', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20008, 'Sapphire Blue', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20009, 'Amethyst Purple', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20010, 'Red Sun', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20011, 'Yellow Moon', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20012, 'Ancient Relics Camara', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(20007, 'Emerald Green', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Зеленый'),
+(20008, 'Sapphire Blue', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Синий'),
+(20009, 'Amethyst Purple', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Фиолетовый'),
+(20010, 'Red Sun', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Красный'),
+(20011, 'Yellow Moon', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Желтый'),
+(20012, 'House of Ancient Relics', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Палата Древних Реликвий'),
 
-(20013, '%s precipitates %s!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20014, '%s takes over %s!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20015, 'East Graveyard', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20016, 'West Graveyard', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20017, 'South Graveyard', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20018, '$n has placed a Seaforium Charge!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(20013, '%s precipitates %s!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '%s осаждает %s!'),
+(20014, '%s takes over %s!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '%s захватил %s!'),
+(20015, 'East Graveyard', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Восточное кладбище'),
+(20016, 'West Graveyard', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Западное кладбище'),
+(20017, 'South Graveyard', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Южное кладбище'),
+(20018, '$n has placed a Seaforium Charge!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '$n заложил ЗАРЯД!'),
 
-(20019, 'The Alliance won the first round, the Relic of Titan has been captured!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20020, 'The Horde won the first round, the Relic of Titan has been captured!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20021, 'The Horde won the second round, the Relic of Titan has been captured!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20022, 'The Alliance won the first round, the Relic of Titan has been captured!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+(20019, 'The Alliance won the first round, the Relic of Titan has been captured!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Альянс выиграл первый раунд, Реликвия Титана захвачена!'),
+(20020, 'The Horde won the first round, the Relic of Titan has been captured!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Орда выиграла первый раунд, Реликвия Титана захвачена!'),
+(20021, 'The Horde won the second round, the Relic of Titan has been captured!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Орда выиграла второй раунд, Реликвия Титана захвачена!'),
+(20022, 'The Alliance won the first round, the Relic of Titan has been captured!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Альянс выиграл второй раунд, Реликвия Титана захвачена!');
 
 -- For SendWarningToAll(entry)
 DELETE FROM mangos_string WHERE entry IN (20024, 20025, 20026, 20027, 20028, 20029, 20030, 20031, 20032, 20033, 20034, 20035, 20036, 20037, 20038, 20039, 20040, 20041, 20042, 20043, 20044, 20045, 20046, 20047);
 INSERT INTO mangos_string (entry, content_default, content_loc1, content_loc2, content_loc3, content_loc4, content_loc5, content_loc6, content_loc7, content_loc8) VALUES
-(20024, 'The Horde attacks East Graveyard!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20025, 'The Horde attacks West Graveyard!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20026, 'The Horde attacks South Graveyard!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20027, 'The Alliance attacks East Graveyard!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20028, 'The Alliance attacks West Graveyard!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20029, 'The Alliance attacks South Graveyard!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(20024, 'The Horde attacks East Graveyard!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Орда атакует Восточное кладбище!'),
+(20025, 'The Horde attacks West Graveyard!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Орда атакует Западное кладбище!'),
+(20026, 'The Horde attacks South Graveyard!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Орда атакует Южное кладбище!'),
+(20027, 'The Alliance attacks East Graveyard!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Альянс атакует Восточное кладбище!'),
+(20028, 'The Alliance attacks West Graveyard!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Альянс атакует Западное кладбище!'),
+(20029, 'The Alliance attacks South Graveyard!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Альянс атакует Южное кладбище!'),
 
-(20030, 'The Horde has taken East Graveyard!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20031, 'The Horde has taken West Graveyard!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20032, 'The Horde has taken South Graveyard!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20033, 'The Alliance has taken East Graveyard!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20034, 'The Alliance has taken West Graveyard!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20035, 'The Alliance has taken South Graveyard!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(20030, 'The Horde has taken East Graveyard!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Орда захватила Восточное кладбище!'),
+(20031, 'The Horde has taken West Graveyard!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Орда захватила Западное кладбище!'),
+(20032, 'The Horde has taken South Graveyard!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Орда захватила Южное кладбище!'),
+(20033, 'The Alliance has taken East Graveyard!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Альянс захватил Восточное кладбище!'),
+(20034, 'The Alliance has taken West Graveyard!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Альянс захватил Западное кладбище!'),
+(20035, 'The Alliance has taken South Graveyard!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Альянс захватил Южное кладбище!'),
 
-(20036, 'The door of the House of Ancient Relics have been destroyed!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20037, 'Emerald Green Door has been destroyed!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20038, 'Sapphire Blue Door has been destroyed!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20039, 'Amethyst Purple Door has been destroyed!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20040, 'Red Sun Door has been destroyed!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20041, 'Yellow Moon Door has been destroyed!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(20036, 'The door of the House of Ancient Relics have been destroyed!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Дверь в Палату Древних Реликвий разрушена!'),
+(20037, 'Emerald Green Door has been destroyed!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Зеленая дверь разрушена!'),
+(20038, 'Sapphire Blue Door has been destroyed!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Синяя дверь разрушена!'),
+(20039, 'Amethyst Purple Door has been destroyed!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Фиолетовая дверь разрушена!'),
+(20040, 'Red Sun Door has been destroyed!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Красная дверь разрушена!'),
+(20041, 'Yellow Moon Door has been destroyed!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Желтая дверь разрушена!'),
 
-(20042, 'The door of the House of Ancient Relics is damaged!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20043, 'Emerald Green Door is damaged!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20044, 'Sapphire Blue Door is damaged!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20045, 'Amethyst Purple Door is damaged!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20046, 'Red Sun Door is damaged!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(20047, 'Yellow Moon Door is damaged!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+(20042, 'The door of the House of Ancient Relics is damaged!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Дверь в Палату Древних Реликвий повреждена!'),
+(20043, 'Emerald Green Door is damaged!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Зеленая дверь повреждена!'),
+(20044, 'Sapphire Blue Door is damaged!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Синяя дверь повреждена!'),
+(20045, 'Amethyst Purple Door is damaged!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Фиолетовая дверь повреждена!'),
+(20046, 'Red Sun Door is damaged!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Красная дверь повреждена!'),
+(20047, 'Yellow Moon Door is damaged!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Желтая дверь повреждена!');
 
 DELETE FROM gameobject WHERE guid in (200008,200009,200010,200011,200012,200013,200014,200015,200016,200017,200018,200019,200020,200021,200022,200023,200024,200025,200026,200027,200028);
 INSERT INTO gameobject (guid, id, map, spawnMask, phaseMask, position_x, position_y, position_z, orientation, rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state) VALUES
