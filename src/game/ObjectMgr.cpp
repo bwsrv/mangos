@@ -1000,7 +1000,7 @@ uint32 ObjectMgr::GetModelForRace(uint32 sourceModelId, uint32 racemask)
 
         if (itr->second.creature_entry)
         {
-            const CreatureInfo *cInfo = sObjectMgr.GetCreatureTemplate(itr->second.creature_entry);
+            const CreatureInfo *cInfo = GetCreatureTemplate(itr->second.creature_entry);
             modelId = Creature::ChooseDisplayId(cInfo);
         }
         else
@@ -8429,7 +8429,7 @@ void ObjectMgr::LoadMailLevelRewards()
             continue;
         }
 
-        if(!GetCreatureTemplateStore(senderEntry))
+        if(!GetCreatureTemplate(senderEntry))
         {
             sLog.outErrorDb("Table `mail_level_reward` have nonexistent sender creature entry (%u) for level %u that invalid not include any player races, ignoring.",senderEntry,level);
             continue;
