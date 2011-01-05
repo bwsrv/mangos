@@ -2906,6 +2906,11 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 if(!procSpell || GetTypeId() != TYPEID_PLAYER || !pVictim )
                     return SPELL_AURA_PROC_FAILED;
 
+                // proc for main target only
+                if (Spell *currSpell = GetCurrentSpell(CURRENT_GENERIC_SPELL))
+                    if (currSpell->m_targets.getUnitTarget() != pVictim)
+                        return SPELL_AURA_PROC_FAILED;
+
                 // custom cooldown processing case
                 if( cooldown && GetTypeId()==TYPEID_PLAYER && ((Player*)this)->HasSpellCooldown(dummySpell->Id))
                     return SPELL_AURA_PROC_FAILED;
@@ -2943,11 +2948,17 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                         return SPELL_AURA_PROC_FAILED;
                 }
 
+                // TODO: exist special flag in spell attributes for this, need found and use!
+                SpellModifier *modBonusDmg = new SpellModifier(SPELLMOD_SPELL_BONUS_DAMAGE, SPELLMOD_PCT, -50, triggeredByAura);
+                ((Player*)this)->AddSpellMod(modBonusDmg, true);
+
                 // Remove cooldown (Chain Lightning - have Category Recovery time)
                 if (procSpell->SpellFamilyFlags & UI64LIT(0x0000000000000002))
                     ((Player*)this)->RemoveSpellCooldown(spellId);
 
                 CastSpell(pVictim, spellId, true, castItem, triggeredByAura);
+
+                ((Player*)this)->AddSpellMod(modBonusDmg, false);
 
                 if (cooldown && GetTypeId() == TYPEID_PLAYER)
                     ((Player*)this)->AddSpellCooldown(dummySpell->Id, 0, time(NULL) + cooldown);
