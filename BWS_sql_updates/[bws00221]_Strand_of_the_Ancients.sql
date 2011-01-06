@@ -152,15 +152,15 @@ INSERT INTO mangos_string (entry, content_default, content_loc1, content_loc2, c
 (20002, 'The battle for Strand of the Ancients begins in 30 seconds.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Битва за Берег Древних начнется через 30 секунд'),
 (20003, 'Let the battle for Strand of the Ancients begin!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Битва за Берег Древних началась'),
 
-(20004, 'Doors %s are under attack!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Двери %s атакованы!'),
-(20005, 'Doors %s are damaged!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Двери %s повреждены!'),
-(20006, 'Doors %s has been destroyed!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Двери %s разрушены!'),
+(20004, '%s door is under attack!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '%s дверь атакована!'),
+(20005, '%s door is damaged!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '%s дверь повреждена!'),
+(20006, '%s door has been destroyed!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '%s дверь разрушена!'),
 
-(20007, 'Emerald Green', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Зеленый'),
-(20008, 'Sapphire Blue', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Синий'),
-(20009, 'Amethyst Purple', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Фиолетовый'),
-(20010, 'Red Sun', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Красный'),
-(20011, 'Yellow Moon', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Желтый'),
+(20007, 'Emerald Green', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Зеленая'),
+(20008, 'Sapphire Blue', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Синяя'),
+(20009, 'Amethyst Purple', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Фиолетовая'),
+(20010, 'Red Sun', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Красная'),
+(20011, 'Yellow Moon', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Желтая'),
 (20012, 'House of Ancient Relics', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Палата Древних Реликвий'),
 
 (20013, '%s precipitates %s!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '%s осаждает %s!'),
