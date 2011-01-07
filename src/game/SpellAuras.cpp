@@ -5242,6 +5242,7 @@ void Aura::HandlePeriodicTriggerSpell(bool apply, bool /*Real*/)
 
                 return;
             case 51912:                                     // Ultra-Advanced Proto-Typical Shortening Blaster
+            case 53102:                                     // Scepter of Domination
                 if (m_removeMode == AURA_REMOVE_BY_EXPIRE)
                 {
                     if (Unit* pCaster = GetCaster())
