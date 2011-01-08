@@ -973,6 +973,9 @@ enum MangosStrings
     LANG_BG_SA_HORDE_TIMEOUT_END_2ROUND           = 20050,
     LANG_BG_SA_ALLIANCE_TIMEOUT_END_2ROUND        = 20051,
 
+    LANG_COMMAND_FRIEND                           = 11133,
+    LANG_COMMAND_FRIEND_ERROR                     = 11134,
+
     // NOT RESERVED IDS                   12000-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)
     // For other tables maybe             2000010000-2147483647 (max index)
