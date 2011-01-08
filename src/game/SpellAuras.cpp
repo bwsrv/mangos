@@ -7959,6 +7959,14 @@ void Aura::PeriodicDummyTick()
                     // 7053 Forsaken Skill: Shadow
                     return;
                 }
+                // Steal Flesh
+                case 52708:
+                {
+                    if (Unit *caster = GetCaster())
+                        caster->CastSpell(caster, 52712, true );
+                    target->CastSpell(target, 52711, true);
+                    return;
+                }
                 case 7057:                                  // Haunting Spirits
                     if (roll_chance_i(33))
                         target->CastSpell(target,m_modifier.m_amount,true,NULL,this);
