@@ -2308,6 +2308,7 @@ void Unit::CalculateDamageAbsorbAndResist(Unit *pCaster, SpellSchoolMask schoolM
                         reflectDamage = currentAbsorb / 2;
                     reflectSpell = 33619;
                     reflectTriggeredBy = *i;
+                    reflectTriggeredBy->SetInUse(true);     // lock aura from final deletion until processing
                     break;
                 }
                 if (spellProto->Id == 39228 || // Argussian Compass
@@ -2420,6 +2421,7 @@ void Unit::CalculateDamageAbsorbAndResist(Unit *pCaster, SpellSchoolMask schoolM
                                     reflectDamage = (*k)->GetModifier()->m_amount * RemainingDamage/100;
                                 reflectSpell = 33619;
                                 reflectTriggeredBy = *i;
+                                reflectTriggeredBy->SetInUse(true);// lock aura from final deletion until processing
                             } break;
                             default: break;
                         }
@@ -2548,7 +2550,11 @@ void Unit::CalculateDamageAbsorbAndResist(Unit *pCaster, SpellSchoolMask schoolM
 
     // Cast back reflect damage spell
     if (canReflect && reflectSpell)
+    {
         CastCustomSpell(pCaster,  reflectSpell, &reflectDamage, NULL, NULL, true, NULL, reflectTriggeredBy);
+        reflectTriggeredBy->SetInUse(false);                // free lock from deletion
+    }
+
 
     // absorb by mana cost
     AuraList const& vManaShield = GetAurasByType(SPELL_AURA_MANA_SHIELD);
@@ -10987,8 +10993,8 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
             }
 
             anyAuraProc = true;
-            triggeredByAura->SetInUse(false);
         }
+
         // Remove charge (aura can be removed by triggers)
         if(useCharges && procSuccess && anyAuraProc && !triggeredByHolder->IsDeleted())
         {
