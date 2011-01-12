@@ -1737,7 +1737,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 // some hardcoded requirements
                 switch(achievementCriteria->referredAchievement)
                 {
-                    case 231:					// Wrecking Ball
+                    case 231:                   // Wrecking Ball
                     {
                         if(bg->GetPlayerScore(GetPlayer(),SCORE_DEATHS) != 0)
                             continue;
