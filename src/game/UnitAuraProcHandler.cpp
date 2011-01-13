@@ -3418,7 +3418,7 @@ SpellAuraProcResult Unit::HandleProcTriggerSpellAuraProc(Unit *pVictim, uint32 d
                 //case 54072: break;                        // Knockback Ball Passive
                 //case 54476: break;                        // Blood Presence
                 //case 54775: break;                        // Abandon Vehicle on Poly
-                case 56702:                                 //
+                case 56702:                                 // Shadow Sickle
                 {
                     trigger_spell_id = 56701;
                     break;
