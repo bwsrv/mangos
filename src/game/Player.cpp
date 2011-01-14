@@ -3160,7 +3160,7 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool dependen
 
             if(active)
             {
-                if (IsPassiveSpell(spellInfo) && IsNeedCastPassiveSpellAtLearn(spellInfo))
+                if (IsNeedCastPassiveLikeSpellAtLearn(spellInfo))
                     CastSpell (this, spell_id, true);
             }
             else if(IsInWorld())
@@ -3350,11 +3350,10 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool dependen
         // ignore stance requirement for talent learn spell (stance set for spell only for client spell description show)
         CastSpell(this, spell_id, true);
     }
-    // also cast passive spells (including all talents without SPELL_EFFECT_LEARN_SPELL) with additional checks
-    else if (IsPassiveSpell(spellInfo))
+    // also cast passive (and passive like) spells (including all talents without SPELL_EFFECT_LEARN_SPELL) with additional checks
+    else if (IsNeedCastPassiveLikeSpellAtLearn(spellInfo))
     {
-        if (IsNeedCastPassiveSpellAtLearn(spellInfo))
-            CastSpell(this, spell_id, true);
+        CastSpell(this, spell_id, true);
     }
     else if (IsSpellHaveEffect(spellInfo,SPELL_EFFECT_SKILL_STEP))
     {
@@ -3448,13 +3447,19 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool dependen
     return active && !disabled && !superceded_old;
 }
 
-bool Player::IsNeedCastPassiveSpellAtLearn(SpellEntry const* spellInfo) const
+bool Player::IsNeedCastPassiveLikeSpellAtLearn(SpellEntry const* spellInfo) const
 {
+    ShapeshiftForm form = GetShapeshiftForm();
+
+    if (IsNeedCastSpellAtFormApply(spellInfo, form))        // SPELL_ATTR_PASSIVE | SPELL_ATTR_UNK7 spells
+        return true;                                        // all stance req. cases, not have auarastate cases
+
+    if (!(spellInfo->Attributes & SPELL_ATTR_PASSIVE))
+        return false;
+
     // note: form passives activated with shapeshift spells be implemented by HandleShapeshiftBoosts instead of spell_learn_spell
     // talent dependent passives activated at form apply have proper stance data
-    ShapeshiftForm form = GetShapeshiftForm();
-    bool need_cast = (!spellInfo->Stances || (form && (spellInfo->Stances & (1 << (form - 1)))) ||
-                      (!form && (spellInfo->AttributesEx2 & SPELL_ATTR_EX2_NOT_NEED_SHAPESHIFT)));
+    bool need_cast = (!spellInfo->Stances || !form && (spellInfo->AttributesEx2 & SPELL_ATTR_EX2_NOT_NEED_SHAPESHIFT));
 
     // Check CasterAuraStates
     return need_cast && (!spellInfo->CasterAuraState || HasAuraState(AuraState(spellInfo->CasterAuraState)));
@@ -8280,6 +8285,8 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
                 return;
             }
 
+            permission = OWNER_PERMISSION;
+
             loot = &item->loot;
 
             if (!item->HasGeneratedLoot())
@@ -8335,6 +8342,8 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
 
             if (bones->lootRecipient != this)
                 permission = NONE_PERMISSION;
+            else
+                permission = OWNER_PERMISSION;
             break;
         }
         case HIGHGUID_UNIT:
@@ -8371,6 +8380,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
                     const uint32 a = urand(0, creature->getLevel()/2);
                     const uint32 b = urand(0, getLevel()/2);
                     loot->gold = uint32(10 * (a + b) * sWorld.getConfig(CONFIG_FLOAT_RATE_DROP_MONEY));
+                    permission = OWNER_PERMISSION;
                 }
             }
             else
@@ -8433,6 +8443,8 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
                         // let reopen skinning loot if will closed.
                         if (!loot->empty())
                             creature->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+
+                        permission = OWNER_PERMISSION;
                     }
                 }
                 // set group rights only for loot_type != LOOT_SKINNING
@@ -8458,7 +8470,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
                             permission = NONE_PERMISSION;
                     }
                     else if (recipient == this)
-                        permission = ALL_PERMISSION;
+                        permission = OWNER_PERMISSION;
                     else
                         permission = NONE_PERMISSION;
                 }
@@ -22623,9 +22635,9 @@ void Player::BuildEnchantmentsInfoData(WorldPacket *data)
 
         data->put<uint16>(enchantmentMaskPos, enchantmentMask);
 
-        *data << uint16(0);                                 // ?
-        *data << uint8(0);                                  // PGUID!
-        *data << uint32(0);                                 // seed?
+        *data << uint16(item->GetItemRandomPropertyId());
+        *data << item->GetGuidValue(ITEM_FIELD_CREATOR).WriteAsPacked();
+        *data << uint32(item->GetItemSuffixFactor());
     }
 
     data->put<uint32>(slotUsedMaskPos, slotUsedMask);
