@@ -940,6 +940,20 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                     target = owner;
                     break;
                 }
+                // Kill command
+                case 58914:
+                {
+                    // Remove aura stack from pet
+                    RemoveAuraHolderFromStack(58914);
+
+                    Unit* owner = GetOwner();
+                    if (!owner)
+                        return SPELL_AURA_PROC_FAILED;
+
+                    // reduce the owner's aura stack
+                    owner->RemoveAuraHolderFromStack(34027);
+                    return SPELL_AURA_PROC_OK;
+                }
                 // Vampiric Touch (generic, used by some boss)
                 case 52723:
                 case 60501:

@@ -2124,6 +2124,31 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         if (Unit* caster = GetCaster())
                             caster->CastSpell(caster, 13138, true, NULL, this);
                         return;
+                    case 34026:                             // kill command
+                    {
+                        Unit * pet = target->GetPet();
+                        if (!pet)
+                            break;
+
+                        target->CastSpell(target, 34027, true, NULL, this);
+
+                        // set 3 stacks and 3 charges (to make all auras not disappear at once)
+                        Aura * owner_aura = target->GetAura(34027,EFFECT_INDEX_0);
+                        Aura * pet_aura  = pet->GetAura(58914, EFFECT_INDEX_0);
+                        if (owner_aura)
+                        {
+                            owner_aura->GetHolder()->SetStackAmount(owner_aura->GetSpellProto()->StackAmount);
+                        }
+                        if (pet_aura)
+                        {
+                            if (pet_aura->GetHolder())
+                            {
+                                pet_aura->GetHolder()->SetAuraCharges(0);
+                                pet_aura->GetHolder()->SetStackAmount(owner_aura->GetSpellProto()->StackAmount);
+                            }
+                        }
+                        break;
+                    }
                     case 28832:                             // Mark of Korth'azz
                     case 28833:                             // Mark of Blaumeux
                     case 28834:                             // Mark of Rivendare
