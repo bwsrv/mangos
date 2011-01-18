@@ -314,7 +314,7 @@ void Unit::Update( uint32 update_diff, uint32 p_time )
 {
     if(!IsInWorld())
         return;
-    
+
     /*if(p_time > m_AurasCheck)
     {
     m_AurasCheck = 2000;
@@ -1162,10 +1162,8 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
         }
         if (pVictim->GetTypeId() != TYPEID_PLAYER)
         {
-            if(spellProto && IsDamageToThreatSpell(spellProto))
-                pVictim->AddThreat(this, float((damage + (cleanDamage ? cleanDamage->absorb : 0))*2), (cleanDamage && cleanDamage->hitOutCome == MELEE_HIT_CRIT), damageSchoolMask, spellProto);
-            else
-                pVictim->AddThreat(this, float(damage + (cleanDamage ? cleanDamage->absorb : 0)), (cleanDamage && cleanDamage->hitOutCome == MELEE_HIT_CRIT), damageSchoolMask, spellProto);
+            float threat = damage * sSpellMgr.GetSpellThreatMultiplier(spellProto);
+            pVictim->AddThreat(this, threat, (cleanDamage && cleanDamage->hitOutCome == MELEE_HIT_CRIT), damageSchoolMask, spellProto);
         }
         else                                                // victim is a player
         {
@@ -7850,22 +7848,6 @@ bool Unit::IsImmuneToSpellEffect(SpellEntry const* spellInfo, SpellEffectIndex i
     return false;
 }
 
-bool Unit::IsDamageToThreatSpell(SpellEntry const * spellInfo) const
-{
-    if (!spellInfo)
-        return false;
-
-    uint32 family = spellInfo->SpellFamilyName;
-    uint64 flags = spellInfo->SpellFamilyFlags;
-
-    if ((family == 5 && flags == 256) ||                    //Searing Pain
-        (family == 6 && flags == 8192) ||                   //Mind Blast
-        (family == 11 && flags == 1048576))                 //Earth Shock
-        return true;
-
-    return false;
-}
-
 /**
  * Calculates caster part of melee damage bonuses,
  * also includes different bonuses dependent from target auras
@@ -8443,11 +8425,17 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
         if (getStandState() == UNIT_STAND_STATE_CUSTOM)
             SetStandState(UNIT_STAND_STATE_STAND);
 
-        if (((Creature*)this)->AI())
-            ((Creature*)this)->AI()->EnterCombat(enemy);
+        Creature* pCreature = (Creature*)this;
+
+        if (pCreature->AI())
+            pCreature->AI()->EnterCombat(enemy);
+
+        // Some bosses are set into combat with zone
+        if (GetMap()->IsDungeon() && (pCreature->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_AGGRO_ZONE))
+            pCreature->SetInCombatWithZone();
 
         if (InstanceData* mapInstance = GetInstanceData())
-            mapInstance->OnCreatureEnterCombat((Creature*)this);
+            mapInstance->OnCreatureEnterCombat(pCreature);
     }
 }
 
@@ -9669,7 +9657,7 @@ uint32 Unit::CalculateSpellDuration(Unit const* caster, uint32 baseDuration, Spe
     else
         durationMod = durationMod_always;
 
-    if (caster == this)
+    if (baseDuration > 0 && caster == this)
     {
         switch(spellProto->SpellFamilyName)
         {

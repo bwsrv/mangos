@@ -398,6 +398,13 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                         }
                         break;
                     }
+                    // Touch the Nightmare
+                    case 50341:
+                    {
+                        if (effect_idx == EFFECT_INDEX_2)
+                            damage = int32(unitTarget->GetMaxHealth() * 0.3f);
+                        break;
+                    }
                     // Tympanic Tantrum
                     case 62775:
                     {
@@ -2160,6 +2167,24 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(unitTarget,spell_id,true,NULL);
                     return;
                 }
+                case 54577:                                 // Throw U.D.E.D.
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
+                        return;
+
+                    // Sometimes issues with explosion animation. Unclear why
+                    // but possibly caused by the order of spells.
+
+                    // Permanent Feign Death
+                    unitTarget->CastSpell(unitTarget, 29266, true);
+
+                    // need to despawn later
+                    ((Creature*)unitTarget)->ForcedDespawn(2000);
+
+                    // Mammoth Explosion Spell Spawner
+                    unitTarget->CastSpell(unitTarget, 54581, true, m_CastItem);
+                    return;
+                }
                 case 55004:                                 // Nitro Boosts
                 {
                     if (!m_CastItem)
@@ -2914,7 +2939,12 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 {
                     if (Unit *owner = m_caster->GetOwner())
                     {
-                        damage += int32(m_caster->GetOwner()->SpellDamageBonusDone(unitTarget, m_spellInfo, 0, HEAL) * 0.45f);
+                        // spell have SPELL_DAMAGE_CLASS_NONE and not get bonuses from owner, use main spell for bonuses
+                        if (m_triggeredBySpellInfo)
+                        {
+                            damage = int32(owner->SpellHealingBonusDone(unitTarget, m_triggeredBySpellInfo, damage, HEAL));
+                            damage = int32(unitTarget->SpellHealingBonusTaken(owner, m_triggeredBySpellInfo, damage, HEAL));
+                        }
 
                         // Restorative Totems
                         Unit::AuraList const& mDummyAuras = owner->GetAurasByType(SPELL_AURA_DUMMY);
@@ -4010,7 +4040,7 @@ void Spell::EffectHealPct(SpellEffectIndex /*eff_idx*/)
         unitTarget->CalculateHealAbsorb(addhealth, &absorb);
 
         int32 gain = caster->DealHeal(unitTarget, addhealth - absorb, m_spellInfo, false, absorb);
-        unitTarget->getHostileRefManager().threatAssist(caster, float(gain) * 0.5f, m_spellInfo);
+        unitTarget->getHostileRefManager().threatAssist(caster, float(gain) * 0.5f * sSpellMgr.GetSpellThreatMultiplier(m_spellInfo), m_spellInfo);
     }
 }
 
@@ -7077,13 +7107,13 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     return;
                 }
-                case 50725:                                 // Vigilance
+                case 50725:                                 // Vigilance - remove cooldown on Taunt
                 {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+                    Unit* caster = GetAffectiveCaster();
+                    if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
                         return;
 
-                    // Remove Taunt cooldown
-                    ((Player*)unitTarget)->RemoveSpellCooldown(355, true);
+                    ((Player*)caster)->RemoveSpellCategoryCooldown(82, true);
                     return;
                 }
                 case 59803:                                 // Consume (heroic mode Trollgore - Drak'Tharok Keep)
@@ -7235,6 +7265,29 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     // Remove aura (Mojo of Rhunok) given at quest accept / gossip
                     unitTarget->RemoveAurasDueToSpell(51967);
+                    return;
+                }
+                case 54581:                                 // Mammoth Explosion Spell Spawner
+                {
+                    if (m_caster->GetTypeId() != TYPEID_UNIT)
+                        return;
+
+                    // Summons misc npc's. They are expected to summon GO from 54625
+                    // but there is no way to get the summoned, to trigger a spell
+                    // cast (workaround can be done with ai script).
+
+                    // Quest - Mammoth Explosion Summon Object
+                    for(int i = 0; i < 2; ++i)
+                        m_caster->CastSpell(m_caster, 54623, true);
+
+                    for(int i = 0; i < 2; ++i)
+                        m_caster->CastSpell(m_caster, 54627, true);
+
+                    for(int i = 0; i < 2; ++i)
+                        m_caster->CastSpell(m_caster, 54628, true);
+
+                    // Summon Main Mammoth Meat
+                    m_caster->CastSpell(m_caster, 57444, true);
                     return;
                 }
                 case 54729:                                 // Winged Steed of the Ebon Blade
@@ -7673,6 +7726,32 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     m_caster->CastSpell(unitTarget, 72588, true);
                     return;
+                }
+                //Glyph of Scourge Strike
+                case 69961:
+                {
+                    Unit::SpellAuraHolderMap const& auras = unitTarget->GetSpellAuraHolderMap();
+                    for(Unit::SpellAuraHolderMap::const_iterator itr = auras.begin(); itr!=auras.end(); ++itr)
+                    {
+                        if (itr->second->GetSpellProto()->Dispel == DISPEL_DISEASE &&
+                            itr->second->GetCasterGuid() == m_caster->GetGUID())
+                        if (Aura* aura =itr->second->GetAuraByEffectIndex(EFFECT_INDEX_0))
+                        {
+                            uint32 countMin = aura->GetAuraMaxDuration();
+                            uint32 countMax = GetSpellMaxDuration(aura->GetSpellProto());
+                            countMax += 9000;
+                            countMax += m_caster->HasAura(49036) ? 3000 : 0; //Epidemic (Rank 1)
+                            countMax += m_caster->HasAura(49562) ? 6000 : 0; //Epidemic (Rank 2)
+
+                            if (countMin < countMax)
+                            {
+                                aura->SetAuraDuration(aura->GetAuraDuration() + 3000);
+                                aura->SetAuraMaxDuration(countMin + 3000);
+                                aura->GetHolder()->SendAuraUpdate(false);
+                            }
+                        }
+                    }
+                return;
                 }
                 case 70117:                                 // Ice grip (Sindragosa pull effect)
                 {
@@ -9818,8 +9897,14 @@ void Spell::EffectRestoreItemCharges( SpellEffectIndex eff_idx )
 
 void Spell::EffectRedirectThreat(SpellEffectIndex eff_idx)
 {
-    if (unitTarget)
-        m_caster->getHostileRefManager().SetThreatRedirection(unitTarget->GetObjectGuid(), uint32(damage));
+    if (!unitTarget)
+        return;
+
+    if (m_spellInfo->Id == 59665)                           // Vigilance
+        if (Aura *glyph = unitTarget->GetDummyAura(63326))  // Glyph of Vigilance
+            damage += glyph->GetModifier()->m_amount;
+
+    m_caster->getHostileRefManager().SetThreatRedirection(unitTarget->GetObjectGuid(), uint32(damage));
 }
 
 void Spell::EffectTeachTaxiNode( SpellEffectIndex eff_idx )

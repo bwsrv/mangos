@@ -2530,7 +2530,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
             }
             case 35079:                                     // Misdirection, triggered buff
             case 59628:                                     // Tricks of the Trade, triggered buff
-            case 59665:                                     // Vigilance, redirection spell
             {
                 if (Unit* pCaster = GetCaster())
                     pCaster->getHostileRefManager().ResetThreatRedirection();
@@ -5182,16 +5181,26 @@ void Aura::HandleAuraProcTriggerSpell(bool apply, bool Real)
     if(!Real)
         return;
 
-    if(apply)
+    Unit *target = GetTarget();
+
+    switch (GetId())
     {
         // some spell have charges by functionality not have its in spell data
-        switch (GetId())
-        {
-            case 28200:                                     // Ascendance (Talisman of Ascendance trinket)
+        case 28200:                                         // Ascendance (Talisman of Ascendance trinket)
+            if(apply)
                 GetHolder()->SetAuraCharges(6);
-                break;
-            default: break;
-        }
+            break;
+        case 50720:                                         // Vigilance (threat transfering)
+            if (apply)
+            {
+                if (Unit* caster = GetCaster())
+                    target->CastSpell(caster, 59665, true);
+            }
+            else
+                target->getHostileRefManager().ResetThreatRedirection();
+            break;
+        default:
+            break;
     }
 }
 
@@ -5442,6 +5451,12 @@ void Aura::HandlePeriodicHeal(bool apply, bool /*Real*/)
                 holy = 0;
             holy = int32(holy * 377 / 1000);
             m_modifier.m_amount += ap > holy ? ap : holy;
+        }
+        // Lifeblood
+        else if (GetSpellProto()->SpellIconID == 3088 && GetSpellProto()->SpellVisual[0] == 8145)
+        {
+            int32 healthBonus = int32 (0.0032f * caster->GetMaxHealth());
+            m_modifier.m_amount += healthBonus;
         }
 
         m_modifier.m_amount = caster->SpellHealingBonusDone(target, GetSpellProto(), m_modifier.m_amount, DOT, GetStackAmount());
@@ -7551,7 +7566,7 @@ void Aura::PeriodicTick()
             pCaster->CalculateHealAbsorb(heal, &absorbHeal);
 
             int32 gain = pCaster->DealHeal(pCaster, heal - absorbHeal, spellProto, false, absorbHeal);
-            pCaster->getHostileRefManager().threatAssist(pCaster, gain * 0.5f, spellProto);
+            pCaster->getHostileRefManager().threatAssist(pCaster, gain * 0.5f * sSpellMgr.GetSpellThreatMultiplier(spellProto), spellProto);
             break;
         }
         case SPELL_AURA_PERIODIC_HEAL:
@@ -7623,7 +7638,7 @@ void Aura::PeriodicTick()
                 if( BattleGround *bg = ((Player*)pCaster)->GetBattleGround() )
                     bg->UpdatePlayerScore(((Player*)pCaster), SCORE_HEALING_DONE, gain);
 
-            target->getHostileRefManager().threatAssist(pCaster, float(gain) * 0.5f, spellProto);
+            target->getHostileRefManager().threatAssist(pCaster, float(gain) * 0.5f * sSpellMgr.GetSpellThreatMultiplier(spellProto), spellProto);
 
             // heal for caster damage
             if(target != pCaster && spellProto->SpellVisual[0] == 163)
@@ -7776,7 +7791,7 @@ void Aura::PeriodicTick()
             int32 gain = target->ModifyPower(power,pdamage);
 
             if(Unit* pCaster = GetCaster())
-                target->getHostileRefManager().threatAssist(pCaster, float(gain) * 0.5f, spellProto);
+                target->getHostileRefManager().threatAssist(pCaster, float(gain) * 0.5f * sSpellMgr.GetSpellThreatMultiplier(spellProto), spellProto);
             break;
         }
         case SPELL_AURA_OBS_MOD_MANA:
@@ -7804,7 +7819,7 @@ void Aura::PeriodicTick()
             int32 gain = target->ModifyPower(powerType, pdamage);
 
             if(Unit* pCaster = GetCaster())
-                target->getHostileRefManager().threatAssist(pCaster, float(gain) * 0.5f, spellProto);
+                target->getHostileRefManager().threatAssist(pCaster, float(gain) * 0.5f * sSpellMgr.GetSpellThreatMultiplier(spellProto), spellProto);
             break;
         }
         case SPELL_AURA_POWER_BURN_MANA:
@@ -7866,7 +7881,7 @@ void Aura::PeriodicTick()
 
             int32 gain = target->ModifyHealth(m_modifier.m_amount);
             if (Unit *caster = GetCaster())
-                target->getHostileRefManager().threatAssist(caster, float(gain) * 0.5f, spellProto);
+                target->getHostileRefManager().threatAssist(caster, float(gain) * 0.5f  * sSpellMgr.GetSpellThreatMultiplier(spellProto), spellProto);
             break;
         }
         case SPELL_AURA_MOD_POWER_REGEN:
@@ -8449,6 +8464,17 @@ void Aura::PeriodicDummyTick()
                 uint32 dam = GetTarget()->GetMaxHealth()*0.01;
                 GetTarget()->DealDamage(GetTarget(), dam, NULL, NODAMAGE, SPELL_SCHOOL_MASK_NORMAL, spell, false);
                 GetTarget()->SendSpellNonMeleeDamageLog(GetTarget(), spell->Id, dam, SPELL_SCHOOL_MASK_NORMAL, 0, 0, false, 0, false);
+                return;
+            }
+            break;
+//            if (spell->SpellIconID == 30412)
+//                return;
+            // Hysteria
+            if (spell->SpellFamilyFlags & UI64LIT(0x0000000020000000))
+            {
+                // damage not expected to be show in logs, not any damage spell related to damage apply
+                uint32 deal = m_modifier.m_amount * target->GetMaxHealth() / 100;
+                target->DealDamage(target, deal, NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 return;
             }
             break;
@@ -9357,6 +9383,11 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
         {
             switch(GetId())
             {
+                case 50720:                                 // Vigilance (warrior spell but not have warrior family)
+                {
+                    spellId1 = 68066;                       // Damage Reduction
+                    break;
+                }
                 case 55001:
                 {
                     if (apply)
@@ -9410,7 +9441,7 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                 }
                 case 58914:                                     // Kill Command, pet aura
                 {
-                    // need remove here becase dummy aura hamdler apply/unapply at stack changes
+                    // Removal is needed here because the dummy aura handler is applied / removed at stacks change
                     if (!apply)
                         if(Unit* caster = GetCaster())
                             caster->RemoveAurasDueToSpell(34027);

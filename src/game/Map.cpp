@@ -1052,8 +1052,7 @@ void Map::AddObjectToRemoveList(WorldObject *obj)
 {
     MANGOS_ASSERT(obj->GetMapId()==GetId() && obj->GetInstanceId()==GetInstanceId());
 
-    // need clean references at end of update cycle, NOT during it! called at Map::Remove
-    // obj->CleanupsBeforeDelete();                            // remove or simplify at least cross referenced links
+    obj->CleanupsBeforeDelete();                            // remove or simplify at least cross referenced links
 
     i_objectsToRemove.insert(obj);
     //DEBUG_LOG("Object (GUID: %u TypeId: %u ) added to removing list.",obj->GetGUIDLow(),obj->GetTypeId());
@@ -2966,6 +2965,14 @@ WorldObject* Map::GetWorldObject(ObjectGuid guid)
 void Map::SendObjectUpdates()
 {
     UpdateDataMapType update_players;
+
+    while(!i_objectsToClientUpdateQueue.empty())
+    {
+        if (i_objectsToClientNotUpdate.find(i_objectsToClientUpdateQueue.front()) == i_objectsToClientNotUpdate.end())
+            i_objectsToClientUpdate.insert(i_objectsToClientUpdateQueue.front());
+        i_objectsToClientUpdateQueue.pop();
+    }
+    i_objectsToClientNotUpdate.clear();
 
     while(!i_objectsToClientUpdate.empty())
     {

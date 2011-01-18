@@ -1722,7 +1722,10 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                     if(!target->IsFriendlyTo(this))
                         return SPELL_AURA_PROC_FAILED;
 
-                    basepoints[0] = int32(target->GetMaxHealth() * triggerAmount / 100);
+                    if (target->GetTypeId() == TYPEID_PLAYER)
+                        basepoints[0] = int32(target->GetMaxHealth() * triggerAmount / 100);
+                    else if (Unit* caster = triggeredByAura->GetCaster())
+                        basepoints[0] = int32(caster->GetMaxHealth() * triggerAmount / 100);
                     // triggered_spell_id in spell data
                     break;
                 }
@@ -2036,8 +2039,12 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 // Tricks of the trade
                 case 57934:
                 {
-                    triggered_spell_id = 59628;             // 6 sec buff on self
-                    target = this;
+                    triggered_spell_id = 57933;             // Tricks of the Trade, increased damage buff
+                    target = getHostileRefManager().GetThreatRedirectionTarget();
+                    if (!target)
+                        return SPELL_AURA_PROC_FAILED;
+
+                    CastSpell(this, 59628, true);           // Tricks of the Trade (caster timer)
                     break;
                 }
             }
@@ -3016,6 +3023,8 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
             // Mark of Blood
             if (dummySpell->Id == 49005)
             {
+                if (target->GetTypeId() != TYPEID_PLAYER)
+                    return SPELL_AURA_PROC_FAILED;
                 // TODO: need more info (cooldowns/PPM)
                 target->CastSpell(target, 61607, true, NULL, triggeredByAura);
                 return SPELL_AURA_PROC_OK;
