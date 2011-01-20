@@ -102,21 +102,6 @@ bool ChatHandler::HandleServerInfoCommand(char* /*args*/)
         full = _FULLVERSION(REVISION_DATE,REVISION_TIME,REVISION_NR,REVISION_ID);
 
     PSendSysMessage("Welcome to BRIDGE World of Warcraft Server");
-    SendSysMessage(full);
-
-    if (sScriptMgr.IsScriptLibraryLoaded())
-    {
-        char const* ver = sScriptMgr.GetScriptLibraryVersion();
-        if (ver && *ver)
-            PSendSysMessage(LANG_USING_SCRIPT_LIB, ver);
-        else
-            SendSysMessage(LANG_USING_SCRIPT_LIB_UNKNOWN);
-    }
-    else
-        SendSysMessage(LANG_USING_SCRIPT_LIB_NONE);
-
-    PSendSysMessage(LANG_USING_WORLD_DB,sWorld.GetDBVersion());
-    PSendSysMessage(LANG_USING_EVENT_AI,sWorld.GetCreatureEventAIVersion());
     PSendSysMessage(LANG_CONNECTED_USERS, activeClientsNum, maxActiveClientsNum, queuedClientsNum, maxQueuedClientsNum);
     PSendSysMessage(LANG_UPTIME, str.c_str());
 
