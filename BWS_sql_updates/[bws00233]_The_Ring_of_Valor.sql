@@ -1,4 +1,5 @@
 -- The Ring of Valor
+UPDATE gameobject_template SET faction = 114, flags = 32 WHERE entry IN (192704, 192705, 192388, 192387, 192393, 192394, 192389, 192390);
 DELETE FROM gameobject WHERE map = 618;
 INSERT INTO gameobject VALUES
 -- buffs
@@ -23,7 +24,6 @@ INSERT INTO gameobject VALUES
 -- pulley
 ('222015','192389','618','1','1','700.722290','-283.990662','39.517582','3.141593','0','0','0','0','120','100','1'),
 ('222016','192390','618','1','1','826.303833','-283.996429','39.517582','0','0','0','0','0','120','100','1');
-
 DELETE FROM gameobject_battleground WHERE guid IN (222001, 222002, 222003, 222004);
 INSERT INTO gameobject_battleground VALUES
 -- buffs
@@ -32,10 +32,8 @@ INSERT INTO gameobject_battleground VALUES
 -- elevators
 ('222003','254','0'),
 ('222004','254','0');
-
 DELETE FROM battleground_events WHERE map = 618;
 INSERT INTO battleground_events VALUES
 ('618','252','0','buffs'),
 ('618','254','0','doors');
 
-UPDATE gameobject_template SET faction = 114, flags = 32 WHERE entry IN (192704, 192705, 192388, 192387, 192393, 192394, 192389, 192390);

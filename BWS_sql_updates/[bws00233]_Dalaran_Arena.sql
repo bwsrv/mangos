@@ -1,4 +1,5 @@
 -- Dalaran Arena
+UPDATE gameobject_template SET faction = 114, flags = 32, size = 1.5 WHERE entry IN (192642, 192643);
 DELETE FROM gameobject WHERE map = 617;
 INSERT INTO gameobject VALUES
 -- buffs
@@ -7,7 +8,6 @@ INSERT INTO gameobject VALUES
 -- doors
 ('222022','192642','617','1','1','1350.95','817.2','21.4096','3.15','0','0','0.99627','0.0862864','86400','100','1'),
 ('222023','192643','617','1','1','1232.65','764.913','21.4729','6.3','0','0','0.0310211','-0.999519','86400','100','1');
-
 DELETE FROM gameobject_battleground WHERE guid IN (222020, 222021, 222022, 222023);
 INSERT INTO gameobject_battleground VALUES
 -- buffs
@@ -16,10 +16,8 @@ INSERT INTO gameobject_battleground VALUES
 -- doors
 ('222022','254','0'),
 ('222023','254','0');
-
 DELETE FROM battleground_events WHERE map = 617;
 INSERT INTO battleground_events VALUES
 ('617','252','0','buffs'),
 ('617','254','0','doors');
 
-UPDATE gameobject_template SET faction = 114, flags = 32, size = 1.5 WHERE entry IN (192642, 192643);
