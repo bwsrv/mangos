@@ -346,7 +346,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleAuraAddMechanicAbilities,                  //293 SPELL_AURA_ADD_MECHANIC_ABILITIES  replaces target's action bars with a predefined spellset
     &Aura::HandleNULL,                                      //294 2 spells, possible prevent mana regen
     &Aura::HandleUnused,                                    //295 unused (3.2.2a)
-    &Aura::HandleNULL,                                      //296 2 spells
+    &Aura::HandleAuraSetVehicle,                            //296 SPELL_AURA_SET_VEHICLE_ID sets vehicle on target
     &Aura::HandleNULL,                                      //297 1 spell (counter spell school?)
     &Aura::HandleUnused,                                    //298 unused (3.2.2a)
     &Aura::HandleUnused,                                    //299 unused (3.2.2a)
@@ -6685,6 +6685,7 @@ void Aura::HandleShapeshiftBoosts(bool apply)
             break;
         case FORM_MOONKIN:
             spellId1 = 24905;
+            spellId2 = 69366;
             MasterShaperSpellId = 48421;
             break;
         case FORM_FLIGHT:
@@ -9039,9 +9040,9 @@ void SpellAuraHolder::_AddSpellAuraHolder()
         if(m_spellProto->Dispel == DISPEL_ENRAGE)
             m_target->ModifyAuraState(AURA_STATE_ENRAGE, true);
 
-        // Mechanic bleed aura state
-        if(GetAllSpellMechanicMask(m_spellProto) & (1 << (MECHANIC_BLEED-1)))
-            m_target->ModifyAuraState(AURA_STATE_MECHANIC_BLEED, true);
+        // Bleeding aura state
+        if (GetAllSpellMechanicMask(m_spellProto) & (1 << (MECHANIC_BLEED-1)))
+            m_target->ModifyAuraState(AURA_STATE_BLEEDING, true);
     }
 }
 
@@ -9096,9 +9097,24 @@ void SpellAuraHolder::_RemoveSpellAuraHolder()
         if(m_spellProto->Dispel == DISPEL_ENRAGE)
             m_target->ModifyAuraState(AURA_STATE_ENRAGE, false);
 
-        // Mechanic bleed aura state
-        if(GetAllSpellMechanicMask(m_spellProto) & (1 << (MECHANIC_BLEED-1)))
-            m_target->ModifyAuraState(AURA_STATE_MECHANIC_BLEED, false);
+        // Bleeding aura state
+        if (GetAllSpellMechanicMask(m_spellProto) & (1 << (MECHANIC_BLEED-1)))
+        {
+            bool found = false;
+
+            Unit::SpellAuraHolderMap const& holders = m_target->GetSpellAuraHolderMap();
+            for (Unit::SpellAuraHolderMap::const_iterator itr = holders.begin(); itr != holders.end(); ++itr)
+            {
+                if (GetAllSpellMechanicMask(itr->second->GetSpellProto()) & (1 << (MECHANIC_BLEED-1)))
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
+                m_target->ModifyAuraState(AURA_STATE_BLEEDING, false);
+        }
 
         uint32 removeState = 0;
         uint64 removeFamilyFlag = m_spellProto->SpellFamilyFlags;
@@ -10348,5 +10364,41 @@ void Aura::HandleAuraReflectSpells(bool Apply, bool Real)
             default:
                 break;
         }
+    }
+}
+
+void Aura::HandleAuraSetVehicle(bool apply, bool real)
+{
+    if (!real)
+        return;
+
+    Unit* target = GetTarget();
+
+    if (target->GetTypeId() != TYPEID_PLAYER || !target->IsInWorld())
+        return;
+
+    uint32 vehicleId = GetMiscValue();
+
+    if (vehicleId == 0)
+        return;
+
+    if (apply)
+    {
+        if (!target->CreateVehicleKit(vehicleId))
+            return;
+    }
+    else
+        if (target->GetVehicleKit())
+            target->RemoveVehicleKit();
+
+    WorldPacket data(SMSG_PLAYER_VEHICLE_DATA, target->GetPackGUID().size()+4);
+    data.appendPackGUID(target->GetGUID());
+    data << uint32(apply ? vehicleId : 0);
+    target->SendMessageToSet(&data, true);
+
+    if (apply)
+    {
+        data.Initialize(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
+        ((Player*)target)->GetSession()->SendPacket(&data);
     }
 }

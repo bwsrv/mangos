@@ -388,7 +388,6 @@ bool Unit::haveOffhandWeapon() const
 
 void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, SplineType type, SplineFlags flags, uint32 Time, Player* player, ...)
 {
-
     va_list vargs;
     va_start(vargs,player);
 
@@ -419,7 +418,7 @@ void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, SplineTy
         case SPLINETYPE_FACINGTARGET:
             data << uint64(va_arg(vargs,uint64));
             break;
-        case SPLINETYPE_FACINGANGLE:                        // not used currently
+        case SPLINETYPE_FACINGANGLE:
             data << float(va_arg(vargs,double));            // facing angle
             break;
     }
@@ -1040,6 +1039,13 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
                 cVictim->PrepareBodyLootState();
                 // may have no loot, so update death timer if allowed
                 cVictim->AllLootRemovedFromCorpse();
+            }
+
+            // if vehicle and has passengers - remove his
+            if (cVictim->GetObjectGuid().IsVehicle())
+            {
+                if(cVictim->GetVehicleKit())
+                    cVictim->GetVehicleKit()->RemoveAllPassengers();
             }
 
             // Call creature just died function
@@ -7432,7 +7438,7 @@ bool Unit::IsSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
             {
                 if(spellProto->SpellFamilyFlags & UI64LIT(0x0000000000800000))
                 {
-                    if(pVictim->HasAuraState(AURA_STATE_MECHANIC_BLEED))
+                    if(pVictim->HasAuraState(AURA_STATE_BLEEDING))
                     {
                         Unit::AuraList const& aura = GetAurasByType(SPELL_AURA_DUMMY);
                         for(Unit::AuraList::const_iterator itr = aura.begin(); itr != aura.end(); ++itr)
@@ -11824,6 +11830,10 @@ void Unit::ChangeSeat(int8 seatId, bool next)
             return;
     }
     else if (seatId == m_movementInfo.GetTransportSeat() || !m_pVehicle->HasEmptySeat(seatId))
+        return;
+
+    if (m_pVehicle->GetPassenger(seatId) &&
+       (!m_pVehicle->GetPassenger(seatId)->GetObjectGuid().IsVehicle() || !m_pVehicle->GetSeatInfo(m_pVehicle->GetPassenger(seatId))))
         return;
 
     m_pVehicle->RemovePassenger(this);

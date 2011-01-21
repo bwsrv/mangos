@@ -1937,6 +1937,12 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     (spellInfo_2->Id == 62559 && spellInfo_1->Id == 56741))
                     return false;
 
+                // Soulstone Resurrection and Twisting Nether (resurrector)
+                if (spellInfo_1->SpellIconID == 92 && spellInfo_2->SpellIconID == 92 && (
+                   (spellInfo_1->SpellVisual[0] == 99 && spellInfo_2->SpellVisual[0] == 0) ||
+                   (spellInfo_2->SpellVisual[0] == 99 && spellInfo_1->SpellVisual[0] == 0)))
+                    return false;
+
                 // Headless Horseman regen spells should stack with any other spells
                 if (spellInfo_1->Id == 42556 || spellInfo_1->Id == 42403 || spellInfo_1->Id == 43105)
                     return false;
@@ -1953,6 +1959,21 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 // Sextant of Unstable Currents and Band of the Eternal Sage
                 if (spellInfo_1->SpellIconID == 502 && spellInfo_2->SpellIconID == 502)
                     return false;
+
+                // Male Shadowy Disguise
+                if ((spellInfo_1->Id == 32756 && spellInfo_2->Id == 38080) ||
+                    (spellInfo_2->Id == 32756 && spellInfo_1->Id == 38080))
+                    return false;
+
+                // Female Shadowy Disguise
+                if ((spellInfo_1->Id == 32756 && spellInfo_2->Id == 38081) ||
+                    (spellInfo_2->Id == 32756 && spellInfo_1->Id == 38081))
+                     return false;
+
+                // Cool Down (See PeriodicAuraTick())
+                if ((spellInfo_1->Id == 52441 && spellInfo_2->Id == 52443) ||
+                    (spellInfo_2->Id == 52441 && spellInfo_1->Id == 52443))
+                     return false;
 
                 // Lightning Speed and Crushing Waves
                 if (spellInfo_1->SpellIconID == 2010 && spellInfo_2->SpellIconID == 2010)
