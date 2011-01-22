@@ -17,6 +17,7 @@
  */
 #ifndef __BATTLEGROUNDDS_H
 #define __BATTLEGROUNDDS_H
+#define WATERFALL_EVENT 250
 
 class BattleGround;
 
@@ -49,7 +50,9 @@ class BattleGroundDS : public BattleGround
         virtual void FillInitialWorldStates(WorldPacket &d, uint32& count);
         void HandleKillPlayer(Player* player, Player *killer);
         bool HandlePlayerUnderMap(Player * plr);
+		 bool WaterfallActivated;
     private:
         uint32 m_uiKnockback;
+		 uint32 m_uiWaterfall;
 };
 #endif
