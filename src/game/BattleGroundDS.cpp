@@ -76,17 +76,17 @@ void BattleGroundDS::Update(uint32 diff)
                 SpawnEvent(WATERFALL_EVENT, 0, true);
                 WaterfallActivated = true;
 
-				for (BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+                for (BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
 			    {
-					Player * plr = sObjectMgr.GetPlayer(itr->first);
-					if (plr && plr->GetDistance2d(1291, 790) <= 6)
-						plr->KnockBackFrom(plr, -20.0f, 9.0f);
-				}
+                    Player * plr = sObjectMgr.GetPlayer(itr->first);
+                    if (plr && plr->GetDistance2d(1291, 790) <= 6)
+                        plr->KnockBackFrom(plr, -20.0f, 9.0f);
+                }
             }
             m_uiWaterfall = urand(30,45)*IN_MILLISECONDS;
         }
-		else 
-			m_uiWaterfall -= diff;
+        else 
+            m_uiWaterfall -= diff;
     }
 }
 

@@ -7541,7 +7541,6 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         unitTarget->CastSpell(unitTarget, 59314, true);
 
                     return;
-<<<<<<< HEAD
                 }  
                 case 59910:                                 // Summon Minions
                 {
@@ -7555,15 +7554,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, 59943, true);
                     return;
                 }
-                case 59803:                                 // Consume: Spell of Trollgore hero
-                {
-                    m_caster->CastSpell(m_caster,59805,true);
-                    return;
-                }
                                                             // random spell learn instead placeholder
-=======
-                }                                           // random spell learn instead placeholder
->>>>>>> parent of 594bfc6... implement Spell Consume
                 case 60893:                                 // Northrend Alchemy Research
                 case 61177:                                 // Northrend Inscription Research
                 case 61288:                                 // Minor Inscription Research

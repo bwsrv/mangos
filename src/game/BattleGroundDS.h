@@ -50,9 +50,9 @@ class BattleGroundDS : public BattleGround
         virtual void FillInitialWorldStates(WorldPacket &d, uint32& count);
         void HandleKillPlayer(Player* player, Player *killer);
         bool HandlePlayerUnderMap(Player * plr);
-		 bool WaterfallActivated;
+        bool WaterfallActivated;
     private:
         uint32 m_uiKnockback;
-		 uint32 m_uiWaterfall;
+        uint32 m_uiWaterfall;
 };
 #endif
