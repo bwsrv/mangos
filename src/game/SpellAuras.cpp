@@ -1193,7 +1193,18 @@ void Aura::TriggerSpell()
     ObjectGuid casterGUID = GetCasterGuid();
     Unit* triggerTarget = GetTriggerTarget();
 
-    if (casterGUID.IsEmpty() || !triggerTarget)
+    // Penance, set target to self if no target set
+    if (!triggerTarget)
+    {
+        uint32 auraId = GetSpellProto()->Id;
+
+        if (auraId == 47757 || auraId == 52986 || auraId == 52987 || auraId == 52988)
+            triggerTarget = GetCaster();
+        else
+            return; // if no triggerTarget then we can't go further
+    }
+    
+    if (casterGUID.IsEmpty())
         return;
 
     // generic casting code with custom spells and target/caster customs
