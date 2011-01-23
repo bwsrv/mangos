@@ -2043,6 +2043,17 @@ void Aura::TriggerSpell()
                 triggerTarget->CastCustomSpell(triggerTarget, trigger_spell_id, &mana, NULL, NULL, true, NULL, this);
                 return;
             }
+            // Penance target hack
+            case 47757:
+            case 52986:
+            case 52987:
+            case 52988:
+            {
+                if (!(triggerTarget->HasAura(47757) || triggerTarget->HasAura(52986) || triggerTarget->HasAura(52987) || triggerTarget->HasAura(52988)))
+                    triggerTarget = target;
+
+                break;
+            }
         }
     }
 
@@ -2827,17 +2838,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
         }
         case SPELLFAMILY_PRIEST:
         {
-            // Penance
-            if (GetSpellProto()->SpellIconID == 225 || GetSpellProto()->SpellIconID == 2818)
-            {
-                Unit* caster = GetCaster();
-                if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                if (apply && target)
-                    ((Player*)caster)->SetSelectionGuid(target->GetGUID());
-                return;
-            }
             // Pain and Suffering
             if (GetSpellProto()->SpellIconID == 2874 && target->GetTypeId()==TYPEID_PLAYER)
             {
