@@ -11982,6 +11982,9 @@ void Unit::KnockBackFrom(Unit* target, float horizontalSpeed, float verticalSpee
     }
     else
     {
+        //if (((Creature*)this)->GetCreatureInfo()->MechanicImmuneMask & MECHANIC_KNOCKOUT)
+        //    return;
+
         float dh = verticalSpeed*verticalSpeed / (2*19.23f); // maximum parabola height
         float time = (verticalSpeed) ? sqrtf(dh/(0.124976 * verticalSpeed)) : 0.0f;  //full move time in seconds
  
