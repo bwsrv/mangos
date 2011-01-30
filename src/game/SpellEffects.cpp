@@ -2325,13 +2325,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                         }
                     return;
                 }
-                case 49550:                                 // Call Out Injured Soldier
-                {
-                    if (Player * pPlayer = m_caster->GetCharmerOrOwnerPlayerOrPlayerItself())
-                        if (Creature * pSpawnPoint = m_caster->GetClosestCreatureWithEntry(m_caster, 27795, 65))
-                            pPlayer->SummonCreature(27788, pSpawnPoint->GetPositionX(), pSpawnPoint->GetPositionY(), pSpawnPoint->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000, false, true);
-                    return;
-                }
                 case 58601:                                 // Remove Flight Auras
                 {
                     m_caster->RemoveSpellsCausingAura(SPELL_AURA_FLY);
