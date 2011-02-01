@@ -6574,41 +6574,6 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->RemoveSpellsCausingAura(SPELL_AURA_MOD_DECREASE_SPEED);
                     return;
                 }
-                case 24194:                                 // Uther's Tribute
-                case 24195:                                 // Grom's Tribute
-                {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    uint8 race = unitTarget->getRace();
-                    uint32 spellId = 0;
-                    switch(m_spellInfo->Id)
-                    {
-                        case 24194:
-                            switch(race)
-                            {
-                                case RACE_HUMAN:            spellId = 24105; break;
-                                case RACE_DWARF:            spellId = 24107; break;
-                                case RACE_NIGHTELF:         spellId = 24108; break;
-                                case RACE_GNOME:            spellId = 24106; break;
-                                case RACE_DRAENEI:          spellId = 69533; break;
-                            }
-                            break;
-                        case 24195:
-                            switch(race)
-                            {
-                                case RACE_ORC:              spellId = 24104; break;
-                                case RACE_UNDEAD:           spellId = 24103; break;
-                                case RACE_TAUREN:           spellId = 24102; break;
-                                case RACE_TROLL:            spellId = 24101; break;
-                                case RACE_BLOODELF:         spellId = 69530; break;
-                            }
-                            break;
-                    }
-                    if (spellId)
-                        unitTarget->CastSpell(unitTarget, spellId, true);
-                    return;
-                }
                 case 22539:                                 // Shadow Flame (All script effects, not just end ones to
                 case 22972:                                 // prevent player from dodging the last triggered spell)
                 case 22975:
@@ -6632,6 +6597,44 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     // Shadow Flame
                     m_caster->CastSpell(unitTarget, 22682, true);
+                    return;
+                }
+                case 24194:                                 // Uther's Tribute
+                case 24195:                                 // Grom's Tribute
+                {
+                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    uint8 race = m_caster->getRace();
+                    uint32 spellId = 0;
+
+                    switch(m_spellInfo->Id)
+                    {
+                        case 24194:
+                            switch(race)
+                            {
+                                case RACE_HUMAN:            spellId = 24105; break;
+                                case RACE_DWARF:            spellId = 24107; break;
+                                case RACE_NIGHTELF:         spellId = 24108; break;
+                                case RACE_GNOME:            spellId = 24106; break;
+                                case RACE_DRAENEI:          spellId = 69533; break;
+                            }
+                            break;
+                        case 24195:
+                            switch(race)
+                            {
+                                case RACE_ORC:              spellId = 24104; break;
+                                case RACE_UNDEAD:           spellId = 24103; break;
+                                case RACE_TAUREN:           spellId = 24102; break;
+                                case RACE_TROLL:            spellId = 24101; break;
+                                case RACE_BLOODELF:         spellId = 69530; break;
+                            }
+                            break;
+                    }
+
+                    if (spellId)
+                        m_caster->CastSpell(m_caster, spellId, true);
+
                     return;
                 }
                 case 24590:                                 // Brittle Armor - need remove one 24575 Brittle Armor aura
