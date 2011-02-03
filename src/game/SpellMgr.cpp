@@ -1905,8 +1905,13 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             if (spellInfo_2->SpellFamilyName == SPELLFAMILY_GENERIC)
             {
                 // scrolls of intelect/stamina etc.
-                if ( GetSpellSpecific(spellInfo_1->Id) == SPELL_SCROLL &&
+                if (GetSpellSpecific(spellInfo_1->Id) == SPELL_SCROLL &&
                     GetSpellSpecific(spellInfo_2->Id) == SPELL_SCROLL )
+                    return true;
+
+                // Cologne Immune and Perfume Immune
+                if ((spellInfo_1->Id == 68529 && spellInfo_2->Id == 68530) ||
+                    (spellInfo_2->Id == 68529 && spellInfo_1->Id == 68530))
                     return true;
 
                 // Dark Essence & Light Essence
