@@ -17,6 +17,8 @@ INSERT INTO gameobject_template (entry, type, displayId, name, IconName, castBar
 UPDATE gameobject_template SET faction = 14 WHERE entry IN (192549, 190727, 190726, 190723, 190724, 190722);
 -- make Titan Relic clickable (hack, must be done via core, when door to Chamber of Ancient Relics is destroyed)
 UPDATE gameobject_template SET flags=flags&~16 WHERE entry = 192829;
+-- make Defender's Portal usable by all factions (rest is handled by script)
+UPDATE gameobject_template SET faction=0 WHERE entry = 191575;
 
 -- Vehicles support
 -- Battleground Demolisher
