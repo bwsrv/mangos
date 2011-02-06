@@ -1572,8 +1572,7 @@ BattleGround * BattleGroundMgr::CreateNewBattleGround(BattleGroundTypeId bgTypeI
     }
 
     // set before Map creating for let use proper difficulty
-    if (!(bg->GetMapId() == 607))
-        bg->SetBracket(bracketEntry);
+    bg->SetBracket(bracketEntry);
 
     // will also set m_bgMap, instanceid
     sMapMgr.CreateBgMap(bg->GetMapId(), bg);
@@ -1585,8 +1584,6 @@ BattleGround * BattleGroundMgr::CreateNewBattleGround(BattleGroundTypeId bgTypeI
 
     // start the joining of the bg
     bg->SetStatus(STATUS_WAIT_JOIN);
-    if (bg->GetMapId() == 607)
-        bg->SetBracket(bracketEntry);
     bg->SetArenaType(arenaType);
     bg->SetRated(isRated);
     bg->SetRandom(isRandom);
