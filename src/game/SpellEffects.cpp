@@ -7236,6 +7236,17 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, 44870, true);
                     break;
                 }
+                case 37834: // Unbansih Azaloth
+                    if(m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    if(Creature* pTemp = (Creature*) unitTarget)
+                    {
+                        pTemp->AI()->AttackStart(m_caster);
+                    }
+                    ((Player*)m_caster)->KilledMonsterCredit(21892);
+
+                    break;
                 case 45204: // Clone Me!
                     unitTarget->CastSpell(m_caster, damage, true);
                     break;
