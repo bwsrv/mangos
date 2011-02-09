@@ -34,6 +34,7 @@ struct MapEntry;
 struct MapDifficulty;
 class Player;
 class Group;
+class InstanceSaveManager;
 
 // Instance Reset Schedule is calculated from this point in time.
 // 2005-12-28 10:00:00 - 10:00:00 = 2005-12-28 00:00:00
@@ -49,6 +50,7 @@ class Group;
 */
 class InstanceSave
 {
+    friend class InstanceSaveManager;
     public:
         /* Created either when:
            - any new instance is being generated
@@ -109,7 +111,26 @@ class InstanceSave
                 UnloadIfEmpty();
         }
 
+        void DeleteRespawnTimes();
+        time_t GetCreatureRespawnTime(uint32 loguid) const
+        {
+            RespawnTimes::const_iterator itr = m_creatureRespawnTimes.find(loguid);
+            return itr != m_creatureRespawnTimes.end() ? itr->second : 0;
+        }
+        void SaveCreatureRespawnTime(uint32 loguid, time_t t);
+        time_t GetGORespawnTime(uint32 loguid) const
+        {
+            RespawnTimes::const_iterator itr = m_goRespawnTimes.find(loguid);
+            return itr != m_goRespawnTimes.end() ? itr->second : 0;
+        }
+        void SaveGORespawnTime(uint32 loguid, time_t t);
+
     private:
+        void SetCreatureRespawnTime(uint32 loguid, time_t t);
+        void SetGORespawnTime(uint32 loguid, time_t t);
+
+    private:
+        typedef UNORDERED_MAP<uint32, time_t> RespawnTimes;
         typedef std::list<Player*> PlayerListType;
         typedef std::list<Group*> GroupListType;
 
@@ -117,14 +138,18 @@ class InstanceSave
         /* the only reason the instSave-object links are kept is because
            the object-instSave links need to be broken at reset time
            TODO: maybe it's enough to just store the number of players/groups */
-        PlayerListType m_playerList;
-        GroupListType m_groupList;
+        PlayerListType m_playerList;                        // lock InstanceSave from unload
+        GroupListType m_groupList;                          // lock InstanceSave from unload
         time_t m_resetTime;
         uint32 m_instanceid;
         uint32 m_mapid;
         Difficulty m_difficulty;
         bool m_canReset;
-        bool m_usedByMap;                                   // true when instance map loaded
+        bool m_usedByMap;                                   // true when instance map loaded, lock InstanceSave from unload
+
+        // persistent data
+        RespawnTimes m_creatureRespawnTimes;                // // lock InstanceSave from unload, for example for temporary bound dungeon unload delay
+        RespawnTimes m_goRespawnTimes;                      // lock InstanceSave from unload, for example for temporary bound dungeon unload delay
 };
 
 enum ResetEventType
@@ -152,8 +177,6 @@ struct InstanceResetEvent
         : type(t), difficulty(d), mapid(_mapid), instanceId(_instanceid) {}
     bool operator == (const InstanceResetEvent& e) { return e.mapid == mapid && e.difficulty == difficulty && e.instanceId == instanceId; }
 };
-
-class InstanceSaveManager;
 
 class InstanceResetScheduler
 {
@@ -202,36 +225,39 @@ class MANGOS_DLL_DECL InstanceSaveManager : public MaNGOS::Singleton<InstanceSav
         void CleanupInstances();
         void PackInstances();
 
+        void LoadCreatureRespawnTimes();
+        void LoadGameobjectRespawnTimes();
+
         InstanceResetScheduler& GetScheduler() { return m_Scheduler; }
 
-        InstanceSave* AddInstanceSave(uint32 mapId, uint32 instanceId, Difficulty difficulty, time_t resetTime, bool canReset, bool load = false);
-        void RemoveInstanceSave(uint32 InstanceId);
+        InstanceSave* AddInstanceSave(MapEntry const* mapEntry, uint32 instanceId, Difficulty difficulty, time_t resetTime, bool canReset, bool load = false);
+        InstanceSave *GetInstanceSave(uint32 mapId, uint32 InstanceId);
+        void RemoveInstanceSave(uint32 mapId, uint32 instanceId);
         static void DeleteInstanceFromDB(uint32 instanceid);
 
         /* statistics */
-        uint32 GetNumInstanceSaves() { return m_instanceSaveById.size(); }
+        uint32 GetNumInstanceSaves() { return m_instanceSaveByInstanceId.size() + m_instanceSaveByMapId.size(); }
         uint32 GetNumBoundPlayersTotal();
         uint32 GetNumBoundGroupsTotal();
 
         void Update() { m_Scheduler.Update(); }
     private:
-        typedef UNORDERED_MAP<uint32 /*InstanceId*/, InstanceSave*> InstanceSaveHashMap;
-        typedef UNORDERED_MAP<uint32 /*mapId*/, InstanceSaveHashMap> InstanceSaveMapMap;
-
-        InstanceSave *GetInstanceSave(uint32 InstanceId);
+        typedef UNORDERED_MAP<uint32 /*InstanceId or MapId*/, InstanceSave*> InstanceSaveHashMap;
 
         //  called by scheduler
         void _ResetOrWarnAll(uint32 mapid, Difficulty difficulty, bool warn, uint32 timeleft);
         void _ResetInstance(uint32 mapid, uint32 instanceId);
         void _CleanupExpiredInstancesAtTime(time_t t);
 
-        void _ResetSave(InstanceSaveHashMap::iterator &itr);
+        void _ResetSave(InstanceSaveHashMap& holder, InstanceSaveHashMap::iterator &itr);
         void _DelHelper(DatabaseType &db, const char *fields, const char *table, const char *queryTail,...);
 
         // used during global instance resets
         bool lock_instLists;
-        // fast lookup by instance id
-        InstanceSaveHashMap m_instanceSaveById;
+        // fast lookup by instance id for instanceable maps
+        InstanceSaveHashMap m_instanceSaveByInstanceId;
+        // fast lookup by map id for non-instanceable maps
+        InstanceSaveHashMap m_instanceSaveByMapId;
 
         InstanceResetScheduler m_Scheduler;
 };

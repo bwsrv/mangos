@@ -187,6 +187,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
         bool IsBattleArena() const { return i_mapEntry && i_mapEntry->IsBattleArena(); }
         bool IsBattleGroundOrArena() const { return i_mapEntry && i_mapEntry->IsBattleGroundOrArena(); }
 
+        // can't be NULL for loaded map
         InstanceSave* GetInstanceSave() const { return m_instanceSave; }
 
         void AddObjectToRemoveList(WorldObject *obj);
@@ -296,7 +297,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
         uint32 i_InstanceId;
         uint32 m_unloadTimer;
         float m_VisibleDistance;
-        InstanceSave* m_instanceSave;                       // can be NULL for non dungeons...
+        InstanceSave* m_instanceSave;
 
         MapRefManager m_mapRefManager;
         MapRefManager::iterator m_mapRefIter;
