@@ -32,7 +32,7 @@
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 #include "InstanceData.h"
-#include "InstanceSaveMgr.h"
+#include "MapPersistentStateMgr.h"
 #include "BattleGround.h"
 #include "BattleGroundAV.h"
 #include "Util.h"
@@ -623,13 +623,13 @@ bool GameObject::LoadFromDB(uint32 guid, Map *map)
             m_spawnedByDefault = true;
             m_respawnDelayTime = data->spawntimesecs;
 
-            m_respawnTime  = map->GetInstanceSave()->GetGORespawnTime(m_DBTableGuid);
+            m_respawnTime  = map->GetPersistentState()->GetGORespawnTime(m_DBTableGuid);
 
             // ready to respawn
             if (m_respawnTime && m_respawnTime <= time(NULL))
             {
                 m_respawnTime = 0;
-                map->GetInstanceSave()->SaveGORespawnTime(m_DBTableGuid, 0);
+                map->GetPersistentState()->SaveGORespawnTime(m_DBTableGuid, 0);
             }
         }
         else
@@ -646,7 +646,7 @@ bool GameObject::LoadFromDB(uint32 guid, Map *map)
 void GameObject::DeleteFromDB()
 {
     // FIXME: this can be not safe in case multiply loaded instance copies
-    if (InstanceSave* save = sInstanceSaveMgr.GetInstanceSave(GetMapId(), GetInstanceId()))
+    if (MapPersistentState* save = sMapPersistentStateMgr.GetPersistentState(GetMapId(), GetInstanceId()))
         save->SaveGORespawnTime(m_DBTableGuid, 0);
 
     sObjectMgr.DeleteGOData(m_DBTableGuid);
@@ -710,7 +710,7 @@ Unit* GameObject::GetOwner() const
 void GameObject::SaveRespawnTime()
 {
     if(m_respawnTime > time(NULL) && m_spawnedByDefault)
-        GetMap()->GetInstanceSave()->SaveGORespawnTime(m_DBTableGuid, m_respawnTime);
+        GetMap()->GetPersistentState()->SaveGORespawnTime(m_DBTableGuid, m_respawnTime);
 }
 
 bool GameObject::isVisibleForInState(Player const* u, WorldObject const* viewPoint, bool inVisibleList) const
@@ -758,7 +758,7 @@ void GameObject::Respawn()
     if(m_spawnedByDefault && m_respawnTime > 0)
     {
         m_respawnTime = time(NULL);
-        GetMap()->GetInstanceSave()->SaveGORespawnTime(m_DBTableGuid, 0);
+        GetMap()->GetPersistentState()->SaveGORespawnTime(m_DBTableGuid, 0);
     }
 }
 

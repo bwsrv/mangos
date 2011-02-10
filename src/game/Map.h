@@ -45,7 +45,9 @@ class Unit;
 class WorldPacket;
 class InstanceData;
 class Group;
-class InstanceSave;
+class MapPersistentState;
+class DungeonPersistentState;
+class BattleGroundPersistentState;
 struct ScriptInfo;
 class BattleGround;
 class GridMap;
@@ -188,7 +190,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
         bool IsBattleGroundOrArena() const { return i_mapEntry && i_mapEntry->IsBattleGroundOrArena(); }
 
         // can't be NULL for loaded map
-        InstanceSave* GetInstanceSave() const { return m_instanceSave; }
+        MapPersistentState* GetPersistentState() const { return m_persistentState; }
 
         void AddObjectToRemoveList(WorldObject *obj);
 
@@ -297,7 +299,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
         uint32 i_InstanceId;
         uint32 m_unloadTimer;
         float m_VisibleDistance;
-        InstanceSave* m_instanceSave;
+        MapPersistentState* m_persistentState;
 
         MapRefManager m_mapRefManager;
         MapRefManager::iterator m_mapRefIter;
@@ -338,11 +340,13 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
             void RemoveFromGrid(T*, NGridType *, Cell const&);
 };
 
-class MANGOS_DLL_SPEC InstanceMap : public Map
+class MANGOS_DLL_SPEC DungeonMap : public Map
 {
+    private:
+        using Map::GetPersistentState;                      // hide in subclass for overwrite
     public:
-        InstanceMap(uint32 id, time_t, uint32 InstanceId, uint8 SpawnMode);
-        ~InstanceMap();
+        DungeonMap(uint32 id, time_t, uint32 InstanceId, uint8 SpawnMode);
+        ~DungeonMap();
         bool Add(Player *);
         void Remove(Player *, bool);
         void Update(const uint32&);
@@ -353,6 +357,9 @@ class MANGOS_DLL_SPEC InstanceMap : public Map
         void SendResetWarnings(uint32 timeLeft) const;
         void SetResetSchedule(bool on);
 
+        // can't be NULL for loaded map
+        DungeonPersistentState* GetPersistanceState() const;
+
         virtual void InitVisibilityDistance();
     private:
         bool m_resetAfterUnload;
@@ -361,6 +368,8 @@ class MANGOS_DLL_SPEC InstanceMap : public Map
 
 class MANGOS_DLL_SPEC BattleGroundMap : public Map
 {
+    private:
+        using Map::GetPersistentState;                      // hide in subclass for overwrite
     public:
         BattleGroundMap(uint32 id, time_t, uint32 InstanceId, uint8 spawnMode);
         ~BattleGroundMap();
@@ -375,6 +384,10 @@ class MANGOS_DLL_SPEC BattleGroundMap : public Map
         virtual void InitVisibilityDistance();
         BattleGround* GetBG() { return m_bg; }
         void SetBG(BattleGround* bg) { m_bg = bg; }
+
+        // can't be NULL for loaded map
+        BattleGroundPersistentState* GetPersistanceState() const;
+
     private:
         BattleGround* m_bg;
 };

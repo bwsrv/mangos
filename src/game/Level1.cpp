@@ -30,7 +30,7 @@
 #include "ObjectAccessor.h"
 #include "Language.h"
 #include "CellImpl.h"
-#include "InstanceSaveMgr.h"
+#include "MapPersistentStateMgr.h"
 #include "Mail.h"
 #include "Util.h"
 #ifdef _DEBUG_VMAPS
@@ -553,7 +553,7 @@ bool ChatHandler::HandleGonameCommand(char* args)
                 // if no bind exists, create a solo bind
                 if (!gBind)
                 {
-                    InstanceSave *save = target->GetMap()->GetInstanceSave();
+                    DungeonPersistentState *save = ((DungeonMap*)target->GetMap())->GetPersistanceState();
 
                     // if player is group leader then we need add group bind
                     if (group && group->IsLeader(_player->GetObjectGuid()))
