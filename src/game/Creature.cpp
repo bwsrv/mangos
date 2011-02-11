@@ -1386,7 +1386,8 @@ void Creature::DeleteFromDB()
         return;
     }
 
-    sMapPersistentStateMgr.DoForAllStatesWithMapId(GetMapId(), CreatureRespawnDeleteWorker(m_DBTableGuid));
+    CreatureRespawnDeleteWorker worker (m_DBTableGuid);
+    sMapPersistentStateMgr.DoForAllStatesWithMapId(GetMapId(), worker);
 
     sObjectMgr.DeleteCreatureData(m_DBTableGuid);
 
