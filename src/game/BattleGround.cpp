@@ -1934,6 +1934,7 @@ void BattleGround::HandleKillPlayer( Player *player, Player *killer )
             if (plr->GetTeam() == killer->GetTeam() && plr->IsAtGroupRewardDistance(player))
             {
                 UpdatePlayerScore(plr, SCORE_HONORABLE_KILLS, 1);
+                plr->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL,1);
                 plr->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL,1);
                 plr->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA,1);
             }
