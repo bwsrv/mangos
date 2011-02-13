@@ -1665,6 +1665,10 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 67297:
                 case 67298:
                 case 68950:                                 // Fear
+                case 63387:                                 // Rapid Burst
+                case 64531:                                 // Rapid Burst (h)
+                case 61916:                                 // Lightning Whirl (10 man)
+                case 63482:                                 // Lightning Whirl (25 man)
                     unMaxTargets = 1;
                     break;
                 case 28542:                                 // Life Drain
