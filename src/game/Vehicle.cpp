@@ -158,6 +158,8 @@ bool VehicleKit::AddPassenger(Unit *passenger, int8 seatId)
     seat->second.passenger = passenger;
     passenger->addUnitState(UNIT_STAT_ON_VEHICLE);
 
+    m_pBase->SetPhaseMask(passenger->GetPhaseMask(), true);
+
     VehicleSeatEntry const *seatInfo = seat->second.seatInfo;
 
     passenger->m_movementInfo.AddMovementFlag(MOVEFLAG_ONTRANSPORT);
@@ -177,7 +179,7 @@ bool VehicleKit::AddPassenger(Unit *passenger, int8 seatId)
         passenger->SendMessageToSet(&data, true);
     }
 
-    if (seatInfo->m_flags & SEAT_FLAG_UNATTACKABLE)
+    if (seat->second.seatInfo->m_flags & SEAT_FLAG_UNATTACKABLE || seat->second.seatInfo->m_flags & SEAT_FLAG_CAN_CONTROL)
     {
         passenger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     }
@@ -266,7 +268,7 @@ void VehicleKit::RemovePassenger(Unit *passenger)
     passenger->m_movementInfo.ClearTransportData();
     passenger->m_movementInfo.RemoveMovementFlag(MOVEFLAG_ONTRANSPORT);
 
-    if (seat->second.seatInfo->m_flags & SEAT_FLAG_UNATTACKABLE)
+    if (seat->second.seatInfo->m_flags & SEAT_FLAG_UNATTACKABLE || seat->second.seatInfo->m_flags & SEAT_FLAG_CAN_CONTROL)
     {
         passenger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     }

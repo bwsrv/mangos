@@ -208,6 +208,10 @@ enum ScoreType
     //SA
     SCORE_GATES_DESTROYED       = 16,
     SCORE_DEMOLISHERS_DESTROYED = 17
+    /** World of Warcraft Armory **/
+    SCORE_DAMAGE_TAKEN          = 16,
+    SCORE_HEALING_TAKEN         = 17
+    /** World of Warcraft Armory **/
 };
 
 enum ArenaType
@@ -291,6 +295,10 @@ class BattleGroundScore
         uint32 BonusHonor;
         uint32 DamageDone;
         uint32 HealingDone;
+        /** World of Warcraft Armory **/
+        uint32 DamageTaken;
+        uint32 HealingTaken;
+        /** World of Warcraft Armory **/
 };
 
 /*

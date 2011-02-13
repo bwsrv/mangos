@@ -761,17 +761,8 @@ bool Creature::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, 
 
     HighGuid hi = cinfo->VehicleId ? HIGHGUID_VEHICLE : HIGHGUID_UNIT;
 
-    if (map->GetInstanceId() == 0)
-    {
-        // Creature can be loaded already in map if grid has been unloaded while creature walk to another grid
-        // FIXME: until creature guids is global and for instances used dynamic generated guids
-        // in instance possible load creature duplicates with same DB guid but different in game guids
-        // This will be until implementing per-map creature guids
-        if (map->GetCreature(ObjectGuid(hi, Entry, guidlow)))
-            return false;
-    }
-    else
-        guidlow = sObjectMgr.GenerateLowGuid(hi);
+    if (map->GetCreature(ObjectGuid(hi, Entry, guidlow)))
+        return false;
 
     ObjectGuid guid(hi, Entry, guidlow);
 
@@ -1264,6 +1255,10 @@ bool Creature::LoadFromDB(uint32 guidlow, Map *map)
     GameEventCreatureData const* eventData = sGameEventMgr.GetCreatureUpdateDataForActiveEvent(guidlow);
 
     m_DBTableGuid = guidlow;
+
+    // Creature can be loaded already in map if grid has been unloaded while creature walk to another grid
+    if (map->GetCreature(ObjectGuid(HIGHGUID_UNIT, data->id, guidlow)))
+        return false;
 
     if (!Create(guidlow, map, data->phaseMask, data->id, TEAM_NONE, data, eventData))
         return false;
@@ -2432,9 +2427,9 @@ void Creature::FillGuidsListFromThreatList( std::vector<ObjectGuid>& guids, uint
         guids.push_back((*itr)->getUnitGuid());
 }
 
-struct AddCaretureToRemoveListInMapsWorker
+struct AddCreatureToRemoveListInMapsWorker
 {
-    AddCaretureToRemoveListInMapsWorker(ObjectGuid guid) : i_guid(guid) {}
+    AddCreatureToRemoveListInMapsWorker(ObjectGuid guid) : i_guid(guid) {}
 
     void operator() (Map* map)
     {
@@ -2447,7 +2442,7 @@ struct AddCaretureToRemoveListInMapsWorker
 
 void Creature::AddToRemoveListInMaps(uint32 db_guid, CreatureData const* data)
 {
-    AddCaretureToRemoveListInMapsWorker worker(ObjectGuid(HIGHGUID_UNIT, data->id, db_guid));
+    AddCreatureToRemoveListInMapsWorker worker(ObjectGuid(HIGHGUID_UNIT, data->id, db_guid));
     sMapMgr.DoForAllMapsWithMapId(data->mapid, worker);
 }
 
