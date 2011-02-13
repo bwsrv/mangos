@@ -779,6 +779,11 @@ LexicsCutterNoActionOnGM = 1
 #                 0 - unsummon only for flying mounts
 #        Default: 1 - unsummon for any mount
 #
+#    WOWArmorySupport
+#        Support collect statistics for Shadez WOW Armory frontend
+#        Default: 0 - don't support
+#                 1 - supported
+#
 #    ClientCacheVersion
 #        Client cache version for client cache data reset. Use any different from DB value and not recently used for triggering reset.
 #        Default: 0 (use DB value from world DB db_version.cache_id field)
@@ -869,6 +874,7 @@ SkillChance.Milling = 0
 OffhandCheckAtTalentsReset = 0
 PetUnsummonAtMount = 1
 AllowFlightOnOldMaps = 0
+WOWArmorySupport = 0
 ClientCacheVersion = 0
 Event.Announce = 0
 BeepAtStart = 1
