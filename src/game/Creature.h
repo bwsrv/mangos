@@ -429,7 +429,10 @@ class MANGOS_DLL_SPEC Creature : public Unit
         bool IsTrainerOf(Player* player, bool msg) const;
         bool CanInteractWithBattleMaster(Player* player, bool msg) const;
         bool CanTrainAndResetTalentsOf(Player* pPlayer) const;
+
         bool IsOutOfThreatArea(Unit* pVictim) const;
+        void FillGuidsListFromThreatList(std::vector<ObjectGuid>& guids, uint32 maxamount = 0);
+
         bool IsImmuneToSpell(SpellEntry const* spellInfo);
                                                             // redefine Unit::IsImmuneToSpell
         bool IsImmuneToSpellEffect(SpellEntry const* spellInfo, SpellEffectIndex index) const;
@@ -598,6 +601,11 @@ class MANGOS_DLL_SPEC Creature : public Unit
 
         float GetRespawnRadius() const { return m_respawnradius; }
         void SetRespawnRadius(float dist) { m_respawnradius = dist; }
+
+        // Functions spawn/remove creature with DB guid in all loaded map copies (if point grid loaded in map)
+        // FIXME: it will work for for instanceable maps only after switch to use static guids)
+        static void AddToRemoveListInMaps(uint32 db_guid, CreatureData const* data);
+        static void SpawnInMaps(uint32 db_guid, CreatureData const* data);
 
         void SendZoneUnderAttackMessage(Player* attacker);
 

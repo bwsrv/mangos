@@ -21,7 +21,7 @@
 #include "ObjectGuid.h"
 #include "ProgressBar.h"
 #include "Log.h"
-#include "InstanceSaveMgr.h"
+#include "MapPersistentStateMgr.h"
 #include "MapManager.h"
 #include "World.h"
 #include "Policies/SingletonImp.h"
@@ -265,8 +265,20 @@ void PoolGroup<Creature>::Despawn1Object(uint32 guid)
     {
         sObjectMgr.RemoveCreatureFromGrid(guid, data);
 
-        if (Creature* pCreature = ObjectAccessor::GetCreatureInWorld(ObjectGuid(HIGHGUID_UNIT, data->id, guid)))
-            pCreature->AddObjectToRemoveList();
+        // FIXME: pool system must have local state for each instanced map copy
+        // Current code preserve existed single state for all instanced map copies way
+        // specially because pool system not spawn object in instanceable maps
+        MapEntry const* mapEntry = sMapStore.LookupEntry(data->mapid);
+
+        // temporary limit pool system full power work to continents
+        if (mapEntry && !mapEntry->Instanceable())
+        {
+            if (Map* map = const_cast<Map*>(sMapMgr.FindMap(data->mapid)))
+            {
+                if (Creature* pCreature = map->GetCreature(ObjectGuid(HIGHGUID_UNIT, data->id, guid)))
+                    pCreature->AddObjectToRemoveList();
+            }
+        }
     }
 }
 
@@ -278,8 +290,20 @@ void PoolGroup<GameObject>::Despawn1Object(uint32 guid)
     {
         sObjectMgr.RemoveGameobjectFromGrid(guid, data);
 
-        if (GameObject* pGameobject = ObjectAccessor::GetGameObjectInWorld(ObjectGuid(HIGHGUID_GAMEOBJECT, data->id, guid)))
-            pGameobject->AddObjectToRemoveList();
+        // FIXME: pool system must have local state for each instanced map copy
+        // Current code preserve existed single state for all instanced map copies way
+        // specially because pool system not spawn object in instanceable maps
+        MapEntry const* mapEntry = sMapStore.LookupEntry(data->mapid);
+
+        // temporary limit pool system full power work to continents
+        if (mapEntry && !mapEntry->Instanceable())
+        {
+            if (Map* map = const_cast<Map*>(sMapMgr.FindMap(data->mapid)))
+            {
+                if (GameObject* pGameobject = map->GetGameObject(ObjectGuid(HIGHGUID_GAMEOBJECT, data->id, guid)))
+                    pGameobject->AddObjectToRemoveList();
+            }
+        }
     }
 }
 
@@ -369,7 +393,8 @@ void PoolGroup<Creature>::Spawn1Object(PoolObject* obj, bool instantly)
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data->mapid);
 
-        // temporary limit pool system full power work to continents
+        // FIXME: pool system must have local state for each instanced map copy
+        // Current code preserve existed single state for all instanced map copies way
         if (mapEntry && !mapEntry->Instanceable())
         {
             // Spawn if necessary (loaded grids only)
@@ -400,7 +425,7 @@ void PoolGroup<Creature>::Spawn1Object(PoolObject* obj, bool instantly)
             // for not loaded grid just update respawn time (avoid work for instances until implemented support)
             else if(!instantly)
             {
-                map->GetInstanceSave()->SaveCreatureRespawnTime(obj->guid, time(NULL) + data->spawntimesecs);
+                map->GetPersistentState()->SaveCreatureRespawnTime(obj->guid, time(NULL) + data->spawntimesecs);
             }
         }
     }
@@ -416,7 +441,8 @@ void PoolGroup<GameObject>::Spawn1Object(PoolObject* obj, bool instantly)
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data->mapid);
 
-        // temporary limit pool system full power work to continents
+        // FIXME: pool system must have local state for each instanced map copy
+        // Current code preserve existed single state for all instanced map copies way
         if (mapEntry && !mapEntry->Instanceable())
         {
             // Spawn if necessary (loaded grids only)
@@ -452,7 +478,7 @@ void PoolGroup<GameObject>::Spawn1Object(PoolObject* obj, bool instantly)
             {
                 // for spawned by default object only
                 if (data->spawntimesecs >= 0)
-                    map->GetInstanceSave()->SaveGORespawnTime(obj->guid, time(NULL) + data->spawntimesecs);
+                    map->GetPersistentState()->SaveGORespawnTime(obj->guid, time(NULL) + data->spawntimesecs);
             }
         }
     }
@@ -470,8 +496,22 @@ template <>
 void PoolGroup<Creature>::ReSpawn1Object(PoolObject* obj)
 {
     if (CreatureData const* data = sObjectMgr.GetCreatureData(obj->guid))
-        if (Creature* pCreature = ObjectAccessor::GetCreatureInWorld(ObjectGuid(HIGHGUID_UNIT, data->id, obj->guid)))
-            pCreature->GetMap()->Add(pCreature);
+    {
+        // FIXME: pool system must have local state for each instanced map copy
+        // Current code preserve existed single state for all instanced map copies way
+        // specially because pool system not spawn object in instanceable maps
+        MapEntry const* mapEntry = sMapStore.LookupEntry(data->mapid);
+
+        // temporary limit pool system full power work to continents
+        if (mapEntry && !mapEntry->Instanceable())
+        {
+            if (Map* map = const_cast<Map*>(sMapMgr.FindMap(data->mapid)))
+            {
+                if (Creature* pCreature = map->GetCreature(ObjectGuid(HIGHGUID_UNIT, data->id, obj->guid)))
+                    pCreature->GetMap()->Add(pCreature);
+            }
+        }
+    }
 }
 
 // Method that does the respawn job on the specified gameobject
@@ -479,8 +519,22 @@ template <>
 void PoolGroup<GameObject>::ReSpawn1Object(PoolObject* obj)
 {
     if (GameObjectData const* data = sObjectMgr.GetGOData(obj->guid))
-        if (GameObject* pGameobject = ObjectAccessor::GetGameObjectInWorld(ObjectGuid(HIGHGUID_GAMEOBJECT, data->id, obj->guid)))
-            pGameobject->GetMap()->Add(pGameobject);
+    {
+        // FIXME: pool system must have local state for each instanced map copy
+        // Current code preserve existed single state for all instanced map copies way
+        // specially because pool system not spawn object in instanceable maps
+        MapEntry const* mapEntry = sMapStore.LookupEntry(data->mapid);
+
+        // temporary limit pool system full power work to continents
+        if (mapEntry && !mapEntry->Instanceable())
+        {
+            if (Map* map = const_cast<Map*>(sMapMgr.FindMap(data->mapid)))
+            {
+                if (GameObject* pGameobject = map->GetGameObject(ObjectGuid(HIGHGUID_GAMEOBJECT, data->id, obj->guid)))
+                    pGameobject->GetMap()->Add(pGameobject);
+            }
+        }
+    }
 }
 
 // Nothing to do for a child Pool
@@ -496,6 +550,59 @@ void PoolGroup<Pool>::ReSpawn1Object(PoolObject* /*obj*/)
 PoolManager::PoolManager()
 {
 }
+
+// Check listing all pool spawns in single instanceable map or only in non-instanceable maps
+// This applied to all pools have common mother pool
+struct PoolMapChecker
+{
+    typedef std::map<uint32,MapEntry const*> Pool2Maps;
+    Pool2Maps m_pool2maps;
+
+    bool CheckAndRemember(uint32 mapid, uint32 pool_id, char const* tableName, char const* elementName)
+    {
+        MapEntry const* mapEntry = sMapStore.LookupEntry(mapid);
+        if (!mapEntry)
+            return false;
+
+        MapEntry const* poolMapEntry = GetPoolMapEntry(pool_id);
+
+        // if not listed then just remember
+        if (!poolMapEntry)
+        {
+            m_pool2maps[pool_id] = mapEntry;
+            return true;
+        }
+
+        // if at same map, then all ok
+        if (poolMapEntry == mapEntry)
+            return true;
+
+        // pool spawns must be at single instanceable map
+        if (mapEntry->Instanceable())
+        {
+            sLog.outErrorDb("`%s` has %s spawned at instanceable map %u when one or several other spawned at different map %u in pool id %i, skipped.",
+                tableName, elementName, mapid, poolMapEntry->MapID, pool_id);
+            return false;
+        }
+
+        // pool spawns must be at single instanceable map
+        if (poolMapEntry->Instanceable())
+        {
+            sLog.outErrorDb("`%s` has %s spawned at map %u when one or several other spawned at different instanceable map %u in pool id %i, skipped.",
+                tableName, elementName, mapid, poolMapEntry->MapID, pool_id);
+            return false;
+        }
+
+        // pool spawns can be at different non-instanceable maps
+        return true;
+    }
+
+    MapEntry const* GetPoolMapEntry(uint32 pool_id) const
+    {
+        Pool2Maps::const_iterator p2m_itr = m_pool2maps.find(pool_id);
+        return p2m_itr != m_pool2maps.end() ? p2m_itr->second : NULL;
+    }
+};
 
 void PoolManager::LoadFromDB()
 {
@@ -546,6 +653,8 @@ void PoolManager::LoadFromDB()
     sLog.outString( ">> Loaded %u objects pools", count );
     delete result;
 
+    PoolMapChecker mapChecker;
+
     // Creatures
 
     mPoolCreatureGroups.resize(max_pool_id + 1);
@@ -592,6 +701,10 @@ void PoolManager::LoadFromDB()
                 sLog.outErrorDb("`pool_creature` has an invalid chance (%f) for creature guid (%u) in pool id (%i), skipped.", chance, guid, pool_id);
                 continue;
             }
+
+            if (!mapChecker.CheckAndRemember(data->mapid, pool_id, "pool_creature", "creature guid"))
+                continue;
+
             PoolTemplateData *pPoolTemplate = &mPoolTemplate[pool_id];
             ++count;
 
@@ -662,6 +775,10 @@ void PoolManager::LoadFromDB()
                 sLog.outErrorDb("`pool_gameobject` has an invalid chance (%f) for gameobject guid (%u) in pool id (%i), skipped.", chance, guid, pool_id);
                 continue;
             }
+
+            if (!mapChecker.CheckAndRemember(data->mapid, pool_id, "pool_gameobject", "gameobject guid"))
+                continue;
+
             PoolTemplateData *pPoolTemplate = &mPoolTemplate[pool_id];
 
             ++count;
@@ -727,6 +844,7 @@ void PoolManager::LoadFromDB()
                 sLog.outErrorDb("`pool_pool` has an invalid chance (%f) for pool id (%u) in mother pool id (%i), skipped.", chance, child_pool_id, mother_pool_id);
                 continue;
             }
+
             PoolTemplateData *pPoolTemplateMother = &mPoolTemplate[mother_pool_id];
 
             ++count;
@@ -749,6 +867,18 @@ void PoolManager::LoadFromDB()
             std::set<uint16> checkedPools;
             for(SearchMap::iterator poolItr = mPoolSearchMap.find(i); poolItr != mPoolSearchMap.end(); poolItr = mPoolSearchMap.find(poolItr->second))
             {
+                // if child pool not have map data then it empty or have not checked child then will checked and all line later
+                if (MapEntry const* childMapEntry = mapChecker.GetPoolMapEntry(poolItr->first))
+                {
+                    if (!mapChecker.CheckAndRemember(childMapEntry->MapID, poolItr->second, "pool_pool", "pool with creature/gameobject"))
+                    {
+                        mPoolPoolGroups[poolItr->second].RemoveOneRelation(poolItr->first);
+                        mPoolSearchMap.erase(poolItr);
+                        --count;
+                        break;
+                    }
+                }
+
                 checkedPools.insert(poolItr->first);
                 if(checkedPools.find(poolItr->second) != checkedPools.end())
                 {
@@ -766,6 +896,7 @@ void PoolManager::LoadFromDB()
                 }
             }
         }
+
         sLog.outString();
         sLog.outString( ">> Loaded %u pools in mother pools", count );
         delete result;
