@@ -6288,6 +6288,9 @@ void Unit::Uncharm()
 
 float Unit::GetCombatDistance( const Unit* target ) const
 {
+    if (!target)
+        return 0.0f;
+
     float radius = target->GetFloatValue(UNIT_FIELD_COMBATREACH) + GetFloatValue(UNIT_FIELD_COMBATREACH);
     float dx = GetPositionX() - target->GetPositionX();
     float dy = GetPositionY() - target->GetPositionY();
