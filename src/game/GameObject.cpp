@@ -1909,4 +1909,4 @@ void GameObject::SpawnInMaps(uint32 db_guid, GameObjectData const* data)
     SpawnGameObjectInMapsWorker worker(db_guid, data);
     sMapMgr.DoForAllMapsWithMapId(data->mapid, worker);
 }
->>>>>>> 195b7562b93ad37eab37939730690453774607db
+
