@@ -70,7 +70,7 @@ void BattleGroundSA::FillInitialWorldStates(WorldPacket& data, uint32& count)
         else if (m_Gyd[i] == BG_SA_GARVE_STATUS_ALLY_OCCUPIED)
             _GydOccupied(i,ALLIANCE);
     }
-    if (GetDefender() == HORDE)
+    if (GetDefender() == ALLIANCE)
         _GydOccupied(3,HORDE);
     else
         _GydOccupied(3,ALLIANCE);
