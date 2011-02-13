@@ -45,7 +45,6 @@
 #include "Formulas.h"
 
 #include "Policies/SingletonImp.h"
-#define MIN_PLAYERS_FOR_ALL_BGS 80
 
 INSTANTIATE_SINGLETON_1( BattleGroundMgr );
 
@@ -1512,20 +1511,30 @@ BattleGround * BattleGroundMgr::CreateNewBattleGround(BattleGroundTypeId bgTypeI
 
     if(bgTypeId == BATTLEGROUND_RB)
     {
-        // Custom - only select random BGs 40vs40 if a minimun amount of online players is reached:
-        if (sWorld.GetActiveSessionCount() > MIN_PLAYERS_FOR_ALL_BGS)
+        int count = 0;
+        if (!sBattleGroundMgr.isTesting())
         {
+            for(World::SessionMap::const_iterator itr = sWorld.GetSessions().begin(); itr != sWorld.GetSessions().end(); ++itr)
+            {
+                if (!itr->second || !itr->second->GetPlayer())
+                    continue;
 
-            DEBUG_LOG("More than %u players online, selecting random BG including 40vs40 maps", MIN_PLAYERS_FOR_ALL_BGS);
-            BattleGroundTypeId random_bgs[] = {BATTLEGROUND_AV, BATTLEGROUND_WS, BATTLEGROUND_AB, BATTLEGROUND_EY, BATTLEGROUND_SA/*, BATTLEGROUND_IC*/};
-            uint32 bg_num = urand(0, sizeof(random_bgs)/sizeof(BattleGroundTypeId)-1);
+                if (itr->second->GetPlayer()->getLevel() == 80)
+                    ++count;
+            }
+        }
+
+        bgTypeId = BATTLEGROUND_AB; // Default initialization
+        if(count > 100 || sBattleGroundMgr.isTesting())
+        {
+            BattleGroundTypeId random_bgs[] = {BATTLEGROUND_AV, BATTLEGROUND_WS, BATTLEGROUND_AB, BATTLEGROUND_EY, BATTLEGROUND_SA};
+            uint32 bg_num = urand(0, 4);
             bgTypeId = random_bgs[bg_num];
         }
         else
         {
-            DEBUG_LOG("Less than %u players online, selecting random BG excluding 40vs40 maps", MIN_PLAYERS_FOR_ALL_BGS);
-            BattleGroundTypeId random_bgs[] = {/*BATTLEGROUND_AV,*/ BATTLEGROUND_WS, BATTLEGROUND_AB, BATTLEGROUND_EY, BATTLEGROUND_SA/*, BATTLEGROUND_IC*/};
-            uint32 bg_num = urand(0, sizeof(random_bgs)/sizeof(BattleGroundTypeId)-1);
+            BattleGroundTypeId random_bgs[] = {BATTLEGROUND_WS, BATTLEGROUND_AB, BATTLEGROUND_EY, BATTLEGROUND_SA};
+            uint32 bg_num = urand(0, 3);
             bgTypeId = random_bgs[bg_num];
         }
 
