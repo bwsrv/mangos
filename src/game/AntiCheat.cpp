@@ -406,6 +406,8 @@ bool AntiCheat::CheckNeeded(AntiCheatCheck checktype)
                 return false;
             break;
         case CHECK_MOVEMENT_TP2PLANE:
+            if (GetMover()->GetTransport())
+                return false;
             if (m_currentmovementInfo->HasMovementFlag(MovementFlags(MOVEFLAG_SWIMMING | MOVEFLAG_CAN_FLY | MOVEFLAG_FLYING)))
                 return false;
             if (GetMover()->HasAura(60068) && GetMover()->GetTerrain()->IsUnderWater(m_currentmovementInfo->GetPos()->x, m_currentmovementInfo->GetPos()->y, m_currentmovementInfo->GetPos()->z-5.0f))
