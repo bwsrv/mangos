@@ -1919,7 +1919,6 @@ bool Pet::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint3
 
     Object::_Create(ObjectGuid(HIGHGUID_PET, pet_number, guidlow));
 
-    m_DBTableGuid = guidlow;
     m_originalEntry = Entry;
 
     if(!InitEntry(Entry))
