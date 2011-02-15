@@ -16,7 +16,12 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-set(EXECUTABLE_NAME realmd)
+if(NOT UNIX)
+  set(EXECUTABLE_NAME realmd)
+else()
+  set(EXECUTABLE_NAME mangos-realmd)
+endif()
+
 file(GLOB_RECURSE EXECUTABLE_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp *.h)
 
 include_directories(
