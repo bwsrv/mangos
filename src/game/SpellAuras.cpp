@@ -5431,7 +5431,7 @@ void Aura::HandlePeriodicTriggerSpell(bool apply, bool /*Real*/)
                 }
 
                 return;
-            case 66083:
+            case 66083:                                     // Lightning Arrows (Trial of the Champion encounter)
                 if (m_removeMode == AURA_REMOVE_BY_EXPIRE)
                 {
                     if (Unit* pCaster = GetCaster())

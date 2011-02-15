@@ -1778,6 +1778,8 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             float angle = 2.0f * M_PI_F * rand_norm_f();
             float dest_x, dest_y, dest_z;
             m_caster->GetClosePoint(dest_x, dest_y, dest_z, 0.0f, radius, angle);
+            if (m_spellInfo->Id == 66084)                   // cosmetic hack for Lightning Arrows
+                dest_z += 7.0f;                             // (Trial of the Champion encounter)
             m_targets.setDestination(dest_x, dest_y, dest_z);
 
             targetUnitMap.push_back(m_caster);
