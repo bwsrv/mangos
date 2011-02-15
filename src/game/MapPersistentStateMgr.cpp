@@ -128,6 +128,38 @@ void MapPersistentState::ClearRespawnTimes()
     UnloadIfEmpty();
 }
 
+void MapPersistentState::AddCreatureToGrid( uint32 guid, CreatureData const* data )
+{
+    CellPair cell_pair = MaNGOS::ComputeCellPair(data->posX, data->posY);
+    uint32 cell_id = (cell_pair.y_coord*TOTAL_NUMBER_OF_CELLS_PER_MAP) + cell_pair.x_coord;
+
+    m_gridObjectGuids[cell_id].creatures.insert(guid);
+}
+
+void MapPersistentState::RemoveCreatureFromGrid( uint32 guid, CreatureData const* data )
+{
+    CellPair cell_pair = MaNGOS::ComputeCellPair(data->posX, data->posY);
+    uint32 cell_id = (cell_pair.y_coord*TOTAL_NUMBER_OF_CELLS_PER_MAP) + cell_pair.x_coord;
+
+    m_gridObjectGuids[cell_id].creatures.erase(guid);
+}
+
+void MapPersistentState::AddGameobjectToGrid( uint32 guid, GameObjectData const* data )
+{
+    CellPair cell_pair = MaNGOS::ComputeCellPair(data->posX, data->posY);
+    uint32 cell_id = (cell_pair.y_coord*TOTAL_NUMBER_OF_CELLS_PER_MAP) + cell_pair.x_coord;
+
+    m_gridObjectGuids[cell_id].gameobjects.insert(guid);
+}
+
+void MapPersistentState::RemoveGameobjectFromGrid( uint32 guid, GameObjectData const* data )
+{
+    CellPair cell_pair = MaNGOS::ComputeCellPair(data->posX, data->posY);
+    uint32 cell_id = (cell_pair.y_coord*TOTAL_NUMBER_OF_CELLS_PER_MAP) + cell_pair.x_coord;
+
+    m_gridObjectGuids[cell_id].gameobjects.erase(guid);
+}
+
 //== WorldPersistentState functions ========================
 
 bool WorldPersistentState::CanBeUnload() const
@@ -823,8 +855,7 @@ void MapPersistentStateManager::LoadCreatureRespawnTimes()
 
     uint32 count = 0;
 
-    QueryResult *result = CharacterDatabase.Query("SELECT guid, respawntime, instance FROM creature_respawn");
-
+    QueryResult *result = CharacterDatabase.Query("SELECT guid, respawntime, map, instance, difficulty, resettime FROM creature_respawn LEFT JOIN instance ON instance = id");
     if(!result)
     {
         barGoLink bar(1);
@@ -845,21 +876,27 @@ void MapPersistentStateManager::LoadCreatureRespawnTimes()
 
         uint32 loguid       = fields[0].GetUInt32();
         uint64 respawn_time = fields[1].GetUInt64();
-        uint32 instanceId   = fields[2].GetUInt32();
+        uint32 mapId        = fields[2].GetUInt32();
+        uint32 instanceId   = fields[3].GetUInt32();
+        uint8 difficulty    = fields[4].GetUInt8();
+
+        time_t resetTime = (time_t)fields[5].GetUInt64();
 
         CreatureData const* data = sObjectMgr.GetCreatureData(loguid);
         if (!data)
             continue;
 
-        MapEntry const* mapEntry = sMapStore.LookupEntry(data->mapid);
+        if (mapId != data->mapid)
+            continue;
+
+        MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
         if (!mapEntry || (mapEntry->Instanceable() != (instanceId != 0)))
             continue;
 
-        // instances loaded early and respawn data must exist only for existed instances (state loaded) or non-instanced maps
-        MapPersistentState* state = instanceId
-            ? GetPersistentState(data->mapid, instanceId)
-            : AddPersistentState(mapEntry, 0, REGULAR_DIFFICULTY, 0, false, true);
+        if(difficulty >= (!mapEntry->Instanceable() ? REGULAR_DIFFICULTY : (mapEntry->IsRaid() ? MAX_RAID_DIFFICULTY : MAX_DUNGEON_DIFFICULTY)))
+            continue;
 
+        MapPersistentState* state = AddPersistentState(mapEntry, instanceId, Difficulty(difficulty), resetTime, mapEntry->IsDungeon(), true);
         if (!state)
             continue;
 
@@ -882,7 +919,7 @@ void MapPersistentStateManager::LoadGameobjectRespawnTimes()
 
     uint32 count = 0;
 
-    QueryResult *result = CharacterDatabase.Query("SELECT guid, respawntime, instance FROM gameobject_respawn");
+    QueryResult *result = CharacterDatabase.Query("SELECT guid, respawntime, map, instance, difficulty, resettime FROM gameobject_respawn LEFT JOIN instance ON instance = id");
 
     if(!result)
     {
@@ -904,22 +941,27 @@ void MapPersistentStateManager::LoadGameobjectRespawnTimes()
 
         uint32 loguid       = fields[0].GetUInt32();
         uint64 respawn_time = fields[1].GetUInt64();
-        uint32 instanceId   = fields[2].GetUInt32();
+        uint32 mapId        = fields[2].GetUInt32();
+        uint32 instanceId   = fields[3].GetUInt32();
+        uint8 difficulty    = fields[4].GetUInt8();
 
+        time_t resetTime = (time_t)fields[5].GetUInt64();
 
         GameObjectData const* data = sObjectMgr.GetGOData(loguid);
         if (!data)
             continue;
 
-        MapEntry const* mapEntry = sMapStore.LookupEntry(data->mapid);
+        if (mapId != data->mapid)
+            continue;
+
+        MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
         if (!mapEntry || (mapEntry->Instanceable() != (instanceId != 0)))
             continue;
 
-        // instances loaded early and respawn data must exist only for existed instances (state loaded) or non-instanced maps
-        MapPersistentState* state = instanceId
-            ? GetPersistentState(data->mapid, instanceId)
-            : AddPersistentState(mapEntry, 0, REGULAR_DIFFICULTY, 0, false, true);
+        if(difficulty >= (!mapEntry->Instanceable() ? REGULAR_DIFFICULTY : (mapEntry->IsRaid() ? MAX_RAID_DIFFICULTY : MAX_DUNGEON_DIFFICULTY)))
+            continue;
 
+        MapPersistentState* state = AddPersistentState(mapEntry, instanceId, Difficulty(difficulty), resetTime, mapEntry->IsDungeon(), true);
         if (!state)
             continue;
 

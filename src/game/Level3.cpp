@@ -4119,7 +4119,7 @@ bool ChatHandler::HandleNpcInfoCommand(char* /*args*/)
     std::string curRespawnDelayStr = secsToTimeString(curRespawnDelay,true);
     std::string defRespawnDelayStr = secsToTimeString(target->GetRespawnDelay(),true);
 
-    PSendSysMessage(LANG_NPCINFO_CHAR,  target->GetDBTableGUIDLow(), faction, npcflags, Entry, displayid, nativeid);
+    PSendSysMessage(LANG_NPCINFO_CHAR,  target->GetGUIDLow(), faction, npcflags, Entry, displayid, nativeid);
 
     PSendSysMessage("VehicleId: %u", VehicleId);
     PSendSysMessage("difficulty_entry_1: %u, difficulty_entry_2: %u, difficulty_entry_3: %u", difficulty_entry_1, difficulty_entry_2, difficulty_entry_3);
@@ -4142,7 +4142,7 @@ bool ChatHandler::HandleNpcInfoCommand(char* /*args*/)
         SendSysMessage(LANG_NPCINFO_TRAINER);
     }
 
-    ShowNpcOrGoSpawnInformation<Creature>(target->GetDBTableGUIDLow());
+    ShowNpcOrGoSpawnInformation<Creature>(target->GetGUIDLow());
     return true;
 }
 
