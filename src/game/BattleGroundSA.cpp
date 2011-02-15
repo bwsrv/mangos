@@ -521,7 +521,7 @@ void BattleGroundSA::EventPlayerClickedOnFlag(Player *source, GameObject* target
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    uint8 event = (sBattleGroundMgr.GetGameObjectEventIndex(target_obj->GetDBTableGUIDLow())).event1;
+    uint8 event = (sBattleGroundMgr.GetGameObjectEventIndex(target_obj->GetGUIDLow())).event1;
     if (event >= BG_SA_GRY_MAX) // not a node
         return;
     BG_SA_GraveYard gyd = BG_SA_GraveYard(event);
