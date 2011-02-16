@@ -1383,9 +1383,6 @@ void World::SetInitialWorldSettings()
     sLog.outString("Calculate random battleground reset time..." );
     InitRandomBGResetTime();
 
-    sLog.outString("Starting objects Pooling system..." );
-    sPoolMgr.Initialize();
-
     sLog.outString("Starting Game Event system..." );
     uint32 nextGameEvent = sGameEventMgr.Initialize();
     m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);    //depend on next event
