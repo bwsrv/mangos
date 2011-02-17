@@ -387,6 +387,7 @@ void BattleGroundSA::ResetBattle(uint32 winner, Team teamDefending)
     }
 
     UpdatePhase();
+    ResetWorldStates();
 }
 
 void BattleGroundSA::Reset()
