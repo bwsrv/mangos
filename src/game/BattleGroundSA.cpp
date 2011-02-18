@@ -156,7 +156,7 @@ void BattleGroundSA::Update(uint32 diff)
     {
         if (Round_timer >= BG_SA_ROUNDLENGTH)
         {
-            if(Phase == SA_ROUND_ONE) // Timeout of second round
+            if(Phase == SA_ROUND_ONE) // Timeout of first round
             {
                 PlaySoundToAll(BG_SA_SOUND_GYD_VICTORY);
                 SendMessageToAll(defender == ALLIANCE ? LANG_BG_SA_ALLIANCE_TIMEOUT_END_1ROUND : LANG_BG_SA_HORDE_TIMEOUT_END_1ROUND, CHAT_MSG_BG_SYSTEM_NEUTRAL, NULL);
@@ -208,7 +208,6 @@ void BattleGroundSA::Update(uint32 diff)
                     // Message to chatlog
                     RewardHonorToTeam(85, (teamIndex == 0) ? ALLIANCE:HORDE);
                     RewardXpToTeam(0, 0.6f, (teamIndex == 0) ? ALLIANCE:HORDE);
-                    RewardReputationToTeam((teamIndex == 0) ? 1050:1085, 65, (teamIndex == 0) ? ALLIANCE:HORDE);
                     switch(gyd)
                     {
                         case 0: SpawnEvent(SA_EVENT_ADD_VECH_W, 0, true);break;
@@ -684,7 +683,6 @@ void BattleGroundSA::EventPlayerDamageGO(Player *player, GameObject* target_obj,
                     UpdateWorldState(BG_SA_GateStatus[type], GateStatus[type] = BG_SA_GO_GATES_DESTROY);
                     UpdatePlayerScore(player, SCORE_GATES_DESTROYED, 1);
                     RewardHonorToTeam(100, (teamIndex == 0) ? ALLIANCE:HORDE);
-                    RewardReputationToTeam((teamIndex == 0) ? 1050:1085, 75, (teamIndex == 0) ? ALLIANCE:HORDE);
                     relicGateDestroyed = true;
                     break;
             }
@@ -709,7 +707,6 @@ void BattleGroundSA::EventPlayerDamageGO(Player *player, GameObject* target_obj,
                     UpdateWorldState(BG_SA_GateStatus[type], GateStatus[type] = BG_SA_GO_GATES_DESTROY);
                     UpdatePlayerScore(player, SCORE_GATES_DESTROYED, 1);
                     RewardHonorToTeam(85, (teamIndex == 0) ? ALLIANCE:HORDE);
-                    RewardReputationToTeam((teamIndex == 0) ? 1050:1085, 65, (teamIndex == 0) ? ALLIANCE:HORDE);
                     break;
             }
             break;
@@ -733,7 +730,6 @@ void BattleGroundSA::EventPlayerDamageGO(Player *player, GameObject* target_obj,
                     UpdateWorldState(BG_SA_GateStatus[type], GateStatus[type] = BG_SA_GO_GATES_DESTROY);
                     UpdatePlayerScore(player, SCORE_GATES_DESTROYED, 1);
                     RewardHonorToTeam(85, (teamIndex == 0) ? ALLIANCE:HORDE);
-                    RewardReputationToTeam((teamIndex == 0) ? 1050:1085, 65, (teamIndex == 0) ? ALLIANCE:HORDE);
                     break;
             }
             break;
@@ -757,7 +753,6 @@ void BattleGroundSA::EventPlayerDamageGO(Player *player, GameObject* target_obj,
                     UpdateWorldState(BG_SA_GateStatus[type], GateStatus[type] = BG_SA_GO_GATES_DESTROY);
                     UpdatePlayerScore(player, SCORE_GATES_DESTROYED, 1);
                     RewardHonorToTeam(85, (teamIndex == 0) ? ALLIANCE:HORDE);
-                    RewardReputationToTeam((teamIndex == 0) ? 1050:1085, 65, (teamIndex == 0) ? ALLIANCE:HORDE);
                     break;
             }
             break;
@@ -781,7 +776,6 @@ void BattleGroundSA::EventPlayerDamageGO(Player *player, GameObject* target_obj,
                     UpdateWorldState(BG_SA_GateStatus[type], GateStatus[type] = BG_SA_GO_GATES_DESTROY);
                     UpdatePlayerScore(player, SCORE_GATES_DESTROYED, 1);
                     RewardHonorToTeam(85, (teamIndex == 0) ? ALLIANCE:HORDE);
-                    RewardReputationToTeam((teamIndex == 0) ? 1050:1085, 65, (teamIndex == 0) ? ALLIANCE:HORDE);
                     break;
             }
             break;
@@ -805,7 +799,6 @@ void BattleGroundSA::EventPlayerDamageGO(Player *player, GameObject* target_obj,
                     UpdateWorldState(BG_SA_GateStatus[type], GateStatus[type] = BG_SA_GO_GATES_DESTROY);
                     UpdatePlayerScore(player, SCORE_GATES_DESTROYED, 1);
                     RewardHonorToTeam(85, (teamIndex == 0) ? ALLIANCE:HORDE);
-                    RewardReputationToTeam((teamIndex == 0) ? 1050:1085, 65, (teamIndex == 0) ? ALLIANCE:HORDE);
                     break;
             }
             break;
@@ -827,7 +820,6 @@ void BattleGroundSA::EventPlayerDamageGO(Player *player, GameObject* target_obj,
                     PlaySoundToAll(BG_SA_SOUND_GYD_VICTORY);
                     SendMessageToAll(defender == HORDE ? LANG_BG_SA_ALLIANCE_END_1ROUND : LANG_BG_SA_HORDE_END_1ROUND, CHAT_MSG_BG_SYSTEM_NEUTRAL, NULL);
                     RewardHonorToTeam(150, (teamIndex == 0) ? ALLIANCE:HORDE);
-                    RewardReputationToTeam((teamIndex == 0) ? 1050:1085, 100, (teamIndex == 0) ? ALLIANCE:HORDE);
                     ResetBattle(player->GetTeam(), GetDefender());
                 }
                 else // Victory at second round
@@ -836,7 +828,6 @@ void BattleGroundSA::EventPlayerDamageGO(Player *player, GameObject* target_obj,
                     RoundScores[1].time = Round_timer;
                     SendMessageToAll(defender == HORDE ? LANG_BG_SA_ALLIANCE_END_2ROUND : LANG_BG_SA_HORDE_END_2ROUND, CHAT_MSG_BG_SYSTEM_NEUTRAL, NULL);
                     RewardHonorToTeam(150, (teamIndex == 0) ? ALLIANCE:HORDE);
-                    RewardReputationToTeam((teamIndex == 0) ? 1050:1085, 100, (teamIndex == 0) ? ALLIANCE:HORDE);
                     EndBattleGround(player->GetTeam());
                 }
             }
