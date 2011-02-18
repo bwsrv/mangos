@@ -1310,3 +1310,36 @@ bool Item::CheckSoulboundTradeExpire()
 
     return false;
 }
+
+bool Item::HasTriggeredByAuraSpell(SpellEntry const* spellInfo) const
+{
+    if (!spellInfo)
+        return false;
+
+    ItemPrototype const* proto = GetProto();
+    if (!proto)
+        return false;
+
+    for (int i = 0; i < MAX_ITEM_PROTO_SPELLS; i++)
+    {
+        _Spell const& spellData = proto->Spells[i];
+
+        // no spell
+        if(!spellData.SpellId)
+            continue;
+
+        // wrong triggering type
+        if(spellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_EQUIP)
+            continue;
+
+        // check if it is valid spell
+        SpellEntry const* spellproto = sSpellStore.LookupEntry(spellData.SpellId);
+        if(!spellproto)
+            continue;
+
+        for (int j = 0; j < MAX_EFFECT_INDEX; j++)
+            if (spellproto->EffectTriggerSpell[j] == spellInfo->Id)
+                return true;
+    }
+    return false;
+}

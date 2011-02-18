@@ -21034,6 +21034,14 @@ void Player::RemoveItemDependentAurasAndCasts( Item * pItem )
             continue;
         }
 
+        // Remove spells triggered by equipped item auras
+        if (pItem->HasTriggeredByAuraSpell(spellInfo))
+        {
+            RemoveAurasDueToSpell(holder->GetId());
+            itr = auras.begin();
+            continue;
+        }
+
         // skip if not item dependent or have alternative item
         if(HasItemFitToSpellReqirements(spellInfo,pItem))
         {
