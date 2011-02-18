@@ -4762,6 +4762,11 @@ void Spell::EffectOpenLock(SpellEffectIndex eff_idx)
                 return;
             }
         }
+        else if (m_spellInfo->Id == 1842 && gameObjTarget->GetGOInfo()->type == GAMEOBJECT_TYPE_TRAP && gameObjTarget->GetOwner())
+        {
+            gameObjTarget->SetLootState(GO_JUST_DEACTIVATED);
+            return;
+        }
         lockId = goInfo->GetLockId();
         guid = gameObjTarget->GetGUID();
     }
