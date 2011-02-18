@@ -19,6 +19,8 @@
 #ifndef __SPELL_H
 #define __SPELL_H
 
+#define MAX_SPELL_ID  100000
+
 #include "Common.h"
 #include "GridDefines.h"
 #include "SharedDefines.h"
