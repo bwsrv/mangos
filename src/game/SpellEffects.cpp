@@ -937,14 +937,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
         {
             switch(m_spellInfo->Id)
             {               
-                case 69922:                                 // Temper Quel'Delar
-                {
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    m_caster->CastSpell(m_caster, 69956, true, NULL);
-                    return;
-                }
                 case 7669:                                   //Belthor's Potion
                 {
                     SpellAuraHolder* hexOfRavenclaw = m_caster->GetSpellAuraHolder(7656);
