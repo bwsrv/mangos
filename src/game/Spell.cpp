@@ -1035,16 +1035,20 @@ void Spell::AddItemTarget(Item* pitem, SpellEffectIndex effIndex)
 
 void Spell::DoAllEffectOnTarget(TargetInfo *target)
 {
-    if (target->processed)                                  // Check target
+    if (m_spellInfo->Id <= 0 || m_spellInfo->Id > MAX_SPELL_ID ||  m_spellInfo->Id == 32 || m_spellInfo->Id == 80)
         return;
-    target->processed = true;                               // Target checked in apply effects procedure
 
-    // Get mask of effects for target
-    uint32 mask = target->effectMask;
+    if (!target || target == (TargetInfo*)0x10 || target->processed)
+        return;
 
     Unit* unit = m_caster->GetObjectGuid() == target->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, target->targetGUID);
     if (!unit)
         return;
+
+    target->processed = true;                               // Target checked in apply effects procedure
+
+    // Get mask of effects for target
+    uint32 mask = target->effectMask;
 
     // Get original caster (if exist) and calculate damage/healing from him data
     Unit *real_caster = GetAffectiveCaster();

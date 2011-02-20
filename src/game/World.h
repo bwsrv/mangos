@@ -599,6 +599,7 @@ class World
         void LoadDBVersion();
         char const* GetDBVersion() { return m_DBVersion.c_str(); }
         char const* GetCreatureEventAIVersion() { return m_CreatureEventAIVersion.c_str(); }
+        ACE_Thread_Mutex m_spellUpdateLock;
 
         typedef UNORDERED_MAP<uint32, WorldSession*> SessionMap;
         SessionMap GetSessions() { return m_sessions; }
