@@ -311,6 +311,7 @@ void Unit::Update( uint32 update_diff, uint32 p_time )
     if(!IsInWorld())
         return;
 
+    sWorld.m_spellUpdateLock.acquire();
     /*if(p_time > m_AurasCheck)
     {
     m_AurasCheck = 2000;
@@ -325,6 +326,7 @@ void Unit::Update( uint32 update_diff, uint32 p_time )
     _UpdateSpells( update_diff );
 
     CleanupDeletedAuras();
+    sWorld.m_spellUpdateLock.release();
 
     if (m_lastManaUseTimer)
     {
@@ -10008,6 +10010,7 @@ void Unit::RemoveFromWorld()
     // cleanup
     if (IsInWorld())
     {
+        sWorld.m_spellUpdateLock.acquire();
         Uncharm();
         RemoveNotOwnSingleTargetAuras();
         RemoveGuardians();
@@ -10017,6 +10020,7 @@ void Unit::RemoveFromWorld()
         RemoveAllDynObjects();
         CleanupDeletedAuras();
         GetViewPoint().Event_RemovedFromWorld();
+        sWorld.m_spellUpdateLock.release();
     }
 
     Object::RemoveFromWorld();
