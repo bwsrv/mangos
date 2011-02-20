@@ -63,17 +63,20 @@ BattleGroundSA::~BattleGroundSA()
 
 void BattleGroundSA::FillInitialWorldStates(WorldPacket& data, uint32& count)
 {
-    for (uint8 i = 0; i < BG_SA_GRY_MAX; ++i)
-    {
-        if (m_Gyd[i] == BG_SA_GARVE_STATUS_HORDE_OCCUPIED)
-            _GydOccupied(i,HORDE);
-        else if (m_Gyd[i] == BG_SA_GARVE_STATUS_ALLY_OCCUPIED)
-            _GydOccupied(i,ALLIANCE);
-    }
     if (GetDefender() == HORDE)
-        _GydOccupied(3,HORDE);
+	{
+        UpdateWorldState(BG_SA_ALLY_ATTACKS, 1);
+        UpdateWorldState(BG_SA_HORDE_ATTACKS, 0);
+        UpdateWorldState(BG_SA_HORDE_DEFENCE_TOKEN,1);
+        UpdateWorldState(BG_SA_ALLIANCE_DEFENCE_TOKEN,0);
+	}
     else
-        _GydOccupied(3,ALLIANCE);
+	{
+        UpdateWorldState(BG_SA_HORDE_ATTACKS, 1);
+        UpdateWorldState(BG_SA_ALLY_ATTACKS, 0);
+        UpdateWorldState(BG_SA_HORDE_DEFENCE_TOKEN,0);
+        UpdateWorldState(BG_SA_ALLIANCE_DEFENCE_TOKEN,1);
+	}
 
     for (uint32 z = 0; z <= BG_SA_GATE_MAX; ++z)
         FillInitialWorldState(data, count, BG_SA_GateStatus[z], GateStatus[z]);
