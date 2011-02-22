@@ -29,6 +29,10 @@
 #include "Totem.h"
 #include "SpellAuras.h"
 
+#include <G3D/Vector3.h>
+
+using G3D::Vector3;
+
 void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
 {
     uint8 bagIndex, slot;
@@ -693,4 +697,36 @@ void WorldSession::HandleMirrorImageDataRequest( WorldPacket & recv_data )
         data << (uint32)0;
     }
     SendPacket( &data );
+}
+
+void WorldSession::HandleUpdateProjectilePosition(WorldPacket& recvPacket)
+{
+    uint64 casterGuid;  // actually target ?
+    uint32 spellId;     // Spell Id
+    uint8  cast_Id;     // Some counter ? the fuck
+    float m_targetX, m_targetY, m_targetZ; // Position of missile hit
+
+    recvPacket >> casterGuid;
+    recvPacket >> spellId;
+    recvPacket >> cast_Id;
+
+    recvPacket >> m_targetX >> m_targetY >> m_targetZ;
+
+    // Do we need unit as we use 3d position anyway ?
+    Unit * pCaster = ObjectAccessor::GetUnit(*_player, casterGuid);
+    if (!pCaster)
+        return;
+
+    SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
+
+    if(!spellInfo)
+    {
+        sLog.outError("CMSG_UPDATE_PROJECTILE_POSITION: unknown spell id %u", spellId);
+        recvPacket.rpos(recvPacket.wpos());                 // prevent spam at ignore packet
+        return;
+    }
+
+    for(int i = 0; i < 3; ++i)
+        if(spellInfo->EffectTriggerSpell[i])
+            pCaster->CastSpell(m_targetX, m_targetY, m_targetZ, spellInfo->EffectTriggerSpell[i], true);
 }
