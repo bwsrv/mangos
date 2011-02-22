@@ -9711,6 +9711,30 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
         {
             switch(GetId())
             {
+                case 30421:                                 // Nether Portal - Perseverance
+                {
+                    if (apply)
+                        return;
+                    cast_at_remove = true;
+                    spellId1 = 38637;                       // Nether Exhaustion
+                    break;
+                }
+                case 30422:                                 // Nether Portal - Serenity
+                {
+                    if (apply)
+                        return;
+                    cast_at_remove = true;                  // Nether Exhaustion
+                    spellId1 = 38638;
+                    break;
+                }
+                case 30423:                                 // Nether Portal  - Dominance
+                {
+                    if (apply)
+                        return;
+                    cast_at_remove = true;
+                    spellId1 = 38639;                       // Nether Exhaustion
+                    break;
+                }
                 case 50720:                                 // Vigilance (warrior spell but not have warrior family)
                 {
                     spellId1 = 68066;                       // Damage Reduction
