@@ -6067,7 +6067,7 @@ SpellCastResult Spell::CheckCasterAuras() const
                 dispel_immune |= GetDispellMask(DispelType(m_spellInfo->EffectMiscValue[i]));
         }
         // immune movement impairment and loss of control
-        if (m_spellInfo->Id == 42292)                       // PvP Trinket
+        if (m_spellInfo->Id == 42292 || m_spellInfo->Id == 59752)   // PvP Trinket and Human's racial ability Every Man for Himself
             mechanic_immune = IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
     }
 
