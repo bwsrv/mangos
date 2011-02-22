@@ -6943,8 +6943,8 @@ void Aura::HandleShapeshiftBoosts(bool apply)
             for (Unit::SpellAuraHolderMap::iterator itr = tAuras.begin(); itr != tAuras.end();)
             {
                 SpellEntry const *spellInfo = itr->second->GetSpellProto();
-                if (itr->second->IsPassive() && (spellInfo->AttributesEx2 & SPELL_ATTR_EX2_NOT_NEED_SHAPESHIFT)
-                    && (spellInfo->StancesNot & (1<<(form-1))))
+                if ((itr->second->IsPassive() && (spellInfo->AttributesEx2 & SPELL_ATTR_EX2_NOT_NEED_SHAPESHIFT)
+                    && (spellInfo->StancesNot & (1<<(form-1)))) || (spellInfo->Id == 66530 && form == FORM_DIREBEAR))  // Improved Barkskin must not affect Dire Bear Form, but does not have correct data in dbc
                 {
                     target->RemoveAurasDueToSpell(itr->second->GetId());
                     itr = tAuras.begin();
