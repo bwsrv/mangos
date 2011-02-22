@@ -2039,6 +2039,11 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         bool CreateVehicleKit(uint32 vehicleId);
         void RemoveVehicleKit();
 
+        void ScheduleAINotify(uint32 delay);
+        bool IsAINotifySheduled() const { return m_AINotifySheduled;}
+        void _SetAINotifySheduled(bool on) { m_AINotifySheduled = on;}       // only for call from RelocationNotifyEvent class code
+        void OnRelocated();
+
     protected:
         explicit Unit ();
 
@@ -2116,6 +2121,8 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         uint32 m_castCounter;                               // count casts chain of triggered spells for prevent infinity cast crashes
 
         UnitVisibility m_Visibility;
+        Position m_last_notified_position;
+        bool m_AINotifySheduled;
 
         Diminishing m_Diminishing;
         // Manage all Units threatening us
