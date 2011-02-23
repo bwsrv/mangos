@@ -222,7 +222,7 @@ Unit::Unit()
     m_AuraFlags = 0;
 
     m_Visibility = VISIBILITY_ON;
-    m_AINotifySheduled = false;
+    m_AINotifyScheduled = false;
 
     m_detectInvisibilityMask = 0;
     m_invisibilityMask = 0;
@@ -10224,6 +10224,7 @@ uint32 Unit::GetCreatePowers( Powers power ) const
 void Unit::AddToWorld()
 {
     Object::AddToWorld();
+    ScheduleAINotify(0);
 }
 
 void Unit::RemoveFromWorld()
@@ -12170,7 +12171,7 @@ class RelocationNotifyEvent : public BasicEvent
 public:
     RelocationNotifyEvent(Unit& owner) : BasicEvent(), m_owner(owner)
     {
-        m_owner._SetAINotifySheduled(true);
+        m_owner._SetAINotifyScheduled(true);
     }
 
     bool Execute(uint64 /*e_time*/, uint32 /*p_time*/)
@@ -12186,13 +12187,13 @@ public:
             MaNGOS::CreatureRelocationNotifier notify((Creature&)m_owner);
             Cell::VisitAllObjects(&m_owner,notify,radius);
         }
-        m_owner._SetAINotifySheduled(false);
+        m_owner._SetAINotifyScheduled(false);
         return true;
     }
 
     void Abort(uint64)
     {
-        m_owner._SetAINotifySheduled(false);
+        m_owner._SetAINotifyScheduled(false);
     }
 
 private:
@@ -12201,7 +12202,7 @@ private:
 
 void Unit::ScheduleAINotify(uint32 delay)
 {
-    if (!IsAINotifySheduled())
+    if (!IsAINotifyScheduled())
         m_Events.AddEvent(new RelocationNotifyEvent(*this), m_Events.CalculateTime(delay));
 }
 
