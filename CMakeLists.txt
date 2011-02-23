@@ -101,6 +101,7 @@ option(DEBUG "Debug mode" 0)
 # option(CLI "With CLI" 1) # Not used by MaNGOS so far
 # option(RA "With Remote Access" 0) # TODO: support remote access
 option(TBB_USE_EXTERNAL "Use external TBB" 0)
+option(USE_STD_MALLOC "Use standard malloc instead of TBB" 0)
 option(ACE_USE_EXTERNAL "Use external ACE" 0)
 
 find_package(PCHSupport)
@@ -119,18 +120,17 @@ endif()
 # option(TOOLS "Build tools" 0)
 
 # Set up the install-prefix
+if(CMAKE_INSTALL_PREFIX STREQUAL "/usr/local")
+  get_filename_component(PREFIX_ABSOLUTE "../mangos-server" ABSOLUTE)
+  set(CMAKE_INSTALL_PREFIX ${PREFIX_ABSOLUTE} CACHE PATH "Install path prefix." FORCE)
+endif()
 if(PREFIX)
   string(REGEX REPLACE "^~" "$ENV{HOME}" PREFIX ${PREFIX})
+  get_filename_component(PREFIX_ABSOLUTE ${PREFIX} ABSOLUTE)
+  set(CMAKE_INSTALL_PREFIX ${PREFIX} CACHE PATH "Install path prefix." FORCE)
 else()
-  set(PREFIX ${CMAKE_SOURCE_DIR})
-  message(
-    "You probably want to set the PREFIX option. If not set MaNGOS will be installed to ${CMAKE_SOURCE_DIR}."
-  )
+  set(PREFIX ${CMAKE_INSTALL_PREFIX} CACHE PATH "Install path prefix.")
 endif()
-set(CMAKE_INSTALL_PREFIX ${PREFIX} CACHE STRING
-  "Install path prefix, prepended onto install directories."
-  FORCE
-)
 
 set(BIN_DIR ${CMAKE_INSTALL_PREFIX}/bin)
 set(CONF_DIR ${CMAKE_INSTALL_PREFIX}/etc)
@@ -185,12 +185,6 @@ if(NOT USE_STD_MALLOC)
   else()
     include(cmake/ImportTBB.cmake)
   endif()
-else()
-  set(TBB_USE_EXTERNAL 1)
-  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DUSE_STANDARD_MALLOC")
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DUSE_STANDARD_MALLOC")
-  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -DUSE_STANDARD_MALLOC")
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DUSE_STANDARD_MALLOC")
 endif()
 
 # Win32 delifered packages
@@ -424,6 +418,9 @@ set(DEFINITIONS_DEBUG _DEBUG MANGOS_DEBUG)
 if(WIN32)
   set(DEFINITIONS ${DEFINITIONS} WIN32 _WIN32)
   set(DEFINITIONS_RELEASE ${DEFINITIONS_RELEASE} _CRT_SECURE_NO_WARNINGS)
+endif()
+if(USE_STD_MALLOC)
+  set(DEFINITIONS ${DEFINITIONS} USE_STANDARD_MALLOC)
 endif()
 
 set_directory_properties(PROPERTIES COMPILE_DEFINITIONS "${DEFINITIONS}")
