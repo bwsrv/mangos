@@ -749,21 +749,6 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                             modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DAMAGE, damage);
                     }
                 }
-                // Gouge
-                else if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000000000000008))
-                {
-                    damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.21f);
-                }
-                // Instant Poison
-                else if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000000000002000))
-                {
-                    damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.10f);
-                }
-                // Wound Poison
-                else if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000000010000000))
-                {
-                    damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.04f);
-                }
                 // Thrash (Raise ally ghoul spell)
                 else if (m_spellInfo->Id == 47480)
                 {
@@ -5425,11 +5410,6 @@ void Spell::EffectEnchantItemPerm(SpellEffectIndex eff_idx)
     if (!itemTarget)
         return;
 
-    Player* p_caster = (Player*)m_caster;
-
-    // not grow at item use at item case
-    p_caster->UpdateCraftSkill(m_spellInfo->Id);
-
     uint32 enchant_id = m_spellInfo->EffectMiscValue[eff_idx];
     if (!enchant_id)
         return;
@@ -5442,6 +5422,25 @@ void Spell::EffectEnchantItemPerm(SpellEffectIndex eff_idx)
     Player* item_owner = itemTarget->GetOwner();
     if (!item_owner)
         return;
+
+    Player* p_caster = (Player*)m_caster;
+
+    // Enchanting a vellum requires special handling, as it creates a new item
+    // instead of modifying an existing one.
+    ItemPrototype const* targetProto = itemTarget->GetProto();
+    if (targetProto->IsVellum() && m_spellInfo->EffectItemType[eff_idx])
+    {
+        unitTarget = m_caster;
+        DoCreateItem(eff_idx,m_spellInfo->EffectItemType[eff_idx]);
+        // Vellum target case: Target becomes additional reagent, new scroll item created instead in Spell::EffectEnchantItemPerm()
+        // cannot already delete in TakeReagents() unfortunately
+        p_caster->DestroyItemCount(targetProto->ItemId, 1, true);
+        return;
+    }
+
+    // Using enchant stored on scroll does not increase enchanting skill! (Already granted on scroll creation)
+    if (!(m_CastItem && m_CastItem->GetProto()->Flags & ITEM_FLAG_ENCHANT_SCROLL))
+        p_caster->UpdateCraftSkill(m_spellInfo->Id);
 
     if (item_owner!=p_caster && p_caster->GetSession()->GetSecurity() > SEC_PLAYER && sWorld.getConfig(CONFIG_BOOL_GM_LOG_TRADE) )
     {
