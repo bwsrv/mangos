@@ -595,9 +595,6 @@ class World
 
         LocaleConstant GetAvailableDbcLocale(LocaleConstant locale) const { if(m_availableDbcLocaleMask & (1 << locale)) return locale; else return m_defaultDbcLocale; }
 
-        // Semaphore for serialize spells update in mtmaps env
-        ACE_Thread_Mutex m_spellUpdateLock;
-
         //used World DB version
         void LoadDBVersion();
         char const* GetDBVersion() { return m_DBVersion.c_str(); }
