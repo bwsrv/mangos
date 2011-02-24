@@ -5699,7 +5699,7 @@ void Spell::EffectEnchantItemPerm(SpellEffectIndex eff_idx)
     // Enchanting a vellum requires special handling, as it creates a new item
     // instead of modifying an existing one.
     ItemPrototype const* targetProto = itemTarget->GetProto();
-    if(targetProto->IsVellum() && m_spellInfo->EffectItemType[eff_idx])
+    if (targetProto->IsVellum() && m_spellInfo->EffectItemType[eff_idx])
     {
         unitTarget = m_caster;
         DoCreateItem(eff_idx,m_spellInfo->EffectItemType[eff_idx]);
@@ -5709,7 +5709,7 @@ void Spell::EffectEnchantItemPerm(SpellEffectIndex eff_idx)
         return;
     }
 
-    // not grow at item use at item case, using scrolls does not increase enchanting skill!
+    // Using enchant stored on scroll does not increase enchanting skill! (Already granted on scroll creation)
     if (!(m_CastItem && m_CastItem->GetProto()->Flags & ITEM_FLAG_ENCHANT_SCROLL))
         p_caster->UpdateCraftSkill(m_spellInfo->Id);
 
