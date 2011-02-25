@@ -508,7 +508,7 @@ void Pet::Update(uint32 update_diff, uint32 diff)
                 return;
             }
 
-            if (isControlled() && !IsWithinDistInMap(owner, GetMap()->GetVisibilityDistance()))
+            if ((!IsWithinDistInMap(owner, GetMap()->GetVisibilityDistance()) && !owner->GetCharmGuid().IsEmpty()) || (isControlled() && owner->GetPetGuid().IsEmpty()))
             {
                 DEBUG_LOG("Pet %d lost control, removed. Owner = %d, distance = %d, pet GUID = ", GetGUID(),owner->GetGUID(), GetDistance2d(owner), owner->GetPetGuid().GetCounter());
                 Unsummon(PET_SAVE_REAGENTS);
@@ -652,12 +652,6 @@ void Pet::Unsummon(PetSaveMode mode, Unit* owner /*= NULL*/)
 
             SpellEntry const *spellInfo = sSpellStore.LookupEntry(GetCreateSpellID());
 
-            // Special way for remove cooldown if SPELL_ATTR_DISABLED_WHILE_ACTIVE
-            if (spellInfo && spellInfo->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE)
-            {
-                p_owner->SendCooldownEvent(spellInfo);
-            }
-
             if (mode == PET_SAVE_REAGENTS)
             {
                 //returning of reagents only for players, so best done here
@@ -687,6 +681,11 @@ void Pet::Unsummon(PetSaveMode mode, Unit* owner /*= NULL*/)
 
                 if (p_owner->GetGroup())
                     p_owner->SetGroupUpdateFlag(GROUP_UPDATE_PET);
+
+                // Special way for remove cooldown if SPELL_ATTR_DISABLED_WHILE_ACTIVE
+                if (spellInfo && spellInfo->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE)
+                    if (p_owner->GetTemporaryUnsummonedPetNumber() != GetCharmInfo()->GetPetNumber())
+                        p_owner->SendCooldownEvent(spellInfo);
             }
         }
 
@@ -2932,7 +2931,7 @@ Unit* Pet::GetOwner() const
     Unit* owner = Unit::GetOwner();
 
     if (!owner)
-        if (!GetOwnerGuid().IsEmpty())
+        if (!GetOwnerGuid().IsEmpty() && GetOwnerGuid().IsCreature())
             if (Map* pMap = GetMap())
                 owner = pMap->GetAnyTypeCreature(GetOwnerGuid());
 
@@ -2942,8 +2941,8 @@ Unit* Pet::GetOwner() const
 
     if (owner)
         return owner;
-
-    return NULL;
+    else
+        return NULL;
 }
 
 

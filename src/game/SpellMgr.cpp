@@ -658,6 +658,7 @@ bool IsPositiveEffect(uint32 spellId, SpellEffectIndex effIndex)
             return true;
 
         case SPELL_EFFECT_SCHOOL_DAMAGE:
+        case SPELL_EFFECT_THREAT:
             return false;
 
             // non-positive aura use
