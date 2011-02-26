@@ -332,6 +332,10 @@ INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_start`, `qu
 -- Quest 12996
 UPDATE `creature_template` SET `spell1` = 54459,`spell2` = 54458,`spell3` = 54460,`VehicleId` = 208 WHERE  `creature_template`.`entry` = 29918;
 
+-- Quest 13236 Gift of the Lich King
+REPLACE INTO `spell_script_target` VALUES (58916,2,31254);
+REPLACE INTO `spell_script_target` VALUES (58917,1,31276);
+
 -- from traponinet
 -- Quest: No Fly Zone (12815)
 UPDATE `creature_template` SET spell1=48766, spell2=54469, spell3=54467, spell4=55214, InhabitType=3 WHERE `entry`=29414;

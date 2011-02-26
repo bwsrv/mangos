@@ -2089,16 +2089,20 @@ bool Pet::SetSummonPosition(float x, float y, float z)
         SetPetFollowAngle(M_PI_F*1.25f);
 
 
-    if (x == 0.0f && y == 0.0f && z == 0.0f)
+    if ( x == 0.0f && y == 0.0f )
         owner->GetClosePoint(x, y, z, GetObjectBoundingRadius()*4, PET_FOLLOW_DIST, GetPetFollowAngle());
 
     GetRandomPoint(x, y, z, GetObjectBoundingRadius()*4, px, py, pz);
 
+    UpdateAllowedPositionZ(px, py, pz);
+
     Relocate(px, py, pz, -owner->GetOrientation());
     SetSummonPoint(px, py, pz, -owner->GetOrientation());
 
-    if (!IsPositionValid()) return false;
-        else return true;
+    if (!IsPositionValid()) 
+        return false;
+    else
+        return true;
 }
 
 void Pet::ApplyStatScalingBonus(Stats stat, bool apply)
@@ -2931,7 +2935,7 @@ Unit* Pet::GetOwner() const
     Unit* owner = Unit::GetOwner();
 
     if (!owner)
-        if (!GetOwnerGuid().IsEmpty() && GetOwnerGuid().IsCreature())
+        if (!GetOwnerGuid().IsEmpty() && GetOwnerGuid().IsAnyTypeCreature())
             if (Map* pMap = GetMap())
                 owner = pMap->GetAnyTypeCreature(GetOwnerGuid());
 
