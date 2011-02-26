@@ -7737,7 +7737,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(unitTarget, 58919, true);
                     return;
                 }
-                case 59803:                                 // Consume: Spell of Trollgore hero
+                case 59910:                                 // Summon Minions
                 {
                     if (!unitTarget)
                         return;
