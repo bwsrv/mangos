@@ -284,6 +284,9 @@ uint32 DungeonResetScheduler::GetMaxResetTimeFor(MapDifficulty const* mapDiff)
     if (delay < DAY)                                        // the reset_delay must be at least one day
         delay = DAY;
 
+    if (delay > 7*DAY)                                        // the reset_delay must be at least one day
+        delay = 7*DAY;
+
     return delay;
 }
 
@@ -375,7 +378,7 @@ void DungeonResetScheduler::LoadResetTimes()
             time_t offset = sMapStore.LookupEntry(mapid)->instanceResetOffset;
             uint64 start_point = INSTANCE_RESET_SCHEDULE_START_TIME + offset + diff;
             uint64 newresettime = start_point + uint32((oldresettime - start_point) / DAY) * DAY;
-            if(oldresettime != newresettime)
+            if(oldresettime != newresettime && newresettime > now)
                 CharacterDatabase.DirectPExecute("UPDATE instance_reset SET resettime = '"UI64FMTD"' WHERE mapid = '%u' AND difficulty = '%u'", newresettime, mapid, difficulty);
 
             SetResetTimeFor(mapid,difficulty,newresettime);
