@@ -11444,8 +11444,21 @@ void Unit::SetPhaseMask(uint32 newPhaseMask, bool update)
     WorldObject::SetPhaseMask(newPhaseMask,update);
 
     if(IsInWorld())
+    {
         if(Pet* pet = GetPet())
-            pet->SetPhaseMask(newPhaseMask,true);
+        {
+            GroupPetList m_groupPets = GetPets();
+            if (!m_groupPets.empty())
+            {
+                for (GroupPetList::const_iterator itr = m_groupPets.begin(); itr != m_groupPets.end(); ++itr)
+                    if (Pet* _pet = GetMap()->GetPet(*itr))
+                        _pet->SetPhaseMask(newPhaseMask,true);
+            }
+        }
+
+        if (Unit* charm = GetCharm())
+            charm->SetPhaseMask(newPhaseMask,true);
+    }
 }
 
 void Unit::NearTeleportTo( float x, float y, float z, float orientation, bool casting /*= false*/ )

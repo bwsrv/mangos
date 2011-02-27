@@ -1895,14 +1895,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     ((Creature*)unitTarget)->ForcedDespawn(5000);
                     return;
                 }
-                case 51858:                                 // Siphon of Acherus - Complete Quest
-                {
-                    if (!m_caster || !m_caster->isAlive())
-                        return;
-
-                    ((Player*)m_originalCaster->GetCharmer())->KilledMonsterCredit(m_caster->GetEntry(), m_caster->GetGUID());
-                        return;
-                }
                 case 51866:                                 // Kick Nass
                 {
                     // It is possible that Nass Heartbeat (spell id 61438) is involved in this
