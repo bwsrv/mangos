@@ -474,7 +474,7 @@ void Map::Update(const uint32 &t_diff)
     {
         Player* plr = m_mapRefIter->getSource();
 
-        if (!plr->IsInWorld() || !plr->IsPositionValid())
+        if (!plr || !plr->IsInWorld() || !plr->IsPositionValid())
             continue;
 
         //lets update mobs/objects in ALL visible cells around player!
