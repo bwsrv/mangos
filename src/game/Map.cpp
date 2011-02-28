@@ -1336,100 +1336,103 @@ bool DungeonMap::Add(Player *player)
     if (!CanEnter(player))
         return false;
 
-    // check for existing instance binds
-    InstancePlayerBind *playerBind = player->GetBoundInstance(GetId(), GetDifficulty());
-    if (playerBind && playerBind->perm)
+    // check for existing instance binds (except GMs)
+    if (!player->isGameMaster())
     {
-        // cannot enter other instances if bound permanently
-        if (playerBind->state != GetPersistanceState())
+        InstancePlayerBind *playerBind = player->GetBoundInstance(GetId(), GetDifficulty());
+        if (playerBind && playerBind->perm)
         {
-            sLog.outError("DungeonMap::Add: player %s(%d) is permanently bound to instance %d,%d,%d,%d,%d,%d but he is being put in instance %d,%d,%d,%d,%d,%d",
-                player->GetName(), player->GetGUIDLow(), playerBind->state->GetMapId(),
-                playerBind->state->GetInstanceId(), playerBind->state->GetDifficulty(),
-                playerBind->state->GetPlayerCount(), playerBind->state->GetGroupCount(),
-                playerBind->state->CanReset(),
-                GetPersistanceState()->GetMapId(), GetPersistanceState()->GetInstanceId(),
-                GetPersistanceState()->GetDifficulty(), GetPersistanceState()->GetPlayerCount(),
-                GetPersistanceState()->GetGroupCount(), GetPersistanceState()->CanReset());
-            player->RepopAtGraveyard();
-            return false;
-        }
-    }
-    else
-    {
-        Group *pGroup = player->GetGroup();
-        if (pGroup)
-        {
-            // solo saves should be reset when entering a group
-            InstanceGroupBind *groupBind = pGroup->GetBoundInstance(this,GetDifficulty());
-            if (playerBind)
+            // cannot enter other instances if bound permanently
+            if (playerBind->state != GetPersistanceState())
             {
-                sLog.outError("DungeonMap::Add: %s is being put in instance %d,%d,%d,%d,%d,%d but he is in group (Id: %d) and is bound to instance %d,%d,%d,%d,%d,%d!",
-                    player->GetGuidStr().c_str(), GetPersistentState()->GetMapId(), GetPersistentState()->GetInstanceId(),
-                    GetPersistanceState()->GetDifficulty(), GetPersistanceState()->GetPlayerCount(), GetPersistanceState()->GetGroupCount(),
-                    GetPersistanceState()->CanReset(), pGroup->GetId(),
-                    playerBind->state->GetMapId(), playerBind->state->GetInstanceId(), playerBind->state->GetDifficulty(),
-                    playerBind->state->GetPlayerCount(), playerBind->state->GetGroupCount(), playerBind->state->CanReset());
-
-                if (groupBind)
-                    sLog.outError("DungeonMap::Add: the group (Id: %d) is bound to instance %d,%d,%d,%d,%d,%d",
-                    pGroup->GetId(),
-                    groupBind->state->GetMapId(), groupBind->state->GetInstanceId(), groupBind->state->GetDifficulty(),
-                    groupBind->state->GetPlayerCount(), groupBind->state->GetGroupCount(), groupBind->state->CanReset());
-
-                // no reason crash if we can fix state
-                player->UnbindInstance(GetId(), GetDifficulty());
-          }
-
-            // bind to the group or keep using the group save
-            if (!groupBind)
-                pGroup->BindToInstance(GetPersistanceState(), false);
-            else
-            {
-                // cannot jump to a different instance without resetting it
-                if (groupBind->state != GetPersistentState())
-                {
-                    sLog.outError("DungeonMap::Add: %s is being put in instance %d,%d,%d but he is in group (Id: %d) which is bound to instance %d,%d,%d!",
-                        player->GetGuidStr().c_str(), GetPersistentState()->GetMapId(),
-                        GetPersistentState()->GetInstanceId(), GetPersistentState()->GetDifficulty(),
-                        pGroup->GetId(), groupBind->state->GetMapId(),
-                        groupBind->state->GetInstanceId(), groupBind->state->GetDifficulty());
-
-                    sLog.outError("MapSave players: %d, group count: %d",
-                        GetPersistanceState()->GetPlayerCount(), GetPersistanceState()->GetGroupCount());
-
-                    if (groupBind->state)
-                        sLog.outError("GroupBind save players: %d, group count: %d", groupBind->state->GetPlayerCount(), groupBind->state->GetGroupCount());
-                    else
-                        sLog.outError("GroupBind save NULL");
-                    player->RepopAtGraveyard();
-                    return false;
-                }
-                // if the group/leader is permanently bound to the instance
-                // players also become permanently bound when they enter
-                if (groupBind->perm && IsDungeon())
-                {
-                    uint32 m_completed = 0;
-                    if (GetInstanceData())
-                        m_completed = GetInstanceData()->GetCompletedEncounters(true);
-                    WorldPacket data(SMSG_INSTANCE_LOCK_WARNING_QUERY, 9);
-                    data << uint32(60000);
-                    data << m_completed;
-                    data << uint8(0);
-                    player->GetSession()->SendPacket(&data);
-                    player->SetPendingBind(GetPersistanceState(), 60000);
-                }
+                sLog.outError("DungeonMap::Add: player %s(%d) is permanently bound to instance %d,%d,%d,%d,%d,%d but he is being put in instance %d,%d,%d,%d,%d,%d",
+                    player->GetName(), player->GetGUIDLow(), playerBind->state->GetMapId(),
+                    playerBind->state->GetInstanceId(), playerBind->state->GetDifficulty(),
+                    playerBind->state->GetPlayerCount(), playerBind->state->GetGroupCount(),
+                    playerBind->state->CanReset(),
+                    GetPersistanceState()->GetMapId(), GetPersistanceState()->GetInstanceId(),
+                    GetPersistanceState()->GetDifficulty(), GetPersistanceState()->GetPlayerCount(),
+                    GetPersistanceState()->GetGroupCount(), GetPersistanceState()->CanReset());
+                player->RepopAtGraveyard();
+                return false;
             }
         }
         else
         {
-            // set up a solo bind or continue using it
-            if(!playerBind)
-                player->BindToInstance(GetPersistanceState(), false);
+            Group *pGroup = player->GetGroup();
+            if (pGroup)
+            {
+                // solo saves should be reset when entering a group
+                InstanceGroupBind *groupBind = pGroup->GetBoundInstance(this,GetDifficulty());
+                if (playerBind)
+                {
+                    sLog.outError("DungeonMap::Add: %s is being put in instance %d,%d,%d,%d,%d,%d but he is in group (Id: %d) and is bound to instance %d,%d,%d,%d,%d,%d!",
+                        player->GetGuidStr().c_str(), GetPersistentState()->GetMapId(), GetPersistentState()->GetInstanceId(),
+                        GetPersistanceState()->GetDifficulty(), GetPersistanceState()->GetPlayerCount(), GetPersistanceState()->GetGroupCount(),
+                        GetPersistanceState()->CanReset(), pGroup->GetId(),
+                        playerBind->state->GetMapId(), playerBind->state->GetInstanceId(), playerBind->state->GetDifficulty(),
+                        playerBind->state->GetPlayerCount(), playerBind->state->GetGroupCount(), playerBind->state->CanReset());
+
+                    if (groupBind)
+                        sLog.outError("DungeonMap::Add: the group (Id: %d) is bound to instance %d,%d,%d,%d,%d,%d",
+                        pGroup->GetId(),
+                        groupBind->state->GetMapId(), groupBind->state->GetInstanceId(), groupBind->state->GetDifficulty(),
+                        groupBind->state->GetPlayerCount(), groupBind->state->GetGroupCount(), groupBind->state->CanReset());
+
+                    // no reason crash if we can fix state
+                    player->UnbindInstance(GetId(), GetDifficulty());
+                }
+
+                // bind to the group or keep using the group save
+                if (!groupBind)
+                    pGroup->BindToInstance(GetPersistanceState(), false);
+                else
+                {
+                    // cannot jump to a different instance without resetting it
+                    if (groupBind->state != GetPersistentState())
+                    {
+                        sLog.outError("DungeonMap::Add: %s is being put in instance %d,%d,%d but he is in group (Id: %d) which is bound to instance %d,%d,%d!",
+                            player->GetGuidStr().c_str(), GetPersistentState()->GetMapId(),
+                            GetPersistentState()->GetInstanceId(), GetPersistentState()->GetDifficulty(),
+                            pGroup->GetId(), groupBind->state->GetMapId(),
+                            groupBind->state->GetInstanceId(), groupBind->state->GetDifficulty());
+
+                        sLog.outError("MapSave players: %d, group count: %d",
+                            GetPersistanceState()->GetPlayerCount(), GetPersistanceState()->GetGroupCount());
+
+                        if (groupBind->state)
+                            sLog.outError("GroupBind save players: %d, group count: %d", groupBind->state->GetPlayerCount(), groupBind->state->GetGroupCount());
+                        else
+                            sLog.outError("GroupBind save NULL");
+                        player->RepopAtGraveyard();
+                        return false;
+                    }
+                    // if the group/leader is permanently bound to the instance
+                    // players also become permanently bound when they enter
+                    if (groupBind->perm && IsDungeon())
+                    {
+                        uint32 m_completed = 0;
+                        if (GetInstanceData())
+                            m_completed = GetInstanceData()->GetCompletedEncounters(true);
+                        WorldPacket data(SMSG_INSTANCE_LOCK_WARNING_QUERY, 9);
+                        data << uint32(60000);
+                        data << m_completed;
+                        data << uint8(0);
+                        player->GetSession()->SendPacket(&data);
+                        player->SetPendingBind(GetPersistanceState(), 60000);
+                    }
+                }
+            }
             else
             {
-                player->RepopAtGraveyard();
-                return false;
+                // set up a solo bind or continue using it
+                if(!playerBind)
+                    player->BindToInstance(GetPersistanceState(), false);
+                else
+                {
+                    player->RepopAtGraveyard();
+                    return false;
+                }
             }
         }
     }
