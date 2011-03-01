@@ -394,9 +394,7 @@ Spell::Spell( Unit* caster, SpellEntry const *info, bool triggered, ObjectGuid o
     // determine reflection
     m_canReflect = false;
 
-    if(m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC && (m_spellInfo->AttributesEx & SPELL_ATTR_EX_NEG_NO_REFLECT)==0 && !IsPositiveSpell(m_spellInfo->Id))
-        m_canReflect = true;
-    /* This check seems to be incorrect
+    if(m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC && !(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_CANT_REFLECTED))
     {
         for(int j = 0; j < MAX_EFFECT_INDEX; ++j)
         {
@@ -413,7 +411,7 @@ Spell::Spell( Unit* caster, SpellEntry const *info, bool triggered, ObjectGuid o
             else
                 break;
         }
-    }*/
+    }
 
     CleanupTargetList();
 }
