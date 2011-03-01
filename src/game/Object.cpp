@@ -2042,10 +2042,7 @@ void WorldObject::SetPhaseMask(uint32 newPhaseMask, bool update)
     m_phaseMask = newPhaseMask;
 
     if(update && IsInWorld())
-    {
-        UpdateObjectVisibility();
-        GetViewPoint().Event_ViewPointVisibilityChanged();
-    }
+        UpdateVisibilityAndView();
 }
 
 void WorldObject::PlayDistanceSound( uint32 sound_id, Player* target /*= NULL*/ )
@@ -2080,6 +2077,12 @@ void WorldObject::GetCreatureListWithEntryInGrid(std::list<Creature*>& lList, ui
     TypeContainerVisitor<MaNGOS::CreatureListSearcher<MaNGOS::AllCreaturesOfEntryInRange>, GridTypeMapContainer> visitor(searcher);
 
     GetMap()->Visit(cell, visitor);
+}
+void WorldObject::UpdateVisibilityAndView()
+{
+    GetViewPoint().Call_UpdateVisibilityForOwner();
+    UpdateObjectVisibility();
+    GetViewPoint().Event_ViewPointVisibilityChanged();
 }
 
 void WorldObject::UpdateObjectVisibility()

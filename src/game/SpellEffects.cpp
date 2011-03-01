@@ -1742,6 +1742,25 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     m_caster->GetNearPoint(m_caster, fDestX, fDestY, fDestZ, m_caster->GetObjectBoundingRadius(), 30.0f, 0.0f);
                     if (Creature* pWolf = m_caster->SummonCreature(25324, fDestX, fDestY, fDestZ, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 60000))
                         pWolf->GetMotionMaster()->MoveFollow(m_caster, PET_FOLLOW_DIST, pWolf->GetAngle(m_caster)); 
+				}
+                case 47110:                                 // Summon Drakuru's Image
+                {
+                    uint32 spellId = 0;
+
+                    switch(m_caster->GetAreaId())
+                    {
+                        case 4255: spellId = 47381; break;  // Reagent Check (Frozen Mojo)
+                        case 4209: spellId = 47386; break;  // Reagent Check (Zim'Bo's Mojo)
+                        case 4270: spellId = 47389; break;  // Reagent Check (Desperate Mojo)
+                        case 4216: spellId = 47408; break;  // Reagent Check (Sacred Mojo)
+                        case 4196: spellId = 50441; break;  // Reagent Check (Survival Mojo)
+                    }
+
+                    // The additional castspell arguments are needed here to remove reagents for triggered spells
+                    if (spellId)
+                        m_caster->CastSpell(m_caster, spellId, true, m_CastItem, NULL, m_caster->GetObjectGuid(), m_spellInfo);
+
+                    return;
                 }
                 case 47170:                                 // Impale Leviroth
                 {
@@ -1751,7 +1770,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     unitTarget->SetHealthPercent(8.0f);
 
                     // Cosmetic - Underwater Blood (no sound)
-                    // Spell persist through death, but should not be there at respawn (TODO: some research, so this&similar are removed at resp.)
                     unitTarget->CastSpell(unitTarget, 47172, true);
 
                     ((Creature*)unitTarget)->AI()->AttackStart(m_caster);
@@ -1784,6 +1802,37 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 
                     // Potent Explosive Charge
                     unitTarget->CastSpell(unitTarget, 47306, true);
+
+                    return;
+                }
+                case 47381:                                 // Reagent Check (Frozen Mojo)
+                case 47386:                                 // Reagent Check (Zim'Bo's Mojo)
+                case 47389:                                 // Reagent Check (Desperate Mojo)
+                case 47408:                                 // Reagent Check (Sacred Mojo)
+                case 50441:                                 // Reagent Check (Survival Mojo)
+                {
+                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    switch(m_spellInfo->Id)
+                    {
+                        case 47381:
+                            // Envision Drakuru
+                            m_caster->CastSpell(m_caster, 47118, true);
+                            break;
+                        case 47386:
+                            m_caster->CastSpell(m_caster, 47150, true);
+                            break;
+                        case 47389:
+                            m_caster->CastSpell(m_caster, 47317, true);
+                            break;
+                        case 47408:
+                            m_caster->CastSpell(m_caster, 47406, true);
+                            break;
+                        case 50441:
+                            m_caster->CastSpell(m_caster, 50440, true);
+                            break;
+                    }
 
                     return;
                 }
@@ -1887,6 +1936,15 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                         m_caster->CastSpell(m_caster, 50246, true);
                     }
 
+                    return;
+                }
+                case 50440:                                 // Envision Drakuru
+                {
+                    if (!unitTarget)
+                        return;
+
+                    // Script Cast Summon Image of Drakuru 05
+                    unitTarget->CastSpell(unitTarget, 50439, true);
                     return;
                 }
                 case 50546:                                 // Ley Line Focus Control Ring Effect
@@ -2001,14 +2059,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 
                     ((Creature*)unitTarget)->ForcedDespawn(5000);
                     return;
-                }
-                case 51858:                                 // Siphon of Acherus - Complete Quest
-                {
-                    if (!m_caster || !m_caster->isAlive())
-                        return;
-
-                    ((Player*)m_originalCaster->GetCharmer())->KilledMonsterCredit(m_caster->GetEntry(), m_caster->GetGUID());
-                        return;
                 }
                 case 51866:                                 // Kick Nass
                 {
@@ -7372,6 +7422,14 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         }
                     }
 
+                    return;
+                }
+                case 50439:                                 // Script Cast Summon Image of Drakuru 05
+                {
+                    // TODO: check if summon already exist, if it does in this instance, return.
+
+                    // Summon Drakuru
+                    m_caster->CastSpell(m_caster, 50446, true);
                     return;
                 }
                 case 50725:                                 // Vigilance - remove cooldown on Taunt
