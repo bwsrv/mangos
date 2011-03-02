@@ -394,7 +394,7 @@ Spell::Spell( Unit* caster, SpellEntry const *info, bool triggered, ObjectGuid o
     // determine reflection
     m_canReflect = false;
 
-    if(m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC && !(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_CANT_REFLECTED))
+    if(m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC && !(m_spellInfo->AttributesEx & SPELL_ATTR_EX_CANT_REFLECTED))
     {
         for(int j = 0; j < MAX_EFFECT_INDEX; ++j)
         {
@@ -1831,7 +1831,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 if(!prev->IsWithinDist(*next, CHAIN_SPELL_JUMP_RADIUS))
                     break;
 
-                if(!prev->IsWithinLOSInMap(*next) || ((m_spellInfo->AttributesEx6 & SPELL_ATTR_EX6_IGNORE_CCED_TARGETS) && !(*next)->CanFreeMove()))
+                if((!prev->IsWithinLOSInMap(*next) && !(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_IGNORE_LOS)) || ((m_spellInfo->AttributesEx6 & SPELL_ATTR_EX6_IGNORE_CCED_TARGETS) && !(*next)->CanFreeMove()))
                 {
                     ++next;
                     continue;
@@ -1891,7 +1891,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 if(!prev->IsWithinDist(*next, CHAIN_SPELL_JUMP_RADIUS))
                     break;
 
-                if(!prev->IsWithinLOSInMap(*next))
+                if (!(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_IGNORE_LOS) && !prev->IsWithinLOSInMap (*next))
                 {
                     ++next;
                     continue;
@@ -1971,7 +1971,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     if (prev == (Unit*)m_caster)
                         break;
 
-                    if (!prev->IsWithinLOSInMap (*next) || ((m_spellInfo->AttributesEx6 & SPELL_ATTR_EX6_IGNORE_CCED_TARGETS) && !(*next)->CanFreeMove()))
+                    if ((!(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_IGNORE_LOS) && !prev->IsWithinLOSInMap (*next)) || ((m_spellInfo->AttributesEx6 & SPELL_ATTR_EX6_IGNORE_CCED_TARGETS) && !(*next)->CanFreeMove()))
                     {
                         ++next;
                         continue;
@@ -2611,7 +2611,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     if(!prev->IsWithinDist(*next, CHAIN_SPELL_JUMP_RADIUS))
                         break;
 
-                    if(!prev->IsWithinLOSInMap(*next))
+                    if (!(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_IGNORE_LOS) && !prev->IsWithinLOSInMap (*next))
                     {
                         ++next;
                         continue;
@@ -4863,7 +4863,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             if (target->IsTaxiFlying())
                 return SPELL_FAILED_BAD_TARGETS;
 
-            if(!m_IsTriggeredSpell && VMAP::VMapFactory::checkSpellForLoS(m_spellInfo->Id) && !m_caster->IsWithinLOSInMap(target))
+            if(!m_IsTriggeredSpell && !(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_IGNORE_LOS) && VMAP::VMapFactory::checkSpellForLoS(m_spellInfo->Id) && !m_caster->IsWithinLOSInMap(target))
                 return SPELL_FAILED_LINE_OF_SIGHT;
 
             // auto selection spell rank implemented in WorldSession::HandleCastSpellOpcode
@@ -7059,7 +7059,7 @@ bool Spell::CheckTarget( Unit* target, SpellEffectIndex eff )
             // fall through
         case SPELL_EFFECT_RESURRECT_NEW:
             // player far away, maybe his corpse near?
-            if(target != m_caster && !target->IsWithinLOSInMap(m_caster))
+            if(target != m_caster && !(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_IGNORE_LOS) && !target->IsWithinLOSInMap(m_caster))
             {
                 if(!m_targets.getCorpseTargetGUID())
                     return false;
@@ -7071,7 +7071,7 @@ bool Spell::CheckTarget( Unit* target, SpellEffectIndex eff )
                 if(target->GetObjectGuid() != corpse->GetOwnerGuid())
                     return false;
 
-                if(!corpse->IsWithinLOSInMap(m_caster))
+                if(!(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_IGNORE_LOS) && !corpse->IsWithinLOSInMap(m_caster))
                     return false;
             }
 
@@ -7081,7 +7081,7 @@ bool Spell::CheckTarget( Unit* target, SpellEffectIndex eff )
             // Get GO cast coordinates if original caster -> GO
             if (target != m_caster)
                 if (WorldObject *caster = GetCastingObject())
-                    if (!target->IsWithinLOSInMap(caster))
+                    if (!(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_IGNORE_LOS) && !target->IsWithinLOSInMap(caster))
                         return false;
             break;
     }
