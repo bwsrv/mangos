@@ -3903,6 +3903,7 @@ void ObjectMgr::LoadGroups()
             uint32 mapId = fields[1].GetUInt32();
             Difficulty diff = (Difficulty)fields[4].GetUInt8();
             uint32 groupId = fields[7].GetUInt32();
+            uint64 resetTime = fields[5].GetUInt64();
 
             if (!group || group->GetId() != groupId)
             {
@@ -3928,7 +3929,13 @@ void ObjectMgr::LoadGroups()
                 diff = REGULAR_DIFFICULTY;                  // default for both difficaly types
             }
 
-            DungeonPersistentState *state = (DungeonPersistentState*)sMapPersistentStateMgr.AddPersistentState(mapEntry, fields[2].GetUInt32(), Difficulty(diff), (time_t)fields[5].GetUInt64(), (fields[6].GetUInt32() == 0), true);
+            if (resetTime > (time(NULL) + INSTANCE_MAX_RESET_OFFSET))
+            {
+                resetTime = DungeonResetScheduler::CalculateNextResetTime(mapId, diff, time(NULL));
+                sLog.outErrorDb("ObjectMgr::Wrong reset time in group_instance corrected to: %d", resetTime);
+            }
+
+            DungeonPersistentState *state = (DungeonPersistentState*)sMapPersistentStateMgr.AddPersistentState(mapEntry, fields[2].GetUInt32(), Difficulty(diff), (time_t)resetTime, (fields[6].GetUInt32() == 0), true);
             group->BindToInstance(state, fields[3].GetBool(), true);
         }while( result->NextRow() );
         delete result;

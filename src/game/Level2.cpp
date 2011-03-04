@@ -2179,7 +2179,29 @@ bool ChatHandler::HandleNpcUnFollowCommand(char* /*args*/)
     PSendSysMessage(LANG_CREATURE_NOT_FOLLOW_YOU_NOW, creature->GetName());
     return true;
 }
+//npc tame handling
+bool ChatHandler::HandleNpcTameCommand(char* /*args*/)
+{
+    Creature *creatureTarget = getSelectedCreature ();
+    if (!creatureTarget || creatureTarget->IsPet ())
+    {
+        PSendSysMessage (LANG_SELECT_CREATURE);
+        SetSentErrorMessage (true);
+        return false;
+    }
 
+    Player *player = m_session->GetPlayer ();
+
+    if (!player->GetPetGuid().IsEmpty())
+    {
+        SendSysMessage(LANG_YOU_ALREADY_HAVE_PET);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    player->CastSpell(creatureTarget, 13481, true);         // Tame Beast, triggered effect
+    return true;
+}
 //npc phasemask handling
 //change phasemask of creature or pet
 bool ChatHandler::HandleNpcSetPhaseCommand(char* args)
