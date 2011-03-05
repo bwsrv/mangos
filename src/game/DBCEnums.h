@@ -489,4 +489,10 @@ enum VehicleSeatFlags
     SEAT_FLAG_CAN_CAST              = 0x20000000,           // Lua_UnitHasVehicleUI
 };
 
+enum MapDifficultyFlags
+{
+    MAP_DIFFICULTY_FLAG_NONE        = 0x00000001,           // Not used in 3.3.5
+    MAP_DIFFICULTY_FLAG_CONDITION   = 0x00000002,           // This map difficulty has condition
+};
+
 #endif

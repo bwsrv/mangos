@@ -17231,7 +17231,7 @@ void Player::_LoadBoundInstances(QueryResult *result)
                 continue;
             }
 
-            MapDifficulty const* mapDiff = GetMapDifficultyData(mapId,Difficulty(difficulty));
+            MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mapId,Difficulty(difficulty));
             if(!mapDiff)
             {
                 sLog.outError("_LoadBoundInstances: player %s(%d) has bind to nonexistent difficulty %d instance for map %u", GetName(), GetGUIDLow(), difficulty, mapId);
@@ -17259,7 +17259,7 @@ void Player::_LoadBoundInstances(QueryResult *result)
 InstancePlayerBind* Player::GetBoundInstance(uint32 mapid, Difficulty difficulty)
 {
     // some instances only have one difficulty
-    MapDifficulty const* mapDiff = GetMapDifficultyData(mapid,difficulty);
+    MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mapid,difficulty);
     if(!mapDiff)
         return NULL;
 
