@@ -71,7 +71,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket &/*recv_data*/)
         uint32 map_diff_pair = itr->first;
         uint32 mapid = PAIR32_LOPART(map_diff_pair);
         int difficulty = PAIR32_HIPART(map_diff_pair);
-        MapDifficulty const* mapDiff = &itr->second;
+        MapDifficultyEntry const* mapDiff = itr->second;
         if(!mapDiff->resetTime || difficulty != (int)REGULAR_DIFFICULTY)
             continue;
 

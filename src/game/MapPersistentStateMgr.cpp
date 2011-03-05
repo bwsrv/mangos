@@ -274,7 +274,7 @@ bool BattleGroundPersistentState::CanBeUnload() const
 
 //== DungeonResetScheduler functions ======================
 
-uint32 DungeonResetScheduler::GetMaxResetTimeFor(MapDifficulty const* mapDiff)
+uint32 DungeonResetScheduler::GetMaxResetTimeFor(MapDifficultyEntry const* mapDiff)
 {
     if (!mapDiff || !mapDiff->resetTime)
         return 0;
@@ -292,7 +292,7 @@ uint32 DungeonResetScheduler::GetMaxResetTimeFor(MapDifficulty const* mapDiff)
 
 time_t DungeonResetScheduler::CalculateNextResetTime(uint32 mapid, Difficulty difficulty, time_t prevResetTime)
 {
-    MapDifficulty const* mapDiff = GetMapDifficultyData(mapid,difficulty);
+    MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mapid,difficulty);
     time_t now = time(NULL);
     time_t offset = sMapStore.LookupEntry(mapid)->instanceResetOffset;
     time_t diff = sWorld.getConfig(CONFIG_UINT32_INSTANCE_RESET_TIME_HOUR) * HOUR;
@@ -384,7 +384,7 @@ void DungeonResetScheduler::LoadResetTimes()
             else 
                 oldresettime = time_t(_oldresettime);
 
-            MapDifficulty const* mapDiff = GetMapDifficultyData(mapid,difficulty);
+            MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mapid,difficulty);
             if(!mapDiff)
             {
                 sLog.outError("MapPersistentStateManager::LoadResetTimes: invalid mapid(%u)/difficulty(%u) pair in instance_reset!", mapid, difficulty);
@@ -413,7 +413,7 @@ void DungeonResetScheduler::LoadResetTimes()
         uint32 map_diff_pair = itr->first;
         uint32 mapid = PAIR32_LOPART(map_diff_pair);
         Difficulty difficulty = Difficulty(PAIR32_HIPART(map_diff_pair));
-        MapDifficulty const* mapDiff = &itr->second;
+        MapDifficultyEntry const* mapDiff = itr->second;
 
         // skip mapDiff without global reset time
         if (!mapDiff->resetTime)
@@ -491,7 +491,7 @@ void DungeonResetScheduler::Update()
         {
             // global reset/warning for a certain map
             time_t resetTime = GetResetTimeFor(event.mapid,event.difficulty);
-            MapDifficulty const* mapDiff = GetMapDifficultyData(event.mapid,event.difficulty);
+            MapDifficultyEntry const* mapDiff = GetMapDifficultyData(event.mapid,event.difficulty);
 
             m_InstanceSaves._ResetOrWarnAll(event.mapid, event.difficulty, event.type != RESET_EVENT_INFORM_LAST, resetTime);
             if(event.type != RESET_EVENT_INFORM_LAST)
@@ -504,7 +504,7 @@ void DungeonResetScheduler::Update()
             {
                 // re-schedule the next/new global reset/warning
                 // calculate the next reset time
-                MapDifficulty const* mapDiff = GetMapDifficultyData(event.mapid,event.difficulty);
+                MapDifficultyEntry const* mapDiff = GetMapDifficultyData(event.mapid,event.difficulty);
                 MANGOS_ASSERT(mapDiff);
 
                 time_t next_reset = DungeonResetScheduler::CalculateNextResetTime(event.mapid,event.difficulty, resetTime);
@@ -825,7 +825,7 @@ void MapPersistentStateManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficu
 
     if (!warn)
     {
-        MapDifficulty const* mapDiff = GetMapDifficultyData(mapid,difficulty);
+        MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mapid,difficulty);
         if (!mapDiff || !mapDiff->resetTime)
         {
             sLog.outError("MapPersistentStateManager::ResetOrWarnAll: not valid difficulty or no reset delay for map %d", mapid);
