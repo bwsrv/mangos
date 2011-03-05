@@ -244,7 +244,7 @@ void DungeonPersistentState::DeleteRespawnTimes()
 
 void DungeonPersistentState::DeleteFromDB()
 {
-    MapPersistentStateManager::DeleteInstanceFromDB(GetInstanceId());
+    MapPersistentStateManager::DeleteInstanceFromDB(GetInstanceId(), false);
 }
 
 // to cache or not to cache, that is the question
@@ -611,9 +611,9 @@ MapPersistentState *MapPersistentStateManager::GetPersistentState(uint32 mapId, 
     }
 }
 
-void MapPersistentStateManager::DeleteInstanceFromDB(uint32 instanceid)
+void MapPersistentStateManager::DeleteInstanceFromDB(uint32 instanceid, bool isExtended)
 {
-    if (instanceid)
+    if (instanceid && !isExtended)
     {
         CharacterDatabase.BeginTransaction();
         CharacterDatabase.PExecute("DELETE FROM instance WHERE id = '%u'", instanceid);
@@ -623,6 +623,15 @@ void MapPersistentStateManager::DeleteInstanceFromDB(uint32 instanceid)
         CharacterDatabase.PExecute("DELETE FROM gameobject_respawn WHERE instance = '%u'", instanceid);
         CharacterDatabase.CommitTransaction();
     }
+    else if (instanceid)
+    {
+        CharacterDatabase.BeginTransaction();
+        CharacterDatabase.PExecute("DELETE FROM group_instance WHERE instance = '%u'", instanceid);
+        CharacterDatabase.PExecute("DELETE FROM character_instance WHERE instance = '%u' AND extend = 0", instanceid);
+        CharacterDatabase.PExecute("UPDATE character_instance SET permanent = 0 WHERE instance = '%u' AND extend = 1", instanceid);
+        CharacterDatabase.CommitTransaction();
+    }
+
 }
 
 void MapPersistentStateManager::RemovePersistentState(uint32 mapId, uint32 instanceId)
@@ -778,8 +787,17 @@ void MapPersistentStateManager::_ResetInstance(uint32 mapid, uint32 instanceId)
 {
     DEBUG_LOG("MapPersistentStateManager::_ResetInstance %u, %u", mapid, instanceId);
 
+    bool isExtended = false;
+    QueryResult *result = CharacterDatabase.PQuery("SELECT COUNT(guid) FROM characters_instance WHERE instance = '%u' AND extend = 1 ", instanceId);
+    if (result)
+    {
+        Field *fields=result->Fetch();
+        isExtended = fields[0].GetBool();
+        delete result;
+    }
+
     PersistentStateMap::iterator itr = m_instanceSaveByInstanceId.find(instanceId);
-    if (itr != m_instanceSaveByInstanceId.end())
+    if (itr != m_instanceSaveByInstanceId.end() && !isExtended)
     {
         // delay reset until map unload for loaded map
         if (Map * iMap = itr->second->GetMap())
@@ -793,8 +811,7 @@ void MapPersistentStateManager::_ResetInstance(uint32 mapid, uint32 instanceId)
         _ResetSave(m_instanceSaveByInstanceId, itr);
     }
 
-
-    DeleteInstanceFromDB(instanceId);                       // even if state not loaded
+    DeleteInstanceFromDB(instanceId, isExtended);                       // even if state not loaded
 }
 
 void MapPersistentStateManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, bool warn, time_t resetTime)
