@@ -1735,8 +1735,9 @@ void Aura::TriggerSpell()
 //                    case 65422: break;
 //                    // Rolling Throw
 //                    case 67546: break;
-//                    // Gunship Cannon Fire
-//                    case 70017: break;
+                    case 70017:                             // Gunship Cannon Fire
+                        trigger_spell_id = 70021;
+                        break;
 //                    // Ice Tomb
 //                    case 70157: break;
 //                    // Mana Barrier
