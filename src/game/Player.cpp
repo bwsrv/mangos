@@ -17384,13 +17384,14 @@ void Player::SendRaidInfo()
         {
             if (itr->second.perm)
             {
-                DungeonPersistentState *state = itr->second.state;
-                data << uint32(state->GetMapId());          // map id
-                data << uint32(state->GetDifficulty());     // difficulty
-                data << ObjectGuid(state->GetInstanceGuid());// instance guid
-                data << uint8((state->GetResetTimeForDB() < now) ? 1 : 0 );   // expired = 0
-                data << uint8(itr->second.extend ? 1 : 0);  // extended = 1
-                data << uint32(state->GetResetTime() - now);// reset time
+                DungeonPersistentState* state = itr->second.state;
+                data << uint32(state->GetMapId());              // map id
+                data << uint32(state->GetDifficulty());         // difficulty
+                data << ObjectGuid(state->GetInstanceGuid());   // instance guid
+                data << uint8((state->GetResetTime() > now) ? 1 : 0 );   // expired = 0
+                data << uint8(itr->second.extend ? 1 : 0);      // extended = 1
+                data << uint32(state->GetResetTime() > now ? state->GetResetTime() - now 
+                    : DungeonResetScheduler::CalculateNextResetTime(GetMapDifficultyData(state->GetMapId(), state->GetDifficulty()), now));    // reset time
                 ++counter;
             }
         }

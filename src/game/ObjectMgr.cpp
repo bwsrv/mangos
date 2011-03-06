@@ -3911,7 +3911,8 @@ void ObjectMgr::LoadGroups()
 
             if (resetTime > (time(NULL) + INSTANCE_MAX_RESET_OFFSET))
             {
-                resetTime = DungeonResetScheduler::CalculateNextResetTime(mapId, diff, time(NULL));
+                MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mapId,diff);
+                resetTime = DungeonResetScheduler::CalculateNextResetTime(mapDiff, time(NULL));
                 sLog.outErrorDb("ObjectMgr::Wrong reset time in group_instance corrected to: %d", resetTime);
             }
 
