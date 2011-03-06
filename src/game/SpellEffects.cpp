@@ -1648,6 +1648,9 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 {
                     uint32 spellId = 0;
 
+                    // Spell 47117,47149,47316,47405,50439 exist, are these used to check area/meet requirement
+                    // and to cast correct spell in correct area?
+
                     switch(m_caster->GetAreaId())
                     {
                         case 4255: spellId = 47381; break;  // Reagent Check (Frozen Mojo)
@@ -5317,7 +5320,6 @@ void Spell::DoSummonGuardian(SpellEffectIndex eff_idx, uint32 forceFaction)
             delete spawnCreature;
             return;
         }
-
         if (!spawnCreature->Summon())
         {
             sLog.outError("Guardian pet (guidlow %d, entry %d) not summoned by undefined reason. ",
@@ -6542,6 +6544,29 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     // Ghost Costume (male or female)
                     m_caster->CastSpell(unitTarget, unitTarget->getGender() == GENDER_MALE ? 24735 : 24736, true);
+                    return;
+                }
+                case 24751:                                 // Trick or Treat
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    // Tricked or Treated
+                    unitTarget->CastSpell(unitTarget, 24755, true);
+
+                    if (roll_chance_i(50))
+                    {
+                        // Treat
+                        unitTarget->CastSpell(unitTarget, 24715, true);
+                    }
+                    else
+                    {
+                        if (roll_chance_i(14))              // Trick (can be different critter models). 14% since below can have 1 of 6
+                            unitTarget->CastSpell(unitTarget, 24753, true);
+                        else                                // Random Costume, 6 different (plus add. for gender)
+                            unitTarget->CastSpell(unitTarget, 24720, true);
+                    }
+
                     return;
                 }
                 case 26275:                                 // PX-238 Winter Wondervolt TRAP
@@ -8378,6 +8403,19 @@ void Spell::DoSummonTotem(SpellEffectIndex eff_idx, uint8 slot_dbc)
 
     Totem* pTotem = new Totem;
 
+    // FIXME: Setup near to finish point because GetObjectBoundingRadius set in Create but some Create calls can be dependent from proper position
+    // if totem have creature_template_addon.auras with persistent point for example or script call
+    float angle = slot < MAX_TOTEM_SLOT ? M_PI_F/MAX_TOTEM_SLOT - (slot*2*M_PI_F/MAX_TOTEM_SLOT) : 0;
+
+    float x, y, z;
+    m_caster->GetClosePoint(x, y, z, 0, 2.0f, angle);
+
+    // totem must be at same Z in case swimming caster and etc.
+    if (fabs( z - m_caster->GetPositionZ() ) > 5)
+        z = m_caster->GetPositionZ();
+
+    pTotem->Relocate(x, y, z, m_caster->GetOrientation());
+
     if (!pTotem->Create(m_caster->GetMap()->GenerateLocalLowGuid(HIGHGUID_UNIT), m_caster->GetMap(), m_caster->GetPhaseMask(),
         m_spellInfo->EffectMiscValue[eff_idx], team))
     {
@@ -8392,9 +8430,6 @@ void Spell::DoSummonTotem(SpellEffectIndex eff_idx, uint8 slot_dbc)
             pTotem->SetDisplayId(modelid_race);
     }
 
-    float angle = slot < MAX_TOTEM_SLOT ? M_PI_F/MAX_TOTEM_SLOT - (slot*2*M_PI_F/MAX_TOTEM_SLOT) : 0;
-
-    float x, y, z;
     m_caster->GetClosePoint(x, y, z, pTotem->GetObjectBoundingRadius(), 2.0f, angle);
 
     // totem must be at same Z in case swimming caster and etc.
@@ -8968,7 +9003,6 @@ void Spell::DoSummonCritter(SpellEffectIndex eff_idx, uint32 forceFaction)
         delete critter;
         return;
     }
-
     float x, y, z;
     // If dest location if present
     if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
@@ -8976,10 +9010,11 @@ void Spell::DoSummonCritter(SpellEffectIndex eff_idx, uint32 forceFaction)
         x = m_targets.m_destX;
         y = m_targets.m_destY;
         z = m_targets.m_destZ;
-     }
-     // Summon if dest location not present near caster
-     else
-        m_caster->GetClosePoint(x, y, z, critter->GetObjectBoundingRadius());
+    }
+    else
+    // FIXME: Setup near to finish point because GetObjectBoundingRadius set in Create but some Create calls can be dependent from proper position
+    // if pet have creature_template_addon.auras with persistent point for example or script call
+    m_caster->GetClosePoint(x, y, z, m_caster->GetObjectBoundingRadius());
 
     if(!critter->SetSummonPosition(x,y,z))
     {
