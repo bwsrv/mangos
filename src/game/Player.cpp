@@ -17320,7 +17320,7 @@ void Player::_LoadBoundInstances(QueryResult *result)
 
     Group *group = GetGroup();
 
-    //QueryResult *result = CharacterDatabase.PQuery("SELECT id, permanent, map, difficulty, resettime FROM character_instance LEFT JOIN instance ON instance = id WHERE guid = '%u'", GUID_LOPART(m_guid));
+    //QueryResult *result = CharacterDatabase.PQuery("SELECT id, permanent, map, difficulty, extend, resettime FROM character_instance LEFT JOIN instance ON instance = id WHERE guid = '%u'", GUID_LOPART(m_guid));
     if(result)
     {
         do
@@ -17330,8 +17330,9 @@ void Player::_LoadBoundInstances(QueryResult *result)
             uint32 mapId = fields[2].GetUInt32();
             uint32 instanceId = fields[0].GetUInt32();
             uint8 difficulty = fields[3].GetUInt8();
+            bool extend = fields[4].GetBool();
 
-            time_t resetTime = (time_t)fields[4].GetUInt64();
+            time_t resetTime = (time_t)fields[5].GetUInt64();
             // the resettime for normal instances is only saved when the InstanceSave is unloaded
             // so the value read from the DB may be wrong here but only if the InstanceSave is loaded
             // and in that case it is not used
@@ -17351,7 +17352,7 @@ void Player::_LoadBoundInstances(QueryResult *result)
                 continue;
             }
 
-            MapDifficulty const* mapDiff = GetMapDifficultyData(mapId,Difficulty(difficulty));
+            MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mapId,Difficulty(difficulty));
             if(!mapDiff)
             {
                 sLog.outError("_LoadBoundInstances: player %s(%d) has bind to nonexistent difficulty %d instance for map %u", GetName(), GetGUIDLow(), difficulty, mapId);
@@ -17370,7 +17371,7 @@ void Player::_LoadBoundInstances(QueryResult *result)
 
             // since non permanent binds are always solo bind, they can always be reset
             DungeonPersistentState *state = (DungeonPersistentState*)sMapPersistentStateMgr.AddPersistentState(mapEntry, instanceId, Difficulty(difficulty), resetTime, !perm, true);
-            if(state) BindToInstance(state, perm, true);
+            if(state || extend) BindToInstance(state, perm, true, extend);
         } while(result->NextRow());
         delete result;
     }
@@ -17379,7 +17380,7 @@ void Player::_LoadBoundInstances(QueryResult *result)
 InstancePlayerBind* Player::GetBoundInstance(uint32 mapid, Difficulty difficulty)
 {
     // some instances only have one difficulty
-    MapDifficulty const* mapDiff = GetMapDifficultyData(mapid,difficulty);
+    MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mapid,difficulty);
     if(!mapDiff)
         return NULL;
 
@@ -17401,14 +17402,14 @@ void Player::UnbindInstance(BoundInstancesMap::iterator &itr, Difficulty difficu
     if(itr != m_boundInstances[difficulty].end())
     {
         if (!unload)
-            CharacterDatabase.PExecute("DELETE FROM character_instance WHERE guid = '%u' AND instance = '%u'",
+            CharacterDatabase.PExecute("DELETE FROM character_instance WHERE guid = '%u' AND instance = '%u' AND extend = 0",
                 GetGUIDLow(), itr->second.state->GetInstanceId());
         itr->second.state->RemovePlayer(this);              // state can become invalid
         m_boundInstances[difficulty].erase(itr++);
     }
 }
 
-InstancePlayerBind* Player::BindToInstance(DungeonPersistentState *state, bool permanent, bool load)
+InstancePlayerBind* Player::BindToInstance(DungeonPersistentState *state, bool permanent, bool load, bool extend)
 {
     if (state)
     {
@@ -17416,16 +17417,16 @@ InstancePlayerBind* Player::BindToInstance(DungeonPersistentState *state, bool p
         if (bind.state)
         {
             // update the state when the group kills a boss
-            if(permanent != bind.perm || state != bind.state)
+            if(permanent != bind.perm || state != bind.state || extend != bind.extend)
                 if (!load)
-                    CharacterDatabase.PExecute("UPDATE character_instance SET instance = '%u', permanent = '%u' WHERE guid = '%u' AND instance = '%u'",
-                        state->GetInstanceId(), permanent, GetGUIDLow(), bind.state->GetInstanceId());
+                    CharacterDatabase.PExecute("UPDATE character_instance SET instance = '%u', permanent = '%u', extend ='%u' WHERE guid = '%u' AND instance = '%u'",
+                        state->GetInstanceId(), permanent, extend, GetGUIDLow(), bind.state->GetInstanceId());
         }
         else
         {
             if (!load)
-                CharacterDatabase.PExecute("INSERT INTO character_instance (guid, instance, permanent) VALUES ('%u', '%u', '%u')",
-                    GetGUIDLow(), state->GetInstanceId(), permanent);
+                CharacterDatabase.PExecute("INSERT INTO character_instance (guid, instance, permanent, extend) VALUES ('%u', '%u', '%u', '%u')",
+                    GetGUIDLow(), state->GetInstanceId(), permanent, extend);
         }
 
         if (bind.state != state)
@@ -17440,6 +17441,8 @@ InstancePlayerBind* Player::BindToInstance(DungeonPersistentState *state, bool p
 
         bind.state = state;
         bind.perm = permanent;
+        bind.extend = extend;
+
         if (!load)
             DEBUG_LOG("Player::BindToInstance: %s(%d) is now bound to map %d, instance %d, difficulty %d",
                 GetName(), GetGUIDLow(), state->GetMapId(), state->GetInstanceId(), state->GetDifficulty());
@@ -17501,8 +17504,8 @@ void Player::SendRaidInfo()
                 data << uint32(state->GetMapId());          // map id
                 data << uint32(state->GetDifficulty());     // difficulty
                 data << ObjectGuid(state->GetInstanceGuid());// instance guid
-                data << uint8(1);                           // expired = 0
-                data << uint8(0);                           // extended = 1
+                data << uint8((state->GetResetTimeForDB() < now) ? 1 : 0 );   // expired = 0
+                data << uint8(itr->second.extend ? 1 : 0);  // extended = 1
                 data << uint32(state->GetResetTime() - now);// reset time
                 ++counter;
             }
@@ -17604,7 +17607,7 @@ void Player::ConvertInstancesToGroup(Player *player, Group *group, ObjectGuid pl
 
     // the following should not get executed when changing leaders
     if (!player || has_solo)
-        CharacterDatabase.PExecute("DELETE FROM character_instance WHERE guid = '%u' AND permanent = 0", player_lowguid);
+        CharacterDatabase.PExecute("DELETE FROM character_instance WHERE guid = '%u' AND permanent = 0 AND extend = 0", player_lowguid);
 }
 
 bool Player::_LoadHomeBind(QueryResult *result)

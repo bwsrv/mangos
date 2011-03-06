@@ -33,7 +33,7 @@
 
 struct InstanceTemplate;
 struct MapEntry;
-struct MapDifficulty;
+struct MapDifficultyEntry;
 struct GameObjectData;
 struct CreatureData;
 
@@ -306,7 +306,7 @@ class DungeonResetScheduler
             return itr != m_resetTimeByMapDifficulty.end() ? itr->second : 0;
         }
 
-        static uint32 GetMaxResetTimeFor(MapDifficulty const* mapDiff);
+        static uint32 GetMaxResetTimeFor(MapDifficultyEntry const* mapDiff);
         static time_t CalculateNextResetTime(uint32 mapId, Difficulty difficulty, time_t prevResetTime);
     public:                                                 // modifiers
         void SetResetTimeFor(uint32 mapid, Difficulty d, time_t t)
@@ -362,7 +362,7 @@ class MANGOS_DLL_DECL MapPersistentStateManager : public MaNGOS::Singleton<MapPe
 
         DungeonResetScheduler& GetScheduler() { return m_Scheduler; }
 
-        static void DeleteInstanceFromDB(uint32 instanceid);
+        static void DeleteInstanceFromDB(uint32 instanceid, bool isExtended);
 
         void GetStatistics(uint32& numStates, uint32& numBoundPlayers, uint32& numBoundGroups);
 
