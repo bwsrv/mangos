@@ -1244,16 +1244,17 @@ bool Creature::LoadFromDB(uint32 guidlow, Map *map)
     if (map->GetCreature(ObjectGuid(HIGHGUID_UNIT, data->id, guidlow)))
         return false;
 
-    if (!Create(guidlow, map, data->phaseMask, data->id, TEAM_NONE, data, eventData))
-        return false;
-
+    // set coordinates before call Create because some code can be depend from correct coordinates values.
     Relocate(data->posX, data->posY, data->posZ, data->orientation);
 
-    if(!IsPositionValid())
+    if (!IsPositionValid())
     {
         sLog.outError("Creature (guidlow %d, entry %d) not loaded. Suggested coordinates isn't valid (X: %f Y: %f)", GetGUIDLow(), GetEntry(), GetPositionX(), GetPositionY());
         return false;
     }
+
+    if (!Create(guidlow, map, data->phaseMask, data->id, TEAM_NONE, data, eventData))
+        return false;
 
     m_respawnradius = data->spawndist;
 
@@ -1933,7 +1934,6 @@ bool Creature::LoadCreatureAddon(bool reload)
                 continue;
             }
 
-            // skip already applied aura
             if (HasAura(cAura->spell_id))
             {
                 if(!reload)
@@ -1942,23 +1942,7 @@ bool Creature::LoadCreatureAddon(bool reload)
                 continue;
             }
 
-            SpellAuraHolder *holder = CreateSpellAuraHolder(AdditionalSpellInfo, this, this);
-
-            for(uint32 eff = 0; eff < MAX_EFFECT_INDEX; ++eff)
-            {
-                if (IsSpellAppliesAura(AdditionalSpellInfo, 1 << eff))
-                {
-                    Aura* AdditionalAura = CreateAura(AdditionalSpellInfo, SpellEffectIndex(eff), NULL, holder, this, this);
-                    holder->AddAura(AdditionalAura, SpellEffectIndex(eff));
-
-                    DEBUG_FILTER_LOG(LOG_FILTER_SPELL_CAST, "Spell: %u - Aura %u added to creature (GUIDLow: %u Entry: %u)", cAura->spell_id, AdditionalSpellInfo->EffectApplyAuraName[eff], GetGUIDLow(), GetEntry());
-                }
-            }
-
-            if (!holder->IsEmptyHolder())
-                AddSpellAuraHolder(holder);
-            else
-                delete holder;
+            CastSpell(this, AdditionalSpellInfo, true);
         }
     }
     return true;

@@ -326,11 +326,20 @@ void DungeonResetScheduler::LoadResetTimes()
     {
         do
         {
-            if(time_t resettime = time_t((*result)[3].GetUInt64()))
+            if (time_t resettime = time_t((*result)[3].GetUInt64()))
             {
                 uint32 id = (*result)[0].GetUInt32();
                 uint32 mapid = (*result)[1].GetUInt32();
                 uint32 difficulty = (*result)[2].GetUInt32();
+
+                MapEntry const* mapEntry = sMapStore.LookupEntry(mapid);
+
+                if (!mapEntry || !mapEntry->IsDungeon() || !GetMapDifficultyData(mapid, Difficulty(difficulty)))
+                {
+                    sMapPersistentStateMgr.DeleteInstanceFromDB(id,false);
+                    continue;
+                }
+
                 instResetTime[id] = ResetTimeMapDiffType(MAKE_PAIR32(mapid,difficulty), resettime);
             }
         }
@@ -384,8 +393,9 @@ void DungeonResetScheduler::LoadResetTimes()
             else 
                 oldresettime = time_t(_oldresettime);
 
-            MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mapid,difficulty);
-            if(!mapDiff)
+            MapEntry const* mapEntry = sMapStore.LookupEntry(mapid);
+
+            if (!mapEntry || !mapEntry->IsDungeon() || !GetMapDifficultyData(mapid,difficulty))
             {
                 sLog.outError("MapPersistentStateManager::LoadResetTimes: invalid mapid(%u)/difficulty(%u) pair in instance_reset!", mapid, difficulty);
                 CharacterDatabase.DirectPExecute("DELETE FROM instance_reset WHERE mapid = '%u' AND difficulty = '%u'", mapid,difficulty);
@@ -410,6 +420,7 @@ void DungeonResetScheduler::LoadResetTimes()
     // add the global reset times to the priority queue
     for(MapDifficultyMap::const_iterator itr = sMapDifficultyMap.begin(); itr != sMapDifficultyMap.end(); ++itr)
     {
+
         uint32 map_diff_pair = itr->first;
         uint32 mapid = PAIR32_LOPART(map_diff_pair);
         Difficulty difficulty = Difficulty(PAIR32_HIPART(map_diff_pair));
@@ -419,7 +430,12 @@ void DungeonResetScheduler::LoadResetTimes()
         if (!mapDiff->resetTime)
             continue;
 
+        MapEntry const* mapEntry = sMapStore.LookupEntry(mapid);
+        if (!mapEntry || !mapEntry->IsDungeon())
+            continue;
+
         time_t period = GetMaxResetTimeFor(mapDiff);
+
         time_t t = GetResetTimeFor(mapid,difficulty);
 
         if(!t || t < now)

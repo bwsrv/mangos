@@ -769,7 +769,7 @@ bool Pet::CreateBaseAtCreature(Creature* creature, Unit* owner)
 {
     if(!creature || !owner)
     {
-        sLog.outError("CRITICAL: NULL pointer parsed into CreateBaseAtCreature()");
+        sLog.outError("CRITICAL: NULL pointer passed into CreateBaseAtCreature()");
         return false;
     }
 
@@ -781,6 +781,8 @@ bool Pet::CreateBaseAtCreature(Creature* creature, Unit* owner)
     }
 
     BASIC_LOG("Create new pet from creature %d ", creature->GetEntry());
+
+    Relocate(creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation());
 
     if (!Create(owner, creature->GetEntry()))
         return false;
@@ -2097,6 +2099,7 @@ bool Pet::SetSummonPosition(float x, float y, float z)
     UpdateAllowedPositionZ(px, py, pz);
 
     Relocate(px, py, pz, -owner->GetOrientation());
+
     SetSummonPoint(px, py, pz, -owner->GetOrientation());
 
     if (!IsPositionValid()) 
