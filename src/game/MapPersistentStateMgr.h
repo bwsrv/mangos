@@ -307,7 +307,8 @@ class DungeonResetScheduler
         }
 
         static uint32 GetMaxResetTimeFor(MapDifficultyEntry const* mapDiff);
-        static time_t CalculateNextResetTime(uint32 mapId, Difficulty difficulty, time_t prevResetTime);
+        static time_t CalculateNextResetTime(MapDifficultyEntry const* mapDiff, time_t prevResetTime);
+
     public:                                                 // modifiers
         void SetResetTimeFor(uint32 mapid, Difficulty d, time_t t)
         {
