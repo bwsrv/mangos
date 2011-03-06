@@ -5745,7 +5745,7 @@ void Player::UpdateWeaponSkill (WeaponAttackType attType)
         case RANGED_ATTACK:
         {
             Item *tmpitem = GetWeaponForAttack(attType,true,true);
-            if (tmpitem)
+            if (tmpitem && (tmpitem->GetProto()->SubClass != ITEM_SUBCLASS_WEAPON_FISHING_POLE))
                 UpdateSkill(tmpitem->GetSkill(),weapon_skill_gain);
             break;
         }
