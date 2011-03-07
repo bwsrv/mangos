@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
+#define _BRUNCH "/dev/rsa branch"
 #include <fstream>
 #include <sstream>
 #include <time.h>
@@ -281,9 +281,14 @@ int main(int argc, char **argv)
         }
 
         if(res)
+        {
+            char buff[200];
+            strcpy(buff,data.rev_str);
+            sprintf(data.rev_str,"%s at %s",buff,_BRUNCH);
             newData = generateHeader(data.rev_str,data.date_str,data.time_str);
+        }
         else
-            newData = generateHeader("*", "*", "*");
+            newData = generateHeader(_BRUNCH, "*", "*");
     }
 
     /// get existed header data for compare
