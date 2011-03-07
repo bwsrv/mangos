@@ -620,7 +620,7 @@ bool IsExplicitNegativeTarget(uint32 targetA)
     {
         case TARGET_CHAIN_DAMAGE:
         case TARGET_CURRENT_ENEMY_COORDINATES:
-        case TARGET_SINGLE_ENEMY:
+//        case TARGET_SINGLE_ENEMY: <- Penace is positive!
             return true;
         default:
             break;
