@@ -1844,8 +1844,8 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
             break;
     }
 
-    // only from players
-    if (GetTypeId() == TYPEID_PLAYER)
+    // only from players and their pets
+    if (GetTypeId() == TYPEID_PLAYER || GetObjectGuid().IsPet())
     {
         uint32 resilienceReduction;
         if (attackType != RANGED_ATTACK)

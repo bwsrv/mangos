@@ -9557,6 +9557,11 @@ Item* Player::GetItemByGuid(ObjectGuid guid) const
                     if (pItem->GetObjectGuid() == guid)
                         return pItem;
 
+    for(int i = BANK_SLOT_ITEM_START; i < BANK_SLOT_ITEM_END; ++i)
+        if (Item *pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            if (pItem->GetObjectGuid() == guid)
+                return pItem;
+
     for(int i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
         if (Bag *pBag = (Bag*)GetItemByPos(INVENTORY_SLOT_BAG_0, i))
             for(uint32 j = 0; j < pBag->GetBagSize(); ++j)
@@ -17500,13 +17505,14 @@ void Player::SendRaidInfo()
         {
             if (itr->second.perm)
             {
-                DungeonPersistentState *state = itr->second.state;
-                data << uint32(state->GetMapId());          // map id
-                data << uint32(state->GetDifficulty());     // difficulty
-                data << ObjectGuid(state->GetInstanceGuid());// instance guid
-                data << uint8((state->GetResetTimeForDB() < now) ? 1 : 0 );   // expired = 0
-                data << uint8(itr->second.extend ? 1 : 0);  // extended = 1
-                data << uint32(state->GetResetTime() - now);// reset time
+                DungeonPersistentState* state = itr->second.state;
+                data << uint32(state->GetMapId());              // map id
+                data << uint32(state->GetDifficulty());         // difficulty
+                data << ObjectGuid(state->GetInstanceGuid());   // instance guid
+                data << uint8((state->GetResetTime() > now) ? 1 : 0 );   // expired = 0
+                data << uint8(itr->second.extend ? 1 : 0);      // extended = 1
+                data << uint32(state->GetResetTime() > now ? state->GetResetTime() - now 
+                    : DungeonResetScheduler::CalculateNextResetTime(GetMapDifficultyData(state->GetMapId(), state->GetDifficulty()), now));    // reset time
                 ++counter;
             }
         }

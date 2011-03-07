@@ -68,24 +68,22 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket &/*recv_data*/)
     data << uint32(counter);                                // Instance reset intervals
     for(MapDifficultyMap::const_iterator itr = sMapDifficultyMap.begin(); itr != sMapDifficultyMap.end(); ++itr)
     {
-        uint32 map_diff_pair = itr->first;
-        uint32 mapid = PAIR32_LOPART(map_diff_pair);
-        int difficulty = PAIR32_HIPART(map_diff_pair);
         MapDifficultyEntry const* mapDiff = itr->second;
-        if(!mapDiff->resetTime || difficulty != (int)REGULAR_DIFFICULTY)
+
+        if(!mapDiff || mapDiff->resetTime == 0)
             continue;
 
-        const MapEntry* map = sMapStore.LookupEntry(mapid);
-        if(!map->IsRaid())
+        const MapEntry* map = sMapStore.LookupEntry(mapDiff->MapId);
+        if(!map || !map->IsRaid())
             continue;
 
         uint32 period =  uint32(mapDiff->resetTime / DAY * sWorld.getConfig(CONFIG_FLOAT_RATE_INSTANCE_RESET_TIME)) * DAY;
         if (period < DAY)
             period = DAY;
 
-        data << uint32(mapid);
+        data << uint32(mapDiff->MapId);
         data << uint32(period);
-        data << uint32(map->instanceResetOffset);
+        data << uint32(mapDiff->resetTime);
         ++counter;
     }
     data.put<uint32>(p_counter,counter);

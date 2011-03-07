@@ -815,12 +815,6 @@ void ObjectMgr::ConvertCreatureAddonAuras(CreatureDataAddon* addon, char const* 
             continue;
         }
 
-        if (!IsSpellAppliesAura(AdditionalSpellInfo))
-        {
-            sLog.outErrorDb("Creature (%s: %u) has spell %u defined in `auras` field in `%s` but spell doesn't apply any auras.", guidEntryStr, addon->guidOrEntry, cAura.spell_id, table);
-            continue;
-        }
-
         ++i;
     }
 
@@ -3917,7 +3911,8 @@ void ObjectMgr::LoadGroups()
 
             if (resetTime > (time(NULL) + INSTANCE_MAX_RESET_OFFSET))
             {
-                resetTime = DungeonResetScheduler::CalculateNextResetTime(mapId, diff, time(NULL));
+                MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mapId,diff);
+                resetTime = DungeonResetScheduler::CalculateNextResetTime(mapDiff, time(NULL));
                 sLog.outErrorDb("ObjectMgr::Wrong reset time in group_instance corrected to: %d", resetTime);
             }
 
