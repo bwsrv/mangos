@@ -806,7 +806,7 @@ void MapPersistentStateManager::_ResetInstance(uint32 mapid, uint32 instanceId)
     DEBUG_LOG("MapPersistentStateManager::_ResetInstance %u, %u", mapid, instanceId);
 
     bool isExtended = false;
-    QueryResult *result = CharacterDatabase.PQuery("SELECT COUNT(guid) FROM characters_instance WHERE instance = '%u' AND extend = 1 ", instanceId);
+    QueryResult *result = CharacterDatabase.PQuery("SELECT COUNT(guid) FROM character_instance WHERE instance = '%u' AND extend = 1 ", instanceId);
     if (result)
     {
         Field *fields=result->Fetch();
