@@ -6636,7 +6636,15 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget,spellid,false);
                     return;
                 }
-                case 26218:                                 // Mistletoe
+                case 26004:                                 // Mistletoe (stat buff)
+                {
+                    if(!unitTarget)
+                        return;
+
+                    unitTarget->HandleEmoteCommand(EMOTE_ONESHOT_CHEER);
+                    return;
+                }
+                case 26218:                                 // Mistletoe (creation)
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
                         return;
