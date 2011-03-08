@@ -185,7 +185,7 @@ WHERE entry IN (28670);
 UPDATE creature_template SET maxhealth = 133525, minhealth = 133525, maxmana = 51360, minmana = 51360, InhabitType = 3 WHERE entry = 28670;
 
 REPLACE INTO `creature_template_addon` (`entry`, `mount`, `bytes1`, `b2_0_sheath`, `emote`, `moveflags`, `auras`) VALUES
-(28670, 0, 50331648, 1, 0, 1024, '53112 0 53112 1 53112 2');
+(28670, 0, 50331648, 1, 0, 1024, '53112');
 
 -- from me
 -- into realm of shadows
@@ -309,7 +309,7 @@ DELETE FROM `npc_spellclick_spells` WHERE npc_entry IN (27996);
 INSERT INTO `npc_spellclick_spells` VALUES
 (27996, 50343, 12498, 1, 12498, 1);
 
-REPLACE INTO `creature_template_addon` (entry, auras) VALUES (27996, '53112 0 53112 1 53112 2');
+REPLACE INTO `creature_template_addon` (entry, auras) VALUES (27996, '53112');
 
 -- from me
 -- Quest Reclamation (12546)
@@ -339,13 +339,13 @@ REPLACE INTO `spell_script_target` VALUES (58917,1,31276);
 -- from traponinet
 -- Quest: No Fly Zone (12815)
 UPDATE `creature_template` SET spell1=48766, spell2=54469, spell3=54467, spell4=55214, InhabitType=3 WHERE `entry`=29414;
-REPLACE INTO `creature_template_addon` (entry,auras) VALUES (29414,'57403 0 57403 1 57403 2');
+REPLACE INTO `creature_template_addon` (entry,auras) VALUES (29414,'57403');
 
 -- Quest: Defending Wyrmrest Temple (12372)
 REPLACE INTO `gossip_scripts` (id,command,datalong,datalong2) VALUES (27629,15,49256,3);
 REPLACE INTO `gossip_menu_option` VALUES (9568,0,0,'We need to get into the fight. Are you ready?',1,1,-1,0,27629,0,0,NULL,9,12372,0,0,0,0,0,0,0);
 UPDATE `creature_template` SET spell1=49161,spell2=49243,spell3=49263,spell4=49264,spell5=49367,unit_flags=0,InhabitType=3 WHERE entry=27629;
-REPLACE INTO `creature_template_addon` (entry,bytes1,b2_0_sheath,auras) VALUES (27629,33554432,1,'50069 0 50069 1 50069 2');
+REPLACE INTO `creature_template_addon` (entry,bytes1,b2_0_sheath,auras) VALUES (27629,33554432,1,'50069');
 REPLACE INTO `creature_ai_scripts` VALUES (2769801,27698,8,0,100,0,49367,-1,0,0,33,27698,6,0,0,0,0,0,0,0,0,0,'q12372');
 UPDATE `creature_template` SET `AIName`='EventAI' WHERE `entry`=27698;
 REPLACE INTO `spell_script_target` VALUES (49370,1,27698),(49367,1,27698);
