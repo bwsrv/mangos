@@ -1,6 +1,4 @@
--- Data for commit 10682
--- from jethro84530
-REPLACE INTO `item_convert` (`entry`, `item`) VALUES
+REPLACE INTO item_convert (entry, item) VALUES
 (50335, 44133),
 (50370, 44152),
 (50367, 44149),

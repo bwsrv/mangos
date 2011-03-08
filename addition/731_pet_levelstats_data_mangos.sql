@@ -1,7 +1,7 @@
 -- pets levelstats from wowwiki
 -- default pet
-DELETE FROM `pet_levelstats` WHERE `creature_entry` = 1;
-INSERT INTO `pet_levelstats` (`creature_entry`, `level`, `hp`, `mana`, `armor`, `mindmg`, `maxdmg`, `attackpower`, `str`, `agi`, `sta`, `inte`, `spi`) VALUES
+DELETE FROM pet_levelstats WHERE creature_entry = 1;
+INSERT INTO pet_levelstats (creature_entry, level, hp, mana, armor, mindmg, maxdmg, attackpower, str, agi, sta, inte, spi) VALUES
 (1, 1, 42, 1, 20, 2, 3, 10, 22, 20, 22, 20, 20),
 (1, 2, 55, 1, 21, 3, 4, 11, 23, 21, 23, 20, 20),
 (1, 3, 71, 1, 46, 3, 6, 12, 24, 21, 24, 20, 21),
@@ -84,8 +84,8 @@ INSERT INTO `pet_levelstats` (`creature_entry`, `level`, `hp`, `mana`, `armor`, 
 (1, 80, 5161, 1, 9784, 346, 499, 287, 192, 158, 356, 70, 115);
 
 -- warlock imp
-DELETE FROM `pet_levelstats` WHERE `creature_entry` = 416;
-INSERT INTO `pet_levelstats` (`creature_entry`, `level`, `hp`, `mana`, `armor`, `mindmg`, `maxdmg`, `attackpower`, `str`, `agi`, `sta`, `inte`, `spi`) VALUES
+DELETE FROM pet_levelstats WHERE creature_entry = 416;
+INSERT INTO pet_levelstats (creature_entry, level, hp, mana, armor, mindmg, maxdmg, attackpower, str, agi, sta, inte, spi) VALUES
 (416, 1, 140, 48, 20, 2, 3, 10, 20, 20, 20, 24, 23),
 (416, 2, 149, 59, 20, 3, 4, 11, 21, 20, 20, 25, 24),
 (416, 3, 158, 70, 20, 3, 6, 12, 22, 20, 21, 26, 25),
@@ -168,8 +168,8 @@ INSERT INTO `pet_levelstats` (`creature_entry`, `level`, `hp`, `mana`, `armor`, 
 (416, 80, 2129, 3228, 6273, 346, 499, 287, 297, 79, 118, 369, 367);
 
 -- warlock voidwalker
-DELETE FROM `pet_levelstats` WHERE `creature_entry` = 1860;
-INSERT INTO `pet_levelstats` (`creature_entry`, `level`, `hp`, `mana`, `armor`, `mindmg`, `maxdmg`, `attackpower`, `str`, `agi`, `sta`, `inte`, `spi`) VALUES
+DELETE FROM pet_levelstats WHERE creature_entry = 1860;
+INSERT INTO pet_levelstats (creature_entry, level, hp, mana, armor, mindmg, maxdmg, attackpower, str, agi, sta, inte, spi) VALUES
 (1860, 1, 40, 48, 831, 13, 19, 38, 29, 10, 29, 25, 27),
 (1860, 2, 49, 59, 40, 0, 0, 0, 14, 15, 2, 1, 0),
 (1860, 3, 58, 70, 60, 0, 0, 0, 15, 16, 4, 1, 0),
@@ -252,8 +252,8 @@ INSERT INTO `pet_levelstats` (`creature_entry`, `level`, `hp`, `mana`, `armor`, 
 (1860, 80, 6401, 3997, 16148, 358, 501, 608, 314, 140, 328, 185, 239);
 
 -- warlock succubus
-DELETE FROM `pet_levelstats` WHERE `creature_entry` = 1863;
-INSERT INTO `pet_levelstats` (`creature_entry`, `level`, `hp`, `mana`, `armor`, `mindmg`, `maxdmg`, `attackpower`, `str`, `agi`, `sta`, `inte`, `spi`) VALUES
+DELETE FROM pet_levelstats WHERE creature_entry = 1863;
+INSERT INTO pet_levelstats (creature_entry, level, hp, mana, armor, mindmg, maxdmg, attackpower, str, agi, sta, inte, spi) VALUES
 (1863, 1, 40, 48, 563, 29, 39, 64, 42, 35, 67, 31, 49),
 (1863, 2, 49, 59, 40, 0, 0, 0, 14, 15, 2, 1, 26),
 (1863, 3, 58, 70, 60, 0, 0, 0, 15, 16, 4, 1, 27),
@@ -336,8 +336,8 @@ INSERT INTO `pet_levelstats` (`creature_entry`, `level`, `hp`, `mana`, `armor`, 
 (1863, 80, 2665, 2989, 9706, 461, 635, 608, 314, 129, 328, 170, 209);
 
 -- warlock felhunter
-DELETE FROM `pet_levelstats` WHERE `creature_entry` = 417;
-INSERT INTO `pet_levelstats` (`creature_entry`, `level`, `hp`, `mana`, `armor`, `mindmg`, `maxdmg`, `attackpower`, `str`, `agi`, `sta`, `inte`, `spi`) VALUES
+DELETE FROM pet_levelstats WHERE creature_entry = 417;
+INSERT INTO pet_levelstats (creature_entry, level, hp, mana, armor, mindmg, maxdmg, attackpower, str, agi, sta, inte, spi) VALUES
 (417, 1, 60, 48, 834, 31, 42, 94, 57, 46, 118, 69, 51),
 (417, 2, 73, 59, 168, 0, 0, 0, 12, 18, 14, 13, 23),
 (417, 3, 87, 70, 191, 0, 0, 0, 14, 19, 17, 15, 24),
@@ -420,8 +420,8 @@ INSERT INTO `pet_levelstats` (`creature_entry`, `level`, `hp`, `mana`, `armor`, 
 (417, 80, 3733, 3025, 7782, 333, 466, 608, 314, 190, 328, 150, 209);
 
 -- warlock felguard
-DELETE FROM `pet_levelstats` WHERE `creature_entry` = 17252;
-INSERT INTO `pet_levelstats` (`creature_entry`, `level`, `hp`, `mana`, `armor`, `mindmg`, `maxdmg`, `attackpower`, `str`, `agi`, `sta`, `inte`, `spi`) VALUES
+DELETE FROM pet_levelstats WHERE creature_entry = 17252;
+INSERT INTO pet_levelstats (creature_entry, level, hp, mana, armor, mindmg, maxdmg, attackpower, str, agi, sta, inte, spi) VALUES
 (17252, 1, 40, 48, 3494, 113, 149, 194, 107, 71, 190, 84, 80),
 (17252, 2, 49, 59, 40, 0, 0, 0, 14, 15, 2, 1, 26),
 (17252, 3, 58, 70, 60, 0, 0, 0, 15, 16, 4, 1, 27),
@@ -504,8 +504,8 @@ INSERT INTO `pet_levelstats` (`creature_entry`, `level`, `hp`, `mana`, `armor`, 
 (17252, 80, 6872, 5266, 14033, 329, 495, 608, 314, 129, 428, 280, 209);
 
 -- DK Ghoul
-DELETE FROM `pet_levelstats` WHERE `creature_entry` = 26125;
-INSERT INTO `pet_levelstats` (`creature_entry`, `level`, `hp`, `mana`, `armor`, `mindmg`, `maxdmg`, `attackpower`, `str`, `agi`, `sta`, `inte`, `spi`) VALUES
+DELETE FROM pet_levelstats WHERE creature_entry = 26125;
+INSERT INTO pet_levelstats (creature_entry, level, hp, mana, armor, mindmg, maxdmg, attackpower, str, agi, sta, inte, spi) VALUES
 (26125, 1, 48, 80, 10, 1, 3, 10, 20, 16, 13, 20, 8),
 (26125, 2, 105, 106, 67, 0, 0, 0, 22, 17, 14, 21, 9),
 (26125, 3, 162, 132, 124, 0, 0, 0, 24, 18, 15, 22, 10),
@@ -588,8 +588,8 @@ INSERT INTO `pet_levelstats` (`creature_entry`, `level`, `hp`, `mana`, `armor`, 
 (26125, 80, 4551, 2134, 4513, 310, 504, 622, 178, 95, 92, 99, 87);
 
 -- Water elemental
-DELETE FROM `pet_levelstats` WHERE `creature_entry` = 37994;
-INSERT INTO `pet_levelstats` (`creature_entry`, `level`, `hp`, `mana`, `armor`, `mindmg`, `maxdmg`, `attackpower`, `str`, `agi`, `sta`, `inte`, `spi`) VALUES
+DELETE FROM pet_levelstats WHERE creature_entry = 37994;
+INSERT INTO pet_levelstats (creature_entry, level, hp, mana, armor, mindmg, maxdmg, attackpower, str, agi, sta, inte, spi) VALUES
 (37994, 1,  42, 22, 20, 2, 3, 10, 22, 20, 22, 20, 20),
 (37994, 50, 1234, 1000, 108,   63,  87,  91, 13, 19, 50, 43, 53),
 (37994, 51, 1250, 1115, 112,   64,  88,  94, 15, 20, 51, 44, 54),
@@ -624,14 +624,14 @@ INSERT INTO `pet_levelstats` (`creature_entry`, `level`, `hp`, `mana`, `armor`, 
 (37994, 80, 3200, 2800, 4000, 410, 850, 820, 62, 86, 92, 101, 94);
 
 -- Mirror image
-DELETE FROM `pet_levelstats` WHERE `creature_entry` = 31216;
-INSERT INTO `pet_levelstats` (`creature_entry`, `level`, `hp`, `mana`, `armor`, `mindmg`, `maxdmg`, `attackpower`, `str`, `agi`, `sta`, `inte`, `spi`) VALUES
+DELETE FROM pet_levelstats WHERE creature_entry = 31216;
+INSERT INTO pet_levelstats (creature_entry, level, hp, mana, armor, mindmg, maxdmg, attackpower, str, agi, sta, inte, spi) VALUES
 (31216, 1,  42, 22, 20, 2, 3, 10, 22, 20, 22, 20, 20),
 (31216, 80, 2680, 2400, 8600, 182, 216, 110, 72, 86, 152, 191, 94);
 
 -- Priest Shadowfiend
-DELETE FROM `pet_levelstats` WHERE `creature_entry` = 19668;
-INSERT INTO `pet_levelstats` (`creature_entry`, `level`, `hp`, `mana`, `armor`, `mindmg`, `maxdmg`, `attackpower`, `str`, `agi`, `sta`, `inte`, `spi`) VALUES
+DELETE FROM pet_levelstats WHERE creature_entry = 19668;
+INSERT INTO pet_levelstats (creature_entry, level, hp, mana, armor, mindmg, maxdmg, attackpower, str, agi, sta, inte, spi) VALUES
 (19668,  1,   42,   22,   20,   2,   3,  10, 22, 20, 22, 20, 20),
 (19668, 66, 6888, 3195, 2745, 125, 480, 770, 48, 71, 78, 87, 87),
 (19668, 67, 6944, 3252, 2900, 130, 520, 780, 49, 72, 79, 88, 88),
@@ -650,8 +650,8 @@ INSERT INTO `pet_levelstats` (`creature_entry`, `level`, `hp`, `mana`, `armor`, 
 (19668, 80, 7266, 4759, 4500, 190, 620, 910, 62, 86, 92, 101, 102);
 
 -- Spirit wolf
-DELETE FROM `pet_levelstats` WHERE `creature_entry` = 29264;
-INSERT INTO `pet_levelstats` (`creature_entry`, `level`, `hp`, `mana`, `armor`, `mindmg`, `maxdmg`, `attackpower`, `str`, `agi`, `sta`, `inte`, `spi`) VALUES
+DELETE FROM pet_levelstats WHERE creature_entry = 29264;
+INSERT INTO pet_levelstats (creature_entry, level, hp, mana, armor, mindmg, maxdmg, attackpower, str, agi, sta, inte, spi) VALUES
 (29264,  1,   42,   22,   20,  2,   3,   10,  22, 20, 22, 20, 20),
 (29264, 40, 5271, 1094, 2233, 73, 100,  190,  98, 55, 52, 59, 47),
 (29264, 41, 5328, 1120, 2290, 75, 110,  220, 100, 56, 53, 60, 48),
@@ -697,8 +697,8 @@ INSERT INTO `pet_levelstats` (`creature_entry`, `level`, `hp`, `mana`, `armor`, 
 
 -- From FallenangelX (need more research)
 -- Greater Earth Elemental
-DELETE FROM `pet_levelstats` WHERE `creature_entry` = 15352;
-INSERT INTO `pet_levelstats` (`creature_entry`, `level`, `hp`, `mana`, `armor`, `mindmg`, `maxdmg`, `attackpower`, `str`, `agi`, `sta`, `inte`, `spi`) VALUES
+DELETE FROM pet_levelstats WHERE creature_entry = 15352;
+INSERT INTO pet_levelstats (creature_entry, level, hp, mana, armor, mindmg, maxdmg, attackpower, str, agi, sta, inte, spi) VALUES
 (15352,  1,   42,   22,    20,  2,  3, 10,  22, 20,  22,  20,  20),
 (15352, 66, 7100,    0,  7000, 50, 83,  0, 132, 62,  96, 132, 320),
 (15352, 67, 7464,    0,  7521, 50, 84,  0, 141, 64, 100, 134, 330),
@@ -717,8 +717,8 @@ INSERT INTO `pet_levelstats` (`creature_entry`, `level`, `hp`, `mana`, `armor`, 
 (15352, 80, 12200,2120, 14300, 60,100,812, 261, 90, 162, 165, 460);
 
 -- Greater Fire Elemental
-DELETE FROM `pet_levelstats` WHERE `creature_entry` = 15438;
-INSERT INTO `pet_levelstats` (`creature_entry`, `level`, `hp`, `mana`, `armor`, `mindmg`, `maxdmg`, `attackpower`, `str`, `agi`, `sta`, `inte`, `spi`) VALUES
+DELETE FROM pet_levelstats WHERE creature_entry = 15438;
+INSERT INTO pet_levelstats (creature_entry, level, hp, mana, armor, mindmg, maxdmg, attackpower, str, agi, sta, inte, spi) VALUES
 ( 15438,  1,   42,   22,   20,   2,   3,  10,  22,  20,  22,  20,  20),
 ( 15438, 68, 6800, 2052,  980, 123, 164,   0, 230, 138,  99, 320, 340),
 ( 15438, 69, 6900, 2071,  990, 126, 167,   0, 241, 139, 101, 327, 350),
@@ -735,8 +735,8 @@ INSERT INTO `pet_levelstats` (`creature_entry`, `level`, `hp`, `mana`, `armor`, 
 ( 15438, 80, 8000, 2280, 1100, 160, 210,1480, 366, 160, 125, 405, 460);
 
 -- Mage Water elemental (old guardian)
-DELETE FROM `pet_levelstats` WHERE `creature_entry` = 510;
-INSERT INTO `pet_levelstats` (`creature_entry`, `level`, `hp`, `mana`, `armor`, `mindmg`, `maxdmg`, `attackpower`, `str`, `agi`, `sta`, `inte`, `spi`) VALUES
+DELETE FROM pet_levelstats WHERE creature_entry = 510;
+INSERT INTO pet_levelstats (creature_entry, level, hp, mana, armor, mindmg, maxdmg, attackpower, str, agi, sta, inte, spi) VALUES
 (510, 1,  42, 22, 20, 2, 3, 10, 22, 20, 22, 20, 20),
 (510, 50, 1234, 1000, 108,   63,  87,  91, 13, 19, 50, 43, 53),
 (510, 51, 1250, 1115, 112,   64,  88,  94, 15, 20, 51, 44, 54),

@@ -5,25 +5,25 @@
 -- RU-texts
 -- Game-event number - 78, length 60min(1hour), occurence 10080(1week). Day/time of event - Friday 20:00
 
-REPLACE INTO `game_event` (`entry`, `start_time`, `end_time`, `occurence`, `length`, `description`) VALUES (78, '2010-04-23 20:00:00', '2020-12-31 21:00:00', 10080, 60, 'Orgrimmar City Under Attack');
+REPLACE INTO game_event (entry, start_time, end_time, occurence, length, description) VALUES (78, '2010-04-23 20:00:00', '2020-12-31 21:00:00', 10080, 60, 'Orgrimmar City Under Attack');
 
-REPLACE INTO `creature_template` (`entry`, `modelid_1`, `modelid_2`, `modelid_3`, `modelid_4`, `name`, `subname`, `IconName`, `minlevel`, `maxlevel`, `minhealth`, `maxhealth`, `minmana`, `maxmana`, `armor`, `faction_A`, `faction_H`, `npcflag`, `speed_walk`, `scale`, `rank`, `mindmg`, `maxdmg`, `dmgschool`, `attackpower`, `baseattacktime`, `rangeattacktime`, `unit_flags`, `dynamicflags`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `minrangedmg`, `maxrangedmg`, `rangedattackpower`, `type`, `type_flags`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `PetSpellDataId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `RacialLeader`, `RegenHealth`, `equipment_id`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`) VALUES 
+REPLACE INTO creature_template (entry, modelid_1, modelid_2, modelid_3, modelid_4, name, subname, IconName, minlevel, maxlevel, minhealth, maxhealth, minmana, maxmana, armor, faction_A, faction_H, npcflag, speed_walk, scale, rank, mindmg, maxdmg, dmgschool, attackpower, baseattacktime, rangeattacktime, unit_flags, dynamicflags, family, trainer_type, trainer_spell, trainer_class, trainer_race, minrangedmg, maxrangedmg, rangedattackpower, type, type_flags, lootid, pickpocketloot, skinloot, resistance1, resistance2, resistance3, resistance4, resistance5, resistance6, spell1, spell2, spell3, spell4, PetSpellDataId, mingold, maxgold, AIName, MovementType, InhabitType, RacialLeader, RegenHealth, equipment_id, mechanic_immune_mask, flags_extra, ScriptName) VALUES 
 (900050, 3167, 0, 5446, 0, 'Aliance Soldiest', '', 'Elite Aliance', 70, 80, 35000, 55000, 0, 0, 1500, 11, 11, 1, 1.4, 1, 0, 2192, 3289, 2, 1967, 2000, 0, 561152, 0, 0, 0, 0, 0, 0, 401.34, 472.17, 150, 7, 0, 0, 0, 0, 10, 10, 10, 10, 10, 10, 0, 0, 0, 0, 0, 10000, 20000, '', 0, 3, 0, 1, 653, 0, 0, ''),
 (900051, 3167, 0, 5446, 0, 'Aliance Armors', '', 'Elite Aliance', 70, 80, 150000, 150000, 0, 0, 2500, 11, 11, 1, 1.4, 1, 0, 2192, 3289, 2, 1967, 2000, 0, 561152, 0, 0, 0, 0, 0, 0, 401.34, 472.17, 150, 7, 0, 0, 0, 0, 10, 10, 10, 10, 10, 10, 0, 0, 0, 0, 0, 10000, 20000, '', 0, 3, 0, 1, 653, 0, 0, ''),
 (900052, 5566, 0, 5566, 0, 'Highlord Bolvar Fordragon', '', 'Elite Aliance', 83, 83, 5578000, 5578000, 67740, 67740, 3000, 12, 12, 2, 1.79, 1, 3, 2490, 5563, 5, 3337, 2000, 0, 4096, 0, 0, 0, 0, 0, 0, 320.81, 420.77, 100, 7, 12, 0, 0, 0, 30, 30, 30, 30, 30, 30, 63784, 0, 0, 0, 0, 1785, 2336, 'generic_creature', 0, 3, 0, 1, 632, 617299803, 2, '');
 
-UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 14720;
-DELETE FROM `creature_questrelation` WHERE `quest` = 777100;
-DELETE FROM `gameobject_questrelation` WHERE `quest` = 777100;
-UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 777100;
-INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (14720, 777100);
-UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 14720;
-DELETE FROM `creature_involvedrelation` WHERE `quest` = 777100;
-DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 777100;
-INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (14720, 777100);
-UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=14720;
-DELETE FROM `quest_template` WHERE `entry` = 777100;
-INSERT INTO `quest_template` (`entry`, `Method`, `ZoneOrSort`, `MinLevel`, `QuestLevel`, `Type`, `RequiredClasses`, `RequiredRaces`, `RequiredSkill, `RequiredSkillValue`, `RepObjectiveFaction`, `RepObjectiveValue`, `RequiredMinRepFaction`, `RequiredMinRepValue`, `RequiredMaxRepFaction`, `RequiredMaxRepValue`, `SuggestedPlayers`, `LimitTime`, `QuestFlags`, `SpecialFlags`, `CharTitleId`, `PlayersSlain`, `BonusTalents`, `PrevQuestId`, `NextQuestId`, `ExclusiveGroup`, `NextQuestInChain`, `RewXPId`, `SrcItemId`, `SrcItemCount`, `SrcSpell`, `Title`, `Details`, `Objectives`, `OfferRewardText`, `RequestItemsText`, `EndText`, `CompletedText`, `ObjectiveText1`, `ObjectiveText2`, `ObjectiveText3`, `ObjectiveText4`, `ReqItemId1`, `ReqItemId2`, `ReqItemId3`, `ReqItemId4`, `ReqItemId5`, `ReqItemId6`, `ReqItemCount1`, `ReqItemCount2`, `ReqItemCount3`, `ReqItemCount4`, `ReqItemCount5`, `ReqItemCount6`, `ReqSourceId1`, `ReqSourceId2`, `ReqSourceId3`, `ReqSourceId4`, `ReqSourceCount1`, `ReqSourceCount2`, `ReqSourceCount3`, `ReqSourceCount4`, `ReqCreatureOrGOId1`, `ReqCreatureOrGOId2`, `ReqCreatureOrGOId3`, `ReqCreatureOrGOId4`, `ReqCreatureOrGOCount1`, `ReqCreatureOrGOCount2`, `ReqCreatureOrGOCount3`, `ReqCreatureOrGOCount4`, `ReqSpellCast1`, `ReqSpellCast2`, `ReqSpellCast3`, `ReqSpellCast4`, `RewChoiceItemId1`, `RewChoiceItemId2`, `RewChoiceItemId3`, `RewChoiceItemId4`, `RewChoiceItemId5`, `RewChoiceItemId6`, `RewChoiceItemCount1`, `RewChoiceItemCount2`, `RewChoiceItemCount3`, `RewChoiceItemCount4`, `RewChoiceItemCount5`, `RewChoiceItemCount6`, `RewItemId1`, `RewItemId2`, `RewItemId3`, `RewItemId4`, `RewItemCount1`, `RewItemCount2`, `RewItemCount3`, `RewItemCount4`, `RewRepFaction1`, `RewRepFaction2`, `RewRepFaction3`, `RewRepFaction4`, `RewRepFaction5`, `RewRepValueId1`, `RewRepValueId2`, `RewRepValueId3`, `RewRepValueId4`, `RewRepValueId5`, `RewRepValue1`, `RewRepValue2`, `RewRepValue3`, `RewRepValue4`, `RewRepValue5`, `RewHonorAddition`, `RewHonorMultiplier`, `RewOrReqMoney`, `RewMoneyMaxLevel`, `RewSpell`, `RewSpellCast`, `RewMailTemplateId`, `RewMailDelaySecs`, `PointMapId`, `PointX`, `PointY`, `PointOpt`, `DetailsEmote1`, `DetailsEmote2`, `DetailsEmote3`, `DetailsEmote4`, `DetailsEmoteDelay1`, `DetailsEmoteDelay2`, `DetailsEmoteDelay3`, `DetailsEmoteDelay4`, `IncompleteEmote`, `CompleteEmote`, `OfferRewardEmote1`, `OfferRewardEmote2`, `OfferRewardEmote3`, `OfferRewardEmote4`, `OfferRewardEmoteDelay1`, `OfferRewardEmoteDelay2`, `OfferRewardEmoteDelay3`, `OfferRewardEmoteDelay4`, `StartScript`, `CompleteScript`) VALUES (777100, 2, 14, 70, 80, 0, 0, 690, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4170, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+UPDATE creature_template SET npcflag=npcflag|2 WHERE entry = 14720;
+DELETE FROM creature_questrelation WHERE quest = 777100;
+DELETE FROM gameobject_questrelation WHERE quest = 777100;
+UPDATE item_template SET StartQuest=0 WHERE StartQuest = 777100;
+INSERT INTO creature_questrelation (id, quest) VALUES (14720, 777100);
+UPDATE creature_template SET npcflag=npcflag|2 WHERE entry = 14720;
+DELETE FROM creature_involvedrelation WHERE quest = 777100;
+DELETE FROM gameobject_involvedrelation WHERE quest = 777100;
+INSERT INTO creature_involvedrelation (id, quest) VALUES (14720, 777100);
+UPDATE creature_template SET npcflag=npcflag|2 WHERE entry=14720;
+DELETE FROM quest_template WHERE entry = 777100;
+INSERT INTO quest_template (entry, Method, ZoneOrSort, MinLevel, QuestLevel, Type, RequiredClasses, RequiredRaces, RequiredSkill, RequiredSkillValue, RepObjectiveFaction, RepObjectiveValue, RequiredMinRepFaction, RequiredMinRepValue, RequiredMaxRepFaction, RequiredMaxRepValue, SuggestedPlayers, LimitTime, QuestFlags, SpecialFlags, CharTitleId, PlayersSlain, BonusTalents, PrevQuestId, NextQuestId, ExclusiveGroup, NextQuestInChain, RewXPId, SrcItemId, SrcItemCount, SrcSpell, Title, Details, Objectives, OfferRewardText, RequestItemsText, EndText, CompletedText, ObjectiveText1, ObjectiveText2, ObjectiveText3, ObjectiveText4, ReqItemId1, ReqItemId2, ReqItemId3, ReqItemId4, ReqItemId5, ReqItemId6, ReqItemCount1, ReqItemCount2, ReqItemCount3, ReqItemCount4, ReqItemCount5, ReqItemCount6, ReqSourceId1, ReqSourceId2, ReqSourceId3, ReqSourceId4, ReqSourceCount1, ReqSourceCount2, ReqSourceCount3, ReqSourceCount4, ReqCreatureOrGOId1, ReqCreatureOrGOId2, ReqCreatureOrGOId3, ReqCreatureOrGOId4, ReqCreatureOrGOCount1, ReqCreatureOrGOCount2, ReqCreatureOrGOCount3, ReqCreatureOrGOCount4, ReqSpellCast1, ReqSpellCast2, ReqSpellCast3, ReqSpellCast4, RewChoiceItemId1, RewChoiceItemId2, RewChoiceItemId3, RewChoiceItemId4, RewChoiceItemId5, RewChoiceItemId6, RewChoiceItemCount1, RewChoiceItemCount2, RewChoiceItemCount3, RewChoiceItemCount4, RewChoiceItemCount5, RewChoiceItemCount6, RewItemId1, RewItemId2, RewItemId3, RewItemId4, RewItemCount1, RewItemCount2, RewItemCount3, RewItemCount4, RewRepFaction1, RewRepFaction2, RewRepFaction3, RewRepFaction4, RewRepFaction5, RewRepValueId1, RewRepValueId2, RewRepValueId3, RewRepValueId4, RewRepValueId5, RewRepValue1, RewRepValue2, RewRepValue3, RewRepValue4, RewRepValue5, RewHonorAddition, RewHonorMultiplier, RewOrReqMoney, RewMoneyMaxLevel, RewSpell, RewSpellCast, RewMailTemplateId, RewMailDelaySecs, PointMapId, PointX, PointY, PointOpt, DetailsEmote1, DetailsEmote2, DetailsEmote3, DetailsEmote4, DetailsEmoteDelay1, DetailsEmoteDelay2, DetailsEmoteDelay3, DetailsEmoteDelay4, IncompleteEmote, CompleteEmote, OfferRewardEmote1, OfferRewardEmote2, OfferRewardEmote3, OfferRewardEmote4, OfferRewardEmoteDelay1, OfferRewardEmoteDelay2, OfferRewardEmoteDelay3, OfferRewardEmoteDelay4, StartScript, CompleteScript) VALUES (777100, 2, 14, 70, 80, 0, 0, 690, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4170, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 'Orgrimmar Protect', 
 'Скорее! Некогда медлить! $N ты должен(а) нам помочь! Болвар собрал сильную армию и атаковал Оргриммар, его нужно защитить. Ты должен(а) помочь нам в защитие, убей этих проклятых орков.', 
 'Убей 20 Aliance Soldiest, после возвращайся к Верховному правителю Саурфангу.', 
@@ -31,24 +31,24 @@ INSERT INTO `quest_template` (`entry`, `Method`, `ZoneOrSort`, `MinLevel`, `Ques
 'Не расслабляйся $N! Армия Альянсв велика, нужно защищать город любой ценой!', '', '', '', '', '', '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 900050, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 45706, 47241, 49426, 0, 2, 10, 2, 0, 76, 911, 68, 81, 0, 0, 0, 0, 0, 0, 2000, 1000, 1000, 1000, 0, 0, 0, 200000, 300000, 48161, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
 
-DELETE FROM `creature_questrelation` WHERE `quest` = 777101;
-DELETE FROM `gameobject_questrelation` WHERE `quest` = 777101;
-UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 777101;
-INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (900052, 777101);
-UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 900052;
-DELETE FROM `creature_involvedrelation` WHERE `quest` = 777101;
-DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 777101;
-INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (900052, 777101);
-UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=900052;
-DELETE FROM `quest_template` WHERE `entry` = 777101;
-INSERT INTO `quest_template` (`entry`, `Method`, `ZoneOrSort`, `MinLevel`, `QuestLevel`, `Type`, `RequiredClasses`, `RequiredRaces`, `RequiredSkill, `RequiredSkillValue`, `RepObjectiveFaction`, `RepObjectiveValue`, `RequiredMinRepFaction`, `RequiredMinRepValue`, `RequiredMaxRepFaction`, `RequiredMaxRepValue`, `SuggestedPlayers`, `LimitTime`, `QuestFlags`, `SpecialFlags`, `CharTitleId`, `PlayersSlain`, `BonusTalents`, `PrevQuestId`, `NextQuestId`, `ExclusiveGroup`, `NextQuestInChain`, `RewXPId`, `SrcItemId`, `SrcItemCount`, `SrcSpell`, `Title`, `Details`, `Objectives`, `OfferRewardText`, `RequestItemsText`, `EndText`, `CompletedText`, `ObjectiveText1`, `ObjectiveText2`, `ObjectiveText3`, `ObjectiveText4`, `ReqItemId1`, `ReqItemId2`, `ReqItemId3`, `ReqItemId4`, `ReqItemId5`, `ReqItemId6`, `ReqItemCount1`, `ReqItemCount2`, `ReqItemCount3`, `ReqItemCount4`, `ReqItemCount5`, `ReqItemCount6`, `ReqSourceId1`, `ReqSourceId2`, `ReqSourceId3`, `ReqSourceId4`, `ReqSourceCount1`, `ReqSourceCount2`, `ReqSourceCount3`, `ReqSourceCount4`, `ReqCreatureOrGOId1`, `ReqCreatureOrGOId2`, `ReqCreatureOrGOId3`, `ReqCreatureOrGOId4`, `ReqCreatureOrGOCount1`, `ReqCreatureOrGOCount2`, `ReqCreatureOrGOCount3`, `ReqCreatureOrGOCount4`, `ReqSpellCast1`, `ReqSpellCast2`, `ReqSpellCast3`, `ReqSpellCast4`, `RewChoiceItemId1`, `RewChoiceItemId2`, `RewChoiceItemId3`, `RewChoiceItemId4`, `RewChoiceItemId5`, `RewChoiceItemId6`, `RewChoiceItemCount1`, `RewChoiceItemCount2`, `RewChoiceItemCount3`, `RewChoiceItemCount4`, `RewChoiceItemCount5`, `RewChoiceItemCount6`, `RewItemId1`, `RewItemId2`, `RewItemId3`, `RewItemId4`, `RewItemCount1`, `RewItemCount2`, `RewItemCount3`, `RewItemCount4`, `RewRepFaction1`, `RewRepFaction2`, `RewRepFaction3`, `RewRepFaction4`, `RewRepFaction5`, `RewRepValueId1`, `RewRepValueId2`, `RewRepValueId3`, `RewRepValueId4`, `RewRepValueId5`, `RewRepValue1`, `RewRepValue2`, `RewRepValue3`, `RewRepValue4`, `RewRepValue5`, `RewHonorAddition`, `RewHonorMultiplier`, `RewOrReqMoney`, `RewMoneyMaxLevel`, `RewSpell`, `RewSpellCast`, `RewMailTemplateId`, `RewMailDelaySecs`, `PointMapId`, `PointX`, `PointY`, `PointOpt`, `DetailsEmote1`, `DetailsEmote2`, `DetailsEmote3`, `DetailsEmote4`, `DetailsEmoteDelay1`, `DetailsEmoteDelay2`, `DetailsEmoteDelay3`, `DetailsEmoteDelay4`, `IncompleteEmote`, `CompleteEmote`, `OfferRewardEmote1`, `OfferRewardEmote2`, `OfferRewardEmote3`, `OfferRewardEmote4`, `OfferRewardEmoteDelay1`, `OfferRewardEmoteDelay2`, `OfferRewardEmoteDelay3`, `OfferRewardEmoteDelay4`, `StartScript`, `CompleteScript`) VALUES (777101, 2, 14, 70, 80, 0, 0, 1101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4170, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+DELETE FROM creature_questrelation WHERE quest = 777101;
+DELETE FROM gameobject_questrelation WHERE quest = 777101;
+UPDATE item_template SET StartQuest=0 WHERE StartQuest = 777101;
+INSERT INTO creature_questrelation (id, quest) VALUES (900052, 777101);
+UPDATE creature_template SET npcflag=npcflag|2 WHERE entry = 900052;
+DELETE FROM creature_involvedrelation WHERE quest = 777101;
+DELETE FROM gameobject_involvedrelation WHERE quest = 777101;
+INSERT INTO creature_involvedrelation (id, quest) VALUES (900052, 777101);
+UPDATE creature_template SET npcflag=npcflag|2 WHERE entry=900052;
+DELETE FROM quest_template WHERE entry = 777101;
+INSERT INTO quest_template (entry, Method, ZoneOrSort, MinLevel, QuestLevel, Type, RequiredClasses, RequiredRaces, RequiredSkill, RequiredSkillValue, RepObjectiveFaction, RepObjectiveValue, RequiredMinRepFaction, RequiredMinRepValue, RequiredMaxRepFaction, RequiredMaxRepValue, SuggestedPlayers, LimitTime, QuestFlags, SpecialFlags, CharTitleId, PlayersSlain, BonusTalents, PrevQuestId, NextQuestId, ExclusiveGroup, NextQuestInChain, RewXPId, SrcItemId, SrcItemCount, SrcSpell, Title, Details, Objectives, OfferRewardText, RequestItemsText, EndText, CompletedText, ObjectiveText1, ObjectiveText2, ObjectiveText3, ObjectiveText4, ReqItemId1, ReqItemId2, ReqItemId3, ReqItemId4, ReqItemId5, ReqItemId6, ReqItemCount1, ReqItemCount2, ReqItemCount3, ReqItemCount4, ReqItemCount5, ReqItemCount6, ReqSourceId1, ReqSourceId2, ReqSourceId3, ReqSourceId4, ReqSourceCount1, ReqSourceCount2, ReqSourceCount3, ReqSourceCount4, ReqCreatureOrGOId1, ReqCreatureOrGOId2, ReqCreatureOrGOId3, ReqCreatureOrGOId4, ReqCreatureOrGOCount1, ReqCreatureOrGOCount2, ReqCreatureOrGOCount3, ReqCreatureOrGOCount4, ReqSpellCast1, ReqSpellCast2, ReqSpellCast3, ReqSpellCast4, RewChoiceItemId1, RewChoiceItemId2, RewChoiceItemId3, RewChoiceItemId4, RewChoiceItemId5, RewChoiceItemId6, RewChoiceItemCount1, RewChoiceItemCount2, RewChoiceItemCount3, RewChoiceItemCount4, RewChoiceItemCount5, RewChoiceItemCount6, RewItemId1, RewItemId2, RewItemId3, RewItemId4, RewItemCount1, RewItemCount2, RewItemCount3, RewItemCount4, RewRepFaction1, RewRepFaction2, RewRepFaction3, RewRepFaction4, RewRepFaction5, RewRepValueId1, RewRepValueId2, RewRepValueId3, RewRepValueId4, RewRepValueId5, RewRepValue1, RewRepValue2, RewRepValue3, RewRepValue4, RewRepValue5, RewHonorAddition, RewHonorMultiplier, RewOrReqMoney, RewMoneyMaxLevel, RewSpell, RewSpellCast, RewMailTemplateId, RewMailDelaySecs, PointMapId, PointX, PointY, PointOpt, DetailsEmote1, DetailsEmote2, DetailsEmote3, DetailsEmote4, DetailsEmoteDelay1, DetailsEmoteDelay2, DetailsEmoteDelay3, DetailsEmoteDelay4, IncompleteEmote, CompleteEmote, OfferRewardEmote1, OfferRewardEmote2, OfferRewardEmote3, OfferRewardEmote4, OfferRewardEmoteDelay1, OfferRewardEmoteDelay2, OfferRewardEmoteDelay3, OfferRewardEmoteDelay4, StartScript, CompleteScript) VALUES (777101, 2, 14, 70, 80, 0, 0, 1101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4170, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 'Orgrimmar Attack', 
 'Настало наше время. Атака Оргриммара началась! $N ты просто должен(а) нам помочь! Наша армия сильна, но и охрана у Оргриммара не слабая, поэтому ты просто должен(а) принять участие в осаде. Вперед! Убей как можно больше охранников Оргриммара!', 
 'Убей 20 Оргриммарских стражников, после возвращайся к Болвару возле Штормграда.', 
 'Спасибо за помощь! Ты отличный боец. $B$BВозми это небольшое вознаграждение в знак моего почтения.', 
 'Не расслабляйся $N! Оргриммар еще не пал, его горнизон силен! Вперед!', '', '', '', '', '', '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3296, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 45706, 47241, 49426, 0, 2, 10, 2, 0, 72, 930, 47, 69, 0, 0, 0, 0, 0, 0, 2000, 1000, 1000, 1000, 0, 0, 0, 200000, 300000, 48161, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
-REPLACE INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
+REPLACE INTO gameobject (guid,id,map,spawnMask,position_x,position_y,position_z,orientation,rotation0,rotation1,rotation2,rotation3,spawntimesecs,animprogress,state) VALUES
 (7778128, 182592, 1, 1, 1394.25, -4356.44, 25.2353, 3.03509, 0, 0, 0.998582, 0.0532271, 25, 0, 1),
 (7778129, 182592, 1, 1, 1389.64, -4377.36, 28.1818, 4.82143, 0, 0, 0.667522, -0.74459, 25, 0, 1),
 (7778130, 182592, 1, 1, 1418.06, -4360.42, 25.2359, 5.78394, 0, 0, 0.247039, -0.969006, 25, 0, 1),
@@ -233,10 +233,10 @@ REPLACE INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`position_x`,`position_
 (7778309, 182592, 1, 1, 1386.99, -4386.85, 36.0838, 1.69164, 0, 0, 0.748515, 0.663118, 25, 0, 1),
 (7778310, 182592, 1, 1, 1361.95, -4352.36, 32.7777, 0.0708826, 0, 0, 0.0354339, 0.999372, 25, 0, 1);
 
-REPLACE INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `DeathState`, `MovementType`) 
+REPLACE INTO creature (guid, id, map, spawnMask, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, currentwaypoint, curhealth, curmana, DeathState, MovementType) 
 VALUES (7778796, 900052, 1, 1, 0, 632, 1279.58, -4438.09, 27.2576, 0.653167, 25, 0, 0, 5578000, 67740, 0, 0);
 
-REPLACE INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`DeathState`,`MovementType`) VALUES
+REPLACE INTO creature (guid,id,map,spawnMask,modelid,equipment_id,position_x,position_y,position_z,orientation,spawntimesecs,spawndist,currentwaypoint,curhealth,curmana,DeathState,MovementType) VALUES
 (7778797, 900051, 1, 1, 0, 653, 1283.31, -4441.74, 27.5003, 0.417417, 25, 0, 0, 150000, 0, 0, 0),
 (7778798, 900051, 1, 1, 0, 653, 1286.91, -4438.78, 27.603, 0.803789, 25, 0, 0, 150000, 0, 0, 0),
 (7778799, 900051, 1, 1, 0, 653, 1283.54, -4435.57, 27.3472, 0.808807, 25, 0, 0, 150000, 0, 0, 0),
@@ -254,7 +254,7 @@ REPLACE INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`modelid`,`equipment_id`,
 (7778811, 900051, 1, 1, 0, 653, 1281.32, -4428, 26.7756, 4.50891, 25, 0, 0, 150000, 0, 0, 0),
 (7778812, 900051, 1, 1, 0, 653, 1281.38, -4426.06, 26.6793, 1.64875, 25, 0, 0, 150000, 0, 0, 0);
 
-REPLACE INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`DeathState`,`MovementType`) VALUES
+REPLACE INTO creature (guid,id,map,spawnMask,modelid,equipment_id,position_x,position_y,position_z,orientation,spawntimesecs,spawndist,currentwaypoint,curhealth,curmana,DeathState,MovementType) VALUES
 (7778813, 900050, 1, 1, 0, 653, 1339.91, -4408.29, 27.6044, 0.895856, 25, 0, 0, 45000, 0, 0, 0),
 (7778814, 900050, 1, 1, 0, 653, 1335.43, -4404.54, 27.5603, 0.675072, 25, 0, 0, 45000, 0, 0, 0),
 (7778815, 900050, 1, 1, 0, 653, 1332.55, -4399.46, 27.7244, 0.414146, 25, 0, 0, 45000, 0, 0, 0),
@@ -374,7 +374,7 @@ REPLACE INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`modelid`,`equipment_id`,
 (7778005, 900050, 1, 1, 0, 653, 1930.14, -4134.95, 40.4219, 3.12011, 25, 0, 0, 45000, 0, 0, 0),
 (7778006, 900050, 1, 1, 0, 653, 1921, -4139.63, 40.3582, 3.09001, 25, 0, 0, 45000, 0, 0, 0),
 (7778007, 900050, 1, 1, 0, 653, 1920.56, -4152.16, 40.4048, 4.51507, 25, 0, 0, 45000, 0, 0, 0);
-REPLACE INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`DeathState`,`MovementType`) VALUES
+REPLACE INTO creature (guid,id,map,spawnMask,modelid,equipment_id,position_x,position_y,position_z,orientation,spawntimesecs,spawndist,currentwaypoint,curhealth,curmana,DeathState,MovementType) VALUES
 (7778878, 3296, 1, 1, 0, 133, 1526.48, -4397.43, 14.3551, 3.36968, 25, 0, 0, 15952, 1528, 0, 0),
 (7778879, 3296, 1, 1, 0, 133, 1522.17, -4404.63, 15.2757, 3.15893, 25, 0, 0, 15952, 1528, 0, 0),
 (7778880, 3296, 1, 1, 0, 133, 1516.75, -4413.44, 16.9064, 2.73743, 25, 0, 0, 15952, 1528, 0, 0),
@@ -439,7 +439,7 @@ REPLACE INTO game_event_quest VALUES (777100, 78);
 REPLACE INTO game_event_creature VALUES (900052, 78);
 REPLACE INTO game_event_quest VALUES (777101, 78);
 
-REPLACE INTO `game_event_gameobject` (`guid`, `event`) VALUES 
+REPLACE INTO game_event_gameobject (guid, event) VALUES 
 (7778128,78),
 (7778129,78),
 (7778130,78),
@@ -622,7 +622,7 @@ REPLACE INTO `game_event_gameobject` (`guid`, `event`) VALUES
 (7778308,78),
 (7778309,78),
 (7778310,78);
-REPLACE INTO `game_event_creature` (`guid`, `event`) VALUES
+REPLACE INTO game_event_creature (guid, event) VALUES
 (7778796,78),
 (7778797,78),
 (7778798,78),

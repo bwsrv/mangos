@@ -126,6 +126,6 @@ INSERT INTO creature_onkill_reputation VALUES
 (31356,1037,1052,7,0,15,7,0,15,1,57818);
 
 -- fix from Insider42
-UPDATE `creature_onkill_reputation` SET `ChampioningAura` = 57818 WHERE
-(`RewOnKillRepFaction1`= 1037 OR `RewOnKillRepFaction2` = 1052) AND
-`ChampioningAura` = 0;
+UPDATE creature_onkill_reputation SET ChampioningAura = 57818 WHERE
+(RewOnKillRepFaction1= 1037 OR RewOnKillRepFaction2 = 1052) AND
+ChampioningAura = 0;

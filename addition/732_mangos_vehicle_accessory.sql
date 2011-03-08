@@ -1,18 +1,14 @@
-/*
-author: traponinet (remake from TC).
-*/
-
-DROP TABLE IF EXISTS `vehicle_accessory`;
-CREATE TABLE `vehicle_accessory` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `accessory_entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `seat_id` tinyint(1) NOT NULL DEFAULT '0',
-  `minion` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  `description` text NOT NULL,
-  PRIMARY KEY (`entry`,`seat_id`)
+DROP TABLE IF EXISTS vehicle_accessory;
+CREATE TABLE vehicle_accessory (
+  entry mediumint(8) unsigned NOT NULL DEFAULT '0',
+  accessory_entry mediumint(8) unsigned NOT NULL DEFAULT '0',
+  seat_id tinyint(1) NOT NULL DEFAULT '0',
+  minion tinyint(1) unsigned NOT NULL DEFAULT '0',
+  description text NOT NULL,
+  PRIMARY KEY (entry,seat_id)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Vehicle Accessory System';
 
-INSERT INTO `vehicle_accessory`(`entry`,`accessory_entry`,`seat_id`,`minion`,`description`) VALUES
+INSERT INTO vehicle_accessory(entry,accessory_entry,seat_id,minion,description) VALUES
 (36891,31260,0,0,'Ymirjar Skycaller'),
 (27626,27627,0,1,'Tatjana\'s Horse'),
 (28312,28319,7,1,'Wintergrasp Siege Engine'),
