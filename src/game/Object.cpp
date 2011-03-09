@@ -1799,7 +1799,7 @@ Creature* WorldObject::SummonCreature(uint32 id, float x, float y, float z, floa
 
     pCreature->Summon(spwtype, despwtime);
 
-    if (GetTypeId() == TYPEID_UNIT)
+    if (GetTypeId() == TYPEID_UNIT && pCreature->IsPet())
         pCreature->SetCreatorGuid(GetObjectGuid());
 
     if(GetTypeId()==TYPEID_UNIT && ((Creature*)this)->AI())
