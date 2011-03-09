@@ -250,7 +250,8 @@ void Object::BuildMovementUpdate(ByteBuffer * data, uint16 updateFlags) const
                 /*if (((Creature*)unit)->hasUnitState(UNIT_STAT_MOVING))
                     unit->m_movementInfo.SetMovementFlags(MOVEFLAG_FORWARD);*/
 
-                if (((Creature*)unit)->CanFly())
+                if (((Creature*)unit)->CanFly() && !(((Creature*)unit)->CanWalk()
+                    && unit->IsAtGroundLevel(unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ())))
                 {
                     // (ok) most seem to have this
                     unit->m_movementInfo.AddMovementFlag(MOVEFLAG_LEVITATING);
@@ -1557,6 +1558,14 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
 bool WorldObject::IsPositionValid() const
 {
     return MaNGOS::IsValidMapCoord(m_positionX,m_positionY,m_positionZ,m_orientation);
+}
+
+bool WorldObject::IsAtGroundLevel(float x, float y, float z) const
+{
+    float groundZ = GetTerrain()->GetHeight(x, y, z, true);
+    if(groundZ <= INVALID_HEIGHT || fabs(groundZ-z) > 0.5f)
+        return false;
+    return true;
 }
 
 void WorldObject::MonsterSay(const char* text, uint32 language, Unit* target)
