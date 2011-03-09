@@ -427,6 +427,7 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                     {
                         damage += uint32(unitTarget->GetMaxPower(POWER_MANA) / 2);
                         damage = std::min(damage, 15000);
+                        break;
                     }
                     // Defile damage depending from scale.
                     case 72754:
