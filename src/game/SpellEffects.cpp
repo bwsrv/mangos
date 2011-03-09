@@ -4111,6 +4111,32 @@ void Spell::EffectPowerBurn(SpellEffectIndex eff_idx)
 
     new_damage = int32(new_damage * multiplier);
     m_damage += new_damage;
+
+    // "Mana Burn now causes Fear, Hex and Psychic Scream to break early when used."
+    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PRIEST)
+    {
+        // Hex
+        if (SpellAuraHolder *holder = unitTarget->GetSpellAuraHolder(51514))
+            unitTarget->RemoveSpellAuraHolder(holder, AURA_REMOVE_BY_CANCEL);
+
+        Unit::AuraList const& fearAuras = unitTarget->GetAurasByType(SPELL_AURA_MOD_FEAR);
+        for (Unit::AuraList::const_iterator itr = fearAuras.begin(); itr != fearAuras.end();)
+        {
+            if (*itr)
+            {
+                SpellEntry const *spellInfo = (*itr)->GetSpellProto();
+                if ((spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && spellInfo->SpellIconID == 98) || // Fear
+                    (spellInfo->SpellFamilyName == SPELLFAMILY_PRIEST &&                                   // Psychic Scream
+                    (spellInfo->SpellFamilyFlags & UI64LIT(0x0000000000010000))))
+                {
+                    ++itr;
+                    unitTarget->RemoveAurasDueToSpell(spellInfo->Id, 0, AURA_REMOVE_BY_CANCEL);
+                    continue;
+                }
+            }
+            ++itr;
+        }
+    }
 }
 
 void Spell::EffectHeal(SpellEffectIndex /*eff_idx*/)
