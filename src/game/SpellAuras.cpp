@@ -9767,7 +9767,7 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                 case 57761:                                 // Fireball! (Brain Freeze triggered)
                 {
                     // consumed aura
-                    if (!apply && m_removeMode != AURA_REMOVE_BY_EXPIRE)
+                    if (!apply && m_removeMode != AURA_REMOVE_BY_EXPIRE && m_removeMode != AURA_REMOVE_BY_STACK)
                     {
                         Unit* caster = GetCaster();
                         // Item - Mage T10 2P Bonus
