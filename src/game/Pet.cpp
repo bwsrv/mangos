@@ -1905,6 +1905,11 @@ bool Pet::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint3
     if (!owner)
         return false;
 
+    CreatureInfo const* cInfo = ObjectMgr::GetCreatureTemplate(Entry);
+
+    if (!cInfo)
+        return false;
+
     if (map)
         SetMap(map);
     else
