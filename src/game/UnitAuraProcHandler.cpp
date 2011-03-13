@@ -2803,12 +2803,11 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 {
                     if (Aura *aur = pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_SHAMAN, UI64LIT(0x0000000010000000), 0, GetGUID()))
                     {
-                        SpellAuraHolder *aurHolder = GetSpellAuraHolder(aur->GetId());
-                        if (aurHolder)
+                        if (aur->GetHolder())
                         {
                             int32 amount = aur->GetAuraDuration() + triggerAmount * IN_MILLISECONDS;
                             aur->SetAuraDuration(amount);
-                            aurHolder->SendAuraUpdate(false);
+                            aur->GetHolder()->SendAuraUpdate(false);
                             return SPELL_AURA_PROC_OK;
                         }
                     }
