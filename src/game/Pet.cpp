@@ -1828,10 +1828,10 @@ void Pet::ToggleAutocast(uint32 spellid, bool apply)
     if(IsPassiveSpell(spellid) || !isControlled())
         return;
 
-    if (m_spells.empty())
-        return;
-
     PetSpellMap::iterator itr = m_spells.find(spellid);
+
+    if (!itr) 
+        return;
 
     if (itr == m_spells.end())
         return;
