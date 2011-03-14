@@ -4831,15 +4831,18 @@ SpellCastResult Spell::CheckCast(bool strict)
     if(Unit *target = m_targets.getUnitTarget())
     {
         // target state requirements (not allowed state), apply to self also
-        if(m_spellInfo->TargetAuraStateNot && target->HasAuraState(AuraState(m_spellInfo->TargetAuraStateNot)))
-            return SPELL_FAILED_TARGET_AURASTATE;
+        // This check not need - checked in CheckTarget()
+        // if(m_spellInfo->TargetAuraStateNot && target->HasAuraState(AuraState(m_spellInfo->TargetAuraStateNot)))
+        //    return SPELL_FAILED_TARGET_AURASTATE;
 
         if (!m_IsTriggeredSpell && IsDeathOnlySpell(m_spellInfo) && target->isAlive())
             return SPELL_FAILED_TARGET_NOT_DEAD;
 
         // Target aura req check if need
-        if(m_spellInfo->targetAuraSpell && !target->HasAura(m_spellInfo->targetAuraSpell))
-            return SPELL_FAILED_CASTER_AURASTATE;
+        // This check fully not need - checked in CheckTarget()
+        // if(m_spellInfo->targetAuraSpell && !target->HasAura(m_spellInfo->targetAuraSpell))
+        //    return SPELL_FAILED_CASTER_AURASTATE;
+
         if(m_spellInfo->excludeTargetAuraSpell)
         {
             // Special cases of non existing auras handling
@@ -6980,6 +6983,8 @@ bool Spell::CheckTarget( Unit* target, SpellEffectIndex eff )
     if(m_spellInfo->targetAuraSpell && !target->HasAura(m_spellInfo->targetAuraSpell))
         return false;
     if (m_spellInfo->excludeTargetAuraSpell && target->HasAura(m_spellInfo->excludeTargetAuraSpell))
+        return false;
+    if (m_spellInfo->TargetAuraStateNot && target->HasAura(m_spellInfo->TargetAuraStateNot))
         return false;
 
     // Check targets for not_selectable unit flag and remove
