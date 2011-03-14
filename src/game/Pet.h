@@ -175,8 +175,9 @@ class Pet : public Creature
 
         bool IsPermanentPetFor(Player* owner);              // pet have tab in character windows and set UNIT_FIELD_PETNUMBER
 
+        bool Create (uint32 guidlow, CreatureCreatePos& cPos, uint32 Entry, uint32 pet_number, Unit* owner);
         bool CreateBaseAtCreature(Creature* creature, Unit* owner);
-        bool LoadPetFromDB( Player* owner, uint32 petentry = 0, uint32 petnumber = 0, bool current = false, float x = 0.0f, float y = 0.0f, float z = 0.0f );
+        bool LoadPetFromDB( Player* owner,uint32 petentry = 0,uint32 petnumber = 0, bool current = false );
         void SavePetToDB(PetSaveMode mode);
         void Unsummon(PetSaveMode mode, Unit* owner = NULL);
         static void DeleteFromDB(uint32 guidlow, bool separate_transaction = true);
@@ -292,12 +293,9 @@ class Pet : public Creature
         void SetNeedSave(bool needSave) { m_needSave = needSave; }
         uint8 GetPetCounter() { return m_petCounter; }
         void SetPetCounter(uint8 counter) { m_petCounter = counter; }
-        bool SetSummonPosition(float x = 0.0f, float y = 0.0f, float z = 0.0f);
         bool Summon();
         void SetCreateSpellID(uint32 SpellID) { m_createSpellID = SpellID; }
         uint32 GetCreateSpellID() { return m_createSpellID; }
-        bool Create (uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 pet_number, Unit* owner);
-        bool Create (Unit* owner, uint32 Entry);
         bool IsInWorld() const { return ( !m_loading && !m_removed && Object::IsInWorld()); }
 
         // overwrite Creature function for name localization back to WorldObject version without localization
