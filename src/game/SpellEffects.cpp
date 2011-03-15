@@ -5347,10 +5347,6 @@ void Spell::DoSummonGuardian(SpellEffectIndex eff_idx, uint32 forceFaction)
         spawnCreature->setFaction(forceFaction ? forceFaction : m_caster->getFaction());
         spawnCreature->SetLevel(level);
 
-
-        Map *map = m_caster->GetMap();
-        uint32 pet_number = sObjectMgr.GeneratePetNumber();
-
         if (!spawnCreature->Summon())
         {
             sLog.outError("Guardian pet (guidlow %d, entry %d) not summoned by undefined reason. ",
@@ -5358,6 +5354,8 @@ void Spell::DoSummonGuardian(SpellEffectIndex eff_idx, uint32 forceFaction)
             delete spawnCreature;
             return;
         }
+
+        spawnCreature->SetSummonPoint(pos);
 
         DEBUG_LOG("Guardian pet (guidlow %d, entry %d) summoned (default). Counter is %d ", spawnCreature->GetGUIDLow(), spawnCreature->GetEntry(), spawnCreature->GetPetCounter());
     }
@@ -9043,6 +9041,8 @@ void Spell::DoSummonCritter(SpellEffectIndex eff_idx, uint32 forceFaction)
         delete critter;
         return;
     }
+
+    critter->SetSummonPoint(pos);
 
     DEBUG_LOG("New mini pet has guid %u", critter->GetGUIDLow());
 }
