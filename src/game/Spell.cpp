@@ -510,18 +510,27 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             FillAreaTargets(targetUnitMap,m_targets.m_destX, m_targets.m_destY,radius,PUSH_DEST_CENTER,SPELL_TARGETS_AOE_DAMAGE);
             UnitList tmpUnitMap;
             FillAreaTargets(tmpUnitMap,m_targets.m_destX, m_targets.m_destY, 10.0f, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
-            if (targetUnitMap.empty() || tmpUnitMap.empty())
-                break;
-            for (UnitList::const_iterator itr = targetUnitMap.begin(); itr != targetUnitMap.end(); ++itr)
+            bool TargetToRemoveHere = true;
+            while (TargetToRemoveHere)
             {
-                for (UnitList::const_iterator itr2 = tmpUnitMap.begin(); itr2 != tmpUnitMap.end(); ++itr2)
+                TargetToRemoveHere = false;
+                if (targetUnitMap.empty() || tmpUnitMap.empty())
+                    break;
+                for (UnitList::const_iterator itr = targetUnitMap.begin(); itr != targetUnitMap.end(); ++itr)
                 {
-                    if (*itr == *itr2)
-                        targetUnitMap.remove(*itr);
-                    break;
+                    for (UnitList::const_iterator itr2 = tmpUnitMap.begin(); itr2 != tmpUnitMap.end(); ++itr2)
+                    {
+                        if (*itr == *itr2)
+                        {
+                            targetUnitMap.remove(*itr);
+                            tmpUnitMap.remove(*itr2);
+                            TargetToRemoveHere = true;
+                            break;
+                        }
+                    }
+                    if (TargetToRemoveHere)
+                        break;
                 }
-                if (targetUnitMap.empty())
-                    break;
             }
             break;
         }
