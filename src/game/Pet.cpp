@@ -783,7 +783,7 @@ bool Pet::CreateBaseAtCreature(Creature* creature, Unit* owner)
     }
 
     if(!owner)
-        return;
+        return false;
 
     CreatureInfo const *cinfo = creature->GetCreatureInfo();
     if(!cinfo)
@@ -1906,18 +1906,10 @@ bool Pet::Create(uint32 guidlow, CreatureCreatePos& cPos, uint32 Entry, uint32 p
     if (!owner)
         return false;
 
+    m_loading = true;
+
     SetMap(cPos.GetMap());
     SetPhaseMask(cPos.GetPhaseMask(), false);
-
-    if (!InitEntry(Entry))
-        return false;
-
-    cPos.SelectFinalPoint(this);
-
-    if (!cPos.Relocate(this))
-        return false;
-
-    m_loading = true;
 
     if (!guidlow)
         guidlow = cPos.GetMap()->GenerateLocalLowGuid(HIGHGUID_PET);
@@ -1927,12 +1919,18 @@ bool Pet::Create(uint32 guidlow, CreatureCreatePos& cPos, uint32 Entry, uint32 p
 
     Object::_Create(ObjectGuid(HIGHGUID_PET, pet_number, guidlow));
 
-    m_originalEntry = Entry;
-
-    if(!InitEntry(Entry))
+    if (!InitEntry(Entry))
         return false;
 
-    SetPhaseMask(phaseMask,false);
+    cPos.SelectFinalPoint(this);
+
+    if (!cPos.Relocate(this))
+        return false;
+
+
+    SetSheath(SHEATH_STATE_MELEE);
+
+    m_originalEntry = Entry;
 
     if(owner->GetTypeId() == TYPEID_PLAYER)
         m_charmInfo->SetPetNumber(pet_number, IsPermanentPetFor((Player*)owner));
@@ -1947,9 +1945,6 @@ bool Pet::Create(uint32 guidlow, CreatureCreatePos& cPos, uint32 Entry, uint32 p
 
     if (GetCreateSpellID())
         SetUInt32Value(UNIT_CREATED_BY_SPELL, GetCreateSpellID());
-
-
-    SetSheath(SHEATH_STATE_MELEE);
 
     if(getPetType() == MINI_PET)                            // always non-attackable
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);

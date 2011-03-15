@@ -774,19 +774,17 @@ bool Creature::Create(uint32 guidlow, CreatureCreatePos& cPos, uint32 Entry, Tea
         return false;
     }
 
-    MANGOS_ASSERT(map);
-
-    HighGuid hi = cinfo->VehicleId ? HIGHGUID_VEHICLE : HIGHGUID_UNIT;
-
-    if (map->GetCreature(ObjectGuid(hi, Entry, guidlow)))
-        return false;
-
-    ObjectGuid guid(hi, Entry, guidlow);
-
     SetMap(cPos.GetMap());
     SetPhaseMask(cPos.GetPhaseMask(), false);
 
-    if (!CreateFromProto(guid, Entry, team, data, eventData);)
+    HighGuid hi = cinfo->VehicleId ? HIGHGUID_VEHICLE : HIGHGUID_UNIT;
+
+    ObjectGuid guid(hi, Entry, guidlow);
+
+    if (cPos.GetMap()->GetCreature(guid))
+        return false;
+
+    if (!CreateFromProto(guid, Entry, team, data, eventData))
         return false;
 
     cPos.SelectFinalPoint(this);

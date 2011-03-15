@@ -5737,7 +5737,7 @@ void Spell::EffectTameCreature(SpellEffectIndex /*eff_idx*/)
 
     pet->SetCreateSpellID(m_spellInfo->Id);
 
-    if(!pet->CreateBaseAtCreature(creatureTarget))
+    if(!pet->CreateBaseAtCreature(creatureTarget, (Unit*)plr))
     {
         delete pet;
         return;
