@@ -2246,6 +2246,17 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         target->CastSpell(target, 47189, true, NULL, this);
                         // allow script to process further (text)
                         break;
+                    case 47795:                             // Cold Cleanse
+                    {
+                        if (Unit* Caster = GetCaster())
+                        {
+                            Caster->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                            Caster->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                            Caster->DeleteThreatList();
+                            Caster->CombatStop(true);
+                        }
+                        return;
+                    } 
                     case 47977:                             // Magic Broom
                         Spell::SelectMountByAreaAndSkill(target, GetSpellProto(), 42680, 42683, 42667, 42668, 0);
                         return;
@@ -2736,6 +2747,62 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 // casted only at creatures at spawn
                 target->CastSpell(target, 47287, true, NULL, this);
                 return;
+            }
+            case 47744:                                     // Rage of Jin'arrak
+            {
+                if(m_removeMode == AURA_REMOVE_BY_EXPIRE)
+                {
+                    Unit* caster = GetCaster();
+
+                    caster->CastSpell(caster, 61611, true);
+                    ((Player*)caster)->KilledMonsterCredit(26902);
+                    return;
+                }
+            }
+            case 47795:                                     // Cold Cleanse
+            {
+                if(m_removeMode == AURA_REMOVE_BY_EXPIRE)
+                {
+                    Unit* Caster = GetCaster();
+
+                    if(Caster->isAlive())
+                    {
+                        Caster->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                        Caster->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
+                        Creature* pCreature = NULL;
+
+                        MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck creature_check(*Caster,  26591, true, 15.0f);
+                        MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(pCreature, creature_check);
+
+                        Cell::VisitGridObjects(Caster, searcher, 15.0f);
+
+                        if(pCreature)
+                        {
+                            float fX, fY, fZ;
+
+                            fX = pCreature->GetPositionX();
+                            fY = pCreature->GetPositionY();
+                            fZ = pCreature->GetPositionZ();
+
+                            Caster->SetSpeedRate(MOVE_RUN, 0.7f);
+                            Caster->GetMotionMaster()->MovePoint(1, fX, fY, fZ);
+
+                            switch(urand(0,1))
+                            {
+                                case 0: Caster->MonsterSay("I could sleep forever, mon...", LANG_UNIVERSAL, 0); break;
+                                case 1: Caster->MonsterSay("Finally, I can be restin\'...", LANG_UNIVERSAL, 0); break;
+                            }
+
+                            //This should happen when Caster arive to dest place
+                            pCreature->CastSpell(pCreature, 47798, true);
+                            pCreature->CastSpell(pCreature, 48150, true);
+                            pCreature->ForcedDespawn(15000);
+                            ((Creature*)Caster)->ForcedDespawn(3000);
+                            return;
+                        }
+                    }
+                }
             }
             case 51405:                                     // Digging for Treasure
             {
