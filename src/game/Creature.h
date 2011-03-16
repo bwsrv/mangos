@@ -379,6 +379,15 @@ typedef std::map<uint32,time_t> CreatureSpellCooldowns;
 
 #define MAX_VENDOR_ITEMS 150                                // Limitation in 3.x.x item count in SMSG_LIST_INVENTORY
 
+enum VirtualItemSlot
+{
+    VIRTUAL_ITEM_SLOT_0 = 0,
+    VIRTUAL_ITEM_SLOT_1 = 1,
+    VIRTUAL_ITEM_SLOT_2 = 2,
+};
+
+#define MAX_VIRTUAL_ITEM_SLOT 3
+
 struct CreatureCreatePos
 {
     public:
@@ -665,6 +674,8 @@ class MANGOS_DLL_SPEC Creature : public Unit
         void SendAreaSpiritHealerQueryOpcode(Player *pl);
 
         void LockAI(bool lock) { m_AI_locked = lock; }
+
+        void SetVirtualItem(VirtualItemSlot slot, uint32 item_id) { SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + slot, item_id); }
 
     protected:
         bool CreateFromProto(ObjectGuid guid, uint32 Entry, Team team, const CreatureData *data = NULL, GameEventCreatureData const* eventData =NULL);
