@@ -1758,7 +1758,7 @@ void WorldObject::AddObjectToRemoveList()
     GetMap()->AddObjectToRemoveList(this);
 }
 
-Creature* WorldObject::SummonCreature(uint32 id, float x, float y, float z, float ang,TempSummonType spwtype,uint32 despwtime, bool asActiveObject, bool SetCreator)
+Creature* WorldObject::SummonCreature(uint32 id, float x, float y, float z, float ang,TempSummonType spwtype,uint32 despwtime, bool asActiveObject)
 {
     TemporarySummon* pCreature = new TemporarySummon(GetObjectGuid());
 
@@ -1784,8 +1784,8 @@ Creature* WorldObject::SummonCreature(uint32 id, float x, float y, float z, floa
 
     pCreature->Summon(spwtype, despwtime);
 
-    if (GetTypeId() == TYPEID_UNIT && SetCreator)
-        pCreature->SetCreatorGuid(GetObjectGuid());
+    //if (GetTypeId() == TYPEID_UNIT)
+    //    pCreature->SetCreatorGuid(GetObjectGuid());
 
     if(GetTypeId()==TYPEID_UNIT && ((Creature*)this)->AI())
         ((Creature*)this)->AI()->JustSummoned(pCreature);
