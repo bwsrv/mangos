@@ -75,6 +75,15 @@ private:
     uint32 m_uiNumFreeSeats;
     VehicleEntry const *m_vehicleInfo;
     Unit* m_pBase;
+
+        void SaveToDB(uint32, uint8, uint32)                // overwrited of Creature::SaveToDB     - don't must be called
+        {
+            MANGOS_ASSERT(false);
+        }
+        void DeleteFromDB()                                 // overwrited of Creature::DeleteFromDB - don't must be called
+        {
+            MANGOS_ASSERT(false);
+        }
 };
 
 #endif
