@@ -6852,8 +6852,8 @@ uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, u
                     DoneTotalMod *= multiplier;
                 }
             }
-            // Torment the weak affected (Arcane Barrage, Arcane Blast, Frostfire Bolt, Arcane Missiles, Fireball)
-            if ((spellProto->SpellFamilyFlags & UI64LIT(0x0000900020200021)) &&
+            // Torment the weak affected (Arcane Barrage, Arcane Blast, Frostfire Bolt, Arcane Missiles, Fireball, Pyroblast)
+            if ((spellProto->SpellFamilyFlags & UI64LIT(0x0000900020600021)) &&
                 (pVictim->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED) || pVictim->HasAuraType(SPELL_AURA_HASTE_ALL)))
             {
                 //Search for Torment the weak dummy aura
@@ -12076,4 +12076,34 @@ void Unit::OnRelocated()
         UpdateObjectVisibility();
     }
     ScheduleAINotify(World::GetRelocationAINotifyDelay());
+}
+
+ObjectGuid const& Unit::GetCreatorGuid() const
+{
+    switch(GetObjectGuid().GetHigh())
+    {
+        case HIGHGUID_UNIT:
+        case HIGHGUID_VEHICLE:
+            if (((Creature*)this)->IsTemporarySummon())
+            {
+                return ((TemporarySummon*)this)->GetSummonerGuid();
+            }
+            else
+                return ObjectGuid();
+
+        case HIGHGUID_PET:
+            return GetGuidValue(UNIT_FIELD_CREATEDBY);
+
+        case HIGHGUID_PLAYER:
+            return ObjectGuid();
+
+        case HIGHGUID_GAMEOBJECT:
+            return ObjectGuid();
+
+        case HIGHGUID_CORPSE:
+            return GetObjectGuid();
+
+        default:
+            return ObjectGuid();
+    }
 }
