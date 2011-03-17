@@ -4501,6 +4501,14 @@ void Spell::TakePower()
     if(m_CastItem || m_triggeredByAuraSpell)
         return;
 
+    // FG: not sure if m_isTriggeredSpell == true is enough to skip spell costs
+    // so for now, added exception list until i'm sure how it should be done
+    switch(m_spellInfo->Id)
+    {
+        case 50782: // Slam, triggered
+            return;
+    }
+
     // health as power used
     if(m_spellInfo->powerType == POWER_HEALTH)
     {
