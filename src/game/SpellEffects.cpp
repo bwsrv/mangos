@@ -7701,6 +7701,22 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     }
                     return;
                 }
+                case 72864:                                 // Death plague
+                {
+                    if (!unitTarget)
+                        return;
+
+                    if (unitTarget->GetObjectGuid() == m_caster->GetObjectGuid())
+                    {
+                        if ((int)m_UniqueTargetInfo.size() < 2)
+                            m_caster->CastSpell(m_caster, 72867, true, NULL, NULL, m_originalCasterGUID);
+                        else
+                            m_caster->CastSpell(m_caster, 72884, true);
+                    }
+                    else
+                        unitTarget->CastSpell(unitTarget, 72865, true, NULL, NULL, m_originalCasterGUID);
+                    return;
+                }
             }
             break;
         }
