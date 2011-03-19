@@ -959,9 +959,6 @@ void World::SetInitialWorldSettings()
     sLog.outString( "Loading InstanceTemplate..." );
     sObjectMgr.LoadInstanceTemplate();
 
-    sLog.outString("Loading Instance encounters data...");
-    sObjectMgr.LoadInstanceEncounters();
-
     sLog.outString( "Loading SkillLineAbilityMultiMap Data..." );
     sSpellMgr.LoadSkillLineAbilityMap();
 
@@ -1035,6 +1032,9 @@ void World::SetInitialWorldSettings()
 
     sLog.outString( "Loading SpellsScriptTarget...");
     sSpellMgr.LoadSpellScriptTarget();                      // must be after LoadCreatureTemplates and LoadGameobjectInfo
+
+    sLog.outString("Loading Instance encounters data...");  // must be after creature templates
+    sObjectMgr.LoadInstanceEncounters();
 
     sLog.outString( "Loading ItemRequiredTarget...");
     sObjectMgr.LoadItemRequiredTarget();
