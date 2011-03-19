@@ -2111,7 +2111,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 {
                     // split between targets
                     int32 bp = damage / m_UniqueTargetInfo.size();
-                    m_caster->CastCustomSpell(unitTarget, 54172, &damage, NULL, NULL, true);
+                    m_caster->CastCustomSpell(unitTarget, 54172, &bp, NULL, NULL, true);
                     return;
                 }
                 case 52845:                                 // Brewfest Mount Transformation (Faction Swap)
