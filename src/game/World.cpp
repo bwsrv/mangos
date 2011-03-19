@@ -959,6 +959,9 @@ void World::SetInitialWorldSettings()
     sLog.outString( "Loading InstanceTemplate..." );
     sObjectMgr.LoadInstanceTemplate();
 
+    sLog.outString("Loading Instance encounters data...");
+    sObjectMgr.LoadInstanceEncounters();
+
     sLog.outString( "Loading SkillLineAbilityMultiMap Data..." );
     sSpellMgr.LoadSkillLineAbilityMap();
 
