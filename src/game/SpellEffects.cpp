@@ -2191,7 +2191,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 {
                     // split between targets
                     int32 bp = damage / m_UniqueTargetInfo.size();
-                    m_caster->CastCustomSpell(unitTarget, 54172, &damage, NULL, NULL, true);
+                    m_caster->CastCustomSpell(unitTarget, 54172, &bp, NULL, NULL, true);
                     return;
                 }
                 case 52845:                                 // Brewfest Mount Transformation (Faction Swap)
@@ -7060,18 +7060,28 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(m_caster, 43351, true);
                     return;
                 }
-				case 43375:
-				case 43972:		// Mixing Blood for Quest 11306 
+                case 44364:                                 // Rock Falcon Primer
                 {
-					switch(urand(0, 2))
-					{
-						case 0 : m_caster->CastSpell(m_caster, 43378, true); break;
-						case 1 : m_caster->CastSpell(m_caster, 43376, true); break;
-						case 2 : m_caster->CastSpell(m_caster, 43377, true); break;
-						case 3 : m_caster->CastSpell(m_caster, 43970, true); break;
-					}
-					break;
-				}
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    // Are there anything special with this, a random chance or condition?
+                    // Feeding Rock Falcon
+                    unitTarget->CastSpell(unitTarget, m_spellInfo->CalculateSimpleValue(eff_idx), true, NULL, NULL, unitTarget->GetObjectGuid(), m_spellInfo);
+                    return;
+                }
+                case 43375:
+                case 43972:                                // Mixing Blood for Quest 11306 
+                {
+                    switch(urand(0, 3))
+                    {
+                        case 0 : m_caster->CastSpell(m_caster, 43378, true); break;
+                        case 1 : m_caster->CastSpell(m_caster, 43376, true); break;
+                        case 2 : m_caster->CastSpell(m_caster, 43377, true); break;
+                        case 3 : m_caster->CastSpell(m_caster, 43970, true); break;
+                    }
+                    break;
+                }
                 case 44455:                                 // Character Script Effect Reverse Cast
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
