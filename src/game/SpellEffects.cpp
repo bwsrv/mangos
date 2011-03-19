@@ -6787,10 +6787,20 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(m_caster, 50217, true);
                     return;
                 }
+                case 44364:                                 // Rock Falcon Primer
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    // Are there anything special with this, a random chance or condition?
+                    // Feeding Rock Falcon
+                    unitTarget->CastSpell(unitTarget, m_spellInfo->CalculateSimpleValue(eff_idx), true, NULL, NULL, unitTarget->GetObjectGuid(), m_spellInfo);
+                    return;
+                }
                 case 43375:
                 case 43972:                                // Mixing Blood for Quest 11306 
                 {
-                    switch(urand(0, 2))
+                    switch(urand(0, 3))
                     {
                         case 0 : m_caster->CastSpell(m_caster, 43378, true); break;
                         case 1 : m_caster->CastSpell(m_caster, 43376, true); break;
