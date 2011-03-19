@@ -1292,7 +1292,8 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 
         // faction template id
         uint32 getFaction() const { return GetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE); }
-        void setFaction(uint32 faction) { SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, faction ); }
+        uint32 GetOriginalFaction() const { return m_originalFaction; }
+        void setFaction(uint32 faction) { if (!m_originalFaction) m_originalFaction = faction; SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, faction ); }
         FactionTemplateEntry const* getFactionTemplateEntry() const;
         bool IsHostileTo(Unit const* unit) const;
         bool IsHostileToPlayers() const;
@@ -2127,6 +2128,8 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         ComboPointHolderSet m_ComboPointHolders;
         ObjectGuid m_comboTargetGuid;
         int8 m_comboPoints;
+
+        uint32 m_originalFaction;
 
         GroupPetList m_groupPets;
 
