@@ -12099,12 +12099,6 @@ ObjectGuid const& Unit::GetCreatorGuid() const
         case HIGHGUID_PLAYER:
             return ObjectGuid();
 
-        case HIGHGUID_GAMEOBJECT:
-            return ObjectGuid();
-
-        case HIGHGUID_CORPSE:
-            return GetObjectGuid();
-
         default:
             return ObjectGuid();
     }
