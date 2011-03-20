@@ -186,8 +186,8 @@ bool WorldPersistentState::CanBeUnload() const
 
 //== DungeonPersistentState functions =====================
 
-DungeonPersistentState::DungeonPersistentState( uint16 MapId, uint32 InstanceId, Difficulty difficulty, time_t resetTime, bool canReset )
-: MapPersistentState(MapId, InstanceId, difficulty), m_resetTime(resetTime), m_canReset(canReset)
+DungeonPersistentState::DungeonPersistentState( uint16 MapId, uint32 InstanceId, Difficulty difficulty, time_t resetTime, bool canReset, uint32 completedEncountersMask)
+: MapPersistentState(MapId, InstanceId, difficulty), m_resetTime(resetTime), m_canReset(canReset), m_completedEncountersMask(completedEncountersMask)
 {
 }
 
@@ -229,7 +229,7 @@ void DungeonPersistentState::SaveToDB()
         }
     }
 
-    CharacterDatabase.PExecute("INSERT INTO instance VALUES ('%u', '%u', '"UI64FMTD"', '%u', '%s')", GetInstanceId(), GetMapId(), (uint64)GetResetTimeForDB(), GetDifficulty(), data.c_str());
+    CharacterDatabase.PExecute("INSERT INTO instance VALUES ('%u', '%u', '"UI64FMTD"', '%u', '%u', '%s')", GetInstanceId(), GetMapId(), (uint64)GetResetTimeForDB(), GetDifficulty(), GetCompletedEncountersMask(), data.c_str());
 }
 
 void DungeonPersistentState::DeleteRespawnTimes()
@@ -261,6 +261,36 @@ time_t DungeonPersistentState::GetResetTimeForDB() const
         return 0;
     else
         return GetResetTime();
+}
+
+void DungeonPersistentState::UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Player* player)
+{
+    DungeonEncounterList const* encounterList = sObjectMgr.GetDungeonEncounterList(GetMapId(), GetDifficulty());
+
+    if (!encounterList)
+        return;
+
+    for (DungeonEncounterList::const_iterator itr = encounterList->begin(); itr != encounterList->end(); ++itr)
+    {
+        if ((*itr)->creditType == type && (*itr)->creditEntry == creditEntry)
+        {
+            uint32 oldMask = m_completedEncountersMask;
+            m_completedEncountersMask |= 1 << (*itr)->dbcEntry->encounterIndex;
+            if ( m_completedEncountersMask != oldMask)
+            {
+                CharacterDatabase.PExecute("UPDATE instance SET encountersMask = '%u' WHERE id = '%u'", m_completedEncountersMask, GetInstanceId());
+
+                DEBUG_LOG("DungeonPersistentState: Dungeon %s (Id %u) completed encounter %s", GetMap()->GetMapName(), GetInstanceId(), (*itr)->dbcEntry->encounterName[sWorld.GetDefaultDbcLocale()]);
+
+                if (uint32 dungeonId = (*itr)->lastEncounterDungeon)
+                {
+                    DEBUG_LOG("DungeonPersistentState:: Dungeon %s (Id %u) completed last encounter %s", GetMap()->GetMapName(), GetInstanceId(), (*itr)->dbcEntry->encounterName[sWorld.GetDefaultDbcLocale()]);
+                    // Place LFG reward there!
+                }
+            }
+            return;
+        }
+    }
 }
 
 //== BattleGroundPersistentState functions =================
@@ -566,7 +596,7 @@ MapPersistentStateManager::~MapPersistentStateManager()
 - adding instance into manager
 - called from DungeonMap::Add, _LoadBoundInstances, LoadGroups
 */
-MapPersistentState* MapPersistentStateManager::AddPersistentState(MapEntry const* mapEntry, uint32 instanceId, Difficulty difficulty, time_t resetTime, bool canReset, bool load /*=false*/, bool initPools /*= true*/)
+MapPersistentState* MapPersistentStateManager::AddPersistentState(MapEntry const* mapEntry, uint32 instanceId, Difficulty difficulty, time_t resetTime, bool canReset, bool load /*=false*/, bool initPools /*= true*/, uint32 completedEncountersMask /*0*/)
 {
     if (MapPersistentState *old_save = GetPersistentState(mapEntry->MapID, instanceId))
         return old_save;
@@ -593,7 +623,7 @@ MapPersistentState* MapPersistentStateManager::AddPersistentState(MapEntry const
     MapPersistentState *state;
     if (mapEntry->IsDungeon())
     {
-        DungeonPersistentState* dungeonState = new DungeonPersistentState(mapEntry->MapID, instanceId, difficulty, resetTime, canReset);
+        DungeonPersistentState* dungeonState = new DungeonPersistentState(mapEntry->MapID, instanceId, difficulty, resetTime, canReset, completedEncountersMask);
         if (!load)
             dungeonState->SaveToDB();
         state = dungeonState;
@@ -934,7 +964,7 @@ void MapPersistentStateManager::LoadCreatureRespawnTimes()
 
     uint32 count = 0;
 
-    QueryResult *result = CharacterDatabase.Query("SELECT guid, respawntime, map, instance, difficulty, resettime FROM creature_respawn LEFT JOIN instance ON instance = id");
+    QueryResult *result = CharacterDatabase.Query("SELECT guid, respawntime, map, instance, difficulty, resettime, encountersMask FROM creature_respawn LEFT JOIN instance ON instance = id");
     if(!result)
     {
         barGoLink bar(1);
@@ -961,6 +991,8 @@ void MapPersistentStateManager::LoadCreatureRespawnTimes()
 
         time_t resetTime = (time_t)fields[5].GetUInt64();
 
+        uint32 completedEncounters   = fields[6].GetUInt32();
+
         CreatureData const* data = sObjectMgr.GetCreatureData(loguid);
         if (!data)
             continue;
@@ -975,7 +1007,7 @@ void MapPersistentStateManager::LoadCreatureRespawnTimes()
         if(difficulty >= (!mapEntry->Instanceable() ? REGULAR_DIFFICULTY : (mapEntry->IsRaid() ? MAX_RAID_DIFFICULTY : MAX_DUNGEON_DIFFICULTY)))
             continue;
 
-        MapPersistentState* state = AddPersistentState(mapEntry, instanceId, Difficulty(difficulty), resetTime, mapEntry->IsDungeon(), true);
+        MapPersistentState* state = AddPersistentState(mapEntry, instanceId, Difficulty(difficulty), resetTime, mapEntry->IsDungeon(), true, true, completedEncounters);
         if (!state)
             continue;
 
@@ -998,7 +1030,7 @@ void MapPersistentStateManager::LoadGameobjectRespawnTimes()
 
     uint32 count = 0;
 
-    QueryResult *result = CharacterDatabase.Query("SELECT guid, respawntime, map, instance, difficulty, resettime FROM gameobject_respawn LEFT JOIN instance ON instance = id");
+    QueryResult *result = CharacterDatabase.Query("SELECT guid, respawntime, map, instance, difficulty, resettime, encountersMask FROM gameobject_respawn LEFT JOIN instance ON instance = id");
 
     if(!result)
     {
@@ -1026,6 +1058,8 @@ void MapPersistentStateManager::LoadGameobjectRespawnTimes()
 
         time_t resetTime = (time_t)fields[5].GetUInt64();
 
+        uint32 completedEncounters   = fields[6].GetUInt32();
+
         GameObjectData const* data = sObjectMgr.GetGOData(loguid);
         if (!data)
             continue;
@@ -1040,7 +1074,7 @@ void MapPersistentStateManager::LoadGameobjectRespawnTimes()
         if(difficulty >= (!mapEntry->Instanceable() ? REGULAR_DIFFICULTY : (mapEntry->IsRaid() ? MAX_RAID_DIFFICULTY : MAX_DUNGEON_DIFFICULTY)))
             continue;
 
-        MapPersistentState* state = AddPersistentState(mapEntry, instanceId, Difficulty(difficulty), resetTime, mapEntry->IsDungeon(), true);
+        MapPersistentState* state = AddPersistentState(mapEntry, instanceId, Difficulty(difficulty), resetTime, mapEntry->IsDungeon(), true, true, completedEncounters);
         if (!state)
             continue;
 

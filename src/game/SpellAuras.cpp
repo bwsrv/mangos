@@ -293,7 +293,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleAuraModExpertise,                          //240 SPELL_AURA_MOD_EXPERTISE
     &Aura::HandleForceMoveForward,                          //241 Forces the caster to move forward
     &Aura::HandleUnused,                                    //242 SPELL_AURA_MOD_SPELL_DAMAGE_FROM_HEALING (only 2 test spels in 3.2.2a)
-    &Aura::HandleNULL,                                      //243 faction reaction override spells
+    &Aura::HandleAuraFactionChange,                         //243 faction change
     &Aura::HandleComprehendLanguage,                        //244 SPELL_AURA_COMPREHEND_LANGUAGE
     &Aura::HandleNoImmediateEffect,                         //245 SPELL_AURA_MOD_DURATION_OF_MAGIC_EFFECTS     implemented in Unit::CalculateSpellDuration
     &Aura::HandleNoImmediateEffect,                         //246 SPELL_AURA_MOD_DURATION_OF_EFFECTS_BY_DISPEL implemented in Unit::CalculateSpellDuration
@@ -10248,4 +10248,21 @@ void Aura::HandleAuraSetVehicle(bool apply, bool real)
         data.Initialize(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
         ((Player*)target)->GetSession()->SendPacket(&data);
     }
+}
+
+void Aura::HandleAuraFactionChange(bool apply, bool real)
+{
+    if (!real)
+        return;
+
+    Unit* target = GetTarget();
+
+    if (!target || !target->IsInWorld())
+        return;
+
+    uint32 newFaction = apply ? GetMiscValue() : target->GetOriginalFaction();
+
+    if (newFaction && newFaction != target->getFaction())
+        target->setFaction(newFaction);
+
 }

@@ -1480,6 +1480,14 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     ((Player*)m_caster)->KilledMonster(pCreature->GetCreatureInfo(), pCreature->GetObjectGuid());
                     return;
                 }
+                case 43014:                                 // Despawn Self
+                {
+                    if (m_caster->GetTypeId() != TYPEID_UNIT)
+                        return;
+
+                    ((Creature*)m_caster)->ForcedDespawn();
+                    return;
+                }
                 case 43036:                                 // Dismembering Corpse
                 {
                     if (!unitTarget || m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -2111,7 +2119,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 {
                     // split between targets
                     int32 bp = damage / m_UniqueTargetInfo.size();
-                    m_caster->CastCustomSpell(unitTarget, 54172, &damage, NULL, NULL, true);
+                    m_caster->CastCustomSpell(unitTarget, 54172, &bp, NULL, NULL, true);
                     return;
                 }
                 case 52845:                                 // Brewfest Mount Transformation (Faction Swap)
@@ -2393,6 +2401,22 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, 72195, true);
                     break;
                 }
+                default:                                   // DBC encounters main check
+                {
+                    if (unitTarget && unitTarget->GetTypeId() == TYPEID_PLAYER)
+                    {
+                        if (m_caster->GetMap()->IsDungeon())
+                        {
+                            Player* creditedPlayer = unitTarget->GetCharmerOrOwnerPlayerOrPlayerItself();
+                            DungeonMap* dungeon = (DungeonMap*)m_caster->GetMap();;
+                            if (DungeonPersistentState* state = dungeon->GetPersistanceState())
+                            {
+                                dungeon->PermBindAllPlayers(creditedPlayer);
+                                state->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, m_spellInfo->Id, creditedPlayer);
+                            }
+                        }
+                    }
+                }
             }
             break;
         }
@@ -2449,6 +2473,8 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     }
                     return;
                 }
+
+
             }
 
             // Conjure Mana Gem
@@ -6787,10 +6813,20 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(m_caster, 50217, true);
                     return;
                 }
+                case 44364:                                 // Rock Falcon Primer
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    // Are there anything special with this, a random chance or condition?
+                    // Feeding Rock Falcon
+                    unitTarget->CastSpell(unitTarget, m_spellInfo->CalculateSimpleValue(eff_idx), true, NULL, NULL, unitTarget->GetObjectGuid(), m_spellInfo);
+                    return;
+                }
                 case 43375:
                 case 43972:                                // Mixing Blood for Quest 11306 
                 {
-                    switch(urand(0, 2))
+                    switch(urand(0, 3))
                     {
                         case 0 : m_caster->CastSpell(m_caster, 43378, true); break;
                         case 1 : m_caster->CastSpell(m_caster, 43376, true); break;
@@ -7724,6 +7760,22 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         int32 power = unitTarget->GetPower(unitTarget->getPowerType());
                         unitTarget->CastCustomSpell(unitTarget, 72371, &power, &power, NULL, true);
                     }
+                    return;
+                }
+                case 72864:                                 // Death plague
+                {
+                    if (!unitTarget)
+                        return;
+
+                    if (unitTarget->GetObjectGuid() == m_caster->GetObjectGuid())
+                    {
+                        if ((int)m_UniqueTargetInfo.size() < 2)
+                            m_caster->CastSpell(m_caster, 72867, true, NULL, NULL, m_originalCasterGUID);
+                        else
+                            m_caster->CastSpell(m_caster, 72884, true);
+                    }
+                    else
+                        unitTarget->CastSpell(unitTarget, 72865, true, NULL, NULL, m_originalCasterGUID);
                     return;
                 }
             }

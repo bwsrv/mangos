@@ -1292,7 +1292,8 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 
         // faction template id
         uint32 getFaction() const { return GetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE); }
-        void setFaction(uint32 faction) { SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, faction ); }
+        uint32 GetOriginalFaction() const { return m_originalFaction; }
+        void setFaction(uint32 faction) { if (!m_originalFaction) m_originalFaction = faction; SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, faction ); }
         FactionTemplateEntry const* getFactionTemplateEntry() const;
         bool IsHostileTo(Unit const* unit) const;
         bool IsHostileToPlayers() const;
@@ -1452,7 +1453,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         bool IsIgnoreUnitState(SpellEntry const *spell, IgnoreUnitState ignoreState);
 
         bool isTargetableForAttack(bool inversAlive = false) const;
-        bool isPassiveToHostile() { return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE); }
+        virtual bool isPassiveToHostile() { return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE); }
 
         virtual bool IsInWater() const;
         virtual bool IsUnderWater() const;
@@ -1888,6 +1889,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         SpellAuraProcResult HandleModRating(Unit *pVictim, uint32 damage, Aura* triggeredByAura, SpellEntry const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
         SpellAuraProcResult HandleRemoveByDamageProc(Unit *pVictim, uint32 damage, Aura* triggeredByAura, SpellEntry const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
         SpellAuraProcResult HandleRemoveByDamageChanceProc(Unit *pVictim, uint32 damage, Aura* triggeredByAura, SpellEntry const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
+        SpellAuraProcResult HandleManaShieldAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAura, SpellEntry const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
         SpellAuraProcResult HandleNULLProc(Unit *pVictim, uint32 damage, Aura* triggeredByAura, SpellEntry const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown)
         {
             // no proc handler for this aura type
@@ -2127,6 +2129,8 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         ComboPointHolderSet m_ComboPointHolders;
         ObjectGuid m_comboTargetGuid;
         int8 m_comboPoints;
+
+        uint32 m_originalFaction;
 
         GroupPetList m_groupPets;
 

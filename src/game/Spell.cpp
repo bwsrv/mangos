@@ -1676,6 +1676,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 70836:                                 // Bone Storm
                 case 71518:                                 // Unholy infusion credit
                 case 72289:                                 // Frost infusion credit
+                case 72706:                                 // Valithria event credit
                 case 72934:                                 // Blood infusion credit
                     radius = DEFAULT_VISIBILITY_INSTANCE;
                     break;
