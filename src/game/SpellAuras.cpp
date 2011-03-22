@@ -9154,6 +9154,16 @@ void SpellAuraHolder::SetStackAmount(uint32 stackAmount)
                     aur->ApplyModifier(false, true);
                     aur->GetModifier()->m_amount = amount;
                     aur->ApplyModifier(true, true);
+                    // change duration if aura refreshes
+                    if (refresh)
+                    {
+                        // new duration based on combo points
+                        if (GetSpellDuration(aur->GetSpellProto()) != GetSpellMaxDuration(aur->GetSpellProto()))
+                        {
+                            if (Unit *caster = aur->GetCaster())
+                                aur->SetAuraMaxDuration(caster->CalculateBaseSpellDuration(aur->GetSpellProto(), &aur->GetModifier()->periodictime));
+                        }
+                    }
                 }
             }
         }
