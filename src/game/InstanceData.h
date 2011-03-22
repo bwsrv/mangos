@@ -63,6 +63,12 @@ class MANGOS_DLL_SPEC InstanceData
         //Called when a player leaves the instance (before really removed from map (or possibly world))
         virtual void OnPlayerLeave(Player *) {}
 
+        //Called when a player successfully enters the other zone
+        virtual void OnPlayerEnterZone(Player*, uint32 /*uiNewZoneId*/, uint32 /*uiNewAreaId*/) {}
+
+        //Called when a player drops a flag in outdoor pvp
+        virtual void OnPlayerDroppedFlag(Player*, uint32 /* uiSpellId*/) {}
+
         //Called when a gameobject is created
         virtual void OnObjectCreate(GameObject *) {}
 
