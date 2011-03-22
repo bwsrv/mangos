@@ -7021,6 +7021,10 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     {
         SendInitWorldStates(newZone, newArea);              // only if really enters to new zone, not just area change, works strange...
 
+        // call this method in order to handle some scripted zones
+        if (InstanceData* mapInstance = GetInstanceData())
+            mapInstance->OnPlayerEnterZone(this, newZone, newArea);
+
         if (sWorld.getConfig(CONFIG_BOOL_WEATHER))
         {
             if(Weather *wth = sWorld.FindWeather(zone->ID))
