@@ -341,6 +341,7 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                     case 65279:                 // Lightning Nova 
                     case 62311: case 64596:     // Cosmic Smash 
                     case 51673:                 // Rocket Blast (SotA cannons)
+                    case 52339:                 // Hurl Boulder (SotA Demolishers)
                     { 
                         float distance = unitTarget->GetDistance2d(m_targets.m_destX, m_targets.m_destY); 
                         damage *= exp(-distance/15.0f); 
