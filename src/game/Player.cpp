@@ -7090,6 +7090,10 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     {
         SendInitWorldStates(newZone, newArea);              // only if really enters to new zone, not just area change, works strange...
 
+        // call this method in order to handle some scripted zones
+        if (InstanceData* mapInstance = GetInstanceData())
+            mapInstance->OnPlayerEnterZone(this, newZone, newArea);
+
         if (sWorld.getConfig(CONFIG_BOOL_WEATHER))
         {
             if(Weather *wth = sWorld.FindWeather(zone->ID))
@@ -13410,25 +13414,28 @@ void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId)
     {
         bool hasMenuItem = true;
 
-        if (itr->second.cond_1 && !sObjectMgr.IsPlayerMeetToCondition(this, itr->second.cond_1))
+        if (!isGameMaster())                                // Let GM always see menu items regardless of conditions
         {
-            if (itr->second.option_id == GOSSIP_OPTION_QUESTGIVER)
-                canSeeQuests = false;
-            continue;
-        }
+            if (itr->second.cond_1 && !sObjectMgr.IsPlayerMeetToCondition(this, itr->second.cond_1))
+            {
+                if (itr->second.option_id == GOSSIP_OPTION_QUESTGIVER)
+                    canSeeQuests = false;
+                continue;
+            }
 
-        if (itr->second.cond_2 && !sObjectMgr.IsPlayerMeetToCondition(this, itr->second.cond_2))
-        {
-            if (itr->second.option_id == GOSSIP_OPTION_QUESTGIVER)
-                canSeeQuests = false;
-            continue;
-        }
+            if (itr->second.cond_2 && !sObjectMgr.IsPlayerMeetToCondition(this, itr->second.cond_2))
+            {
+                if (itr->second.option_id == GOSSIP_OPTION_QUESTGIVER)
+                    canSeeQuests = false;
+                continue;
+            }
 
-        if (itr->second.cond_3 && !sObjectMgr.IsPlayerMeetToCondition(this, itr->second.cond_3))
-        {
-            if (itr->second.option_id == GOSSIP_OPTION_QUESTGIVER)
-                canSeeQuests = false;
-            continue;
+            if (itr->second.cond_3 && !sObjectMgr.IsPlayerMeetToCondition(this, itr->second.cond_3))
+            {
+                if (itr->second.option_id == GOSSIP_OPTION_QUESTGIVER)
+                    canSeeQuests = false;
+                continue;
+            }
         }
 
         if (pSource->GetTypeId() == TYPEID_UNIT)

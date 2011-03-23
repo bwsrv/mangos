@@ -1467,6 +1467,15 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     ((Creature*)unitTarget)->ForcedDespawn(10000);
                     return;
                 }
+                case 39992:                                 // High Warlord Naj'entus: Needle Spine Targeting
+                {
+                    if (!unitTarget)
+                        return;
+
+                    // TODO - Cone Targeting; along wowwiki this spell should target "three random targets in a cone"
+                    m_caster->CastSpell(unitTarget, 39835, true);
+                    return;
+                }
                 case 40802:                                 // Mingo's Fortune Generator (Mingo's Fortune Giblets)
                 {
                     // selecting one from Bloodstained Fortune item
@@ -1531,6 +1540,14 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 
                     // EFFECT_INDEX_2 has 0 miscvalue for effect 134, doing the killcredit here instead (only one known case exist where 0)
                     ((Player*)m_caster)->KilledMonster(pCreature->GetCreatureInfo(), pCreature->GetObjectGuid());
+                    return;
+                }
+                case 43014:                                 // Despawn Self
+                {
+                    if (m_caster->GetTypeId() != TYPEID_UNIT)
+                        return;
+
+                    ((Creature*)m_caster)->ForcedDespawn();
                     return;
                 }
                 case 43036:                                 // Dismembering Corpse
@@ -1854,6 +1871,18 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                             break;
                     }
 
+                    return;
+                }
+                case 48046:                                 // Use Camera
+                {
+                    if (!unitTarget)
+                        return;
+
+                    // No despawn expected, nor any change in dynamic flags/other flags.
+                    // Need internal way to track if credit has been given for this object.
+
+                    // Iron Dwarf Snapshot Credit
+                    m_caster->CastSpell(m_caster, 48047, true, m_CastItem, NULL, unitTarget->GetObjectGuid());
                     return;
                 }
                 case 49357:                                 // Brewfest Mount Transformation
@@ -2574,6 +2603,22 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, 72195, true);
                     break;
                 }
+                default:                                   // DBC encounters main check
+                {
+                    if (unitTarget && unitTarget->GetTypeId() == TYPEID_PLAYER)
+                    {
+                        if (m_caster->GetMap()->IsDungeon())
+                        {
+                            Player* creditedPlayer = unitTarget->GetCharmerOrOwnerPlayerOrPlayerItself();
+                            DungeonMap* dungeon = (DungeonMap*)m_caster->GetMap();;
+                            if (DungeonPersistentState* state = dungeon->GetPersistanceState())
+                            {
+                                dungeon->PermBindAllPlayers(creditedPlayer);
+                                state->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, m_spellInfo->Id, creditedPlayer);
+                            }
+                        }
+                    }
+                }
             }
             break;
         }
@@ -2630,6 +2675,8 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     }
                     return;
                 }
+
+
             }
 
             // Conjure Mana Gem
@@ -5625,6 +5672,10 @@ void Spell::DoSummonGuardian(SpellEffectIndex eff_idx, uint32 forceFaction)
 
         spawnCreature->SetSummonPoint(pos);
 
+        // Notify Summoner
+        if (m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->AI())
+            ((Creature*)m_caster)->AI()->JustSummoned(spawnCreature);
+
         DEBUG_LOG("Guardian pet (guidlow %d, entry %d) summoned (default). Counter is %d ", spawnCreature->GetGUIDLow(), spawnCreature->GetEntry(), spawnCreature->GetPetCounter());
     }
 }
@@ -5681,6 +5732,10 @@ void Spell::DoSummonVehicle(SpellEffectIndex eff_idx, uint32 forceFaction)
         vehicle->SetUInt32Value(UNIT_CREATED_BY_SPELL,m_spellInfo->Id);
         m_caster->CastSpell(vehicle, m_mountspell, true);
         DEBUG_LOG("Caster (guidlow %d) summon vehicle (guidlow %d, entry %d) and mounted with spell %d ", m_caster->GetGUIDLow(), vehicle->GetGUIDLow(), vehicle->GetEntry(), m_mountspell->Id);
+
+        // Notify Summoner
+        if (m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->AI())
+            ((Creature*)m_caster)->AI()->JustSummoned(vehicle);
     }
     else
         sLog.outError("Vehicle (guidlow %d, entry %d) NOT summoned by undefined reason. ", vehicle->GetGUIDLow(), vehicle->GetEntry());
@@ -7019,6 +7074,14 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     // Removes snares and roots.
                     unitTarget->RemoveAurasAtMechanicImmunity(IMMUNE_TO_ROOT_AND_SNARE_MASK,30918,true);
                     break;
+                }
+                case 39835:                                 // Needle Spine (Warlord Najentus)
+                {
+                    if (!unitTarget)
+                        return;
+
+                    // TODO likely that this spell should have m_caster as Original caster, but conflicts atm with TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER
+                    unitTarget->CastSpell(unitTarget, 39968, true);
                 }
                 case 41055:                                 // Copy Weapon
                 {
@@ -9578,7 +9641,12 @@ void Spell::DoSummonCritter(SpellEffectIndex eff_idx, uint32 forceFaction)
 
     critter->SetSummonPoint(pos);
 
+    // Notify Summoner
+    if (m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->AI())
+        ((Creature*)m_caster)->AI()->JustSummoned(critter);
+
     DEBUG_LOG("New mini pet has guid %u", critter->GetGUIDLow());
+
 }
 
 void Spell::EffectKnockBack(SpellEffectIndex eff_idx)
