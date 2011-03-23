@@ -74,7 +74,7 @@ RollVoteMask Roll::GetVoteMaskFor(Player* player) const
 //============== Group ==============================
 //===================================================
 
-Group::Group() : m_Id(0), m_groupType(GROUPTYPE_NORMAL),
+Group::Group() : m_Id(ObjectGuid()), m_groupType(GROUPTYPE_NORMAL),
     m_dungeonDifficulty(REGULAR_DIFFICULTY), m_raidDifficulty(REGULAR_DIFFICULTY),
     m_bgGroup(NULL), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON),
     m_subGroupsCounts(NULL)
@@ -132,7 +132,7 @@ bool Group::Create(ObjectGuid guid, const char * name)
     m_raidDifficulty = RAID_DIFFICULTY_10MAN_NORMAL;
     if (!isBGGroup())
     {
-        m_Id = sObjectMgr.GenerateGroupId();
+        m_Id = ObjectGuid(HIGHGUID_GROUP,sObjectMgr.GenerateGroupLowGuid());
 
         Player *leader = sObjectMgr.GetPlayer(guid);
         if(leader)
@@ -145,11 +145,11 @@ bool Group::Create(ObjectGuid guid, const char * name)
 
         // store group in database
         CharacterDatabase.BeginTransaction();
-        CharacterDatabase.PExecute("DELETE FROM groups WHERE groupId ='%u'", m_Id);
-        CharacterDatabase.PExecute("DELETE FROM group_member WHERE groupId ='%u'", m_Id);
+        CharacterDatabase.PExecute("DELETE FROM groups WHERE groupId ='%u'", m_Id.GetCounter());
+        CharacterDatabase.PExecute("DELETE FROM group_member WHERE groupId ='%u'", m_Id.GetCounter());
         CharacterDatabase.PExecute("INSERT INTO groups (groupId,leaderGuid,mainTank,mainAssistant,lootMethod,looterGuid,lootThreshold,icon1,icon2,icon3,icon4,icon5,icon6,icon7,icon8,groupType,difficulty,raiddifficulty) "
             "VALUES ('%u','%u','%u','%u','%u','%u','%u','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','%u','%u','%u')",
-            m_Id, m_leaderGuid.GetCounter(), m_mainTankGuid.GetCounter(), m_mainAssistantGuid.GetCounter(), uint32(m_lootMethod),
+            m_Id.GetCounter(), m_leaderGuid.GetCounter(), m_mainTankGuid.GetCounter(), m_mainAssistantGuid.GetCounter(), uint32(m_lootMethod),
             m_looterGuid.GetCounter(), uint32(m_lootThreshold),
             m_targetIcons[0].GetRawValue(), m_targetIcons[1].GetRawValue(),
             m_targetIcons[2].GetRawValue(), m_targetIcons[3].GetRawValue(),
@@ -157,6 +157,8 @@ bool Group::Create(ObjectGuid guid, const char * name)
             m_targetIcons[6].GetRawValue(), m_targetIcons[7].GetRawValue(),
             uint8(m_groupType), uint32(m_dungeonDifficulty), uint32(m_raidDifficulty));
     }
+    else 
+        m_Id =  ObjectGuid(HIGHGUID_GROUP,uint32(0));
 
     if (!AddMember(guid, name))
         return false;
