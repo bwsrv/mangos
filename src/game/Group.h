@@ -230,8 +230,8 @@ class MANGOS_DLL_SPEC Group
         void   Disband(bool hideDestroy=false);
 
         // properties accessories
-        ObjectGuid GetObjectGuid() const { return m_Id; }
-        uint32 GetId() const { return m_Id.GetCounter(); }
+        ObjectGuid GetObjectGuid() const { return m_Guid; }
+        uint32 GetId() const { return m_Guid.GetCounter(); }
         bool IsFull() const { return (m_groupType == GROUPTYPE_NORMAL) ? (m_memberSlots.size() >= MAX_GROUP_SIZE) : (m_memberSlots.size() >= MAX_RAID_SIZE); }
         bool isRaidGroup() const { return m_groupType & GROUPTYPE_RAID; }
         bool isBGGroup()   const { return m_bgGroup != NULL; }
@@ -443,7 +443,7 @@ class MANGOS_DLL_SPEC Group
             return GroupFlagMask(flags);
         }
 
-        ObjectGuid          m_Id;
+        ObjectGuid          m_Guid;
         MemberSlotList      m_memberSlots;
         GroupRefManager     m_memberMgr;
         InvitesList         m_invitees;
