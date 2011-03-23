@@ -1676,7 +1676,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
     // Get spell max affected targets
     uint32 unMaxTargets = m_spellInfo->MaxAffectedTargets;
 
-    // custom target amount cases
+    // custom target amount and radius cases 
     switch(m_spellInfo->SpellFamilyName)
     {
         case SPELLFAMILY_GENERIC:
@@ -1774,6 +1774,16 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     break;
                 case 71340:                                 // Pact of darkfallen (hack for script work)
                     unMaxTargets = 1;
+                    break;
+                case 66881:                                 // Slime Pool (Acidmaw & Dreadscale encounter)
+                case 67638:                                 // (Trial of the Crusader, all difficulties)
+                case 67639:                                 // ----- // -----
+                case 67640:                                 // ----- // -----
+                    if (m_caster->HasAura(66882))
+                    {
+                        if (Aura* pAura = m_caster->GetAura(66882, EFFECT_INDEX_0))
+                            radius = 0.167*(60-(pAura->GetAuraDuration()/IN_MILLISECONDS));
+                    }
                     break;
             }
             break;
