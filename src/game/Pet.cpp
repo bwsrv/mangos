@@ -2120,7 +2120,7 @@ void Pet::ApplyStatScalingBonus(Stats stat, bool apply)
         SpellEffectIndex i = _aura->GetEffIndex();
 
         if (Stats(spellproto->EffectMiscValue[i]) == stat
-                && spellproto->EffectBasePoints[i] == 0)
+            && (spellproto->AttributesEx4 & SPELL_ATTR_EX4_PET_SCALING_AURA))
         {
             SetCanModifyStats(false);
             if (ReapplyScalingAura(holder, spellproto, i, basePoints))
@@ -2183,7 +2183,7 @@ void Pet::ApplyResistanceScalingBonus(uint32 school, bool apply)
 
         SpellEffectIndex i = _aura->GetEffIndex();
 
-        if (spellproto->EffectBasePoints[i] == 0
+        if ((spellproto->AttributesEx4 & SPELL_ATTR_EX4_PET_SCALING_AURA)
             && (spellproto->EffectMiscValue[i] & (1 << SpellSchools(school))))
         {
             SetCanModifyStats(false);
@@ -2297,7 +2297,7 @@ void Pet::ApplyAttackPowerScalingBonus(bool apply)
 
         SpellEffectIndex i = _aura->GetEffIndex();
 
-        if (spellproto->EffectBasePoints[i] == 0)
+        if (spellproto->AttributesEx4 & SPELL_ATTR_EX4_PET_SCALING_AURA)
         {
             SetCanModifyStats(false);
             if (ReapplyScalingAura(holder, spellproto, i, basePoints))
@@ -2387,8 +2387,8 @@ void Pet::ApplyDamageScalingBonus(bool apply)
 
         SpellEffectIndex i = _aura->GetEffIndex();
                                                                             // First scan aura with 127 mask
-        if (spellproto->EffectBasePoints[i] == 0
-                && spellproto->EffectMiscValue[i] == SPELL_SCHOOL_MASK_ALL)
+        if ((spellproto->AttributesEx4 & SPELL_ATTR_EX4_PET_SCALING_AURA)
+            && spellproto->EffectMiscValue[i] == SPELL_SCHOOL_MASK_ALL)
         {
             SetCanModifyStats(false);
             if (ReapplyScalingAura(holder, spellproto, i, basePoints))
@@ -2495,7 +2495,7 @@ void Pet::ApplySpellDamageScalingBonus(bool apply)
 
         SpellEffectIndex i = _aura->GetEffIndex();
 
-        if (spellproto->EffectBasePoints[i] == 0
+        if ((spellproto->AttributesEx4 & SPELL_ATTR_EX4_PET_SCALING_AURA)
             && spellproto->EffectMiscValue[i] == SPELL_SCHOOL_MASK_MAGIC)
         {
             SetCanModifyStats(false);
@@ -2570,7 +2570,7 @@ void Pet::ApplyHitScalingBonus(bool apply)
 
         SpellEffectIndex i = _aura->GetEffIndex();
 
-        if (spellproto->EffectBasePoints[i] == 0)
+        if (spellproto->AttributesEx4 & SPELL_ATTR_EX4_PET_SCALING_AURA)
         {
             SetCanModifyStats(false);
             if (ReapplyScalingAura(holder, spellproto, i, basePoints))
@@ -2624,7 +2624,7 @@ void Pet::ApplySpellHitScalingBonus(bool apply)
 
         SpellEffectIndex i = _aura->GetEffIndex();
 
-        if (spellproto->EffectBasePoints[i] == 0)
+        if (spellproto->AttributesEx4 & SPELL_ATTR_EX4_PET_SCALING_AURA)
         {
             SetCanModifyStats(false);
             if (ReapplyScalingAura(holder, spellproto, i, basePoints))
@@ -2676,7 +2676,7 @@ void Pet::ApplyExpertizeScalingBonus(bool apply)
 
         SpellEffectIndex i = _aura->GetEffIndex();
 
-        if (spellproto->EffectBasePoints[i] == 0)
+        if (spellproto->AttributesEx4 & SPELL_ATTR_EX4_PET_SCALING_AURA)
         {
             SetCanModifyStats(false);
             if (ReapplyScalingAura(holder, spellproto, i, basePoints))
@@ -2730,7 +2730,7 @@ void Pet::ApplyPowerregenScalingBonus(bool apply)
 
         SpellEffectIndex i = _aura->GetEffIndex();
 
-        if (spellproto->EffectBasePoints[i] == 0)
+        if (spellproto->AttributesEx4 & SPELL_ATTR_EX4_PET_SCALING_AURA)
         {
             SetCanModifyStats(false);
             if (ReapplyScalingAura(holder, spellproto, i, basePoints))
