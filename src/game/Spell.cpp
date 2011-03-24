@@ -1782,7 +1782,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     if (m_caster->HasAura(66882))
                     {
                         if (Aura* pAura = m_caster->GetAura(66882, EFFECT_INDEX_0))
-                            radius = 0.167*(60-(pAura->GetAuraDuration()/IN_MILLISECONDS));
+                            radius = 0.5*(60-(pAura->GetAuraDuration()/IN_MILLISECONDS));
                     }
                     break;
             }
