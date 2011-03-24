@@ -73,6 +73,7 @@ enum HighGuid
     HIGHGUID_CORPSE         = 0xF500,                       // blizz F100/F500 used second variant to resolve conflict with HIGHGUID_DYNAMICOBJECT
     HIGHGUID_MO_TRANSPORT   = 0x1FC0,                       // blizz 1FC0 (for GAMEOBJECT_TYPE_MO_TRANSPORT)
     HIGHGUID_INSTANCE       = 0x1F42,                       // blizz 1F42/1F44/1F44/1F47
+    HIGHGUID_GROUP          = 0x1F50,                       // Firstly implemented for Dungeon Finder
 };
 
 class ObjectGuid;
@@ -142,6 +143,7 @@ class MANGOS_DLL_SPEC ObjectGuid
         bool IsTransport()     const { return GetHigh() == HIGHGUID_TRANSPORT; }
         bool IsMOTransport()   const { return GetHigh() == HIGHGUID_MO_TRANSPORT; }
         bool IsInstance()      const { return GetHigh() == HIGHGUID_INSTANCE; }
+        bool IsGroup()         const { return GetHigh() == HIGHGUID_GROUP; }
 
         static TypeID GetTypeId(HighGuid high)
         {
@@ -191,6 +193,7 @@ class MANGOS_DLL_SPEC ObjectGuid
                 case HIGHGUID_UNIT:
                 case HIGHGUID_PET:
                 case HIGHGUID_VEHICLE:
+                case HIGHGUID_GROUP:
                 default:
                     return true;
             }
