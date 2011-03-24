@@ -365,6 +365,7 @@ class MANGOS_DLL_SPEC Aura
         void HandleAuraAddMechanicAbilities(bool apply, bool Real);
         void HandleAuraSetVehicle(bool apply, bool Real);
         void HandleAuraFactionChange(bool apply, bool real);
+        void HandleAuraAoeCharm(bool apply, bool Real);
 
         virtual ~Aura();
 
