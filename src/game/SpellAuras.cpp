@@ -1176,6 +1176,16 @@ void Aura::HandleAddModifier(bool apply, bool Real)
             case 64823:                                     // Elune's Wrath (Balance druid t8 set
                 GetHolder()->SetAuraCharges(1);
                 break;
+            // Shamanism spell coeff
+            // divided by 3 chain lighning jumps
+            case 62097:                                     // Shamanism rank1
+            case 62098:                                     // Shamanism rank2
+            case 62099:                                     // Shamanism rank3
+            case 62100:                                     // Shamanism rank4
+            case 62101:                                     // Shamanism rank5
+                // divide by 4 with additional target from Glyph of Chain Lightning
+                m_modifier.m_amount = (int32)(ceil(m_modifier.m_amount / (GetTarget()->HasAura(55449) ? 4.0f : 3.0f)));
+                break;
         }
 
         m_spellmod = new SpellModifier(

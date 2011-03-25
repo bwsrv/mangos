@@ -1214,7 +1214,38 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         }
         // Add bonuses and fill damageInfo struct
         else
-            caster->CalculateSpellDamage(&damageInfo, m_damage, m_spellInfo, m_attackType);
+        {
+            // Chain Lightning - spell coeff bonus based on jump
+            float chainJumpCoeff = 1.0f;
+
+            if (m_caster->GetTypeId() == TYPEID_PLAYER)
+            {
+                for (uint8 i = 0; i < MAX_EFFECT_INDEX; i++)
+                {
+                    if (m_spellInfo->EffectChainTarget[SpellEffectIndex(i)])
+                    {
+                        uint8 chainTarget = 0;
+
+                        for(tbb::concurrent_vector<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                        {
+                            chainTarget++;
+                            if (ihit->targetGUID == unitTarget->GetObjectGuid() && ihit->effectMask & (1<<i))
+                            {
+                                if (chainTarget == 2)
+                                    chainJumpCoeff = 0.7f;
+                                else if (chainTarget == 3)
+                                    chainJumpCoeff = 0.49f;
+                                else if (chainTarget == 4)  // with the glyph
+                                    chainJumpCoeff = 0.34f;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            caster->CalculateSpellDamage(&damageInfo, m_damage, m_spellInfo, m_attackType, chainJumpCoeff);
+        }
 
         unitTarget->CalculateAbsorbResistBlock(caster, &damageInfo, m_spellInfo);
 
