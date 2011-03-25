@@ -517,6 +517,13 @@ void Pet::Update(uint32 update_diff, uint32 diff)
                 return;
             }
 
+            if (!owner->isAlive())
+            {
+                DEBUG_LOG("Pet's %d owner died, removed. ", GetGUID());
+                Unsummon(getPetType() == HUNTER_PET ? PET_SAVE_AS_DELETED : PET_SAVE_NOT_IN_SLOT, owner);
+                return;
+            }
+
             if ((!IsWithinDistInMap(owner, GetMap()->GetVisibilityDistance()) && !owner->GetCharmGuid().IsEmpty()) || (isControlled() && owner->GetPetGuid().IsEmpty()))
             {
                 DEBUG_LOG("Pet %d lost control, removed. Owner = %d, distance = %d, pet GUID = ", GetGUID(),owner->GetGUID(), GetDistance2d(owner), owner->GetPetGuid().GetCounter());
