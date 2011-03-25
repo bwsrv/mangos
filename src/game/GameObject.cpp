@@ -426,6 +426,14 @@ void GameObject::Update(uint32 update_diff, uint32 /*p_time*/)
                 return;
             }
 
+            // Wild Summoned GOs also should be deleted
+            if (IsWildSummoned())
+            {
+                SetRespawnTime(0);
+                Delete();
+                return;
+            }
+
             // burning flags in some battlegrounds, if you find better condition, just add it
             if (GetGOInfo()->IsDespawnAtAction() || GetGoAnimProgress() > 0)
             {
@@ -1429,6 +1437,10 @@ void GameObject::Use(Unit* user)
 
             spellId = info->spellcaster.spellId;
 
+            // dismount players
+            if (user && user->IsMounted())
+                user->Unmount();
+
             AddUse();
             break;
         }
@@ -1980,4 +1992,24 @@ void GameObject::SpawnInMaps(uint32 db_guid, GameObjectData const* data)
 bool GameObject::HasStaticDBSpawnData() const
 {
     return sObjectMgr.GetGOData(GetGUIDLow()) != NULL;
+}
+
+bool GameObject::IsWildSummoned() const
+{
+    // All Wild GOs are summoned by a spell and have no owner entry
+    if (!GetSpellId() || !GetOwnerGuid().IsEmpty())
+        return false;
+
+    // This check is likely not needed
+    if (SpellEntry const* spellInfo = sSpellStore.LookupEntry(GetSpellId()))
+    {
+        for (int eff_idx = 0; eff_idx < MAX_EFFECT_INDEX; ++eff_idx)
+        {
+            if (spellInfo->Effect[eff_idx] == SPELL_EFFECT_SUMMON_OBJECT_WILD && GetEntry() == spellInfo->EffectMiscValue[eff_idx])
+                return true;
+        }
+    }
+
+    // Also possible add MANGOS_ASSERT(false) or weaker bug-report to note this unexpected case.
+    return false;
 }

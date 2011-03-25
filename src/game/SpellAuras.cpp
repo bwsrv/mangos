@@ -2848,6 +2848,12 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
 
                 return;
             }
+            case 53039:                                     // Deploy Parachute
+            {
+                // Crusader Parachute
+                target->RemoveAurasDueToSpell(53031);
+                return;
+            }
             case 53790:                                     // Defensive Stance
             {
                 // Defensive Aura
@@ -4722,6 +4728,17 @@ void Aura::HandleAuraModStun(bool apply, bool Real)
             target->SendMessageToSet(&data, true);
         }
 
+        // Seduction (Succubus spell)
+        if (GetSpellProto()->Id == 6358)
+        {
+            Unit* pCaster = GetCaster();
+            if(!pCaster)
+                return;
+            
+            pCaster->InterruptSpell(CURRENT_CHANNELED_SPELL,false);
+            return;
+        }
+
         // Wyvern Sting
         if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_HUNTER && GetSpellProto()->SpellFamilyFlags & UI64LIT(0x0000100000000000))
         {
@@ -6001,14 +6018,8 @@ void Aura::HandleModResistancePercent(bool apply, bool /*Real*/)
 
 void Aura::HandleModBaseResistance(bool apply, bool /*Real*/)
 {
-    // only players have base stats
-    if(GetTarget()->GetTypeId() != TYPEID_PLAYER)
-    {
-        //only pets have base stats
-        if(((Creature*)GetTarget())->IsPet() && (m_modifier.m_miscvalue & SPELL_SCHOOL_MASK_NORMAL))
-            GetTarget()->HandleStatModifier(UNIT_MOD_ARMOR, TOTAL_VALUE, float(m_modifier.m_amount), apply);
-    }
-    else
+    // only players and pets have base stats
+    if(GetTarget()->GetTypeId() == TYPEID_PLAYER  || ((Creature*)GetTarget())->IsPet())
     {
         for(int i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; i++)
             if(m_modifier.m_miscvalue & (1<<i))
@@ -6051,8 +6062,8 @@ void Aura::HandleModPercentStat(bool apply, bool /*Real*/)
         return;
     }
 
-    // only players have base stats
-    if (GetTarget()->GetTypeId() != TYPEID_PLAYER)
+    // only players and pets have base stats
+    if (GetTarget()->GetTypeId() != TYPEID_PLAYER && !((Creature*)GetTarget())->IsPet())
         return;
 
     for (int32 i = STAT_STRENGTH; i < MAX_STATS; ++i)
@@ -7747,14 +7758,14 @@ void Aura::PeriodicTick()
         case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
         {
             // don't damage target if not alive, possible death persistent effects
-            if (!target->isAlive())
+            if (!target->IsInWorld() ||  !target->isAlive())
                 return;
 
             Unit *pCaster = GetCaster();
             if(!pCaster)
                 return;
 
-            if(!pCaster->isAlive())
+            if(!pCaster->IsInWorld() || !pCaster->isAlive())
                 return;
 
             if( spellProto->Effect[GetEffIndex()] == SPELL_EFFECT_PERSISTENT_AREA_AURA &&
@@ -9177,12 +9188,6 @@ m_permanent(false), m_isRemovedOnShapeLost(true), m_deleted(false), m_in_use(0)
     // some custom stack values at aura holder create
     switch (m_spellProto->Id)
     {
-        case 22959:                                         // Improved Scorch
-            if (caster && caster->GetObjectGuid().IsUnit())
-                // Glyph of Improved Scorch
-                if (Aura* glyph = ((Unit*)caster)->GetDummyAura(56371))
-                    m_stackAmount = glyph->GetModifier()->m_amount;
-            break;
         // some auras applied with max stack
         case 24575:                                         // Brittle Armor
         case 24659:                                         // Unstable Power
@@ -9232,11 +9237,11 @@ void SpellAuraHolder::_AddSpellAuraHolder()
     // Lookup free slot
     if (m_target->GetVisibleAurasCount() < MAX_AURAS)
     {
-        Unit::VisibleAuraMap const *visibleAuras = m_target->GetVisibleAuras();
+        Unit::VisibleAuraMap const& visibleAuras = m_target->GetVisibleAuras();
         for(uint8 i = 0; i < MAX_AURAS; ++i)
         {
-            Unit::VisibleAuraMap::const_iterator itr = visibleAuras->find(i);
-            if(itr == visibleAuras->end())
+            Unit::VisibleAuraMap::const_iterator itr = visibleAuras.find(i);
+            if (itr == visibleAuras.end())
             {
                 slot = i;
                 // update for out of range group members (on 1 slot use)
@@ -9264,7 +9269,7 @@ void SpellAuraHolder::_AddSpellAuraHolder()
         if (m_auras[i])
             flags |= (1 << i);
     }
-    flags |= ((GetCasterGuid() == GetTarget()->GetObjectGuid()) ? AFLAG_NOT_CASTER : AFLAG_NONE) | ((GetSpellMaxDuration(m_spellProto) > 0) ? AFLAG_DURATION : AFLAG_NONE) | (IsPositive() ? AFLAG_POSITIVE : AFLAG_NEGATIVE);
+    flags |= ((GetCasterGuid() == GetTarget()->GetObjectGuid()) ? AFLAG_NOT_CASTER : AFLAG_NONE) | ((GetSpellMaxDuration(m_spellProto) > 0 && !(m_spellProto->AttributesEx5 & SPELL_ATTR_EX5_NO_DURATION)) ? AFLAG_DURATION : AFLAG_NONE) | (IsPositive() ? AFLAG_POSITIVE : AFLAG_NEGATIVE);
     SetAuraFlags(flags);
 
     SetAuraLevel(caster ? caster->getLevel() : sWorld.getConfig(CONFIG_UINT32_MAX_PLAYER_LEVEL));
@@ -9532,8 +9537,8 @@ void SpellAuraHolder::SetStackAmount(uint32 stackAmount)
     if (!target || !caster)
         return;
 
-    bool refresh = stackAmount >= uint32(m_stackAmount);
-    if (stackAmount != uint32(m_stackAmount))
+    bool refresh = stackAmount >= m_stackAmount;
+    if (stackAmount != m_stackAmount)
     {
         m_stackAmount = stackAmount;
 
@@ -9549,6 +9554,16 @@ void SpellAuraHolder::SetStackAmount(uint32 stackAmount)
                     aur->ApplyModifier(false, true);
                     aur->GetModifier()->m_amount = amount;
                     aur->ApplyModifier(true, true);
+                    // change duration if aura refreshes
+                    if (refresh)
+                    {
+                        // new duration based on combo points
+                        if (GetSpellDuration(aur->GetSpellProto()) != GetSpellMaxDuration(aur->GetSpellProto()))
+                        {
+                            if (Unit *caster = aur->GetCaster())
+                                aur->SetAuraMaxDuration(caster->CalculateBaseSpellDuration(aur->GetSpellProto(), &aur->GetModifier()->periodictime));
+                        }
+                    }
                 }
             }
         }
@@ -9622,23 +9637,17 @@ bool SpellAuraHolder::IsNeedVisibleSlot(Unit const* caster) const
     return !m_isPassive || totemAura || HasAreaAuraEffect(m_spellProto);
 }
 
-void SpellAuraHolder::SendAuraUpdate(bool remove) const
+void SpellAuraHolder::BuildUpdatePacket(WorldPacket& data) const
 {
-    WorldPacket data(SMSG_AURA_UPDATE);
-    data << m_target->GetPackGUID();
     data << uint8(GetAuraSlot());
-    data << uint32(remove ? 0 : GetId());
-
-    if(remove)
-    {
-        m_target->SendMessageToSet(&data, true);
-        return;
-    }
+    data << uint32(GetId());
 
     uint8 auraFlags = GetAuraFlags();
     data << uint8(auraFlags);
     data << uint8(GetAuraLevel());
-    data << uint8(m_procCharges ? m_procCharges*m_stackAmount : m_stackAmount);
+
+    uint32 stackCount = m_procCharges ? m_procCharges*m_stackAmount : m_stackAmount;
+    data << uint8(stackCount <= 255 ? stackCount : 255);
 
     if(!(auraFlags & AFLAG_NOT_CASTER))
     {
@@ -9665,6 +9674,20 @@ void SpellAuraHolder::SendAuraUpdate(bool remove) const
         data << uint32(max_duration);
         data << uint32(duration);
     }
+}
+
+void SpellAuraHolder::SendAuraUpdate(bool remove) const
+{
+    WorldPacket data(SMSG_AURA_UPDATE);
+    data << m_target->GetPackGUID();
+
+    if(remove)
+    {
+        data << uint8(GetAuraSlot());
+        data << uint32(0);
+    }
+    else
+        BuildUpdatePacket(data);
 
     m_target->SendMessageToSet(&data, true);
 }

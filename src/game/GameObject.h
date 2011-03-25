@@ -631,6 +631,8 @@ class MANGOS_DLL_SPEC GameObject : public WorldObject
         }
         uint32 GetSpellId() const { return m_spellId;}
 
+        bool IsWildSummoned() const;
+
         time_t GetRespawnTime() const { return m_respawnTime; }
         time_t GetRespawnTimeEx() const
         {

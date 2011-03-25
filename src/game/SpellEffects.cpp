@@ -2295,12 +2295,10 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     const uint32 spellShrink = 53805;
                     const uint32 spellTransf = 53806;
 
-                    if (Aura* pAura = m_caster->GetAura(spellShrink, EFFECT_INDEX_0))
+                    if (SpellAuraHolder* holder = m_caster->GetSpellAuraHolder(spellShrink))
                     {
-                        uint32 stackNum = pAura->GetStackAmount();
-
                         // chance to become pygmified (5, 10, 15 etc)
-                        if (roll_chance_i(stackNum*5))
+                        if (roll_chance_i(holder->GetStackAmount() * 5))
                         {
                             m_caster->RemoveAurasDueToSpell(spellShrink);
                             m_caster->CastSpell(m_caster, spellTransf, true);
@@ -2308,7 +2306,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                         }
                     }
 
-                    if (m_caster->HasAura(spellTransf, EFFECT_INDEX_0))
+                    if (m_caster->HasAura(spellTransf))
                         return;
 
                     m_caster->CastSpell(m_caster, spellShrink, true);
@@ -6674,6 +6672,9 @@ void Spell::EffectSummonObjectWild(SpellEffectIndex eff_idx)
 
     // Wild object not have owner and check clickable by players
     map->Add(pGameObj);
+
+    // Store the GO to the caster
+    m_caster->AddWildGameObject(pGameObj);
 
     if(pGameObj->GetGoType() == GAMEOBJECT_TYPE_FLAGDROP && m_caster->GetTypeId() == TYPEID_PLAYER)
     {

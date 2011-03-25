@@ -663,6 +663,8 @@ bool IsPositiveEffect(uint32 spellId, SpellEffectIndex effIndex)
         case 64343:                                         // Impact
         case 12042:                                         // Arcane Power
             return true;
+        default:
+            break;
     }
 
     switch(spellproto->Effect[effIndex])

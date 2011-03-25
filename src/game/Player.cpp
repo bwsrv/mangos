@@ -7088,6 +7088,10 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 
     if(m_zoneUpdateId != newZone)
     {
+        //Called when a player leave zone
+        if (InstanceData* mapInstance = GetInstanceData())
+            mapInstance->OnPlayerLeaveZone(this, m_zoneUpdateId);
+
         SendInitWorldStates(newZone, newArea);              // only if really enters to new zone, not just area change, works strange...
 
         // call this method in order to handle some scripted zones
@@ -7918,13 +7922,15 @@ void Player::CastItemCombatSpell(Unit* Target, WeaponAttackType attType)
         if(!pEnchant) continue;
         for (int s = 0; s < 3; ++s)
         {
-            if (pEnchant->type[s]!=ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL)
+            uint32 proc_spell_id = pEnchant->spellid[s];
+
+            if (pEnchant->type[s] != ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL)
                 continue;
 
-            SpellEntry const *spellInfo = sSpellStore.LookupEntry(pEnchant->spellid[s]);
+            SpellEntry const *spellInfo = sSpellStore.LookupEntry(proc_spell_id);
             if (!spellInfo)
             {
-                sLog.outError("Player::CastItemCombatSpell Enchant %i, cast unknown spell %i", pEnchant->ID, pEnchant->spellid[s]);
+                sLog.outError("Player::CastItemCombatSpell Enchant %i, cast unknown spell %i", pEnchant->ID, proc_spell_id);
                 continue;
             }
 
@@ -7936,20 +7942,20 @@ void Player::CastItemCombatSpell(Unit* Target, WeaponAttackType attType)
                 : pEnchant->amount[s] != 0 ? float(pEnchant->amount[s]) : GetWeaponProcChance();
 
 
-            ApplySpellMod(spellInfo->Id,SPELLMOD_CHANCE_OF_SUCCESS,chance);
-            ApplySpellMod(spellInfo->Id,SPELLMOD_FREQUENCY_OF_SUCCESS,chance);
+            ApplySpellMod(spellInfo->Id,SPELLMOD_CHANCE_OF_SUCCESS, chance);
+            ApplySpellMod(spellInfo->Id,SPELLMOD_FREQUENCY_OF_SUCCESS, chance);
 
             if (roll_chance_f(chance))
             {
-                if(IsPositiveSpell(pEnchant->spellid[s]))
-                    CastSpell(this, pEnchant->spellid[s], true, item);
+                if (IsPositiveSpell(spellInfo->Id))
+                    CastSpell(this, spellInfo->Id, true, item);
                 else
                 {
                     // Deadly Poison, unique effect needs to be handled before casting triggered spell
                     if (spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE && spellInfo->SpellFamilyFlags & UI64LIT(0x10000))
                         _HandleDeadlyPoison(Target, attType, spellInfo);
 
-                    CastSpell(Target, pEnchant->spellid[s], true, item);
+                    CastSpell(Target, spellInfo->Id, true, item);
                 }
             }
         }
@@ -16540,20 +16546,20 @@ void Player::_LoadAuras(QueryResult *result, uint32 timediff)
         {
             Field *fields = result->Fetch();
             ObjectGuid caster_guid = fields[0].GetUInt64();
-            uint32 item_lowguid = fields[1].GetUInt64();
+            uint32 item_lowguid = fields[1].GetUInt32();
             uint32 spellid = fields[2].GetUInt32();
             uint32 stackcount = fields[3].GetUInt32();
-            int32 remaincharges = (int32)fields[4].GetUInt32();
+            uint32 remaincharges = fields[4].GetUInt32();
             int32 damage[MAX_EFFECT_INDEX];
             int32 maxduration[MAX_EFFECT_INDEX];
             int32 remaintime[MAX_EFFECT_INDEX];
             for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)
             {
-                damage[i]  = (int32)fields[i+5].GetUInt32();
-                maxduration[i] = (int32)fields[i+8].GetUInt32();
-                remaintime[i] = (int32)fields[i+11].GetUInt32();
+                damage[i] = fields[i+5].GetInt32();
+                maxduration[i] = fields[i+8].GetInt32();
+                remaintime[i] = fields[i+11].GetInt32();
             }
-            uint32 effIndexMask = (int32)fields[14].GetUInt32();
+            uint32 effIndexMask = fields[14].GetUInt32();
 
             SpellEntry const* spellproto = sSpellStore.LookupEntry(spellid);
             if (!spellproto)
@@ -16565,7 +16571,7 @@ void Player::_LoadAuras(QueryResult *result, uint32 timediff)
             // prevent wrong values of remaincharges
             if (spellproto->procCharges)
             {
-                if (remaincharges <= 0 || remaincharges > (int32)spellproto->procCharges)
+                if (remaincharges <= 0 || remaincharges > spellproto->procCharges)
                     remaincharges = spellproto->procCharges;
             }
             else
@@ -17965,7 +17971,7 @@ void Player::_SaveAuras()
         SpellAuraHolder *holder = itr->second;
         //skip all holders from spells that are passive or channeled
         //do not save single target holders (unless they were cast by the player)
-        if (!holder->IsPassive() && !IsChanneledSpell(holder->GetSpellProto()) && (holder->GetCasterGUID() == GetGUID() || !holder->IsSingleTarget()))
+        if (!holder->IsPassive() && !IsChanneledSpell(holder->GetSpellProto()) && (holder->GetCasterGUID() == GetGUID() || !holder->IsSingleTarget()) && !IsChanneledSpell(holder->GetSpellProto()))
         {
             int32 damage[MAX_EFFECT_INDEX];
             int32 remaintime[MAX_EFFECT_INDEX];
@@ -20829,59 +20835,12 @@ void Player::SendAurasForTarget(Unit *target)
     WorldPacket data(SMSG_AURA_UPDATE_ALL);
     data << target->GetPackGUID();
 
-    if(!target->GetVisibleAuras()->empty())                  // speedup things
+    Unit::VisibleAuraMap const& visibleAuras = target->GetVisibleAuras();
+    for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras.begin(); itr != visibleAuras.end(); ++itr)
     {
-        Unit::VisibleAuraMap const *visibleAuras = target->GetVisibleAuras();
-        for(Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
-        {
-            SpellAuraHolderBounds bounds = target->GetSpellAuraHolderBounds(itr->second);
-            for (SpellAuraHolderMap::const_iterator iter = bounds.first; iter != bounds.second; ++iter)
-            {
-                SpellAuraHolder *holder = iter->second;
-                data << uint8(holder->GetAuraSlot());
-                data << uint32(holder->GetId());
-
-                if(holder->GetId())
-                {
-                    uint8 auraFlags = holder->GetAuraFlags();
-                    // flags
-                    data << uint8(auraFlags);
-                    // level
-                    data << uint8(holder->GetAuraLevel());
-                    // charges
-                    if (holder->GetAuraCharges())
-                        data << uint8(holder->GetAuraCharges() * holder->GetStackAmount());
-                    else
-                        data << uint8(holder->GetStackAmount());
-
-                    if(!(auraFlags & AFLAG_NOT_CASTER))     // packed GUID of caster
-                    {
-                        data.appendPackGUID(holder->GetCasterGUID());
-                    }
-
-                    if(auraFlags & AFLAG_DURATION)          // include aura duration
-                    {
-                        // take highest - to display icon even if stun fades
-                        uint32 max_duration = 0;
-                        uint32 duration = 0;
-                        for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)
-                        {
-                            if (Aura *aura = holder->GetAuraByEffectIndex(SpellEffectIndex(i)))
-                            {
-                                if (uint32(aura->GetAuraMaxDuration()) > max_duration)
-                                {
-                                    max_duration = aura->GetAuraMaxDuration();
-                                    duration = aura->GetAuraDuration();
-                                }
-                            }
-                        }
-
-                        data << uint32(max_duration);
-                        data << uint32(duration);
-                    }
-                }
-            }
-        }
+        SpellAuraHolderConstBounds bounds = target->GetSpellAuraHolderBounds(itr->second);
+        for (SpellAuraHolderMap::const_iterator iter = bounds.first; iter != bounds.second; ++iter)
+            iter->second->BuildUpdatePacket(data);
     }
 
     GetSession()->SendPacket(&data);
