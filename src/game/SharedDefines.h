@@ -417,7 +417,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX5_UNK7                       0x00000080            // 7
 #define SPELL_ATTR_EX5_UNK8                       0x00000100            // 8
 #define SPELL_ATTR_EX5_START_PERIODIC_AT_APPLY    0x00000200            // 9  begin periodic tick at aura apply
-#define SPELL_ATTR_EX5_UNK10                      0x00000400            // 10
+#define SPELL_ATTR_EX5_NO_DURATION                0x00000400            // 10 not send duration to client
 #define SPELL_ATTR_EX5_UNK11                      0x00000800            // 11
 #define SPELL_ATTR_EX5_UNK12                      0x00001000            // 12
 #define SPELL_ATTR_EX5_AFFECTED_BY_HASTE          0x00002000            // 13 haste affects duration (e.g. 8050 since 3.3.3)
