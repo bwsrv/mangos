@@ -4528,6 +4528,17 @@ void Aura::HandleAuraModStun(bool apply, bool Real)
             target->SendMessageToSet(&data, true);
         }
 
+        // Seduction (Succubus spell)
+        if (GetSpellProto()->Id == 6358)
+        {
+            Unit* pCaster = GetCaster();
+            if(!pCaster)
+                return;
+            
+            pCaster->InterruptSpell(CURRENT_CHANNELED_SPELL,false);
+            return;
+        }
+
         // Wyvern Sting
         if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_HUNTER && GetSpellProto()->SpellFamilyFlags & UI64LIT(0x0000100000000000))
         {
@@ -7378,14 +7389,14 @@ void Aura::PeriodicTick()
         case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
         {
             // don't damage target if not alive, possible death persistent effects
-            if (!target->isAlive())
+            if (!target->IsInWorld() ||  !target->isAlive())
                 return;
 
             Unit *pCaster = GetCaster();
             if(!pCaster)
                 return;
 
-            if(!pCaster->isAlive())
+            if(!pCaster->IsInWorld() || !pCaster->isAlive())
                 return;
 
             if( spellProto->Effect[GetEffIndex()] == SPELL_EFFECT_PERSISTENT_AREA_AURA &&
@@ -9137,6 +9148,16 @@ void SpellAuraHolder::SetStackAmount(uint32 stackAmount)
                     aur->ApplyModifier(false, true);
                     aur->GetModifier()->m_amount = amount;
                     aur->ApplyModifier(true, true);
+                    // change duration if aura refreshes
+                    if (refresh)
+                    {
+                        // new duration based on combo points
+                        if (GetSpellDuration(aur->GetSpellProto()) != GetSpellMaxDuration(aur->GetSpellProto()))
+                        {
+                            if (Unit *caster = aur->GetCaster())
+                                aur->SetAuraMaxDuration(caster->CalculateBaseSpellDuration(aur->GetSpellProto(), &aur->GetModifier()->periodictime));
+                        }
+                    }
                 }
             }
         }

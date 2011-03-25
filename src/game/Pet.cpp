@@ -1918,6 +1918,11 @@ bool Pet::Create(uint32 guidlow, CreatureCreatePos& cPos, uint32 Entry, uint32 p
     if (!owner)
         return false;
 
+    CreatureInfo const* cInfo = ObjectMgr::GetCreatureTemplate(Entry);
+
+    if (!cInfo)
+        return false;
+
     m_loading = true;
 
     SetMap(cPos.GetMap());
