@@ -7019,6 +7019,10 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 
     if(m_zoneUpdateId != newZone)
     {
+        //Called when a player leave zone
+        if (InstanceData* mapInstance = GetInstanceData())
+            mapInstance->OnPlayerLeaveZone(this, m_zoneUpdateId);
+
         SendInitWorldStates(newZone, newArea);              // only if really enters to new zone, not just area change, works strange...
 
         // call this method in order to handle some scripted zones
