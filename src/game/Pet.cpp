@@ -1299,7 +1299,7 @@ void Pet::_LoadAuras(uint32 timediff)
                 if ((effIndexMask & (1 << i)) == 0)
                     continue;
 
-                if (remaintime[i] != -1 && !IsPositiveEffect(spellid, SpellEffectIndex(i)))
+                if (remaintime[i] != -1 && !IsPositiveEffect(spellproto, SpellEffectIndex(i)))
                 {
                     if (remaintime[i]/IN_MILLISECONDS <= int32(timediff))
                     continue;
@@ -1389,7 +1389,7 @@ void Pet::_SaveAuras()
 
             if (!effIndexMask)
                 continue;
-            
+
             stmt = CharacterDatabase.CreateStatement(insAuras, "INSERT INTO pet_aura (guid, caster_guid, item_guid, spell, stackcount, remaincharges, basepoints0, basepoints1, basepoints2, maxduration0, maxduration1, maxduration2, remaintime0, remaintime1, remaintime2, effIndexMask) "
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
