@@ -1360,7 +1360,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             }
 
             // not break stealth by cast targeting
-            if (!(m_spellInfo->AttributesEx & SPELL_ATTR_EX_NOT_BREAK_STEALTH) &&
+            if (!(m_spellInfo->AttributesEx & SPELL_ATTR_EX_NOT_BREAK_STEALTH) && m_spellInfo->Id != 58838 &&
                 m_spellInfo->Id != 51690 && m_spellInfo->Id != 53055 && m_spellInfo->Id != 3600 &&
                 m_spellInfo->Id != 44416 && m_spellInfo->SpellIconID != 1954 && m_spellInfo->SpellIconID != 2267 &&
                 !(m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellInfo->SpellIconID == 9) && // Warlock's Voidwalker's Suffering
