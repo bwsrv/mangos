@@ -4903,22 +4903,8 @@ void Unit::RemoveAuraHolderFromStack(uint32 spellId, uint32 stackAmount, uint64 
         {
             if (iter->second->ModStackAmount(-int32(stackAmount)))
             {
-                while (stackAmount--)
-                {
-                    if (iter->second->DropAuraCharge())
-                    {
-                        RemoveSpellAuraHolder(iter->second, mode);
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                if (iter->second->ModStackAmount(-stackAmount))
-                {
-                    RemoveSpellAuraHolder(iter->second, mode);
-                    break;
-                }
+                RemoveSpellAuraHolder(iter->second, mode);
+                break;
             }
         }
     }
