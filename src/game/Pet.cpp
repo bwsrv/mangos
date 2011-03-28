@@ -548,7 +548,7 @@ void Pet::Update(uint32 update_diff, uint32 diff)
             if (!owner->isAlive())
             {
                 DEBUG_LOG("Pet's %d owner died, removed. ", GetGUID());
-                Unsummon(getPetType() == HUNTER_PET ? PET_SAVE_AS_DELETED : PET_SAVE_NOT_IN_SLOT, owner);
+                Unsummon(getPetType() == HUNTER_PET ? PET_SAVE_AS_CURRENT : PET_SAVE_NOT_IN_SLOT, owner);
                 return;
             }
 
