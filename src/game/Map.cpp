@@ -1507,7 +1507,7 @@ bool DungeonMap::Reset(InstanceResetMethod method)
     return m_mapRefManager.isEmpty();
 }
 
-void DungeonMap::PermBindAllPlayers(Player *player)
+void DungeonMap::PermBindAllPlayers(Player *player, bool permanent)
 {
     Group *group = player->GetGroup();
     // group members outside the instance group don't get bound
@@ -1519,7 +1519,7 @@ void DungeonMap::PermBindAllPlayers(Player *player)
         InstancePlayerBind *bind = plr->GetBoundInstance(GetId(), GetDifficulty());
         if (!bind || !bind->perm)
         {
-            plr->BindToInstance(GetPersistanceState(), true);
+            plr->BindToInstance(GetPersistanceState(), permanent);
             WorldPacket data(SMSG_INSTANCE_SAVE_CREATED, 4);
             data << uint32(0);
             plr->GetSession()->SendPacket(&data);
@@ -1527,7 +1527,7 @@ void DungeonMap::PermBindAllPlayers(Player *player)
 
         // if the leader is not in the instance the group will not get a perm bind
         if (group && group->GetLeaderGuid() == plr->GetObjectGuid())
-            group->BindToInstance(GetPersistanceState(), true);
+            group->BindToInstance(GetPersistanceState(), permanent);
     }
 }
 
@@ -2872,7 +2872,7 @@ Pet* Map::GetPet(ObjectGuid guid)
 /**
  * Function return corpse that at CURRENT map
  *
- * Note: corpse can be NOT IN WORLD, so can't be used corspe->GetMap() without pre-check corpse->isInWorld()
+ * Note: corpse can be NOT IN WORLD, so can't be used corpse->GetMap() without pre-check corpse->isInWorld()
  *
  * @param guid must be corpse guid (HIGHGUID_CORPSE)
  */

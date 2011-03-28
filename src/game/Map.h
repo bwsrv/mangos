@@ -365,7 +365,7 @@ class MANGOS_DLL_SPEC DungeonMap : public Map
         void Remove(Player *, bool);
         void Update(const uint32&);
         bool Reset(InstanceResetMethod method);
-        void PermBindAllPlayers(Player *player);
+        void PermBindAllPlayers(Player *player, bool permanent = true);
         void UnloadAll(bool pForce);
         bool CanEnter(Player* player);
         void SendResetWarnings(uint32 timeLeft) const;
