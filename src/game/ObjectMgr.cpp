@@ -3917,8 +3917,30 @@ void ObjectMgr::LoadGroups()
                 sLog.outErrorDb("ObjectMgr::Wrong reset time in group_instance corrected to: %d", resetTime);
             }
 
-            DungeonPersistentState *state = (DungeonPersistentState*)sMapPersistentStateMgr.AddPersistentState(mapEntry, fields[2].GetUInt32(), Difficulty(diff), (time_t)resetTime, (fields[6].GetUInt32() == 0), true, true, encountersMask);
-            group->BindToInstance(state, fields[3].GetBool(), true);
+            if (resetTime < (time(NULL)))
+            {
+                DEBUG_LOG("ObjectMgr::Loading extended instance for player: %d", leaderGuidLow);
+                bool isExtended = false;
+                QueryResult* result1 = CharacterDatabase.PQuery("SELECT COUNT(guid) FROM character_instance WHERE instance = '%u' AND extend = 1 ", fields[1].GetUInt32());
+                if (result1)
+                {
+                    Field *fields1=result->Fetch();
+                    isExtended = fields1[0].GetBool();
+                    delete result1;
+                }
+
+                MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mapId,diff);
+                resetTime = DungeonResetScheduler::CalculateNextResetTime(mapDiff, time(NULL));
+                DungeonPersistentState* state = (DungeonPersistentState*)sMapPersistentStateMgr.AddPersistentState(mapEntry, fields[2].GetUInt32(), Difficulty(diff), (time_t)resetTime, (fields[6].GetUInt32() == 0), true, true, encountersMask);
+                state->SetExtended(isExtended);
+                group->BindToInstance(state, true && isExtended);
+            }
+            else
+            {
+                DungeonPersistentState *state = (DungeonPersistentState*)sMapPersistentStateMgr.AddPersistentState(mapEntry, fields[2].GetUInt32(), Difficulty(diff), (time_t)resetTime, (fields[6].GetUInt32() == 0), true, true, encountersMask);
+                group->BindToInstance(state, fields[3].GetBool(), true);
+            }
+
         }while( result->NextRow() );
         delete result;
     }
