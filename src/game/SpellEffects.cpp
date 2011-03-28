@@ -2446,10 +2446,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                             Player* creditedPlayer = unitTarget->GetCharmerOrOwnerPlayerOrPlayerItself();
                             DungeonMap* dungeon = (DungeonMap*)m_caster->GetMap();;
                             if (DungeonPersistentState* state = dungeon->GetPersistanceState())
-                            {
-                                dungeon->PermBindAllPlayers(creditedPlayer);
                                 state->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, m_spellInfo->Id, creditedPlayer);
-                            }
                         }
                     }
                 }

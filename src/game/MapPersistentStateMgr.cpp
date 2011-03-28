@@ -307,6 +307,11 @@ void DungeonPersistentState::UpdateEncounterState(EncounterCreditType type, uint
                     DEBUG_LOG("DungeonPersistentState:: Dungeon %s (Id %u) completed last encounter %s", GetMap()->GetMapName(), GetInstanceId(), (*itr)->dbcEntry->encounterName[sWorld.GetDefaultDbcLocale()]);
                     // Place LFG reward there!
                 }
+
+                DungeonMap* dungeon = (DungeonMap*)GetMap();
+
+                if (dungeon && player)
+                    dungeon->PermBindAllPlayers(player, dungeon->IsRaidOrHeroicDungeon());
             }
             return;
         }
