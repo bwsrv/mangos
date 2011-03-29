@@ -27,6 +27,7 @@
 #include "LootMgr.h"
 #include "DBCEnums.h"
 #include "SharedDefines.h"
+#include "LFG.h"
 
 #include <map>
 #include <vector>

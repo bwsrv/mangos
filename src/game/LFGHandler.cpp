@@ -183,23 +183,25 @@ void WorldSession::HandleLfgLeaveOpcode( WorldPacket & /*recv_data*/ )
 
 void WorldSession::HandleSearchLfgJoinOpcode( WorldPacket & recv_data )
 {
-    DEBUG_LOG("CMSG_SEARCH_LFG_JOIN");
     LookingForGroup_auto_add = true;
 
-    recv_data >> Unused<uint32>();                          // join id?
-
-    if(!_player)                                            // needed because STATUS_AUTHED
-        return;
+    uint32 entry;                                           // Raid id to search
+    recv_data >> entry;
+    DEBUG_LOG("CMSG_SEARCH_LFG_JOIN %u dungeon entry: %u", GetPlayer()->GetObjectGuid().GetCounter(), entry);
+    //sLFGMgr(entry);
 
     AttemptAddMore(_player);
 }
 
 void WorldSession::HandleSearchLfgLeaveOpcode( WorldPacket & recv_data )
 {
-    DEBUG_LOG("CMSG_SEARCH_LFG_LEAVE");
     LookingForGroup_auto_add = false;
 
-    recv_data >> Unused<uint32>();                          // join id?
+    uint32 entry;                                          // Raid id queue to leave
+    recv_data >> entry;
+
+    DEBUG_LOG("CMSG_SEARCH_LFG_LEAVE %u dungeon entry: %u", GetPlayer()->GetObjectGuid().GetCounter(), entry);
+    //sLFGMgr(GetPlayer(), entry);
 }
 
 void WorldSession::HandleLfgClearOpcode( WorldPacket & /*recv_data */ )
@@ -436,7 +438,7 @@ void WorldSession::HandleSetLfgOpcode( WorldPacket & recv_data )
     SendLfgUpdate(0, 1, 0);
 }
 
-void WorldSession::HandleLfgSetRoles(WorldPacket &recv_data)
+void WorldSession::HandleLfgSetRolesOpcode(WorldPacket &recv_data)
 {
     DEBUG_LOG("CMSG_LFG_SET_ROLES");
 
@@ -454,4 +456,55 @@ void WorldSession::SendLfgUpdate(uint8 /*unk1*/, uint8 /*unk2*/, uint8 /*unk3*/)
     data << uint8(unk2);
     data << uint8(unk3);
     SendPacket(&data);*/
+}
+
+void WorldSession::HandleLfgSetBootVoteOpcode(WorldPacket &recv_data)
+{
+    bool agree;                                             // Agree to kick player
+    recv_data >> agree;
+
+    DEBUG_LOG("CMSG_LFG_SET_BOOT_VOTE %u agree: %u", GetPlayer()->GetObjectGuid().GetCounter(), agree ? 1 : 0);
+    //sLFGMgr.UpdateBoot(GetPlayer(), agree);
+}
+
+void WorldSession::HandleLfgTeleportOpcode(WorldPacket &recv_data)
+{
+    bool agree;
+    recv_data >> agree;
+
+    DEBUG_LOG("CMSG_LFG_TELEPORT  %u teleport: %u", GetPlayer()->GetObjectGuid().GetCounter(), agree ? 1 : 0);
+    //sLFGMgr.TeleportPlayer(GetPlayer(), agree);
+}
+
+void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket &/*recv_data*/)
+{
+    DEBUG_LOG("CMSG_LFD_PLAYER_LOCK_INFO_REQUEST %u ", GetPlayer()->GetObjectGuid().GetCounter());
+
+    uint32 rsize = 0;
+    uint32 lsize = 0;
+
+    WorldPacket data(SMSG_LFG_PLAYER_INFO, 1 + rsize * (4 + 1 + 4 + 4 + 4 + 4 + 1 + 4 + 4 + 4) + 4 + lsize * (1 + 4 + 4 + 4 + 4 + 1 + 4 + 4 + 4));
+    data << uint8(0);
+    data << uint8(0);
+    SendPacket(&data);
+}
+
+void WorldSession::HandleLfgPartyLockInfoRequestOpcode(WorldPacket & /*recv_data*/)
+{
+    DEBUG_LOG("CMSG_LFD_PARTY_LOCK_INFO_REQUEST %u", GetPlayer()->GetObjectGuid().GetCounter());
+    uint32 size = 0;
+    WorldPacket data(SMSG_LFG_PARTY_INFO, 1 + size);
+    data << uint8(0);
+    SendPacket(&data);
+}
+
+void WorldSession::HandleLfgProposalResultOpcode(WorldPacket &recv_data)
+{
+    uint32 lfgGroupID;                                      // Internal lfgGroupID
+    bool   accept;                                          // Accept to join?
+    recv_data >> lfgGroupID;
+    recv_data >> accept;
+
+    DEBUG_LOG("CMSG_LFG_PROPOSAL_RESULT %u proposal: %u accept: %u", GetPlayer()->GetObjectGuid().GetCounter(), lfgGroupID, accept ? 1 : 0);
+    //sLFGMgr.UpdateProposal(lfgGroupID, GetPlayer()->GetObjectGuid().GetCounter(), accept);
 }
