@@ -1213,7 +1213,8 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         }
         void _removeAttacker(Unit *pAttacker)               // must be called only from Unit::AttackStop()
         {
-            m_attackers.erase(pAttacker);
+            if (pAttacker)
+                m_attackers.erase(pAttacker);
         }
         Unit * getAttackerForHelper()                       // If someone wants to help, who to give them
         {
