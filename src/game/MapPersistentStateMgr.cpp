@@ -386,8 +386,9 @@ void DungeonResetScheduler::LoadResetTimes()
                     sMapPersistentStateMgr.DeleteInstanceFromDB(id,false);
                     continue;
                 }
-
-                instResetTime[id] = ResetTimeMapDiffType(MAKE_PAIR32(mapid,difficulty), resettime);
+                //if in DBC no resettime - sedule resettime from DB
+                if (!mapDiff->resetTime)
+                    instResetTime[id] = ResetTimeMapDiffType(MAKE_PAIR32(mapid,difficulty), resettime);
             }
         }
         while (result->NextRow());
@@ -893,17 +894,18 @@ void MapPersistentStateManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficu
         for(PersistentStateMap::iterator itr = m_instanceSaveByInstanceId.begin(); itr != m_instanceSaveByInstanceId.end();)
         {
             if (itr->second->GetMapId() == mapid && itr->second->GetDifficulty() == difficulty)
-                _ResetSave(m_instanceSaveByInstanceId, itr);
+            {
+                if (!((DungeonPersistentState*)itr->second)->IsExtended())
+                {
+                    _ResetSave(m_instanceSaveByInstanceId, itr);
+                    DeleteInstanceFromDB(itr->first, false);
+                }
+                else
+                    DeleteInstanceFromDB(itr->first, true);
+            }
             else
                 ++itr;
         }
-
-        // delete them from the DB, even if not loaded
-        CharacterDatabase.BeginTransaction();
-        CharacterDatabase.PExecute("DELETE FROM character_instance USING character_instance LEFT JOIN instance ON character_instance.instance = id WHERE map = '%u'", mapid);
-        CharacterDatabase.PExecute("DELETE FROM group_instance USING group_instance LEFT JOIN instance ON group_instance.instance = id WHERE map = '%u'", mapid);
-        CharacterDatabase.PExecute("DELETE FROM instance WHERE map = '%u'", mapid);
-        CharacterDatabase.CommitTransaction();
 
         // calculate the next reset time
         time_t next_reset = DungeonResetScheduler::CalculateNextResetTime(mapDiff, resetTime);
@@ -921,6 +923,9 @@ void MapPersistentStateManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficu
     {
         Map *map2 = mitr->second;
         if(map2->GetId() != mapid)
+            break;
+
+        if ((DungeonPersistentState*)map2->GetPersistentState() && ((DungeonPersistentState*)map2->GetPersistentState())->IsExtended())
             break;
 
         if (warn)
@@ -950,7 +955,7 @@ void MapPersistentStateManager::GetStatistics(uint32& numStates, uint32& numBoun
 
 void MapPersistentStateManager::_CleanupExpiredInstancesAtTime( time_t t )
 {
-    _DelHelper(CharacterDatabase, "id, map, instance.difficulty", "instance", "LEFT JOIN instance_reset ON mapid = map AND instance.difficulty =  instance_reset.difficulty WHERE (instance.resettime < '"UI64FMTD"' AND instance.resettime > '0') OR (NOT instance_reset.resettime IS NULL AND instance_reset.resettime < '"UI64FMTD" AND id NOT IN (SELECT DISTINCT instance FROM character_instance WHERE extend >0))",  (uint64)t, (uint64)t);
+    _DelHelper(CharacterDatabase, "id, map, instance.difficulty", "instance", "LEFT JOIN instance_reset ON mapid = map AND instance.difficulty =  instance_reset.difficulty WHERE (instance.resettime < '"UI64FMTD"' AND instance.resettime > '0') OR (NOT instance_reset.resettime IS NULL AND instance_reset.resettime < '"UI64FMTD"' AND id NOT IN (SELECT DISTINCT instance FROM character_instance WHERE extend > 0))",  (uint64)t, (uint64)t);
 }
 
 
