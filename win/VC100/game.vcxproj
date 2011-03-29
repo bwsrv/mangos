@@ -434,6 +434,7 @@
     <ClCompile Include="..\..\src\game\Level2.cpp" />
     <ClCompile Include="..\..\src\game\Level3.cpp" />
     <ClCompile Include="..\..\src\game\LFGHandler.cpp" />
+    <ClCompile Include="..\..\src\game\LFGMgr.cpp" />
     <ClCompile Include="..\..\src\game\LootHandler.cpp" />
     <ClCompile Include="..\..\src\game\LootMgr.cpp" />
     <ClCompile Include="..\..\src\game\Mail.cpp" />
@@ -596,6 +597,8 @@
     <ClInclude Include="..\..\src\game\ItemEnchantmentMgr.h" />
     <ClInclude Include="..\..\src\game\ItemPrototype.h" />
     <ClInclude Include="..\..\src\game\Language.h" />
+    <ClInclude Include="..\..\src\game\LFG.h" />
+    <ClInclude Include="..\..\src\game\LFGMgr.h" />
     <ClInclude Include="..\..\src\game\LootMgr.h" />
     <ClInclude Include="..\..\src\game\Mail.h" />
     <ClInclude Include="..\..\src\game\Map.h" />
