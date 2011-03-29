@@ -4660,6 +4660,21 @@ SpellAuraProcResult Unit::HandlePeriodicDummyAuraProc(Unit* /*pVictim*/, uint32 
 
     switch (spellProto->SpellFamilyName)
     {
+        case SPELLFAMILY_GENERIC:
+        {
+            switch (spellProto->Id)
+            {
+                case 66334:                                 // Mistress' Kiss (Trial of the Crusader, ->
+                case 67905:                                 // -> Lord Jaraxxus encounter, all difficulties)
+                case 67906:                                 // ----- // -----
+                case 67907:                                 // ----- // -----
+                {
+                    CastSpell(this, 66359, true, NULL, triggeredByAura);
+                    break;
+                }
+            }
+            break;
+        }
         case SPELLFAMILY_DEATHKNIGHT:
         {
             switch (spellProto->SpellIconID)

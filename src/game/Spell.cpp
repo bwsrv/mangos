@@ -1709,6 +1709,8 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 64531:                                 // Rapid Burst (h)
                 case 61916:                                 // Lightning Whirl (10 man)
                 case 63482:                                 // Lightning Whirl (25 man)
+                case 66336:                                 // Mistress' Kiss (Trial of the Crusader, ->
+                case 67077:                                 // -> Lord Jaraxxus encounter, 10 and 10 heroic)
                     unMaxTargets = 1;
                     break;
                 case 28542:                                 // Life Drain
@@ -1728,6 +1730,8 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 42005:                                 // Bloodboil TODO: need to be 5 targets(players) furthest away from caster
                 case 55665:                                 // Life Drain (h)
                 case 58917:                                 // Consume Minions
+                case 67076:                                 // Mistress' Kiss (Trial of the Crusader, ->
+                case 67078:                                 // -> Lord Jaraxxus encounter, 25 and 25 heroic)
                 case 67700:                                 // Penetrating Cold (25 man)
                 case 68510:                                 // Penetrating Cold (25 man, heroic)
                     unMaxTargets = 5;
