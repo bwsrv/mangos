@@ -7920,13 +7920,7 @@ bool Unit::IsImmuneToSpellEffect(SpellEntry const* spellInfo, SpellEffectIndex i
                 ((*i)->GetId() == 46924 &&                                                // Bladestorm Immunity
                 spellInfo->EffectMechanic[index] & IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK ||
                 spellInfo->Mechanic & IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK))
-            {
-                // Additional Bladestorm Immunity check (not immuned to disarm / bleed)
-                if ((*i)->GetId() == 46924 && (spellInfo->Mechanic == MECHANIC_DISARM || spellInfo->Mechanic == MECHANIC_BLEED || spellInfo->Mechanic == MECHANIC_INFECTED))
-                     continue;
-
                 return true;
-            }
     }
 
     return false;
