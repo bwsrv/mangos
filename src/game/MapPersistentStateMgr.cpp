@@ -901,7 +901,10 @@ void MapPersistentStateManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficu
                     DeleteInstanceFromDB(itr->first, false);
                 }
                 else
+                {
                     DeleteInstanceFromDB(itr->first, true);
+                    ++itr;
+                }
             }
             else
                 ++itr;
