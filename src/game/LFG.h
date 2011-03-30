@@ -20,11 +20,10 @@
 
 enum LFGRoles
 {
-    ROLE_NONE   = 0,
-    ROLE_LEADER = 1,
-    ROLE_TANK   = 2,
-    ROLE_HEALER = 3,
-    ROLE_DAMAGE = 4,
+    ROLE_LEADER = 0,
+    ROLE_TANK   = 1,
+    ROLE_HEALER = 2,
+    ROLE_DAMAGE = 3,
 };
 
 enum LFGRoleMask

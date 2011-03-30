@@ -547,12 +547,15 @@ void WorldSession::HandleGroupChangeSubGroupOpcode( WorldPacket & recv_data )
 void WorldSession::HandleGroupAssistantLeaderOpcode( WorldPacket & recv_data )
 {
     ObjectGuid guid;
-    uint8 flag;
+    uint8 apply;
     recv_data >> guid;
-    recv_data >> flag;
+    recv_data >> apply;
+
+    DEBUG_LOG("CMSG_GROUP_ASSISTANT_LEADER: guid %u, apply %u",guid.GetCounter(),apply);
 
     Group *group = GetPlayer()->GetGroup();
-    if (!group)
+
+    if (!group || !group->isRaidGroup())                    // Only raid groups may have assistant
         return;
 
     /** error handling **/
@@ -561,7 +564,8 @@ void WorldSession::HandleGroupAssistantLeaderOpcode( WorldPacket & recv_data )
     /********************/
 
     // everything is fine, do it
-    group->SetAssistant(guid, (flag==0?false:true));
+    group->SetGroupUniqueFlag(guid, GROUP_ASSIGN_ASSISTANT, apply);
+
 }
 
 void WorldSession::HandlePartyAssignmentOpcode( WorldPacket & recv_data )
@@ -572,34 +576,19 @@ void WorldSession::HandlePartyAssignmentOpcode( WorldPacket & recv_data )
     recv_data >> role >> apply;                             // role 0 = Main Tank, 1 = Main Assistant
     recv_data >> guid;
 
-    DEBUG_LOG("MSG_PARTY_ASSIGNMENT");
+    DEBUG_LOG("MSG_PARTY_ASSIGNMENT: guid %u, role %u, apply %u",guid.GetCounter(),role,apply);
 
     Group *group = GetPlayer()->GetGroup();
-    if (!group)
+
+    if (!group || !group->isRaidGroup())                    // Only raid groups may have mainassistant/maintank
         return;
 
     /** error handling **/
-    if (!group->IsLeader(GetPlayer()->GetObjectGuid()))
+    if (!group->IsLeader(GetPlayer()->GetObjectGuid()) && !group->IsAssistant(GetPlayer()->GetObjectGuid()))
         return;
     /********************/
 
-    // everything is fine, do it
-    if (apply)
-    {
-        switch(role)
-        {
-            case 0: group->SetMainTank(guid); break;
-            case 1: group->SetMainAssistant(guid); break;
-            default: break;
-        }
-    }
-    else
-    {
-        if (group->GetMainTankGuid() == guid)
-            group->SetMainTank(ObjectGuid());
-        if (group->GetMainAssistantGuid() == guid)
-            group->SetMainAssistant(ObjectGuid());
-    }
+    group->SetGroupUniqueFlag(guid, GroupFlagsAssignment(role), apply);
 }
 
 void WorldSession::HandleRaidReadyCheckOpcode( WorldPacket & recv_data )
