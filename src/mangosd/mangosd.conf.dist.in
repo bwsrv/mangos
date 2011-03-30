@@ -1846,3 +1846,16 @@ RAF.MaxReferals         = 5
 RAF.MaxReferers         = 5
 Rate.RAF.XP             = 3
 Rate.RAF.LevelPerLevel  = 0.5
+
+
+###################################################################################################################
+#    LFG Dungeon finder system
+#
+#    LFG.Enable              = 0
+#    LFG.MaxKicks            = 3
+#    LFG.KickVotes           = 3
+###################################################################################################################
+LFG.Enable              = 0
+LFG.MaxKicks            = 3
+LFG.KickVotes           = 3
+
