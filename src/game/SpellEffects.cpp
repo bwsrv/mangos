@@ -7581,6 +7581,38 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     }
                     return;
                 }
+                case 62217:                                 // Unstable Energy (Ulduar: Freya's elder)
+                {
+                    uint32 spellId = m_spellInfo->CalculateSimpleValue(eff_idx);
+                    if (unitTarget && unitTarget->HasAura(spellId))
+                        unitTarget->RemoveAurasDueToSpell(spellId);
+                    return;
+                }
+                case 62262:                                 // Brightleaf Flux (Ulduar: Freya's elder)
+                {
+                    uint32 buffId = roll_chance_i(50) ? 62251 : 62252;
+
+                    m_caster->CastSpell(m_caster, buffId, true);
+                    if (buffId == 62252)
+                    {
+                        if (SpellAuraHolder *holder = m_caster->GetSpellAuraHolder(62239))
+                            if (holder->ModStackAmount(-1))
+                                m_caster->RemoveSpellAuraHolder(holder);
+                    }
+                    else
+                        m_caster->CastSpell(m_caster, 62239, true);
+                    return;
+                }
+                case 62707:                                 // Grab (Ulduar: Ignis)
+                case 63535:                                 // Grab heroic
+                {
+                    if (!unitTarget || !m_caster)
+                        return;
+
+                    unitTarget->CastSpell(m_caster, 62708, true); // Control Vehicle aura
+                    m_caster->CastSpell(unitTarget, (m_spellInfo->Id == 62707) ? 62717 : 63477, true); // DoT/Immunity
+                    break;
+                }
                 case 65917:                                 // Magic Rooster 
                 { 
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER) 

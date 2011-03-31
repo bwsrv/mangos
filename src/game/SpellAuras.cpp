@@ -5375,6 +5375,23 @@ void Aura::HandleAuraPeriodicDummy(bool apply, bool Real)
     SpellEntry const*spell = GetSpellProto();
     switch( spell->SpellFamilyName)
     {
+        case SPELLFAMILY_GENERIC:
+        {
+            case 62717:                                   // Slag Pot (Ulduar: Ignis)
+            case 63477:
+            {
+                Unit *caster = GetCaster();
+
+                if (!caster || !target)
+                    return;
+
+                // Haste buff (Slag Imbued)
+                if (!apply)
+                    target->CastSpell(caster, (spell->Id == 62717) ? 62836 : 63536, true);
+
+                break;
+            }
+        }
         case SPELLFAMILY_ROGUE:
         {
             if(!apply)
@@ -5393,7 +5410,7 @@ void Aura::HandleAuraPeriodicDummy(bool apply, bool Real)
             {
                 case 48018:
                     if (apply)
-                        target->CastSpell(target, 62388, true);                
+                        target->CastSpell(target, 62388, true);
                     else
                     {
                         target->RemoveGameObject(spell->Id,true);
@@ -8041,6 +8058,15 @@ void Aura::PeriodicDummyTick()
                         case 2: target->CastSpell(target, 55739, true); break;
                     }
                     return;
+                case 62717:                                 // Slag Pot (periodic dmg)
+                case 63477:
+                {
+                    Unit *caster = GetCaster();
+
+                    if (caster && target)
+                        caster->CastSpell(target, (spell->Id == 62717) ? 65722 : 65723, true, 0, this, this->GetCasterGUID(), this->GetSpellProto());
+                    return;
+                }
                 case 69008:                                 // Soulstorm (OOC aura)
                 case 68870:                                 // Soulstorm
                 {
