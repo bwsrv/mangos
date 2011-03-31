@@ -185,12 +185,8 @@ bool VehicleKit::AddPassenger(Unit *passenger, int8 seatId)
         passenger->RemoveSpellsCausingAura(SPELL_AURA_MOD_SHAPESHIFT);
     }
 
-    if (Unit* pVehicle = GetBase())                         // hacks for Mine Car and Scourge Gryphon
-    {                                                       // (quest Massacre At Light's Point)
-        if (pVehicle->GetEntry() == 28817 || pVehicle->GetEntry() == 28864)
-            passenger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-    }
-
+    if (m_pBase->GetEntry() == 28817 || m_pBase->GetEntry() == 28864)   // hacks for Mine Car and Scourge Gryphon
+        passenger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); // (quest Massacre At Light's Point)
 
     if (seatInfo->m_flags & SEAT_FLAG_CAN_CONTROL)
     {
