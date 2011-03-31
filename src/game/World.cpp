@@ -1239,6 +1239,9 @@ void World::SetInitialWorldSettings()
     sLog.outString( ">>> Localization strings loaded" );
     sLog.outString();
 
+    sLog.outString("Loading LFG rewards...");               // After load all static data
+    sLFGMgr.LoadRewards();
+
     ///- Load dynamic data tables from the database
     sLog.outString( "Loading Auctions..." );
     sLog.outString();
