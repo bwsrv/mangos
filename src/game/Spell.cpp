@@ -6227,6 +6227,7 @@ bool Spell::CanAutoCast(Unit* target)
 SpellCastResult Spell::CheckRange(bool strict)
 {
     Unit *target = m_targets.getUnitTarget();
+    GameObject *pGoTarget = m_targets.getGOTarget();
 
     // special range cases
     switch(m_spellInfo->rangeIndex)
@@ -6277,6 +6278,20 @@ SpellCastResult Spell::CheckRange(bool strict)
         if( m_caster->GetTypeId() == TYPEID_PLAYER &&
             (m_spellInfo->FacingCasterFlags & SPELL_FACING_FLAG_INFRONT) && !m_caster->HasInArc( M_PI_F, target ) )
             return SPELL_FAILED_UNIT_NOT_INFRONT;
+    }
+
+    if (pGoTarget)
+    {
+        // distance from target in checks
+        float dist = m_caster->GetDistance(pGoTarget);
+
+        if(dist > max_range)
+            return SPELL_FAILED_OUT_OF_RANGE;
+        if(min_range && dist < min_range)
+            return SPELL_FAILED_TOO_CLOSE;
+        if( m_caster->GetTypeId() == TYPEID_PLAYER &&
+            (m_spellInfo->FacingCasterFlags & SPELL_FACING_FLAG_INFRONT) && !m_caster->HasInArc( M_PI_F, pGoTarget ) )
+            return SPELL_FAILED_NOT_INFRONT;
     }
 
     // TODO verify that such spells really use bounding radius
