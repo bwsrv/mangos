@@ -392,6 +392,22 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                             damage = int32(unitTarget->GetMaxHealth() * 0.3f);
                         break;
                     }
+                    // Shatter (Krystallus)
+                    case 50811:
+                    case 61547:
+                    {
+                        if (unitTarget == m_caster)
+                        {
+                            damage = 0;
+                        }
+                        else if (unitTarget && m_caster)
+                        {
+                            int32 dist = (int32)unitTarget->GetDistance(m_caster);
+                            int32 dmgPerYd = (int32)(damage / GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[effect_idx])));
+                            damage -= dmgPerYd * dist;
+                        }
+                        break;
+                    }
                     // Tympanic Tantrum
                     case 62775:
                     {
@@ -7227,6 +7243,15 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         return;
 
                     ((Player*)caster)->RemoveSpellCategoryCooldown(82, true);
+                    return;
+                }
+                case 50810:                                 // Shatter (Krystallus)
+                case 61546:                                 // Shatter (h) (Krystallus)
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->CastSpell(unitTarget, m_spellInfo->Id + 1, true);
                     return;
                 }
                 case 50894:                                 // Zul'Drak Rat
