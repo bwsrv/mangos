@@ -678,6 +678,19 @@ MapPersistentState *MapPersistentStateManager::GetPersistentState(uint32 mapId, 
 
 void MapPersistentStateManager::DeleteInstanceFromDB(uint32 instanceid, bool isExtended)
 {
+    if (instanceid && isExtended) // Recheck extended state
+    {
+        QueryResult *result = CharacterDatabase.PQuery("SELECT COUNT(guid) FROM character_instance WHERE extend > 0 AND instance = '%u'", instanceid);
+        if(result)
+        {
+            Field *fields = result->Fetch();
+            isExtended = fields[0].GetBool();
+            delete result;
+        }
+        else
+            isExtended = false;
+    }
+
     if (instanceid && !isExtended)
     {
         CharacterDatabase.BeginTransaction();
