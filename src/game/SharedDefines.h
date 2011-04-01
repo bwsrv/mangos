@@ -2875,6 +2875,22 @@ enum EncounterCreditType
     ENCOUNTER_CREDIT_CAST_SPELL     = 1,
 };
 
+enum AreaLockStatus
+{
+    AREA_LOCKSTATUS_OK                        = 0,
+    AREA_LOCKSTATUS_UNKNOWN_ERROR             = 1,
+    AREA_LOCKSTATUS_INSUFFICIENT_EXPANSION    = 2,
+    AREA_LOCKSTATUS_TOO_LOW_LEVEL             = 3,
+    AREA_LOCKSTATUS_TOO_HIGH_LEVEL            = 4,
+    AREA_LOCKSTATUS_RAID_LOCKED               = 5,
+    AREA_LOCKSTATUS_QUEST_NOT_COMPLETED       = 6,
+    AREA_LOCKSTATUS_MISSING_ITEM              = 7,
+    AREA_LOCKSTATUS_MISSING_DIFFICULTY        = 8,
+    AREA_LOCKSTATUS_ZONE_IN_COMBAT            = 9,
+    AREA_LOCKSTATUS_INSTANCE_IS_FULL          = 10,
+    AREA_LOCKSTATUS_NOT_ALLOWED               = 11,
+};
+
 
 // we need to stick to 1 version or half of the stuff will work for someone
 // others will not and opposite
