@@ -5647,7 +5647,11 @@ void Spell::DoSummonGuardian(SpellEffectIndex eff_idx, uint32 forceFaction)
 
     uint32 originalSpellID = (m_IsTriggeredSpell && m_triggeredBySpellInfo) ? m_triggeredBySpellInfo->Id : m_spellInfo->Id;
 
-    int32 amount = damage > 0 ? damage : 1;
+    int32 amount;
+    if ( m_spellInfo->Id == 48739 || m_spellInfo->Id == 12749)
+        amount = 1;
+    else
+        amount = damage > 0 ? damage : 1;
 
     for (int32 count = 0; count < amount; ++count)
     {
