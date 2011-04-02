@@ -5377,19 +5377,22 @@ void Aura::HandleAuraPeriodicDummy(bool apply, bool Real)
     {
         case SPELLFAMILY_GENERIC:
         {
-            case 62717:                                   // Slag Pot (Ulduar: Ignis)
-            case 63477:
+            switch(spell->Id)
             {
-                Unit *caster = GetCaster();
+                case 62717:                                   // Slag Pot (Ulduar: Ignis)
+                case 63477:
+                {
+                    Unit *caster = GetCaster();
 
-                if (!caster || !target)
-                    return;
+                    if (!caster || !target)
+                        return;
 
-                // Haste buff (Slag Imbued)
-                if (!apply)
-                    target->CastSpell(caster, (spell->Id == 62717) ? 62836 : 63536, true);
+                    // Haste buff (Slag Imbued)
+                    if (!apply)
+                        target->CastSpell(caster, (spell->Id == 62717) ? 62836 : 63536, true);
 
-                break;
+                    break;
+                }
             }
         }
         case SPELLFAMILY_ROGUE:
