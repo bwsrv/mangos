@@ -750,22 +750,21 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
     switch (GetPlayer()->GetAreaTriggerLockStatus(at, GetPlayer()->GetDifficulty(mapEntry->IsRaid())))
     {
         case AREA_LOCKSTATUS_OK:
-	        // Hack for Pit of Saron and Halls of Reflection.
-	        // These instances requires different quests completition for Alliance and Horde.
-
-	        if ((at->target_mapId == 658 &&                                                             // Pit of Saron
-	            ((GetPlayer()->GetTeam() == ALLIANCE && !GetPlayer()->GetQuestRewardStatus(24499)) ||   // quest Echoes of Tortured Souls
-		        (GetPlayer()->GetTeam() == HORDE && !GetPlayer()->GetQuestRewardStatus(24511)))) ||
-			    (at->target_mapId == 668 &&                                                             // Halls of Reflection
-				((GetPlayer()->GetTeam() == ALLIANCE && !GetPlayer()->GetQuestRewardStatus(24710)) ||   // quest Deliverance from the Pit
-	            (GetPlayer()->GetTeam() == HORDE && !GetPlayer()->GetQuestRewardStatus(24712)))))
-		    {
-			    MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mapEntry->MapID, GetPlayer()->GetDifficulty(mapEntry->IsRaid()));
-				if (mapDiff)
-					SendAreaTriggerMessage(mapDiff->areaTriggerText[GetSessionDbcLocale()]);
-	            return;
-		    }
-			GetPlayer()->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, at->target_Orientation, TELE_TO_NOT_LEAVE_TRANSPORT);
+            // Hack for Pit of Saron and Halls of Reflection.
+            // These instances requires different quests completition for Alliance and Horde.
+            if ((at->target_mapId == 658 &&                                                             // Pit of Saron
+                ((GetPlayer()->GetTeam() == ALLIANCE && !GetPlayer()->GetQuestRewardStatus(24499)) ||   // quest Echoes of Tortured Souls
+                (GetPlayer()->GetTeam() == HORDE && !GetPlayer()->GetQuestRewardStatus(24511)))) ||
+                (at->target_mapId == 668 &&                                                             // Halls of Reflection
+                ((GetPlayer()->GetTeam() == ALLIANCE && !GetPlayer()->GetQuestRewardStatus(24710)) ||   // quest Deliverance from the Pit
+                (GetPlayer()->GetTeam() == HORDE && !GetPlayer()->GetQuestRewardStatus(24712)))))
+            {
+                MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mapEntry->MapID, GetPlayer()->GetDifficulty(mapEntry->IsRaid()));
+                if (mapDiff)
+                    SendAreaTriggerMessage(mapDiff->areaTriggerText[GetSessionDbcLocale()]);
+                return;
+            }
+            GetPlayer()->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, at->target_Orientation, TELE_TO_NOT_LEAVE_TRANSPORT);
             return;
         case AREA_LOCKSTATUS_TOO_LOW_LEVEL:
             SendAreaTriggerMessage(GetMangosString(LANG_LEVEL_MINREQUIRED), at->requiredLevel);
