@@ -6842,6 +6842,20 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->RemoveAurasAtMechanicImmunity(IMMUNE_TO_ROOT_AND_SNARE_MASK,30918,true);
                     break;
                 }
+                case 39681:                                 // Summon Goblin Tonk
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    unitTarget->CastSpell(unitTarget, 39682, true);
+                }
+                case 39684:                                 // Summon Gnomish Tonk
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    unitTarget->CastSpell(unitTarget, 39683, true);
+                }
                 case 39835:                                 // Needle Spine (Warlord Najentus)
                 {
                     if (!unitTarget)
