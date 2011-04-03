@@ -1164,6 +1164,20 @@ struct LFGDungeonEntry
     uint32 Entry() const { return ID + (type << 24); }
 };
 
+struct LFGDungeonExpansionEntry
+{
+    uint32  ID;                                             // 0 id
+    uint32  dungeonID;                                      // 1 LFGDungeonEntry.ID
+    uint32  expansion;                                      // 2 expansion
+    uint32  randomEntry;                                    // 3 LFGDungeonEntry.ID (only random ids!), inside of which is used this record
+    uint32  minlevel;                                       // 4
+    uint32  maxlevel;                                       // 5
+    uint32  recminlevel;                                    // 6
+    uint32  recmaxlevel;                                    // 7
+    // Helpers
+    bool IsRandom() const { return randomEntry == 0; }
+};
+
 
 #define MAX_LOCK_CASE 8
 
