@@ -795,7 +795,6 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
         default:
             DEBUG_LOG("HandleAreaTriggerOpcode: unhandled LockAreaStatus %u, do nothing", uint8(GetPlayer()->GetAreaTriggerLockStatus(at, GetPlayer()->GetDifficulty(mapEntry->IsRaid()))));
             return;
-        }
     }
 }
 
