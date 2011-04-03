@@ -26,6 +26,33 @@
 class Group;
 class Player;
 
+
+// Reward info
+struct LFGReward
+{
+    uint32 maxLevel;
+    struct
+    {
+        uint32 questId;
+        uint32 variableMoney;
+        uint32 variableXP;
+    } reward[2];
+
+    LFGReward(uint32 _maxLevel, uint32 firstQuest, uint32 firstVarMoney, uint32 firstVarXp, uint32 otherQuest, uint32 otherVarMoney, uint32 otherVarXp)
+        : maxLevel(_maxLevel)
+    {
+        reward[0].questId = firstQuest;
+        reward[0].variableMoney = firstVarMoney;
+        reward[0].variableXP = firstVarXp;
+        reward[1].questId = otherQuest;
+        reward[1].variableMoney = otherVarMoney;
+        reward[1].variableXP = otherVarXp;
+    }
+};
+
+typedef std::multimap<uint32, LFGReward const*> LFGRewardMap;
+typedef std::pair<LFGRewardMap::const_iterator, LFGRewardMap::const_iterator> LFGRewardMapBounds;
+
 class LFGMgr
 {
     public:
@@ -34,7 +61,13 @@ class LFGMgr
 
         void Update(uint32 diff);
 
+        void LoadRewards();
+        LFGReward const* GetRandomDungeonReward(uint32 dungeon, uint32 level, Difficulty difficulty);
+
+        bool IsRandomDungeon(uint32 dungeonId);
+
     private:
+        LFGRewardMap m_RewardMap;                           // Stores rewards for random dungeons
 
 };
 

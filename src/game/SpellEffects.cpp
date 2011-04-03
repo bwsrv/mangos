@@ -224,8 +224,8 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //160 SPELL_EFFECT_160                      single spell: Nerub'ar Web Random Unit
     &Spell::EffectSpecCount,                                //161 SPELL_EFFECT_TALENT_SPEC_COUNT        second talent spec (learn/revert)
     &Spell::EffectActivateSpec,                             //162 SPELL_EFFECT_TALENT_SPEC_SELECT       activate primary/secondary spec
-    &Spell::EffectNULL,                                     //163
-    &Spell::EffectRemoveAura,                               //164 SPELL_EFFECT_REMOVE_AURA
+    &Spell::EffectUnused,                                   //163 unused in 3.3.5a
+    &Spell::EffectCancelAura,                               //164 SPELL_EFFECT_CANCEL_AURA
 };
 
 void Spell::EffectEmpty(SpellEffectIndex /*eff_idx*/)
@@ -407,6 +407,22 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                     {
                         if (effect_idx == EFFECT_INDEX_2)
                             damage = int32(unitTarget->GetMaxHealth() * 0.3f);
+                        break;
+                    }
+                    // Shatter (Krystallus)
+                    case 50811:
+                    case 61547:
+                    {
+                        if (unitTarget == m_caster)
+                        {
+                            damage = 0;
+                        }
+                        else if (unitTarget && m_caster)
+                        {
+                            int32 dist = (int32)unitTarget->GetDistance(m_caster);
+                            int32 dmgPerYd = (int32)(damage / GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[effect_idx])));
+                            damage -= dmgPerYd * dist;
+                        }
                         break;
                     }
                     // Tympanic Tantrum
@@ -1514,6 +1530,22 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     }
 
                     DoCreateItem(eff_idx, newitemid);
+                    return;
+                }
+                case 40962:                                 // Blade's Edge Terrace Demon Boss Summon Branch
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    uint32 spell_id = 0;
+                    switch (urand(1,4))
+                    {
+                        case 1: spell_id = 40957; break;    // Blade's Edge Terrace Demon Boss Summon 1
+                        case 2: spell_id = 40959; break;    // Blade's Edge Terrace Demon Boss Summon 2
+                        case 3: spell_id = 40960; break;    // Blade's Edge Terrace Demon Boss Summon 3
+                        case 4: spell_id = 40961; break;    // Blade's Edge Terrace Demon Boss Summon 4
+                    }
+                    unitTarget->CastSpell(unitTarget, spell_id, true, NULL, NULL, unitTarget->GetObjectGuid(), m_spellInfo);
                     return;
                 }
                 case 42287:                                 // Salvage Wreckage
@@ -4020,7 +4052,7 @@ void Spell::EffectApplyAura(SpellEffectIndex eff_idx)
     Unit* caster = GetAffectiveCaster();
     if(!caster)
     {
-        // FIXME: currently we can't have auras applied explIcitly by gameobjects
+        // FIXME: currently we can't have auras applied explicitly by gameobjects
         // so for auras from wild gameobjects (no owner) target used
         if (m_originalCasterGUID.IsGameObject())
             caster = unitTarget;
@@ -4030,84 +4062,33 @@ void Spell::EffectApplyAura(SpellEffectIndex eff_idx)
 
     DEBUG_FILTER_LOG(LOG_FILTER_SPELL_CAST, "Spell: Aura is: %u", m_spellInfo->EffectApplyAuraName[eff_idx]);
 
-    Aura* Aur = CreateAura(m_spellInfo, eff_idx, &m_currentBasePoints[eff_idx], spellAuraHolder, unitTarget, caster, m_CastItem);
+    Aura* aur = CreateAura(m_spellInfo, eff_idx, &m_currentBasePoints[eff_idx], m_spellAuraHolder, unitTarget, caster, m_CastItem);
 
     // Now Reduce spell duration using data received at spell hit
-    int32 duration = Aur->GetAuraMaxDuration();
-    int32 limitduration = GetDiminishingReturnsLimitDuration(m_diminishGroup,m_spellInfo);
-    unitTarget->ApplyDiminishingToDuration(m_diminishGroup, duration, m_caster, m_diminishLevel,limitduration);
-    spellAuraHolder->setDiminishGroup(m_diminishGroup);
+    int32 duration = aur->GetAuraMaxDuration();
 
-    // if Aura removed and deleted, do not continue.
-    if(duration== 0 && !(spellAuraHolder->IsPermanent()))
+    // Mixology - increase effect and duration of alchemy spells which the caster has
+    if(caster->GetTypeId() == TYPEID_PLAYER && aur->GetSpellProto()->SpellFamilyName == SPELLFAMILY_POTION
+        && caster->HasAura(53042))
     {
-        delete Aur;
-        return;
-    }
-
-    // Mixology: increase duration and effect of elixirs and flasks
-    if (Aur->GetSpellProto()->SpellFamilyName == SPELLFAMILY_POTION &&
-        caster->GetTypeId() == TYPEID_PLAYER && caster->HasAura(53042))
-     {
-        SpellSpecific spellSpec = GetSpellSpecific(Aur->GetId());
-        if ((spellSpec == SPELL_BATTLE_ELIXIR || spellSpec == SPELL_GUARDIAN_ELIXIR || spellSpec == SPELL_FLASK_ELIXIR) &&
-            caster->HasSpell(Aur->GetSpellProto()->EffectTriggerSpell[EFFECT_INDEX_0]))
+        SpellSpecific spellSpec = GetSpellSpecific(aur->GetSpellProto()->Id);
+        if(spellSpec == SPELL_BATTLE_ELIXIR || spellSpec == SPELL_GUARDIAN_ELIXIR || spellSpec == SPELL_FLASK_ELIXIR)
         {
-            duration *= 2;
-            int32 amount = 0;
-            switch (Aur->GetId())
+            if(caster->HasSpell(aur->GetSpellProto()->EffectTriggerSpell[0]))
             {
-                case 53749:         // Guru's Elixir
-                    amount = 8;
-                    break;
-                case 28497:         // Elixir of Mighty Agility
-                case 53747:         // Elixir of Spirit
-                case 54212:         // Flask of Pure Mojo
-                case 60340:         // Elixir of Accuracy
-                case 60341:         // Elixir of Deadly Strikes
-                case 60343:         // Elixir of Mighty Defense
-                case 60344:         // Elixir of Expertise
-                case 60345:         // Elixir of Armor Piercing
-                case 60346:         // Elixir of Lightning Speed
-                case 60347:         // Elixir of Mighty Thoughts
-                    amount = 20;
-                    break;
-                case 53752:         // Lesser Flask of Toughness
-                case 62380:         // Lesser Flask of Resistance
-                    amount = 40;
-                    break;
-                case 53755:         // Flask of the Frost Wyrm
-                    amount = 47;
-                    break;
-                case 53760:         // Flask of Endless Rage
-                    amount = 82;
-                    break;
-                case 53751:         // Elixir of Mighty Fortitude
-                    amount = 200;
-                    break;
-                case 53763:         // Elixir of Protection
-                    amount = 280;
-                    break;
-                case 53758:         // Flask of Stoneblood
-                    amount = 650;
-                    break;
-                default:
-                    // default value for all other flasks/elixirs
-                    //TODO: add data to db table or find way of getting it from dbc
-                    amount = Aur->GetModifier()->m_amount * 30 / 100;
-                    break;
-             }
-            Aur->GetModifier()->m_amount += amount;
-         }
-     }
-
-    if(duration != Aur->GetAuraMaxDuration())
-    {
-        Aur->SetAuraMaxDuration(duration);
-        Aur->SetAuraDuration(duration);
+               duration *= 2.0f;
+               aur->GetModifier()->m_amount *= 1.3f;
+            }
+        }
     }
 
-    spellAuraHolder->AddAura(Aur, eff_idx);
+    if(duration != aur->GetAuraMaxDuration())
+    {
+        m_spellAuraHolder->SetAuraMaxDuration(duration);
+        m_spellAuraHolder->SetAuraDuration(duration);
+    }
+
+    m_spellAuraHolder->AddAura(aur, eff_idx);
 }
 
 void Spell::EffectUnlearnSpecialization(SpellEffectIndex eff_idx)
@@ -4977,8 +4958,8 @@ void Spell::EffectApplyAreaAura(SpellEffectIndex eff_idx)
     if (!unitTarget->isAlive())
         return;
 
-    AreaAura* Aur = new AreaAura(m_spellInfo, eff_idx, &m_currentBasePoints[eff_idx], spellAuraHolder, unitTarget, m_caster, m_CastItem);
-    spellAuraHolder->AddAura(Aur, eff_idx);
+    AreaAura* Aur = new AreaAura(m_spellInfo, eff_idx, &m_currentBasePoints[eff_idx], m_spellAuraHolder, unitTarget, m_caster, m_CastItem);
+    m_spellAuraHolder->AddAura(Aur, eff_idx);
 }
 
 void Spell::EffectSummonType(SpellEffectIndex eff_idx)
@@ -5133,7 +5114,7 @@ void Spell::DoSummonGroupPets(SpellEffectIndex eff_idx)
 
     uint32 level = m_caster->getLevel();
 
-    int32 duration = GetSpellDuration(m_spellInfo);
+    int32 duration = CalculateSpellDuration(m_spellInfo, m_caster);
 
     if (pet_entry == 37994)    // Mage: Water Elemental from Glyph
         duration = 86400000;   // 24 hours
@@ -5662,10 +5643,7 @@ void Spell::DoSummonGuardian(SpellEffectIndex eff_idx, uint32 forceFaction)
     float center_z = m_targets.m_destZ;
 
     float radius = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[eff_idx]));
-    int32 duration = GetSpellDuration(m_spellInfo);
-    if (duration > 0)
-        if (Player* modOwner = m_caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
+    int32 duration = CalculateSpellDuration(m_spellInfo, m_caster);
 
     uint32 originalSpellID = (m_IsTriggeredSpell && m_triggeredBySpellInfo) ? m_triggeredBySpellInfo->Id : m_spellInfo->Id;
 
@@ -6677,7 +6655,7 @@ void Spell::EffectInterruptCast(SpellEffectIndex eff_idx)
             // check if we can interrupt spell
             if (((curSpellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_INTERRUPT) && curSpellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE) || curSpellInfo->Id == 61915 || curSpellInfo->Id == 63483)
             {
-                unitTarget->ProhibitSpellSchool(GetSpellSchoolMask(curSpellInfo), unitTarget->CalculateSpellDuration(m_caster, GetSpellDuration(m_spellInfo), m_spellInfo, eff_idx));
+                unitTarget->ProhibitSpellSchool(GetSpellSchoolMask(curSpellInfo), CalculateSpellDuration(m_spellInfo, m_caster));
                 unitTarget->InterruptSpell(CurrentSpellTypes(i),false);
             }
         }
@@ -7620,7 +7598,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     ((Player*)caster)->RemoveSpellCategoryCooldown(82, true);
                     return;
                 }
-                case 59803:                                 // Consume (heroic mode Trollgore - Drak'Tharok Keep)
+                case 59803: // Consume (heroic mode Trollgore - Drak'Tharok Keep)
                 {
                     if (!unitTarget)
                         return;
@@ -7630,6 +7608,15 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     // Corpse Explode (prepare corpse to explode)
                     m_caster->CastSpell(m_caster, 59807, false);
+                    return;
+                }
+                case 50810:                                 // Shatter (Krystallus)
+                case 61546:                                 // Shatter (h) (Krystallus)
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->CastSpell(unitTarget, m_spellInfo->Id + 1, true);
                     return;
                 }
                 case 50894:                                 // Zul'Drak Rat
@@ -7835,8 +7822,8 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                         if (countMin < countMax)
                         {
-                            aura->SetAuraDuration(aura->GetAuraDuration() + 3000);
-                            aura->SetAuraMaxDuration(countMin + 3000);
+                            aura->GetHolder()->SetAuraDuration(aura->GetAuraDuration() + 3000);
+                            aura->GetHolder()->SetAuraMaxDuration(countMin + 3000);
                             aura->GetHolder()->SendAuraUpdate(false);
                         }
                     }
@@ -8094,6 +8081,13 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     ((Creature*)m_caster)->ForcedDespawn(1000);
                     return;
                 }
+                case 62217:                                 // Unstable Energy (Ulduar: Freya's elder)
+                {
+                    uint32 spellId = m_spellInfo->CalculateSimpleValue(eff_idx);
+                    if (unitTarget && unitTarget->HasAura(spellId))
+                        unitTarget->RemoveAurasDueToSpell(spellId);
+                    return;
+                }
                 case 65917:                                 // Magic Rooster 
                 { 
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER) 
@@ -8218,8 +8212,8 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                             if (countMin < countMax)
                             {
-                                aura->SetAuraDuration(aura->GetAuraDuration() + 3000);
-                                aura->SetAuraMaxDuration(countMin + 3000);
+                                aura->GetHolder()->SetAuraDuration(aura->GetAuraDuration() + 3000);
+                                aura->GetHolder()->SetAuraMaxDuration(countMin + 3000);
                                 aura->GetHolder()->SendAuraUpdate(false);
                             }
                         }
@@ -9102,10 +9096,7 @@ void Spell::DoSummonTotem(SpellEffectIndex eff_idx, uint8 slot_dbc)
     pTotem->SetOwner(m_caster);
     pTotem->SetTypeBySummonSpell(m_spellInfo);              // must be after Create call where m_spells initialized
 
-    int32 duration=GetSpellDuration(m_spellInfo);
-    if (duration > 0)
-        if (Player* modOwner = m_caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
+    int32 duration = CalculateSpellDuration(m_spellInfo, m_caster);
     pTotem->SetDuration(duration);
 
     if (m_spellInfo->Id == 16190)
@@ -10425,14 +10416,6 @@ void Spell::EffectTeachTaxiNode( SpellEffectIndex eff_idx )
     }
 }
 
-void Spell::EffectRemoveAura(SpellEffectIndex eff_idx)
-{
-    if (unitTarget)
-        return;
-    // there may be need of specifying casterguid of removed auras
-    unitTarget->RemoveAurasDueToSpell(m_spellInfo->EffectTriggerSpell[eff_idx]);
-}
-
 void Spell::EffectQuestStart(SpellEffectIndex eff_idx)
 {
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
@@ -10543,4 +10526,20 @@ void Spell::EffectFriendSummon( SpellEffectIndex eff_idx )
     DEBUG_LOG( "Spell::EffectFriendSummon called for player %u", ((Player*)m_caster)->GetSelectionGuid().GetCounter());
 
     m_caster->CastSpell(m_caster, m_spellInfo->EffectTriggerSpell[eff_idx], true);
+}
+
+void Spell::EffectCancelAura(SpellEffectIndex eff_idx)
+{
+    if (!unitTarget)
+        return;
+
+    uint32 spellId = m_spellInfo->EffectTriggerSpell[eff_idx];
+
+    if (!sSpellStore.LookupEntry(spellId))
+    {
+        sLog.outError("Spell::EffectCancelAura: spell %u doesn't exist", spellId);
+        return;
+    }
+
+    unitTarget->RemoveAurasDueToSpell(spellId);
 }

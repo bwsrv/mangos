@@ -359,7 +359,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX3_UNK15                      0x00008000            // 15 Auto Shoot, Shoot, Throw,  - this is autoshot flag
 #define SPELL_ATTR_EX3_UNK16                      0x00010000            // 16 no triggers effects that trigger on casting a spell??
 #define SPELL_ATTR_EX3_NO_INITIAL_AGGRO           0x00020000            // 17 Causes no aggro if not missed
-#define SPELL_ATTR_EX3_UNK18                      0x00040000            // 18
+#define SPELL_ATTR_EX3_CANT_MISS                  0x00040000            // 18
 #define SPELL_ATTR_EX3_UNK19                      0x00080000            // 19
 #define SPELL_ATTR_EX3_DEATH_PERSISTENT           0x00100000            // 20 Death persistent spells
 #define SPELL_ATTR_EX3_UNK21                      0x00200000            // 21
@@ -746,7 +746,7 @@ enum SpellEffects
     SPELL_EFFECT_TALENT_SPEC_COUNT         = 161,
     SPELL_EFFECT_TALENT_SPEC_SELECT        = 162,
     SPELL_EFFECT_163                       = 163,
-    SPELL_EFFECT_REMOVE_AURA               = 164,
+    SPELL_EFFECT_CANCEL_AURA               = 164,
     TOTAL_SPELL_EFFECTS                    = 165
 };
 
@@ -2877,6 +2877,22 @@ enum EncounterCreditType
 {
     ENCOUNTER_CREDIT_KILL_CREATURE  = 0,
     ENCOUNTER_CREDIT_CAST_SPELL     = 1,
+};
+
+enum AreaLockStatus
+{
+    AREA_LOCKSTATUS_OK                        = 0,
+    AREA_LOCKSTATUS_UNKNOWN_ERROR             = 1,
+    AREA_LOCKSTATUS_INSUFFICIENT_EXPANSION    = 2,
+    AREA_LOCKSTATUS_TOO_LOW_LEVEL             = 3,
+    AREA_LOCKSTATUS_TOO_HIGH_LEVEL            = 4,
+    AREA_LOCKSTATUS_RAID_LOCKED               = 5,
+    AREA_LOCKSTATUS_QUEST_NOT_COMPLETED       = 6,
+    AREA_LOCKSTATUS_MISSING_ITEM              = 7,
+    AREA_LOCKSTATUS_MISSING_DIFFICULTY        = 8,
+    AREA_LOCKSTATUS_ZONE_IN_COMBAT            = 9,
+    AREA_LOCKSTATUS_INSTANCE_IS_FULL          = 10,
+    AREA_LOCKSTATUS_NOT_ALLOWED               = 11,
 };
 
 
