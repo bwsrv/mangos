@@ -20,7 +20,6 @@
 #define MANGOS_INSTANCE_DATA_H
 
 #include "Common.h"
-#include "GameObject.h"
 
 class Map;
 class Unit;
@@ -72,11 +71,6 @@ class MANGOS_DLL_SPEC InstanceData
 
         //Called when a player drops a flag in outdoor pvp
         virtual void OnPlayerDroppedFlag(Player*, uint32 /* uiSpellId*/) {}
-
-        //Handle open / close objects
-        //use HandleGameObject(NULL,boolen,GO); in OnObjectCreate in instance scripts
-        //use HandleGameObject(GUID,boolen,NULL); in any other script
-        void HandleGameObject(uint64 GUID, bool open, GameObject *go = NULL);
 
         //Called when a gameobject is created
         virtual void OnObjectCreate(GameObject *) {}

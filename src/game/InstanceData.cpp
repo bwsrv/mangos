@@ -52,13 +52,3 @@ bool InstanceData::CheckConditionCriteriaMeet(Player const* /*source*/, uint32 m
         instance->GetId(), instance_condition_id, map_id);
     return false;
 }
-
-void InstanceData::HandleGameObject(uint64 GUID, bool open, GameObject *go)
-{
-    if (!go)
-        go = instance->GetGameObject(GUID);
-    if (go)
-        go->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
-    else
-        debug_log("TSCR: InstanceData: HandleGameObject failed");
-}
