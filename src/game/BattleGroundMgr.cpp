@@ -1509,23 +1509,24 @@ BattleGround * BattleGroundMgr::CreateNewBattleGround(BattleGroundTypeId bgTypeI
 
     bool isRandom = false;
 
-    if(bgTypeId == BATTLEGROUND_RB)
+    if (bgTypeId == BATTLEGROUND_RB)
     {
-        int count = 0;
-        if (!sBattleGroundMgr.isTesting())
+        int count = 100;
+        World::SessionMap sessions = sWorld.GetSessions();
+        if (!sessions.empty() && !sBattleGroundMgr.isTesting())
         {
-            for(World::SessionMap::const_iterator itr = sWorld.GetSessions().begin(); itr != sWorld.GetSessions().end(); ++itr)
+            for (World::SessionMap::const_iterator itr = sessions.begin(); itr != sessions.end(); ++itr)
             {
                 if (!itr->second || !itr->second->GetPlayer())
                     continue;
 
-                if (itr->second->GetPlayer()->getLevel() == 80)
+                if (!itr->second->GetPlayer()->isGameMaster() && itr->second->GetPlayer()->getLevel() == 80)
                     ++count;
             }
         }
 
         bgTypeId = BATTLEGROUND_AB; // Default initialization
-        if(count > 100 || sBattleGroundMgr.isTesting())
+        if (count >= 100 || sBattleGroundMgr.isTesting())
         {
             BattleGroundTypeId random_bgs[] = {BATTLEGROUND_AV, BATTLEGROUND_WS, BATTLEGROUND_AB, BATTLEGROUND_EY, BATTLEGROUND_SA};
             uint32 bg_num = urand(0, 4);
