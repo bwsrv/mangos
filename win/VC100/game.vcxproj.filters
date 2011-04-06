@@ -898,6 +898,9 @@
     <ClInclude Include="..\..\src\game\Camera.h">
       <Filter>Object</Filter>
     </ClInclude>
+	<ClInclude Include="..\..\src\game\LFG.cpp">
+      <Filter>World/Handlers</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\src\game\LFG.h">
       <Filter>World/Handlers</Filter>
     </ClInclude>

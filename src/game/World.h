@@ -603,6 +603,7 @@ class World
         typedef UNORDERED_MAP<uint32, WorldSession*> SessionMap;
         SessionMap GetSessions() { return m_sessions; }
 
+        ACE_Thread_Mutex m_spellUpdateLock;
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters
