@@ -2388,6 +2388,9 @@ class MANGOS_DLL_SPEC Player : public Unit
         bool CanEnterToArea(uint32 mapId, Difficulty difficulty) { return GetAreaLockStatus(mapId, difficulty) == AREA_LOCKSTATUS_OK; };
         bool CanUseAreaTrigger(AreaTrigger const* at, Difficulty difficulty) { return GetAreaTriggerLockStatus(at, difficulty) == AREA_LOCKSTATUS_OK; };
 
+        // LFG
+        LFGPlayerState* GetLFGState() { return m_LFGState;};
+
         /*********************************************************/
         /***                   GROUP SYSTEM                    ***/
         /*********************************************************/
@@ -2778,6 +2781,9 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         DungeonPersistentState* _pendingBind;
         uint32 _pendingBindTimer;
+
+        // LFG
+        LFGPlayerState* m_LFGState;
 };
 
 void AddItemsSetItem(Player*player,Item *item);

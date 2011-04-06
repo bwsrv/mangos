@@ -26,6 +26,7 @@
 #include "Common.h"
 #include "SharedDefines.h"
 #include "ObjectGuid.h"
+#include "LFG.h"
 
 struct ItemPrototype;
 struct AuctionEntry;
@@ -841,6 +842,11 @@ class MANGOS_DLL_SPEC WorldSession
         void HandleLfgPlayerLockInfoRequestOpcode(WorldPacket &recv_data);
         void HandleLfgTeleportOpcode(WorldPacket &recv_data);
         void HandleLfgPartyLockInfoRequestOpcode(WorldPacket &recv_data);
+        // send date
+        void SendLfgUpdatePlayer(LFGUpdateType updateType);
+        void SendLfgUpdateParty(LFGUpdateType updateType);
+        void SendLfgUpdateSearch(bool update);
+        void SendLfgJoinResult(LFGJoinResult checkResult, uint8 checkValue = 0);
 
     private:
         // private trade methods

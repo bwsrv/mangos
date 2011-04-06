@@ -23,6 +23,7 @@
 #include "WorldPacket.h"
 #include "ObjectMgr.h"
 #include "World.h"
+#include "LFGMgr.h"
 
 static void AttemptJoin(Player* _player)
 {
@@ -482,10 +483,90 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket &/*recv_data
 
     uint32 rsize = 0;
     uint32 lsize = 0;
+    LFGDungeonSet    randomlist = sLFGMgr.GetRandomDungeonsForPlayer(GetPlayer());
+    LFGLockStatusMap*   lockSet = GetPlayer()->GetLFGState()->GetLockMap();
+
+    rsize = randomlist.size();
+
+    if (lockSet)
+        lsize = lockSet->size();
 
     WorldPacket data(SMSG_LFG_PLAYER_INFO, 1 + rsize * (4 + 1 + 4 + 4 + 4 + 4 + 1 + 4 + 4 + 4) + 4 + lsize * (1 + 4 + 4 + 4 + 4 + 1 + 4 + 4 + 4));
-    data << uint8(0);
-    data << uint8(0);
+
+    if (rsize == 0)
+    {
+        data << uint8(0);
+    }
+    else
+    {
+        uint8 done;
+        data << uint8(rsize);                               // Random Dungeon count
+        for (LFGDungeonSet::const_iterator itr = randomlist.begin(); itr != randomlist.end(); ++itr)
+        {
+            data << uint32((*itr)->Entry());                     // Entry
+            LFGReward const* reward = sLFGMgr.GetRandomDungeonReward(*itr,GetPlayer());
+            Quest const* qRew = NULL;
+            qRew = NULL;
+            if (reward)
+            {
+                qRew = sObjectMgr.GetQuestTemplate(reward->reward[0].questId);
+                if (qRew)
+                {
+                    done = !GetPlayer()->CanRewardQuest(qRew,false);
+                    if (done)
+                        qRew = sObjectMgr.GetQuestTemplate(reward->reward[1].questId);
+                }
+
+            }
+            if (qRew)
+            {
+                data << uint8(done);
+                data << uint32(qRew->GetRewOrReqMoney());
+                data << uint32(qRew->XPValue(GetPlayer()));
+                data << uint32(reward->reward[done].variableMoney);
+                data << uint32(reward->reward[done].variableXP);
+                data << uint8(qRew->GetRewItemsCount());
+                if (qRew->GetRewItemsCount())
+                {
+                    ItemPrototype const* iProto = NULL;
+                    for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+                    {
+                        if (!qRew->RewItemId[i])
+                            continue;
+
+                        iProto = ObjectMgr::GetItemPrototype(qRew->RewItemId[i]);
+
+                        data << uint32(qRew->RewItemId[i]);
+                        data << uint32(iProto ? iProto->DisplayInfoID : 0);
+                        data << uint32(qRew->RewItemCount[i]);
+                    }
+                }
+            }
+            else
+            {
+                data << uint8(0);
+                data << uint32(0);
+                data << uint32(0);
+                data << uint32(0);
+                data << uint32(0);
+                data << uint8(0);
+            }
+        }
+    }
+
+    if (!lockSet || lsize == 0)
+    {
+        data << uint8(0);
+    }
+    else
+    {
+        data << uint32(lockSet->size());                             // Size of lock dungeons
+        for (LFGLockStatusMap::iterator itr = lockSet->begin(); itr != lockSet->end(); ++itr)
+        {
+            data << uint32((*itr->first).Entry());                   // Dungeon entry + type
+            data << uint32(itr->second);                             // Lock status
+        }
+    }
     SendPacket(&data);
 }
 
@@ -507,4 +588,122 @@ void WorldSession::HandleLfgProposalResultOpcode(WorldPacket &recv_data)
 
     DEBUG_LOG("CMSG_LFG_PROPOSAL_RESULT %u proposal: %u accept: %u", GetPlayer()->GetObjectGuid().GetCounter(), lfgGroupID, accept ? 1 : 0);
     //sLFGMgr.UpdateProposal(lfgGroupID, GetPlayer()->GetObjectGuid().GetCounter(), accept);
+}
+
+void WorldSession::SendLfgJoinResult(LFGJoinResult checkResult, uint8 checkValue /* = 0 */)
+{
+    uint32 size = 0;
+
+    sLog.outDebug("SMSG_LFG_JOIN_RESULT checkResult: %u checkValue: %u", checkResult, checkValue);
+    WorldPacket data(SMSG_LFG_JOIN_RESULT, 4 + 4 + size);
+    data << uint32(checkResult);                            // Check Result
+    data << uint32(checkValue);                             // Check Value
+    SendPacket(&data);
+}
+
+void WorldSession::SendLfgUpdateParty(LFGUpdateType updateType)
+{
+    if (!GetPlayer()->GetLFGState()->NeedUpdate())
+    {
+        DEBUG_LOG("SMSG_LFG_UPDATE_PARTY %u updatetype: %u not sent by player flag", GetPlayer()->GetObjectGuid().GetCounter(), updateType);
+        return;
+    }
+
+    bool join = false;
+    bool extrainfo = false;
+    bool queued = false;
+
+    switch(updateType)
+    {
+        case LFG_UPDATETYPE_JOIN_PROPOSAL:
+            extrainfo = true;
+            break;
+        case LFG_UPDATETYPE_ADDED_TO_QUEUE:
+            extrainfo = true;
+            join = true;
+            queued = true;
+            break;
+        case LFG_UPDATETYPE_CLEAR_LOCK_LIST:
+            // join = true;  
+            // TODO: Sometimes queued and extrainfo - Check ocurrences...
+            queued = true;
+            break;
+        case LFG_UPDATETYPE_PROPOSAL_BEGIN:
+            extrainfo = true;
+            join = true;
+            break;
+        default:
+            break;
+    }
+
+    LFGDungeonSet* dungeons = GetPlayer()->GetLFGState()->GetDungeons();
+    uint8 size = dungeons->size();
+    std::string comment = GetPlayer()->GetLFGState()->GetComment();
+
+    DEBUG_LOG("SMSG_LFG_UPDATE_PARTY updatetype: %u", updateType);
+
+    WorldPacket data(SMSG_LFG_UPDATE_PARTY, 1 + 1 + (extrainfo ? 1 : 0) * (1 + 1 + 1 + 1 + 1 + size * 4 + comment.length()));
+    data << uint8(updateType);                              // Lfg Update type
+    data << uint8(extrainfo);                               // Extra info
+    if (extrainfo)
+    {
+        data << uint8(join);                                // LFG Join
+        data << uint8(queued);                              // Join the queue
+        for (uint8 i = 0; i < 5; ++i)
+            data << uint8(0);                               // unk - Always 0
+
+        data << uint8(size);
+
+        for (LFGDungeonSet::const_iterator itr = dungeons->begin(); itr != dungeons->end(); ++itr)
+            data << uint32((*itr)->Entry());
+
+        data << comment;
+    }
+    SendPacket(&data);
+}
+
+void WorldSession::SendLfgUpdatePlayer(LFGUpdateType updateType)
+{
+    if (!GetPlayer()->GetLFGState()->NeedUpdate())
+    {
+        sLog.outDebug("SMSG_LFG_UPDATE_PLAYER [" UI64FMTD "] updatetype: %u not sent! player flag: false", GetPlayer()->GetObjectGuid().GetRawValue(), updateType);
+        return;
+    }
+
+    bool queued = false;
+    bool extrainfo = false;
+
+    switch(updateType)
+    {
+        case LFG_UPDATETYPE_JOIN_PROPOSAL:
+        case LFG_UPDATETYPE_ADDED_TO_QUEUE:
+            queued = true;
+            extrainfo = true;
+            break;
+        //case LFG_UPDATETYPE_CLEAR_LOCK_LIST: // TODO: Sometimes has extrainfo - Check ocurrences...
+        case LFG_UPDATETYPE_PROPOSAL_BEGIN:
+            extrainfo = true;
+            break;
+    }
+    LFGDungeonSet* dungeons = GetPlayer()->GetLFGState()->GetDungeons();
+    uint8 size = dungeons->size();
+    std::string comment = GetPlayer()->GetLFGState()->GetComment();
+
+    sLog.outDebug("SMSG_LFG_UPDATE_PLAYER [" UI64FMTD "] updatetype: %u", GetPlayer()->GetObjectGuid().GetRawValue(), updateType);
+    WorldPacket data(SMSG_LFG_UPDATE_PLAYER, 1 + 1 + (extrainfo ? 1 : 0) * (1 + 1 + 1 + 1 + size * 4 + comment.length()));
+    data << uint8(updateType);                              // Lfg Update type
+    data << uint8(extrainfo);                               // Extra info
+    if (extrainfo)
+    {
+        data << uint8(queued);                              // Join the queue
+        data << uint8(0);                                   // unk - Always 0
+        data << uint8(0);                                   // unk - Always 0
+
+        data << uint8(size);
+
+        for (LFGDungeonSet::const_iterator itr = dungeons->begin(); itr != dungeons->end(); ++itr)
+            data << uint32((*itr)->Entry());
+        data << comment;
+    }
+    SendPacket(&data);
 }

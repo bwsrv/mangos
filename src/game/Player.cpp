@@ -590,6 +590,7 @@ Player::Player (WorldSession *session): Unit(), m_mover(this), m_camera(this), m
     m_anticheat = new AntiCheat(this);
 
     SetPendingBind(NULL, 0);
+    m_LFGState = new LFGPlayerState(this);
 }
 
 Player::~Player ()
@@ -631,6 +632,7 @@ Player::~Player ()
     delete m_declinedname;
     delete m_runes;
     delete m_anticheat;
+    delete m_LFGState;
 
 }
 
@@ -2731,6 +2733,8 @@ void Player::GiveLevel(uint32 level)
         MailDraft(mailReward->mailTemplateId).SendMailTo(this,MailSender(MAIL_CREATURE,mailReward->senderEntry));
 
     GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL);
+
+    GetLFGState()->Update();
 
 }
 
