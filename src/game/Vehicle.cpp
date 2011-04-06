@@ -212,7 +212,8 @@ bool VehicleKit::AddPassenger(Unit *passenger, int8 seatId)
             player->VehicleSpellInitialize();
         }
 
-        ((Creature*)m_pBase)->AIM_Initialize();
+        if(!(((Creature*)m_pBase)->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_KEEP_AI))
+            ((Creature*)m_pBase)->AIM_Initialize();
 
         if(m_pBase->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE))
         {
@@ -282,7 +283,8 @@ void VehicleKit::RemovePassenger(Unit *passenger)
             player->RemovePetActionBar();
         }
 
-        ((Creature*)m_pBase)->AIM_Initialize();
+        if(!(((Creature*)m_pBase)->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_KEEP_AI))
+            ((Creature*)m_pBase)->AIM_Initialize();
     }
 
     if (passenger->GetTypeId() == TYPEID_PLAYER)
