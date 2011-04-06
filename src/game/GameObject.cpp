@@ -1431,6 +1431,10 @@ void GameObject::Use(Unit* user)
 
             spellId = info->spellcaster.spellId;
 
+            // dismount players
+            if (user && user->IsMounted())
+                user->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
+
             AddUse();
             break;
         }
