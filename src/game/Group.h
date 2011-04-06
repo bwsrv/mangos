@@ -370,6 +370,9 @@ class MANGOS_DLL_SPEC Group
         InstanceGroupBind* GetBoundInstance(Map* aMap, Difficulty difficulty);
         BoundInstancesMap& GetBoundInstances(Difficulty difficulty) { return m_boundInstances[difficulty]; }
 
+        // LFG
+        LFGGroupState* GetLFGState() { return m_LFGState; };
+
         // Frozen Mod
         void BroadcastGroupUpdate(void);
         // Frozen Mod
@@ -450,5 +453,6 @@ class MANGOS_DLL_SPEC Group
         Rolls               RollId;
         BoundInstancesMap   m_boundInstances[MAX_DIFFICULTY];
         uint8*              m_subGroupsCounts;
+        LFGGroupState*      m_LFGState;
 };
 #endif

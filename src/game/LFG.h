@@ -18,6 +18,8 @@
 #ifndef _LFG_H
 #define _LFG_H
 
+struct LFGDungeonEntry;
+
 enum LFGRoles
 {
     ROLE_LEADER = 0,
@@ -180,6 +182,60 @@ enum LFGDungeonStatus
     LFG_STATUS_SAVED           = 0,
     LFG_STATUS_NOT_SAVED       = 1,
     LFG_STATUS_COMPLETE        = 2,
+};
+
+typedef std::set<LFGDungeonEntry const*> LFGDungeonSet;
+typedef std::map<LFGDungeonEntry const*, LFGLockStatusType> LFGLockStatusMap;
+
+struct LFGPlayerState
+{
+    LFGPlayerState(Player* player) : m_player(player)
+    {
+        Clear();
+    };
+
+    void Clear();
+    void Update(bool _update = true) { update = _update; updateClient = true; };
+    bool NeedUpdate() { if (updateClient) {updateClient = false; return true; } else return false;};
+    LFGDungeonSet* GetDungeons()   { return &m_DungeonsList; };
+    LFGLockStatusMap* GetLockMap();
+
+    std::string    GetComment()    { return comment; };
+
+    LFGRoleMask   rolesMask;
+    bool          update;
+    bool          updateClient;
+    Player*       m_player;
+    LFGState      state;
+    LFGDungeonSet m_DungeonsList;                   // Dungeons the player have applied for
+    LFGLockStatusMap m_LockMap;                     // Dungeons lock map
+    std::string   comment;
+};
+
+struct LFGGroupState
+{
+    LFGGroupState(Group* group) : m_group(group)
+    {
+        Clear();
+    };
+
+    void Clear();
+    void Update(bool _update = true) { update = _update; updateClient = true; };
+    bool NeedUpdate() { if (updateClient) {updateClient = false; return true; } else return false;};
+    LFGDungeonSet* GetDungeons()   { return &m_DungeonsList; };
+
+    LFGLockStatusMap* GetLockMap();
+
+    bool          queued;
+    bool          update;
+    bool          updateClient;
+    Group*        m_group;
+    uint32        dungeonEntry;
+    uint8         kicks;
+    bool          kickActive;
+    LFGDungeonStatus     status;
+    LFGDungeonSet    m_DungeonsList;                // Dungeons the group have applied for
+    LFGLockStatusMap m_LockMap;                     // Dungeons lock map
 };
 
 #endif

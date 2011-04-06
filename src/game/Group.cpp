@@ -79,6 +79,7 @@ Group::Group() : m_Guid(ObjectGuid()), m_groupType(GROUPTYPE_NORMAL),
     m_bgGroup(NULL), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON),
     m_subGroupsCounts(NULL)
 {
+    m_LFGState = new LFGGroupState(this);
 }
 
 Group::~Group()
@@ -112,6 +113,9 @@ Group::~Group()
     // Sub group counters clean up
     if (m_subGroupsCounts)
         delete[] m_subGroupsCounts;
+
+    if (m_LFGState)
+        delete m_LFGState;
 }
 
 bool Group::Create(ObjectGuid guid, const char * name)
