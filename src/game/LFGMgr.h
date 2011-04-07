@@ -25,6 +25,7 @@
 
 class Group;
 class Player;
+class ObjectGuid;
 
 
 // Reward info

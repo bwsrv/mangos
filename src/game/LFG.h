@@ -19,6 +19,8 @@
 #define _LFG_H
 
 struct LFGDungeonEntry;
+class Player;
+class Group;
 
 enum LFGRoles
 {
