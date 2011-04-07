@@ -4343,9 +4343,8 @@ void Spell::EffectPersistentAA(SpellEffectIndex eff_idx)
     if (Player* modOwner = m_caster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, radius);
 
-    int32 duration = GetSpellDuration(m_spellInfo);
     DynamicObject* dynObj = new DynamicObject;
-    if (!dynObj->Create(m_caster->GetMap()->GenerateLocalLowGuid(HIGHGUID_DYNAMICOBJECT), m_caster, m_spellInfo->Id, eff_idx, m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, duration, radius))
+    if (!dynObj->Create(m_caster->GetMap()->GenerateLocalLowGuid(HIGHGUID_DYNAMICOBJECT), m_caster, m_spellInfo->Id, eff_idx, m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, m_duration, radius))
     {
         delete dynObj;
         return;
@@ -4884,14 +4883,12 @@ void Spell::DoSummonGroupPets(SpellEffectIndex eff_idx)
 
     uint32 level = m_caster->getLevel();
 
-    int32 duration = CalculateSpellDuration(m_spellInfo, m_caster);
-
     if (pet_entry == 37994)    // Mage: Water Elemental from Glyph
-        duration = 86400000;   // 24 hours
+        m_duration = 86400000; // 24 hours
 
-    if (duration > 0)
+    if (m_duration > 0)
         if (Player* modOwner = m_caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
+            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, m_duration);
 
     uint32 amount = damage;
 
@@ -4928,7 +4925,7 @@ void Spell::DoSummonGroupPets(SpellEffectIndex eff_idx)
                 {
                     Pet* pet = new Pet(SUMMON_PET);
                     // set timer for unsummon
-                    pet->SetDuration(duration);
+                    pet->SetDuration(m_duration);
                     pet->SetCreateSpellID(originalSpellID);
                     pet->SetPetCounter(amount-1);
                     bool _summoned = false;
@@ -4956,7 +4953,7 @@ void Spell::DoSummonGroupPets(SpellEffectIndex eff_idx)
         Pet* pet = new Pet(SUMMON_PET);
         pet->SetPetCounter(amount - count - 1);
         pet->SetCreateSpellID(originalSpellID);
-        pet->SetDuration(duration);
+        pet->SetDuration(m_duration);
 
         CreatureCreatePos pos (m_caster->GetMap(), m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, -m_caster->GetOrientation(), m_caster->GetPhaseMask());
 
@@ -5413,7 +5410,6 @@ void Spell::DoSummonGuardian(SpellEffectIndex eff_idx, uint32 forceFaction)
     float center_z = m_targets.m_destZ;
 
     float radius = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[eff_idx]));
-    int32 duration = CalculateSpellDuration(m_spellInfo, m_caster);
 
     uint32 originalSpellID = (m_IsTriggeredSpell && m_triggeredBySpellInfo) ? m_triggeredBySpellInfo->Id : m_spellInfo->Id;
 
@@ -5425,7 +5421,7 @@ void Spell::DoSummonGuardian(SpellEffectIndex eff_idx, uint32 forceFaction)
         Pet* spawnCreature = new Pet(petType);
 
         spawnCreature->SetCreateSpellID(originalSpellID);
-        spawnCreature->SetDuration(duration);
+        spawnCreature->SetDuration(m_duration);
         spawnCreature->SetPetCounter(amount - count - 1);
 
         // If dest location if present
@@ -5453,7 +5449,6 @@ void Spell::DoSummonGuardian(SpellEffectIndex eff_idx, uint32 forceFaction)
             delete spawnCreature;
             return;
         }
-
         spawnCreature->setFaction(forceFaction ? forceFaction : m_caster->getFaction());
         spawnCreature->SetLevel(level);
 
@@ -8666,8 +8661,7 @@ void Spell::DoSummonTotem(SpellEffectIndex eff_idx, uint8 slot_dbc)
     pTotem->SetOwner(m_caster);
     pTotem->SetTypeBySummonSpell(m_spellInfo);              // must be after Create call where m_spells initialized
 
-    int32 duration = CalculateSpellDuration(m_spellInfo, m_caster);
-    pTotem->SetDuration(duration);
+    pTotem->SetDuration(m_duration);
 
     if (m_spellInfo->Id == 16190)
         damage = m_caster->GetMaxHealth() * m_spellInfo->CalculateSimpleValue(EFFECT_INDEX_1) / 100;
@@ -8696,7 +8690,7 @@ void Spell::DoSummonTotem(SpellEffectIndex eff_idx, uint8 slot_dbc)
         WorldPacket data(SMSG_TOTEM_CREATED, 1 + 8 + 4 + 4);
         data << uint8(slot);
         data << pTotem->GetObjectGuid();
-        data << uint32(duration);
+        data << uint32(m_duration);
         data << uint32(m_spellInfo->Id);
         ((Player*)m_caster)->SendDirectMessage(&data);
     }
