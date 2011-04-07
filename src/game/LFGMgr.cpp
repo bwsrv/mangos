@@ -34,6 +34,14 @@ INSTANTIATE_SINGLETON_1(LFGMgr);
 LFGMgr::LFGMgr()
 {
     m_RewardMap.clear();
+    m_queueInfoMap.clear();
+    m_dungeonMap.clear();
+
+    for (uint32 i = 0; i < sLFGDungeonStore.GetNumRows(); ++i)
+    {
+        if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(i))
+            m_dungeonMap.insert(std::make_pair(dungeon->ID, dungeon));
+    }
 }
 
 LFGMgr::~LFGMgr()
@@ -42,6 +50,8 @@ LFGMgr::~LFGMgr()
         delete itr->second;
     m_RewardMap.clear();
     m_queueInfoMap.clear();
+    m_dungeonMap.clear();
+
 }
 
 void LFGMgr::Update(uint32 diff)
@@ -149,10 +159,14 @@ void LFGMgr::Join(Player* player)
 //    LfgDungeonSet* dungeons = NULL;
     Group* group = player->GetGroup();
 
-    if (group && group->GetLeaderGuid() != player->GetObjectGuid())
-        return;
-
-    ObjectGuid groupGuid = group->GetObjectGuid();
+    ObjectGuid groupGuid;
+    if (group)
+    { 
+        if (group->GetLeaderGuid() != player->GetObjectGuid())
+            return;
+        else
+            groupGuid = group->GetObjectGuid();
+    }
 
     LFGJoinResult result = LFG_JOIN_OK;
 
@@ -180,6 +194,17 @@ void LFGMgr::Join(Player* player)
         return;
     }
     // Joining process
+
+}
+
+void LFGMgr::Leave(Player* player)
+{
+
+    Group* group = player->GetGroup();
+    if (group && group->GetLeaderGuid() != player->GetObjectGuid())
+        return;
+
+    // leaving process
 
 }
 
@@ -340,7 +365,7 @@ LFGDungeonSet LFGMgr::GetRandomDungeonsForPlayer(Player* player)
 {
     LFGDungeonSet list;
     list.clear();
-    LFGDungeonEntry const* dungeon;
+
     for (uint32 i = 0; i < sLFGDungeonStore.GetNumRows(); ++i)
     {
         if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(i))
@@ -352,4 +377,10 @@ LFGDungeonSet LFGMgr::GetRandomDungeonsForPlayer(Player* player)
         }
     }
     return list;
+}
+
+LFGDungeonEntry const* LFGMgr::GetDungeon(uint32 dungeonID)
+{
+    LFGDungeonMap::const_iterator itr = m_dungeonMap.find(dungeonID);
+    return itr != m_dungeonMap.end() ? itr->second : NULL;
 }
