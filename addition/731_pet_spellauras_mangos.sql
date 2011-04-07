@@ -43,6 +43,15 @@ INSERT INTO `spell_pet_auras` VALUES
 (0,0,417,34958),
 (0,0,417,61013);
 
+-- voidwalker
+DELETE FROM `spell_pet_auras` WHERE `spell` = 0 AND `pet` = 1860;
+INSERT INTO `spell_pet_auras` VALUES
+(0,0,1860,34947),
+(0,0,1860,34956),
+(0,0,1860,34957),
+(0,0,1860,34958),
+(0,0,1860,61013);
+
 -- succubus
 DELETE FROM `spell_pet_auras` WHERE `spell` = 0 AND `pet` = 1863;
 INSERT INTO `spell_pet_auras` VALUES
