@@ -348,8 +348,6 @@ class MANGOS_DLL_SPEC WorldSession
         uint32 getDialogStatus(Player *pPlayer, Object* questgiver, uint32 defstatus);
 
         // LFG
-        void SendLfgResult(uint32 type, uint32 entry, uint8 lfg_type);
-        void SendLfgUpdate(uint8 unk1, uint8 unk2, uint8 unk3);
         // TRUE values set by client sending CMSG_LFG_SET_AUTOJOIN and CMSG_LFM_CLEAR_AUTOFILL before player login
         bool LookingForGroup_auto_join;
         bool LookingForGroup_auto_add;
