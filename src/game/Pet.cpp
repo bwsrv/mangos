@@ -1537,7 +1537,7 @@ bool Pet::addSpell(uint32 spell_id,ActiveStates active /*= ACT_DECIDE*/, PetSpel
     else
         m_charmInfo->AddSpellToActionBar(spell_id, ActiveStates(newspell.active));
 
-    if(newspell.active == ACT_ENABLED || !isControlled())
+    if(newspell.active == ACT_ENABLED)
         ToggleAutocast(spell_id, true);
 
     uint32 talentCost = GetTalentSpellCost(spell_id);
