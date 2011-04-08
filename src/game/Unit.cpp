@@ -333,6 +333,7 @@ void Unit::Update( uint32 update_diff, uint32 p_time )
     if (!IsInWorld())
         return;
 
+    sWorld.m_spellUpdateLock.acquire();
     _UpdateSpells( update_diff );
     sWorld.m_spellUpdateLock.release();
 
