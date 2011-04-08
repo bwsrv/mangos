@@ -510,29 +510,14 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
         }
         case 68921: case 69049: // Soulstorm (Forge of Souls - Bronjahm)
         {
-            FillAreaTargets(targetUnitMap,m_targets.m_destX, m_targets.m_destY,radius,PUSH_DEST_CENTER,SPELL_TARGETS_AOE_DAMAGE);
             UnitList tmpUnitMap;
-            FillAreaTargets(tmpUnitMap,m_targets.m_destX, m_targets.m_destY, 10.0f, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
-            bool TargetToRemoveHere = true;
-            while (TargetToRemoveHere)
+            FillAreaTargets(tmpUnitMap, m_targets.m_destX, m_targets.m_destY, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+            if (!tmpUnitMap.empty())
             {
-                TargetToRemoveHere = false;
-                if (targetUnitMap.empty() || tmpUnitMap.empty())
-                    break;
-                for (UnitList::const_iterator itr = targetUnitMap.begin(); itr != targetUnitMap.end(); ++itr)
+                for (UnitList::const_iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end(); ++itr)
                 {
-                    for (UnitList::const_iterator itr2 = tmpUnitMap.begin(); itr2 != tmpUnitMap.end(); ++itr2)
-                    {
-                        if (*itr == *itr2)
-                        {
-                            targetUnitMap.remove(*itr);
-                            tmpUnitMap.remove(*itr2);
-                            TargetToRemoveHere = true;
-                            break;
-                        }
-                    }
-                    if (TargetToRemoveHere)
-                        break;
+                    if (*itr && !(*itr)->IsWithinDistInMap(m_caster, 10.0f))
+                        targetUnitMap.push_back(*itr);
                 }
             }
             break;
