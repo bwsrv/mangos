@@ -1317,6 +1317,9 @@ void Spell::DoSpellHitOnUnit(Unit *unit, uint32 effectMask)
     if (!unit || !effectMask && !damage)
         return;
 
+    if (!unit->IsInWorld())
+        return;
+
     Unit* realCaster = GetAffectiveCaster();
 
     // Recheck immune (only for delayed spells)
