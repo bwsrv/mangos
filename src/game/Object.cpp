@@ -92,6 +92,15 @@ void Object::_InitValues()
     m_objectUpdated = false;
 }
 
+void Object::_Create(uint32 guidlow, uint32 entry, HighGuid guidhigh)
+{
+    if(!m_uint32Values)
+        _InitValues();
+
+    ObjectGuid guid = ObjectGuid(guidhigh, entry, guidlow);
+    _Create(guid);
+}
+
 void Object::_Create(ObjectGuid guid)
 {
     if(!m_uint32Values)
@@ -1714,6 +1723,13 @@ void WorldObject::AddObjectToRemoveList()
 
 Creature* WorldObject::SummonCreature(uint32 id, float x, float y, float z, float ang,TempSummonType spwtype,uint32 despwtime, bool asActiveObject)
 {
+    CreatureInfo const *cinfo = ObjectMgr::GetCreatureTemplate(id);
+    if(!cinfo)
+    {
+        sLog.outErrorDb("WorldObject::SummonCreature: Creature (Entry: %u) not existed for summoner: %s. ", id, GetGuidStr().c_str());
+        return NULL;
+    }
+
     TemporarySummon* pCreature = new TemporarySummon(GetObjectGuid());
 
     Team team = TEAM_NONE;
@@ -1725,7 +1741,7 @@ Creature* WorldObject::SummonCreature(uint32 id, float x, float y, float z, floa
     if (x == 0.0f && y == 0.0f && z == 0.0f)
         pos = CreatureCreatePos(this, GetOrientation(), CONTACT_DISTANCE, ang);
 
-    if (!pCreature->Create(GetMap()->GenerateLocalLowGuid(HIGHGUID_UNIT), pos, id, team))
+    if (!pCreature->Create(GetMap()->GenerateLocalLowGuid(HIGHGUID_UNIT), pos, cinfo, team))
     {
         delete pCreature;
         return NULL;
@@ -2207,3 +2223,9 @@ void Object::ForceValuesUpdateAtIndex(uint32 i)
     }
 }
 // Frozen Mod
+
+bool WorldObject::PrintCoordinatesError(float x, float y, float z, char const* descr) const
+{
+    sLog.outError("%s with invalid %s coordinates: mapid = %uu, x = %f, y = %f, z = %f", GetGuidStr().c_str(), descr, GetMapId(), x, y, z);
+    return false;                                           // always false for continue assert fail
+}
