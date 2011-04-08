@@ -19,6 +19,8 @@
 #define _LFG_H
 
 struct LFGDungeonEntry;
+class Player;
+class Group;
 
 enum LFGRoles
 {
@@ -199,6 +201,7 @@ struct LFGPlayerState
     bool NeedUpdate() { if (updateClient) {updateClient = false; return true; } else return false;};
     LFGDungeonSet* GetDungeons()   { return &m_DungeonsList; };
     LFGLockStatusMap* GetLockMap();
+    void SetRoles(uint8 roles) { rolesMask = LFGRoleMask(roles); };
 
     std::string    GetComment()    { return comment; };
 

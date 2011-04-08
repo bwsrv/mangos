@@ -25,6 +25,7 @@
 
 class Group;
 class Player;
+class ObjectGuid;
 
 
 // Reward info
@@ -63,6 +64,7 @@ struct LFGQueueInfo
 typedef std::multimap<uint32, LFGReward const*> LFGRewardMap;
 typedef std::pair<LFGRewardMap::const_iterator, LFGRewardMap::const_iterator> LFGRewardMapBounds;
 typedef std::map<ObjectGuid, LFGQueueInfo*> LFGQueueInfoMap;
+typedef std::map<uint32/*ID*/, LFGDungeonEntry const*> LFGDungeonMap;
 
 class LFGMgr
 {
@@ -73,10 +75,12 @@ class LFGMgr
         void Update(uint32 diff);
 
         void Join(Player* player);
-        void Leave(Player* player, Group* group = NULL);
+        void Leave(Player* player);
 
         void LoadRewards();
         LFGReward const* GetRandomDungeonReward(LFGDungeonEntry const* dungeon, Player* player);
+
+        LFGDungeonEntry const* GetDungeon(uint32 dungeonID);
 
         bool IsRandomDungeon(LFGDungeonEntry const* dungeon);
         LFGDungeonSet GetRandomDungeonsForPlayer(Player* player);
@@ -94,6 +98,7 @@ class LFGMgr
     private:
         LFGRewardMap m_RewardMap;                           // Stores rewards for random dungeons
         LFGQueueInfoMap m_queueInfoMap;                     // Queued groups
+        LFGDungeonMap   m_dungeonMap;                       // sorted dungeon map
 
 };
 
