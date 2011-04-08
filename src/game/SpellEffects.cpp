@@ -5927,6 +5927,15 @@ void Spell::EffectSummonPet(SpellEffectIndex eff_idx)
             return;
     }
 
+    CreatureInfo const* cInfo = petentry ? sCreatureStorage.LookupEntry<CreatureInfo>(petentry) : NULL;
+
+    // == 0 in case call current pet, check only real summon case
+    if (petentry && !cInfo)
+    {
+        sLog.outErrorDb("EffectSummonPet: creature entry %u not found for spell %u.", petentry, m_spellInfo->Id);
+        return;
+    }
+
     Pet* NewSummon = new Pet;
 
     uint32 originalSpellID = (m_IsTriggeredSpell && m_triggeredBySpellInfo) ? m_triggeredBySpellInfo->Id : m_spellInfo->Id;
@@ -5938,19 +5947,13 @@ void Spell::EffectSummonPet(SpellEffectIndex eff_idx)
 
     // not error in case fail hunter call pet
     if (!petentry)
-        return;
-
-    CreatureInfo const* cInfo = sCreatureStorage.LookupEntry<CreatureInfo>(petentry);
-    if(!cInfo)
     {
-        sLog.outErrorDb("EffectSummonPet: creature entry %u not found.", petentry);
+        delete NewSummon;
         return;
     }
 
-
     NewSummon->setPetType(SUMMON_PET);
     NewSummon->SetPetCounter(0);
-
     CreatureCreatePos pos(m_caster, m_caster->GetOrientation());
 
     if (!NewSummon->Create(0, pos, cInfo, 0, m_caster))
