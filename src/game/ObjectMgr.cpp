@@ -194,6 +194,11 @@ ObjectMgr::~ObjectMgr()
 Group* ObjectMgr::GetGroupById(uint32 id) const
 {
     ObjectGuid guid(HIGHGUID_GROUP,id);
+    return GetGroup(guid);
+}
+
+Group* ObjectMgr::GetGroup(ObjectGuid guid) const
+{
     GroupMap::const_iterator itr = mGroupMap.find(guid);
     if (itr != mGroupMap.end())
         return itr->second;

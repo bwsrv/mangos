@@ -39,7 +39,7 @@ enum LFGRoleMask
     LFG_ROLE_MASK_DAMAGE  = (1 << ROLE_DAMAGE),
 
     // unions
-    LFG_ROLE_MASK_MEMBER   = ( LFG_ROLE_MASK_TANK   |
+    LFG_ROLE_MASK_THD     = ( LFG_ROLE_MASK_TANK   |
                                LFG_ROLE_MASK_HEALER |
                                LFG_ROLE_MASK_DAMAGE ),
 
@@ -51,6 +51,29 @@ enum LFGRoleMask
 
     LFG_ROLE_MASK_HD      = ( LFG_ROLE_MASK_DAMAGE |
                                LFG_ROLE_MASK_HEALER ),
+
+    LFG_ROLE_MASK_LTHD     = ( LFG_ROLE_MASK_THD |
+                               LFG_ROLE_MASK_LEADER ),
+    LFG_ROLE_MASK_LTH      = ( LFG_ROLE_MASK_TH |
+                               LFG_ROLE_MASK_LEADER ),
+    LFG_ROLE_MASK_LTD      = ( LFG_ROLE_MASK_TD |
+                               LFG_ROLE_MASK_LEADER ),
+    LFG_ROLE_MASK_LHD      = ( LFG_ROLE_MASK_HD |
+                               LFG_ROLE_MASK_LEADER ),
+};
+
+enum LFGMemberFlags
+{
+    LFG_MEMBER_FLAG_NONE     = 0x00,
+    LFG_MEMBER_FLAG_CHARINFO = 0x01,
+    LFG_MEMBER_FLAG_COMMENT  = 0x02,
+    LFG_MEMBER_FLAG_UNK1     = 0x04,
+    LFG_MEMBER_FLAG_GROUP    = 0x08,
+    LFG_MEMBER_FLAG_ROLES    = 0x10,
+    LFG_MEMBER_FLAG_UNK2     = 0x20,
+    LFG_MEMBER_FLAG_ZONE     = 0x40,  // zoneid/areaid?
+    LFG_MEMBER_FLAG_UNK3     = 0x80,  // unk guid + unk int
+    LFG_MEMBER_FLAG_UNK4     = 0x100, // unk, may be group type
 };
 
 enum LFGState
@@ -201,18 +224,28 @@ struct LFGPlayerState
     bool NeedUpdate() { if (updateClient) {updateClient = false; return true; } else return false;};
     LFGDungeonSet* GetDungeons()   { return &m_DungeonsList; };
     LFGLockStatusMap* GetLockMap();
-    void SetRoles(uint8 roles) { rolesMask = LFGRoleMask(roles); };
 
-    std::string    GetComment()    { return comment; };
+    std::string    GetComment()    { return m_comment; };
+    void SetComment(std::string comment);
 
+    void SetState(LFGState _state) { m_state = _state; };
+    LFGState GetState() { return m_state; };
+
+    LFGRoleMask    GetRoles()    { return rolesMask; };
+    void SetRoles(uint8 roles);
+
+    LFGMemberFlags GetFlags()    { return m_flags;};
+
+private:
     LFGRoleMask   rolesMask;
+    LFGMemberFlags m_flags;
     bool          update;
     bool          updateClient;
     Player*       m_player;
-    LFGState      state;
+    LFGState      m_state;
     LFGDungeonSet m_DungeonsList;                   // Dungeons the player have applied for
     LFGLockStatusMap m_LockMap;                     // Dungeons lock map
-    std::string   comment;
+    std::string   m_comment;
 };
 
 struct LFGGroupState

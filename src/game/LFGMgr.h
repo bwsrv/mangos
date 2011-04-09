@@ -77,6 +77,10 @@ class LFGMgr
         void Join(Player* player);
         void Leave(Player* player);
 
+        void JoinToLFRList(Player* player, uint32 dungeon);
+        void RemoveFromLFRList(Player* player, uint32 dungeon);
+        void ClearLFRList(Player* player);
+
         void LoadRewards();
         LFGReward const* GetRandomDungeonReward(LFGDungeonEntry const* dungeon, Player* player);
 
@@ -96,8 +100,13 @@ class LFGMgr
         LFGLockStatusMap GetGroupLockMap(Group* group);
 
     private:
-        LFGRewardMap m_RewardMap;                           // Stores rewards for random dungeons
-        LFGQueueInfoMap m_queueInfoMap;                     // Queued groups
+        void _Join(ObjectGuid guid);
+        void _Leave(ObjectGuid guid);
+        void _JoinGroup(ObjectGuid guid);
+        void _LeaveGroup(ObjectGuid guid);
+        LFGRewardMap    m_RewardMap;                        // Stores rewards for random dungeons
+        LFGQueueInfoMap m_queueInfoMap;                     // Queued players
+        LFGQueueInfoMap m_groupQueueInfoMap;                // Queued groups
         LFGDungeonMap   m_dungeonMap;                       // sorted dungeon map
 
 };

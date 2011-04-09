@@ -27,7 +27,8 @@ void LFGPlayerState::Clear()
 {
     rolesMask = LFG_ROLE_MASK_NONE;
     update = true;
-    state = LFG_STATE_NONE;
+    m_state = LFG_STATE_NONE;
+    m_flags = LFG_MEMBER_FLAG_NONE;
     m_DungeonsList.clear();
     m_LockMap.clear();
 }
@@ -42,6 +43,28 @@ LFGLockStatusMap* LFGPlayerState::GetLockMap()
         updateClient = false;
     }
     return &m_LockMap;
+};
+
+void LFGPlayerState::SetRoles(uint8 roles)
+{
+    rolesMask = LFGRoleMask(roles); 
+
+    if (rolesMask != LFG_ROLE_MASK_NONE)
+        m_flags = LFGMemberFlags(m_flags | LFG_MEMBER_FLAG_ROLES);
+    else
+        m_flags = LFGMemberFlags(m_flags & ~LFG_MEMBER_FLAG_ROLES);
+
+};
+
+void LFGPlayerState::SetComment(std::string comment)
+{
+    m_comment = comment; 
+
+    if (!m_comment.empty())
+        m_flags = LFGMemberFlags(m_flags | LFG_MEMBER_FLAG_COMMENT);
+    else
+        m_flags = LFGMemberFlags(m_flags & ~LFG_MEMBER_FLAG_COMMENT);
+
 };
 
 void LFGGroupState::Clear()
@@ -66,3 +89,4 @@ LFGLockStatusMap* LFGGroupState::GetLockMap()
     };
     return &m_LockMap;
 };
+
