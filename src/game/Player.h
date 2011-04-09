@@ -2390,6 +2390,8 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         // LFG
         LFGPlayerState* GetLFGState() { return m_LFGState;};
+        uint32 GetEquipGearScore(bool withBags = true, bool withBank = false);
+        typedef std::vector<uint32/*item level*/> GearScoreMap;
 
         /*********************************************************/
         /***                   GROUP SYSTEM                    ***/
@@ -2784,6 +2786,7 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         // LFG
         LFGPlayerState* m_LFGState;
+        void _fillGearScoreData(Item* item, GearScoreMap* gearScore);
 };
 
 void AddItemsSetItem(Player*player,Item *item);
