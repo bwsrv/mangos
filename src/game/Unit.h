@@ -1586,7 +1586,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         CharmInfo* GetCharmInfo() { return m_charmInfo; }
         CharmInfo* InitCharmInfo(Unit* charm);
 
-        uint64 const& GetTotemGUID(TotemSlot slot) const { return m_TotemSlot[slot]; }
+        ObjectGuid const& GetTotemGuid(TotemSlot slot) const { return m_TotemSlot[slot]; }
         Totem* GetTotem(TotemSlot slot) const;
         bool IsAllTotemSlotsUsed() const;
 
@@ -2152,7 +2152,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         uint32 m_ThreatRedirectionPercent;
         uint64 m_misdirectionTargetGUID;
 
-        uint64 m_TotemSlot[MAX_TOTEM_SLOT];
+        ObjectGuid m_TotemSlot[MAX_TOTEM_SLOT];
 
     private:                                                // Error traps for some wrong args using
         // this will catch and prevent build for any cases when all optional args skipped and instead triggered used non boolean type

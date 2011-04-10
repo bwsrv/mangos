@@ -39,7 +39,7 @@ enum LFGRoleMask
     LFG_ROLE_MASK_DAMAGE  = (1 << ROLE_DAMAGE),
 
     // unions
-    LFG_ROLE_MASK_MEMBER   = ( LFG_ROLE_MASK_TANK   |
+    LFG_ROLE_MASK_THD     = ( LFG_ROLE_MASK_TANK   |
                                LFG_ROLE_MASK_HEALER |
                                LFG_ROLE_MASK_DAMAGE ),
 
@@ -51,13 +51,43 @@ enum LFGRoleMask
 
     LFG_ROLE_MASK_HD      = ( LFG_ROLE_MASK_DAMAGE |
                                LFG_ROLE_MASK_HEALER ),
+
+    LFG_ROLE_MASK_LTHD     = ( LFG_ROLE_MASK_THD |
+                               LFG_ROLE_MASK_LEADER ),
+    LFG_ROLE_MASK_LTH      = ( LFG_ROLE_MASK_TH |
+                               LFG_ROLE_MASK_LEADER ),
+    LFG_ROLE_MASK_LTD      = ( LFG_ROLE_MASK_TD |
+                               LFG_ROLE_MASK_LEADER ),
+    LFG_ROLE_MASK_LHD      = ( LFG_ROLE_MASK_HD |
+                               LFG_ROLE_MASK_LEADER ),
+};
+
+enum LFGMemberFlags
+{
+    LFG_MEMBER_FLAG_NONE     = 0x00,
+    LFG_MEMBER_FLAG_CHARINFO = 0x01,
+    LFG_MEMBER_FLAG_COMMENT  = 0x02,
+    LFG_MEMBER_FLAG_UNK1     = 0x04,
+    LFG_MEMBER_FLAG_GROUP    = 0x08,
+    LFG_MEMBER_FLAG_ROLES    = 0x10,
+    LFG_MEMBER_FLAG_UNK2     = 0x20,
+    LFG_MEMBER_FLAG_ZONE     = 0x40,  // zoneid/areaid?
+    LFG_MEMBER_FLAG_UNK3     = 0x80,  // unk guid + unk int
+    LFG_MEMBER_FLAG_UNK4     = 0x100, // unk, may be group type
 };
 
 enum LFGState
 {
-    LFG_STATE_NONE = 0,                                     // Not using LFG / LFR
-    LFG_STATE_LFG  = 1,                                     // Using Dungeon finder
-    LFG_STATE_LFR  = 2,                                     // Using Raid finder
+    LFG_STATE_NONE               = 0,                  // Not using LFG / LFR
+    LFG_STATE_LFR                = 1,                  // Using Raid finder
+    LFG_STATE_LFG                = 2,                  // Using Dungeon finder
+    LFG_STATE_ROLECHECK          = 3,                  // Rolecheck active
+    LFG_STATE_QUEUED             = 4,                  // Queued
+    LFG_STATE_PROPOSAL           = 5,                  // Proposal active
+    LFG_STATE_BOOT               = 6,                  // Vote kick active
+    LFG_STATE_DUNGEON            = 7,                  // In LFG Group, in a Dungeon
+    LFG_STATE_FINISHED_DUNGEON   = 8,                  // In LFG Group, in a finished Dungeon
+    LFG_STATE_MAX
 };
 
 enum LFGUpdateType
@@ -100,7 +130,8 @@ enum LFGType
     LFG_TYPE_QUEST                = 3,
     LFG_TYPE_ZONE                 = 4,
     LFG_TYPE_HEROIC_DUNGEON       = 5,
-    LFG_TYPE_RANDOM_DUNGEON       = 6
+    LFG_TYPE_RANDOM_DUNGEON       = 6,
+    LFG_TYPE_MAX
 };
 
 enum LFGProposalState
@@ -201,18 +232,29 @@ struct LFGPlayerState
     bool NeedUpdate() { if (updateClient) {updateClient = false; return true; } else return false;};
     LFGDungeonSet* GetDungeons()   { return &m_DungeonsList; };
     LFGLockStatusMap* GetLockMap();
-    void SetRoles(uint8 roles) { rolesMask = LFGRoleMask(roles); };
 
-    std::string    GetComment()    { return comment; };
+    std::string    GetComment()    { return m_comment; };
+    void SetComment(std::string comment);
 
+    void SetState(LFGState _state) { m_state = _state; };
+    LFGState GetState() { return m_state; };
+
+    LFGRoleMask    GetRoles()    { return rolesMask; };
+    void SetRoles(uint8 roles);
+
+    uint32         GetFlags()    { return m_flags;};
+    LFGType        GetType();
+
+private:
     LFGRoleMask   rolesMask;
+    uint32        m_flags;
     bool          update;
     bool          updateClient;
     Player*       m_player;
-    LFGState      state;
+    LFGState      m_state;
     LFGDungeonSet m_DungeonsList;                   // Dungeons the player have applied for
     LFGLockStatusMap m_LockMap;                     // Dungeons lock map
-    std::string   comment;
+    std::string   m_comment;
 };
 
 struct LFGGroupState
@@ -227,18 +269,19 @@ struct LFGGroupState
     bool NeedUpdate() { if (updateClient) {updateClient = false; return true; } else return false;};
     LFGDungeonSet* GetDungeons()   { return &m_DungeonsList; };
 
-    LFGLockStatusMap* GetLockMap();
+    uint32 GetFlags()  { return m_flags;};
+    LFGType        GetType();
 
     bool          queued;
     bool          update;
     bool          updateClient;
     Group*        m_group;
     uint32        dungeonEntry;
+    uint32        m_flags;
     uint8         kicks;
     bool          kickActive;
     LFGDungeonStatus     status;
     LFGDungeonSet    m_DungeonsList;                // Dungeons the group have applied for
-    LFGLockStatusMap m_LockMap;                     // Dungeons lock map
 };
 
 #endif

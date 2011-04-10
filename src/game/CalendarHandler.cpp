@@ -92,22 +92,22 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket &/*recv_data*/)
 /*
     for(uint32 i = 0; i < holidays_count; ++i)
     {
-        data << uint32(0);                                   // holiday id
-        data << uint32(0);                                   // Holidays.dbc field 37 (flags)
-        data << uint32(0);                                   // Holidays.dbc field 38 (flags)
-        data << uint32(0);                                   // Holidays.dbc field 52
-        data << uint32(0);                                   // Holidays.dbc field RepeatingMethod
+        data << uint32(0);                                  // holiday id
+        data << uint32(0);                                  // Holidays.dbc field 37 (flags)
+        data << uint32(0);                                  // Holidays.dbc field 38 (flags)
+        data << uint32(0);                                  // Holidays.dbc field 52
+        data << uint32(0);                                  // Holidays.dbc field RepeatingMethod
 
         for(uint32 j = 0; j < 26; j++)
-            data << uint32(0);                               // Holidays.dbc field Dates
+            data << uint32(0);                              // Holidays.dbc field Dates
 
         for(uint32 j = 0; j < 10; j++)
-            data << uint32(0);                               // Holidays.dbc field unk1
+            data << uint32(0);                              // Holidays.dbc field unk1
 
         for(uint32 j = 0; j < 10; j++)
-            data << uint32(0);                               // Holidays.dbc field unk39
+            data << uint32(0);                              // Holidays.dbc field unk39
 
-        data << "";                                          // Holidays.dbc field texture
+        data << "";                                         // Holidays.dbc field texture
     }
 */
     //DEBUG_LOG("Sending calendar");
@@ -240,7 +240,6 @@ void WorldSession::HandleCalendarEventRsvp(WorldPacket &recv_data)
     //recv_data >> uint64
     //recv_data >> uint64
     //recv_data >> uint32
-
 }
 
 void WorldSession::HandleCalendarEventRemoveInvite(WorldPacket &recv_data)
@@ -294,7 +293,7 @@ void WorldSession::HandleCalendarComplain(WorldPacket &recv_data)
 
 void WorldSession::HandleCalendarGetNumPending(WorldPacket & /*recv_data*/)
 {
-    DEBUG_LOG("WORLD: CMSG_CALENDAR_GET_NUM_PENDING");  // empty
+    DEBUG_LOG("WORLD: CMSG_CALENDAR_GET_NUM_PENDING");      // empty
 
     WorldPacket data(SMSG_CALENDAR_SEND_NUM_PENDING, 4);
     data << uint32(0);                                      // 0 - no pending invites, 1 - some pending invites

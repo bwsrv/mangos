@@ -554,6 +554,7 @@ class ObjectMgr
         void AddGameobjectInfo(GameObjectInfo *goinfo);
 
         Group* GetGroupById(uint32 id) const;
+        Group* GetGroup(ObjectGuid guid) const;
         void AddGroup(Group* group);
         void RemoveGroup(Group* group);
 
