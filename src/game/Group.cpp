@@ -1893,7 +1893,7 @@ void Group::BroadcastGroupUpdate(void)
             }
             for(uint32 i = 0; i < MAX_TOTEM_SLOT; ++i)
             {
-                if(Unit *totem = pp->GetMap()->GetUnit(pp->GetTotemGUID(TotemSlot(i))))
+                if(Unit *totem = pp->GetMap()->GetUnit(pp->GetTotemGuid(TotemSlot(i))))
                 {
                     totem->ForceValuesUpdateAtIndex(UNIT_FIELD_BYTES_2);
                     totem->ForceValuesUpdateAtIndex(UNIT_FIELD_FACTIONTEMPLATE);
