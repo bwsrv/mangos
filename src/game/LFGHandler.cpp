@@ -79,7 +79,7 @@ void WorldSession::HandleLfgJoinOpcode( WorldPacket & recv_data )
 
     GetPlayer()->GetLFGState()->SetComment(comment);
 
-    DEBUG_LOG("CMSG_LFG_JOIN %u as group: %u - Dungeons: %u real: %u", GetPlayer()->GetObjectGuid().GetCounter(), GetPlayer()->GetGroup() ? 1 : 0, numDungeons, uint8(newDungeons->size()));
+    DEBUG_LOG("CMSG_LFG_JOIN %u as group: %u  Dungeons: %u", GetPlayer()->GetObjectGuid().GetCounter(), GetPlayer()->GetGroup() ? 1 : 0, uint8(newDungeons->size()));
 
     sLFGMgr.Join(GetPlayer());
 }
@@ -96,12 +96,12 @@ void WorldSession::HandleLfgLeaveOpcode( WorldPacket & /*recv_data*/ )
 
 }
 
-void WorldSession::HandleLfrJoinOpcode( WorldPacket & recv_data )
+void WorldSession::HandleLfrSearchOpcode( WorldPacket & recv_data )
 {
     uint32 entry;                                           // Raid id to search
     recv_data >> entry;
     DEBUG_LOG("CMSG_SEARCH_LFG_JOIN %u dungeon entry: %u", GetPlayer()->GetObjectGuid().GetCounter(), entry);
-    sLFGMgr.JoinToLFRList(GetPlayer(),entry);
+    SendLfgUpdateList(entry & 0x00FFFFFF);
 }
 
 void WorldSession::HandleLfrLeaveOpcode( WorldPacket & recv_data )
@@ -110,7 +110,6 @@ void WorldSession::HandleLfrLeaveOpcode( WorldPacket & recv_data )
     recv_data >> entry;
 
     DEBUG_LOG("CMSG_SEARCH_LFG_LEAVE %u dungeon entry: %u", GetPlayer()->GetObjectGuid().GetCounter(), entry);
-    sLFGMgr.RemoveFromLFRList(GetPlayer(),entry);
 }
 
 void WorldSession::HandleLfgClearOpcode( WorldPacket & /*recv_data */ )
@@ -404,14 +403,8 @@ void WorldSession::SendLfgJoinResult(LFGJoinResult checkResult, uint8 checkValue
     SendPacket(&data);
 }
 
-void WorldSession::SendLfgUpdateParty(LFGUpdateType updateType)
+void WorldSession::SendLfgUpdateParty(LFGUpdateType updateType, LFGType type)
 {
-    if (!GetPlayer()->GetLFGState()->NeedUpdate())
-    {
-        DEBUG_LOG("SMSG_LFG_UPDATE_PARTY %u updatetype: %u not sent by player flag", GetPlayer()->GetObjectGuid().GetCounter(), updateType);
-        return;
-    }
-
     bool join = false;
     bool extrainfo = false;
     bool queued = false;
@@ -420,6 +413,8 @@ void WorldSession::SendLfgUpdateParty(LFGUpdateType updateType)
     {
         case LFG_UPDATETYPE_JOIN_PROPOSAL:
             extrainfo = true;
+            if (type != LFG_TYPE_RAID)
+                queued = true;
             break;
         case LFG_UPDATETYPE_ADDED_TO_QUEUE:
             extrainfo = true;
@@ -430,12 +425,11 @@ void WorldSession::SendLfgUpdateParty(LFGUpdateType updateType)
             // join = true;  
             // TODO: Sometimes queued and extrainfo - Check ocurrences...
             queued = true;
+            extrainfo = false;
             break;
         case LFG_UPDATETYPE_PROPOSAL_BEGIN:
             extrainfo = true;
             join = true;
-            break;
-        default:
             break;
     }
 
@@ -465,13 +459,8 @@ void WorldSession::SendLfgUpdateParty(LFGUpdateType updateType)
     SendPacket(&data);
 }
 
-void WorldSession::SendLfgUpdatePlayer(LFGUpdateType updateType)
+void WorldSession::SendLfgUpdatePlayer(LFGUpdateType updateType, LFGType type)
 {
-    if (!GetPlayer()->GetLFGState()->NeedUpdate())
-    {
-        DEBUG_LOG("SMSG_LFG_UPDATE_PLAYER %u updatetype: %u not sent! player flag: false", GetPlayer()->GetObjectGuid().GetCounter(), updateType);
-//        return;
-    }
 
     bool queued = false;
     bool extrainfo = false;
@@ -479,9 +468,12 @@ void WorldSession::SendLfgUpdatePlayer(LFGUpdateType updateType)
     switch(updateType)
     {
         case LFG_UPDATETYPE_JOIN_PROPOSAL:
+            extrainfo = true;
+            if (type != LFG_TYPE_RAID)
+                queued = true;
+            break;
         case LFG_UPDATETYPE_ADDED_TO_QUEUE:
             queued = true;
-            extrainfo = true;
             break;
         //case LFG_UPDATETYPE_CLEAR_LOCK_LIST: // TODO: Sometimes has extrainfo - Check ocurrences...
         case LFG_UPDATETYPE_PROPOSAL_BEGIN:
@@ -492,7 +484,7 @@ void WorldSession::SendLfgUpdatePlayer(LFGUpdateType updateType)
     uint8 size = dungeons->size();
     std::string comment = GetPlayer()->GetLFGState()->GetComment();
 
-    sLog.outDebug("SMSG_LFG_UPDATE_PLAYER %u updatetype: %u", GetPlayer()->GetObjectGuid().GetCounter(), updateType);
+    DEBUG_LOG("SMSG_LFG_UPDATE_PLAYER %u updatetype: %u", GetPlayer()->GetObjectGuid().GetCounter(), updateType);
 
     WorldPacket data(SMSG_LFG_UPDATE_PLAYER, 1 + 1 + (extrainfo ? 1 : 0) * (1 + 1 + 1 + 1 + size * 4 + comment.length()));
     data << uint8(updateType);                              // Lfg Update type
@@ -513,122 +505,246 @@ void WorldSession::SendLfgUpdatePlayer(LFGUpdateType updateType)
 }
 
 
-void WorldSession::SendLfgUpdateList(uint32 dungeonEntry, LFGType type)
+void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
 {
     DEBUG_LOG("SMSG_LFG_UPDATE_LIST %u dungeonentry: %u ", GetPlayer()->GetObjectGuid().GetCounter(), dungeonEntry);
 
-    uint16 size = 2;
     LFGDungeonEntry const* dungeon = sLFGMgr.GetDungeon(dungeonEntry);
 
-    WorldPacket data(SMSG_UPDATE_LFG_LIST);
-    data << uint32(type);                                    // type
-    data << uint32(dungeon->Entry());                        // entry from LFGDungeons.dbc
-/*
-    uint8 guids1 = 0;                                        // additional guids
+    if (!dungeonEntry)
+        return;
 
-    data << uint8(guids1 > 0);
-    if (guids1)
+    uint8 guids1 = 0;                                        // additional guids. unknown
+
+    LFGQueueGroupSet   groups = sLFGMgr.GetDungeonGroupQueue(dungeon);
+    LFGQueuePlayerSet players = sLFGMgr.GetDungeonPlayerQueue(dungeon);
+
+    uint32 groupCount = groups.size();
+    uint32 playerCount = players.size();
+
+    uint32 groupSize = 8;
+    for (LFGQueueGroupSet::const_iterator itr = groups.begin(); itr != groups.end(); ++itr)
     {
-        for(uint8 count1 = 0; count1 != guids1: ++count1)
+        uint32 flags = (*itr)->GetLFGState()->GetFlags();
+        if (flags & LFG_MEMBER_FLAG_COMMENT)
+            groupSize += sObjectMgr.GetPlayer((*itr)->GetLeaderGuid())->GetLFGState()->GetComment().size();
+        if (flags & LFG_MEMBER_FLAG_ROLES)
+            groupSize +=3;
+    }
+
+    uint32 playerSize = 8;
+    for(LFGQueuePlayerSet::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+    {
+        playerSize += (8+4);
+
+        uint32 flags = (*itr)->GetLFGState()->GetFlags();
+
+        if (flags &  LFG_MEMBER_FLAG_CHARINFO)
+            playerSize += (1+1+1+3+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4);
+
+        if (flags & LFG_MEMBER_FLAG_COMMENT)
+            playerSize += (*itr)->GetLFGState()->GetComment().size();         // comment
+
+        if (flags & LFG_MEMBER_FLAG_UNK1)
+            playerSize += 1;
+
+        if (flags & LFG_MEMBER_FLAG_GROUP)
+            playerSize += 8;
+
+        if (flags & LFG_MEMBER_FLAG_ROLES)
+            playerSize += 1;
+
+        if (flags & LFG_MEMBER_FLAG_UNK2)
+            playerSize += 4;
+
+        if (flags & LFG_MEMBER_FLAG_ZONE)
+            playerSize += 1;
+
+        if (flags & LFG_MEMBER_FLAG_UNK4)
+            playerSize += (8+4);
+    }
+
+    WorldPacket data(SMSG_UPDATE_LFG_LIST, 4 + 4 + 1 + guids1*8 + groupSize + playerSize);
+
+    data << uint32(dungeon->type);                           // type
+    data << uint32(dungeon->Entry());                        // entry from LFGDungeons.dbc
+
+    if (guids1 > 0)
+    {
+        data << uint8(guids1);
+        for(uint8 count1 = 0; count1 != guids1; ++count1)
         {
             data << uint64(0);                               // player guid
         }
     }
+    else
+        data << uint8(guids1);
 
-    uint32 groups1 = 0;                                      // groups count
-    data << uint32(groups1);
-    data << uint32(0);                                       // groups count2
 
-    for(uint8 count2 = 0; count2 != groups1: ++count2)
+    if (!groups.empty())
+//    if (false)
     {
-        data << uint64(leaderGuid);
-        data << uint32(flags);
+        data << uint32(groupCount);                          // groups count
+        data << uint32(groupCount);                          // groups count2
 
-        if (flags & LFG_MEMBER_FLAG_COMMENT)
+        for (LFGQueueGroupSet::const_iterator itr = groups.begin(); itr != groups.end(); ++itr)
         {
-            data << comment; // string
-        }
+            Group* group = *itr;
+            data << group->GetObjectGuid();
+            uint32 flags = group->GetLFGState()->GetFlags();
 
-        if (flags & LFG_MEMBER_FLAG_ROLES)
-        {
-            for (int i = 0; i < 3; ++i)
+            data << uint32(flags);
+
+            if (flags & LFG_MEMBER_FLAG_COMMENT)
             {
-                data << uint8(roles[i]);
+                data << sObjectMgr.GetPlayer(group->GetLeaderGuid())->GetLFGState()->GetComment();
+            }
+
+            if (flags & LFG_MEMBER_FLAG_ROLES)
+            {
+                for (int i = 0; i < 3; ++i)
+                {
+                    data << uint8(0);
+                }
             }
         }
     }
-
-    size_t count3_pos = data.wpos();
-
-    data << uint32(0);                                      // players count
-    data << uint32(0);                                      // unk
-
-    for(const_iterator iter = players.begin(); iter != players.end(); ++iter)
+    else
     {
-        Player *plr = iter->second;
-
-        data << plr->GetObjectGuid();                       // guid
-
-        data << uint32(flags);                              // flags
-
-        if(flags &  LFG_MEMBER_FLAG_CHARINFO)
-        {
-            data << uint8(plr->getLevel());
-            data << uint8(plr->getClass());
-            data << uint8(plr->getRace());
-
-            for(int i = 0; i < 3; ++i)
-                data << uint8(0);                           // spent talents count in specific tab
-
-            data << uint32(0);                              // armor
-            data << uint32(0);                              // spd
-            data << uint32(0);                              // heal
-            data << uint32(0);                              // haste rating melee
-            data << uint32(0);                              // haste rating ranged
-            data << uint32(0);                              // haste rating spell
-            data << float(0);                               // mp5
-            data << float(0);                               // unk
-            data << uint32(0);                              // attack power
-            data << uint32(0);                              // agility
-            data << uint32(0);                              // health
-            data << uint32(0);                              // power
-            data << uint32(0);                              // unk
-            data << float(0);                               // unk
-            data << uint32(0);                              // defence rating
-            data << uint32(0);                              // dodge rating
-            data << uint32(0);                              // block rating
-            data << uint32(0);                              // parry rating
-            data << uint32(0);                              // crit rating
-            data << uint32(0);                              // expertize
-        }
-
-        if(flags & LFG_MEMBER_FLAG_COMMENT)
-            data << comment;         // comment
-
-        if(flags & LFG_MEMBER_FLAG_UNK1)
-            data << uint8(0);                               // unk
-
-        if(flags & LFG_MEMBER_FLAG_GROUP)
-            data << uint64(0);                              // guid from count2 block, not player guid
-
-        if(flags & LFG_MEMBER_FLAG_ROLES)
-            data << uint8(roles);                               // 
-
-        if(flags & LFG_MEMBER_FLAG_UNK2)
-            data << uint32(0);
-
-        if(flags & LFG_MEMBER_FLAG_ZONE)
-            data << uint8(0);                                // areaid?
-
-        if(flags & LFG_MEMBER_FLAG_UNK4)
-        {
-            data << uint64(0);                              // guid
-            data << int32(0);                              // unk
-        }
+        data << uint32(0);
+        data << uint32(0);                                       // groups count2
     }
 
-    data.put<uint32>(count3_pos, number);                   // fill count placeholder
-*/
 
+    if (!players.empty())
+    {
+        data << uint32(playerCount);                           // players count
+        data << uint32(playerCount);                           // players count 2
+
+        for(LFGQueuePlayerSet::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+        {
+            Player* player = *itr;
+
+            data << player->GetObjectGuid();                      // guid
+            uint32 flags = player->GetLFGState()->GetFlags();
+
+            data << uint32(flags);                                // flags
+DEBUG_LOG("flags %u", flags);
+            if (flags &  LFG_MEMBER_FLAG_CHARINFO)
+            {
+                data << uint8(player->getLevel());
+                data << uint8(player->getClass());
+                data << uint8(player->getRace());
+//            }
+
+//            if (flags &  LFG_MEMBER_FLAG_UNK1)
+//            {
+                for(int i = 0; i < 3; ++i)
+                    data << uint8(0);                           // spent talents count in specific tab
+                data << uint32(0);                                                 // armor
+                data << uint32(0);          // spd
+                data << uint32(0);         // heal
+                data << uint32(0);                        // haste rating melee
+                data << uint32(0);                       // haste rating ranged
+                data << uint32(0);                        // haste rating spell
+                data << float(0);                               // mp5
+                data << float(0);                               // unk
+                data << uint32(0);                              // attack power
+                data << uint32(0);                            // agility
+                data << uint32(0);                                             // health
+                data << uint32(0);                              // power
+                data << uint32(0);                              // unk
+                data << float(0);                               // unk
+                data << uint32(0);                      // defence rating
+                data << uint32(0);                              // dodge rating
+                data << uint32(0);                              // block rating
+                data << uint32(0);                              // parry rating
+                data << uint32(0);                         // crit rating
+                data << uint32(0);                          // expertize
+
+//                data << uint32(player->GetArmor());                                                 // armor
+//                data << uint32(player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL));          // spd
+//                data << uint32(player->SpellBaseHealingBonusDone(SPELL_SCHOOL_MASK_SPELL));         // heal
+//                data << uint32(player->GetRatingBonusValue(CR_HASTE_MELEE));                        // haste rating melee
+//                data << uint32(player->GetRatingBonusValue(CR_HASTE_RANGED));                       // haste rating ranged
+//                data << uint32(player->GetRatingBonusValue(CR_HASTE_SPELL));                        // haste rating spell
+//                data << float(0);                               // mp5
+//                data << float(0);                               // unk
+//                data << uint32(0);                              // attack power
+//                data << uint32(player->GetTotalStatValue(STAT_AGILITY));                            // agility
+//                data << uint32(player->GetMaxHealth());                                             // health
+//                data << uint32(0);                              // power
+//                data << uint32(0);                              // unk
+//                data << float(0);                               // unk
+//                data << uint32(player->GetRatingBonusValue(CR_DEFENSE_SKILL));                      // defence rating
+//                data << uint32(player->GetRatingBonusValue(CR_DODGE));                              // dodge rating
+//                data << uint32(player->GetRatingBonusValue(CR_BLOCK));                              // block rating
+//                data << uint32(player->GetRatingBonusValue(CR_PARRY));                              // parry rating
+//                data << uint32(player->GetRatingBonusValue(CR_CRIT_MELEE));                         // crit rating
+//                data << uint32(player->GetRatingBonusValue(CR_EXPERTISE));                          // expertize
+            }
+
+            if (flags & LFG_MEMBER_FLAG_COMMENT)
+                data << player->GetLFGState()->GetComment();         // comment
+
+            if (flags & LFG_MEMBER_FLAG_UNK1)
+                data << uint8(0);                               // unk
+
+            if (flags & LFG_MEMBER_FLAG_GROUP)
+                data << uint64(0);                              // guid from count2 block, not player guid
+
+            if (flags & LFG_MEMBER_FLAG_ROLES)
+                data << uint8(player->GetLFGState()->GetRoles()); 
+/*
+            if (flags & LFG_MEMBER_FLAG_UNK2)
+                data << uint32(0);
+
+            if (flags & LFG_MEMBER_FLAG_ZONE)
+                data << uint8(0);                                // areaid?
+
+            if (flags & LFG_MEMBER_FLAG_UNK4)
+            {
+                data << uint64(0);                              // guid
+                data << int32(0);                              // unk
+            }
+*/
+        }
+    }
+    else
+    {
+        data << uint32(0);                                          // players count
+        data << uint32(0);                                          // unk
+    }
+    SendPacket(&data);
+}
+
+void WorldSession::SendLfgUpdateSearch(bool update)
+{
+    DEBUG_LOG("SMSG_LFG_UPDATE_SEARCH %u update: %u",GetPlayer()->GetObjectGuid().GetCounter(), update ? 1 : 0);
+    WorldPacket data(SMSG_LFG_UPDATE_SEARCH, 1);
+    data << uint8(update);                                  // In Lfg Queue?
+    SendPacket(&data);
+}
+
+void WorldSession::SendLfgDisabled()
+{
+    DEBUG_LOG("SMSG_LFG_DISABLED %u", GetPlayer()->GetObjectGuid().GetCounter());
+    WorldPacket data(SMSG_LFG_DISABLED, 0);
+    SendPacket(&data);
+}
+
+void WorldSession::SendLfgOfferContinue(uint32 dungeonEntry)
+{
+    DEBUG_LOG("SMSG_LFG_OFFER_CONTINUE %u dungeon entry: %u", GetPlayer()->GetObjectGuid().GetCounter(), dungeonEntry);
+    WorldPacket data(SMSG_LFG_OFFER_CONTINUE, 4);
+    data << uint32(dungeonEntry);
+    SendPacket(&data);
+}
+
+void WorldSession::SendLfgTeleportError(uint8 err)
+{
+    DEBUG_LOG("SMSG_LFG_TELEPORT_DENIED %u reason: %u", GetPlayer()->GetObjectGuid().GetCounter(), err);
+    WorldPacket data(SMSG_LFG_TELEPORT_DENIED, 4);
+    data << uint32(err);
     SendPacket(&data);
 }

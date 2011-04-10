@@ -837,15 +837,18 @@ class MANGOS_DLL_SPEC WorldSession
         void HandleLfgTeleportOpcode(WorldPacket &recv_data);
         void HandleLfgPartyLockInfoRequestOpcode(WorldPacket &recv_data);
         // send data
-        void SendLfgUpdatePlayer(LFGUpdateType updateType);
-        void SendLfgUpdateParty(LFGUpdateType updateType);
+        void SendLfgUpdatePlayer(LFGUpdateType updateType, LFGType type);
+        void SendLfgUpdateParty(LFGUpdateType updateType, LFGType type);
         void SendLfgUpdateSearch(bool update);
         void SendLfgJoinResult(LFGJoinResult checkResult, uint8 checkValue = 0, bool withLockMap = false);
         // LFR
-        void HandleLfrJoinOpcode(WorldPacket& recv_data);
+        void HandleLfrSearchOpcode(WorldPacket& recv_data);
         void HandleLfrLeaveOpcode(WorldPacket& recv_data);
         // send data
-        void SendLfgUpdateList(uint32 dungeonEntry, LFGType type);
+        void SendLfgUpdateList(uint32 dungeonEntry);
+        void SendLfgDisabled();
+        void SendLfgOfferContinue(uint32 dungeonEntry);
+        void SendLfgTeleportError(uint8 err);
 
     private:
         // private trade methods

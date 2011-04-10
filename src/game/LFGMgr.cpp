@@ -34,9 +34,14 @@ INSTANTIATE_SINGLETON_1(LFGMgr);
 LFGMgr::LFGMgr()
 {
     m_RewardMap.clear();
-    m_queueInfoMap.clear();
-    m_dungeonMap.clear();
 
+    for (uint8 i = LFG_TYPE_NONE; i < LFG_TYPE_MAX; ++i)
+    {
+        m_queueInfoMap[i].clear();
+        m_groupQueueInfoMap[i].clear();
+    }
+
+    m_dungeonMap.clear();
     for (uint32 i = 0; i < sLFGDungeonStore.GetNumRows(); ++i)
     {
         if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(i))
@@ -49,9 +54,13 @@ LFGMgr::~LFGMgr()
     for (LFGRewardMap::iterator itr = m_RewardMap.begin(); itr != m_RewardMap.end(); ++itr)
         delete itr->second;
     m_RewardMap.clear();
-    m_queueInfoMap.clear();
-    m_dungeonMap.clear();
 
+    for (uint8 i = LFG_TYPE_NONE; i < LFG_TYPE_MAX; ++i)
+    {
+    // TODO - delete ->second from maps
+        m_queueInfoMap[i].clear();
+        m_groupQueueInfoMap[i].clear();
+    }
 }
 
 void LFGMgr::Update(uint32 diff)
@@ -161,6 +170,7 @@ void LFGMgr::Join(Player* player)
     ObjectGuid guid;
     Group* group = player->GetGroup();
 
+
     if (group)
     {
         if (player->GetObjectGuid() != group->GetLeaderGuid())
@@ -174,10 +184,18 @@ void LFGMgr::Join(Player* player)
     if (guid.IsEmpty())
         return;
 
-    LFGQueueInfoMap::iterator queue = (guid.IsGroup() ? m_groupQueueInfoMap.find(guid) : m_queueInfoMap.find(guid));
+    LFGType type = player->GetLFGState()->GetType();
+    if (type == LFG_TYPE_NONE)
+    {
+        DEBUG_LOG("LFGMgr::Join: %u trying to join without dungeon type. Aborting.", guid.GetCounter());
+        player->GetSession()->SendLfgJoinResult(LFG_JOIN_INTERNAL_ERROR);
+        return;
+    }
+
+    LFGQueueInfoMap::iterator queue = (guid.IsGroup() ? m_groupQueueInfoMap[type].find(guid) : m_queueInfoMap[type].find(guid));
     LFGJoinResult result            = LFG_JOIN_OK;
 
-    if (queue != (guid.IsGroup() ? m_groupQueueInfoMap.end() : m_queueInfoMap.end()))
+    if (queue != (guid.IsGroup() ? m_groupQueueInfoMap[type].end() : m_queueInfoMap[type].end()))
     {
         DEBUG_LOG("LFGMgr::Join: %u trying to join but is already in queue!", guid.GetCounter());
         result = LFG_JOIN_INTERNAL_ERROR;
@@ -190,9 +208,9 @@ void LFGMgr::Join(Player* player)
     if (result != LFG_JOIN_OK)                              // Someone can't join. Clear all stuf
     {
         DEBUG_LOG("LFGMgr::Join: %u joining with %u members. result: %u", guid.GetCounter(), group ? group->GetMembersCount() : 1, result);
-        player->GetLFGState()->Clear();
+//        player->GetLFGState()->Clear();
         player->GetSession()->SendLfgJoinResult(result);
-        player->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_ROLECHECK_FAILED);
+//        player->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_ROLECHECK_FAILED, type);
         return;
     }
 
@@ -210,39 +228,50 @@ void LFGMgr::Join(Player* player)
             if (Player* player = itr->getSource())
                 _Leave(player->GetObjectGuid());
         }
-        _JoinGroup(guid);
+        _LeaveGroup(guid, type);
+        _JoinGroup(guid, type);
     }
     else
-        _Join(guid);
+    {
+        _Leave(guid, type);
+        _Join(guid, type);
+    }
+
+    if (type == LFG_TYPE_RAID)
+        player->GetLFGState()->SetState(LFG_STATE_LFR);
+    else
+        player->GetLFGState()->SetState(LFG_STATE_LFG);
+
+    player->GetSession()->SendLfgJoinResult(LFG_JOIN_OK, 0);
+    player->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_JOIN_PROPOSAL, type);
+
+    if (guid.IsGroup())
+        player->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_JOIN_PROPOSAL, type);
 }
 
-void LFGMgr::_Join(ObjectGuid guid)
+void LFGMgr::_Join(ObjectGuid guid, LFGType type)
 {
     if (guid.IsEmpty())
         return;
 
     LFGQueueInfo* pqInfo = new LFGQueueInfo();
 
-    pqInfo->joinTime = time_t(time(NULL));
-
     // Joining process
     DEBUG_LOG("LFGMgr::AddToQueue: player %u joined", guid.GetCounter());
-    m_queueInfoMap[guid] = pqInfo;
+    m_queueInfoMap[type][guid] = pqInfo;
 
 }
 
-void LFGMgr::_JoinGroup(ObjectGuid guid)
+void LFGMgr::_JoinGroup(ObjectGuid guid, LFGType type)
 {
     if (guid.IsEmpty() || !guid.IsGroup())
         return;
 
     LFGQueueInfo* pqInfo = new LFGQueueInfo();
 
-    pqInfo->joinTime = time_t(time(NULL));
-
     // Joining process
     DEBUG_LOG("LFGMgr::AddToQueue: group %u joined", guid.GetCounter());
-    m_groupQueueInfoMap[guid] = pqInfo;
+    m_groupQueueInfoMap[type][guid] = pqInfo;
 
 }
 
@@ -265,34 +294,49 @@ void LFGMgr::Leave(Player* player)
     if (guid.IsEmpty())
         return;
 
-    player->GetLFGState()->SetState(LFG_STATE_NONE);
+    LFGType type = player->GetLFGState()->GetType();
+    if (type == LFG_TYPE_NONE)
+    {
+        DEBUG_LOG("LFGMgr::Leave: %u trying to leave without dungeon type. Leaving from all.", guid.GetCounter());
+    }
 
     _Leave(guid);
+    player->GetLFGState()->Clear();
+
+    player->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_REMOVED_FROM_QUEUE, type);
 }
 
-void LFGMgr::_Leave(ObjectGuid guid)
+void LFGMgr::_Leave(ObjectGuid guid, LFGType excludeType)
 {
     // leaving process
-    LFGQueueInfoMap::iterator queue = m_queueInfoMap.find(guid);
-    if (queue != m_queueInfoMap.end())
+    for (uint8 i = LFG_TYPE_NONE; i < LFG_TYPE_MAX; ++i)
     {
-        delete queue->second;
-        m_queueInfoMap.erase(guid);
+        if (i == excludeType)
+            continue;
+
+        LFGQueueInfoMap::iterator queue = m_queueInfoMap[i].find(guid);
+        if (queue != m_queueInfoMap[i].end())
+        {
+            delete queue->second;
+            m_queueInfoMap[i].erase(guid);
+        }
     }
 }
 
-void LFGMgr::_LeaveGroup(ObjectGuid guid)
+void LFGMgr::_LeaveGroup(ObjectGuid guid, LFGType excludeType)
 {
     // leaving process
-    LFGQueueInfoMap::iterator queue = m_groupQueueInfoMap.find(guid);
-    if (queue == m_groupQueueInfoMap.end())
+    for (uint8 i = LFG_TYPE_NONE; i < LFG_TYPE_MAX; ++i)
     {
-        sLog.outError("LFGMgr::Leave: group %u trying to leave, but not in in queue!", guid.GetCounter());
-    }
-    else
-    {
-        delete queue->second;
-        m_groupQueueInfoMap.erase(guid);
+        if (i == excludeType)
+            continue;
+
+        LFGQueueInfoMap::iterator queue = m_groupQueueInfoMap[i].find(guid);
+        if (queue != m_groupQueueInfoMap[i].end())
+        {
+            delete queue->second;
+            m_groupQueueInfoMap[i].erase(guid);
+        }
     }
 }
 
@@ -310,7 +354,8 @@ LFGJoinResult LFGMgr::GetPlayerJoinResult(Player* player)
 
     LFGDungeonSet* dungeons = player->GetLFGState()->GetDungeons();
 
-    if (!dungeons || !dungeons->size())
+//    if (!dungeons || !dungeons->size())
+    if (!dungeons)
         return LFG_JOIN_NOT_MEET_REQS;
     // TODO - Check if all dungeons are valid
 
@@ -473,52 +518,6 @@ LFGDungeonEntry const* LFGMgr::GetDungeon(uint32 dungeonID)
     return itr != m_dungeonMap.end() ? itr->second : NULL;
 }
 
-void LFGMgr::JoinToLFRList(Player* player, uint32 dungeon)
-{
-    if (!player)
-        return;
-
-    LFGDungeonEntry const* dungeonEntry = GetDungeon(dungeon & 0x00FFFFFF);         // remove the type from the dungeon entry
-    if (!dungeonEntry)
-        return;
-
-    LFGDungeonSet* dungeons = player->GetLFGState()->GetDungeons();
-
-    if (dungeons)
-        dungeons->insert(dungeonEntry);
-
-    // Joining process
-    DEBUG_LOG("LFGMgr::LFR List: player %u joined to dungeon %u", player->GetObjectGuid().GetCounter(), dungeonEntry->ID);
-
-}
-
-void LFGMgr::RemoveFromLFRList(Player* player, uint32 dungeon)
-{
-    if (!player)
-        return;
-
-    LFGDungeonEntry const* dungeonEntry = GetDungeon(dungeon & 0x00FFFFFF);         // remove the type from the dungeon entry
-    if (!dungeonEntry)
-        return;
-
-    LFGDungeonSet* dungeons = player->GetLFGState()->GetDungeons();
-
-    if (!dungeons)
-        return;
-
-    dungeons->erase(dungeonEntry);
-
-    // Joining process
-    DEBUG_LOG("LFGMgr::LFR List: player %u erase dungeon %u from list", player->GetObjectGuid().GetCounter(), dungeonEntry->ID);
-
-    if (dungeons->size() == 0)
-    {
-        DEBUG_LOG("LFGMgr::LFR List cleared, player %u leaving LFG queue", player->GetObjectGuid().GetCounter());
-        _Leave(player->GetObjectGuid());
-    }
-
-}
-
 void LFGMgr::ClearLFRList(Player* player)
 {
     if (!player)
@@ -529,4 +528,86 @@ void LFGMgr::ClearLFRList(Player* player)
     DEBUG_LOG("LFGMgr::LFR List cleared, player %u leaving LFG queue", player->GetObjectGuid().GetCounter());
     _Leave(player->GetObjectGuid());
 
+}
+
+LFGQueuePlayerSet LFGMgr::GetDungeonPlayerQueue(LFGDungeonEntry const* dungeon)
+{
+    LFGQueuePlayerSet tmpSet;
+    tmpSet.clear();
+    LFGType type = LFG_TYPE_NONE;
+    uint32 dungeonID = 0;
+    uint8 searchEnd = LFG_TYPE_MAX;
+    if (dungeon)
+    {
+        type = LFGType(dungeon->type);
+        dungeonID = dungeon->ID;
+        searchEnd = type+1;
+    }
+
+    for (uint8 i = type; i < searchEnd; ++i)
+    {
+        for (LFGQueueInfoMap::iterator itr = m_queueInfoMap[i].begin(); itr != m_queueInfoMap[i].end(); ++itr)
+        {
+            ObjectGuid guid = itr->first;
+            if (!guid.IsPlayer())
+                continue;
+
+            Player* player = sObjectMgr.GetPlayer(guid);
+            if (!player)
+                continue;
+
+            if (player->GetLFGState()->GetState() < LFG_STATE_LFR ||
+                player->GetLFGState()->GetState() > LFG_STATE_PROPOSAL)
+                continue;
+
+            if (player->GetLFGState()->GetDungeons()->find(dungeon) == player->GetLFGState()->GetDungeons()->end())
+                continue;
+
+            tmpSet.insert(player);
+        }
+    }
+    return tmpSet;
+}
+
+LFGQueueGroupSet LFGMgr::GetDungeonGroupQueue(LFGDungeonEntry const* dungeon)
+{
+    LFGQueueGroupSet tmpSet;
+    tmpSet.clear();
+    LFGType type = LFG_TYPE_NONE;
+    uint32 dungeonID = 0;
+    uint8 searchEnd = LFG_TYPE_MAX;
+    if (dungeon)
+    {
+        type = LFGType(dungeon->type);
+        dungeonID = dungeon->ID;
+        searchEnd = type+1;
+    }
+
+    for (uint8 i = type; i < searchEnd; ++i)
+    {
+        for (LFGQueueInfoMap::iterator itr = m_queueInfoMap[i].begin(); itr != m_queueInfoMap[i].end(); ++itr)
+        {
+            ObjectGuid guid = itr->first;
+            if (!guid.IsGroup())
+                continue;
+
+            Group* group = sObjectMgr.GetGroup(guid);
+            if (!group)
+                continue;
+
+            Player* player = sObjectMgr.GetPlayer(group->GetLeaderGuid());
+            if (!player)
+                continue;
+
+            if (player->GetLFGState()->GetState() < LFG_STATE_LFR ||
+                player->GetLFGState()->GetState() > LFG_STATE_PROPOSAL)
+                continue;
+
+            if (player->GetLFGState()->GetDungeons()->find(dungeon) == player->GetLFGState()->GetDungeons()->end())
+                continue;
+
+            tmpSet.insert(group);
+        }
+    }
+    return tmpSet;
 }
