@@ -27,8 +27,6 @@
 
 void WorldSession::HandleLfgJoinOpcode( WorldPacket & recv_data )
 {
-    DEBUG_LOG("CMSG_LFG_JOIN");
-
     if (!GetPlayer())
         return;
 
@@ -101,6 +99,12 @@ void WorldSession::HandleLfrSearchOpcode( WorldPacket & recv_data )
     uint32 entry;                                           // Raid id to search
     recv_data >> entry;
     DEBUG_LOG("CMSG_SEARCH_LFG_JOIN %u dungeon entry: %u", GetPlayer()->GetObjectGuid().GetCounter(), entry);
+    if (!sWorld.getConfig(CONFIG_BOOL_LFG_ENABLE))
+    {
+        recv_data.rpos(recv_data.wpos());
+        DEBUG_LOG("CMSG_SEARCH_LFG_JOIN %u failed - Dungeon finder disabled", GetPlayer()->GetObjectGuid().GetCounter());
+        return;
+    }
     SendLfgUpdateList(entry & 0x00FFFFFF);
 }
 
@@ -582,7 +586,6 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
 
 
     if (!groups.empty())
-//    if (false)
     {
         data << uint32(groupCount);                          // groups count
         data << uint32(groupCount);                          // groups count2
@@ -629,16 +632,13 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
             uint32 flags = player->GetLFGState()->GetFlags();
 
             data << uint32(flags);                                // flags
-DEBUG_LOG("flags %u", flags);
+
             if (flags &  LFG_MEMBER_FLAG_CHARINFO)
             {
                 data << uint8(player->getLevel());
                 data << uint8(player->getClass());
                 data << uint8(player->getRace());
-//            }
 
-//            if (flags &  LFG_MEMBER_FLAG_UNK1)
-//            {
                 for(int i = 0; i < 3; ++i)
                     data << uint8(0);                           // spent talents count in specific tab
                 data << uint32(0);                                                 // armor
@@ -695,7 +695,7 @@ DEBUG_LOG("flags %u", flags);
 
             if (flags & LFG_MEMBER_FLAG_ROLES)
                 data << uint8(player->GetLFGState()->GetRoles()); 
-/*
+
             if (flags & LFG_MEMBER_FLAG_UNK2)
                 data << uint32(0);
 
@@ -707,7 +707,7 @@ DEBUG_LOG("flags %u", flags);
                 data << uint64(0);                              // guid
                 data << int32(0);                              // unk
             }
-*/
+
         }
     }
     else
