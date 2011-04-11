@@ -3637,8 +3637,8 @@ void Spell::handle_immediate()
         if (m_destroyed || ihit == m_UniqueGOTargetInfo.end() || m_UniqueGOTargetInfo.size() == 0)
             break;
 
-        if (ihit->deleted == true)
-            continue;
+        //if (ihit->deleted == true)
+            //continue;
         DoAllEffectOnTarget(&(*ihit));
     }
 
