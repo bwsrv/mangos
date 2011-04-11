@@ -394,8 +394,6 @@ LFGLockStatusMap LFGMgr::GetGroupLockMap(Group* group)
     if (!group)
         return tmpMap;
 
-//    if (!dungeons)
-//        dungeons = GetAllDungeons();
     for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player* player = itr->getSource();
@@ -585,7 +583,7 @@ LFGQueueGroupSet LFGMgr::GetDungeonGroupQueue(LFGDungeonEntry const* dungeon)
 
     for (uint8 i = type; i < searchEnd; ++i)
     {
-        for (LFGQueueInfoMap::iterator itr = m_queueInfoMap[i].begin(); itr != m_queueInfoMap[i].end(); ++itr)
+        for (LFGQueueInfoMap::iterator itr = m_groupQueueInfoMap[i].begin(); itr != m_groupQueueInfoMap[i].end(); ++itr)
         {
             ObjectGuid guid = itr->first;
             if (!guid.IsGroup())

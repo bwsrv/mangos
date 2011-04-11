@@ -33,6 +33,7 @@
 #include "MapPersistentStateMgr.h"
 #include "Util.h"
 #include "LootMgr.h"
+#include "LFGMgr.h"
 
 #define LOOT_ROLL_TIMEOUT  (1*MINUTE*IN_MILLISECONDS)
 
@@ -143,6 +144,7 @@ bool Group::Create(ObjectGuid guid, const char * name)
         {
             m_dungeonDifficulty = leader->GetDungeonDifficulty();
             m_raidDifficulty = leader->GetRaidDifficulty();
+            leader->GetLFGState()->AddRole(ROLE_LEADER);
         }
 
         Player::ConvertInstancesToGroup(leader, this, guid);
@@ -345,6 +347,8 @@ bool Group::AddMember(ObjectGuid guid, const char* name)
         // quest related GO state dependent from raid membership
         if(isRaidGroup())
             player->UpdateForQuestWorldObjects();
+
+        sLFGMgr.Leave(player);
     }
 
     return true;
@@ -389,6 +393,8 @@ uint32 Group::RemoveMember(ObjectGuid guid, uint8 method)
             }
 
             _homebindIfInstance(player);
+
+            sLFGMgr.Leave(player);
         }
 
         if (leaderChanged)
@@ -1303,6 +1309,7 @@ void Group::_setLeader(ObjectGuid guid)
                         ++itr;
                 }
             }
+            player->GetLFGState()->AddRole(ROLE_LEADER);
         }
 
         // update the group's solo binds to the new leader

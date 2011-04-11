@@ -411,55 +411,6 @@ struct EnchantDuration
 typedef std::list<EnchantDuration> EnchantDurationList;
 typedef std::list<Item*> ItemDurationList;
 
-struct LookingForGroupSlot
-{
-    LookingForGroupSlot() : entry(0), type(0) {}
-    bool Empty() const { return !entry && !type; }
-    void Clear() { entry = 0; type = 0; }
-    void Set(uint32 _entry, uint32 _type ) { entry = _entry; type = _type; }
-    bool Is(uint32 _entry, uint32 _type) const { return entry == _entry && type == _type; }
-    bool canAutoJoin() const { return entry && (type == LFG_TYPE_DUNGEON || type == LFG_TYPE_HEROIC_DUNGEON); }
-
-    uint32 entry;
-    uint32 type;
-};
-
-#define MAX_LOOKING_FOR_GROUP_SLOT 3
-
-struct LookingForGroup
-{
-    LookingForGroup() {}
-    bool HaveInSlot(LookingForGroupSlot const& slot) const { return HaveInSlot(slot.entry, slot.type); }
-    bool HaveInSlot(uint32 _entry, uint32 _type) const
-    {
-        for(int i = 0; i < MAX_LOOKING_FOR_GROUP_SLOT; ++i)
-            if(slots[i].Is(_entry, _type))
-                return true;
-        return false;
-    }
-
-    bool canAutoJoin() const
-    {
-        for(int i = 0; i < MAX_LOOKING_FOR_GROUP_SLOT; ++i)
-            if(slots[i].canAutoJoin())
-                return true;
-        return false;
-    }
-
-    bool Empty() const
-    {
-        for(int i = 0; i < MAX_LOOKING_FOR_GROUP_SLOT; ++i)
-            if(!slots[i].Empty())
-                return false;
-        return more.Empty();
-    }
-
-    LookingForGroupSlot slots[MAX_LOOKING_FOR_GROUP_SLOT];
-    LookingForGroupSlot more;
-    std::string comment;
-    uint8 roles;
-};
-
 enum RaidGroupError
 {
     ERR_RAID_GROUP_NONE                 = 0,
@@ -2343,8 +2294,6 @@ class MANGOS_DLL_SPEC Player : public Unit
         void SetAtLoginFlag(AtLoginFlags f) { m_atLoginFlags |= f; }
         void RemoveAtLoginFlag(AtLoginFlags f, bool in_db_also = false);
 
-        LookingForGroup m_lookingForGroup;
-
         // Temporarily removed pet cache
         uint32 GetTemporaryUnsummonedPetNumber() const { return m_temporaryUnsummonedPetNumber; }
         void SetTemporaryUnsummonedPetNumber(uint32 petnumber) { m_temporaryUnsummonedPetNumber = petnumber; }
@@ -2392,6 +2341,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         LFGPlayerState* GetLFGState() { return m_LFGState;};
         uint32 GetEquipGearScore(bool withBags = true, bool withBank = false);
         typedef std::vector<uint32/*item level*/> GearScoreMap;
+        uint8 GetTalentsCount(uint8 tab);
 
         /*********************************************************/
         /***                   GROUP SYSTEM                    ***/

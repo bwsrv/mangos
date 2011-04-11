@@ -342,6 +342,7 @@ void WorldSession::HandleGroupSetLeaderOpcode( WorldPacket & recv_data )
     /********************/
 
     // everything is fine, do it
+    GetPlayer()->GetLFGState()->RemoveRole(ROLE_LEADER);
     group->ChangeLeader(guid);
 }
 

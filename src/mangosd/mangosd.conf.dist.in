@@ -1868,10 +1868,14 @@ Rate.RAF.LevelPerLevel  = 0.5
 ###################################################################################################################
 #    LFG Dungeon finder system
 #
+#    LFR.Enable              = 0
+#        enabling Raid finder
 #    LFG.Enable              = 0
+#        enabling Dungeon finder
 #    LFG.MaxKicks            = 3
 #    LFG.KickVotes           = 3
 ###################################################################################################################
+LFR.Enable              = 0
 LFG.Enable              = 0
 LFG.MaxKicks            = 3
 LFG.KickVotes           = 3
