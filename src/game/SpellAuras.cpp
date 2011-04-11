@@ -8518,6 +8518,18 @@ void Aura::PeriodicDummyTick()
                         target->CastCustomSpell(caster, 66125, &heal, NULL, NULL, true, NULL, this);
                     return;
                 }
+                case 66149:                                 // Bullet Controller Periodic (Trial of the Crusader, ->
+                case 68396:                                 // -> Twin Valkyr encounter, 10 and 25)
+                {
+                    if (GetAuraTicks() % 10 == 0)
+                        target->CastSpell(target, 66077, true);
+                    else
+                    {
+                        target->CastSpell(target, 66152, true);
+                        target->CastSpell(target, 66153, true);
+                    }
+                    return;
+                }
                 case 67630:                                 // Leeching Swarm 25 man
                 case 68647:
                 {

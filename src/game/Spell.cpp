@@ -1761,6 +1761,8 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 63482:                                 // Lightning Whirl (25 man)
                 case 66336:                                 // Mistress' Kiss (Trial of the Crusader, ->
                 case 67077:                                 // -> Lord Jaraxxus encounter, 10 and 10 heroic)
+                case 66152:                                 // Bullet Foced Cast (Trial of the Crusader, ->
+                case 66153:                                 // -> Twin Valkyr encounter, 10 and 25 mode)
                     unMaxTargets = 1;
                     break;
                 case 28542:                                 // Life Drain
