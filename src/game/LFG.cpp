@@ -53,26 +53,28 @@ LFGLockStatusMap* LFGPlayerState::GetLockMap()
 
 void LFGPlayerState::SetRoles(uint8 roles)
 {
-    if (roles & LFG_ROLE_MASK_TANK)
-        rolesMask = LFGRoleMask(rolesMask | LFG_ROLE_MASK_TANK); 
-    else
-        rolesMask = LFGRoleMask(rolesMask & ~LFG_ROLE_MASK_TANK); 
-
-    if (roles & LFG_ROLE_MASK_HEALER)
-        rolesMask = LFGRoleMask(rolesMask | LFG_ROLE_MASK_HEALER); 
-    else
-        rolesMask = LFGRoleMask(rolesMask & ~LFG_ROLE_MASK_HEALER); 
-
-    if (roles & LFG_ROLE_MASK_DAMAGE)
-        rolesMask = LFGRoleMask(rolesMask | LFG_ROLE_MASK_DAMAGE); 
-    else
-        rolesMask = LFGRoleMask(rolesMask & ~LFG_ROLE_MASK_DAMAGE); 
+    rolesMask = LFGRoleMask(roles);
 
     if (rolesMask != LFG_ROLE_MASK_NONE)
         m_flags |= LFG_MEMBER_FLAG_ROLES;
     else
         m_flags &= ~LFG_MEMBER_FLAG_ROLES;
 
+};
+
+LFGRoleMask LFGPlayerState::GetRoles()
+{
+    if (Group* group = m_player->GetGroup())
+    {
+        if (group->GetLeaderGuid() == m_player->GetObjectGuid())
+            rolesMask = LFGRoleMask(rolesMask | LFG_ROLE_MASK_LEADER);
+        else
+            rolesMask = LFGRoleMask(rolesMask & ~LFG_ROLE_MASK_LEADER);
+    }
+    else
+        rolesMask = LFGRoleMask(rolesMask & ~LFG_ROLE_MASK_LEADER);
+
+    return rolesMask;
 };
 
 void LFGPlayerState::SetComment(std::string comment)
@@ -99,6 +101,6 @@ void LFGGroupState::Clear()
     kickActive = false;
     m_DungeonsList.clear();
     m_flags = LFG_MEMBER_FLAG_NONE |
-              LFG_MEMBER_FLAG_COMMENT | 
+              LFG_MEMBER_FLAG_COMMENT |
               LFG_MEMBER_FLAG_BIND;
 }

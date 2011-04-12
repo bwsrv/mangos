@@ -30,7 +30,7 @@ void WorldSession::HandleLfgJoinOpcode( WorldPacket & recv_data )
     if (!GetPlayer())
         return;
 
-    if (!sWorld.getConfig(CONFIG_BOOL_LFG_ENABLE))
+    if (!sWorld.getConfig(CONFIG_BOOL_LFG_ENABLE) && !sWorld.getConfig(CONFIG_BOOL_LFR_ENABLE))
     {
         recv_data.rpos(recv_data.wpos());
         DEBUG_LOG("CMSG_LFG_JOIN %u failed - Dungeon finder disabled", GetPlayer()->GetObjectGuid().GetCounter());
@@ -116,11 +116,21 @@ void WorldSession::HandleLfrLeaveOpcode( WorldPacket & recv_data )
     if (!sWorld.getConfig(CONFIG_BOOL_LFR_ENABLE))
     {
         recv_data.rpos(recv_data.wpos());
-        DEBUG_LOG("CMSG_SEARCH_LFG_JOIN %u failed - Dungeon finder disabled", GetPlayer()->GetObjectGuid().GetCounter());
+        DEBUG_LOG("CMSG_SEARCH_LFG_LEAVE %u failed - Dungeon finder disabled", GetPlayer()->GetObjectGuid().GetCounter());
         return;
     }
 
     DEBUG_LOG("CMSG_SEARCH_LFG_LEAVE %u dungeon entry: %u", GetPlayer()->GetObjectGuid().GetCounter(), entry);
+
+    Group* group = GetPlayer()->GetGroup();
+
+    if (group || group->GetLeaderGuid() == GetPlayer()->GetObjectGuid())
+    {
+        GetPlayer()->GetLFGState()->GetDungeons()->erase(sLFGMgr.GetDungeon(entry & 0x00FFFFFF));
+
+        if (GetPlayer()->GetLFGState()->GetDungeons()->empty());
+            sLFGMgr.Leave(GetPlayer());
+    }
 }
 
 void WorldSession::HandleLfgClearOpcode( WorldPacket & /*recv_data */ )
@@ -724,10 +734,21 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
                 data << uint8(0);                               // unk
 
             if (flags & LFG_MEMBER_FLAG_GROUP)
-                data << uint64(0);                              // guid from count2 block, not player guid
+            {
+                if (Group* group = player->GetGroup())
+                {
+                    if (group->GetLeaderGuid() == player->GetObjectGuid())
+                        data << group->GetObjectGuid();
+                    else
+                        data << uint64(0);
+                }
+                else
+                    data << uint64(0);
+            }
+                                                      // not player guid
 
             if (flags & LFG_MEMBER_FLAG_ROLES)
-                data << uint8(player->GetLFGState()->GetRoles()); 
+                data << uint8(player->GetLFGState()->GetRoles());
 
             if (flags & LFG_MEMBER_FLAG_UNK2)
                 data << uint32(0);

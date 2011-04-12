@@ -237,7 +237,7 @@ struct LFGPlayerState
     void SetState(LFGState _state) { m_state = _state; };
     LFGState GetState() { return m_state; };
 
-    LFGRoleMask    GetRoles()    { return rolesMask; };
+    LFGRoleMask    GetRoles();
     void SetRoles(uint8 roles);
     void AddRole(LFGRoles role) { rolesMask = LFGRoleMask( rolesMask | (1 << role)); };
     void RemoveRole(LFGRoles role) { rolesMask = LFGRoleMask( rolesMask & ~(1 << role)); };

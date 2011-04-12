@@ -144,7 +144,6 @@ bool Group::Create(ObjectGuid guid, const char * name)
         {
             m_dungeonDifficulty = leader->GetDungeonDifficulty();
             m_raidDifficulty = leader->GetRaidDifficulty();
-            leader->GetLFGState()->AddRole(ROLE_LEADER);
         }
 
         Player::ConvertInstancesToGroup(leader, this, guid);
@@ -1309,7 +1308,6 @@ void Group::_setLeader(ObjectGuid guid)
                         ++itr;
                 }
             }
-            player->GetLFGState()->AddRole(ROLE_LEADER);
         }
 
         // update the group's solo binds to the new leader
