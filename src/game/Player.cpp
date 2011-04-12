@@ -23616,9 +23616,14 @@ AreaLockStatus Player::GetAreaTriggerLockStatus(AreaTrigger const* at, Difficult
     if (getLevel() < at->requiredLevel && !sWorld.getConfig(CONFIG_BOOL_INSTANCE_IGNORE_LEVEL))
         return AREA_LOCKSTATUS_TOO_LOW_LEVEL;
 
-        // must have one or the other, report the first one that's missing
-    if ((at->requiredItem && !HasItemCount(at->requiredItem, 1)) ||
-        (at->requiredItem2 && !HasItemCount(at->requiredItem2, 1)))
+    // must have one or the other, report the first one that's missing
+    if (at->requiredItem)
+    {
+        if (!HasItemCount(at->requiredItem, 1) &&
+            (!at->requiredItem2 || !HasItemCount(at->requiredItem2, 1)))
+            return AREA_LOCKSTATUS_MISSING_ITEM;
+    }
+    else if(at->requiredItem2 && !HasItemCount(at->requiredItem2, 1))
         return AREA_LOCKSTATUS_MISSING_ITEM;
 
     bool isRegularTargetMap = GetDifficulty(mapEntry->IsRaid()) == REGULAR_DIFFICULTY;
@@ -23627,6 +23632,18 @@ AreaLockStatus Player::GetAreaTriggerLockStatus(AreaTrigger const* at, Difficult
         ((at->heroicKey && !HasItemCount(at->heroicKey, 1)) || 
         (at->heroicKey2 && !HasItemCount(at->heroicKey2, 1))))
         return AREA_LOCKSTATUS_MISSING_ITEM;
+
+    if (!isRegularTargetMap)
+    {
+        if (at->heroicKey)
+        {
+            if(!HasItemCount(at->heroicKey, 1) &&
+                (!at->heroicKey2 || !HasItemCount(at->heroicKey2, 1)))
+                return AREA_LOCKSTATUS_MISSING_ITEM;
+        }
+        else if(at->heroicKey2 && !HasItemCount(at->heroicKey2, 1))
+            return AREA_LOCKSTATUS_MISSING_ITEM;
+    }
 
     if ((!isRegularTargetMap &&
         (at->requiredQuestHeroic && !GetQuestRewardStatus(at->requiredQuestHeroic))) ||
