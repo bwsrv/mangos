@@ -28,10 +28,16 @@ void LFGPlayerState::Clear()
     rolesMask = LFG_ROLE_MASK_NONE;
     update = true;
     m_state = LFG_STATE_NONE;
-    m_flags = LFG_MEMBER_FLAG_NONE | LFG_MEMBER_FLAG_CHARINFO |LFG_MEMBER_FLAG_UNK1|LFG_MEMBER_FLAG_GROUP|LFG_MEMBER_FLAG_UNK2| LFG_MEMBER_FLAG_ZONE|LFG_MEMBER_FLAG_UNK3;
+    m_flags = LFG_MEMBER_FLAG_NONE | LFG_MEMBER_FLAG_CHARINFO |
+              LFG_MEMBER_FLAG_COMMENT | LFG_MEMBER_FLAG_UNK1 |
+              LFG_MEMBER_FLAG_GROUP |
+              LFG_MEMBER_FLAG_UNK2  |
+              LFG_MEMBER_FLAG_UNK3  |
+              LFG_MEMBER_FLAG_BIND;
+
     m_DungeonsList.clear();
     m_LockMap.clear();
-    SetComment("");
+    SetComment("<no comment>");
 }
 
 LFGLockStatusMap* LFGPlayerState::GetLockMap()
@@ -41,14 +47,13 @@ LFGLockStatusMap* LFGPlayerState::GetLockMap()
         m_LockMap.clear();
         m_LockMap = sLFGMgr.GetPlayerLockMap(m_player);
         update = false;
-        updateClient = false;
     }
     return &m_LockMap;
 };
 
 void LFGPlayerState::SetRoles(uint8 roles)
 {
-    rolesMask = LFGRoleMask(roles); 
+    rolesMask = LFGRoleMask(roles);
 
     if (rolesMask != LFG_ROLE_MASK_NONE)
         m_flags |= LFG_MEMBER_FLAG_ROLES;
@@ -57,15 +62,25 @@ void LFGPlayerState::SetRoles(uint8 roles)
 
 };
 
+LFGRoleMask LFGPlayerState::GetRoles()
+{
+    if (Group* group = m_player->GetGroup())
+    {
+        if (group->GetLeaderGuid() == m_player->GetObjectGuid())
+            rolesMask = LFGRoleMask(rolesMask | LFG_ROLE_MASK_LEADER);
+        else
+            rolesMask = LFGRoleMask(rolesMask & ~LFG_ROLE_MASK_LEADER);
+    }
+    else
+        rolesMask = LFGRoleMask(rolesMask & ~LFG_ROLE_MASK_LEADER);
+
+    return rolesMask;
+};
+
 void LFGPlayerState::SetComment(std::string comment)
 {
-    m_comment = comment; 
-
-    if (!m_comment.empty())
-        m_flags |= LFG_MEMBER_FLAG_COMMENT;
-    else
-        m_flags &= ~LFG_MEMBER_FLAG_COMMENT;
-
+    m_comment.clear();
+    m_comment.append(comment);
 };
 
 LFGType LFGPlayerState::GetType()
@@ -81,8 +96,11 @@ void LFGGroupState::Clear()
     queued = false;
     update = true;
     status = LFG_STATUS_NOT_SAVED;
-    dungeonEntry = NULL;
+    dungeonEntry = 0;
     kicks = 0;
     kickActive = false;
     m_DungeonsList.clear();
+    m_flags = LFG_MEMBER_FLAG_NONE |
+              LFG_MEMBER_FLAG_COMMENT |
+              LFG_MEMBER_FLAG_BIND;
 }

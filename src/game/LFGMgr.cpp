@@ -39,6 +39,7 @@ LFGMgr::LFGMgr()
     {
         m_queueInfoMap[i].clear();
         m_groupQueueInfoMap[i].clear();
+        m_queueStatus[i] = LFGQueueStatus();
     }
 
     m_dungeonMap.clear();
@@ -170,11 +171,13 @@ void LFGMgr::Join(Player* player)
     ObjectGuid guid;
     Group* group = player->GetGroup();
 
-
     if (group)
     {
         if (player->GetObjectGuid() != group->GetLeaderGuid())
+        {
+            player->GetSession()->SendLfgJoinResult(LFG_JOIN_NOT_MEET_REQS);
             return;
+        }
         else
             guid = group->GetObjectGuid();
     }
@@ -185,10 +188,23 @@ void LFGMgr::Join(Player* player)
         return;
 
     LFGType type = player->GetLFGState()->GetType();
+
     if (type == LFG_TYPE_NONE)
     {
         DEBUG_LOG("LFGMgr::Join: %u trying to join without dungeon type. Aborting.", guid.GetCounter());
-        player->GetSession()->SendLfgJoinResult(LFG_JOIN_INTERNAL_ERROR);
+        player->GetSession()->SendLfgJoinResult(LFG_JOIN_DUNGEON_INVALID);
+        return;
+    }
+    else if (group && type == LFG_TYPE_RAID && !group->isRaidGroup())
+    {
+        DEBUG_LOG("LFGMgr::Join: %u trying to join to raid finder, but group is not raid. Aborting.", guid.GetCounter());
+        player->GetSession()->SendLfgJoinResult(LFG_JOIN_MIXED_RAID_DUNGEON);
+        return;
+    }
+    else if (group && type != LFG_TYPE_RAID && group->isRaidGroup())
+    {
+        DEBUG_LOG("LFGMgr::Join: %u trying to join to dungeon finder, but group is raid. Aborting.", guid.GetCounter());
+        player->GetSession()->SendLfgJoinResult(LFG_JOIN_MIXED_RAID_DUNGEON);
         return;
     }
 
@@ -200,6 +216,8 @@ void LFGMgr::Join(Player* player)
         DEBUG_LOG("LFGMgr::Join: %u trying to join but is already in queue!", guid.GetCounter());
         result = LFG_JOIN_INTERNAL_ERROR;
         player->GetSession()->SendLfgJoinResult(result);
+        _Leave(guid);
+        _LeaveGroup(guid);
         return;
     }
 
@@ -208,9 +226,9 @@ void LFGMgr::Join(Player* player)
     if (result != LFG_JOIN_OK)                              // Someone can't join. Clear all stuf
     {
         DEBUG_LOG("LFGMgr::Join: %u joining with %u members. result: %u", guid.GetCounter(), group ? group->GetMembersCount() : 1, result);
-//        player->GetLFGState()->Clear();
+        player->GetLFGState()->Clear();
         player->GetSession()->SendLfgJoinResult(result);
-//        player->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_ROLECHECK_FAILED, type);
+        player->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_ROLECHECK_FAILED, type);
         return;
     }
 
@@ -237,16 +255,14 @@ void LFGMgr::Join(Player* player)
         _Join(guid, type);
     }
 
-    if (type == LFG_TYPE_RAID)
-        player->GetLFGState()->SetState(LFG_STATE_LFR);
-    else
-        player->GetLFGState()->SetState(LFG_STATE_LFG);
+    player->GetLFGState()->SetState((type == LFG_TYPE_RAID) ? LFG_STATE_LFR : LFG_STATE_LFG);
 
     player->GetSession()->SendLfgJoinResult(LFG_JOIN_OK, 0);
-    player->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_JOIN_PROPOSAL, type);
 
-    if (guid.IsGroup())
+    player->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_JOIN_PROPOSAL, type);
+    if (group)
         player->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_JOIN_PROPOSAL, type);
+
 }
 
 void LFGMgr::_Join(ObjectGuid guid, LFGType type)
@@ -295,14 +311,15 @@ void LFGMgr::Leave(Player* player)
         return;
 
     LFGType type = player->GetLFGState()->GetType();
-    if (type == LFG_TYPE_NONE)
-    {
-        DEBUG_LOG("LFGMgr::Leave: %u trying to leave without dungeon type. Leaving from all.", guid.GetCounter());
-    }
 
-    _Leave(guid);
+    guid.IsGroup() ? _LeaveGroup(guid) : _Leave(guid);
+
     player->GetLFGState()->Clear();
-
+    if (group)
+    {
+        group->GetLFGState()->Clear();
+        player->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_REMOVED_FROM_QUEUE, type);
+    }
     player->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_REMOVED_FROM_QUEUE, type);
 }
 
@@ -384,27 +401,6 @@ LFGJoinResult LFGMgr::GetGroupJoinResult(Group* group)
     }
 
     return LFG_JOIN_OK;
-}
-
-LFGLockStatusMap LFGMgr::GetGroupLockMap(Group* group)
-{
-    LFGLockStatusMap tmpMap;
-    tmpMap.clear();
-
-    if (!group)
-        return tmpMap;
-
-//    if (!dungeons)
-//        dungeons = GetAllDungeons();
-    for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
-    {
-        Player* player = itr->getSource();
-        if (!player)
-            continue;
-        LFGLockStatusMap playerMap = GetPlayerLockMap(player);
-        // Concatenate maps
-    }
-    return tmpMap;
 }
 
 LFGLockStatusMap LFGMgr::GetPlayerLockMap(Player* player)
@@ -585,7 +581,7 @@ LFGQueueGroupSet LFGMgr::GetDungeonGroupQueue(LFGDungeonEntry const* dungeon)
 
     for (uint8 i = type; i < searchEnd; ++i)
     {
-        for (LFGQueueInfoMap::iterator itr = m_queueInfoMap[i].begin(); itr != m_queueInfoMap[i].end(); ++itr)
+        for (LFGQueueInfoMap::iterator itr = m_groupQueueInfoMap[i].begin(); itr != m_groupQueueInfoMap[i].end(); ++itr)
         {
             ObjectGuid guid = itr->first;
             if (!guid.IsGroup())

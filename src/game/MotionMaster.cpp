@@ -172,6 +172,8 @@ void MotionMaster::DirectExpire(bool reset)
         delete temp;
     }
 
+    // Store current top MMGen, as Finalize might push a new MMGen
+    MovementGenerator* nowTop = empty() ? NULL : top();
     // it can add another motions instead
     curr->Finalize(*m_owner);
 
@@ -181,7 +183,8 @@ void MotionMaster::DirectExpire(bool reset)
     if (empty())
         Initialize();
 
-    if (reset)
+    // Prevent reseting possible new pushed MMGen
+    if (reset && top() == nowTop)
         top()->Reset(*m_owner);
 }
 

@@ -828,7 +828,7 @@ void AuctionHouseBot::Initialize()
     AHBSeller = sConfig.GetBoolDefault("AuctionHouseBot.EnableSeller", 0);
     AHBBuyer = sConfig.GetBoolDefault("AuctionHouseBot.EnableBuyer", 0);
     AHBplayerAccount = sConfig.GetIntDefault("AuctionHouseBot.Account", 0);
-    AHBplayerGUID = sConfig.GetIntDefault("AuctionHouseBot.GUID", 0);
+    AHBplayerGUID = ObjectGuid(HIGHGUID_PLAYER,uint32(sConfig.GetIntDefault("AuctionHouseBot.GUID", 0)));
     debug_Out = sConfig.GetIntDefault("AuctionHouseBot.DEBUG", 0);
     No_Bind = sConfig.GetIntDefault("AuctionHouseBot.No_Bind", 1);
     Bind_When_Picked_Up = sConfig.GetIntDefault("AuctionHouseBot.Bind_When_Picked_Up", 0);

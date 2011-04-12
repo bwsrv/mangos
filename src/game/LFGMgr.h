@@ -64,6 +64,20 @@ struct LFGQueueInfo
     uint8 dps;                                              // Dps needed
 };
 
+struct LFGQueueStatus
+{
+    LFGDungeonEntry const* dungeon;                          // Dungeon
+    time_t                 avgWaitTime;                      // Average Wait time
+    time_t                 waitTime;                         // Wait Time
+    time_t                 waitTimeTanks;                    // Wait Tanks
+    time_t                 waitTimeHealer;                   // Wait Healers
+    time_t                 waitTimeDps;                      // Wait Dps
+    uint8                  tanks;                            // Tanks needed
+    uint8                  healers;                          // Healers needed
+    uint8                  dps;                              // Dps needed
+    time_t                 queuedTime;                       // Player wait time in queue
+};
+
 typedef std::multimap<uint32, LFGReward const*> LFGRewardMap;
 typedef std::pair<LFGRewardMap::const_iterator, LFGRewardMap::const_iterator> LFGRewardMapBounds;
 typedef std::map<ObjectGuid, LFGQueueInfo*> LFGQueueInfoMap;
@@ -103,7 +117,6 @@ class LFGMgr
         LFGLockStatusType GetGroupLockStatus(Group* group, LFGDungeonEntry const* dungeon);
 
         LFGLockStatusMap GetPlayerLockMap(Player* player);
-        LFGLockStatusMap GetGroupLockMap(Group* group);
 
     private:
         void _Join(ObjectGuid guid, LFGType type);
@@ -114,6 +127,7 @@ class LFGMgr
         LFGQueueInfoMap m_queueInfoMap[LFG_TYPE_MAX];       // Queued players
         LFGQueueInfoMap m_groupQueueInfoMap[LFG_TYPE_MAX];  // Queued groups
         LFGDungeonMap   m_dungeonMap;                       // sorted dungeon map
+        LFGQueueStatus  m_queueStatus[LFG_TYPE_MAX];        // Queue statisic
 
 };
 

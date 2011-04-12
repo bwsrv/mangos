@@ -71,9 +71,8 @@ enum LFGMemberFlags
     LFG_MEMBER_FLAG_GROUP    = 0x08,
     LFG_MEMBER_FLAG_ROLES    = 0x10,
     LFG_MEMBER_FLAG_UNK2     = 0x20,
-    LFG_MEMBER_FLAG_ZONE     = 0x40,  // zoneid/areaid?
-    LFG_MEMBER_FLAG_UNK3     = 0x80,  // unk guid + unk int
-    LFG_MEMBER_FLAG_UNK4     = 0x100, // unk, may be group type
+    LFG_MEMBER_FLAG_UNK3     = 0x40,
+    LFG_MEMBER_FLAG_BIND     = 0x80,  // unk guid + unk int
 };
 
 enum LFGState
@@ -228,8 +227,7 @@ struct LFGPlayerState
     };
 
     void Clear();
-    void Update(bool _update = true) { update = _update; updateClient = true; };
-    bool NeedUpdate() { if (updateClient) {updateClient = false; return true; } else return false;};
+    void Update(bool _update = true) { update = _update; };
     LFGDungeonSet* GetDungeons()   { return &m_DungeonsList; };
     LFGLockStatusMap* GetLockMap();
 
@@ -239,17 +237,18 @@ struct LFGPlayerState
     void SetState(LFGState _state) { m_state = _state; };
     LFGState GetState() { return m_state; };
 
-    LFGRoleMask    GetRoles()    { return rolesMask; };
+    LFGRoleMask    GetRoles();
     void SetRoles(uint8 roles);
+    void AddRole(LFGRoles role) { rolesMask = LFGRoleMask( rolesMask | (1 << role)); };
+    void RemoveRole(LFGRoles role) { rolesMask = LFGRoleMask( rolesMask & ~(1 << role)); };
 
-    uint32         GetFlags()    { return m_flags;};
+    uint32*        GetFlags()    { return &m_flags;};
     LFGType        GetType();
 
 private:
     LFGRoleMask   rolesMask;
     uint32        m_flags;
     bool          update;
-    bool          updateClient;
     Player*       m_player;
     LFGState      m_state;
     LFGDungeonSet m_DungeonsList;                   // Dungeons the player have applied for
@@ -265,16 +264,14 @@ struct LFGGroupState
     };
 
     void Clear();
-    void Update(bool _update = true) { update = _update; updateClient = true; };
-    bool NeedUpdate() { if (updateClient) {updateClient = false; return true; } else return false;};
+    void Update(bool _update = true) { update = _update; };
     LFGDungeonSet* GetDungeons()   { return &m_DungeonsList; };
 
-    uint32 GetFlags()  { return m_flags;};
+    uint32* GetFlags()  { return &m_flags;};
     LFGType        GetType();
 
     bool          queued;
     bool          update;
-    bool          updateClient;
     Group*        m_group;
     uint32        dungeonEntry;
     uint32        m_flags;
