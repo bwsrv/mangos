@@ -1317,9 +1317,6 @@ void Spell::DoSpellHitOnUnit(Unit *unit, uint32 effectMask)
     if (!unit || !effectMask && !damage)
         return;
 
-    if (!unit->IsInWorld())
-        return;
-
     Unit* realCaster = GetAffectiveCaster();
 
     // Recheck immune (only for delayed spells)
@@ -1347,6 +1344,9 @@ void Spell::DoSpellHitOnUnit(Unit *unit, uint32 effectMask)
 
     if (unit->GetTypeId() == TYPEID_PLAYER)
     {
+        if (!unit->IsInWorld())
+            return;
+
         ((Player*)unit)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, m_spellInfo->Id);
         ((Player*)unit)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2, m_spellInfo->Id);
     }
