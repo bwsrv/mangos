@@ -23628,11 +23628,6 @@ AreaLockStatus Player::GetAreaTriggerLockStatus(AreaTrigger const* at, Difficult
 
     bool isRegularTargetMap = GetDifficulty(mapEntry->IsRaid()) == REGULAR_DIFFICULTY;
 
-    if (!isRegularTargetMap &&
-        ((at->heroicKey && !HasItemCount(at->heroicKey, 1)) || 
-        (at->heroicKey2 && !HasItemCount(at->heroicKey2, 1))))
-        return AREA_LOCKSTATUS_MISSING_ITEM;
-
     if (!isRegularTargetMap)
     {
         if (at->heroicKey)
