@@ -834,9 +834,6 @@ class MANGOS_DLL_SPEC WorldSession
         void HandleLfgPlayerLockInfoRequestOpcode(WorldPacket &recv_data);
         void HandleLfgTeleportOpcode(WorldPacket &recv_data);
         void HandleLfgPartyLockInfoRequestOpcode(WorldPacket &recv_data);
-        // debug
-        void HandleLfgSetNeedsOpcode(WorldPacket &recv_data);
-        void HandleLfgSetRoles2Opcode(WorldPacket &recv_data);
         // send data
         void SendLfgUpdatePlayer(LFGUpdateType updateType, LFGType type);
         void SendLfgUpdateParty(LFGUpdateType updateType, LFGType type);

@@ -174,18 +174,6 @@ void WorldSession::HandleLfgSetBootVoteOpcode(WorldPacket &recv_data)
     //sLFGMgr.UpdateBoot(GetPlayer(), agree);
 }
 
-void WorldSession::HandleLfgSetRoles2Opcode(WorldPacket &recv_data)
-{
-    DEBUG_LOG("CMSG_LFG_SET_ROLES_2 %u", GetPlayer()->GetObjectGuid().GetCounter());
-    recv_data.rpos(recv_data.wpos());
-}
-
-void WorldSession::HandleLfgSetNeedsOpcode(WorldPacket &recv_data)
-{
-    DEBUG_LOG("CMSG_LFG_SET_NEEDS %u", GetPlayer()->GetObjectGuid().GetCounter());
-    recv_data.rpos(recv_data.wpos());
-}
-
 void WorldSession::HandleLfgTeleportOpcode(WorldPacket &recv_data)
 {
     bool agree;
@@ -683,27 +671,6 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
 
                 for(int i = 0; i < 3; ++i)
                     data << uint8(player->GetTalentsCount(i));                                    // spent talents count in specific tab
-
-//                data << uint32(0);                                                 // armor
-//                data << uint32(0);          // spd
-//                data << uint32(0);         // heal
-//                data << uint32(0);                        // haste rating melee
-//                data << uint32(0);                       // haste rating ranged
-//                data << uint32(0);                        // haste rating spell
-//                data << float(0);                               // mp5
-//                data << float(0);                               // unk
-//                data << uint32(0);                              // attack power
-//                data << uint32(0);                            // agility
-//                data << uint32(0);                                             // health
-//                data << uint32(0);                              // power
-//                data << uint32(0);                              // unk
-//                data << float(0);                               // unk
-//                data << uint32(0);                                                                  // defence rating
-//                data << uint32(0);                                                                  // dodge rating
-//                data << uint32(0);                                                                  // block rating
-//                data << uint32(0);                                                                  // parry rating
-//                data << uint32(0);                                                                  // crit rating
-//                data << uint32(0);                                                                  // expertize
 
                 data << uint32(player->GetArmor());                                                 // armor
                 data << uint32(player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL));          // spd
