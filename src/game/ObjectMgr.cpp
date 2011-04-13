@@ -5699,8 +5699,12 @@ void ObjectMgr::LoadAreaTriggerTeleports()
 
     uint32 count = 0;
 
-    //                                                0   1               2              3               4           5            6                    7                           8                     9           10                 11                 12                 13
-    QueryResult *result = WorldDatabase.Query("SELECT id, required_level, required_item, required_item2, heroic_key, heroic_key2, required_quest_done, required_quest_done_heroic, required_failed_text, target_map, target_position_x, target_position_y, target_position_z, target_orientation FROM areatrigger_teleport");
+    //                                                0   1               2              3               4           5
+    QueryResult *result = WorldDatabase.Query("SELECT id, required_level, required_item, required_item2, heroic_key, heroic_key2,"
+    // 6                     7                              8                      9                            10     11
+    "required_quest_done_A, required_quest_done_heroic_A, required_quest_done_H, required_quest_done_heroic_H, minGS, maxGS,"
+    // 12                    13          14                 15                 16                 17
+    "required_failed_text, target_map, target_position_x, target_position_y, target_position_z, target_orientation FROM areatrigger_teleport");
     if (!result)
     {
 
@@ -5732,14 +5736,18 @@ void ObjectMgr::LoadAreaTriggerTeleports()
         at.requiredItem2        = fields[3].GetUInt32();
         at.heroicKey            = fields[4].GetUInt32();
         at.heroicKey2           = fields[5].GetUInt32();
-        at.requiredQuest        = fields[6].GetUInt32();
-        at.requiredQuestHeroic  = fields[7].GetUInt32();
-        at.requiredFailedText   = fields[8].GetCppString();
-        at.target_mapId         = fields[9].GetUInt32();
-        at.target_X             = fields[10].GetFloat();
-        at.target_Y             = fields[11].GetFloat();
-        at.target_Z             = fields[12].GetFloat();
-        at.target_Orientation   = fields[13].GetFloat();
+        at.requiredQuestA       = fields[6].GetUInt32();
+        at.requiredQuestHeroicA = fields[7].GetUInt32();
+        at.requiredQuestH       = fields[8].GetUInt32();
+        at.requiredQuestHeroicH = fields[9].GetUInt32();
+        at.minGS                = fields[10].GetUInt32();
+        at.maxGS                = fields[11].GetUInt32();
+        at.requiredFailedText   = fields[12].GetCppString();
+        at.target_mapId         = fields[13].GetUInt32();
+        at.target_X             = fields[14].GetFloat();
+        at.target_Y             = fields[15].GetFloat();
+        at.target_Z             = fields[16].GetFloat();
+        at.target_Orientation   = fields[17].GetFloat();
 
         AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(Trigger_ID);
         if (!atEntry)
@@ -5788,23 +5796,43 @@ void ObjectMgr::LoadAreaTriggerTeleports()
             }
         }
 
-        if (at.requiredQuest)
+        if (at.requiredQuestA)
         {
-            QuestMap::iterator qReqItr = mQuestTemplates.find(at.requiredQuest);
+            QuestMap::iterator qReqItr = mQuestTemplates.find(at.requiredQuestA);
             if (qReqItr == mQuestTemplates.end())
             {
-                sLog.outErrorDb("Table `areatrigger_teleport` has nonexistent required quest %u for trigger %u, remove quest done requirement.",at.requiredQuest,Trigger_ID);
-                at.requiredQuest = 0;
+                sLog.outErrorDb("Table `areatrigger_teleport` has nonexistent required quest %u for trigger %u, remove quest done requirement.",at.requiredQuestA,Trigger_ID);
+                at.requiredQuestA = 0;
             }
         }
 
-        if (at.requiredQuestHeroic)
+        if (at.requiredQuestH)
         {
-            QuestMap::iterator qReqItr = mQuestTemplates.find(at.requiredQuestHeroic);
+            QuestMap::iterator qReqItr = mQuestTemplates.find(at.requiredQuestH);
             if (qReqItr == mQuestTemplates.end())
             {
-                sLog.outErrorDb("Table `areatrigger_teleport` has nonexistent required heroic quest %u for trigger %u, remove quest done requirement.",at.requiredQuestHeroic,Trigger_ID);
-                at.requiredQuestHeroic = 0;
+                sLog.outErrorDb("Table `areatrigger_teleport` has nonexistent required quest %u for trigger %u, remove quest done requirement.",at.requiredQuestH,Trigger_ID);
+                at.requiredQuestH = 0;
+            }
+        }
+
+        if (at.requiredQuestHeroicA)
+        {
+            QuestMap::iterator qReqItr = mQuestTemplates.find(at.requiredQuestHeroicA);
+            if (qReqItr == mQuestTemplates.end())
+            {
+                sLog.outErrorDb("Table `areatrigger_teleport` has nonexistent required heroic quest %u for trigger %u, remove quest done requirement.",at.requiredQuestHeroicA,Trigger_ID);
+                at.requiredQuestHeroicA = 0;
+            }
+        }
+
+        if (at.requiredQuestHeroicH)
+        {
+            QuestMap::iterator qReqItr = mQuestTemplates.find(at.requiredQuestHeroicH);
+            if (qReqItr == mQuestTemplates.end())
+            {
+                sLog.outErrorDb("Table `areatrigger_teleport` has nonexistent required heroic quest %u for trigger %u, remove quest done requirement.",at.requiredQuestHeroicH,Trigger_ID);
+                at.requiredQuestHeroicH = 0;
             }
         }
 

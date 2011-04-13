@@ -275,10 +275,11 @@ bool ChatHandler::HandleTriggerCommand(char* args)
                 ShowItemListHelper(at->requiredItem2, loc_idx, pl);
         }
 
-        if (at->requiredQuest)
+        if (at->requiredQuestA || at->requiredQuestH)
         {
             SendSysMessage(LANG_TRIGGER_REQ_QUEST_NORMAL);
-            ShowQuestListHelper(at->requiredQuest, loc_idx, pl);
+            ShowQuestListHelper(at->requiredQuestA, loc_idx, pl);
+            ShowQuestListHelper(at->requiredQuestH, loc_idx, pl);
         }
 
         if (at->heroicKey || at->heroicKey2)
@@ -291,10 +292,11 @@ bool ChatHandler::HandleTriggerCommand(char* args)
                 ShowItemListHelper(at->heroicKey2, loc_idx, pl);
         }
 
-        if (at->requiredQuestHeroic)
+        if (at->requiredQuestHeroicA || at->requiredQuestHeroicH)
         {
             SendSysMessage(LANG_TRIGGER_REQ_QUEST_HEROIC);
-            ShowQuestListHelper(at->requiredQuestHeroic, loc_idx, pl);
+            ShowQuestListHelper(at->requiredQuestHeroicA, loc_idx, pl);
+            ShowQuestListHelper(at->requiredQuestHeroicH, loc_idx, pl);
         }
     }
 

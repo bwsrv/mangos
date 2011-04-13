@@ -23640,11 +23640,22 @@ AreaLockStatus Player::GetAreaTriggerLockStatus(AreaTrigger const* at, Difficult
             return AREA_LOCKSTATUS_MISSING_ITEM;
     }
 
-    if ((!isRegularTargetMap &&
-        (at->requiredQuestHeroic && !GetQuestRewardStatus(at->requiredQuestHeroic))) ||
-        (isRegularTargetMap &&
-        (at->requiredQuest && !GetQuestRewardStatus(at->requiredQuest))))
-        return AREA_LOCKSTATUS_QUEST_NOT_COMPLETED;
+    if (GetTeam() == ALLIANCE)
+    {
+        if ((!isRegularTargetMap &&
+            (at->requiredQuestHeroicA && !GetQuestRewardStatus(at->requiredQuestHeroicA))) ||
+            (isRegularTargetMap &&
+            (at->requiredQuestA && !GetQuestRewardStatus(at->requiredQuestA))))
+            return AREA_LOCKSTATUS_QUEST_NOT_COMPLETED;
+    }
+    else if (GetTeam() == HORDE)
+    {
+        if ((!isRegularTargetMap &&
+            (at->requiredQuestHeroicH && !GetQuestRewardStatus(at->requiredQuestHeroicH))) ||
+            (isRegularTargetMap &&
+            (at->requiredQuestH && !GetQuestRewardStatus(at->requiredQuestH))))
+            return AREA_LOCKSTATUS_QUEST_NOT_COMPLETED;
+    }
 
     return AREA_LOCKSTATUS_OK;
 };
