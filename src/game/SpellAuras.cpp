@@ -8544,7 +8544,7 @@ void Aura::HandleAuraControlVehicle(bool apply, bool Real)
         // some SPELL_AURA_CONTROL_VEHICLE auras have a dummy effect on the player - remove them
         caster->RemoveAurasDueToSpell(GetId());
 
-        if (caster->GetVehicleKit() == pVehicle)
+        if (caster->GetVehicle() == pVehicle)
             caster->ExitVehicle();
     }
 }
