@@ -6183,7 +6183,15 @@ void Aura::HandleModTotalPercentStat(bool apply, bool /*Real*/)
     if ((m_modifier.m_miscvalue == STAT_STAMINA) && (maxHPValue > 0) && (GetSpellProto()->Attributes & 0x10))
     {
         // newHP = (curHP / maxHP) * newMaxHP = (newMaxHP * curHP) / maxHP -> which is better because no int -> double -> int conversion is needed
-        uint32 newHPValue = (target->GetMaxHealth() * curHPValue) / maxHPValue;
+        // Multiplication of large numbers cause uint32 overflow so using trick
+        // a*b/c = (a/c) * (b/c) * c + (a%c) * (b%c) / c + (a/c) * (b%c) + (a%c) * (b/c)
+        uint32 max_hp = target->GetMaxHealth();
+        // max_hp * curHPValue / maxHPValue
+        uint32 newHPValue =
+            (max_hp/maxHPValue) * (curHPValue/maxHPValue) * maxHPValue
+            + (max_hp%maxHPValue) * (curHPValue%maxHPValue) / maxHPValue
+            + (max_hp/maxHPValue) * (curHPValue%maxHPValue)
+            + (max_hp%maxHPValue) * (curHPValue/maxHPValue);
         target->SetHealth(newHPValue);
     }
 }

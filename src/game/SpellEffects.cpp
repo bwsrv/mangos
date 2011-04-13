@@ -1427,6 +1427,15 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 
                     return;
                 }
+                case 32146:                                 // Liquid Fire
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT || m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    ((Player*)m_caster)->KilledMonsterCredit(unitTarget->GetEntry(), unitTarget->GetObjectGuid());
+                    ((Creature*)unitTarget)->ForcedDespawn();
+                    return;
+                }
                 case 33060:                                 // Make a Wish
                 {
                     if (m_caster->GetTypeId()!=TYPEID_PLAYER)
@@ -6196,6 +6205,7 @@ void Spell::EffectSummonPet(SpellEffectIndex eff_idx)
     NewSummon->setPetType(SUMMON_PET);
     NewSummon->SetPetCounter(0);
     CreatureCreatePos pos(m_caster, m_caster->GetOrientation());
+    NewSummon->SetSummonPoint(pos);
 
     if (!NewSummon->Create(0, pos, cInfo, 0, m_caster))
     {

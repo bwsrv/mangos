@@ -207,11 +207,6 @@ struct CreatureData
     ObjectGuid GetObjectGuid(uint32 lowguid) const { return ObjectGuid(GetHighGuid(), id, lowguid); }
 };
 
-struct CreatureDataAddonAura
-{
-    uint32 spell_id;
-};
-
 // from `creature_addon` and `creature_template_addon`tables
 struct CreatureDataAddon
 {
@@ -222,7 +217,7 @@ struct CreatureDataAddon
     uint8  pvp_state;                                       // UnitPVPStateFlags
     uint32 emote;
     uint32 splineFlags;
-    CreatureDataAddonAura const* auras;                     // loaded as char* "spell1 spell2 ... "
+    uint32 const* auras;                                    // loaded as char* "spell1 spell2 ... "
 };
 
 struct CreatureModelInfo
@@ -601,6 +596,7 @@ class MANGOS_DLL_SPEC Creature : public Unit
                                                             // overwrited in Pet
         virtual void SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask);
         virtual void DeleteFromDB();                        // overwrited in Pet
+        static void DeleteFromDB(uint32 lowguid, CreatureData const* data);
 
         Loot loot;
         bool lootForPickPocketed;
@@ -689,8 +685,8 @@ class MANGOS_DLL_SPEC Creature : public Unit
         void SetCombatStartPosition(float x, float y, float z) { m_combatStartX = x; m_combatStartY = y; m_combatStartZ = z; }
         void GetCombatStartPosition(float &x, float &y, float &z) { x = m_combatStartX; y = m_combatStartY; z = m_combatStartZ; }
 
-        void SetSummonPoint(CreatureCreatePos const& pos) { m_summonXpoint = pos.m_pos.x; m_summonYpoint = pos.m_pos.y; m_summonZpoint = pos.m_pos.z; m_summonOrientation = pos.m_pos.o; }
-        void GetSummonPoint(float &fX, float &fY, float &fZ, float &fOrient) const { fX = m_summonXpoint; fY = m_summonYpoint; fZ = m_summonZpoint; fOrient = m_summonOrientation; }
+        void SetSummonPoint(CreatureCreatePos const& pos) { m_summonPos = pos.m_pos; }
+        void GetSummonPoint(float &fX, float &fY, float &fZ, float &fOrient) const { fX = m_summonPos.x; fY = m_summonPos.y; fZ = m_summonPos.z; fOrient = m_summonPos.o; }
 
         void SetDeadByDefault (bool death_state) { m_isDeadByDefault = death_state; }
 
@@ -749,10 +745,7 @@ class MANGOS_DLL_SPEC Creature : public Unit
         float m_combatStartY;
         float m_combatStartZ;
 
-        float m_summonXpoint;
-        float m_summonYpoint;
-        float m_summonZpoint;
-        float m_summonOrientation;
+        Position m_summonPos;
 
     private:
         GridReference<Creature> m_gridRef;
