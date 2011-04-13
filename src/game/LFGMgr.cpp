@@ -462,9 +462,21 @@ LFGLockStatusType LFGMgr::GetPlayerLockStatus(Player* player, LFGDungeonEntry co
             return LFG_LOCKSTATUS_RAID_LOCKED;
     }
 
+    if (dungeon->difficulty > DUNGEON_DIFFICULTY_NORMAL)
+    {
+        if (AreaTrigger const* at = sObjectMgr.GetMapEntranceTrigger(dungeon->map))
+        {
+            uint32 gs = player->GetEquipGearScore(true,true);
+
+            if (at->minGS > 0 && gs < at->minGS)
+                return LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
+            else if (at->maxGS > 0 && gs > at->maxGS)
+                return LFG_LOCKSTATUS_TOO_HIGH_GEAR_SCORE;
+        }
+        else
+            return LFG_LOCKSTATUS_RAID_LOCKED;
+    }
         /* TODO
-            LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
-            LFG_LOCKSTATUS_TOO_HIGH_GEAR_SCORE;
             LFG_LOCKSTATUS_ATTUNEMENT_TOO_LOW_LEVEL;
             LFG_LOCKSTATUS_ATTUNEMENT_TOO_HIGH_LEVEL;
             LFG_LOCKSTATUS_NOT_IN_SEASON;
