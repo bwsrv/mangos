@@ -521,7 +521,7 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
         return;
     }
 
-    DEBUG_LOG("SMSG_LFG_UPDATE_LIST %u dungeonentry: %u ", GetPlayer()->GetObjectGuid().GetCounter(), dungeonEntry);
+    DEBUG_LOG("SMSG_LFG_SEARCH_RESULTS %u dungeonentry: %u ", GetPlayer()->GetObjectGuid().GetCounter(), dungeonEntry);
 
     LFGDungeonEntry const* dungeon = sLFGMgr.GetDungeon(dungeonEntry);
 
@@ -589,7 +589,7 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
             playerSize += (8+4);
     }
 
-    WorldPacket data(SMSG_UPDATE_LFG_LIST, 4 + 4 + 1 + guids1*8 + groupSize + playerSize);
+    WorldPacket data(SMSG_LFG_SEARCH_RESULTS, 4 + 4 + 1 + guids1*8 + groupSize + playerSize);
 
     data << uint32(dungeon->type);                           // type
     data << uint32(dungeon->Entry());                        // entry from LFGDungeons.dbc
