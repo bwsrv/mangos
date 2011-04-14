@@ -147,6 +147,7 @@ class MapPersistentState
         RespawnTimes m_creatureRespawnTimes;                // lock MapPersistentState from unload, for example for temporary bound dungeon unload delay
         RespawnTimes m_goRespawnTimes;                      // lock MapPersistentState from unload, for example for temporary bound dungeon unload delay
         MapCellObjectGuidsMap m_gridObjectGuids;            // Single map copy specific grid spawn data, like pool spawns
+
 };
 
 inline bool MapPersistentState::CanBeUnload() const
@@ -368,6 +369,8 @@ class MANGOS_DLL_DECL MapPersistentStateManager : public MaNGOS::Singleton<MapPe
 
         template<typename Do>
         void DoForAllStatesWithMapId(uint32 mapId, Do& _do);
+
+        ACE_Recursive_Thread_Mutex m_persistentStateLock;
 
     public:                                                 // DungeonPersistentState specific
         void CleanupInstances();
