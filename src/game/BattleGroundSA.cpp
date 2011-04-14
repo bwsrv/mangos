@@ -182,14 +182,14 @@ void BattleGroundSA::Update(uint32 diff)
                 PlaySoundToAll(BG_SA_SOUND_GYD_VICTORY);
                 SendMessageToAll(defender == ALLIANCE ? LANG_BG_SA_ALLIANCE_TIMEOUT_END_1ROUND : LANG_BG_SA_HORDE_TIMEOUT_END_1ROUND, CHAT_MSG_BG_SYSTEM_NEUTRAL, NULL);
                 RoundScores[0].winner = GetDefender();
-                RoundScores[0].time = Round_timer;
+                RoundScores[0].time = BG_SA_ROUNDLENGTH;
                 ResetBattle(0, defender);
             }
             else // Timeout of second round
             {
                 SendMessageToAll(defender == ALLIANCE ? LANG_BG_SA_ALLIANCE_TIMEOUT_END_2ROUND : LANG_BG_SA_HORDE_TIMEOUT_END_2ROUND, CHAT_MSG_BG_SYSTEM_NEUTRAL, NULL);
                 RoundScores[1].winner = GetDefender();
-                RoundScores[1].time = Round_timer;
+                RoundScores[1].time = BG_SA_ROUNDLENGTH;
                 EndBattleGround(TEAM_NONE);
                 return;
             }
