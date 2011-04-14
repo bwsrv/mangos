@@ -120,6 +120,7 @@ void MapPersistentState::SaveGORespawnTime(uint32 loguid, time_t t)
 
 void MapPersistentState::SetCreatureRespawnTime( uint32 loguid, time_t t )
 {
+    sMapPersistentStateMgr.m_persistentStateLock.acquire();
     if (t > sWorld.GetGameTime())
         m_creatureRespawnTimes[loguid] = t;
     else
@@ -127,10 +128,12 @@ void MapPersistentState::SetCreatureRespawnTime( uint32 loguid, time_t t )
         m_creatureRespawnTimes.erase(loguid);
         UnloadIfEmpty();
     }
+    sMapPersistentStateMgr.m_persistentStateLock.release();
 }
 
 void MapPersistentState::SetGORespawnTime( uint32 loguid, time_t t )
 {
+    sMapPersistentStateMgr.m_persistentStateLock.acquire();
     if (t > sWorld.GetGameTime())
         m_goRespawnTimes[loguid] = t;
     else
@@ -138,14 +141,17 @@ void MapPersistentState::SetGORespawnTime( uint32 loguid, time_t t )
         m_goRespawnTimes.erase(loguid);
         UnloadIfEmpty();
     }
+    sMapPersistentStateMgr.m_persistentStateLock.release();
 }
 
 void MapPersistentState::ClearRespawnTimes()
 {
+    sMapPersistentStateMgr.m_persistentStateLock.acquire();
     m_goRespawnTimes.clear();
     m_creatureRespawnTimes.clear();
 
     UnloadIfEmpty();
+    sMapPersistentStateMgr.m_persistentStateLock.release();
 }
 
 void MapPersistentState::AddCreatureToGrid( uint32 guid, CreatureData const* data )

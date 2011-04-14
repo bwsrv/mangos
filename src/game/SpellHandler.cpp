@@ -730,7 +730,7 @@ void WorldSession::HandleUpdateProjectilePosition(WorldPacket& recvPacket)
         return;
     }
 
-    WorldPacket data(SMSG_SET_PROJECTILE_POSITION, 8+1+4+4+4);
+    WorldPacket data(SMSG_NOTIFY_MISSILE_TRAJECTORY_COLLISION, 8+1+4+4+4);
     data << casterGuid;
     data << castCount;
     data << m_targetX;

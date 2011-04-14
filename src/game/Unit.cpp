@@ -8396,7 +8396,7 @@ void Unit::Mount(uint32 mount, uint32 spellId, uint32 vehicleId, uint32 creature
                 GetVehicleKit()->Reset();
 
                 // Send others that we now have a vehicle
-                WorldPacket data(SMSG_PLAYER_VEHICLE_DATA, 8+4);
+                WorldPacket data(SMSG_SET_VEHICLE_REC_ID, 8+4);
                 data << GetPackGUID();
                 data << uint32(vehicleId);
                 SendMessageToSet(&data, true);
@@ -8443,7 +8443,7 @@ void Unit::Unmount(bool from_aura)
     if (GetTypeId() == TYPEID_PLAYER && GetVehicleKit())
     {
         // Send other players that we are no longer a vehicle
-        WorldPacket data(SMSG_PLAYER_VEHICLE_DATA, 8+4);
+        WorldPacket data(SMSG_SET_VEHICLE_REC_ID, 8+4);
         data << GetPackGUID();
         data << uint32(0);
         ((Player*)this)->SendMessageToSet(&data, true);

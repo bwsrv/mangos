@@ -128,7 +128,7 @@ void WorldSession::HandleLfrLeaveOpcode( WorldPacket & recv_data )
     {
         GetPlayer()->GetLFGState()->GetDungeons()->erase(sLFGMgr.GetDungeon(entry & 0x00FFFFFF));
 
-        if (GetPlayer()->GetLFGState()->GetDungeons()->empty());
+        if (GetPlayer()->GetLFGState()->GetDungeons()->empty())
             sLFGMgr.Leave(GetPlayer());
     }
 }
@@ -185,6 +185,12 @@ void WorldSession::HandleLfgTeleportOpcode(WorldPacket &recv_data)
 
 void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket &/*recv_data*/)
 {
+    if (!sWorld.getConfig(CONFIG_BOOL_LFR_ENABLE) && !sWorld.getConfig(CONFIG_BOOL_LFG_ENABLE))
+    {
+        DEBUG_LOG("CMSG_LFD_PLAYER_LOCK_INFO_REQUEST %u failed - Dungeon finder disabled", GetPlayer()->GetObjectGuid().GetCounter());
+        return;
+    }
+
     DEBUG_LOG("CMSG_LFD_PLAYER_LOCK_INFO_REQUEST %u ", GetPlayer()->GetObjectGuid().GetCounter());
 
     uint32 rsize = 0;
@@ -278,6 +284,12 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket &/*recv_data
 
 void WorldSession::HandleLfgPartyLockInfoRequestOpcode(WorldPacket & /*recv_data*/)
 {
+    if (!sWorld.getConfig(CONFIG_BOOL_LFR_ENABLE) && !sWorld.getConfig(CONFIG_BOOL_LFG_ENABLE))
+    {
+        DEBUG_LOG("CMSG_LFD_PARTY_LOCK_INFO_REQUEST %u failed - Dungeon finder disabled", GetPlayer()->GetObjectGuid().GetCounter());
+        return;
+    }
+
     DEBUG_LOG("CMSG_LFD_PARTY_LOCK_INFO_REQUEST %u", GetPlayer()->GetObjectGuid().GetCounter());
     uint32 size = 0;
 
@@ -521,7 +533,7 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
         return;
     }
 
-    DEBUG_LOG("SMSG_LFG_UPDATE_LIST %u dungeonentry: %u ", GetPlayer()->GetObjectGuid().GetCounter(), dungeonEntry);
+    DEBUG_LOG("SMSG_LFG_SEARCH_RESULTS %u dungeonentry: %u ", GetPlayer()->GetObjectGuid().GetCounter(), dungeonEntry);
 
     LFGDungeonEntry const* dungeon = sLFGMgr.GetDungeon(dungeonEntry);
 
@@ -589,7 +601,7 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
             playerSize += (8+4);
     }
 
-    WorldPacket data(SMSG_UPDATE_LFG_LIST, 4 + 4 + 1 + guids1*8 + groupSize + playerSize);
+    WorldPacket data(SMSG_LFG_SEARCH_RESULTS, 4 + 4 + 1 + guids1*8 + groupSize + playerSize);
 
     data << uint32(dungeon->type);                           // type
     data << uint32(dungeon->Entry());                        // entry from LFGDungeons.dbc
