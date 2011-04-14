@@ -1928,34 +1928,12 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             if (!GetSession()->PlayerLogout())
             {
                 // send transfer packets
-                WorldPacket data(SMSG_TRANSFER_PENDING, (4+4+4));
+                WorldPacket data(SMSG_TRANSFER_PENDING, 4 + 4 + 4);
                 data << uint32(mapid);
                 if (m_transport)
-                {
-                    data << uint32(m_transport->GetEntry());
-                    data << uint32(GetMapId());
-                }
-                GetSession()->SendPacket(&data);
+                    data << m_transport->GetEntry() << GetMapId();
 
-                data.Initialize(SMSG_NEW_WORLD, (20));
-                if (m_transport)
-                {
-                    data << uint32(mapid);
-                    data << float(m_movementInfo.GetTransportPos()->x);
-                    data << float(m_movementInfo.GetTransportPos()->y);
-                    data << float(m_movementInfo.GetTransportPos()->z);
-                    data << float(m_movementInfo.GetTransportPos()->o);
-                }
-                else
-                {
-                    data << uint32(mapid);
-                    data << float(x);
-                    data << float(y);
-                    data << float(z);
-                    data << float(orientation);
-                }
-                GetSession()->SendPacket( &data );
-                SendSavedInstances();
+                GetSession()->SendPacket(&data);
             }
 
             // remove from old map now
@@ -1980,6 +1958,29 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             SetFallInformation(0, final_z);
             // if the player is saved before worldport ack (at logout for example)
             // this will be used instead of the current location in SaveToDB
+
+            if (!GetSession()->PlayerLogout())
+            {
+                WorldPacket data(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4);
+                data << uint32(mapid);
+                if (m_transport)
+                {
+                    data << float(m_movementInfo.GetTransportPos()->x);
+                    data << float(m_movementInfo.GetTransportPos()->y);
+                    data << float(m_movementInfo.GetTransportPos()->z);
+                    data << float(m_movementInfo.GetTransportPos()->o);
+                }
+                else
+                {
+                    data << float(x);
+                    data << float(y);
+                    data << float(z);
+                    data << float(orientation);
+                }
+
+                GetSession()->SendPacket(&data);
+                SendSavedInstances();
+            }
 
             // move packet sent by client always after far teleport
             // code for finish transfer to new map called in WorldSession::HandleMoveWorldportAckOpcode at client packet
