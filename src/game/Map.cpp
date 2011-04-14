@@ -1413,7 +1413,7 @@ bool DungeonMap::Add(Player *player)
                     {
                         WorldPacket data(SMSG_INSTANCE_LOCK_WARNING_QUERY, 9);
                         data << uint32(60000);
-                        data << ((DungeonPersistentState*)GetPersistentState())->GetCompletedEncountersMask();
+                        data << groupBind->state->GetCompletedEncountersMask();
                         data << uint8(0);
                         player->GetSession()->SendPacket(&data);
                         player->SetPendingBind(GetPersistanceState(), 60000);
@@ -1427,6 +1427,7 @@ bool DungeonMap::Add(Player *player)
                     player->BindToInstance(GetPersistanceState(), false);
                 else
                 {
+                    // cannot jump to a different instance without resetting it
                     player->RepopAtGraveyard();
                     return false;
                 }

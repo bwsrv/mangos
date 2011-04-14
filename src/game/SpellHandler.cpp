@@ -705,19 +705,19 @@ void WorldSession::HandleMirrorImageDataRequest( WorldPacket & recv_data )
 
 void WorldSession::HandleUpdateProjectilePosition(WorldPacket& recvPacket)
 {
-    uint64 casterGuid;  // actually target ?
-    uint32 spellId;     // Spell Id
-    uint8  cast_Id;     // Some counter ? the fuck
+    ObjectGuid casterGuid;  // actually target ?
+    uint32 spellId;         // Spell Id
+    uint8  castCount;       //
     float m_targetX, m_targetY, m_targetZ; // Position of missile hit
 
     recvPacket >> casterGuid;
     recvPacket >> spellId;
-    recvPacket >> cast_Id;
+    recvPacket >> castCount;
 
     recvPacket >> m_targetX >> m_targetY >> m_targetZ;
 
     // Do we need unit as we use 3d position anyway ?
-    Unit * pCaster = ObjectAccessor::GetUnit(*_player, casterGuid);
+    Unit* pCaster = GetPlayer()->GetMap()->GetUnit(casterGuid);
     if (!pCaster)
         return;
 
@@ -730,7 +730,19 @@ void WorldSession::HandleUpdateProjectilePosition(WorldPacket& recvPacket)
         return;
     }
 
+    WorldPacket data(SMSG_SET_PROJECTILE_POSITION, 8+1+4+4+4);
+    data << casterGuid;
+    data << castCount;
+    data << m_targetX;
+    data << m_targetY;
+    data << m_targetZ;
+    SendPacket(&data);
+
     for(int i = 0; i < 3; ++i)
+    {
         if(spellInfo->EffectTriggerSpell[i])
-            pCaster->CastSpell(m_targetX, m_targetY, m_targetZ, spellInfo->EffectTriggerSpell[i], true);
+            if (SpellEntry const* spellInfoT = sSpellStore.LookupEntry(spellInfo->EffectTriggerSpell[i]))
+                pCaster->CastSpell(m_targetX, m_targetY, m_targetZ, spellInfoT, true);
+    }
+
 }
