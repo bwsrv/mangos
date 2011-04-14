@@ -23676,14 +23676,16 @@ uint32 Player::GetEquipGearScore(bool withBags, bool withBank)
     {
         for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
         {
-            Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
-            if (item->IsBag())
+            if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
             {
-                Bag* bag = (Bag*)item;
-                for (uint8 j = 0; j < bag->GetBagSize(); ++j)
+                if (item->IsBag())
                 {
-                    if (Item* item2 = bag->GetItemByPos(j))
-                        _fillGearScoreData(item2, &gearScore);
+                    Bag* bag = (Bag*)item;
+                    for (uint8 j = 0; j < bag->GetBagSize(); ++j)
+                    {
+                        if (Item* item2 = bag->GetItemByPos(j))
+                            _fillGearScoreData(item2, &gearScore);
+                    }
                 }
             }
         }
