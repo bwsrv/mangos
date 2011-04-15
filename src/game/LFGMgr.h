@@ -96,8 +96,8 @@ class LFGMgr
         void Join(Player* player);
         void Leave(Player* player);
 
-        LFGQueuePlayerSet GetDungeonPlayerQueue(LFGDungeonEntry const* dungeon);
-        LFGQueueGroupSet  GetDungeonGroupQueue(LFGDungeonEntry const* dungeon);
+        LFGQueuePlayerSet GetDungeonPlayerQueue(LFGDungeonEntry const* dungeon, Team team = TEAM_NONE);
+        LFGQueueGroupSet  GetDungeonGroupQueue(LFGDungeonEntry const* dungeon, Team team = TEAM_NONE);
 
         void ClearLFRList(Player* player);
 

@@ -538,7 +538,7 @@ void LFGMgr::ClearLFRList(Player* player)
 
 }
 
-LFGQueuePlayerSet LFGMgr::GetDungeonPlayerQueue(LFGDungeonEntry const* dungeon)
+LFGQueuePlayerSet LFGMgr::GetDungeonPlayerQueue(LFGDungeonEntry const* dungeon, Team team)
 {
     LFGQueuePlayerSet tmpSet;
     tmpSet.clear();
@@ -564,6 +564,9 @@ LFGQueuePlayerSet LFGMgr::GetDungeonPlayerQueue(LFGDungeonEntry const* dungeon)
             if (!player)
                 continue;
 
+            if (team && player->GetTeam() != team)
+                continue;
+
             if (player->GetLFGState()->GetState() < LFG_STATE_LFR ||
                 player->GetLFGState()->GetState() > LFG_STATE_PROPOSAL)
                 continue;
@@ -577,7 +580,7 @@ LFGQueuePlayerSet LFGMgr::GetDungeonPlayerQueue(LFGDungeonEntry const* dungeon)
     return tmpSet;
 }
 
-LFGQueueGroupSet LFGMgr::GetDungeonGroupQueue(LFGDungeonEntry const* dungeon)
+LFGQueueGroupSet LFGMgr::GetDungeonGroupQueue(LFGDungeonEntry const* dungeon, Team team)
 {
     LFGQueueGroupSet tmpSet;
     tmpSet.clear();
@@ -605,6 +608,9 @@ LFGQueueGroupSet LFGMgr::GetDungeonGroupQueue(LFGDungeonEntry const* dungeon)
 
             Player* player = sObjectMgr.GetPlayer(group->GetLeaderGuid());
             if (!player)
+                continue;
+
+            if (team && player->GetTeam() != team)
                 continue;
 
             if (player->GetLFGState()->GetState() < LFG_STATE_LFR ||
