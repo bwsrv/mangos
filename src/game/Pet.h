@@ -194,6 +194,8 @@ class Pet : public Creature
                 return m_autospells[pos];
         }
 
+        void RegenerateAll(uint32 update_diff);             // overwrite Creature::RegenerateAll
+        void Regenerate(Powers power, uint32 diff);
         HappinessState GetHappinessState();
         void GivePetXP(uint32 xp);
         void GivePetLevel(uint32 level);
@@ -226,7 +228,6 @@ class Pet : public Creature
         void CastPetAuras(bool current);
         void CastPetAura(PetAura const* aura);
 
-        void Regenerate(Powers power, uint32 diff);
         void RegenerateHealth(uint32 diff);
         float OCTRegenHPPerSpirit();
         float OCTRegenMPPerSpirit();
