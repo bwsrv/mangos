@@ -450,10 +450,12 @@ void MotionMaster::propagateSpeedChange()
 
 MovementGeneratorType MotionMaster::GetCurrentMovementGeneratorType() const
 {
-    if (empty())
-        return IDLE_MOTION_TYPE;
+    MovementGenerator* curr = empty() ? NULL : top();
 
-    return top()->GetMovementGeneratorType();
+    if (curr)
+        return curr->GetMovementGeneratorType();
+    else
+        return IDLE_MOTION_TYPE;
 }
 
 bool MotionMaster::GetDestination(float &x, float &y, float &z)
