@@ -227,7 +227,7 @@ class DungeonPersistentState : public MapPersistentState
 
         // DBC encounter state at kill/spellcast update/set/get
         void UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Player* player = NULL);
-        void SetCompletedEncountersMask(uint32 newMask) { m_completedEncountersMask = newMask; }
+        bool IsCompleted();
         uint32 GetCompletedEncountersMask() { return m_completedEncountersMask; }
 
 

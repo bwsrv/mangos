@@ -122,7 +122,8 @@ void WorldSession::HandleLfrLeaveOpcode( WorldPacket & recv_data )
 
     Group* group = GetPlayer()->GetGroup();
 
-    if (!group || group->GetLeaderGuid() == GetPlayer()->GetObjectGuid())
+//    if (!group || group->GetLeaderGuid() == GetPlayer()->GetObjectGuid())
+    if (!group)
     {
         GetPlayer()->GetLFGState()->GetDungeons()->erase(sLFGMgr.GetDungeon(entry & 0x00FFFFFF));
 
@@ -334,7 +335,7 @@ void WorldSession::HandleLfgPartyLockInfoRequestOpcode(WorldPacket & /*recv_data
             }
         }
 
-        SendPacket(&data);
+        GetPlayer()->GetGroup()->BroadcastPacket(&data, false);
     }
 }
 
@@ -406,7 +407,10 @@ void WorldSession::SendLfgJoinResult(LFGJoinResult checkResult, uint8 checkValue
         }
     }
 
-    SendPacket(&data);
+    if(GetPlayer()->GetGroup())
+        GetPlayer()->GetGroup()->BroadcastPacket(&data, false);
+    else
+        SendPacket(&data);
 }
 
 void WorldSession::SendLfgUpdateParty(LFGUpdateType updateType, LFGType type)
@@ -427,6 +431,8 @@ void WorldSession::SendLfgUpdateParty(LFGUpdateType updateType, LFGType type)
             extrainfo = true;
             if (type != LFG_TYPE_RAID)
                 queued = true;
+            else
+                join = true;
             break;
         case LFG_UPDATETYPE_ADDED_TO_QUEUE:
             extrainfo = true;
@@ -466,9 +472,13 @@ void WorldSession::SendLfgUpdateParty(LFGUpdateType updateType, LFGType type)
         for (LFGDungeonSet::const_iterator itr = dungeons->begin(); itr != dungeons->end(); ++itr)
             data << uint32((*itr)->Entry());
 
-        data << comment;
+        data << comment.c_str();
     }
-    SendPacket(&data);
+
+    if(GetPlayer()->GetGroup())
+        GetPlayer()->GetGroup()->BroadcastPacket(&data, false);
+    else
+        SendPacket(&data);
 }
 
 void WorldSession::SendLfgUpdatePlayer(LFGUpdateType updateType, LFGType type)
@@ -517,7 +527,7 @@ void WorldSession::SendLfgUpdatePlayer(LFGUpdateType updateType, LFGType type)
 
         for (LFGDungeonSet::const_iterator itr = dungeons->begin(); itr != dungeons->end(); ++itr)
             data << uint32((*itr)->Entry());
-        data << comment;
+        data << comment.c_str();
     }
     SendPacket(&data);
 }
@@ -537,9 +547,9 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
 
     if (!dungeonEntry)
         return;
-    uint32 flags = LFG_MEMBER_FLAG_NONE | 
-//LFG_MEMBER_FLAG_CHARINFO |
+    uint32 flags = LFG_MEMBER_FLAG_NONE | LFG_MEMBER_FLAG_CHARINFO |
                    LFG_MEMBER_FLAG_COMMENT | LFG_MEMBER_FLAG_UNK1 |
+                   LFG_MEMBER_FLAG_ROLES |
                    LFG_MEMBER_FLAG_GROUP | LFG_MEMBER_FLAG_UNK2  |
                    LFG_MEMBER_FLAG_UNK3  | LFG_MEMBER_FLAG_BIND;
 
@@ -567,7 +577,8 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
         if (flags & LFG_MEMBER_FLAG_BIND)
             groupSize += (8+4);
 
-        players.insert(leader);
+//        players.insert(leader);
+// remove this comment if your want to see searchers-leaders in player list.
     }
 
     uint32 playerCount = players.size();
@@ -630,8 +641,7 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
 
             Player* leader = sObjectMgr.GetPlayer(group->GetLeaderGuid());
 
-//            data << leader->GetObjectGuid();
-            data << group->GetObjectGuid();
+            data << leader->GetObjectGuid();
 
             data << uint32(flags);
 
@@ -644,7 +654,8 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
             {
                 for (int i = 0; i < 3; ++i)
                 {
-                    data << uint8(2);
+                    data << uint8(group->GetLFGState()->GetRoles(LFGRoles(i+1)));
+//                    data << uint8(0);
                 }
             }
 
@@ -720,10 +731,16 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
                 data << player->GetLFGState()->GetComment();         // comment
 
             if (flags & LFG_MEMBER_FLAG_UNK1)
-                data << uint8(0);                               // unk
+                data << uint8(0);                                    // unk, may be string terminator for comment
 
             if (flags & LFG_MEMBER_FLAG_GROUP)
-                data << uint64(0);
+            {
+                ObjectGuid groupGuid = ObjectGuid();
+                if (Group* group = player->GetGroup())
+                    groupGuid = group->GetObjectGuid();
+
+                data << groupGuid;
+            }
 
             if (flags & LFG_MEMBER_FLAG_ROLES)
                 data << uint8(player->GetLFGState()->GetRoles());
@@ -788,5 +805,43 @@ void WorldSession::SendLfgTeleportError(uint8 err)
     DEBUG_LOG("SMSG_LFG_TELEPORT_DENIED %u reason: %u", GetPlayer()->GetObjectGuid().GetCounter(), err);
     WorldPacket data(SMSG_LFG_TELEPORT_DENIED, 4);
     data << uint32(err);
+    SendPacket(&data);
+}
+
+void WorldSession::SendLfgPlayerReward(LFGDungeonEntry const* dungeon, const LFGReward* reward, const Quest* qRew, bool isSecond)
+{
+    if (!dungeon || !reward || !qRew)
+        return;
+
+    uint8 itemNum = uint8(qRew ? qRew->GetRewItemsCount() : 0);
+    uint8 done = uint8(isSecond);
+
+    DEBUG_LOG("SMSG_LFG_PLAYER_REWARD %u dungeonEntry: %u ", GetPlayer()->GetObjectGuid().GetCounter(), dungeon->ID);
+
+    WorldPacket data(SMSG_LFG_PLAYER_REWARD, 4 + 4 + 1 + 4 + 4 + 4 + 4 + 4 + 1 + itemNum * (4 + 4 + 4));
+    data << uint32(dungeon->Entry());                         // Random Dungeon Finished
+    data << uint32(0);                                        // Dungeon Finished
+    data << uint8(done);
+    data << uint32(1);
+    data << uint32(qRew->GetRewOrReqMoney());
+    data << uint32(qRew->XPValue(GetPlayer()));
+    data << uint32(reward->reward[done].variableMoney);
+    data << uint32(reward->reward[done].variableXP);
+    data << uint8(itemNum);
+    if (itemNum)
+    {
+        ItemPrototype const* iProto = NULL;
+        for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+        {
+            if (!qRew->RewItemId[i])
+                continue;
+
+            iProto = ObjectMgr::GetItemPrototype(qRew->RewItemId[i]);
+
+            data << uint32(qRew->RewItemId[i]);
+            data << uint32(iProto ? iProto->DisplayInfoID : 0);
+            data << uint32(qRew->RewItemCount[i]);
+        }
+    }
     SendPacket(&data);
 }

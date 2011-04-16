@@ -1875,7 +1875,7 @@ Rate.RAF.LevelPerLevel  = 0.5
 #    LFG.MaxKicks            = 3
 #    LFG.KickVotes           = 3
 ###################################################################################################################
-LFR.Enable              = 0
+LFR.Enable              = 1
 LFG.Enable              = 0
 LFG.MaxKicks            = 3
 LFG.KickVotes           = 3

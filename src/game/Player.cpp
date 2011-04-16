@@ -5119,6 +5119,18 @@ void Player::LeaveLFGChannel()
     }
 }
 
+void Player::JoinLFGChannel()
+{
+    for(JoinedChannelsList::iterator i = m_channels.begin(); i != m_channels.end(); ++i )
+    {
+        if((*i)->IsLFG())
+        {
+            (*i)->Join(GetGUID(),"");
+            break;
+        }
+    }
+}
+
 void Player::UpdateDefense()
 {
     uint32 defense_skill_gain = sWorld.getConfig(CONFIG_UINT32_SKILL_GAIN_DEFENSE);
