@@ -784,6 +784,11 @@ LexicsCutterNoActionOnGM = 1
 #                 0 - unsummon only for flying mounts
 #        Default: 1 - unsummon for any mount
 #
+#    RaidFlags.Unique
+#        Set raid flags (assistant, main assistant, main tank) unique in raid
+#        Default: 0 - flags not unique
+#                 1 - flags unique, not more then 1 player may have this flag
+#
 #    WOWArmorySupport
 #        Support collect statistics for Shadez WOW Armory frontend
 #        Default: 0 - don't support
@@ -884,6 +889,7 @@ SkillChance.Prospecting = 0
 SkillChance.Milling = 0
 OffhandCheckAtTalentsReset = 0
 PetUnsummonAtMount = 1
+RaidFlags.Unique = 0
 AllowFlightOnOldMaps = 0
 WOWArmorySupport = 0
 ClientCacheVersion = 0
