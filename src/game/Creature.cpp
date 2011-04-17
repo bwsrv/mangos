@@ -499,7 +499,7 @@ void Creature::Update(uint32 update_diff, uint32 diff)
                 CreatureInfo const *cinfo = GetCreatureInfo();
 
                 SelectLevel(cinfo);
-                SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
+                SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_NONE);
                 if (m_isDeadByDefault)
                 {
                     SetDeathState(JUST_DIED);
@@ -600,22 +600,7 @@ void Creature::Update(uint32 update_diff, uint32 diff)
             if (IsPet())                           // Regenerated before
                 break;
 
-            if(m_regenTimer > 0)
-            {
-                if(update_diff >= m_regenTimer)
-                    m_regenTimer = 0;
-                else
-                    m_regenTimer -= update_diff;
-            }
-            if (m_regenTimer != 0)
-                break;
-
-            if (!isInCombat() || IsPolymorphed())
-                RegenerateHealth();
-
-            Regenerate(getPowerType());
-            m_regenTimer = REGEN_TIME_FULL;
-
+            RegenerateAll(update_diff);
             break;
         }
         case CORPSE_FALLING:
@@ -625,6 +610,26 @@ void Creature::Update(uint32 update_diff, uint32 diff)
         default:
             break;
     }
+}
+
+void Creature::RegenerateAll(uint32 update_diff)
+{
+    if(m_regenTimer > 0)
+    {
+        if(update_diff >= m_regenTimer)
+            m_regenTimer = 0;
+        else
+            m_regenTimer -= update_diff;
+    }
+    if (m_regenTimer != 0)
+        return;
+
+    if (!isInCombat() || IsPolymorphed())
+        RegenerateHealth();
+
+    Regenerate(getPowerType());
+
+    m_regenTimer = REGEN_TIME_FULL;
 }
 
 void Creature::Regenerate(Powers power)
@@ -1494,13 +1499,12 @@ void Creature::SetDeathState(DeathState s)
 
     if (s == JUST_ALIVED)
     {
+        CreatureInfo const *cinfo = GetCreatureInfo();
+
         SetHealth(GetMaxHealth());
         SetLootRecipient(NULL);
-        CreatureInfo const *cinfo = GetCreatureInfo();
-        SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
-        RemoveFlag (UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
+
         AddSplineFlag(SPLINEFLAG_WALKMODE);
-        SetUInt32Value(UNIT_NPC_FLAGS, cinfo->npcflag);
 
         if (GetTemporaryFactionFlags() & TEMPFACTION_RESTORE_RESPAWN)
             ClearTemporaryFaction();
@@ -1509,8 +1513,18 @@ void Creature::SetDeathState(DeathState s)
 
         clearUnitState(UNIT_STAT_ALL_STATE);
         i_motionMaster.Clear();
+
         SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));
+
+        // Dynamic flags may be adjusted by spells. Clear them
+        // first and let spell from *addon apply where needed.
+        SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_NONE);
         LoadCreatureAddon(true);
+
+        // Flags after LoadCreatureAddon. Any spell in *addon
+        // will not be able to adjust these.
+        SetUInt32Value(UNIT_NPC_FLAGS, cinfo->npcflag);
+        RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
     }
 }
 

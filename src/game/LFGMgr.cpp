@@ -259,9 +259,13 @@ void LFGMgr::Join(Player* player)
 
     player->GetSession()->SendLfgJoinResult(LFG_JOIN_OK, 0);
 
-    player->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_JOIN_PROPOSAL, type);
     if (group)
         player->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_JOIN_PROPOSAL, type);
+    else
+        player->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_JOIN_PROPOSAL, type);
+
+    if(sWorld.getConfig(CONFIG_BOOL_RESTRICTED_LFG_CHANNEL))
+        player->JoinLFGChannel();
 
 }
 
@@ -289,6 +293,18 @@ void LFGMgr::_JoinGroup(ObjectGuid guid, LFGType type)
     DEBUG_LOG("LFGMgr::AddToQueue: group %u joined", guid.GetCounter());
     m_groupQueueInfoMap[type][guid] = pqInfo;
 
+}
+
+void LFGMgr::Leave(Group* group)
+{
+    if (!group)
+        return;
+    Player* leader = sObjectMgr.GetPlayer(group->GetLeaderGuid());
+
+    if (!leader)
+        return;
+
+    Leave(leader);
 }
 
 void LFGMgr::Leave(Player* player)
@@ -321,6 +337,9 @@ void LFGMgr::Leave(Player* player)
         player->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_REMOVED_FROM_QUEUE, type);
     }
     player->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_REMOVED_FROM_QUEUE, type);
+
+    if(sWorld.getConfig(CONFIG_BOOL_RESTRICTED_LFG_CHANNEL) && player->GetSession()->GetSecurity() == SEC_PLAYER )
+        player->LeaveLFGChannel();
 }
 
 void LFGMgr::_Leave(ObjectGuid guid, LFGType excludeType)
@@ -476,6 +495,14 @@ LFGLockStatusType LFGMgr::GetPlayerLockStatus(Player* player, LFGDungeonEntry co
         else
             return LFG_LOCKSTATUS_RAID_LOCKED;
     }
+
+    if (InstancePlayerBind* bind = player->GetBoundInstance(dungeon->map, Difficulty(dungeon->difficulty)))
+    {
+        if (DungeonPersistentState* state = bind->state)
+            if (state->IsCompleted())
+                return LFG_LOCKSTATUS_RAID_LOCKED;
+    }
+
         /* TODO
             LFG_LOCKSTATUS_ATTUNEMENT_TOO_LOW_LEVEL;
             LFG_LOCKSTATUS_ATTUNEMENT_TOO_HIGH_LEVEL;
@@ -538,7 +565,7 @@ void LFGMgr::ClearLFRList(Player* player)
 
 }
 
-LFGQueuePlayerSet LFGMgr::GetDungeonPlayerQueue(LFGDungeonEntry const* dungeon)
+LFGQueuePlayerSet LFGMgr::GetDungeonPlayerQueue(LFGDungeonEntry const* dungeon, Team team)
 {
     LFGQueuePlayerSet tmpSet;
     tmpSet.clear();
@@ -564,6 +591,9 @@ LFGQueuePlayerSet LFGMgr::GetDungeonPlayerQueue(LFGDungeonEntry const* dungeon)
             if (!player)
                 continue;
 
+            if (team && player->GetTeam() != team)
+                continue;
+
             if (player->GetLFGState()->GetState() < LFG_STATE_LFR ||
                 player->GetLFGState()->GetState() > LFG_STATE_PROPOSAL)
                 continue;
@@ -577,7 +607,7 @@ LFGQueuePlayerSet LFGMgr::GetDungeonPlayerQueue(LFGDungeonEntry const* dungeon)
     return tmpSet;
 }
 
-LFGQueueGroupSet LFGMgr::GetDungeonGroupQueue(LFGDungeonEntry const* dungeon)
+LFGQueueGroupSet LFGMgr::GetDungeonGroupQueue(LFGDungeonEntry const* dungeon, Team team)
 {
     LFGQueueGroupSet tmpSet;
     tmpSet.clear();
@@ -607,6 +637,9 @@ LFGQueueGroupSet LFGMgr::GetDungeonGroupQueue(LFGDungeonEntry const* dungeon)
             if (!player)
                 continue;
 
+            if (team && player->GetTeam() != team)
+                continue;
+
             if (player->GetLFGState()->GetState() < LFG_STATE_LFR ||
                 player->GetLFGState()->GetState() > LFG_STATE_PROPOSAL)
                 continue;
@@ -618,4 +651,63 @@ LFGQueueGroupSet LFGMgr::GetDungeonGroupQueue(LFGDungeonEntry const* dungeon)
         }
     }
     return tmpSet;
+}
+
+void LFGMgr::SendLFGRewards(Player* player)
+{
+    Group* group = player->GetGroup();
+    if (!group || !group->isLFDGroup())
+    {
+        DEBUG_LOG("LFGMgr::SendLFGReward: %u is not in a group or not a LFGGroup. Ignoring", player->GetObjectGuid().GetCounter());
+        return;
+    }
+
+    for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+    {
+        if (Player* member = itr->getSource())
+            if (member->IsInWorld())
+                SendLFGReward(member);
+    }
+}
+
+void LFGMgr::SendLFGReward(Player* player)
+{
+    LFGDungeonEntry const* dungeon = *player->GetLFGState()->GetDungeons()->begin();
+
+    if (!dungeon || dungeon->type != LFG_TYPE_RANDOM_DUNGEON)
+    {
+        DEBUG_LOG("LFGMgr::RewardDungeonDoneFor: %u dungeon is not random", player->GetObjectGuid().GetCounter());
+        return;
+    }
+
+    // Update achievements
+//    if (dungeon->difficulty == DUNGEON_DIFFICULTY_HEROIC)
+//        player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS, 1);
+
+    LFGReward const* reward = GetRandomDungeonReward(dungeon, player);
+
+    if (!reward)
+        return;
+
+    uint8 index = 0;
+    Quest const* qReward = sObjectMgr.GetQuestTemplate(reward->reward[index].questId);
+    if (!qReward)
+        return;
+
+    // if we can take the quest, means that we haven't done this kind of "run", IE: First Heroic Random of Day.
+    if (player->CanRewardQuest(qReward,false))
+        player->RewardQuest(qReward,0,NULL,false);
+    else
+    {
+        index = 1;
+        qReward = sObjectMgr.GetQuestTemplate(reward->reward[index].questId);
+        if (!qReward)
+            return;
+        // we give reward without informing client (retail does this)
+        player->RewardQuest(qReward,0,NULL,false);
+    }
+
+    // Give rewards
+    DEBUG_LOG("LFGMgr::RewardDungeonDoneFor: %u done dungeon %u, %s previously done.", player->GetObjectGuid().GetCounter(), dungeon->ID, index > 0 ? " " : " not");
+    player->GetSession()->SendLfgPlayerReward(dungeon, reward, qReward, index == 0);
 }

@@ -35,6 +35,7 @@
 #include "Group.h"
 #include "InstanceData.h"
 #include "ProgressBar.h"
+#include "LFGMgr.h"
 
 INSTANTIATE_SINGLETON_1( MapPersistentStateManager );
 
@@ -298,11 +299,12 @@ void DungeonPersistentState::UpdateEncounterState(EncounterCreditType type, uint
 
                 DEBUG_LOG("DungeonPersistentState: Dungeon %s (Id %u) completed encounter %s", GetMap()->GetMapName(), GetInstanceId(), (*itr)->dbcEntry->encounterName[sWorld.GetDefaultDbcLocale()]);
 
-                if (uint32 dungeonId = (*itr)->lastEncounterDungeon)
-                {
+                uint32 dungeonId = (*itr)->lastEncounterDungeon;
+                if (dungeonId)
                     DEBUG_LOG("DungeonPersistentState:: Dungeon %s (Id %u) completed last encounter %s", GetMap()->GetMapName(), GetInstanceId(), (*itr)->dbcEntry->encounterName[sWorld.GetDefaultDbcLocale()]);
-                    // Place LFG reward there!
-                }
+
+                if (IsCompleted())
+                    sLFGMgr.SendLFGRewards(player);
 
                 DungeonMap* dungeon = (DungeonMap*)GetMap();
 
@@ -313,6 +315,21 @@ void DungeonPersistentState::UpdateEncounterState(EncounterCreditType type, uint
             return;
         }
     }
+}
+
+bool DungeonPersistentState::IsCompleted()
+{
+    DungeonEncounterList const* encounterList = sObjectMgr.GetDungeonEncounterList(GetMapId(), GetDifficulty());
+
+    if (!encounterList)
+        return false;
+
+    for (DungeonEncounterList::const_iterator itr = encounterList->begin(); itr != encounterList->end(); ++itr)
+    {
+        if (!(m_completedEncountersMask & ( 1 << (*itr)->dbcEntry->encounterIndex)))
+            return false;
+    }
+    return true;
 }
 
 //== BattleGroundPersistentState functions =================

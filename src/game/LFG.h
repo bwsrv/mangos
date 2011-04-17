@@ -28,6 +28,7 @@ enum LFGRoles
     ROLE_TANK   = 1,
     ROLE_HEALER = 2,
     ROLE_DAMAGE = 3,
+    ROLE_MAX,
 };
 
 enum LFGRoleMask
@@ -268,7 +269,8 @@ struct LFGGroupState
     LFGDungeonSet* GetDungeons()   { return &m_DungeonsList; };
 
     uint32* GetFlags()  { return &m_flags;};
-    LFGType        GetType();
+    LFGType       GetType();
+    uint8         GetRoles(LFGRoles role);
 
     bool          queued;
     bool          update;

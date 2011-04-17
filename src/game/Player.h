@@ -1783,7 +1783,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         static void RemovePetitionsAndSigns(ObjectGuid guid, uint32 type);
 
         // Arena Team
-        void SetInArenaTeam(uint32 ArenaTeamId, uint8 slot, uint8 type)
+        void SetInArenaTeam(uint32 ArenaTeamId, uint8 slot, ArenaType type)
         {
             SetArenaTeamInfoField(slot, ARENA_TEAM_ID, ArenaTeamId);
             SetArenaTeamInfoField(slot, ARENA_TEAM_TYPE, type);
@@ -1794,7 +1794,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         }
         uint32 GetArenaTeamId(uint8 slot) { return GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + ARENA_TEAM_ID); }
         uint32 GetArenaPersonalRating(uint8 slot) { return GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + ARENA_TEAM_PERSONAL_RATING); }
-        static uint32 GetArenaTeamIdFromDB(ObjectGuid guid, uint8 slot);
+        static uint32 GetArenaTeamIdFromDB(ObjectGuid guid, ArenaType type);
         void SetArenaTeamIdInvited(uint32 ArenaTeamId) { m_ArenaTeamIdInvited = ArenaTeamId; }
         uint32 GetArenaTeamIdInvited() { return m_ArenaTeamIdInvited; }
         static void LeaveAllArenaTeams(ObjectGuid guid);
@@ -1933,6 +1933,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         void CleanupChannels();
         void UpdateLocalChannels( uint32 newZone );
         void LeaveLFGChannel();
+        void JoinLFGChannel();
 
         void UpdateDefense();
         void UpdateWeaponSkill (WeaponAttackType attType);

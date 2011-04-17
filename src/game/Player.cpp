@@ -4693,7 +4693,7 @@ void Player::KillPlayer()
     SetDeathState(CORPSE);
     //SetFlag( UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_IN_PVP );
 
-    SetFlag(UNIT_DYNAMIC_FLAGS, 0x00);
+    SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_NONE);
     ApplyModByteFlag(PLAYER_FIELD_BYTES, 0, PLAYER_FIELD_BYTE_RELEASE_TIMER, !sMapStore.LookupEntry(GetMapId())->Instanceable());
 
     // 6 minutes until repop at graveyard
@@ -5122,6 +5122,18 @@ void Player::LeaveLFGChannel()
         if((*i)->IsLFG())
         {
             (*i)->Leave(GetGUID());
+            break;
+        }
+    }
+}
+
+void Player::JoinLFGChannel()
+{
+    for(JoinedChannelsList::iterator i = m_channels.begin(); i != m_channels.end(); ++i )
+    {
+        if((*i)->IsLFG())
+        {
+            (*i)->Join(GetGUID(),"");
             break;
         }
     }
@@ -6980,7 +6992,7 @@ uint32 Player::GetRankFromDB(ObjectGuid guid)
         return 0;
 }
 
-uint32 Player::GetArenaTeamIdFromDB(ObjectGuid guid, uint8 type)
+uint32 Player::GetArenaTeamIdFromDB(ObjectGuid guid, ArenaType type)
 {
     QueryResult *result = CharacterDatabase.PQuery("SELECT arena_team_member.arenateamid FROM arena_team_member JOIN arena_team ON arena_team_member.arenateamid = arena_team.arenateamid WHERE guid='%u' AND type='%u' LIMIT 1", guid.GetCounter(), type);
     if (!result)

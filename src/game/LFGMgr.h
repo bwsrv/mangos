@@ -95,14 +95,17 @@ class LFGMgr
 
         void Join(Player* player);
         void Leave(Player* player);
+        void Leave(Group* group);
 
-        LFGQueuePlayerSet GetDungeonPlayerQueue(LFGDungeonEntry const* dungeon);
-        LFGQueueGroupSet  GetDungeonGroupQueue(LFGDungeonEntry const* dungeon);
+        LFGQueuePlayerSet GetDungeonPlayerQueue(LFGDungeonEntry const* dungeon, Team team = TEAM_NONE);
+        LFGQueueGroupSet  GetDungeonGroupQueue(LFGDungeonEntry const* dungeon, Team team = TEAM_NONE);
 
         void ClearLFRList(Player* player);
 
         void LoadRewards();
         LFGReward const* GetRandomDungeonReward(LFGDungeonEntry const* dungeon, Player* player);
+        void SendLFGRewards(Player* player);
+        void SendLFGReward(Player* player);
 
         LFGDungeonEntry const* GetDungeon(uint32 dungeonID);
 

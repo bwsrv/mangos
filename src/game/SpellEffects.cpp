@@ -4580,20 +4580,25 @@ void Spell::EffectCreateRandomItem(SpellEffectIndex /*eff_idx*/)
 
 void Spell::EffectPersistentAA(SpellEffectIndex eff_idx)
 {
+    Unit* pCaster = GetAffectiveCaster();
+    // FIXME: in case wild GO will used wrong affective caster (target in fact) as dynobject owner
+    if (!pCaster)
+        pCaster = m_caster;
+
     float radius = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[eff_idx]));
 
-    if (Player* modOwner = m_caster->GetSpellModOwner())
+    if (Player* modOwner = pCaster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, radius);
 
     DynamicObject* dynObj = new DynamicObject;
-    if (!dynObj->Create(m_caster->GetMap()->GenerateLocalLowGuid(HIGHGUID_DYNAMICOBJECT), m_caster, m_spellInfo->Id, eff_idx, m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, m_duration, radius))
+    if (!dynObj->Create(pCaster->GetMap()->GenerateLocalLowGuid(HIGHGUID_DYNAMICOBJECT), pCaster, m_spellInfo->Id, eff_idx, m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, m_duration, radius))
     {
         delete dynObj;
         return;
     }
 
-    m_caster->AddDynObject(dynObj);
-    m_caster->GetMap()->Add(dynObj);
+    pCaster->AddDynObject(dynObj);
+    pCaster->GetMap()->Add(dynObj);
 }
 
 void Spell::EffectEnergize(SpellEffectIndex eff_idx)
@@ -7386,6 +7391,60 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     return;
                 }
+                case 45713:                                 // Naked Caravan Guard - Master Transform
+                {
+                    if (m_caster->GetTypeId() != TYPEID_UNIT)
+                        return;
+
+                    const CreatureInfo* cTemplate = NULL;
+
+                    switch(m_caster->GetEntry())
+                    {
+                        case 25342: cTemplate = ObjectMgr::GetCreatureTemplate(25340); break;
+                        case 25343: cTemplate = ObjectMgr::GetCreatureTemplate(25341); break;
+                    }
+
+                    if (!cTemplate)
+                        return;
+
+                    uint32 display_id = 0;
+
+                    // Spell is designed to be used in creature addon.
+                    // This makes it possible to set proper model before adding to map.
+                    // For later, spell is used in gossip (with following despawn,
+                    // so addon can reload the default model and data again).
+
+                    // It should be noted that additional spell id's have been seen in relation
+                    // to this spell, but those does not exist in client (45701 (regular spell), 45706 (aura)).
+
+                    // not in map yet OR no npc flags yet (restored after LoadCreatureAddon for respawn cases)
+                    if (!m_caster->IsInMap(m_caster) || m_caster->GetUInt32Value(UNIT_NPC_FLAGS) == UNIT_NPC_FLAG_NONE)
+                    {
+                        display_id = Creature::ChooseDisplayId(cTemplate);
+                        ((Creature*)m_caster)->LoadEquipment(((Creature*)m_caster)->GetEquipmentId());
+                    }
+                    else
+                    {
+                        m_caster->SetUInt32Value(UNIT_NPC_FLAGS, cTemplate->npcflag);
+                        ((Creature*)m_caster)->SetVirtualItem(VIRTUAL_ITEM_SLOT_0, 0);
+                        ((Creature*)m_caster)->SetVirtualItem(VIRTUAL_ITEM_SLOT_1, 0);
+
+                        switch(m_caster->GetDisplayId())
+                        {
+                            case 23246: display_id = 23245; break;
+                            case 23247: display_id = 23250; break;
+                            case 23248: display_id = 23251; break;
+                            case 23249: display_id = 23252; break;
+                            case 23124: display_id = 23253; break;
+                            case 23125: display_id = 23254; break;
+                            case 23126: display_id = 23255; break;
+                            case 23127: display_id = 23256; break;
+                        }
+                    }
+
+                    m_caster->SetDisplayId(display_id);
+                    return;
+                }
                 case 46203:                                 // Goblin Weather Machine
                 {
                     if (!unitTarget)
@@ -7760,6 +7819,16 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     ((Creature*)unitTarget)->ForcedDespawn();
                     break;
                 }
+                case 48810:
+                {
+                    if(unitTarget)
+                        unitTarget->CastSpell(unitTarget, 48809, true);
+                    return;
+                }
+                case 48724:                                 // Q: The Denouncement
+                case 48726:
+                case 48728:
+                case 48730:
                 case 52694:                                 // Recall Eye of Acherus
                 {
                     if (!m_caster || m_caster->GetTypeId() != TYPEID_UNIT)
@@ -9845,8 +9914,9 @@ void Spell::EffectSummonDeadPet(SpellEffectIndex /*eff_idx*/)
         return;
     if(damage < 0)
         return;
-    pet->SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
-    pet->RemoveFlag (UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
+
+    pet->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_NONE);
+    pet->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
     pet->SetDeathState( ALIVE );
     pet->clearUnitState(UNIT_STAT_ALL_STATE);
     pet->SetHealth( uint32(pet->GetMaxHealth()*(float(damage)/100)));

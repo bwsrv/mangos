@@ -55,15 +55,6 @@ void LFGPlayerState::SetRoles(uint8 roles)
 {
     rolesMask = LFGRoleMask(roles);
 
-    if (rolesMask != LFG_ROLE_MASK_NONE)
-        m_flags |= LFG_MEMBER_FLAG_ROLES;
-    else
-        m_flags &= ~LFG_MEMBER_FLAG_ROLES;
-
-};
-
-LFGRoleMask LFGPlayerState::GetRoles()
-{
     if (Group* group = m_player->GetGroup())
     {
         if (group->GetLeaderGuid() == m_player->GetObjectGuid())
@@ -74,13 +65,29 @@ LFGRoleMask LFGPlayerState::GetRoles()
     else
         rolesMask = LFGRoleMask(rolesMask & ~LFG_ROLE_MASK_LEADER);
 
+    if (rolesMask != LFG_ROLE_MASK_NONE)
+        m_flags |= LFG_MEMBER_FLAG_ROLES;
+    else
+        m_flags &= ~LFG_MEMBER_FLAG_ROLES;
+
+};
+
+LFGRoleMask LFGPlayerState::GetRoles()
+{
     return rolesMask;
 };
 
 void LFGPlayerState::SetComment(std::string comment)
 {
     m_comment.clear();
-    m_comment.append(comment);
+    if (!comment.empty())
+    {
+        m_flags = m_flags |  LFG_MEMBER_FLAG_COMMENT;
+        m_comment.append(comment);
+    }
+    else
+        m_flags = m_flags & ~LFG_MEMBER_FLAG_COMMENT;
+
 };
 
 LFGType LFGPlayerState::GetType()
@@ -104,3 +111,16 @@ void LFGGroupState::Clear()
               LFG_MEMBER_FLAG_COMMENT |
               LFG_MEMBER_FLAG_BIND;
 }
+
+uint8 LFGGroupState::GetRoles(LFGRoles role)
+{
+    uint8 count = 0;
+    for (GroupReference* itr = m_group->GetFirstMember(); itr != NULL; itr = itr->next())
+    {
+        if (Player* member = itr->getSource())
+            if (member->IsInWorld())
+                if (member->GetLFGState()->GetRoles() & (1 << role))
+                    ++count;
+    }
+    return count;
+};
