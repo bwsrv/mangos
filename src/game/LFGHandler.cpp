@@ -548,10 +548,10 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
     if (!dungeonEntry)
         return;
     uint32 flags = LFG_MEMBER_FLAG_NONE | LFG_MEMBER_FLAG_CHARINFO |
-                   LFG_MEMBER_FLAG_COMMENT | LFG_MEMBER_FLAG_UNK1 |
+                   LFG_MEMBER_FLAG_COMMENT | LFG_MEMBER_FLAG_GROUPCOUNT |
                    LFG_MEMBER_FLAG_ROLES |
-                   LFG_MEMBER_FLAG_GROUP | LFG_MEMBER_FLAG_UNK2  |
-                   LFG_MEMBER_FLAG_UNK3  | LFG_MEMBER_FLAG_BIND;
+                   LFG_MEMBER_FLAG_GROUPGUID | LFG_MEMBER_FLAG_AREA  |
+                   LFG_MEMBER_FLAG_STATUS  | LFG_MEMBER_FLAG_BIND;
 
     uint8 guids1 = 0;                                        // additional guids. unknown
 
@@ -571,14 +571,13 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
             continue;
 
         if (flags & LFG_MEMBER_FLAG_COMMENT)
-            groupSize += leader->GetLFGState()->GetComment().size();
+            groupSize += leader->GetLFGState()->GetComment().size()+1;
         if (flags & LFG_MEMBER_FLAG_ROLES)
             groupSize +=3;
         if (flags & LFG_MEMBER_FLAG_BIND)
             groupSize += (8+4);
 
-//        players.insert(leader);
-// remove this comment if your want to see searchers-leaders in player list.
+        players.insert(leader);
     }
 
     uint32 playerCount = players.size();
@@ -592,21 +591,21 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
             playerSize += (1+1+1+3+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4+4);
 
         if (flags & LFG_MEMBER_FLAG_COMMENT)
-            playerSize += (*itr)->GetLFGState()->GetComment().size();         // comment
+            playerSize += (*itr)->GetLFGState()->GetComment().size()+1;         // comment
 
-        if (flags & LFG_MEMBER_FLAG_UNK1)
+        if (flags & LFG_MEMBER_FLAG_GROUPCOUNT)
             playerSize += 1;
 
-        if (flags & LFG_MEMBER_FLAG_GROUP)
+        if (flags & LFG_MEMBER_FLAG_GROUPGUID)
             playerSize += 8;
 
         if (flags & LFG_MEMBER_FLAG_ROLES)
             playerSize += 1;
 
-        if (flags & LFG_MEMBER_FLAG_UNK2)
+        if (flags & LFG_MEMBER_FLAG_AREA)
             playerSize += 4;
 
-        if (flags & LFG_MEMBER_FLAG_UNK3)
+        if (flags & LFG_MEMBER_FLAG_STATUS)
             playerSize += 1;
 
         if (flags & LFG_MEMBER_FLAG_BIND)
@@ -641,13 +640,13 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
 
             Player* leader = sObjectMgr.GetPlayer(group->GetLeaderGuid());
 
-            data << leader->GetObjectGuid();
+            data << group->GetObjectGuid();
 
             data << uint32(flags);
 
             if (flags & LFG_MEMBER_FLAG_COMMENT)
             {
-                data << leader->GetLFGState()->GetComment();
+                data << leader->GetLFGState()->GetComment().c_str();
             }
 
             if (flags & LFG_MEMBER_FLAG_ROLES)
@@ -655,7 +654,6 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
                 for (int i = 0; i < 3; ++i)
                 {
                     data << uint8(group->GetLFGState()->GetRoles(LFGRoles(i+1)));
-//                    data << uint8(0);
                 }
             }
 
@@ -696,7 +694,7 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
 
             data << uint32(flags);                                // flags
 
-            if (flags &  LFG_MEMBER_FLAG_CHARINFO)
+            if (flags &  LFG_MEMBER_FLAG_CHARINFO)                // charinfo
             {
                 data << uint8(player->getLevel());
                 data << uint8(player->getClass());
@@ -711,8 +709,8 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
                 data << uint32(player->GetRatingBonusValue(CR_HASTE_MELEE));                        // haste rating melee
                 data << uint32(player->GetRatingBonusValue(CR_HASTE_RANGED));                       // haste rating ranged
                 data << uint32(player->GetRatingBonusValue(CR_HASTE_SPELL));                        // haste rating spell
-                data << float(0);                               // mp5
-                data << float(0);                               // unk
+                data << float(player->GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER));                               // mp5
+                data << float(player->GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER));                   // unk
                 data << uint32(player->GetTotalAttackPowerValue(BASE_ATTACK));                      // attack power
                 data << uint32(player->GetTotalStatValue(STAT_AGILITY));                            // agility
                 data << uint32(player->GetMaxHealth());                                             // health
@@ -728,12 +726,17 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
             }
 
             if (flags & LFG_MEMBER_FLAG_COMMENT)
-                data << player->GetLFGState()->GetComment();         // comment
+                data << player->GetLFGState()->GetComment().c_str();         // comment
 
-            if (flags & LFG_MEMBER_FLAG_UNK1)
-                data << uint8(0);                                    // unk, may be string terminator for comment
+            if (flags & LFG_MEMBER_FLAG_GROUPCOUNT)                          // Group members count
+            {
+                if (Group* group = player->GetGroup())
+                    data << uint8(group->GetMembersCount());
+                else
+                    data << uint8(0);
+            }
 
-            if (flags & LFG_MEMBER_FLAG_GROUP)
+            if (flags & LFG_MEMBER_FLAG_GROUPGUID)                          // Group guid
             {
                 ObjectGuid groupGuid = ObjectGuid();
                 if (Group* group = player->GetGroup())
@@ -742,13 +745,13 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
                 data << groupGuid;
             }
 
-            if (flags & LFG_MEMBER_FLAG_ROLES)
+            if (flags & LFG_MEMBER_FLAG_ROLES)                              // rolesMask
                 data << uint8(player->GetLFGState()->GetRoles());
 
-            if (flags & LFG_MEMBER_FLAG_UNK2)
-                data << uint32(0);
+            if (flags & LFG_MEMBER_FLAG_AREA)                               // Area
+                data << uint32(player->GetAreaId());
 
-            if (flags & LFG_MEMBER_FLAG_UNK3)
+            if (flags & LFG_MEMBER_FLAG_STATUS)                             // status
                 data << uint8(0);
 
             if (flags & LFG_MEMBER_FLAG_BIND)

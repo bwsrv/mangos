@@ -29,15 +29,15 @@ void LFGPlayerState::Clear()
     update = true;
     m_state = LFG_STATE_NONE;
     m_flags = LFG_MEMBER_FLAG_NONE | LFG_MEMBER_FLAG_CHARINFO |
-              LFG_MEMBER_FLAG_COMMENT | LFG_MEMBER_FLAG_UNK1 |
-              LFG_MEMBER_FLAG_GROUP |
-              LFG_MEMBER_FLAG_UNK2  |
-              LFG_MEMBER_FLAG_UNK3  |
+              LFG_MEMBER_FLAG_COMMENT | LFG_MEMBER_FLAG_GROUPCOUNT |
+              LFG_MEMBER_FLAG_GROUPGUID |
+              LFG_MEMBER_FLAG_AREA  |
+              LFG_MEMBER_FLAG_STATUS  |
               LFG_MEMBER_FLAG_BIND;
 
     m_DungeonsList.clear();
     m_LockMap.clear();
-    SetComment("<no comment>");
+    m_comment.clear();
 }
 
 LFGLockStatusMap* LFGPlayerState::GetLockMap()
@@ -109,6 +109,7 @@ void LFGGroupState::Clear()
     m_DungeonsList.clear();
     m_flags = LFG_MEMBER_FLAG_NONE |
               LFG_MEMBER_FLAG_COMMENT |
+              LFG_MEMBER_FLAG_ROLES |
               LFG_MEMBER_FLAG_BIND;
 }
 

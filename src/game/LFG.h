@@ -66,14 +66,14 @@ enum LFGRoleMask
 enum LFGMemberFlags
 {
     LFG_MEMBER_FLAG_NONE     = 0x00,
-    LFG_MEMBER_FLAG_CHARINFO = 0x01,
-    LFG_MEMBER_FLAG_COMMENT  = 0x02,
-    LFG_MEMBER_FLAG_UNK1     = 0x04,
-    LFG_MEMBER_FLAG_GROUP    = 0x08,
-    LFG_MEMBER_FLAG_ROLES    = 0x10,
-    LFG_MEMBER_FLAG_UNK2     = 0x20,
-    LFG_MEMBER_FLAG_UNK3     = 0x40,
-    LFG_MEMBER_FLAG_BIND     = 0x80,  // unk guid + unk int
+    LFG_MEMBER_FLAG_CHARINFO = 0x01,  // have charinfo
+    LFG_MEMBER_FLAG_COMMENT  = 0x02,  // have comment
+    LFG_MEMBER_FLAG_GROUPCOUNT   = 0x04, // Have members in group
+    LFG_MEMBER_FLAG_GROUPGUID    = 0x08, // Have group guid
+    LFG_MEMBER_FLAG_ROLES    = 0x10,  // have roles
+    LFG_MEMBER_FLAG_AREA     = 0x20,  // have areaid
+    LFG_MEMBER_FLAG_STATUS   = 0x40,  // have status (unknown bool)
+    LFG_MEMBER_FLAG_BIND     = 0x80,  // have bind and completed encounter on this dungeon
 };
 
 enum LFGState
