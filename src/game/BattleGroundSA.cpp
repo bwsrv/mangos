@@ -144,7 +144,9 @@ void BattleGroundSA::EndBattleGround(Team winner)
     if (RoundScores[0].time == RoundScores[1].time) // Noone got in time
         winner = TEAM_NONE;
     else if (RoundScores[0].time > RoundScores[1].time)
-        winner = RoundScores[1].winner == ALLIANCE ? ALLIANCE : HORDE;
+        winner = (RoundScores[1].winner == ALLIANCE) ? ALLIANCE : HORDE;
+    else if (RoundScores[0].time < RoundScores[1].time)
+        winner = (RoundScores[0].winner == ALLIANCE) ? ALLIANCE : HORDE;
 
     //win reward
     if(winner)
