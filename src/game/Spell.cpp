@@ -1804,6 +1804,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 67077:                                 // -> Lord Jaraxxus encounter, 10 and 10 heroic)
                 case 66152:                                 // Bullet Foced Cast (Trial of the Crusader, ->
                 case 66153:                                 // -> Twin Valkyr encounter, 10 and 25 mode)
+                case 66339:                                 // Summon Scarab (Trial of the Crusader, Anub'arak encounter)
                     unMaxTargets = 1;
                     break;
                 case 28542:                                 // Life Drain
