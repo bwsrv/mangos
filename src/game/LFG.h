@@ -65,15 +65,16 @@ enum LFGRoleMask
 
 enum LFGMemberFlags
 {
-    LFG_MEMBER_FLAG_NONE     = 0x00,
-    LFG_MEMBER_FLAG_CHARINFO = 0x01,  // have charinfo
-    LFG_MEMBER_FLAG_COMMENT  = 0x02,  // have comment
-    LFG_MEMBER_FLAG_GROUPCOUNT   = 0x04, // Have members in group
-    LFG_MEMBER_FLAG_GROUPGUID    = 0x08, // Have group guid
-    LFG_MEMBER_FLAG_ROLES    = 0x10,  // have roles
-    LFG_MEMBER_FLAG_AREA     = 0x20,  // have areaid
-    LFG_MEMBER_FLAG_STATUS   = 0x40,  // have status (unknown bool)
-    LFG_MEMBER_FLAG_BIND     = 0x80,  // have bind and completed encounter on this dungeon
+    LFG_MEMBER_FLAG_NONE         = 0x00,
+    LFG_MEMBER_FLAG_CHARINFO     = 0x01,      // have charinfo
+    LFG_MEMBER_FLAG_COMMENT      = 0x02,      // have comment
+    LFG_MEMBER_FLAG_GROUPLEADER  = 0x04,      // IsInGroup
+    LFG_MEMBER_FLAG_GROUPGUID    = 0x08,      // Have group guid
+    LFG_MEMBER_FLAG_ROLES        = 0x10,      // have roles
+    LFG_MEMBER_FLAG_AREA         = 0x20,      // have areaid
+    LFG_MEMBER_FLAG_STATUS       = 0x40,      // have status (unknown bool)
+    LFG_MEMBER_FLAG_BIND         = 0x80,      // have bind and completed encounter on this dungeon
+    LFG_MEMBER_FLAG_UPDATE       = 0x1000,    // special custom flag for clear client cache
 };
 
 enum LFGState
@@ -243,7 +244,10 @@ struct LFGPlayerState
     void AddRole(LFGRoles role) { rolesMask = LFGRoleMask( rolesMask | (1 << role)); };
     void RemoveRole(LFGRoles role) { rolesMask = LFGRoleMask( rolesMask & ~(1 << role)); };
 
-    uint32*        GetFlags()    { return &m_flags;};
+    uint32         GetFlags()                { return m_flags;};
+    void           AddFlags(uint32 flags)    { m_flags = m_flags | flags;};
+    void           RemoveFlags(uint32 flags) { m_flags = m_flags & ~flags;};
+
     LFGType        GetType();
 
 private:

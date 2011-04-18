@@ -535,9 +535,9 @@ void WorldSession::SendLfgUpdatePlayer(LFGUpdateType updateType, LFGType type)
 
 void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
 {
-    if (!sWorld.getConfig(CONFIG_BOOL_LFR_ENABLE) && !sWorld.getConfig(CONFIG_BOOL_LFG_ENABLE))
+    if (!sWorld.getConfig(CONFIG_BOOL_LFR_ENABLE))
     {
-        DEBUG_LOG("SendLfgUpdateList %u failed - Dungeon finder disabled", GetPlayer()->GetObjectGuid().GetCounter());
+        DEBUG_LOG("SendLfgUpdateList %u failed - Raid finder disabled", GetPlayer()->GetObjectGuid().GetCounter());
         return;
     }
 
@@ -547,13 +547,6 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
 
     if (!dungeonEntry)
         return;
-    uint32 flags = LFG_MEMBER_FLAG_NONE | LFG_MEMBER_FLAG_CHARINFO |
-                   LFG_MEMBER_FLAG_COMMENT | LFG_MEMBER_FLAG_GROUPCOUNT |
-                   LFG_MEMBER_FLAG_ROLES |
-                   LFG_MEMBER_FLAG_GROUPGUID | LFG_MEMBER_FLAG_AREA  |
-                   LFG_MEMBER_FLAG_STATUS  | LFG_MEMBER_FLAG_BIND;
-
-    uint8 guids1 = 0;                                        // additional guids. unknown
 
     Team team = sWorld.getConfig(CONFIG_BOOL_ALLOW_TWO_SIDE_INTERACTION_GROUP) ? TEAM_NONE : GetPlayer()->GetTeam();
 
@@ -569,6 +562,16 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
 
         if (!leader)
             continue;
+        leader->GetLFGState()->AddFlags(LFG_MEMBER_FLAG_CHARINFO |
+                                        LFG_MEMBER_FLAG_COMMENT |
+                                        LFG_MEMBER_FLAG_GROUPLEADER |
+                                        LFG_MEMBER_FLAG_GROUPGUID |
+                                        LFG_MEMBER_FLAG_ROLES |
+                                        LFG_MEMBER_FLAG_AREA  |
+                                        LFG_MEMBER_FLAG_STATUS  |
+                                        LFG_MEMBER_FLAG_BIND);
+
+        uint32 flags = leader->GetLFGState()->GetFlags();
 
         if (flags & LFG_MEMBER_FLAG_COMMENT)
             groupSize += leader->GetLFGState()->GetComment().size()+1;
@@ -578,13 +581,39 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
             groupSize += (8+4);
 
         players.insert(leader);
+
+        for (GroupReference *itr2 = (*itr)->GetFirstMember(); itr2 != NULL; itr2 = itr2->next())
+        {
+            Player* player = itr2->getSource();
+
+            if (!player || player == leader)
+                continue;
+
+            player->GetLFGState()->AddFlags(LFG_MEMBER_FLAG_GROUPLEADER |
+                                        LFG_MEMBER_FLAG_GROUPGUID |
+                                        LFG_MEMBER_FLAG_STATUS);
+
+            player->GetLFGState()->RemoveFlags(LFG_MEMBER_FLAG_CHARINFO |
+                                        LFG_MEMBER_FLAG_COMMENT |
+                                        LFG_MEMBER_FLAG_ROLES |
+                                        LFG_MEMBER_FLAG_AREA  |
+                                        LFG_MEMBER_FLAG_BIND);
+            players.insert(player);
+        }
+
     }
 
     uint32 playerCount = players.size();
     uint32 playerSize = 4+4;
 
+    uint32 guidsSize = 0;
+    LFGQueuePlayerSet playersUpdated;
+    playersUpdated.clear();
+
     for(LFGQueuePlayerSet::const_iterator itr = players.begin(); itr != players.end(); ++itr)
     {
+        uint32 flags = (*itr)->GetLFGState()->GetFlags();
+
         playerSize += (8+4);
 
         if (flags &  LFG_MEMBER_FLAG_CHARINFO)
@@ -593,7 +622,7 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
         if (flags & LFG_MEMBER_FLAG_COMMENT)
             playerSize += (*itr)->GetLFGState()->GetComment().size()+1;         // comment
 
-        if (flags & LFG_MEMBER_FLAG_GROUPCOUNT)
+        if (flags & LFG_MEMBER_FLAG_GROUPLEADER)
             playerSize += 1;
 
         if (flags & LFG_MEMBER_FLAG_GROUPGUID)
@@ -610,23 +639,31 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
 
         if (flags & LFG_MEMBER_FLAG_BIND)
             playerSize += (8+4);
+
+        if (flags & LFG_MEMBER_FLAG_UPDATE)
+        {
+            (*itr)->GetLFGState()->RemoveFlags(LFG_MEMBER_FLAG_UPDATE);
+            playersUpdated.insert(*itr);
+            guidsSize += 8;
+        }
+
     }
 
-    WorldPacket data(SMSG_LFG_SEARCH_RESULTS, 4 + 4 + 1 + guids1*8 + groupSize + playerSize);
+    WorldPacket data(SMSG_LFG_SEARCH_RESULTS, 4 + 4 + 1 + groupSize + playerSize + guidsSize);
 
     data << uint32(dungeon->type);                           // type
     data << uint32(dungeon->Entry());                        // entry from LFGDungeons.dbc
 
-    if (guids1 > 0)
+    if (!playersUpdated.empty())
     {
-        data << uint8(guids1);
-        for(uint8 count1 = 0; count1 != guids1; ++count1)
+        data << uint8(playersUpdated.size());
+        for (LFGQueuePlayerSet::const_iterator itr = playersUpdated.begin(); itr != playersUpdated.end(); ++itr)
         {
-            data << uint64(0);                               // player guid
+            data << (*itr)->GetObjectGuid();                 // player guid
         }
     }
     else
-        data << uint8(guids1);
+        data << uint8(0);
 
 
     if (!groups.empty())
@@ -640,9 +677,11 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
 
             Player* leader = sObjectMgr.GetPlayer(group->GetLeaderGuid());
 
+            uint32 flags = leader->GetLFGState()->GetFlags();
+
             data << group->GetObjectGuid();
 
-            data << uint32(flags);
+            data << flags;
 
             if (flags & LFG_MEMBER_FLAG_COMMENT)
             {
@@ -690,9 +729,11 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
         {
             Player* player = *itr;
 
+            uint32 flags = player->GetLFGState()->GetFlags();
+
             data << player->GetObjectGuid();                      // guid
 
-            data << uint32(flags);                                // flags
+            data << flags;                                        // flags
 
             if (flags &  LFG_MEMBER_FLAG_CHARINFO)                // charinfo
             {
@@ -728,12 +769,14 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
             if (flags & LFG_MEMBER_FLAG_COMMENT)
                 data << player->GetLFGState()->GetComment().c_str();         // comment
 
-            if (flags & LFG_MEMBER_FLAG_GROUPCOUNT)                          // Group members count
+            if (flags & LFG_MEMBER_FLAG_GROUPLEADER)                         // Group leader flag
             {
+                bool isLeader = false;
                 if (Group* group = player->GetGroup())
-                    data << uint8(group->GetMembersCount());
-                else
-                    data << uint8(0);
+                    if (player->GetObjectGuid() == group->GetLeaderGuid())
+                        isLeader = true;
+
+                data << uint8(isLeader);
             }
 
             if (flags & LFG_MEMBER_FLAG_GROUPGUID)                          // Group guid
