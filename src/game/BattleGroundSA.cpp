@@ -141,13 +141,6 @@ void BattleGroundSA::ToggleTimer()
 
 void BattleGroundSA::EndBattleGround(Team winner)
 {
-    if (RoundScores[0].time == RoundScores[1].time) // Noone got in time
-        winner = TEAM_NONE;
-    else if (RoundScores[0].time > RoundScores[1].time)
-        winner = (RoundScores[1].winner == ALLIANCE) ? ALLIANCE : HORDE;
-    else if (RoundScores[0].time < RoundScores[1].time)
-        winner = (RoundScores[0].winner == ALLIANCE) ? ALLIANCE : HORDE;
-
     //win reward
     if(winner)
     {
@@ -191,8 +184,10 @@ void BattleGroundSA::Update(uint32 diff)
             {
                 SendMessageToAll(defender == ALLIANCE ? LANG_BG_SA_ALLIANCE_TIMEOUT_END_2ROUND : LANG_BG_SA_HORDE_TIMEOUT_END_2ROUND, CHAT_MSG_BG_SYSTEM_NEUTRAL, NULL);
                 RoundScores[1].winner = GetDefender();
-                RoundScores[1].time = BG_SA_ROUNDLENGTH;
-                EndBattleGround(TEAM_NONE);
+                if (RoundScores[0].winner == GetDefender())
+                    EndBattleGround(GetDefender());
+                else
+                    EndBattleGround(TEAM_NONE);
                 return;
             }
         } 
@@ -214,16 +209,6 @@ void BattleGroundSA::Update(uint32 diff)
             }
         }
         UpdateTimer();
-
-        //2nd round shouldnt be longer than 1st
-        if (Phase == SA_ROUND_TWO)
-        {       
-            if (Round_timer > RoundScores[0].time)
-            {
-                RoundScores[1].time = Round_timer;
-                EndBattleGround(GetDefender() == HORDE ? HORDE : ALLIANCE);
-            }
-        }
     }
 
     if (GetStatus() == STATUS_WAIT_JOIN && Phase == SA_ROUND_TWO) // Round two, not yet started
@@ -404,7 +389,7 @@ void BattleGroundSA::UpdatePhase()
         SpawnEvent(SA_EVENT_ADD_NPC, 0, false);
         OpenDoorEvent(SA_EVENT_OP_DOOR, 0);
 
-        Round_timer = 0;
+        Round_timer = (BG_SA_ROUNDLENGTH - RoundScores[0].time);
         SetStatus(STATUS_WAIT_JOIN);
         SendMessageToAll(LANG_BG_SA_START_TWO_MINUTE, CHAT_MSG_BG_SYSTEM_NEUTRAL, NULL);
     }
@@ -710,7 +695,6 @@ void BattleGroundSA::EventPlayerDamageGO(Player *player, GameObject* target_obj,
                 else // Victory at second round
                 {
                     RoundScores[1].winner = GetDefender() == ALLIANCE ? HORDE : ALLIANCE;
-                    RoundScores[1].time = Round_timer;
                     SendMessageToAll(defender == HORDE ? LANG_BG_SA_ALLIANCE_END_2ROUND : LANG_BG_SA_HORDE_END_2ROUND, CHAT_MSG_BG_SYSTEM_NEUTRAL, NULL);
                     RewardHonorToTeam(150, (teamIndex == 0) ? ALLIANCE:HORDE);
                     EndBattleGround(player->GetTeam());
