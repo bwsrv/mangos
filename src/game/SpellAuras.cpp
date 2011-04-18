@@ -8599,6 +8599,44 @@ void Aura::PeriodicDummyTick()
                     }
                     return;
                 }
+                case 65921:                                // Trial Of Crusader (Spike Aura - Anub'arak)
+                {
+                    uint32 Tick = GetAuraTicks();
+                    if (Tick == 1)
+                    {
+                        target->CastSpell(target, 66339, true);  //anub Summon Scarab Aura
+                        target->CastSpell(target, 65981, false); //Submerged
+                    }
+                    if (Tick == 6)
+                    if (Tick % 130 == 0)
+                    {
+                        target->RemoveAurasDueToSpell(65981);
+                        target->RemoveAurasDueToSpell(65921);
+                        target->RemoveAurasDueToSpell(66339);
+                        target->CastSpell(target, 65982, true); // Birth
+                    }
+                    else
+                    {
+                        if (Tick > 5)
+                        {
+                            target->CastSpell(target, 67470, true); //Check Aura Spell
+                            target->CastSpell(target, 66170, true); //Anub Teleport
+                        }
+                    }
+                    return;
+                }
+                case 67574:                                // Trial Of Crusader (Spike Aggro Aura - Anub'arak)
+                {
+                    if (!target->GetMap()->Instanceable())
+                        return;
+
+                    if (InstanceData* data = target->GetInstanceData())
+                    {
+                        if (Creature* pSpike = target->GetMap()->GetCreature(data->GetData64(34660)))
+                            pSpike->AI()->AttackStart(target);
+                    }
+                    return;
+                }
                 case 67630:                                 // Leeching Swarm 25 man
                 case 68647:
                 {
