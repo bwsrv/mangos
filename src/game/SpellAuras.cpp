@@ -2316,6 +2316,18 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         if (target->GetTypeId() == TYPEID_PLAYER)
                             ((Player*)target)->removeSpell(63680);
                         return;
+                    case 65921:                             // Anub'arak Spikes (TotC10)
+                        // expected to tick with 0.5 sec period (tick part see in Aura::PeriodicTick)
+                        m_isPeriodic = true;
+                        m_modifier.periodictime = 500;
+                        m_periodicTimer = m_modifier.periodictime;
+                        return;
+                    case 67574:                             // Anub'arak Aggro Spike (TotC10)
+                        // expected to tick with 0.5 sec period (tick part see in Aura::PeriodicTick)
+                        m_isPeriodic = true;
+                        m_modifier.periodictime = 500;
+                        m_periodicTimer = m_modifier.periodictime;
+                        return;
                     case 68645:
                         // Rocket Pack
                         if (target->GetTypeId() == TYPEID_PLAYER)
@@ -5555,6 +5567,44 @@ void Aura::HandlePeriodicTriggerSpell(bool apply, bool /*Real*/)
                         pCaster->CastSpell(target, GetSpellProto()->EffectTriggerSpell[GetEffIndex()], true, NULL, this);
                 }
 
+                return;
+            case 65920:                                     //Anub'arak remove spike trigger
+                if (m_removeMode == AURA_REMOVE_BY_EXPIRE)
+                {
+                    Unit* pCaster = GetCaster();
+                    if (pCaster && pCaster->GetTypeId() != TYPEID_PLAYER)
+                    {
+                        Unit* pVictim = pCaster->getVictim();
+                        if (pVictim && pVictim->HasAura(67574))
+                            pVictim->RemoveAurasDueToSpell(67574);
+                        pCaster->CastSpell(pCaster, 65922, true);
+                    }
+                }
+                return;
+            case 65922:
+                if (m_removeMode == AURA_REMOVE_BY_EXPIRE)
+                {
+                    Unit* pCaster = GetCaster();
+                    if (pCaster && pCaster->GetTypeId() != TYPEID_PLAYER)
+                    {
+                        Unit* pVictim = pCaster->getVictim();
+                        if (pVictim && pVictim->HasAura(67574))
+                            pVictim->RemoveAurasDueToSpell(67574);
+                        pCaster->CastSpell(pCaster, 65923, true);
+                    }
+                }
+                return;
+            case 65923:
+                if (m_removeMode == AURA_REMOVE_BY_EXPIRE)
+                {
+                    Unit* pCaster = GetCaster();
+                    if (pCaster && pCaster->GetTypeId() != TYPEID_PLAYER)
+                    {
+                        Unit* pVictim = pCaster->getVictim();
+                        if (pVictim && pVictim->HasAura(67574))
+                            pVictim->RemoveAurasDueToSpell(67574);
+                    }
+                }
                 return;
             case 66083:                                     // Lightning Arrows (Trial of the Champion encounter)
                 if (m_removeMode == AURA_REMOVE_BY_EXPIRE)
