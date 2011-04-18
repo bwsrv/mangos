@@ -7242,27 +7242,6 @@ uint32 Unit::SpellDamageBonusTaken(Unit *pCaster, SpellEntry const *spellProto, 
     // Mod damage from spell mechanic
     TakenTotalMod *= GetTotalAuraMultiplierByMiscValueForMask(SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT,GetAllSpellMechanicMask(spellProto));
 
-    // Hack probably: these modifiers should be applied in a way that above functions would include their effects.
-    // Crypt Fever / Ebon Plaguebringer - increased diseases dmg
-    if (spellProto->Dispel == DISPEL_DISEASE)
-    {
-        Unit::AuraList const& scriptAuras = GetAurasByType(SPELL_AURA_LINKED);
-        for(Unit::AuraList::const_iterator i = scriptAuras.begin(); i != scriptAuras.end(); ++i)
-        {
-            if ((*i)->GetSpellProto()->SpellIconID == 264 || // Crypt Fever
-                (*i)->GetSpellProto()->SpellIconID == 1933)  // Ebon Plaguebringer
-                TakenTotalMod *= ((*i)->GetModifier()->m_amount + 100.0f) / 100.0f;
-        }
-    }
-    // Ebon Plaguebringer - increased spell damage taken
-    if (schoolMask & SPELL_SCHOOL_MASK_MAGIC)
-    {
-        Unit::AuraList const& dummyAuras = GetAurasByType(SPELL_AURA_DUMMY);
-        for(Unit::AuraList::const_iterator i = dummyAuras.begin(); i != dummyAuras.end(); ++i)
-            if ((*i)->GetSpellProto()->SpellIconID == 1933)
-                TakenTotalMod *= ((*i)->GetModifier()->m_amount + 100.0f) / 100.0f;
-    }
-
     // Mod damage taken from AoE spells
     if(IsAreaOfEffectSpell(spellProto))
     {
