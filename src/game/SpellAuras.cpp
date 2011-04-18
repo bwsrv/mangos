@@ -8608,6 +8608,7 @@ void Aura::PeriodicDummyTick()
                         target->CastSpell(target, 65981, false); //Submerged
                     }
                     if (Tick == 6)
+                        target->CastSpell(target, 66169, true); //Summon Spike
                     if (Tick % 130 == 0)
                     {
                         target->RemoveAurasDueToSpell(65981);
