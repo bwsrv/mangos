@@ -727,6 +727,7 @@ bool AntiCheat::CheckSpellOndeath()
     char buffer[255];
     sprintf(buffer," player is not in ALIVE state, but cast spell %u ",
                  m_currentspellID);
+    return false;
 
 }
 
