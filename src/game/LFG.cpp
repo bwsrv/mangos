@@ -84,8 +84,6 @@ void LFGPlayerState::SetComment(std::string comment)
         AddFlags(LFG_MEMBER_FLAG_COMMENT);
         m_comment.append(comment);
     }
-    else
-        RemoveFlags(LFG_MEMBER_FLAG_COMMENT);
 
 };
 
