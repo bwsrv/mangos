@@ -747,11 +747,11 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
                 data << uint32(player->GetArmor());                                                 // armor
                 data << uint32(player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL));          // spd
                 data << uint32(player->SpellBaseHealingBonusDone(SPELL_SCHOOL_MASK_SPELL));         // heal
-                data << uint32(player->GetRatingBonusValue(CR_HASTE_MELEE));                        // haste rating melee
-                data << uint32(player->GetRatingBonusValue(CR_HASTE_RANGED));                       // haste rating ranged
-                data << uint32(player->GetRatingBonusValue(CR_HASTE_SPELL));                        // haste rating spell
-                data << float(player->GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER));                               // mp5
-                data << float(player->GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER));                   // unk
+                data << uint32(player->GetRatingBonusValue(CR_CRIT_MELEE));                        // crit rating melee
+                data << uint32(player->GetRatingBonusValue(CR_CRIT_RANGED));                       // crit rating ranged
+                data << uint32(player->GetRatingBonusValue(CR_CRIT_SPELL));                        // crit rating spell
+                data << float(player->GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER)*5);                             // mp5
+                data << float(player->GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER)*5);                 // unk
                 data << uint32(player->GetTotalAttackPowerValue(BASE_ATTACK));                      // attack power
                 data << uint32(player->GetTotalStatValue(STAT_AGILITY));                            // agility
                 data << uint32(player->GetMaxHealth());                                             // health
@@ -762,7 +762,7 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
                 data << uint32(player->GetRatingBonusValue(CR_DODGE));                              // dodge rating
                 data << uint32(player->GetRatingBonusValue(CR_BLOCK));                              // block rating
                 data << uint32(player->GetRatingBonusValue(CR_PARRY));                              // parry rating
-                data << uint32(player->GetRatingBonusValue(CR_CRIT_MELEE));                         // crit rating
+                data << uint32(player->GetRatingBonusValue(CR_HASTE_MELEE));                         // crit rating
                 data << uint32(player->GetRatingBonusValue(CR_EXPERTISE));                          // expertize
             }
 
