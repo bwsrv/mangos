@@ -7854,10 +7854,6 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         unitTarget->CastSpell(unitTarget, 48809, true);
                     return;
                 }
-                case 48724:                                 // Q: The Denouncement
-                case 48726:
-                case 48728:
-                case 48730:
                 case 52694:                                 // Recall Eye of Acherus
                 {
                     if (!m_caster || m_caster->GetTypeId() != TYPEID_UNIT)
