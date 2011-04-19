@@ -495,7 +495,9 @@ class BattleGround
         uint32 GetArenaTeamIdForTeam(Team team) const             { return m_ArenaTeamIds[GetTeamIndexByTeamId(team)]; }
         void SetArenaTeamRatingChangeForTeam(Team team, int32 RatingChange) { m_ArenaTeamRatingChanges[GetTeamIndexByTeamId(team)] = RatingChange; }
         int32 GetArenaTeamRatingChangeForTeam(Team team) const    { return m_ArenaTeamRatingChanges[GetTeamIndexByTeamId(team)]; }
-        void CheckArenaWinConditions();
+        void SetArenaMatchmakerRating(Team team, uint32 MMR)    { m_ArenaTeamMMR[GetTeamIndexByTeamId(team)] = MMR; }
+        uint32 GetArenaMatchmakerRating(Team team)              { return m_ArenaTeamMMR[GetTeamIndexByTeamId(team)]; }
+		void CheckArenaWinConditions();
 
         /* Triggers handle */
         // must be implemented in BG subclass
@@ -653,6 +655,7 @@ class BattleGround
         uint32 m_ArenaTeamIds[BG_TEAMS_COUNT];
 
         int32 m_ArenaTeamRatingChanges[BG_TEAMS_COUNT];
+        uint32 m_ArenaTeamMMR[BG_TEAMS_COUNT];
 
         /* Limits */
         uint32 m_LevelMin;
