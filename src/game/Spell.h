@@ -618,15 +618,6 @@ class Spell
         GOTargetList   m_UniqueGOTargetInfo;
         ItemTargetList m_UniqueItemInfo;
 
-        // Targets double buffering
-        typedef std::queue<TargetInfo>     TargetBuffer;
-        typedef std::queue<GOTargetInfo>   GOTargetBuffer;
-        typedef std::queue<ItemTargetInfo> ItemTargetBuffer;
-
-        TargetBuffer     m_UniqueTargetBuffer;
-        GOTargetBuffer   m_UniqueGOTargetBuffer;
-        ItemTargetBuffer m_UniqueItemBuffer;
-
         void AddUnitTarget(Unit* target, SpellEffectIndex effIndex);
         void AddUnitTarget(uint64 unitGUID, SpellEffectIndex effIndex);
         void AddGOTarget(GameObject* target, SpellEffectIndex effIndex);

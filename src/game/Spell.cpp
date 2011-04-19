@@ -3499,22 +3499,10 @@ void Spell::handle_immediate()
     _handle_immediate_phase();
 
     for(TargetList::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
-        m_UniqueTargetBuffer.push(*ihit);
-
-    while(!m_UniqueTargetBuffer.empty())
-    {
-        DoAllEffectOnTarget(&m_UniqueTargetBuffer.front());
-        m_UniqueTargetBuffer.pop();
-    }
+        DoAllEffectOnTarget(&(*ihit));
 
     for(GOTargetList::iterator ihit = m_UniqueGOTargetInfo.begin(); ihit != m_UniqueGOTargetInfo.end(); ++ihit)
-        m_UniqueGOTargetBuffer.push(*ihit);
-
-    while(!m_UniqueGOTargetBuffer.empty())
-    {
-        DoAllEffectOnTarget(&m_UniqueGOTargetBuffer.front());
-        m_UniqueGOTargetBuffer.pop();
-    }
+        DoAllEffectOnTarget(&(*ihit));
 
     // spell is finished, perform some last features of the spell here
     _handle_finish_phase();
@@ -3606,13 +3594,7 @@ void Spell::_handle_immediate_phase()
 
     // process items
     for(ItemTargetList::iterator ihit = m_UniqueItemInfo.begin(); ihit != m_UniqueItemInfo.end(); ++ihit)
-        m_UniqueItemBuffer.push(*ihit);
-
-    while(!m_UniqueItemBuffer.empty())
-    {
-        DoAllEffectOnTarget(&m_UniqueItemBuffer.front());
-        m_UniqueItemBuffer.pop();
-    }
+        DoAllEffectOnTarget(&(*ihit));
 
     // process ground
     for(int j = 0; j < MAX_EFFECT_INDEX; ++j)
