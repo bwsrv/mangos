@@ -154,12 +154,6 @@ enum LfgJoinResult
     ERR_LFG_ROLE_CHECK_FAILED2                  = 0x12, 
 };
 
-enum LfgUpdateType
-{
-    LFG_UPDATE_JOIN     = 5,
-    LFG_UPDATE_LEAVE    = 7,
-};
-
 enum ChatRestrictionType
 {
     ERR_CHAT_RESTRICTED = 0,
