@@ -41,7 +41,7 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recv_data)
 
     bool dismiss = true;
 
-    if (GetPlayer()->GetVehicle()->GetVehicleInfo()->m_flags & (VEHICLE_FLAG_NOT_DISMISS | VEHICLE_FLAG_ACCESSORY))
+    if (GetPlayer()->GetVehicleInfo()->GetEntry()->m_flags & (VEHICLE_FLAG_NOT_DISMISS | VEHICLE_FLAG_ACCESSORY))
         dismiss = false;
 
     GetPlayer()->m_movementInfo = mi;
@@ -90,7 +90,7 @@ void WorldSession::HandleRequestVehicleSwitchSeat(WorldPacket &recv_data)
     if (!pVehicle)
         return;
 
-    if (GetPlayer()->GetVehicle()->GetVehicleInfo()->m_flags & VEHICLE_FLAG_DISABLE_SWITCH)
+    if (GetPlayer()->GetVehicleInfo()->GetEntry()->m_flags & VEHICLE_FLAG_DISABLE_SWITCH)
         return;
 
     if (pVehicle->GetBase()->GetObjectGuid() == guid)
@@ -177,7 +177,7 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
     if (!pVehicle)
         return;
 
-    if (GetPlayer()->GetVehicle()->GetVehicleInfo()->m_flags & VEHICLE_FLAG_DISABLE_SWITCH)
+    if (GetPlayer()->GetVehicleInfo()->GetEntry()->m_flags & VEHICLE_FLAG_DISABLE_SWITCH)
         return;
 
     if(guid.GetRawValue() == guid2.GetRawValue())

@@ -134,6 +134,7 @@ struct CreatureInfo
     uint32  questItems[6];
     uint32  movementId;
     bool    RegenHealth;
+    uint32  vehicleId;
     uint32  equipmentId;
     uint32  trainerId;
     uint32  vendorId;
@@ -142,10 +143,9 @@ struct CreatureInfo
     uint32  ScriptID;
 
     // helpers
-    // completed: return HIGHGUID_UNIT/HIGHGUID_VEHICLE base at currently missing creature template data
     HighGuid GetHighGuid() const
     {
-        return VehicleId ? HIGHGUID_VEHICLE : HIGHGUID_UNIT;
+        return vehicleId ? HIGHGUID_VEHICLE : HIGHGUID_UNIT;
     }
 
     SkillType GetRequiredLootSkill() const

@@ -238,9 +238,11 @@ void Object::BuildMovementUpdate(ByteBuffer * data, uint16 updateFlags) const
 {
     uint16 moveFlags2 = (isType(TYPEMASK_UNIT) ? ((Unit*)this)->m_movementInfo.GetMovementFlags2() : MOVEFLAG2_NONE);
 
+/* removed by zergtmn. strange...
     if(GetTypeId() == TYPEID_UNIT)
         if(((Creature*)this)->GetVehicleKit())
             moveFlags2 |= MOVEFLAG2_ALLOW_PITCHING;         // always allow pitch
+*/
 
     *data << uint16(updateFlags);                           // update flags
 
@@ -264,7 +266,7 @@ void Object::BuildMovementUpdate(ByteBuffer * data, uint16 updateFlags) const
                     // (ok) most seem to have this
                     unit->m_movementInfo.AddMovementFlag(MOVEFLAG_LEVITATING);
 
-                    if (!((Creature*)unit)->hasUnitState(UNIT_STAT_MOVING))
+                    if (!unit->hasUnitState(UNIT_STAT_ROOT))
                     {
                         // (ok) possibly some "hover" mode
                         unit->m_movementInfo.AddMovementFlag(MOVEFLAG_ROOT);
@@ -522,9 +524,9 @@ void Object::BuildMovementUpdate(ByteBuffer * data, uint16 updateFlags) const
     }
 
     // 0x80
-    if(updateFlags & UPDATEFLAG_VEHICLE)
+    if (updateFlags & UPDATEFLAG_VEHICLE)
     {
-        *data << uint32(((Unit*)this)->GetVehicleKit()->GetVehicleId());  // vehicle id
+        *data << uint32(((Unit*)this)->GetVehicleInfo()->GetEntry()->m_ID); // vehicle id
         *data << float(((WorldObject*)this)->GetOrientation());
     }
 
@@ -1740,7 +1742,7 @@ Creature* WorldObject::SummonCreature(uint32 id, float x, float y, float z, floa
     if (x == 0.0f && y == 0.0f && z == 0.0f)
         pos = CreatureCreatePos(this, GetOrientation(), CONTACT_DISTANCE, ang);
 
-    if (!pCreature->Create(GetMap()->GenerateLocalLowGuid(HIGHGUID_UNIT), pos, cinfo, team))
+    if (!pCreature->Create(GetMap()->GenerateLocalLowGuid(cinfo->GetHighGuid()), pos, cinfo, team))
     {
         delete pCreature;
         return NULL;
