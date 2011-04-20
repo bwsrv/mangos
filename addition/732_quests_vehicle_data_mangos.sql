@@ -11,7 +11,7 @@ UPDATE creature_template SET
     spell4 = 0,
     spell5 = 0,
     spell6 = 0,
-    VehicleId = 123
+    vehicle_id = 123
 WHERE entry IN (28605, 28606, 28607);
 
 DELETE FROM npc_spellclick_spells WHERE npc_entry IN (28605, 28606, 28607);
@@ -30,7 +30,7 @@ spell3 = 0,
 spell4 = 0,
 spell5 = 52588,
 spell6 = 0,
-VehicleId = 79
+vehicle_id = 79
 WHERE entry IN (28833);
 
 UPDATE creature_template SET
@@ -40,7 +40,7 @@ spell3 = 0,
 spell4 = 0,
 spell5 = 52588,
 spell6 = 0,
-VehicleId = 68
+vehicle_id = 68
 WHERE entry IN (28887);
 
 INSERT INTO npc_spellclick_spells VALUES ('28833', '52447', '12701', '1', '12701', '1');
@@ -60,7 +60,7 @@ UPDATE `creature_template` SET
     spell4 = 0,
     spell5 = 0,
     spell6 = 0,
-    VehicleId = 213
+    vehicle_id = 213
 WHERE entry IN (30066);
 
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (30066);
@@ -78,7 +78,7 @@ UPDATE creature_template SET
     spell4 = 0,
     spell5 = 0,
     spell6 = 0,
-    VehicleId = 68
+    vehicle_id = 68
 WHERE entry IN (27714);
 
 DELETE FROM npc_spellclick_spells WHERE npc_entry IN (27714);
@@ -94,7 +94,7 @@ UPDATE creature_template SET
     spell4 = 0,
     spell5 = 48610,
     spell6 = 0,
-    VehicleId = 49
+    vehicle_id = 49
 WHERE entry IN (27354);
 
 DELETE FROM npc_spellclick_spells WHERE npc_entry IN (27354);
@@ -111,7 +111,7 @@ UPDATE creature_template SET
     spell4 = 0,
     spell5 = 0,
     spell6 = 0,
-    VehicleId = 36
+    vehicle_id = 36
 WHERE entry IN (26523);
 
 DELETE FROM npc_spellclick_spells WHERE npc_entry IN (26523);
@@ -126,7 +126,7 @@ UPDATE creature_template SET
     spell4 = 62552,
     spell5 = 64077,
     spell6 = 62863,
-    VehicleId = 349
+    vehicle_id = 349
 WHERE entry IN (33844, 33845);
 UPDATE creature_template SET KillCredit1 = 33340 WHERE entry IN (33272);
 UPDATE creature_template SET KillCredit1 = 33339 WHERE entry IN (33243);
@@ -151,7 +151,7 @@ UPDATE `creature_template` SET
     spell4 = 0,
     spell5 = 0,
     spell6 = 0,
-    VehicleId = 308
+    vehicle_id = 308
 WHERE entry IN (29598);
 
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (29598);
@@ -168,7 +168,7 @@ UPDATE creature_template SET
     spell4 = 0,
     spell5 = 0,
     spell6 = 0,
-    VehicleId = 146
+    vehicle_id = 146
 WHERE entry IN (28864);
 
 /* Frostbrood Vanquisher */
@@ -179,7 +179,7 @@ UPDATE creature_template SET
     spell4 = 0,
     spell5 = 0,
     spell6 = 0,
-    VehicleId = 156
+    vehicle_id = 156
 WHERE entry IN (28670);
 
 UPDATE creature_template SET maxhealth = 133525, minhealth = 133525, maxmana = 51360, minmana = 51360, InhabitType = 3 WHERE entry = 28670;
@@ -238,7 +238,7 @@ spell3 = 0,
 spell4 = 0,
 spell5 = 0,
 spell6 = 0,
-VehicleId = 29
+vehicle_id = 29
 WHERE `entry` IN (25596);
 
 INSERT IGNORE INTO `spell_script_target` VALUES (45877, 1, 25596);
@@ -251,7 +251,7 @@ spell3 = 50677,
 spell4 = 47849,
 spell5 = 47962,
 spell6 = 0,
-VehicleId = 26
+vehicle_id = 26
 WHERE `entry` IN (25334);
 
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (25334, 27107);
@@ -272,7 +272,7 @@ spell3 = 47966,
 spell4 = 47938,
 spell5 = 0,
 spell6 = 0,
-VehicleId = 300
+vehicle_id = 300
 WHERE `entry` IN (27061);
 
 DELETE FROM `npc_spellclick_spells` WHERE npc_entry IN (27061);
@@ -287,7 +287,7 @@ UPDATE `creature_template` SET
     spell4 = 0,
     spell5 = 0,
     spell6 = 0,
-    VehicleId = 244
+    vehicle_id = 244
 WHERE `entry` IN (30236);
 
 DELETE FROM `npc_spellclick_spells` WHERE npc_entry IN (30236);
@@ -302,7 +302,7 @@ UPDATE `creature_template` SET
     spell4 = 0,
     spell5 = 0,
     spell6 = 0,
-    VehicleId = 99
+    vehicle_id = 99
 WHERE `entry` IN (27996);
 
 DELETE FROM `npc_spellclick_spells` WHERE npc_entry IN (27996);
@@ -314,7 +314,7 @@ REPLACE INTO `creature_template_addon` (entry, auras) VALUES (27996, '53112');
 -- from me
 -- Quest Reclamation (12546)
 UPDATE `creature_template` SET `spell1` = 50978,`spell2` = 50980,`spell3` = 50983,`spell4` = 50985,
-`VehicleId` = 111
+`vehicle_id` = 111
 WHERE  `entry` = 28222;
 
 -- from YTDB/TC 578
@@ -330,7 +330,7 @@ INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_start`, `qu
 (32629, 60968, 0, 0, 0, 1);
 
 -- Quest 12996
-UPDATE `creature_template` SET `spell1` = 54459,`spell2` = 54458,`spell3` = 54460,`VehicleId` = 208 WHERE  `creature_template`.`entry` = 29918;
+UPDATE `creature_template` SET `spell1` = 54459,`spell2` = 54458,`spell3` = 54460,`vehicle_id` = 208 WHERE  `creature_template`.`entry` = 29918;
 
 -- Quest 13236 Gift of the Lich King
 REPLACE INTO `spell_script_target` VALUES (58916,2,31254);

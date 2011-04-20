@@ -122,7 +122,6 @@ struct CreatureInfo
     int32   resistance6;
     uint32  spells[CREATURE_MAX_SPELLS];
     uint32  PetSpellDataId;
-    uint32  VehicleId;
     uint32  mingold;
     uint32  maxgold;
     char const* AIName;

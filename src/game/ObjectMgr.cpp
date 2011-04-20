@@ -730,17 +730,6 @@ void ObjectMgr::LoadCreatureTemplates()
             }
         }
 
-        if (cInfo->VehicleId)
-        {
-            VehicleEntry const* pVehicleEntry = sVehicleStore.LookupEntry(cInfo->VehicleId);
-
-            if (!pVehicleEntry)
-            {
-                sLog.outErrorDb("Creature (Entry: %u) has non-existing VehicleId (%u)", cInfo->Entry, cInfo->VehicleId);
-                const_cast<CreatureInfo*>(cInfo)->VehicleId = 0;
-            }
-        }
-
         if(cInfo->MovementType >= MAX_DB_MOTION_TYPE)
         {
             sLog.outErrorDb("Creature (Entry: %u) has wrong movement generator type (%u), ignore and set to IDLE.",cInfo->Entry,cInfo->MovementType);

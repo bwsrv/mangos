@@ -663,9 +663,9 @@ void Creature::Regenerate(Powers power)
             break;
         }
         case POWER_ENERGY:
-            if (GetObjectGuid().IsVehicle())
+            if (IsVehicle())
             {
-                if (VehicleEntry const* vehicleInfo = sVehicleStore.LookupEntry(GetCreatureInfo()->VehicleId))
+                if (VehicleEntry const* vehicleInfo = sVehicleStore.LookupEntry(GetCreatureInfo()->vehicleId))
                 {
 
                     switch (vehicleInfo->m_powerType)
@@ -1259,8 +1259,8 @@ bool Creature::CreateFromProto(uint32 guidlow, CreatureInfo const* cinfo, Team t
         return false;
 
     // Checked at startup
-    if (GetCreatureInfo()->VehicleId)
-        SetVehicleId(GetCreatureInfo()->VehicleId);
+    if (GetCreatureInfo()->vehicleId)
+        SetVehicleId(GetCreatureInfo()->vehicleId);
 
     return true;
 }
