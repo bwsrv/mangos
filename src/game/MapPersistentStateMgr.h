@@ -152,7 +152,10 @@ class MapPersistentState
 inline bool MapPersistentState::CanBeUnload() const
 {
     // prevent unload if used for loaded map
-    return !m_usedByMap;
+    if (Map* map = GetMap())
+        return false;
+    else
+        return true;
 }
 
 class WorldPersistentState : public MapPersistentState
