@@ -275,6 +275,7 @@ Unit::Unit() :
     m_transport = NULL;
 
     m_pVehicleKit = NULL;
+    m_pVehicle    = NULL;
 
     m_comboPoints = 0;
 
@@ -9985,9 +9986,10 @@ void Unit::CleanupsBeforeDelete()
 {
     if(m_uint32Values)                                      // only for fully created object
     {
-        RemoveVehicleKit();
-        ExitVehicle();
-
+        if (GetVehicle())
+            ExitVehicle();
+        if (GetVehicleKit())
+            RemoveVehicleKit();
         InterruptNonMeleeSpells(true);
         m_Events.KillAllEvents(false);                      // non-delatable (currently casted spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
         CombatStop();
@@ -11525,8 +11527,8 @@ void Unit::RemoveVehicleKit()
 
     m_pVehicleKit->RemoveAllPassengers();
 
-    delete m_pVehicleKit;
-    m_pVehicleKit = NULL;
+//    delete m_pVehicleKit;
+//    m_pVehicleKit = NULL;
 
     m_updateFlag &= ~UPDATEFLAG_VEHICLE;
     RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
