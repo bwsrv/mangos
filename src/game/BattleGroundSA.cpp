@@ -184,6 +184,7 @@ void BattleGroundSA::Update(uint32 diff)
             {
                 SendMessageToAll(defender == ALLIANCE ? LANG_BG_SA_ALLIANCE_TIMEOUT_END_2ROUND : LANG_BG_SA_HORDE_TIMEOUT_END_2ROUND, CHAT_MSG_BG_SYSTEM_NEUTRAL, NULL);
                 RoundScores[1].winner = GetDefender();
+
                 if (RoundScores[0].winner == GetDefender())
                     EndBattleGround(GetDefender());
                 else
@@ -887,6 +888,9 @@ void BattleGroundSA::TeleportPlayerToCorrectLoc(Player *plr, bool resetBattle)
 
     if (resetBattle)
     {
+        plr->RemoveArenaAuras(true);
+        plr->CombatStopWithPets(true);
+
         if (!plr->isAlive())
         {
             plr->ResurrectPlayer(1.0f);
@@ -895,14 +899,13 @@ void BattleGroundSA::TeleportPlayerToCorrectLoc(Player *plr, bool resetBattle)
 
         plr->SetHealth(plr->GetMaxHealth());
         plr->SetPower(POWER_MANA, plr->GetMaxPower(POWER_MANA));
-        plr->CombatStopWithPets(true);
     }
 
     if (!shipsStarted)
     {
         if (plr->GetTeam() != GetDefender())
         {
-            plr->CastSpell(plr,12438,true);//Without this player falls before boat loads...
+            plr->CastSpell(plr,12438,true); //Without this player falls before boat loads...
 
             if (urand(0,1))
                 plr->TeleportTo(607, 2686.046f, -829.637f, 30.0f, 2.895f, 0);
