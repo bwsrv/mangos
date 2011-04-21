@@ -722,7 +722,7 @@ void ArenaTeam::MemberLost(Player * plr, uint32 againstMatchmakerRating)
             // calculate the rating modification
             int32 mod = (int32)floor(24.0f * (0.0f - chance));
             
-            if(againstRating <= sWorld.getConfig(CONFIG_UINT32_LOSERNOCHANGE) || itr->personal_rating <= sWorld.getConfig(CONFIG_UINT32_LOSERNOCHANGE))
+            if(againstMatchmakerRating <= sWorld.getConfig(CONFIG_UINT32_LOSERNOCHANGE) || itr->personal_rating <= sWorld.getConfig(CONFIG_UINT32_LOSERNOCHANGE))
                 mod = 0;
             else if (itr->personal_rating <= sWorld.getConfig(CONFIG_UINT32_LOSERHALFCHANGE))
                 mod /= 2;
