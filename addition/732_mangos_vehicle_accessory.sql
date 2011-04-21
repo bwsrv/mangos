@@ -60,3 +60,5 @@ INSERT INTO `vehicle_accessory`(`entry`,`accessory_entry`,`seat_id`,`minion`,`de
 (28018,28006,0,1,'Thiassi the Light Bringer'),
 (28054,28053,0,0,'Lucky Wilhelm - Apple'),
 (28614,28616,0,1,'Scarlet Gryphon Rider');
+
+UPDATE `creature_template_addon` SET `auras` = '' WHERE `entry` IN (32638,32642);

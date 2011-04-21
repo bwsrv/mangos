@@ -10342,7 +10342,6 @@ void Aura::HandleAuraSetVehicle(bool apply, bool real)
     if (apply)
     {
         target->SetVehicleId(vehicleId);
-        return;
     }
     else
         if (target->GetVehicleKit())
