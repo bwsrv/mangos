@@ -18014,6 +18014,8 @@ void Player::_SaveInventory()
         if(!item || item->GetState() == ITEM_REMOVED) continue;
         Item *test = GetItemByPos( item->GetBagSlot(), item->GetSlot());
 
+        GetAntiCheat()->DoAntiCheatCheck(CHECK_ITEM_UPDATE,item,test);
+
         if (test == NULL)
         {
             sLog.outError("Player(GUID: %u Name: %s)::_SaveInventory - the bag(%d) and slot(%d) values for the item with guid %d are incorrect, the player doesn't have an item at that position!", GetGUIDLow(), GetName(), item->GetBagSlot(), item->GetSlot(), item->GetGUIDLow());
