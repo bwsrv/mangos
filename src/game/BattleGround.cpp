@@ -546,15 +546,19 @@ void BattleGround::SetTeamStartLoc(Team team, float X, float Y, float Z, float O
 
 void BattleGround::SendPacketToAll(WorldPacket *packet)
 {
-    for(BattleGroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+    BattleGroundPlayerMap::const_iterator itr;
+    if (!m_Players.empty())
     {
-        if (itr->second.OfflineRemoveTime)
-            continue;
+        for(itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+        {
+            if (itr->second.OfflineRemoveTime)
+                continue;
 
-        if (Player *plr = sObjectMgr.GetPlayer(itr->first))
-            plr->GetSession()->SendPacket(packet);
-        else
-            sLog.outError("BattleGround:SendPacketToAll: %s not found!", itr->first.GetString().c_str());
+            if (Player *plr = sObjectMgr.GetPlayer(itr->first))
+                plr->GetSession()->SendPacket(packet);
+            else
+                sLog.outError("BattleGround:SendPacketToAll: %s not found!", itr->first.GetString().c_str());
+        }
     }
 }
 
