@@ -6165,7 +6165,7 @@ void Aura::HandleAuraModIncreaseEnergy(bool apply, bool Real)
 
     if(int32(powerType) != m_modifier.m_miscvalue)
     {
-        DEBUG_LOG("HandleAuraModIncreaseEnergy: unit %u change energy %u but current type %", target->GetObjectGuid().GetCounter(), m_modifier.m_miscvalue, powerType);
+        DEBUG_LOG("HandleAuraModIncreaseEnergy: unit %u change energy %u but current type %u", target->GetObjectGuid().GetCounter(), m_modifier.m_miscvalue, powerType);
         powerType = Powers(m_modifier.m_miscvalue);
     }
 
@@ -6198,7 +6198,7 @@ void Aura::HandleAuraModIncreaseEnergyPercent(bool apply, bool /*Real*/)
 
     if(int32(powerType) != m_modifier.m_miscvalue)
     {
-        DEBUG_LOG("HandleAuraModIncreaseEnergy: unit %u change energy %u but current type %", target->GetObjectGuid().GetCounter(), m_modifier.m_miscvalue, powerType);
+        DEBUG_LOG("HandleAuraModIncreaseEnergy: unit %u change energy %u but current type %u", target->GetObjectGuid().GetCounter(), m_modifier.m_miscvalue, powerType);
         powerType = Powers(m_modifier.m_miscvalue);
     }
 
