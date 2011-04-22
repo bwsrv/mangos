@@ -45,6 +45,7 @@ static AntiCheatCheckEntry AntiCheatCheckList[] =
     { true,  CHECK_MOVEMENT_AIRJUMP,        &AntiCheat::CheckAirJump       },
     { true,  CHECK_MOVEMENT_TELEPORT,       &AntiCheat::CheckTeleport      },
     { true,  CHECK_MOVEMENT_FALL,           &AntiCheat::CheckFall          },
+    { true,  CHECK_MOVEMENT_ZAXIS,          &AntiCheat::CheckZAxis         },
     { true,  CHECK_DAMAGE_SPELL,            &AntiCheat::CheckSpellDamage   },
     { true,  CHECK_DAMAGE_MELEE,            &AntiCheat::CheckMeleeDamage   },
     { true,  CHECK_SPELL_VALID,             &AntiCheat::CheckSpellValid    },
