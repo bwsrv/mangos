@@ -6156,10 +6156,18 @@ void  Aura::HandleAuraModIncreaseMaxHealth(bool apply, bool /*Real*/)
 
 void Aura::HandleAuraModIncreaseEnergy(bool apply, bool Real)
 {
-    Unit *target = GetTarget();
-    Powers powerType = target->getPowerType();
-    if(int32(powerType) != m_modifier.m_miscvalue)
+    Unit* target = GetTarget();
+
+    if (!target)
         return;
+
+    Powers powerType = target->getPowerType();
+
+    if(int32(powerType) != m_modifier.m_miscvalue)
+    {
+        DEBUG_LOG("HandleAuraModIncreaseEnergy: unit %u change energy %u but current type %", target->GetObjectGuid().GetCounter(), m_modifier.m_miscvalue, powerType);
+        powerType = Powers(m_modifier.m_miscvalue);
+    }
 
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + powerType);
 
@@ -6181,13 +6189,22 @@ void Aura::HandleAuraModIncreaseEnergy(bool apply, bool Real)
 
 void Aura::HandleAuraModIncreaseEnergyPercent(bool apply, bool /*Real*/)
 {
-    Powers powerType = GetTarget()->getPowerType();
-    if(int32(powerType) != m_modifier.m_miscvalue)
+    Unit* target = GetTarget();
+
+    if (!target)
         return;
+
+    Powers powerType = target->getPowerType();
+
+    if(int32(powerType) != m_modifier.m_miscvalue)
+    {
+        DEBUG_LOG("HandleAuraModIncreaseEnergy: unit %u change energy %u but current type %", target->GetObjectGuid().GetCounter(), m_modifier.m_miscvalue, powerType);
+        powerType = Powers(m_modifier.m_miscvalue);
+    }
 
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + powerType);
 
-    GetTarget()->HandleStatModifier(unitMod, TOTAL_PCT, float(m_modifier.m_amount), apply);
+    target->HandleStatModifier(unitMod, TOTAL_PCT, float(m_modifier.m_amount), apply);
 }
 
 void Aura::HandleAuraModIncreaseHealthPercent(bool apply, bool /*Real*/)
