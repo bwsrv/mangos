@@ -125,7 +125,7 @@ class MapPersistentState
         void AddGameobjectToGrid(uint32 guid, GameObjectData const* data);
         void RemoveGameobjectFromGrid(uint32 guid, GameObjectData const* data);
     protected:
-        bool CanBeUnload() const { return !m_usedByMap;};                // body provided for subclasses
+        virtual bool CanBeUnload() const =0;                // body provided for subclasses
 
         bool UnloadIfEmpty();
         void ClearRespawnTimes();
@@ -148,6 +148,15 @@ class MapPersistentState
         RespawnTimes m_goRespawnTimes;                      // lock MapPersistentState from unload, for example for temporary bound dungeon unload delay
         MapCellObjectGuidsMap m_gridObjectGuids;            // Single map copy specific grid spawn data, like pool spawns
 };
+
+inline bool MapPersistentState::CanBeUnload() const
+{
+    // prevent unload if used for loaded map
+    if (Map* map = GetMap())
+        return false;
+    else
+        return true;
+}
 
 class WorldPersistentState : public MapPersistentState
 {

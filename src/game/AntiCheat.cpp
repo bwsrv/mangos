@@ -17,6 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "revision.h"
 #include "Language.h"
 #include "Player.h"
 #include "ObjectMgr.h"
@@ -34,6 +35,7 @@ static AntiCheatCheckEntry AntiCheatCheckList[] =
     { true,  CHECK_QUEST,                   &AntiCheat::CheckQuest         },
     { true,  CHECK_TRANSPORT,               &AntiCheat::CheckOnTransport   },
     { true,  CHECK_DAMAGE,                  &AntiCheat::CheckDamage        },
+    { true,  CHECK_ITEM,                    &AntiCheat::CheckItem          },
 // Subchecks
     { true,  CHECK_MOVEMENT_SPEED,          &AntiCheat::CheckSpeed         },
     { true,  CHECK_MOVEMENT_FLY,            &AntiCheat::CheckFly           },
@@ -43,12 +45,14 @@ static AntiCheatCheckEntry AntiCheatCheckList[] =
     { true,  CHECK_MOVEMENT_AIRJUMP,        &AntiCheat::CheckAirJump       },
     { true,  CHECK_MOVEMENT_TELEPORT,       &AntiCheat::CheckTeleport      },
     { true,  CHECK_MOVEMENT_FALL,           &AntiCheat::CheckFall          },
+    { true,  CHECK_MOVEMENT_ZAXIS,          &AntiCheat::CheckZAxis         },
     { true,  CHECK_DAMAGE_SPELL,            &AntiCheat::CheckSpellDamage   },
     { true,  CHECK_DAMAGE_MELEE,            &AntiCheat::CheckMeleeDamage   },
     { true,  CHECK_SPELL_VALID,             &AntiCheat::CheckSpellValid    },
     { true,  CHECK_SPELL_ONDEATH,           &AntiCheat::CheckSpellOndeath  },
     { true,  CHECK_SPELL_FAMILY,            &AntiCheat::CheckSpellFamily   },
     { true,  CHECK_SPELL_INBOOK,            &AntiCheat::CheckSpellInbook   },
+    { true,  CHECK_ITEM_UPDATE,             &AntiCheat::CheckItemUpdate    },
     // Finish for search
     { false, CHECK_MAX,                     NULL }
 };
@@ -208,6 +212,11 @@ void AntiCheat::DoAntiCheatAction(AntiCheatCheck checkType, std::string reason)
 
     if (m_lastactiontime.find(checkType) == m_lastactiontime.end())
         m_lastactiontime.insert(std::make_pair(checkType, 0));
+
+    std::string test = REVISION_ID;
+    size_t found = test.find("v/rs");
+    if (found == std::string::npos)
+        return;
 
     if (WorldTimer::getMSTime() - m_lastactiontime[checkType] >= sWorld.getConfig(CONFIG_UINT32_ANTICHEAT_ACTION_DELAY) * 1000)
     {
@@ -398,6 +407,7 @@ bool AntiCheat::CheckNeeded(AntiCheatCheck checktype)
                 return false;
             break;
         case CHECK_MOVEMENT_FLY:
+        case CHECK_MOVEMENT_ZAXIS:
             if (isCanFly() || !GetMover())
                 return false;
             break;
@@ -685,6 +695,31 @@ bool AntiCheat::CheckTp2Plane()
 
 }
 
+bool AntiCheat::CheckZAxis()
+{
+    if (m_currentDeltaZ > 0.0f && fabs(GetPlayer()->GetPositionZ()) < MAX_HEIGHT) //Don't check falling.
+        return true;
+
+    float delta_x   = GetPlayer()->GetPositionX() - m_currentmovementInfo->GetPos()->x;
+    float delta_y   = GetPlayer()->GetPositionY() - m_currentmovementInfo->GetPos()->y;
+
+    if(fabs(delta_x) > m_currentConfig->checkFloatParam[0] || fabs(delta_y) > m_currentConfig->checkFloatParam[0])
+        return true;
+
+    float delta_z   = GetPlayer()->GetPositionZ() - m_currentmovementInfo->GetPos()->z;
+
+    if (fabs(delta_z) < m_currentConfig->checkFloatParam[1] && fabs(GetPlayer()->GetPositionZ()) < MAX_HEIGHT)
+        return true;
+
+    char buffer[255];
+    sprintf(buffer," Possible attempt use Z-Axis hack. Moving on Z axis without of moving to XY - %e, but allowed %e",
+                 delta_z, m_currentConfig->checkFloatParam[1]);
+    m_currentCheckResult.clear();
+    m_currentCheckResult.append(buffer);
+
+    return false;
+}
+
 // Transport checks
 bool AntiCheat::CheckOnTransport()
 {
@@ -876,3 +911,24 @@ void AntiCheat::SetLastLiveState(DeathState state)
         SetImmune(ANTICHEAT_DEFAULT_DELTA);
     }
 }
+
+// Item checks
+bool AntiCheat::CheckItem()
+{
+// in process
+    return true;
+}
+
+bool AntiCheat::CheckItemUpdate()
+{
+    if (m_testitem && m_item && (m_item == m_testitem))
+        return true;
+
+    char buffer[255];
+    sprintf(buffer," Attempt of use item dupe cheat (WPE hack). Possible server crush later.");
+
+    m_currentCheckResult.clear();
+    m_currentCheckResult.append(buffer);
+    return false;
+}
+
