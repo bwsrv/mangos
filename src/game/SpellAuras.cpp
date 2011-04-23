@@ -8170,6 +8170,15 @@ void Aura::PeriodicDummyTick()
                 case 52441:                                 // Cool Down
                     target->CastSpell(target, 52443, true);
                     return;
+                case 53035:                                 // Summon Anub'ar Champion (Azjol Nerub)
+                    target->CastSpell(target, 53014, true);
+                    return;
+                case 53036:                                 // Summon Anub'ar Necromancer (Azjol Nerub)
+                    target->CastSpell(target, 53015, true);
+                    return;
+                case 53037:                                 // Summon Crypt Fiend (Azjol Nerub)
+                    target->CastSpell(target, 53016, true);
+                    return;
                 case 53520:                                 // Carrion Beetles
                     target->CastSpell(target, 53521, true, NULL, this);
                     target->CastSpell(target, 53521, true, NULL, this);
