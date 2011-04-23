@@ -36,8 +36,7 @@ void PointMovementGenerator<T>::Initialize(T &unit)
     Traveller<T> traveller(unit);
     i_destinationHolder.SetDestination(traveller, i_x, i_y, i_z);
 
-    if (unit.GetTypeId() == TYPEID_UNIT && ((Creature*)&unit)->CanFly() &&
-        !(((Creature*)&unit)->CanWalk() && ((Creature*)&unit)->IsAtGroundLevel(i_x, i_y, i_z)))
+    if (unit.GetTypeId() == TYPEID_UNIT && ((Creature*)&unit)->CanFly())
         ((Creature&)unit).AddSplineFlag(SPLINEFLAG_UNKNOWN7);
 }
 
