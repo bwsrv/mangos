@@ -29,6 +29,7 @@ INSERT INTO `vehicle_accessory`(`entry`,`accessory_entry`,`seat_id`,`minion`,`de
 (33114,33142,1,1,'Overload Control Device'),
 (33114,33143,2,1,'Leviathan Defense Turret'),
 (36678,38309,0,1,'Professor Putricide - trigger'),
+(36678,38308,1,1,'Professor Putricide - trigger'),
 (33214,33218,1,1,'Mechanolift 304-A'),
 (35637,34705,0,0,'Marshal Jacob Alerius\' Mount'),
 (35633,34702,0,0,'Ambrose Boltspark\'s Mount'),
@@ -50,7 +51,6 @@ INSERT INTO `vehicle_accessory`(`entry`,`accessory_entry`,`seat_id`,`minion`,`de
 (29625,29694,0,0,'Hyldsmeet Proto-Drake'),
 (30330,30332,0,0,'Jotunheim Proto-Drake'),
 (32189,32190,0,0,'Skybreaker Recon Fighter'),
-(36678,38308,1,1,'Professor Putricide - trigger'),
 (32640,32642,1,0,'Traveler Mammoth (H) - Vendor'),
 (32640,32641,2,0,'Traveler Mammoth (H) - Vendor & Repairer'),
 (32633,32638,1,0,'Traveler Mammoth (A) - Vendor'),
@@ -59,4 +59,8 @@ INSERT INTO `vehicle_accessory`(`entry`,`accessory_entry`,`seat_id`,`minion`,`de
 (29555,29556,0,0,'Goblin Sapper'),
 (28018,28006,0,1,'Thiassi the Light Bringer'),
 (28054,28053,0,0,'Lucky Wilhelm - Apple'),
-(28614,28616,0,1,'Scarlet Gryphon Rider');
+(28614,28616,0,1,'Scarlet Gryphon Rider'),
+(36476,36477,0,0,'Krick and Ick'),
+(36661,36658,0,0,'Scourgelord Tyrannus and Rimefang');
+
+UPDATE `creature_template_addon` SET `auras` = '' WHERE `entry` IN (32638,32642);

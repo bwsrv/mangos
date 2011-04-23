@@ -270,8 +270,7 @@ class Item;
 class Pet;
 class PetAura;
 class Totem;
-class Transport;
-class VehicleKit;
+class VehicleInfo;
 
 struct SpellImmune
 {
@@ -1136,6 +1135,7 @@ typedef std::set<ObjectGuid> GroupPetList;
 #define REGEN_TIME_PRECISE  500                             // Used in Spell::CheckPower for precise regeneration in spell cast time
 
 struct SpellProcEventEntry;                                 // used only privately
+class  VehicleKit;
 
 class MANGOS_DLL_SPEC Unit : public WorldObject
 {
@@ -1323,6 +1323,10 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         uint32 GetMountID() const { return GetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID); }
         void Mount(uint32 mount, uint32 spellId = 0, uint32 vehicleId = 0, uint32 creatureEntry = 0);
         void Unmount(bool from_aura = false);
+
+        VehicleInfo* GetVehicleInfo() { return m_vehicleInfo; }
+        bool IsVehicle() const { return m_vehicleInfo != NULL; }
+        void SetVehicleId(uint32 entry);
 
         uint16 GetMaxSkillValueForLevel(Unit const* target = NULL) const { return (target ? GetLevelForTarget(target) : getLevel()) * 5; }
         void DealDamageMods(Unit *pVictim, uint32 &damage, uint32* absorb);
@@ -2027,7 +2031,6 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         void ChangeSeat(int8 seatId, bool next = true);
         VehicleKit* GetVehicle() const { return m_pVehicle; }
         VehicleKit* GetVehicleKit() const { return m_pVehicleKit; }
-        bool CreateVehicleKit(uint32 vehicleId);
         void RemoveVehicleKit();
 
         void ScheduleAINotify(uint32 delay);
@@ -2094,8 +2097,9 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         // Transports
         Transport* m_transport;
 
-        VehicleKit* m_pVehicle;
-        VehicleKit* m_pVehicleKit;
+        VehicleInfo* m_vehicleInfo;
+        VehicleKit*  m_pVehicleKit;
+        VehicleKit*  m_pVehicle;
 
     private:
         void CleanupDeletedAuras();

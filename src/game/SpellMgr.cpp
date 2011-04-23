@@ -659,6 +659,11 @@ bool IsPositiveEffect(SpellEntry const *spellproto, SpellEffectIndex effIndex)
 
     switch(spellproto->Id)
     {
+        case 72219:                                         // Gastric Bloat 10 N
+        case 72551:                                         // Gastric Bloat 10 H
+        case 72552:                                         // Gastric Bloat 25 N
+        case 72553:                                         // Gastric Bloat 25 H
+            return false;
         case 47540:                                         // Penance start dummy aura - Rank 1
         case 53005:                                         // Penance start dummy aura - Rank 2
         case 53006:                                         // Penance start dummy aura - Rank 3
