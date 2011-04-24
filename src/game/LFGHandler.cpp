@@ -753,27 +753,27 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonID)
                 data << uint8(player->getRace());
 
                 for(int i = 0; i < 3; ++i)
-                    data << uint8(player->GetTalentsCount(i));                                    // spent talents count in specific tab
+                    data << uint8(player->GetTalentsCount(i));                                      // spent talents count in specific tab
 
                 data << uint32(player->GetArmor());                                                 // armor
                 data << uint32(player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL));          // spd
                 data << uint32(player->SpellBaseHealingBonusDone(SPELL_SCHOOL_MASK_SPELL));         // heal
-                data << uint32(player->GetRatingBonusValue(CR_CRIT_MELEE));                        // crit rating melee
-                data << uint32(player->GetRatingBonusValue(CR_CRIT_RANGED));                       // crit rating ranged
-                data << uint32(player->GetRatingBonusValue(CR_CRIT_SPELL));                        // crit rating spell
+                data << uint32(player->GetRatingBonusValue(CR_CRIT_MELEE));                         // crit rating melee
+                data << uint32(player->GetRatingBonusValue(CR_CRIT_RANGED));                        // crit rating ranged
+                data << uint32(player->GetRatingBonusValue(CR_CRIT_SPELL));                         // crit rating spell
                 data << float(player->GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER)*5);                             // mp5
                 data << float(player->GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER)*5);                 // unk
                 data << uint32(player->GetTotalAttackPowerValue(BASE_ATTACK));                      // attack power
                 data << uint32(player->GetTotalStatValue(STAT_AGILITY));                            // agility
                 data << uint32(player->GetMaxHealth());                                             // health
                 data << uint32(player->GetMaxPower(player->getPowerType()));                        // power
-                data << uint32(0);                              // unk
-                data << float(0);                               // unk
+                data << uint32(player->GetFreeTalentPoints());                                      // free talent points (TOM_RUS)
+                data << float(0);                                                                   // unk
                 data << uint32(player->GetRatingBonusValue(CR_DEFENSE_SKILL));                      // defence rating
                 data << uint32(player->GetRatingBonusValue(CR_DODGE));                              // dodge rating
                 data << uint32(player->GetRatingBonusValue(CR_BLOCK));                              // block rating
                 data << uint32(player->GetRatingBonusValue(CR_PARRY));                              // parry rating
-                data << uint32(player->GetRatingBonusValue(CR_HASTE_MELEE));                         // crit rating
+                data << uint32(player->GetRatingBonusValue(CR_HASTE_MELEE));                        // crit rating
                 data << uint32(player->GetRatingBonusValue(CR_EXPERTISE));                          // expertize
             }
 

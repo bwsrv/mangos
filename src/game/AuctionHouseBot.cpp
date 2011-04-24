@@ -110,7 +110,7 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
     for (AuctionHouseObject::AuctionEntryMap::const_iterator itr = auctionHouse->GetAuctionsBegin();itr != auctionHouse->GetAuctionsEnd();++itr)
     {
         AuctionEntry *Aentry = itr->second;
-        Item *item = sAuctionMgr.GetAItem(Aentry->item_guidlow);
+        Item *item = sAuctionMgr.GetAItem(Aentry->itemGuidLow);
         if (item)
         {
             ItemPrototype const *prototype = item->GetProto();
@@ -424,15 +424,15 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
 
         AuctionEntry* auctionEntry = new AuctionEntry;
         auctionEntry->Id = sObjectMgr.GenerateAuctionID();
-        auctionEntry->item_guidlow = item->GetGUIDLow();
-        auctionEntry->item_template = item->GetEntry();
+        auctionEntry->itemGuidLow = item->GetGUIDLow();
+        auctionEntry->itemTemplate = item->GetEntry();
         auctionEntry->owner = AHBplayer->GetGUIDLow();
         auctionEntry->startbid = bidPrice * buyBondingK;
         auctionEntry->buyout = buyoutPrice * buyBondingK;
         auctionEntry->bidder = 0;
         auctionEntry->bid = 0;
         auctionEntry->deposit = 0;
-        auctionEntry->expire_time = (time_t) (urand(config->GetMinTime(), config->GetMaxTime()) * 60 * 60 + time(NULL));
+        auctionEntry->expireTime = (time_t) (urand(config->GetMinTime(), config->GetMaxTime()) * 60 * 60 + time(NULL));
         auctionEntry->auctionHouseEntry = ahEntry;
         item->SaveToDB();
         item->RemoveFromUpdateQueueOf(AHBplayer);
@@ -496,7 +496,7 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
         }
 
         // get exact item information
-        Item *pItem = sAuctionMgr.GetAItem(auction->item_guidlow);
+        Item *pItem = sAuctionMgr.GetAItem(auction->itemGuidLow);
         if (!pItem)
         {
             sLog.outError("Item doesn't exists, perhaps bought already?");
@@ -504,13 +504,13 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
         }
 
         // get item prototype
-        ItemPrototype const* prototype = sObjectMgr.GetItemPrototype(auction->item_template);
+        ItemPrototype const* prototype = sObjectMgr.GetItemPrototype(auction->itemTemplate);
 
         // check which price we have to use, startbid or if it is bidded already
         if (debug_Out)
         {
             sLog.outError("Auction Number: %u", auction->Id);
-            sLog.outError("Item Template: %u", auction->item_template);
+            sLog.outError("Item Template: %u", auction->itemTemplate);
             sLog.outError("Buy Price: %u", prototype->BuyPrice);
             sLog.outError("Sell Price: %u", prototype->SellPrice);
             sLog.outError("Quality: %u", prototype->Quality);
@@ -742,7 +742,7 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
                 else
                 {
                     // mail to last bidder and return money
-                    session->SendAuctionOutbiddedMail(auction , bidprice);
+                    session->SendAuctionOutbiddedMail(auction);
                     //pl->ModifyMoney(-int32(price));
                 }
             }
@@ -765,7 +765,7 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
                 //pl->ModifyMoney(-int32(auction->buyout));
                 if (auction->bidder)
                 {
-                    session->SendAuctionOutbiddedMail(auction, auction->buyout);
+                    session->SendAuctionOutbiddedMail(auction);
                 }
             }
             auction->bidder = AHBplayer->GetGUIDLow();
@@ -776,7 +776,7 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
             sAuctionMgr.SendAuctionWonMail(auction);
 
             // Remove item from auctionhouse
-            sAuctionMgr.RemoveAItem(auction->item_guidlow);
+            sAuctionMgr.RemoveAItem(auction->itemGuidLow);
             // Remove auction
             auctionHouse->RemoveAuction(auction->Id);
             // Remove from database
@@ -1146,7 +1146,7 @@ void AuctionHouseBot::Commands(uint32 command, uint32 ahMapID, uint32 col, char*
             while (itr != auctionHouse->GetAuctionsEnd())
             {
                 if (ObjectGuid(HIGHGUID_PLAYER,itr->second->owner) == AHBplayerGUID)
-                    itr->second->expire_time = sWorld.GetGameTime();
+                    itr->second->expireTime = sWorld.GetGameTime();
 
                 ++itr;
             }
