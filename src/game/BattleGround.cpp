@@ -741,10 +741,8 @@ void BattleGround::EndBattleGround(Team winner)
 
     ArenaTeam * winner_arena_team = NULL;
     ArenaTeam * loser_arena_team = NULL;
-    uint32 loser_team_rating = 0;
-    uint32 loser_matchmaker_rating = 0;
-    uint32 winner_team_rating = 0;
-    uint32 winner_matchmaker_rating = 0;
+    uint32 loser_rating = 0;
+    uint32 winner_rating = 0;
     WorldPacket data;
     int32 winmsg_id = 0;
 
@@ -780,18 +778,13 @@ void BattleGround::EndBattleGround(Team winner)
         loser_arena_team = sObjectMgr.GetArenaTeamById(GetArenaTeamIdForTeam(GetOtherTeam(winner)));
         if (winner_arena_team && loser_arena_team)
         {
-            loser_team_rating = loser_arena_team->GetRating();
-            loser_matchmaker_rating = loser_arena_team->GetAverageMMR(GetBgRaid(GetOtherTeam(winner)));
-            winner_team_rating = winner_arena_team->GetRating();
-            winner_matchmaker_rating = winner_arena_team->GetAverageMMR(GetBgRaid(winner));
-            int32 winner_change = winner_arena_team->WonAgainst(loser_matchmaker_rating);
-            int32 loser_change = loser_arena_team->LostAgainst(winner_matchmaker_rating, winner_team_rating < 1500);
-            sLog.outDebug("--- Winner rating: %u, Loser rating: %u, Winner MMR: %u, Loser MMR: %u, Winner change: %u, Losser change: %u ---", winner_team_rating, loser_team_rating,
-                winner_matchmaker_rating, loser_matchmaker_rating, winner_change, loser_change);
-			SetArenaTeamRatingChangeForTeam(winner, winner_change);
+            loser_rating = loser_arena_team->GetStats().rating;
+            winner_rating = winner_arena_team->GetStats().rating;
+            int32 winner_change = winner_arena_team->WonAgainst(loser_rating);
+            int32 loser_change = loser_arena_team->LostAgainst(winner_rating);
+            DEBUG_LOG("--- Winner rating: %u, Loser rating: %u, Winner change: %i, Loser change: %i ---", winner_rating, loser_rating, winner_change, loser_change);
+            SetArenaTeamRatingChangeForTeam(winner, winner_change);
             SetArenaTeamRatingChangeForTeam(GetOtherTeam(winner), loser_change);
-            SetArenaMatchmakerRating(winner, winner_matchmaker_rating);
-            SetArenaMatchmakerRating(GetOtherTeam(winner), loser_matchmaker_rating);
             /** World of Warcraft Armory **/
             if (sWorld.getConfig(CONFIG_BOOL_ARMORY_SUPPORT))
             {
@@ -821,14 +814,14 @@ void BattleGround::EndBattleGround(Team winner)
                     if (plTeamID == winner_arena_team->GetId())
                     {
                         changeType = 1; //win
-                        resultRating = winner_matchmaker_rating;
+                        resultRating = winner_rating;
                         resultTeamID = plTeamID;
                         ratingChange = winner_change;
                     }
                     else
                     {
                         changeType = 2; //lose
-                        resultRating = loser_matchmaker_rating;
+                        resultRating = loser_rating;
                         resultTeamID = loser_arena_team->GetId();
                         ratingChange = loser_change;
                     }
@@ -857,9 +850,9 @@ void BattleGround::EndBattleGround(Team winner)
             if (isArena() && isRated() && winner_arena_team && loser_arena_team)
             {
                 if (team == winner)
-                    winner_arena_team->OfflineMemberLost(itr->first, loser_matchmaker_rating);
+                    winner_arena_team->OfflineMemberLost(itr->first, loser_rating);
                 else
-                    loser_arena_team->OfflineMemberLost(itr->first, winner_matchmaker_rating);
+                    loser_arena_team->OfflineMemberLost(itr->first, winner_rating);
             }
             continue;
         }
@@ -900,7 +893,7 @@ void BattleGround::EndBattleGround(Team winner)
                 if (member)
                     plr->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, member->personal_rating);
 
-                winner_arena_team->MemberWon(plr,loser_matchmaker_rating);
+                winner_arena_team->MemberWon(plr,loser_rating);
 
                 if (member)
                 {
@@ -910,7 +903,7 @@ void BattleGround::EndBattleGround(Team winner)
             }
             else
             {
-                loser_arena_team->MemberLost(plr,winner_matchmaker_rating);
+                loser_arena_team->MemberLost(plr,winner_rating);
 
                 // Arena lost => reset the win_rated_arena having the "no_loose" condition
                 plr->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, ACHIEVEMENT_CRITERIA_CONDITION_NO_LOOSE);
@@ -1197,7 +1190,7 @@ void BattleGround::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
                     ArenaTeam * winner_arena_team = sObjectMgr.GetArenaTeamById(GetArenaTeamIdForTeam(GetOtherTeam(team)));
                     ArenaTeam * loser_arena_team = sObjectMgr.GetArenaTeamById(GetArenaTeamIdForTeam(team));
                     if (winner_arena_team && loser_arena_team)
-                        loser_arena_team->MemberLost(plr,winner_arena_team->GetAverageMMR(GetBgRaid(team)));
+                        loser_arena_team->MemberLost(plr,winner_arena_team->GetRating());
                 }
             }
             if (SendPacket)
@@ -1219,7 +1212,7 @@ void BattleGround::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
                 ArenaTeam * others_arena_team = sObjectMgr.GetArenaTeamById(GetArenaTeamIdForTeam(GetOtherTeam(team)));
                 ArenaTeam * players_arena_team = sObjectMgr.GetArenaTeamById(GetArenaTeamIdForTeam(team));
                 if (others_arena_team && players_arena_team)
-                    players_arena_team->OfflineMemberLost(guid, others_arena_team->GetAverageMMR(GetBgRaid(GetOtherTeam(team))));
+                    players_arena_team->OfflineMemberLost(guid, others_arena_team->GetRating());
             }
         }
 

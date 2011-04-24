@@ -894,7 +894,6 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOADWEEKLYQUESTSTATUS,
     PLAYER_LOGIN_QUERY_LOADMONTHLYQUESTSTATUS,
     PLAYER_LOGIN_QUERY_LOADRANDOMBG,
-    PLAYER_LOGIN_QUERY_LOADARENASTATS,
 
     MAX_PLAYER_LOGIN_QUERY
 };
@@ -2476,7 +2475,6 @@ class MANGOS_DLL_SPEC Player : public Unit
         bool _LoadHomeBind(QueryResult *result);
         void _LoadDeclinedNames(QueryResult *result);
         void _LoadArenaTeamInfo(QueryResult *result);
-        void _LoadArenaStatsInfo(QueryResult *result);
         void _LoadEquipmentSets(QueryResult *result);
         void _LoadBGData(QueryResult* result);
         void _LoadGlyphs(QueryResult *result);
