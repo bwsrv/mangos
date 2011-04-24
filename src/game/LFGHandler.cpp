@@ -925,3 +925,22 @@ void WorldSession::SendLfgQueueStatus(LFGQueueStatus* status)
     data << uint32(status->queuedTime);                            // Player wait time in queue
     SendPacket(&data);
 }
+
+void WorldSession::SendLfgRoleChosen(ObjectGuid guid, uint8 roles)
+{
+    DEBUG_LOG("SMSG_ROLE_CHOSEN %u guid: %u roles: %u", GetPlayer()->GetObjectGuid().GetCounter(), guid.GetCounter(), roles);
+
+    WorldPacket data(SMSG_ROLE_CHOSEN, 8 + 1 + 4);
+    data << guid;                                  // Guid
+    data << uint8(roles != LFG_ROLE_MASK_NONE);    // Ready
+    data << uint32(roles);                         // Roles
+    SendPacket(&data);
+}
+
+void WorldSession::SendLfgBootPlayer()
+{
+}
+
+void WorldSession::SendLfgUpdateProposal()
+{
+}

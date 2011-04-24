@@ -865,14 +865,17 @@ class MANGOS_DLL_SPEC WorldSession
         void SendLfgJoinResult(LFGJoinResult checkResult, uint8 checkValue = 0, bool withLockMap = false);
         void SendLfgPlayerReward(LFGDungeonEntry const* dungeon, const LFGReward* reward, const Quest* qRew, bool isSecond = false);
         void SendLfgQueueStatus(LFGQueueStatus* status);
+        void SendLfgRoleChosen(ObjectGuid guid, uint8 roles);
+        void SendLfgBootPlayer();
+        void SendLfgUpdateProposal();
+        void SendLfgOfferContinue(uint32 dungeonID);
+        void SendLfgTeleportError(LFGTeleportError msg);
         // LFR
         void HandleLfrSearchOpcode(WorldPacket& recv_data);
         void HandleLfrLeaveOpcode(WorldPacket& recv_data);
         // send data
         void SendLfgUpdateList(uint32 dungeonID);
         void SendLfgDisabled();
-        void SendLfgOfferContinue(uint32 dungeonID);
-        void SendLfgTeleportError(LFGTeleportError msg);
 
     private:
         // private trade methods

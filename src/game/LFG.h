@@ -194,14 +194,15 @@ enum LFGJoinResult
     LFG_JOIN_FAILED2               = 18,                    // RoleCheck Failed
 };
 
-enum LFGRoleCheckResult
+enum LFGRoleCheckState
 {
-    LFG_ROLECHECK_FINISHED     = 1,                         // Role check finished
-    LFG_ROLECHECK_INITIALITING = 2,                         // Role check begins
-    LFG_ROLECHECK_MISSING_ROLE = 3,                         // Someone didn't selected a role after 2 mins
-    LFG_ROLECHECK_WRONG_ROLES  = 4,                         // Can't form a group with that role selection
-    LFG_ROLECHECK_ABORTED      = 5,                         // Someone leave the group
-    LFG_ROLECHECK_NO_ROLE      = 6,                         // Someone selected no role
+    LFG_ROLECHECK_NONE                           = 0,      // Internal use = Not initialized.
+    LFG_ROLECHECK_FINISHED                       = 1,      // Role check finished
+    LFG_ROLECHECK_INITIALITING                   = 2,      // Role check begins
+    LFG_ROLECHECK_MISSING_ROLE                   = 3,      // Someone didn't selected a role after 2 mins
+    LFG_ROLECHECK_WRONG_ROLES                    = 4,      // Can't form a group with that role selection
+    LFG_ROLECHECK_ABORTED                        = 5,      // Someone leave the group
+    LFG_ROLECHECK_NO_ROLE                        = 6       // Someone selected no role
 };
 
 enum LFGAnswer

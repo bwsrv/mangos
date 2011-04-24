@@ -725,7 +725,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x2B8*/ { "SMSG_AREA_TRIGGER_MESSAGE",                    STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x2B9*/ { "CMSG_SHOWING_HELM",                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleShowingHelmOpcode         },
     /*0x2BA*/ { "CMSG_SHOWING_CLOAK",                           STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleShowingCloakOpcode        },
-    /*0x2BB*/ { "SMSG_LFG_ROLE_CHOSEN",                         STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
+    /*0x2BB*/ { "SMSG_ROLE_CHOSEN",                             STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x2BC*/ { "SMSG_PLAYER_SKINNED",                          STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x2BD*/ { "SMSG_DURABILITY_DAMAGE_DEATH",                 STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x2BE*/ { "CMSG_SET_EXPLORATION",                         STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },

@@ -20,13 +20,25 @@
 #define _LFGMGR_H
 
 #include "Common.h"
+#include "ObjectGuid.h"
 #include "Policies/Singleton.h"
 #include "LFG.h"
 
 class Group;
 class Player;
-class ObjectGuid;
 
+// forward struct declarations
+struct LFGReward;
+struct LFGQueueInfo;
+
+typedef std::multimap<uint32, LFGReward const*> LFGRewardMap;
+typedef std::pair<LFGRewardMap::const_iterator, LFGRewardMap::const_iterator> LFGRewardMapBounds;
+typedef std::map<ObjectGuid, LFGQueueInfo*> LFGQueueInfoMap;
+typedef std::map<uint32/*ID*/, LFGDungeonEntry const*> LFGDungeonMap;
+typedef std::set<Player*> LFGQueuePlayerSet;
+typedef std::set<Group*>  LFGQueueGroupSet;
+typedef std::map<ObjectGuid, LFGRoleMask> LFGRolesMap;
+typedef std::map<ObjectGuid, LFGAnswer> LFGAnswerMap;
 
 // Reward info
 struct LFGReward
@@ -78,12 +90,48 @@ struct LFGQueueStatus
     time_t                 queuedTime;                       // Player wait time in queue
 };
 
-typedef std::multimap<uint32, LFGReward const*> LFGRewardMap;
-typedef std::pair<LFGRewardMap::const_iterator, LFGRewardMap::const_iterator> LFGRewardMapBounds;
-typedef std::map<ObjectGuid, LFGQueueInfo*> LFGQueueInfoMap;
-typedef std::map<uint32/*ID*/, LFGDungeonEntry const*> LFGDungeonMap;
-typedef std::set<Player*> LFGQueuePlayerSet;
-typedef std::set<Group*>  LFGQueueGroupSet;
+/// Stores group data related to proposal to join
+struct LFGProposal
+{
+    LFGProposal(LFGDungeonEntry const* _dungeon): dungeon(_dungeon), state(LFG_PROPOSAL_INITIATING), group(NULL), cancelTime(0) {};
+
+    LFGDungeonEntry const* dungeon;                        // Dungeon
+    LFGProposalState state;                                ///< State of the proposal
+    Group* group;                                          ///< Proposal group
+    time_t cancelTime;                                     ///< Time when we will cancel this proposal
+};
+
+/// Stores player data related to proposal to join
+struct LFGProposalPlayer
+{
+    LFGProposalPlayer(): role(LFG_ROLE_MASK_NONE), accept(LFG_ANSWER_PENDING), group(NULL) {};
+    LFGRoleMask role;                                      ///< Proposed role
+    LFGAnswer accept;                                      ///< Accept status (-1 not answer | 0 Not agree | 1 agree)
+    Group* group;                                          ///< Original group
+};
+
+/// Stores all rolecheck info of a group that wants to join
+struct LFGRoleCheck
+{
+    time_t cancelTime;                                     ///< Time when the rolecheck will fail
+    LFGRolesMap roles;                                     ///< Player selected roles
+    LFGRoleCheckState state;                               ///< State of the rolecheck
+    LFGDungeonSet dungeons;                                ///< Dungeons group is applying for (expanded random dungeons)
+    uint32 randomID;                                       ///< Random Dungeon Id.
+    ObjectGuid leaderGuid;                                 ///< Leader of the group
+};
+
+/// Stores information of a current vote to kick someone from a group
+struct LFGPlayerBoot
+{
+    time_t cancelTime;                                     ///< Time left to vote
+    bool inProgress;                                       ///< Vote in progress
+    LFGAnswerMap votes;                                    ///< Player votes (-1 not answer | 0 Not agree | 1 agree)
+    ObjectGuid victim;                                     ///< Player guid to be kicked (can't vote)
+    uint8 votedNeeded;                                     ///< Votes needed to kick the player
+    std::string reason;                                    ///< kick reason
+};
+
 
 class LFGMgr
 {
