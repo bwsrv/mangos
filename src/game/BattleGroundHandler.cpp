@@ -192,7 +192,7 @@ void WorldSession::HandleBattlemasterJoinOpcode( WorldPacket & recv_data )
         if(err > 0)
         {
             DEBUG_LOG("Battleground: the following players are joining as group:");
-            ginfo = bgQueue.AddGroup(_player, grp, bgTypeId, bracketEntry, ARENA_TYPE_NONE, false, isPremade, 0, 0);
+            ginfo = bgQueue.AddGroup(_player, grp, bgTypeId, bracketEntry, 0, false, isPremade, 0, 0);
             avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry->GetBracketId());
         }
 
@@ -225,7 +225,7 @@ void WorldSession::HandleBattlemasterJoinOpcode( WorldPacket & recv_data )
     }
     else
     {
-        GroupQueueInfo * ginfo = bgQueue.AddGroup(_player, NULL, bgTypeId, bracketEntry, ARENA_TYPE_NONE, false, isPremade, 0, 0);
+        GroupQueueInfo * ginfo = bgQueue.AddGroup(_player, NULL, bgTypeId, bracketEntry, 0, false, isPremade, 0, 0);
         uint32 avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry->GetBracketId());
         // already checked if queueSlot is valid, now just get it
         uint32 queueSlot = _player->AddBattleGroundQueueId(bgQueueTypeId);
@@ -492,7 +492,7 @@ void WorldSession::HandleBattleFieldPortOpcode( WorldPacket &recv_data )
             bgQueue.RemovePlayer(_player->GetObjectGuid(), true);
             // player left queue, we should update it - do not update Arena Queue
             if (ginfo.arenaType == ARENA_TYPE_NONE)
-                sBattleGroundMgr.ScheduleQueueUpdate(ginfo.ArenaMatchmakerRating, ginfo.arenaType, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
+                sBattleGroundMgr.ScheduleQueueUpdate(ginfo.ArenaMatchmakerRating, ginfo.ArenaType, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
             SendPacket(&data);
             DEBUG_LOG("Battleground: player %s (%u) left queue for bgtype %u, queue type %u.", _player->GetName(), _player->GetGUIDLow(), bg->GetTypeID(), bgQueueTypeId);
             break;
@@ -758,8 +758,8 @@ void WorldSession::HandleBattlemasterJoinArena( WorldPacket & recv_data )
 
         // if avg personal rating is more than 150 points below the teams rating, the team will be queued against an opponent matching or similar to the average personal rating
         if (avg_pers_rating + 150 < arenaRating)
-            arenaRating = avg_pers_rating;*/ 
-    }
+            arenaRating = avg_pers_rating;
+    }*/ 
 
     BattleGroundQueue &bgQueue = sBattleGroundMgr.m_BattleGroundQueues[bgQueueTypeId];
     if (asGroup)
