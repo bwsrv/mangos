@@ -544,7 +544,7 @@ void WorldSession::SendLfgUpdatePlayer(LFGUpdateType updateType, LFGType type)
 }
 
 
-void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
+void WorldSession::SendLfgUpdateList(uint32 dungeonID)
 {
     if (!sWorld.getConfig(CONFIG_BOOL_LFR_ENABLE))
     {
@@ -552,11 +552,11 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonEntry)
         return;
     }
 
-    DEBUG_LOG("SMSG_LFG_SEARCH_RESULTS %u dungeonentry: %u ", GetPlayer()->GetObjectGuid().GetCounter(), dungeonEntry);
+    DEBUG_LOG("SMSG_LFG_SEARCH_RESULTS %u dungeonentry: %u ", GetPlayer()->GetObjectGuid().GetCounter(), dungeonID);
 
-    LFGDungeonEntry const* dungeon = sLFGMgr.GetDungeon(dungeonEntry);
+    LFGDungeonEntry const* dungeon = sLFGMgr.GetDungeon(dungeonID);
 
-    if (!dungeonEntry)
+    if (!dungeon)
         return;
 
     Team team = sWorld.getConfig(CONFIG_BOOL_ALLOW_TWO_SIDE_INTERACTION_GROUP) ? TEAM_NONE : GetPlayer()->GetTeam();
@@ -849,19 +849,24 @@ void WorldSession::SendLfgDisabled()
     SendPacket(&data);
 }
 
-void WorldSession::SendLfgOfferContinue(uint32 dungeonEntry)
+void WorldSession::SendLfgOfferContinue(uint32 dungeonID)
 {
-    DEBUG_LOG("SMSG_LFG_OFFER_CONTINUE %u dungeon entry: %u", GetPlayer()->GetObjectGuid().GetCounter(), dungeonEntry);
+    LFGDungeonEntry const* dungeon = sLFGMgr.GetDungeon(dungeonID);
+
+    if (!dungeon)
+        return;
+
+    DEBUG_LOG("SMSG_LFG_OFFER_CONTINUE %u dungeon entry: %u", GetPlayer()->GetObjectGuid().GetCounter(), dungeonID);
     WorldPacket data(SMSG_LFG_OFFER_CONTINUE, 4);
-    data << uint32(dungeonEntry);
+    data << uint32(dungeon->Entry());
     SendPacket(&data);
 }
 
-void WorldSession::SendLfgTeleportError(uint8 err)
+void WorldSession::SendLfgTeleportError(LFGTeleportError msg)
 {
-    DEBUG_LOG("SMSG_LFG_TELEPORT_DENIED %u reason: %u", GetPlayer()->GetObjectGuid().GetCounter(), err);
+    DEBUG_LOG("SMSG_LFG_TELEPORT_DENIED %u reason: %u", GetPlayer()->GetObjectGuid().GetCounter(), msg);
     WorldPacket data(SMSG_LFG_TELEPORT_DENIED, 4);
-    data << uint32(err);
+    data << uint32(msg);
     SendPacket(&data);
 }
 

@@ -869,10 +869,10 @@ class MANGOS_DLL_SPEC WorldSession
         void HandleLfrSearchOpcode(WorldPacket& recv_data);
         void HandleLfrLeaveOpcode(WorldPacket& recv_data);
         // send data
-        void SendLfgUpdateList(uint32 dungeonEntry);
+        void SendLfgUpdateList(uint32 dungeonID);
         void SendLfgDisabled();
-        void SendLfgOfferContinue(uint32 dungeonEntry);
-        void SendLfgTeleportError(uint8 err);
+        void SendLfgOfferContinue(uint32 dungeonID);
+        void SendLfgTeleportError(LFGTeleportError msg);
 
     private:
         // private trade methods
