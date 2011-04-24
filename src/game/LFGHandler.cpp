@@ -94,6 +94,17 @@ void WorldSession::HandleLfgLeaveOpcode( WorldPacket & /*recv_data*/ )
 
 }
 
+void WorldSession::HandleLfgGetStatus(WorldPacket & /*recv_data*/)
+{
+    Group* group = GetPlayer()->GetGroup();
+
+    DEBUG_LOG("CMSG_LFG_GET_STATUS %u in group: %u", GetPlayer()->GetObjectGuid().GetCounter(), group ? 1 : 0);
+
+    // for GetPlayer()->GetLFGState()->GetDungeons()
+    // LFGQueueStatus = sLFGMgr.GetStatus(dungeon);
+    // SendLfgQueueStatus(LFGQueueStatus* status);
+}
+
 void WorldSession::HandleLfrSearchOpcode( WorldPacket & recv_data )
 {
     uint32 entry;                                           // Raid id to search
@@ -889,5 +900,23 @@ void WorldSession::SendLfgPlayerReward(LFGDungeonEntry const* dungeon, const LFG
             data << uint32(qRew->RewItemCount[i]);
         }
     }
+    SendPacket(&data);
+}
+
+void WorldSession::SendLfgQueueStatus(LFGQueueStatus* status)
+{
+    DEBUG_LOG("SMSG_LFG_QUEUE_STATUS %u dungeonEntry: %u ", GetPlayer()->GetObjectGuid().GetCounter(), status->dungeon->ID);
+
+    WorldPacket data(SMSG_LFG_QUEUE_STATUS, 4 + 4 + 4 + 4 + 4 +4 + 1 + 1 + 1 + 4);
+    data << uint32(status->dungeon->Entry());                      // Dungeon
+    data << int32(status->avgWaitTime);                            // Average Wait time
+    data << int32(status->waitTime);                               // Wait Time
+    data << int32(status->waitTimeTanks);                          // Wait Tanks
+    data << int32(status->waitTimeHealer);                         // Wait Healers
+    data << int32(status->waitTimeDps);                            // Wait Dps
+    data << uint8(status->tanks);                                  // Tanks needed
+    data << uint8(status->healers);                                // Healers needed
+    data << uint8(status->dps);                                    // Dps needed
+    data << uint32(status->queuedTime);                            // Player wait time in queue
     SendPacket(&data);
 }

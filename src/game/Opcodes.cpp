@@ -688,7 +688,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x293*/ { "SMSG_LFG_OFFER_CONTINUE",                      STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x294*/ { "CMSG_MEETINGSTONE_CHEAT",                      STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
     /*0x295*/ { "SMSG_MEETINGSTONE_SETQUEUE",                   STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
-    /*0x296*/ { "CMSG_LFG_GET_STATUS",                          STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
+    /*0x296*/ { "CMSG_LFG_GET_STATUS",                          STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleLfgGetStatus              },
     /*0x297*/ { "SMSG_MEETINGSTONE_COMPLETE",                   STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x298*/ { "SMSG_MEETINGSTONE_IN_PROGRESS",                STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x299*/ { "SMSG_MEETINGSTONE_MEMBER_ADDED",               STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },

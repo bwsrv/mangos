@@ -27,12 +27,12 @@
 #include "SharedDefines.h"
 #include "ObjectGuid.h"
 #include "LFG.h"
+#include "LFGMgr.h"
 
 struct ItemPrototype;
 struct AuctionEntry;
 struct AuctionHouseEntry;
 struct DeclinedName;
-struct LFGReward;
 
 class ObjectGuid;
 class Creature;
@@ -851,6 +851,7 @@ class MANGOS_DLL_SPEC WorldSession
         void HandleLfgClearOpcode(WorldPacket& recv_data);
         void HandleSetLfgCommentOpcode(WorldPacket& recv_data);
         void HandleLfgSetRolesOpcode(WorldPacket& recv_data);
+        void HandleLfgGetStatus(WorldPacket& recv_data);
         //
         void HandleLfgSetBootVoteOpcode(WorldPacket &recv_data);
         void HandleLfgProposalResultOpcode(WorldPacket &recv_data);
@@ -863,6 +864,7 @@ class MANGOS_DLL_SPEC WorldSession
         void SendLfgUpdateSearch(bool update);
         void SendLfgJoinResult(LFGJoinResult checkResult, uint8 checkValue = 0, bool withLockMap = false);
         void SendLfgPlayerReward(LFGDungeonEntry const* dungeon, const LFGReward* reward, const Quest* qRew, bool isSecond = false);
+        void SendLfgQueueStatus(LFGQueueStatus* status);
         // LFR
         void HandleLfrSearchOpcode(WorldPacket& recv_data);
         void HandleLfrLeaveOpcode(WorldPacket& recv_data);
