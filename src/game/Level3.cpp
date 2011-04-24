@@ -4115,7 +4115,7 @@ bool ChatHandler::HandleNpcInfoCommand(char* /*args*/)
     uint32 Entry = target->GetEntry();
     uint32 phaseMask = target->GetPhaseMask();
     CreatureInfo const* cInfo = target->GetCreatureInfo();
-    uint32 VehicleId = cInfo ? cInfo->VehicleId : 0;
+    uint32 VehicleId = cInfo ? cInfo->vehicleId : 0;
     uint32 difficulty_entry_1 = cInfo ? cInfo->DifficultyEntry[0] : 0;
     uint32 difficulty_entry_2 = cInfo ? cInfo->DifficultyEntry[1] : 0;
     uint32 difficulty_entry_3 = cInfo ? cInfo->DifficultyEntry[2] : 0;
@@ -4140,7 +4140,7 @@ bool ChatHandler::HandleNpcInfoCommand(char* /*args*/)
     else
         PSendSysMessage(LANG_NPCINFO_CHAR,  target->GetGUIDLow(), faction, npcflags, Entry, displayid, nativeid);
 
-    PSendSysMessage("VehicleId: %u", VehicleId);
+    PSendSysMessage("VehicleId: %u", cInfo->vehicleId);
     PSendSysMessage("difficulty_entry_1: %u, difficulty_entry_2: %u, difficulty_entry_3: %u", difficulty_entry_1, difficulty_entry_2, difficulty_entry_3);
 
     PSendSysMessage(LANG_NPCINFO_LEVEL, target->getLevel());

@@ -663,6 +663,10 @@ bool IsPositiveEffect(SpellEntry const *spellproto, SpellEffectIndex effIndex)
 
     switch(spellproto->Id)
     {
+        case 72219:                                         // Gastric Bloat 10 N
+        case 72551:                                         // Gastric Bloat 10 H
+        case 72552:                                         // Gastric Bloat 25 N
+        case 72553:                                         // Gastric Bloat 25 H
         case 37675:                                         // Chaos Blast
         case 56266:                                         // Vortex
         case 42786:                                         // Echo Of Ymiron

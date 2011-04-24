@@ -238,9 +238,11 @@ void Object::BuildMovementUpdate(ByteBuffer * data, uint16 updateFlags) const
 {
     uint16 moveFlags2 = (isType(TYPEMASK_UNIT) ? ((Unit*)this)->m_movementInfo.GetMovementFlags2() : MOVEFLAG2_NONE);
 
+/* removed by zergtmn. strange...
     if(GetTypeId() == TYPEID_UNIT)
         if(((Creature*)this)->GetVehicleKit())
             moveFlags2 |= MOVEFLAG2_ALLOW_PITCHING;         // always allow pitch
+*/
 
     *data << uint16(updateFlags);                           // update flags
 
@@ -264,12 +266,12 @@ void Object::BuildMovementUpdate(ByteBuffer * data, uint16 updateFlags) const
                     // (ok) most seem to have this
                     unit->m_movementInfo.AddMovementFlag(MOVEFLAG_LEVITATING);
 
-                    if (!((Creature*)unit)->hasUnitState(UNIT_STAT_MOVING))
+                    /*if (!((Creature*)unit)->hasUnitState(UNIT_STAT_MOVING))
                     {
                         // (ok) possibly some "hover" mode
                         // unit->m_movementInfo.AddMovementFlag(MOVEFLAG_ROOT);
                     }
-                    else
+                    else*/
                     {
                         if (((Creature*)unit)->IsMounted())
                         {
@@ -522,9 +524,9 @@ void Object::BuildMovementUpdate(ByteBuffer * data, uint16 updateFlags) const
     }
 
     // 0x80
-    if(updateFlags & UPDATEFLAG_VEHICLE)
+    if (updateFlags & UPDATEFLAG_VEHICLE)
     {
-        *data << uint32(((Unit*)this)->GetVehicleKit()->GetVehicleId());  // vehicle id
+        *data << uint32(((Unit*)this)->GetVehicleInfo()->GetEntry()->m_ID); // vehicle id
         *data << float(((WorldObject*)this)->GetOrientation());
     }
 
@@ -1479,11 +1481,25 @@ void WorldObject::GetRandomPoint( float x, float y, float z, float distance, flo
     UpdateGroundPositionZ(rand_x,rand_y,rand_z);            // update to LOS height if available
 }
 
-void WorldObject::UpdateGroundPositionZ(float x, float y, float &z) const
+void WorldObject::UpdateGroundPositionZ(float x, float y, float &z, float maxDiff) const
 {
-    float new_z = GetTerrain()->GetHeight(x,y,z,true);
-    if(new_z > INVALID_HEIGHT)
-        z = new_z+ 0.05f;                                   // just to be sure that we are not a few pixel under the surface
+    UpdateAllowedPositionZ(x, y, z);
+
+    maxDiff = maxDiff >= 100.0f ? 10.0f : sqrtf(maxDiff);
+    bool useVmaps = false;
+    if( GetTerrain()->GetHeight(x, y, z, false) <  GetTerrain()->GetHeight(x, y, z, true) ) // check use of vmaps
+        useVmaps = true;
+
+    float normalizedZ = GetTerrain()->GetHeight(x, y, z, useVmaps);
+    // check if its reacheable
+    if(normalizedZ <= INVALID_HEIGHT || fabs(normalizedZ-z) > maxDiff)
+    {
+        useVmaps = !useVmaps;                                // try change vmap use
+        normalizedZ = GetTerrain()->GetHeight(x, y, z, useVmaps);
+        if(normalizedZ <= INVALID_HEIGHT || fabs(normalizedZ-z) > maxDiff)
+            return;                                        // Do nothing in case of another bad result 
+    }
+    z = normalizedZ + 0.1f;                                // just to be sure that we are not a few pixel under the surface
 }
 
 void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
@@ -1765,7 +1781,7 @@ Creature* WorldObject::SummonCreature(uint32 id, float x, float y, float z, floa
     if (x == 0.0f && y == 0.0f && z == 0.0f)
         pos = CreatureCreatePos(this, GetOrientation(), CONTACT_DISTANCE, ang);
 
-    if (!pCreature->Create(GetMap()->GenerateLocalLowGuid(HIGHGUID_UNIT), pos, cinfo, team))
+    if (!pCreature->Create(GetMap()->GenerateLocalLowGuid(cinfo->GetHighGuid()), pos, cinfo, team))
     {
         delete pCreature;
         return NULL;

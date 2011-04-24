@@ -524,7 +524,7 @@ void WorldSession::HandleLootMasterGiveOpcode( WorldPacket & recv_data )
 
     Loot *pLoot = NULL;
 
-    if(lootguid.IsCreatureOrVehicle())
+    if (lootguid.IsCreatureOrVehicle())
     {
         Creature *pCreature = GetPlayer()->GetMap()->GetCreature(lootguid);
         if(!pCreature)

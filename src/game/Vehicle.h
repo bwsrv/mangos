@@ -25,6 +25,17 @@
 #include "Unit.h"
 #include "SharedDefines.h"
 
+struct VehicleEntry;
+
+class VehicleInfo
+{
+        VehicleEntry const* m_vehicleEntry;
+    public:
+        explicit VehicleInfo(VehicleEntry const* entry);
+
+        VehicleEntry const* GetEntry() const { return m_vehicleEntry; }
+};
+
 struct VehicleSeat
 {
     VehicleSeat(VehicleSeatEntry const *pSeatInfo = NULL) : seatInfo(pSeatInfo), passenger(NULL) {}
@@ -48,42 +59,32 @@ typedef std::map<uint32, VehicleAccessoryList> VehicleAccessoryMap;
 
 class MANGOS_DLL_SPEC VehicleKit
 {
-public:
-    explicit VehicleKit(Unit* base, VehicleEntry const* vehicleInfo);
-    ~VehicleKit();
+    public:
+        explicit VehicleKit(Unit* base);
+        ~VehicleKit();
 
-    void Reset();
-    void InstallAllAccessories(uint32 entry);
+        void Reset();
+        void InstallAllAccessories(uint32 entry);
 
-    bool HasEmptySeat(int8 seatId) const;
-    Unit *GetPassenger(int8 seatId) const;
-    int8 GetNextEmptySeat(int8 seatId, bool next) const;
-    bool AddPassenger(Unit *passenger, int8 seatId = -1);
-    void RemovePassenger(Unit *passenger);
-    void RelocatePassengers(float x, float y, float z, float ang);
-    void RemoveAllPassengers();
-    VehicleSeatEntry const* GetSeatInfo(Unit* passenger);
+        bool HasEmptySeat(int8 seatId) const;
+        Unit *GetPassenger(int8 seatId) const;
+        int8 GetNextEmptySeat(int8 seatId, bool next) const;
+        bool AddPassenger(Unit *passenger, int8 seatId = -1);
+        void RemovePassenger(Unit *passenger);
+        void RelocatePassengers(float x, float y, float z, float ang);
+        void RemoveAllPassengers();
+        VehicleSeatEntry const* GetSeatInfo(Unit* passenger);
 
-    uint32 GetVehicleId() const { return m_vehicleInfo->m_ID; }
-    VehicleEntry const* GetVehicleInfo() const { return m_vehicleInfo; }
-    Unit* GetBase() { return m_pBase; }
-private:
-    void UpdateFreeSeatCount();
-    void InstallAccessory(uint32 entry, int8 seatId, bool minion = true);
+        Unit* GetBase() { return m_pBase; }
 
-    SeatMap m_Seats;
-    uint32 m_uiNumFreeSeats;
-    VehicleEntry const *m_vehicleInfo;
-    Unit* m_pBase;
+    private:
+        void UpdateFreeSeatCount();
+        void InstallAccessory(uint32 entry, int8 seatId, bool minion = true);
 
-        void SaveToDB(uint32, uint8, uint32)                // overwrited of Creature::SaveToDB     - don't must be called
-        {
-            MANGOS_ASSERT(false);
-        }
-        void DeleteFromDB()                                 // overwrited of Creature::DeleteFromDB - don't must be called
-        {
-            MANGOS_ASSERT(false);
-        }
+        SeatMap m_Seats;
+        uint32 m_uiNumFreeSeats;
+        Unit* m_pBase;
+
 };
 
 #endif

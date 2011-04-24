@@ -19,7 +19,6 @@
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
 #include "WorldPacket.h"
-#include "Vehicle.h"
 #include "Player.h"
 #include "Opcodes.h"
 #include "Chat.h"
