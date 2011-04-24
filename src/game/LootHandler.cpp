@@ -128,7 +128,7 @@ void WorldSession::HandleAutostoreLootItemOpcode( WorldPacket & recv_data )
         pItem->SetLootState(ITEM_LOOT_CHANGED);
 
     ItemPosCountVec dest;
-    uint8 msg = player->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, item->itemid, item->count );
+    InventoryResult msg = player->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, item->itemid, item->count );
     if ( msg == EQUIP_ERR_OK )
     {
         AllowedLooterSet* looters = item->GetAllowedLooters();
@@ -552,7 +552,7 @@ void WorldSession::HandleLootMasterGiveOpcode( WorldPacket & recv_data )
     LootItem& item = pLoot->items[slotid];
 
     ItemPosCountVec dest;
-    uint8 msg = target->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, item.itemid, item.count );
+    InventoryResult msg = target->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, item.itemid, item.count );
     if ( msg != EQUIP_ERR_OK )
     {
         target->SendEquipError( msg, NULL, NULL, item.itemid );
