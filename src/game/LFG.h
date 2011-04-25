@@ -249,6 +249,9 @@ struct LFGPlayerState
     void           AddFlags(uint32 flags)    { m_flags = m_flags | flags;};
     void           RemoveFlags(uint32 flags) { m_flags = m_flags & ~flags;};
 
+    void           SetAnswer(LFGAnswer _accept) { accept = _accept;};
+    LFGAnswer      GetAnswer() { return accept;};
+
     LFGType        GetType();
 
 private:
@@ -260,7 +263,10 @@ private:
     LFGDungeonSet m_DungeonsList;                   // Dungeons the player have applied for
     LFGLockStatusMap m_LockMap;                     // Dungeons lock map
     std::string   m_comment;
+    LFGAnswer     accept;                           ///< Accept status (-1 not answer | 0 Not agree | 1 agree)
 };
+
+struct LFGProposal;
 
 struct LFGGroupState
 {
@@ -272,6 +278,9 @@ struct LFGGroupState
     void Clear();
     void Update(bool _update = true) { update = _update; };
     LFGDungeonSet* GetDungeons()   { return &m_DungeonsList; };
+
+    LFGProposal*   GetProposal()   { return m_proposal; };
+    void           SetProposal(LFGProposal* proposal)   { m_proposal = proposal; };
 
     uint32* GetFlags()  { return &m_flags;};
     LFGType       GetType();
@@ -286,6 +295,7 @@ struct LFGGroupState
     bool          kickActive;
     LFGDungeonStatus     status;
     LFGDungeonSet    m_DungeonsList;                // Dungeons the group have applied for
+    LFGProposal*  m_proposal;
 };
 
 #endif

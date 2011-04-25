@@ -30,6 +30,7 @@ class Player;
 // forward struct declarations
 struct LFGReward;
 struct LFGQueueInfo;
+struct LFGProposal;
 
 typedef std::multimap<uint32, LFGReward const*> LFGRewardMap;
 typedef std::pair<LFGRewardMap::const_iterator, LFGRewardMap::const_iterator> LFGRewardMapBounds;
@@ -39,6 +40,7 @@ typedef std::set<Player*> LFGQueuePlayerSet;
 typedef std::set<Group*>  LFGQueueGroupSet;
 typedef std::map<ObjectGuid, LFGRoleMask> LFGRolesMap;
 typedef std::map<ObjectGuid, LFGAnswer> LFGAnswerMap;
+typedef std::map<uint32/*ID*/, LFGProposal> LFGProposalMap;
 
 // Reward info
 struct LFGReward
@@ -96,18 +98,11 @@ struct LFGProposal
     LFGProposal(LFGDungeonEntry const* _dungeon): dungeon(_dungeon), state(LFG_PROPOSAL_INITIATING), group(NULL), cancelTime(0) {};
 
     LFGDungeonEntry const* dungeon;                        // Dungeon
-    LFGProposalState state;                                ///< State of the proposal
-    Group* group;                                          ///< Proposal group
-    time_t cancelTime;                                     ///< Time when we will cancel this proposal
-};
-
-/// Stores player data related to proposal to join
-struct LFGProposalPlayer
-{
-    LFGProposalPlayer(): role(LFG_ROLE_MASK_NONE), accept(LFG_ANSWER_PENDING), group(NULL) {};
-    LFGRoleMask role;                                      ///< Proposed role
-    LFGAnswer accept;                                      ///< Accept status (-1 not answer | 0 Not agree | 1 agree)
-    Group* group;                                          ///< Original group
+    LFGQueuePlayerSet players;                             // Players in this proposal
+    LFGProposalState state;                                // State of the proposal
+    Group* group;                                          // Proposal group (NULL if not created)
+    time_t cancelTime;                                     // Time when we will cancel this proposal
+    uint32 ID;                                             // Proposal id
 };
 
 /// Stores all rolecheck info of a group that wants to join
@@ -150,13 +145,19 @@ class LFGMgr
 
         void ClearLFRList(Player* player);
 
+        // reward system
         void LoadRewards();
         LFGReward const* GetRandomDungeonReward(LFGDungeonEntry const* dungeon, Player* player);
         void SendLFGRewards(Player* player);
         void SendLFGReward(Player* player);
 
-        LFGDungeonEntry const* GetDungeon(uint32 dungeonID);
+        // Proposal system
+        bool CreateProposal(LFGDungeonEntry const* dungeon, Group* group = NULL);
+        LFGProposal* GetProposal(uint32 ID);
+        void RemoveProposal(uint32 ID);
 
+        // Dungeon operations
+        LFGDungeonEntry const* GetDungeon(uint32 dungeonID);
         bool IsRandomDungeon(LFGDungeonEntry const* dungeon);
         LFGDungeonSet GetRandomDungeonsForPlayer(Player* player);
 
@@ -174,11 +175,13 @@ class LFGMgr
         void _Leave(ObjectGuid guid, LFGType excludeType = LFG_TYPE_NONE);
         void _JoinGroup(ObjectGuid guid, LFGType type);
         void _LeaveGroup(ObjectGuid guid, LFGType excludeType = LFG_TYPE_NONE);
+        uint32 GenerateProposalID();
         LFGRewardMap    m_RewardMap;                        // Stores rewards for random dungeons
         LFGQueueInfoMap m_queueInfoMap[LFG_TYPE_MAX];       // Queued players
         LFGQueueInfoMap m_groupQueueInfoMap[LFG_TYPE_MAX];  // Queued groups
         LFGDungeonMap   m_dungeonMap;                       // sorted dungeon map
         LFGQueueStatus  m_queueStatus[LFG_TYPE_MAX];        // Queue statisic
+        LFGProposalMap  m_proposalMap;                      // Proposal store
 
 };
 

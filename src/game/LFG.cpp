@@ -40,6 +40,7 @@ void LFGPlayerState::Clear()
     m_DungeonsList.clear();
     m_LockMap.clear();
     m_comment.clear();
+    accept = LFG_ANSWER_PENDING;
 }
 
 LFGLockStatusMap* LFGPlayerState::GetLockMap()
@@ -108,6 +109,7 @@ void LFGGroupState::Clear()
               LFG_MEMBER_FLAG_COMMENT |
               LFG_MEMBER_FLAG_ROLES |
               LFG_MEMBER_FLAG_BIND;
+    m_proposal = NULL;
 }
 
 uint8 LFGGroupState::GetRoles(LFGRoles role)

@@ -869,8 +869,8 @@ class MANGOS_DLL_SPEC WorldSession
         void SendLfgPlayerReward(LFGDungeonEntry const* dungeon, const LFGReward* reward, const Quest* qRew, bool isSecond = false);
         void SendLfgQueueStatus(LFGQueueStatus* status);
         void SendLfgRoleChosen(ObjectGuid guid, uint8 roles);
-        void SendLfgBootPlayer();
-        void SendLfgUpdateProposal();
+        void SendLfgBootPlayer(LFGPlayerBoot* pBoot);
+        void SendLfgUpdateProposal(LFGProposal* proposal);
         void SendLfgOfferContinue(uint32 dungeonID);
         void SendLfgTeleportError(LFGTeleportError msg);
         // LFR
