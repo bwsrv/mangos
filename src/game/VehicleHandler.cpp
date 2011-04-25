@@ -41,15 +41,19 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recv_data)
 
     bool dismiss = true;
 
-    if (GetPlayer()->GetVehicleInfo()->GetEntry()->m_flags & (VEHICLE_FLAG_NOT_DISMISS | VEHICLE_FLAG_ACCESSORY))
+    Creature* vehicle = GetPlayer()->GetMap()->GetAnyTypeCreature(guid);
+
+    if (!vehicle || !vehicle->GetVehicleInfo())
+        return;
+
+    if (vehicle->GetVehicleInfo()->GetEntry()->m_flags & (VEHICLE_FLAG_NOT_DISMISS | VEHICLE_FLAG_ACCESSORY))
         dismiss = false;
 
     GetPlayer()->m_movementInfo = mi;
     GetPlayer()->ExitVehicle();
 
     if (dismiss)
-        if (Creature* vehicle = GetPlayer()->GetMap()->GetAnyTypeCreature(guid))
-            vehicle->ForcedDespawn();
+        vehicle->ForcedDespawn();
 
 }
 
@@ -90,11 +94,12 @@ void WorldSession::HandleRequestVehicleSwitchSeat(WorldPacket &recv_data)
     if (!pVehicle)
         return;
 
-    if (GetPlayer()->GetVehicleInfo()->GetEntry()->m_flags & VEHICLE_FLAG_DISABLE_SWITCH)
+    if (pVehicle->GetBase()->GetVehicleInfo()->GetEntry()->m_flags & VEHICLE_FLAG_DISABLE_SWITCH)
         return;
 
     if (pVehicle->GetBase()->GetObjectGuid() == guid)
         GetPlayer()->ChangeSeat(seatId);
+
     else if (Unit *Vehicle2 = GetPlayer()->GetMap()->GetUnit(guid))
     {
         if (VehicleKit *pVehicle2 = Vehicle2->GetVehicleKit())
@@ -177,7 +182,7 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
     if (!pVehicle)
         return;
 
-    if (GetPlayer()->GetVehicleInfo()->GetEntry()->m_flags & VEHICLE_FLAG_DISABLE_SWITCH)
+    if (pVehicle->GetBase()->GetVehicleInfo()->GetEntry()->m_flags & VEHICLE_FLAG_DISABLE_SWITCH)
         return;
 
     if(guid.GetRawValue() == guid2.GetRawValue())

@@ -38,6 +38,9 @@
 #include "ArenaTeam.h"
 #include "Language.h"
 
+// Playerbot mod:
+#include "playerbot/PlayerbotMgr.h"
+
 // config option SkipCinematics supported values
 enum CinematicsSkipMode
 {
@@ -134,6 +137,31 @@ class CharacterHandler
             }
             session->HandlePlayerLogin((LoginQueryHolder*)holder);
         }
+        // Playerbot mod: is different from the normal HandlePlayerLoginCallback in that it
+        // sets up the bot's world session and also stores the pointer to the bot player in the master's
+        // world session m_playerBots map
+        void HandlePlayerBotLoginCallback(QueryResult * /*dummy*/, SqlQueryHolder * holder)
+        {
+            if (!holder)
+                return;
+
+            LoginQueryHolder* lqh = (LoginQueryHolder*) holder;
+
+            WorldSession* masterSession = sWorld.FindSession(lqh->GetAccountId());
+
+            if (! masterSession || sObjectMgr.GetPlayer(lqh->GetGuid()))
+            {
+                delete holder;
+                return;
+            }
+
+            // The bot's WorldSession is owned by the bot's Player object
+            // The bot's WorldSession is deleted by PlayerbotMgr::LogoutPlayerBot
+            WorldSession *botSession = new WorldSession(lqh->GetAccountId(), NULL, SEC_PLAYER, masterSession->Expansion(), 0, LOCALE_enUS);
+            botSession->m_Address = "bot";
+            botSession->HandlePlayerLogin(lqh); // will delete lqh
+            masterSession->GetPlayer()->GetPlayerbotMgr()->OnBotLogin(botSession->GetPlayer());
+        }
 } chrHandler;
 
 void WorldSession::HandleCharEnum(QueryResult * result)
@@ -202,6 +230,11 @@ void WorldSession::HandleCharCreateOpcode( WorldPacket & recv_data )
 
     recv_data >> race_;
     recv_data >> class_;
+
+    // extract other data required for player creating
+    uint8 gender, skin, face, hairStyle, hairColor, facialHair, outfitId;
+    recv_data >> gender >> skin >> face;
+    recv_data >> hairStyle >> hairColor >> facialHair >> outfitId;
 
     WorldPacket data(SMSG_CHAR_CREATE, 1);                  // returned with diff.values in all cases
 
@@ -443,11 +476,6 @@ void WorldSession::HandleCharCreateOpcode( WorldPacket & recv_data )
         return;
     }
 
-    // extract other data required for player creating
-    uint8 gender, skin, face, hairStyle, hairColor, facialHair, outfitId;
-    recv_data >> gender >> skin >> face;
-    recv_data >> hairStyle >> hairColor >> facialHair >> outfitId;
-
     Player *pNewChar = new Player(this);
     if (!pNewChar->Create(sObjectMgr.GeneratePlayerLowGuid(), name, race_, class_, gender, skin, face, hairStyle, hairColor, facialHair, outfitId))
     {
@@ -568,6 +596,27 @@ void WorldSession::HandlePlayerLoginOpcode( WorldPacket & recv_data )
     }
 
     CharacterDatabase.DelayQueryHolder(&chrHandler, &CharacterHandler::HandlePlayerLoginCallback, holder);
+}
+
+// Playerbot mod. Can't easily reuse HandlePlayerLoginOpcode for logging in bots because it assumes
+// a WorldSession exists for the bot. The WorldSession for a bot is created after the character is loaded.
+void PlayerbotMgr::AddPlayerBot(uint64 playerGuid)
+{
+    // has bot already been added?
+    if (sObjectMgr.GetPlayer(playerGuid))
+        return;
+
+    uint32 accountId = sObjectMgr.GetPlayerAccountIdByGUID(playerGuid);
+    if (accountId == 0)
+        return;
+
+    LoginQueryHolder *holder = new LoginQueryHolder(accountId, playerGuid);
+    if(!holder->Initialize())
+    {
+        delete holder;                                      // delete all unprocessed queries
+        return;
+    }
+    CharacterDatabase.DelayQueryHolder(&chrHandler, &CharacterHandler::HandlePlayerBotLoginCallback, holder);
 }
 
 void WorldSession::HandlePlayerLogin(LoginQueryHolder *holder)
@@ -1501,7 +1550,7 @@ void WorldSession::HandleEquipmentSetUseOpcode(WorldPacket &recv_data)
                 continue;
 
             ItemPosCountVec sDest;
-            uint8 msg = _player->CanStoreItem( NULL_BAG, NULL_SLOT, sDest, uItem, false );
+            InventoryResult msg = _player->CanStoreItem( NULL_BAG, NULL_SLOT, sDest, uItem, false );
             if(msg == EQUIP_ERR_OK)
             {
                 _player->RemoveItem(INVENTORY_SLOT_BAG_0, i, true);
@@ -1520,6 +1569,6 @@ void WorldSession::HandleEquipmentSetUseOpcode(WorldPacket &recv_data)
     }
 
     WorldPacket data(SMSG_USE_EQUIPMENT_SET_RESULT, 1);
-    data << uint8(0);                                       // 4 - equipment swap failed - inventory is full
+    data << uint8(0);   // 4 - equipment swap failed - inventory is full
     SendPacket(&data);
 }

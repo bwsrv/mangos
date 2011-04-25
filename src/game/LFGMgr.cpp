@@ -48,6 +48,7 @@ LFGMgr::LFGMgr()
         if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(i))
             m_dungeonMap.insert(std::make_pair(dungeon->ID, dungeon));
     }
+    m_proposalMap.clear();
 }
 
 LFGMgr::~LFGMgr()
@@ -62,6 +63,7 @@ LFGMgr::~LFGMgr()
         m_queueInfoMap[i].clear();
         m_groupQueueInfoMap[i].clear();
     }
+    m_proposalMap.clear();
 }
 
 void LFGMgr::Update(uint32 diff)
@@ -710,4 +712,53 @@ void LFGMgr::SendLFGReward(Player* player)
     // Give rewards
     DEBUG_LOG("LFGMgr::RewardDungeonDoneFor: %u done dungeon %u, %s previously done.", player->GetObjectGuid().GetCounter(), dungeon->ID, index > 0 ? " " : " not");
     player->GetSession()->SendLfgPlayerReward(dungeon, reward, qReward, index == 0);
+}
+
+bool LFGMgr::CreateProposal(LFGDungeonEntry const* dungeon, Group* group)
+{
+    if (!dungeon)
+        return false;
+
+    uint32 ID = GenerateProposalID();
+    LFGProposal proposal = LFGProposal(dungeon);
+    proposal.cancelTime = time_t(time(NULL)) + LFG_TIME_PROPOSAL;
+    proposal.state = LFG_PROPOSAL_INITIATING;
+    proposal.group = group;
+    m_proposalMap.insert(std::make_pair(ID, proposal));
+
+    if (group)
+    {
+        group->GetLFGState()->SetProposal(GetProposal(ID));
+    }
+
+    DEBUG_LOG("LFGMgr::CreateProposal: %u, dungeon %u, %s", ID, dungeon->ID, group ? " in group" : " not in group");
+}
+
+LFGProposal* LFGMgr::GetProposal(uint32 ID)
+{
+    LFGProposalMap::iterator itr = m_proposalMap.find(ID);
+    return itr != m_proposalMap.end() ? &itr->second : NULL;
+}
+
+void LFGMgr::RemoveProposal(uint32 ID)
+{
+    LFGProposalMap::iterator itr = m_proposalMap.find(ID);
+    if (itr == m_proposalMap.end())
+        return;
+
+    if (Group* group = (*itr).second.group)
+    {
+        group->GetLFGState()->SetProposal(NULL);
+        m_proposalMap.erase(itr);
+    }
+}
+
+uint32 LFGMgr::GenerateProposalID()
+{
+    for (int32 i = 1; i != -1  ; ++i)
+    {
+        if (m_proposalMap.find(i) == m_proposalMap.end())
+            return uint32(i);
+    }
+    return 0;
 }

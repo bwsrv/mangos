@@ -194,14 +194,15 @@ enum LFGJoinResult
     LFG_JOIN_FAILED2               = 18,                    // RoleCheck Failed
 };
 
-enum LFGRoleCheckResult
+enum LFGRoleCheckState
 {
-    LFG_ROLECHECK_FINISHED     = 1,                         // Role check finished
-    LFG_ROLECHECK_INITIALITING = 2,                         // Role check begins
-    LFG_ROLECHECK_MISSING_ROLE = 3,                         // Someone didn't selected a role after 2 mins
-    LFG_ROLECHECK_WRONG_ROLES  = 4,                         // Can't form a group with that role selection
-    LFG_ROLECHECK_ABORTED      = 5,                         // Someone leave the group
-    LFG_ROLECHECK_NO_ROLE      = 6,                         // Someone selected no role
+    LFG_ROLECHECK_NONE                           = 0,      // Internal use = Not initialized.
+    LFG_ROLECHECK_FINISHED                       = 1,      // Role check finished
+    LFG_ROLECHECK_INITIALITING                   = 2,      // Role check begins
+    LFG_ROLECHECK_MISSING_ROLE                   = 3,      // Someone didn't selected a role after 2 mins
+    LFG_ROLECHECK_WRONG_ROLES                    = 4,      // Can't form a group with that role selection
+    LFG_ROLECHECK_ABORTED                        = 5,      // Someone leave the group
+    LFG_ROLECHECK_NO_ROLE                        = 6       // Someone selected no role
 };
 
 enum LFGAnswer
@@ -248,6 +249,9 @@ struct LFGPlayerState
     void           AddFlags(uint32 flags)    { m_flags = m_flags | flags;};
     void           RemoveFlags(uint32 flags) { m_flags = m_flags & ~flags;};
 
+    void           SetAnswer(LFGAnswer _accept) { accept = _accept;};
+    LFGAnswer      GetAnswer() { return accept;};
+
     LFGType        GetType();
 
 private:
@@ -259,7 +263,10 @@ private:
     LFGDungeonSet m_DungeonsList;                   // Dungeons the player have applied for
     LFGLockStatusMap m_LockMap;                     // Dungeons lock map
     std::string   m_comment;
+    LFGAnswer     accept;                           ///< Accept status (-1 not answer | 0 Not agree | 1 agree)
 };
+
+struct LFGProposal;
 
 struct LFGGroupState
 {
@@ -271,6 +278,9 @@ struct LFGGroupState
     void Clear();
     void Update(bool _update = true) { update = _update; };
     LFGDungeonSet* GetDungeons()   { return &m_DungeonsList; };
+
+    LFGProposal*   GetProposal()   { return m_proposal; };
+    void           SetProposal(LFGProposal* proposal)   { m_proposal = proposal; };
 
     uint32* GetFlags()  { return &m_flags;};
     LFGType       GetType();
@@ -285,6 +295,7 @@ struct LFGGroupState
     bool          kickActive;
     LFGDungeonStatus     status;
     LFGDungeonSet    m_DungeonsList;                // Dungeons the group have applied for
+    LFGProposal*  m_proposal;
 };
 
 #endif

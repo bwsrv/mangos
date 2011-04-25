@@ -30,6 +30,9 @@
 #include "ScriptMgr.h"
 #include "Group.h"
 
+// Playerbot mod:
+#include "playerbot/PlayerbotAI.h"
+
 void WorldSession::HandleQuestgiverStatusQueryOpcode( WorldPacket & recv_data )
 {
     ObjectGuid guid;
@@ -515,8 +518,12 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
                     continue;
                 }
 
-                pPlayer->PlayerTalkClass->SendQuestGiverQuestDetails(pQuest, _player->GetObjectGuid(), true);
                 pPlayer->SetDivider(_player->GetGUID());
+
+                if (pPlayer->GetPlayerbotAI())
+                    pPlayer->GetPlayerbotAI()->AcceptQuest( pQuest, _player );
+                else
+                    pPlayer->PlayerTalkClass->SendQuestGiverQuestDetails( pQuest, _player->GetObjectGuid(), true );
             }
         }
     }
