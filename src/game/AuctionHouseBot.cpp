@@ -43,7 +43,7 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
     uint32 items = 0;
     uint32 minItems = config->GetMinItems();
     uint32 maxItems = config->GetMaxItems();
-    uint32 auctions = auctionHouse->Getcount();
+    uint32 auctions = auctionHouse->GetCount();
     uint32 AuctioneerGUID = 0;
     switch (config->GetAHID()){
         case 2:

@@ -890,7 +890,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x35D*/ { "CMSG_LFG_LEAVE",                               STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleLfgLeaveOpcode            },
     /*0x35E*/ { "CMSG_SEARCH_LFG_JOIN",                         STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleLfrSearchOpcode           },
     /*0x35F*/ { "CMSG_SEARCH_LFG_LEAVE",                        STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleLfrLeaveOpcode            },
-    /*0x360*/ { "SMSG_UPDATE_LFG_LIST",                         STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
+    /*0x360*/ { "SMSG_LFG_SEARCH_RESULTS",                      STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x361*/ { "SMSG_LFG_PROPOSAL_UPDATE",                     STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x362*/ { "CMSG_LFG_PROPOSAL_RESULT",                     STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleLfgProposalResultOpcode   },
     /*0x363*/ { "SMSG_LFG_ROLE_CHECK_UPDATE",                   STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
