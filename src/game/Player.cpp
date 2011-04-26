@@ -68,7 +68,6 @@
 #include "playerbot/PlayerbotMgr.h"
 #include "Config/Config.h"
 
-
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
 #define PLAYER_SKILL_INDEX(x)       (PLAYER_SKILL_INFO_1_1 + ((x)*3))
@@ -82,8 +81,6 @@
 #define SKILL_TEMP_BONUS(x)    int16(PAIR32_LOPART(x))
 #define SKILL_PERM_BONUS(x)    int16(PAIR32_HIPART(x))
 #define MAKE_SKILL_BONUS(t, p) MAKE_PAIR32(t,p)
-
-extern Config botConfig;
 
 enum CharacterFlags
 {
@@ -13438,15 +13435,15 @@ void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId)
                     break;                                  // no checks
                 case GOSSIP_OPTION_BOT:
                 {
-                    if(botConfig.GetBoolDefault("PlayerbotAI.DisableBots", false) && !pCreature->isInnkeeper())
+                    if (sWorld.getConfig(CONFIG_BOOL_PLAYERBOT_DISABLE) && !pCreature->isInnkeeper())
                     {
                         ChatHandler(this).PSendSysMessage("|cffff0000Playerbot system is currently disabled!");
                         hasMenuItem = false;
                         break;
                     }
 
-                    std::string reqQuestIds = botConfig.GetStringDefault("PlayerbotAI.BotguyQuests","");
-                    uint32 cost = botConfig.GetIntDefault("PlayerbotAI.BotguyCost",0);
+                    std::string reqQuestIds = sConfig.GetStringDefault("PlayerbotAI.BotguyQuests","");
+                    uint32 cost = sWorld.getConfig(CONFIG_UINT32_PLAYERBOT_BOTGUYCOST);
                     if((reqQuestIds == "" || requiredQuests(reqQuestIds.c_str())) && !pCreature->isInnkeeper() && this->GetMoney() >= cost)
                         pCreature->LoadBotMenu(this);
                     hasMenuItem = false;
@@ -13699,7 +13696,7 @@ void Player::OnGossipSelect(WorldObject* pSource, uint32 gossipListId, uint32 me
             // DEBUG_LOG("GOSSIP_OPTION_BOT");
             PlayerTalkClass->CloseGossip();
             uint32 guidlo = PlayerTalkClass->GossipOptionSender(gossipListId);
-            uint32 cost = botConfig.GetIntDefault("PlayerbotAI.BotguyCost",0);
+            uint32 cost = sWorld.getConfig(CONFIG_UINT32_PLAYERBOT_BOTGUYCOST);
 
             if (!GetPlayerbotMgr())
                 SetPlayerbotMgr(new PlayerbotMgr(this));
@@ -13714,7 +13711,7 @@ void Player::OnGossipSelect(WorldObject* pSource, uint32 gossipListId, uint32 me
                 if(resultchar)
                 {
                     Field *fields = resultchar->Fetch();
-                    int maxnum = botConfig.GetIntDefault("PlayerbotAI.MaxNumBots", 9);
+                    int maxnum = sWorld.getConfig(CONFIG_UINT32_PLAYERBOT_MAXBOTS);
                     int acctcharcount = fields[0].GetUInt32();
                     if(!(m_session->GetSecurity() > SEC_PLAYER))
                         if(acctcharcount > maxnum)
@@ -13730,7 +13727,7 @@ void Player::OnGossipSelect(WorldObject* pSource, uint32 gossipListId, uint32 me
                 if(resultlvl)
                 {
                     Field *fields=resultlvl->Fetch();
-                    int maxlvl = botConfig.GetIntDefault("PlayerbotAI.RestrictBotLevel", 80);
+                    int maxlvl = sWorld.getConfig(CONFIG_UINT32_PLAYERBOT_RESTRICTLEVEL);
                     int charlvl = fields[0].GetUInt32();
                     if(!(m_session->GetSecurity() > SEC_PLAYER))
                         if(charlvl > maxlvl)

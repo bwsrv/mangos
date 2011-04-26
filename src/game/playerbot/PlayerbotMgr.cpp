@@ -1,4 +1,3 @@
-#include "Config/Config.h"
 #include "../Player.h"
 #include "PlayerbotAI.h"
 #include "PlayerbotMgr.h"
@@ -13,15 +12,13 @@
 class LoginQueryHolder;
 class CharacterHandler;
 
-Config botConfig;
-
 PlayerbotMgr::PlayerbotMgr(Player* const master) : m_master(master)
 {
     // load config variables
-    m_confMaxNumBots = botConfig.GetIntDefault("PlayerbotAI.MaxNumBots", 9);
-    m_confDebugWhisper = botConfig.GetBoolDefault("PlayerbotAI.DebugWhisper", false);
-    m_confFollowDistance[0] = botConfig.GetFloatDefault("PlayerbotAI.FollowDistanceMin", 0.5f);
-    m_confFollowDistance[1] = botConfig.GetFloatDefault("PlayerbotAI.FollowDistanceMax", 1.0f);
+    m_confMaxNumBots = sWorld.getConfig(CONFIG_UINT32_PLAYERBOT_MAXBOTS);
+    m_confDebugWhisper = sWorld.getConfig(CONFIG_BOOL_PLAYERBOT_DEBUGWHISPER);
+    m_confFollowDistance[0] = sWorld.getConfig(CONFIG_FLOAT_PLAYERBOT_MINDISTANCE);
+    m_confFollowDistance[1] = sWorld.getConfig(CONFIG_FLOAT_PLAYERBOT_MAXDISTANCE);
 }
 
 PlayerbotMgr::~PlayerbotMgr()
@@ -542,7 +539,7 @@ void Creature::LoadBotMenu(Player *pPlayer)
     if (pPlayer->GetPlayerbotAI()) 
         return;
 
-    if(sConfig.GetBoolDefault("PlayerbotAI.DisableBots", false)) 
+    if (sWorld.getConfig(CONFIG_BOOL_PLAYERBOT_DISABLE))
         return;
 
     uint64 guid = pPlayer->GetGUID();
@@ -657,7 +654,7 @@ bool Player::requiredQuests(const char* pQuestIdString)
 
 bool ChatHandler::HandlePlayerbotCommand(char* args)
 {
-    if (botConfig.GetBoolDefault("PlayerbotAI.DisableBots", false))
+    if (sWorld.getConfig(CONFIG_BOOL_PLAYERBOT_DISABLE))
     {
         PSendSysMessage("|cffff0000Playerbot system is currently disabled!");
         SetSentErrorMessage(true);
@@ -722,7 +719,7 @@ bool ChatHandler::HandlePlayerbotCommand(char* args)
     {
         Field *fields = resultchar->Fetch();
         int acctcharcount = fields[0].GetUInt32();
-        int maxnum = botConfig.GetIntDefault("PlayerbotAI.MaxNumBots", 9);
+        int maxnum = sWorld.getConfig(CONFIG_UINT32_PLAYERBOT_MAXBOTS);
         if (!(m_session->GetSecurity() > SEC_PLAYER))
             if (acctcharcount > maxnum && (cmdStr == "add" || cmdStr == "login"))
             {
@@ -739,7 +736,7 @@ bool ChatHandler::HandlePlayerbotCommand(char* args)
     {
         Field *fields = resultlvl->Fetch();
         int charlvl = fields[0].GetUInt32();
-        int maxlvl = botConfig.GetIntDefault("PlayerbotAI.RestrictBotLevel", 80);
+        int maxlvl = sWorld.getConfig(CONFIG_UINT32_PLAYERBOT_RESTRICTLEVEL);
         if (!(m_session->GetSecurity() > SEC_PLAYER))
             if (charlvl > maxlvl)
             {
