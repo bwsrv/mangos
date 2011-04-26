@@ -556,6 +556,7 @@ void AuctionHouseObject::Update()
         {
             if (curTime > itr->second->moneyDeliveryTime)
             {
+                itr->second->SetDeleted();
                 sAuctionMgr.SendAuctionSuccessfulMail(itr->second);
 
                 itr->second->DeleteFromDB();
@@ -568,6 +569,7 @@ void AuctionHouseObject::Update()
         {
             if (curTime > itr->second->expireTime)
             {
+                itr->second->SetDeleted();
                 ///- Either cancel the auction if there was no bidder
                 if (itr->second->bidder == 0)
                 {
@@ -625,6 +627,9 @@ void AuctionHouseObject::BuildListOwnerItems(WorldPacket& data, Player* player, 
 
 bool AuctionEntry::CompareAuctionEntry(uint32 column, const AuctionEntry *auc) const
 {
+    if (IsDeleted())
+        return false;
+
     Item *item1 = sAuctionMgr.GetAItem(itemGuidLow);
     Item *item2 = sAuctionMgr.GetAItem(auc->itemGuidLow);
     Player *pl1 = NULL;
