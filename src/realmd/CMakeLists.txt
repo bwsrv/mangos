@@ -24,6 +24,12 @@ endif()
 
 file(GLOB_RECURSE EXECUTABLE_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp *.h)
 
+if(WIN32)
+  list(APPEND EXECUTABLE_SRCS
+    realmd.rc
+  )
+endif()
+
 include_directories(
   ${CMAKE_SOURCE_DIR}/src/shared
   ${CMAKE_SOURCE_DIR}/src/framework
@@ -57,9 +63,7 @@ if(WIN32)
     debug ${OPENSSL_DEBUG_LIBRARIES}
   )
   if(PLATFORM MATCHES X86)
-    target_link_libraries(${EXECUTABLE_NAME}
-      debug ${WIN_DEBUGLIBS}
-    )
+    target_link_libraries(${EXECUTABLE_NAME})
   endif()
 endif()
 
