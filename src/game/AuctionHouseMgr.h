@@ -55,6 +55,10 @@ enum AuctionAction
 
 struct AuctionEntry
 {
+    AuctionEntry() : m_deleted(false) {};
+
+    bool   m_deleted;
+
     uint32 Id;
     uint32 itemGuidLow;
     uint32 itemTemplate;
@@ -77,6 +81,9 @@ struct AuctionEntry
     void DeleteFromDB() const;
     void SaveToDB() const;
     bool CompareAuctionEntry(uint32 column, const AuctionEntry *auc) const;
+
+    bool IsDeleted() const { return m_deleted; };
+    void SetDeleted() { m_deleted = true; };
 };
 
 //this class is used as auctionhouse instance
