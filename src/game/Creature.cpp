@@ -550,8 +550,9 @@ void Creature::Update(uint32 update_diff, uint32 diff)
                     else
                         StopGroupLoot();
                 }
+                m_Events.Update(update_diff);
+                _UpdateSpells(update_diff);
             }
-
             break;
         }
         case ALIVE:
