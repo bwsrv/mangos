@@ -644,10 +644,16 @@ Player::~Player ()
 
     // Playerbot mod
     if (m_playerbotAI)
+    {
         delete m_playerbotAI;
+        m_playerbotAI = NULL;
+    }
 
     if (m_playerbotMgr)
+    {
         delete m_playerbotMgr;
+        m_playerbotMgr = NULL;
+    }
 
 }
 
