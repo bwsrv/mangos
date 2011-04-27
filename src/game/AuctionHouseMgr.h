@@ -23,11 +23,13 @@
 #include "SharedDefines.h"
 #include "Policies/Singleton.h"
 #include "DBCStructure.h"
+#include "Item.h"
 
-class Item;
 class Player;
 class Unit;
 class WorldPacket;
+
+struct ItemProtoType;
 
 #define MIN_AUCTION_TIME (12*HOUR)
 #define MAX_AUCTION_SORT 12
@@ -159,6 +161,16 @@ class AuctionHouseMgr
             if (itr != mAitems.end())
             {
                 return itr->second;
+            }
+            return NULL;
+        }
+
+        ItemPrototype const* GetAItemProto(uint32 id)
+        {
+            ItemMap::const_iterator itr = mAitems.find(id);
+            if (itr != mAitems.end())
+            {
+                return itr->second->GetProto();
             }
             return NULL;
         }

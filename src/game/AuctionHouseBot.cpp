@@ -114,10 +114,8 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
         if (Aentry->IsDeleted())
             continue;
 
-        Item *item = sAuctionMgr.GetAItem(Aentry->itemGuidLow);
-        if (item)
+        if (ItemPrototype const* prototype = sAuctionMgr.GetAItemProto(Aentry->itemGuidLow))
         {
-            ItemPrototype const *prototype = item->GetProto();
             if (prototype)
             {
                 switch (prototype->Quality)
