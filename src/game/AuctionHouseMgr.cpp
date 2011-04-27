@@ -627,7 +627,7 @@ void AuctionHouseObject::BuildListOwnerItems(WorldPacket& data, Player* player, 
 
 bool AuctionEntry::CompareAuctionEntry(uint32 column, const AuctionEntry *auc) const
 {
-    if (IsDeleted())
+    if (IsDeleted() || auc->IsDeleted())
         return false;
 
     Item *item1 = sAuctionMgr.GetAItem(itemGuidLow);
