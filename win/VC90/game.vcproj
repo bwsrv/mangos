@@ -102,6 +102,167 @@
 			/>
 		</Configuration>
 		<Configuration
+			Name="Release|Win32"
+			OutputDirectory=".\game__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory=".\game__$(PlatformName)_$(ConfigurationName)"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP /Zm200"
+				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\game\vmap;..\..\dep\ACE_wrappers;..\..\dep\include\g3dlite"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_SECURE_SCL=0"
+				StringPooling="true"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
+				EnableEnhancedInstructionSet="1"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="pchdef.h"
+				PrecompiledHeaderFile=".\game__$(PlatformName)_$(ConfigurationName)\game.pch"
+				AssemblerListingLocation=".\game__$(PlatformName)_$(ConfigurationName)\"
+				ObjectFile=".\game__$(PlatformName)_$(ConfigurationName)\"
+				ProgramDataBaseFileName=".\game__$(PlatformName)_$(ConfigurationName)\"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+				Detect64BitPortabilityProblems="false"
+				DebugInformationFormat="3"
+				CallingConvention="0"
+				CompileAs="0"
+				ForcedIncludeFiles="pchdef.h"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile=".\game__$(PlatformName)_$(ConfigurationName)\game.lib"
+				SuppressStartupBanner="true"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug_NoPCH|Win32"
+			OutputDirectory=".\game__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory=".\game__$(PlatformName)_$(ConfigurationName)"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP"
+				Optimization="0"
+				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\game\vmap;..\..\dep\ACE_wrappers;..\..\dep\include\g3dlite"
+				PreprocessorDefinitions="WIN32;_DEBUG;MANGOS_DEBUG;_LIB;"
+				StringPooling="false"
+				MinimalRebuild="false"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				EnableFunctionLevelLinking="true"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile=".\game__$(PlatformName)_$(ConfigurationName)\game.pch"
+				AssemblerListingLocation=".\game__$(PlatformName)_$(ConfigurationName)\"
+				ObjectFile=".\game__$(PlatformName)_$(ConfigurationName)\"
+				ProgramDataBaseFileName=".\game__$(PlatformName)_$(ConfigurationName)\"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+				Detect64BitPortabilityProblems="false"
+				DebugInformationFormat="3"
+				CallingConvention="0"
+				CompileAs="0"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile=".\game__$(PlatformName)_$(ConfigurationName)\game.lib"
+				SuppressStartupBanner="true"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
 			Name="Debug|x64"
 			OutputDirectory=".\game__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\game__$(PlatformName)_$(ConfigurationName)"
@@ -186,87 +347,6 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release|Win32"
-			OutputDirectory=".\game__$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\game__$(PlatformName)_$(ConfigurationName)"
-			ConfigurationType="4"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions="/MP /Zm200"
-				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\game\vmap;..\..\dep\ACE_wrappers;..\..\dep\include\g3dlite"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_SECURE_SCL=0"
-				StringPooling="true"
-				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="true"
-				EnableEnhancedInstructionSet="1"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="pchdef.h"
-				PrecompiledHeaderFile=".\game__$(PlatformName)_$(ConfigurationName)\game.pch"
-				AssemblerListingLocation=".\game__$(PlatformName)_$(ConfigurationName)\"
-				ObjectFile=".\game__$(PlatformName)_$(ConfigurationName)\"
-				ProgramDataBaseFileName=".\game__$(PlatformName)_$(ConfigurationName)\"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="3"
-				CallingConvention="0"
-				CompileAs="0"
-				ForcedIncludeFiles="pchdef.h"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile=".\game__$(PlatformName)_$(ConfigurationName)\game.lib"
-				SuppressStartupBanner="true"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
 			Name="Release|x64"
 			OutputDirectory=".\game__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\game__$(PlatformName)_$(ConfigurationName)"
@@ -330,86 +410,6 @@
 			<Tool
 				Name="VCLibrarianTool"
 				AdditionalDependencies=".\shared__$(PlatformName)_$(ConfigurationName)\shared.lib .\g3dlite__$(PlatformName)_$(ConfigurationName)\g3dlite.lib"
-				OutputFile=".\game__$(PlatformName)_$(ConfigurationName)\game.lib"
-				SuppressStartupBanner="true"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug_NoPCH|Win32"
-			OutputDirectory=".\game__$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\game__$(PlatformName)_$(ConfigurationName)"
-			ConfigurationType="4"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions="/MP"
-				Optimization="0"
-				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\game\vmap;..\..\dep\ACE_wrappers;..\..\dep\include\g3dlite"
-				PreprocessorDefinitions="WIN32;_DEBUG;MANGOS_DEBUG;_LIB;"
-				StringPooling="false"
-				MinimalRebuild="false"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				EnableFunctionLevelLinking="true"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
-				PrecompiledHeaderFile=".\game__$(PlatformName)_$(ConfigurationName)\game.pch"
-				AssemblerListingLocation=".\game__$(PlatformName)_$(ConfigurationName)\"
-				ObjectFile=".\game__$(PlatformName)_$(ConfigurationName)\"
-				ProgramDataBaseFileName=".\game__$(PlatformName)_$(ConfigurationName)\"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="3"
-				CallingConvention="0"
-				CompileAs="0"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLibrarianTool"
 				OutputFile=".\game__$(PlatformName)_$(ConfigurationName)\game.lib"
 				SuppressStartupBanner="true"
 			/>
@@ -535,15 +535,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\game\ArenaTeamHandler.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\game\AntiCheat.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\src\game\AntiCheat.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\ArenaTeamHandler.cpp"
 				>
 			</File>
 			<File
@@ -827,24 +827,24 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\game\LFG.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\LFG.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\game\LFGHandler.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\src\game\LFGMgr.cpp"
-			    >
+				>
 			</File>
 			<File
 				RelativePath="..\..\src\game\LFGMgr.h"
-			    >
-			</File>
-			<File
-				RelativePath="..\..\src\game\LFG.cpp"
-			    >
-			</File>
-			<File
-				RelativePath="..\..\src\game\LFG.h"
-			    >
+				>
 			</File>
 			<File
 				RelativePath="..\..\src\game\LootHandler.cpp"
@@ -883,11 +883,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\game\MapUpdater.h"
+				RelativePath="..\..\src\game\MapUpdater.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\game\MapUpdater.cpp"
+				RelativePath="..\..\src\game\MapUpdater.h"
 				>
 			</File>
 			<File
@@ -1195,10 +1195,12 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\game\AuctionHouseBot.cpp">
+				RelativePath="..\..\src\game\AuctionHouseBot.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\src\game\AuctionHouseBot.h">
+				RelativePath="..\..\src\game\AuctionHouseBot.h"
+				>
 			</File>
 			<File
 				RelativePath="..\..\src\game\AuctionHouseMgr.cpp"
@@ -1765,6 +1767,114 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="PlayerBot"
+			>
+			<File
+				RelativePath="..\..\src\game\playerbot\PlayerbotAI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\playerbot\PlayerbotAI.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\playerbot\PlayerbotClassAI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\playerbot\PlayerbotClassAI.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\playerbot\PlayerbotDeathKnightAI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\playerbot\PlayerbotDeathKnightAI.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\playerbot\PlayerbotDruidAI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\playerbot\PlayerbotDruidAI.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\playerbot\PlayerbotHunterAI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\playerbot\PlayerbotHunterAI.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\playerbot\PlayerbotMageAI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\playerbot\PlayerbotMageAI.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\playerbot\PlayerbotMgr.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\playerbot\PlayerbotMgr.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\playerbot\PlayerbotPaladinAI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\playerbot\PlayerbotPaladinAI.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\playerbot\PlayerbotPriestAI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\playerbot\PlayerbotPriestAI.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\playerbot\PlayerbotRogueAI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\playerbot\PlayerbotRogueAI.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\playerbot\PlayerbotShamanAI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\playerbot\PlayerbotShamanAI.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\playerbot\PlayerbotWarlockAI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\playerbot\PlayerbotWarlockAI.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\playerbot\PlayerbotWarriorAI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\playerbot\PlayerbotWarriorAI.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath="..\..\src\game\pchdef.cpp"
 			>
@@ -1778,7 +1888,7 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Debug|x64"
+				Name="Release|Win32"
 				>
 				<Tool
 					Name="VCCLCompilerTool"
@@ -1787,7 +1897,7 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Release|Win32"
+				Name="Debug|x64"
 				>
 				<Tool
 					Name="VCCLCompilerTool"
