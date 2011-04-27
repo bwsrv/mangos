@@ -4185,6 +4185,10 @@ SpellAuraProcResult Unit::HandleProcTriggerSpellAuraProc(Unit *pVictim, uint32 d
         case 14157: // Ruthlessness
         case 70802: // Mayhem (Shadowblade sets)
         {
+            // add cooldown to prevent Seal Fate to proc from Mutilate with both hands
+            if (trigger_spell_id == 14189 && (procSpell->SpellFamilyFlags & UI64LIT(0x600000000)))
+                cooldown = time(NULL) + 1;
+
             // Need add combopoint AFTER finishing move (or they get dropped in finish phase)
             if (Spell* spell = GetCurrentSpell(CURRENT_GENERIC_SPELL))
             {
