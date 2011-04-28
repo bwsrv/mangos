@@ -625,13 +625,26 @@ void AuctionHouseObject::BuildListOwnerItems(WorldPacket& data, Player* player, 
     }
 }
 
-bool AuctionEntry::CompareAuctionEntry(uint32 column, const AuctionEntry *auc) const
+bool AuctionHouseMgr::CompareAuctionEntry(uint32 column, const AuctionEntry *auc1, const AuctionEntry *auc2) const
 {
-    if (IsDeleted() || auc->IsDeleted())
+    if (auc1->IsDeleted() || auc2->IsDeleted())
         return false;
 
-    Item *item1 = sAuctionMgr.GetAItem(itemGuidLow);
-    Item *item2 = sAuctionMgr.GetAItem(auc->itemGuidLow);
+    ItemPrototype const* proto1 = sAuctionMgr.GetAItemProto(auc1->itemGuidLow);
+    ItemPrototype const* proto2 = sAuctionMgr.GetAItemProto(auc2->itemGuidLow);
+
+    uint32 count1 = 0;
+    uint32 count2 = 0;
+
+    if (Item* item1 = sAuctionMgr.GetAItem(auc1->itemGuidLow))
+        count1 = item1->GetCount();
+
+    if (Item* item2 = sAuctionMgr.GetAItem(auc2->itemGuidLow))
+        count2 = item2->GetCount();
+
+    if (!proto1 || !proto2)
+        return false;
+
     Player *pl1 = NULL;
     Player *pl2 = NULL;
     int res = 0;
@@ -640,84 +653,78 @@ bool AuctionEntry::CompareAuctionEntry(uint32 column, const AuctionEntry *auc) c
     switch (column)
     {
         case 0:                                             // level = 0
-            if (!item1 || !item2)
-                break;
-            if (item1->GetProto()->RequiredLevel < item2->GetProto()->RequiredLevel)
+            if (proto1->RequiredLevel < proto2->RequiredLevel)
                 return true;
-            else if (item1->GetProto()->RequiredLevel > item2->GetProto()->RequiredLevel)
+            else if (proto1->RequiredLevel > proto2->RequiredLevel)
                 return false;
             break;
         case 1:                                             // quality = 1
-            if (!item1 || !item2)
-                break;
-            if (item1->GetProto()->Quality < item2->GetProto()->Quality)
+            if (proto1->Quality < proto2->Quality)
                 return true;
-            else if (item1->GetProto()->Quality > item2->GetProto()->Quality)
+            else if (proto1->Quality > proto2->Quality)
                 return false;
             break;
         case 2:                                             // buyoutthenbid = 2
-            if (buyout)
+            if (auc1->buyout)
             {
-                if (buyout < auc->buyout)
+                if (auc1->buyout < auc2->buyout)
                     return true;
-                else if (buyout > auc->buyout)
+                else if (auc1->buyout > auc2->buyout)
                     return false;
             }
             else
             {
-                if (bid < auc->bid)
+                if (auc1->bid < auc2->bid)
                     return true;
-                else if (bid > auc->bid)
+                else if (auc1->bid > auc2->bid)
                     return false;
             }
             break;
         case 3:                                             // duration = 3
-            if ((expireTime - currentTime) < (auc->expireTime - currentTime))
+            if ((auc1->expireTime - currentTime) < (auc2->expireTime - currentTime))
                 return true;
-            else if ((expireTime - currentTime) > (auc->expireTime - currentTime))
+            else if ((auc1->expireTime - currentTime) > (auc2->expireTime - currentTime))
                 return false;
             break;
         case 4:                                             // status = 4
-            if (bidder < auc->bidder)
+            if (auc1->bidder < auc2->bidder)
                 return true;
-            else if (bidder > auc->bidder)
+            else if (auc1->bidder > auc2->bidder)
                 return false;
             break;
         case 5:                                             // name = 5
-            if (!item1 || !item2)
-                break;
-            res = strcmp(item1->GetProto()->Name1, item2->GetProto()->Name1);
+            res = strcmp(proto1->Name1, proto2->Name1);
             if (res < 0)
                 return true;
             else if (res > 0)
                 return false;
             break;
         case 6:                                             // minbidbuyout = 6
-            if (bid)
+            if (auc1->bid)
             {
-                if (bid < auc->bid)
+                if (auc1->bid < auc2->bid)
                     return true;
-                else if (bid > auc->bid)
+                else if (auc1->bid > auc2->bid)
                     return false;
             }
-            else if (startbid)
+            else if (auc1->startbid)
             {
-                if (startbid < auc->startbid)
+                if (auc1->startbid < auc2->startbid)
                     return true;
-                else if (startbid > auc->startbid)
+                else if (auc1->startbid > auc2->startbid)
                     return false;
             }
             else
             {
-                if (buyout < auc->buyout)
+                if (auc1->buyout < auc2->buyout)
                     return true;
-                else if (buyout > auc->buyout)
+                else if (auc1->buyout > auc2->buyout)
                     return false;
             }
             break;
         case 7:                                             // seller = 7
-            pl1 = sObjectMgr.GetPlayer(ObjectGuid(HIGHGUID_PLAYER, owner));
-            pl2 = sObjectMgr.GetPlayer(ObjectGuid(HIGHGUID_PLAYER, auc->owner));
+            pl1 = sObjectMgr.GetPlayer(ObjectGuid(HIGHGUID_PLAYER, auc1->owner));
+            pl2 = sObjectMgr.GetPlayer(ObjectGuid(HIGHGUID_PLAYER, auc2->owner));
             if (!pl1 || !pl2)
                 break;
             res = strcmp(pl1->GetName(), pl2->GetName());
@@ -727,33 +734,31 @@ bool AuctionEntry::CompareAuctionEntry(uint32 column, const AuctionEntry *auc) c
                 return false;
             break;
         case 8:                                             // bid = 8
-            if (bid)
+            if (auc1->bid)
             {
-                if (bid < auc->bid)
+                if (auc1->bid < auc2->bid)
                     return true;
-                else if (bid > auc->bid)
+                else if (auc1->bid > auc2->bid)
                     return false;
             }
             else
             {
-                if (startbid < auc->startbid)
+                if (auc1->startbid < auc2->startbid)
                     return true;
-                else if (startbid > auc->startbid)
+                else if (auc1->startbid > auc2->startbid)
                     return false;
             }
             break;
         case 9:                                             // quantity = 9
-            if (!item1 || !item2)
-                break;
-            if (item1->GetCount() < item2->GetCount())
+            if (count1 < count2)
                 return true;
-            else if (item1->GetCount() > item2->GetCount())
+            else if (count1 > count2)
                 return false;
             break;
         case 10:                                            // buyout = 10
-            if (buyout < auc->buyout)
+            if (auc1->buyout < auc2->buyout)
                 return true;
-            else if (buyout > auc->buyout)
+            else if (auc1->buyout > auc2->buyout)
                 return false;
             break;
         case 11:                                            // unused = 11
@@ -762,9 +767,9 @@ bool AuctionEntry::CompareAuctionEntry(uint32 column, const AuctionEntry *auc) c
             break;
     }
 
-    if (Id < auc->Id)
+    if (auc1->Id < auc2->Id)
         return true;
-    else if (Id > auc->Id)
+    else if (auc1->Id > auc2->Id)
         return false;
 
     return false;
@@ -785,7 +790,7 @@ bool AuctionSorter::operator()(const AuctionEntry *auc1, const AuctionEntry *auc
 
         column = m_sort[i];
 
-        result = auc1->CompareAuctionEntry(column & ~AUCTION_SORT_REVERSED, auc2);
+        result = sAuctionMgr.CompareAuctionEntry(column & ~AUCTION_SORT_REVERSED, auc1, auc2);
 
         if (result)
             break;
