@@ -82,7 +82,6 @@ struct AuctionEntry
     bool BuildAuctionInfo(WorldPacket & data) const;
     void DeleteFromDB() const;
     void SaveToDB() const;
-    bool CompareAuctionEntry(uint32 column, const AuctionEntry *auc) const;
 
     bool IsDeleted() const { return m_deleted; };
     void SetDeleted() { m_deleted = true; };
@@ -184,6 +183,8 @@ class AuctionHouseMgr
 
         static uint32 GetAuctionHouseTeam(AuctionHouseEntry const* house);
         static AuctionHouseEntry const* GetAuctionHouseEntry(Unit* unit);
+
+        bool CompareAuctionEntry(uint32 column, const AuctionEntry* auc1, const AuctionEntry* auc2) const;
 
     public:
         //load first auction items, because of check if item exists, when loading
