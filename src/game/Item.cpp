@@ -1084,6 +1084,9 @@ bool Item::IsLimitedToAnotherMapOrZone( uint32 cur_mapId, uint32 cur_zoneId) con
 // time.
 void Item::SendTimeUpdate(Player* owner)
 {
+    if (!owner || !owner->IsInWorld() || owner->GetPlayerbotAI())
+        return;
+
     uint32 duration = GetUInt32Value(ITEM_FIELD_DURATION);
     if (!duration)
         return;
