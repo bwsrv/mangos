@@ -4634,9 +4634,7 @@ SpellEntry const* GetSpellEntryByDifficulty(uint32 id, Difficulty difficulty)
 
     if (!spellDiff->spellId[difficulty])
     {
-        if (difficulty == RAID_DIFFICULTY_10MAN_HEROIC)
-            difficulty = RAID_DIFFICULTY_10MAN_NORMAL;
-        else if (difficulty == RAID_DIFFICULTY_25MAN_HEROIC)
+        if (difficulty == RAID_DIFFICULTY_25MAN_HEROIC)
             difficulty = RAID_DIFFICULTY_25MAN_NORMAL;
     }
 
