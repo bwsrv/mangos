@@ -3888,9 +3888,9 @@ void PlayerbotAI::HandleCommand(const std::string& text, Player& fromPlayer)
         ObjectGuid attackOnGuid = fromPlayer.GetSelectionGuid();
         if (!attackOnGuid.IsEmpty())
         {
-            Unit* thingToAttack = ObjectAccessor::GetUnit(*m_bot, attackOnGuid);
-            if (!m_bot->IsFriendlyTo(thingToAttack) && m_bot->IsWithinLOSInMap(thingToAttack))
-                GetCombatTarget(thingToAttack);
+            if (Unit* thingToAttack = ObjectAccessor::GetUnit(*m_bot, attackOnGuid))
+                if (!m_bot->IsFriendlyTo(thingToAttack) && m_bot->IsWithinLOSInMap(thingToAttack))
+                    GetCombatTarget(thingToAttack);
         }
         else
         {
