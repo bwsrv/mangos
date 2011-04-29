@@ -233,8 +233,6 @@ public:
 
     bool GetAreaInfo(float x, float y, float z, uint32 &mogpflags, int32 &adtId, int32 &rootId, int32 &groupId) const;
     bool IsOutdoors(float x, float y, float z) const;
-    bool IsNextZcoordOK(float x, float y, float oldZ, float maxDiff = 5.0f) const;
-
 
     //this method should be used only by TerrainManager
     //to cleanup unreferenced GridMap objects - they are too heavy
