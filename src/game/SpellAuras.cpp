@@ -8210,6 +8210,47 @@ void Aura::PeriodicDummyTick()
                         case 2: target->CastSpell(target, 55739, true); break;
                     }
                     return;
+
+                case 54798: // FLAMING Arrow Triggered Effect
+                {
+                    Unit * caster = GetCaster();
+                    if (!caster)
+                        return;
+
+                    Player *rider = caster->GetCharmerOrOwnerPlayerOrPlayerItself();
+                    if (!rider)
+                        return;
+
+                    if (target->GetEntry() == 29358)
+                    {
+                        if (target->HasAura(54683, EFFECT_INDEX_0))
+                            return;
+                        else
+                        {
+                            // Credit Frostworgs
+                            rider->CastSpell(rider, 54896, true);
+                            // set ablaze
+                            target->CastSpell(target, 54683, true);
+                            ((Creature*)target)->ForcedDespawn(6000);
+                        }
+                    }
+                    else if (target->GetEntry() == 29351)
+                    {
+                        if (target->HasAura(54683, EFFECT_INDEX_0))
+                            return;
+                        else
+                        {
+                            // Credit Frost Giants
+                            rider->CastSpell(rider, 54893, true);
+                            // set ablaze
+                            target->CastSpell(target, 54683, true);
+                            ((Creature*)target)->ForcedDespawn(6000);
+                        }
+                    }
+
+                    break;
+                }
+
                 case 62717:                                 // Slag Pot (periodic dmg)
                 case 63477:
                 {
