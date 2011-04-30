@@ -102,7 +102,8 @@ void LFGGroupState::Clear()
     update = true;
     status = LFG_STATUS_NOT_SAVED;
     dungeonEntry = 0;
-    kicks = 0;
+    m_votesNeeded = 3;
+    m_kicksLeft = 5;
     kickActive = false;
     m_DungeonsList.clear();
     m_flags = LFG_MEMBER_FLAG_NONE |
@@ -124,3 +125,13 @@ uint8 LFGGroupState::GetRoles(LFGRoles role)
     }
     return count;
 };
+
+uint8 LFGGroupState::GetVotesNeeded() const
+{
+    return m_votesNeeded;
+}
+
+uint8 LFGGroupState::GetKicksLeft() const
+{
+    return m_kicksLeft;
+}

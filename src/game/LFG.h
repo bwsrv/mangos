@@ -173,25 +173,25 @@ enum LFGTeleportError
 
 enum LFGJoinResult
 {
-    LFG_JOIN_OK                    = 0,                     // Joined (no client msg)
-    LFG_JOIN_FAILED                = 1,                     // RoleCheck Failed
-    LFG_JOIN_GROUPFULL             = 2,                     // Your group is full
-    LFG_JOIN_UNK3                  = 3,                     // No client reaction
-    LFG_JOIN_INTERNAL_ERROR        = 4,                     // Internal LFG Error
-    LFG_JOIN_NOT_MEET_REQS         = 5,                     // You do not meet the requirements for the chosen dungeons
-    LFG_JOIN_PARTY_NOT_MEET_REQS   = 6,                     // One or more party members do not meet the requirements for the chosen dungeons
-    LFG_JOIN_MIXED_RAID_DUNGEON    = 7,                     // You cannot mix dungeons, raids, and random when picking dungeons
-    LFG_JOIN_MULTI_REALM           = 8,                     // The dungeon you chose does not support players from multiple realms
-    LFG_JOIN_DISCONNECTED          = 9,                     // One or more party members are pending invites or disconnected
-    LFG_JOIN_PARTY_INFO_FAILED     = 10,                    // Could not retrieve information about some party members
-    LFG_JOIN_DUNGEON_INVALID       = 11,                    // One or more dungeons was not valid
-    LFG_JOIN_DESERTER              = 12,                    // You can not queue for dungeons until your deserter debuff wears off
-    LFG_JOIN_PARTY_DESERTER        = 13,                    // One or more party members has a deserter debuff
-    LFG_JOIN_RANDOM_COOLDOWN       = 14,                    // You can not queue for random dungeons while on random dungeon cooldown
-    LFG_JOIN_PARTY_RANDOM_COOLDOWN = 15,                    // One or more party members are on random dungeon cooldown
-    LFG_JOIN_TOO_MUCH_MEMBERS      = 16,                    // You can not enter dungeons with more that 5 party members
-    LFG_JOIN_USING_BG_SYSTEM       = 17,                    // You can not use the dungeon system while in BG or arenas
-    LFG_JOIN_FAILED2               = 18,                    // RoleCheck Failed
+    ERR_LFG_OK                                  = 0x00,                    // Joined (no client msg)
+    ERR_LFG_ROLE_CHECK_FAILED                   = 0x01,                    // RoleCheck Failed
+    ERR_LFG_GROUP_FULL                          = 0x02,                    // Your group is full
+    ERR_LFG_UNK3                                = 0x03,                    // No client reaction
+    ERR_LFG_NO_LFG_OBJECT                       = 0x04,                    // Internal LFG Error
+    ERR_LFG_NO_SLOTS_PLAYER                     = 0x05,                    // You do not meet the requirements for the chosen dungeons
+    ERR_LFG_NO_SLOTS_PARTY                      = 0x06,                    // One or more party members do not meet the requirements for the chosen dungeons
+    ERR_LFG_MISMATCHED_SLOTS                    = 0x07,                    // You cannot mix dungeons, raids, and random when picking dungeons
+    ERR_LFG_PARTY_PLAYERS_FROM_DIFFERENT_REALMS = 0x08,                    // The dungeon you chose does not support players from multiple realms
+    ERR_LFG_MEMBERS_NOT_PRESENT                 = 0x09,                    // One or more party members are pending invites or disconnected
+    ERR_LFG_GET_INFO_TIMEOUT                    = 0x0A,                    // Could not retrieve information about some party members
+    ERR_LFG_INVALID_SLOT                        = 0x0B,                    // One or more dungeons was not valid
+    ERR_LFG_DESERTER_PLAYER                     = 0x0C,                    // You can not queue for dungeons until your deserter debuff wears off
+    ERR_LFG_DESERTER_PARTY                      = 0x0D,                    // One or more party members has a deserter debuff
+    ERR_LFG_RANDOM_COOLDOWN_PLAYER              = 0x0E,                    // You can not queue for random dungeons while on random dungeon cooldown
+    ERR_LFG_RANDOM_COOLDOWN_PARTY               = 0x0F,                    // One or more party members are on random dungeon cooldown
+    ERR_LFG_TOO_MANY_MEMBERS                    = 0x10,                    // You can not enter dungeons with more that 5 party members
+    ERR_LFG_CANT_USE_DUNGEONS                   = 0x11,                    // You can not use the dungeon system while in BG or arenas
+    ERR_LFG_ROLE_CHECK_FAILED2                  = 0x12,                    // RoleCheck Failed
 };
 
 enum LFGRoleCheckState
@@ -279,6 +279,9 @@ struct LFGGroupState
     void Update(bool _update = true) { update = _update; };
     LFGDungeonSet* GetDungeons()   { return &m_DungeonsList; };
 
+    void SetState(LFGState _state) { m_state = _state; };
+    LFGState GetState() { return m_state; };
+
     LFGProposal*   GetProposal()   { return m_proposal; };
     void           SetProposal(LFGProposal* proposal)   { m_proposal = proposal; };
 
@@ -286,13 +289,19 @@ struct LFGGroupState
     LFGType       GetType();
     uint8         GetRoles(LFGRoles role);
 
+    // VoteKick
+    uint8 GetVotesNeeded() const;
+    uint8 GetKicksLeft() const;
+
     bool          queued;
     bool          update;
     Group*        m_group;
     uint32        dungeonEntry;
     uint32        m_flags;
-    uint8         kicks;
+    uint8         m_votesNeeded;                               ///< Votes need to kick success
+    uint8         m_kicksLeft;                                 ///< Number of kicks left
     bool          kickActive;
+    LFGState      m_state;
     LFGDungeonStatus     status;
     LFGDungeonSet    m_DungeonsList;                // Dungeons the group have applied for
     LFGProposal*  m_proposal;

@@ -849,14 +849,12 @@ void WorldSession::SendLfgDisabled()
     SendPacket(&data);
 }
 
-void WorldSession::SendLfgOfferContinue(uint32 dungeonID)
+void WorldSession::SendLfgOfferContinue(LFGDungeonEntry const* dungeon)
 {
-    LFGDungeonEntry const* dungeon = sLFGMgr.GetDungeon(dungeonID);
-
     if (!dungeon)
         return;
 
-    DEBUG_LOG("SMSG_LFG_OFFER_CONTINUE %u dungeon entry: %u", GetPlayer()->GetObjectGuid().GetCounter(), dungeonID);
+    DEBUG_LOG("SMSG_LFG_OFFER_CONTINUE %u dungeon entry: %u", GetPlayer()->GetObjectGuid().GetCounter(), dungeon->ID);
     WorldPacket data(SMSG_LFG_OFFER_CONTINUE, 4);
     data << uint32(dungeon->Entry());
     SendPacket(&data);
@@ -940,7 +938,7 @@ void WorldSession::SendLfgRoleChosen(ObjectGuid guid, uint8 roles)
 void WorldSession::SendLfgBootPlayer(LFGPlayerBoot* pBoot)
 {
     ObjectGuid guid = GetPlayer()->GetObjectGuid();
-    LFGAnswer playerVote = pBoot->votes.find(guid)->second;
+    LFGAnswer playerVote = pBoot->votes.find(GetPlayer())->second;
     uint8 votesNum = 0;
     uint8 agreeNum = 0;
     uint32 secsleft = uint8((pBoot->cancelTime - time(NULL)) / 1000);
