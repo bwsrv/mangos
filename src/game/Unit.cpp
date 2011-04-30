@@ -4512,7 +4512,14 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
 
                 // Strength of the Pack must stack from different casters (Auriaya encounter, Ulduar)
                 if (foundHolder->GetId() == 64381)
-                    continue;
+                    break;
+
+                // Priest's Mind Flay must stack from different casters
+                if (const SpellEntry* sp = foundHolder->GetSpellProto())
+                {
+                    if (sp && sp->SpellFamilyName == SPELLFAMILY_PRIEST && sp->SpellIconID == 548 && (sp->SpellFamilyFlags2 & UI64LIT(0x00000040)))
+                        break;
+                }
 
                 switch(aurNameReal)
                 {
