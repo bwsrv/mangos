@@ -157,9 +157,13 @@ class LFGMgr
         LFGProposal* GetProposal(uint32 ID);
         void RemoveProposal(uint32 ID);
 
+        // boot vote system
         void OfferContinue(Group* group);
         void InitBoot(Player* kicker, ObjectGuid victimGuid, std::string reason);
         LFGPlayerBoot* GetBoot(Group* group);
+        void DeleteBoot(Group* group);
+        void UpdateBoot(Player* player, bool accept);
+        void TeleportPlayer(Player* player, bool out, bool fromOpcode = false);
 
         // Dungeon operations
         LFGDungeonEntry const* GetDungeon(uint32 dungeonID);

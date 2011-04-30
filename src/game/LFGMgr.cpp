@@ -836,3 +836,152 @@ LFGPlayerBoot* LFGMgr::GetBoot(Group* group)
     LFGBootMap::iterator itr = m_bootMap.find(group);
     return itr != m_bootMap.end() ? &itr->second : NULL;
 }
+
+void LFGMgr::DeleteBoot(Group* group)
+{
+    LFGBootMap::iterator itr = m_bootMap.find(group);
+    if (itr != m_bootMap.end())
+        m_bootMap.erase(itr);
+}
+
+void LFGMgr::UpdateBoot(Player* player, bool accept)
+{
+    Group* group = player ? player->GetGroup() : NULL;
+
+    if (!group)
+        return;
+
+    LFGPlayerBoot* pBoot = GetBoot(group);
+
+    if (!pBoot)
+        return;
+
+    if (pBoot->votes[player] != LFG_ANSWER_PENDING)          // Cheat check: Player can't vote twice
+        return;
+
+    Player* victim = sObjectMgr.GetPlayer(pBoot->victim);
+    if (!victim)
+        return;
+
+    pBoot->votes[player] = LFGAnswer(accept);
+
+    uint8 votesNum = 0;
+    uint8 agreeNum = 0;
+
+    for (LFGAnswerMap::const_iterator itVotes = pBoot->votes.begin(); itVotes != pBoot->votes.end(); ++itVotes)
+    {
+        if (itVotes->second != LFG_ANSWER_PENDING)
+        {
+            ++votesNum;
+            if (itVotes->second == LFG_ANSWER_AGREE)
+                ++agreeNum;
+        }
+    }
+
+    if (agreeNum >= pBoot->votedNeeded ||                  // Vote passed
+        votesNum >= pBoot->votes.size() ||                 // All voted but not passed
+        (pBoot->votes.size() - votesNum + agreeNum) < pBoot->votedNeeded) // Vote didnt passed
+    {
+        // Send update info to all players
+        pBoot->inProgress = false;
+        for (LFGAnswerMap::const_iterator itVotes = pBoot->votes.begin(); itVotes != pBoot->votes.end(); ++itVotes)
+        {
+            Player* pPlayer = itVotes->first;
+            if (pPlayer && (pPlayer != victim))
+            {
+                pPlayer->GetLFGState()->SetState(LFG_STATE_DUNGEON);
+                pPlayer->GetSession()->SendLfgBootPlayer(pBoot);
+            }
+        }
+
+        group->GetLFGState()->SetState(LFG_STATE_DUNGEON);
+
+        if (agreeNum == pBoot->votedNeeded)                // Vote passed - Kick player
+        {
+            Player::RemoveFromGroup(group, victim->GetObjectGuid());
+            TeleportPlayer(victim, true, false);
+            victim->GetLFGState()->Clear();
+            OfferContinue(group);
+            group->GetLFGState()->DecreaseKicksLeft();
+        }
+        DeleteBoot(group);
+    }
+}
+
+void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*/)
+{
+    DEBUG_LOG("LFGMgr::TeleportPlayer: %u is being teleported %s", player->GetObjectGuid().GetCounter(), out ? "out" : "in");
+
+    if (out)
+    {
+        player->RemoveAurasDueToSpell(LFG_SPELL_LUCK_OF_THE_DRAW);
+        player->TeleportToBGEntryPoint();
+        return;
+    }
+
+    // TODO Add support for LFG_TELEPORTERROR_FATIGUE
+    LFGTeleportError error = LFG_TELEPORTERROR_OK;
+
+    Group* group = player->GetGroup();
+
+    if (!group || !group->isLFDGroup())                        // should never happen, but just in case...
+        error = LFG_TELEPORTERROR_INVALID_LOCATION;
+    else if (!player->isAlive())
+        error = LFG_TELEPORTERROR_PLAYER_DEAD;
+//    else if (player->IsFalling())
+//        error = LFG_TELEPORTERROR_FALLING;
+
+    uint32 mapid = 0;
+    Difficulty difficulty = DUNGEON_DIFFICULTY_NORMAL;
+    float x = 0;
+    float y = 0;
+    float z = 0;
+    float orientation = 0;
+
+    if (error == LFG_TELEPORTERROR_OK)
+    {
+        LFGDungeonEntry const* dungeon = *group->GetLFGState()->GetDungeons()->begin();
+
+        if (!dungeon)
+        {
+            error = LFG_TELEPORTERROR_INVALID_LOCATION;
+        }
+        else if (group->GetDungeonDifficulty() != dungeon->difficulty)
+        {
+//    group->SetDungeonDifficulty(Difficulty(dungeon->difficulty));
+            error = LFG_TELEPORTERROR_UNK4;
+        }
+        else if (AreaTrigger const* at = sObjectMgr.GetMapEntranceTrigger(dungeon->map))
+        {
+            difficulty = Difficulty(dungeon->difficulty);
+            mapid = at->target_mapId;
+            x = at->target_X;
+            y = at->target_Y;
+            z = at->target_Z;
+            orientation = at->target_Orientation;
+        }
+    }
+
+    if (error == LFG_TELEPORTERROR_OK)
+    {
+
+        if (player->GetMap() && !player->GetMap()->IsDungeon() && !player->GetMap()->IsRaid() && !player->InBattleGround())
+            player->SetBattleGroundEntryPoint();
+
+        // stop taxi flight at port
+        if (player->IsTaxiFlying())
+        {
+            player->GetMotionMaster()->MovementExpired();
+            player->m_taxi.ClearTaxiDestinations();
+        }
+
+        player->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
+        player->RemoveSpellsCausingAura(SPELL_AURA_FLY);
+
+        DETAIL_LOG("LFGMgr: Sending %s to map %u, difficulty %u X %f, Y %f, Z %f, O %f", player->GetName(), uint8(difficulty), mapid, x, y, z, orientation);
+
+        player->TeleportTo(mapid, x, y, z, orientation);
+    }
+    else
+        player->GetSession()->SendLfgTeleportError(error);
+}

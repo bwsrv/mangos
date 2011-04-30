@@ -181,7 +181,7 @@ void WorldSession::HandleLfgSetBootVoteOpcode(WorldPacket &recv_data)
     recv_data >> agree;
 
     DEBUG_LOG("CMSG_LFG_SET_BOOT_VOTE %u agree: %u", GetPlayer()->GetObjectGuid().GetCounter(), agree ? 1 : 0);
-    //sLFGMgr.UpdateBoot(GetPlayer(), agree);
+    sLFGMgr.UpdateBoot(GetPlayer(), agree);
 }
 
 void WorldSession::HandleLfgTeleportOpcode(WorldPacket &recv_data)
@@ -190,7 +190,7 @@ void WorldSession::HandleLfgTeleportOpcode(WorldPacket &recv_data)
     recv_data >> agree;
 
     DEBUG_LOG("CMSG_LFG_TELEPORT  %u teleport: %u", GetPlayer()->GetObjectGuid().GetCounter(), agree ? 1 : 0);
-    //sLFGMgr.TeleportPlayer(GetPlayer(), agree);
+    //sLFGMgr.TeleportPlayer(GetPlayer(), agree, true);
 }
 
 void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket &/*recv_data*/)
