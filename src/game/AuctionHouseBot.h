@@ -973,7 +973,6 @@ public:
     void Update();
     void Initialize();
     void LoadValues(AHBConfig*);
-    void Commands(uint32, uint32, uint32, char*);
     ObjectGuid GetAHBplayerGUID() { return AHBplayerGUID; };
 };
 

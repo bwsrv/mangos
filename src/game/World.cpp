@@ -1509,7 +1509,6 @@ void World::Update(uint32 diff)
     /// <ul><li> Handle auctions when the timer has passed
     if (m_timers[WUPDATE_AUCTIONS].Passed())
     {
-        auctionbot.Update();
         m_timers[WUPDATE_AUCTIONS].Reset();
 
         ///- Update mails (return old mails with item, or delete them)
@@ -1522,6 +1521,8 @@ void World::Update(uint32 diff)
 
         ///- Handle expired auctions
         sAuctionMgr.Update();
+
+        auctionbot.Update();
     }
 
     /// <li> Handle session updates
