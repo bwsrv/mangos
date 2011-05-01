@@ -2560,6 +2560,10 @@ void PlayerbotAI::MovementReset()
         if (m_followTarget->GetTypeId() == TYPEID_PLAYER && ((Player *) m_followTarget)->IsBeingTeleported())
             return;
 
+        // bot is teleporting...
+        if (m_bot && ((Player*)m_bot)->IsBeingTeleported())
+            return;
+
         // check if bot needs to teleport to reach target...
         if (!m_bot->isInCombat())
         {
