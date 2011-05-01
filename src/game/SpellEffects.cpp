@@ -8044,6 +8044,46 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     }
                     return;
                 }
+                case 72219:
+                case 72551:
+                case 72552:
+                case 72553:
+                {
+                    if (unitTarget)
+                        return;
+
+                    if (SpellAuraHolder* pHolder = unitTarget->GetSpellAuraHolder(m_spellInfo->Id))
+                    {
+                        if (pHolder->GetStackAmount() + 1 >= m_spellInfo->StackAmount)
+                        {
+                            switch (m_spellInfo->Id)
+                            {
+                                case 72219:
+                                    unitTarget->CastSpell(unitTarget, 72227, true);
+                                    break;
+                                case 72551:
+                                    unitTarget->CastSpell(unitTarget, 72228, true);
+                                    break;
+                                case 72552:
+                                    unitTarget->CastSpell(unitTarget, 72229, true);
+                                    break;
+                                case 72553:
+                                    unitTarget->CastSpell(unitTarget, 72230, true);
+                                    break;
+                                default:
+                                    break;
+
+                                unitTarget->RemoveAurasDueToSpell(m_spellInfo->Id);
+                                unitTarget->RemoveAurasDueToSpell(72231);
+                                return;
+                            }
+                        }
+                    }
+
+                    unitTarget->CastSpell(unitTarget, 72231, true);
+
+                    break;
+                }
                 case 72864:                                 // Death plague
                 {
                     if (!unitTarget)
