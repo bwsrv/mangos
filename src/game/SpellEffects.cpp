@@ -8059,7 +8059,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                 case 72552:
                 case 72553:
                 {
-                    if (unitTarget)
+                    if (!unitTarget)
                         return;
 
                     if (SpellAuraHolder* pHolder = unitTarget->GetSpellAuraHolder(m_spellInfo->Id))
