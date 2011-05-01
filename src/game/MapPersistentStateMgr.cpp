@@ -146,7 +146,8 @@ void MapPersistentState::ClearRespawnTimes()
     m_goRespawnTimes.clear();
     m_creatureRespawnTimes.clear();
 
-    UnloadIfEmpty();
+    if (GetMap())
+        UnloadIfEmpty();
 }
 
 void MapPersistentState::AddCreatureToGrid( uint32 guid, CreatureData const* data )
