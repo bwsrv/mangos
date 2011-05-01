@@ -25,7 +25,6 @@
 #include "Policies/Singleton.h"
 #include "DBCStructure.h"
 #include "Item.h"
-#include <ace/Thread_Mutex.h>
 #include <ace/RW_Thread_Mutex.h>
 
 class Player;
@@ -193,6 +192,8 @@ class AuctionHouseMgr
         static AuctionHouseEntry const* GetAuctionHouseEntry(Unit* unit);
 
         bool CompareAuctionEntry(uint32 column, const AuctionEntry* auc1, const AuctionEntry* auc2) const;
+
+        LockType& GetLock() { return i_lock; }
 
     public:
         //load first auction items, because of check if item exists, when loading

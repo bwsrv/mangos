@@ -292,6 +292,7 @@ struct LFGGroupState
     // VoteKick
     uint8 GetVotesNeeded() const;
     uint8 GetKicksLeft() const;
+    void DecreaseKicksLeft() {--m_kicksLeft;};
 
     bool          queued;
     bool          update;

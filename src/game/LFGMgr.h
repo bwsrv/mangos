@@ -36,10 +36,9 @@ typedef std::multimap<uint32, LFGReward const*> LFGRewardMap;
 typedef std::pair<LFGRewardMap::const_iterator, LFGRewardMap::const_iterator> LFGRewardMapBounds;
 typedef std::map<ObjectGuid, LFGQueueInfo*> LFGQueueInfoMap;
 typedef std::map<uint32/*ID*/, LFGDungeonEntry const*> LFGDungeonMap;
-typedef std::set<Player*> LFGQueuePlayerSet;
-typedef std::set<Group*>  LFGQueueGroupSet;
+typedef std::set<ObjectGuid>  LFGQueueSet;
 typedef std::map<ObjectGuid, LFGRoleMask> LFGRolesMap;
-typedef std::map<Player*, LFGAnswer> LFGAnswerMap;
+typedef std::map<ObjectGuid, LFGAnswer> LFGAnswerMap;
 typedef std::map<uint32/*ID*/, LFGProposal> LFGProposalMap;
 
 // Reward info
@@ -80,7 +79,6 @@ struct LFGQueueInfo
 
 struct LFGQueueStatus
 {
-    LFGDungeonEntry const* dungeon;                          // Dungeon
     time_t                 avgWaitTime;                      // Average Wait time
     time_t                 waitTime;                         // Wait Time
     time_t                 waitTimeTanks;                    // Wait Tanks
@@ -98,7 +96,7 @@ struct LFGProposal
     LFGProposal(LFGDungeonEntry const* _dungeon): dungeon(_dungeon), state(LFG_PROPOSAL_INITIATING), group(NULL), cancelTime(0) {};
 
     LFGDungeonEntry const* dungeon;                        // Dungeon
-    LFGQueuePlayerSet players;                             // Players in this proposal
+    LFGQueueSet playerGuids;                               // Players in this proposal
     LFGProposalState state;                                // State of the proposal
     Group* group;                                          // Proposal group (NULL if not created)
     time_t cancelTime;                                     // Time when we will cancel this proposal
@@ -127,7 +125,8 @@ struct LFGPlayerBoot
     std::string reason;                                    ///< kick reason
 };
 
-typedef std::map<Group*, LFGPlayerBoot>  LFGBootMap;
+typedef std::map<ObjectGuid, LFGPlayerBoot>  LFGBootMap;
+typedef std::map<uint32/*ID*/, LFGQueueStatus> LFGQueueStatusMap;
 
 class LFGMgr
 {
@@ -141,8 +140,8 @@ class LFGMgr
         void Leave(Player* player);
         void Leave(Group* group);
 
-        LFGQueuePlayerSet GetDungeonPlayerQueue(LFGDungeonEntry const* dungeon, Team team = TEAM_NONE);
-        LFGQueueGroupSet  GetDungeonGroupQueue(LFGDungeonEntry const* dungeon, Team team = TEAM_NONE);
+        LFGQueueSet GetDungeonPlayerQueue(LFGDungeonEntry const* dungeon, Team team = TEAM_NONE);
+        LFGQueueSet GetDungeonGroupQueue(LFGDungeonEntry const* dungeon, Team team = TEAM_NONE);
 
         void ClearLFRList(Player* player);
 
@@ -157,9 +156,16 @@ class LFGMgr
         LFGProposal* GetProposal(uint32 ID);
         void RemoveProposal(uint32 ID);
 
+        // boot vote system
         void OfferContinue(Group* group);
         void InitBoot(Player* kicker, ObjectGuid victimGuid, std::string reason);
-        LFGPlayerBoot* GetBoot(Group* group);
+        LFGPlayerBoot* GetBoot(ObjectGuid guid);
+        void DeleteBoot(ObjectGuid guid);
+        void UpdateBoot(Player* player, bool accept);
+        void TeleportPlayer(Player* player, bool out, bool fromOpcode = false);
+
+        // Statistic system
+        LFGQueueStatus* GetDungeonQueueStatus(uint32 dungeonID);
 
         // Dungeon operations
         LFGDungeonEntry const* GetDungeon(uint32 dungeonID);
@@ -185,7 +191,7 @@ class LFGMgr
         LFGQueueInfoMap m_queueInfoMap[LFG_TYPE_MAX];       // Queued players
         LFGQueueInfoMap m_groupQueueInfoMap[LFG_TYPE_MAX];  // Queued groups
         LFGDungeonMap   m_dungeonMap;                       // sorted dungeon map
-        LFGQueueStatus  m_queueStatus[LFG_TYPE_MAX];        // Queue statisic
+        LFGQueueStatusMap  m_queueStatus;                   // Queue statisic
         LFGProposalMap  m_proposalMap;                      // Proposal store
         LFGBootMap      m_bootMap;                          // boot store
 
