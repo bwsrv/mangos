@@ -356,11 +356,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if (spellId == 61437 && _player->GetVehicle() && _player->GetVehicle()->GetBase() && _player->GetVehicle()->GetBase()->GetEntry() == 30161)
-        mover = _player;
-
     //  Players on vehicles may cast many simple spells (like knock) from self
-
     Unit* mover = NULL;
 
     if (spellInfo->AttributesEx6 & SPELL_ATTR_EX6_UNK12 && _mover->IsCharmerOrOwnerPlayerOrPlayerItself())
