@@ -619,9 +619,13 @@ void AuctionHouseObject::BuildListBidderItems(WorldPacket& data, Player* player,
 {
     for (AuctionEntryMap::const_iterator itr = AuctionsMap.begin();itr != AuctionsMap.end();++itr)
     {
+        AuctionHouseMgr::ReadGuard Guard(sAuctionMgr.GetLock());
+
         AuctionEntry *Aentry = itr->second;
-        if (Aentry->moneyDeliveryTime)
+
+        if (!Aentry || Aentry->IsDeleted() || Aentry->moneyDeliveryTime)
             continue;
+
         if (Aentry && Aentry->bidder == player->GetGUIDLow())
         {
             if (itr->second->BuildAuctionInfo(data))
@@ -813,6 +817,7 @@ bool AuctionSorter::operator()(const AuctionEntry *auc1, const AuctionEntry *auc
 
         column = m_sort[i];
 
+        AuctionHouseMgr::ReadGuard Guard(sAuctionMgr.GetLock());
         result = sAuctionMgr.CompareAuctionEntry(column & ~AUCTION_SORT_REVERSED, auc1, auc2);
 
         if (result)
@@ -832,9 +837,13 @@ void WorldSession::BuildListAuctionItems(std::list<AuctionEntry*> &auctions, Wor
 
     for (std::list<AuctionEntry*>::const_iterator itr = auctions.begin(); itr != auctions.end();++itr)
     {
+        AuctionHouseMgr::ReadGuard Guard(sAuctionMgr.GetLock());
+
         AuctionEntry *Aentry = *itr;
-        if (Aentry->moneyDeliveryTime)
+
+        if (!Aentry || Aentry->IsDeleted() || Aentry->moneyDeliveryTime)
             continue;
+
         Item *item = sAuctionMgr.GetAItem(Aentry->itemGuidLow);
         if (!item)
             continue;
@@ -897,8 +906,10 @@ void WorldSession::BuildListAuctionItems(std::list<AuctionEntry*> &auctions, Wor
 
 void AuctionHouseObject::BuildListPendingSales(WorldPacket& data, Player* player, uint32& count)
 {
+    AuctionHouseMgr::ReadGuard Guard(sAuctionMgr.GetLock());
     for (AuctionEntryMap::const_iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
     {
+        AuctionHouseMgr::ReadGuard Guard(sAuctionMgr.GetLock());
         AuctionEntry *Aentry = itr->second;
 
         if (Aentry->IsDeleted())
@@ -939,6 +950,8 @@ bool AuctionEntry::BuildAuctionInfo(WorldPacket & data) const
 {
     if (IsDeleted())
         return false;
+
+    AuctionHouseMgr::ReadGuard Guard(sAuctionMgr.GetLock());
 
     Item *pItem = sAuctionMgr.GetAItem(itemGuidLow);
     if (!pItem)
