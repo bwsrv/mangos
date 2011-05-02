@@ -361,7 +361,7 @@ bool AntiCheat::CheckNeeded(AntiCheatCheck checktype)
     if (!sWorld.getConfig(CONFIG_BOOL_ANTICHEAT_ENABLE)
         || !GetPlayer()->IsInWorld()
         || GetPlayer()->IsBeingTeleported()
-        || GetPlayer()->GetSession()->GetSecurity() > sWorld.getConfig(CONFIG_UINT32_ANTICHEAT_GMLEVEL))
+        || uint32(GetPlayer()->GetSession()->GetSecurity()) > sWorld.getConfig(CONFIG_UINT32_ANTICHEAT_GMLEVEL))
         return false;
 
     if (GetMover()->HasAuraType(SPELL_AURA_MOD_CONFUSE))

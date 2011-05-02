@@ -752,6 +752,7 @@ bool LFGMgr::CreateProposal(LFGDungeonEntry const* dungeon, Group* group)
     }
 
     DEBUG_LOG("LFGMgr::CreateProposal: %u, dungeon %u, %s", ID, dungeon->ID, group ? " in group" : " not in group");
+    return true;
 }
 
 LFGProposal* LFGMgr::GetProposal(uint32 ID)

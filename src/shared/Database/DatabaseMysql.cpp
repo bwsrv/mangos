@@ -442,7 +442,7 @@ void MySqlPreparedStatement::bind( const SqlStmtParameters& holder )
 void MySqlPreparedStatement::addParam( int nIndex, const SqlStmtFieldData& data )
 {
     MANGOS_ASSERT(m_pInputArgs);
-    MANGOS_ASSERT(nIndex < m_nParams);
+    MANGOS_ASSERT(nIndex < int(m_nParams));
 
     MYSQL_BIND& pData = m_pInputArgs[nIndex];
 
