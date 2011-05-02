@@ -176,7 +176,8 @@ class AuctionHouseMgr
             ItemMap::const_iterator itr = mAitems.find(id);
             if (itr != mAitems.end())
             {
-                return itr->second->GetProto();
+                if (itr->second)
+                    return itr->second->GetProto();
             }
             return NULL;
         }

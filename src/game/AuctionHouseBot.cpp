@@ -438,11 +438,17 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
         auctionEntry->deposit = 0;
         auctionEntry->expireTime = (time_t) (urand(config->GetMinTime(), config->GetMaxTime()) * 60 * 60 + time(NULL));
         auctionEntry->auctionHouseEntry = ahEntry;
-        item->SaveToDB();
-        item->RemoveFromUpdateQueueOf(AHBplayer);
-        sAuctionMgr.AddAItem(item);
+
         auctionHouse->AddAuction(auctionEntry);
+        sAuctionMgr.AddAItem(item);
+        item->RemoveFromUpdateQueueOf(AHBplayer);
+
+        CharacterDatabase.BeginTransaction();
+        item->SaveToDB();
         auctionEntry->SaveToDB();
+        AHBplayer->SaveInventoryAndGoldToDB();
+        CharacterDatabase.CommitTransaction();
+
     }
 }
 
