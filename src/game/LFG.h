@@ -294,18 +294,27 @@ struct LFGGroupState
     uint8 GetKicksLeft() const;
     void DecreaseKicksLeft() {--m_kicksLeft;};
 
+    // Role checks
+    LFGRoleCheckState GetRoleCheckState() const { return m_roleCheckState;};
+    void SetRoleCheckState( LFGRoleCheckState _state) { m_roleCheckState = _state; };
+    void StartRoleCheck();
+    bool QueryRoleCheckTime() {return !(time_t(time(NULL)) > m_roleCheckCancelTime);};
+    bool IsRoleCheckActive();
+
     bool          queued;
     bool          update;
     Group*        m_group;
     uint32        dungeonEntry;
     uint32        m_flags;
-    uint8         m_votesNeeded;                               ///< Votes need to kick success
-    uint8         m_kicksLeft;                                 ///< Number of kicks left
+    uint8         m_votesNeeded;                               // Votes need to kick success
+    uint8         m_kicksLeft;                                 // Number of kicks left
     bool          kickActive;
     LFGState      m_state;
     LFGDungeonStatus     status;
-    LFGDungeonSet    m_DungeonsList;                // Dungeons the group have applied for
+    LFGDungeonSet    m_DungeonsList;                           // Dungeons the group have applied for
     LFGProposal*  m_proposal;
+    time_t        m_roleCheckCancelTime;                       // Time when the rolecheck will fail
+    LFGRoleCheckState m_roleCheckState;                        // State of the rolecheck
 };
 
 #endif

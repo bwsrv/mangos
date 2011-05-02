@@ -25,10 +25,10 @@
 #include "Dynamic/ObjectRegistry.h"
 #include "Dynamic/FactoryHolder.h"
 
-class WorldObject;
 class Unit;
 class Creature;
 class Player;
+class GameObject;
 struct SpellEntry;
 
 #define TIME_INTERVAL_LOOK   5000
@@ -105,6 +105,9 @@ class MANGOS_DLL_SPEC CreatureAI
 
         // Called when the creature summon successfully other creature
         virtual void JustSummoned(Creature* ) {}
+
+        // Called when the creature summon successfully a gameobject
+        virtual void JustSummoned(GameObject* ) {}
 
         // Called when the creature summon despawn
         virtual void SummonedCreatureDespawn(Creature* /*unit*/) {}
