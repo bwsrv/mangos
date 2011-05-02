@@ -376,6 +376,9 @@ void AuctionHouseMgr::LoadAuctions()
 
     AuctionEntry *auction;
 
+    typedef std::map<uint32, std::wstring> PlayerNames;
+    PlayerNames playerNames;                                // caching for load time
+
     do
     {
         fields = result->Fetch();
@@ -388,6 +391,18 @@ void AuctionHouseMgr::LoadAuctions()
         auction->itemGuidLow = fields[2].GetUInt32();
         auction->itemTemplate = fields[3].GetUInt32();
         auction->owner = fields[4].GetUInt32();
+        std::wstring& plWName = playerNames[auction->owner];
+        if (plWName.empty())
+        {
+            std::string plName;
+            if (!sObjectMgr.GetPlayerNameByGUID(ObjectGuid(HIGHGUID_PLAYER, auction->owner), plName))
+                plName = sObjectMgr.GetMangosStringForDBCLocale(LANG_UNKNOWN);
+
+            Utf8toWStr(plName, plWName);
+        }
+
+        auction->ownerName = plWName;
+
         auction->buyout = fields[5].GetUInt32();
         auction->expireTime = fields[6].GetUInt32();
         auction->moneyDeliveryTime = fields[7].GetUInt32();
@@ -651,183 +666,177 @@ void AuctionHouseObject::BuildListOwnerItems(WorldPacket& data, Player* player, 
     }
 }
 
-bool AuctionHouseMgr::CompareAuctionEntry(uint32 column, const AuctionEntry *auc1, const AuctionEntry *auc2) const
+int AuctionEntry::CompareAuctionEntry(uint32 column, const AuctionEntry *auc, Player* viewPlayer) const
 {
-
-    if (auc1->IsDeleted() || auc2->IsDeleted())
-        return false;
-
-    ItemPrototype const* proto1 = sAuctionMgr.GetAItemProto(auc1->itemGuidLow);
-    ItemPrototype const* proto2 = sAuctionMgr.GetAItemProto(auc2->itemGuidLow);
-
-    uint32 count1 = 0;
-    uint32 count2 = 0;
-
-    if (Item* item1 = sAuctionMgr.GetAItem(auc1->itemGuidLow))
-        count1 = item1->GetCount();
-
-    if (Item* item2 = sAuctionMgr.GetAItem(auc2->itemGuidLow))
-        count2 = item2->GetCount();
-
-    if (!proto1 || !proto2)
-        return false;
-
-    Player *pl1 = NULL;
-    Player *pl2 = NULL;
-    int res = 0;
-    time_t currentTime = time(NULL);
+    if (IsDeleted() || auc->IsDeleted())
+        return 0;
 
     switch (column)
     {
         case 0:                                             // level = 0
-            if (proto1->RequiredLevel < proto2->RequiredLevel)
-                return true;
-            else if (proto1->RequiredLevel > proto2->RequiredLevel)
-                return false;
+        {
+            Item *item1 = sAuctionMgr.GetAItem(itemGuidLow);
+            Item *item2 = sAuctionMgr.GetAItem(auc->itemGuidLow);
+            if (!item1 || !item2)
+                return 0;
+            if (item1->GetProto()->RequiredLevel < item2->GetProto()->RequiredLevel)
+                return -1;
+            else if (item1->GetProto()->RequiredLevel > item2->GetProto()->RequiredLevel)
+                return +1;
             break;
+        }
         case 1:                                             // quality = 1
-            if (proto1->Quality < proto2->Quality)
-                return true;
-            else if (proto1->Quality > proto2->Quality)
-                return false;
+        {
+            Item *item1 = sAuctionMgr.GetAItem(itemGuidLow);
+            Item *item2 = sAuctionMgr.GetAItem(auc->itemGuidLow);
+            if (!item1 || !item2)
+                return 0;
+            if (item1->GetProto()->Quality < item2->GetProto()->Quality)
+                return -1;
+            else if (item1->GetProto()->Quality > item2->GetProto()->Quality)
+                return +1;
             break;
+        }
         case 2:                                             // buyoutthenbid = 2
-            if (auc1->buyout)
+            if (buyout)
             {
-                if (auc1->buyout < auc2->buyout)
-                    return true;
-                else if (auc1->buyout > auc2->buyout)
-                    return false;
+                if (buyout < auc->buyout)
+                    return -1;
+                else if (buyout > auc->buyout)
+                    return +1;
             }
             else
             {
-                if (auc1->bid < auc2->bid)
-                    return true;
-                else if (auc1->bid > auc2->bid)
-                    return false;
+                if (bid < auc->bid)
+                    return -1;
+                else if (bid > auc->bid)
+                    return +1;
             }
             break;
         case 3:                                             // duration = 3
-            if ((auc1->expireTime - currentTime) < (auc2->expireTime - currentTime))
-                return true;
-            else if ((auc1->expireTime - currentTime) > (auc2->expireTime - currentTime))
-                return false;
+            if (expireTime < auc->expireTime)
+                return -1;
+            else if (expireTime > auc->expireTime)
+                return +1;
             break;
         case 4:                                             // status = 4
-            if (auc1->bidder < auc2->bidder)
-                return true;
-            else if (auc1->bidder > auc2->bidder)
-                return false;
+            if (bidder < auc->bidder)
+                return -1;
+            else if (bidder > auc->bidder)
+                return +1;
             break;
         case 5:                                             // name = 5
-            res = strcmp(proto1->Name1, proto2->Name1);
-            if (res < 0)
-                return true;
-            else if (res > 0)
-                return false;
-            break;
-        case 6:                                             // minbidbuyout = 6
-            if (auc1->bid)
+        {
+            int32 loc_idx = viewPlayer->GetSession()->GetSessionDbLocaleIndex();
+
+            std::string name1, name2;
+            if (loc_idx >= 0)
             {
-                if (auc1->bid < auc2->bid)
-                    return true;
-                else if (auc1->bid > auc2->bid)
-                    return false;
+                if(ItemLocale const *il = sObjectMgr.GetItemLocale(itemTemplate))
+                    name1 = il->Name[loc_idx];
+                if(ItemLocale const *il = sObjectMgr.GetItemLocale(auc->itemTemplate))
+                    name2 = il->Name[loc_idx];
             }
-            else if (auc1->startbid)
+            if (name1.empty())
+                if (ItemPrototype const* proto = ObjectMgr::GetItemPrototype(itemTemplate))
+                    name1 = proto->Name1;
+            if (name2.empty())
+                if (ItemPrototype const* proto = ObjectMgr::GetItemPrototype(auc->itemTemplate))
+                    name2 = proto->Name1;
+
+            std::wstring wname1, wname2;
+            Utf8toWStr(name1, wname1);
+            Utf8toWStr(name2, wname2);
+            return wname1.compare(wname2);
+        }
+        case 6:                                             // minbidbuyout = 6
+            if (bid)
             {
-                if (auc1->startbid < auc2->startbid)
-                    return true;
-                else if (auc1->startbid > auc2->startbid)
-                    return false;
+                if (bid < auc->bid)
+                    return -1;
+                else if (bid > auc->bid)
+                    return +1;
+            }
+            else if (startbid)
+            {
+                if (startbid < auc->startbid)
+                    return -1;
+                else if (startbid > auc->startbid)
+                    return +1;
             }
             else
             {
-                if (auc1->buyout < auc2->buyout)
-                    return true;
-                else if (auc1->buyout > auc2->buyout)
-                    return false;
+                if (buyout < auc->buyout)
+                    return -1;
+                else if (buyout > auc->buyout)
+                    return +1;
             }
             break;
         case 7:                                             // seller = 7
-            pl1 = sObjectMgr.GetPlayer(ObjectGuid(HIGHGUID_PLAYER, auc1->owner));
-            pl2 = sObjectMgr.GetPlayer(ObjectGuid(HIGHGUID_PLAYER, auc2->owner));
-            if (!pl1 || !pl2)
-                break;
-            res = strcmp(pl1->GetName(), pl2->GetName());
-            if (res < 0)
-                return true;
-            else if (res > 0)
-                return false;
-            break;
+            return ownerName.compare(auc->ownerName);
         case 8:                                             // bid = 8
-            if (auc1->bid)
+            if (bid)
             {
-                if (auc1->bid < auc2->bid)
-                    return true;
-                else if (auc1->bid > auc2->bid)
-                    return false;
+                if (bid < auc->bid)
+                    return -1;
+                else if (bid > auc->bid)
+                    return +1;
             }
             else
             {
-                if (auc1->startbid < auc2->startbid)
-                    return true;
-                else if (auc1->startbid > auc2->startbid)
-                    return false;
+                if (startbid < auc->startbid)
+                    return -1;
+                else if (startbid > auc->startbid)
+                    return +1;
             }
             break;
         case 9:                                             // quantity = 9
-            if (count1 < count2)
-                return true;
-            else if (count1 > count2)
-                return false;
+        {
+            Item *item1 = sAuctionMgr.GetAItem(itemGuidLow);
+            Item *item2 = sAuctionMgr.GetAItem(auc->itemGuidLow);
+            if (!item1 || !item2)
+                return 0;
+            if (item1->GetCount() < item2->GetCount())
+                return -1;
+            else if (item1->GetCount() > item2->GetCount())
+                return +1;
             break;
+        }
         case 10:                                            // buyout = 10
-            if (auc1->buyout < auc2->buyout)
-                return true;
-            else if (auc1->buyout > auc2->buyout)
-                return false;
+            if (buyout < auc->buyout)
+                return -1;
+            else if (buyout > auc->buyout)
+                return +1;
             break;
         case 11:                                            // unused = 11
-            break;
         default:
             break;
     }
 
-    if (auc1->Id < auc2->Id)
-        return true;
-    else if (auc1->Id > auc2->Id)
-        return false;
-
-    return false;
+    return 0;
 }
 
 bool AuctionSorter::operator()(const AuctionEntry *auc1, const AuctionEntry *auc2) const
 {
-    bool result = false;
-    uint32 column = 0;
+    if (m_sort[0] == MAX_AUCTION_SORT)                      // not sorted
+        return false;
 
     for (uint32 i = 0; i < MAX_AUCTION_SORT; ++i)
     {
         if (m_sort[i] == MAX_AUCTION_SORT)                  // end of sort
-        {
-            column = m_sort[0];                             // use main column
-            break;
-        }
-
-        column = m_sort[i];
+            return false;
 
         AuctionHouseMgr::ReadGuard Guard(sAuctionMgr.GetLock());
-        result = sAuctionMgr.CompareAuctionEntry(column & ~AUCTION_SORT_REVERSED, auc1, auc2);
 
-        if (result)
-            break;
+        int res = auc1->CompareAuctionEntry(m_sort[i] & ~AUCTION_SORT_REVERSED, auc2, m_viewPlayer);
+        // "equal" by used column
+        if (res == 0)
+            continue;
+        // less/greater and normal/reversed ordered
+        return (res < 0) == ((m_sort[i] & AUCTION_SORT_REVERSED) == 0);
     }
 
-    if (column & AUCTION_SORT_REVERSED)                     // reversed flag
-        result = !result;
-
-    return result;
+    return false;                                           // "equal" by all sorts
 }
 
 void WorldSession::BuildListAuctionItems(std::list<AuctionEntry*> &auctions, WorldPacket& data, std::wstring const& wsearchedname, uint32 listfrom, uint32 levelmin,

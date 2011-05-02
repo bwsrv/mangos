@@ -25,10 +25,11 @@
 #include "Dynamic/ObjectRegistry.h"
 #include "Dynamic/FactoryHolder.h"
 
+class WorldObject;
+class GameObject;
 class Unit;
 class Creature;
 class Player;
-class GameObject;
 struct SpellEntry;
 
 #define TIME_INTERVAL_LOOK   5000

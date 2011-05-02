@@ -293,19 +293,21 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
         }
 
         ItemPrototype const* prototype = sObjectMgr.GetItemPrototype(itemID);
-        if (prototype == NULL)
+
+        if (!prototype)
         {
             sLog.outString("AuctionHouseBot: Huh?!?! prototype == NULL");
             continue;
         }
 
         Item* item = Item::CreateItem(itemID, 1, AHBplayer);
-        item->AddToUpdateQueueOf(AHBplayer);
-        if (item == NULL)
+
+        if (!item)
         {
             sLog.outString("AuctionHouseBot: Item::CreateItem() returned NULL");
             break;
         }
+        item->AddToUpdateQueueOf(AHBplayer);
 
         uint32 randomPropertyId = Item::GenerateItemRandomPropertyId(itemID);
         if (randomPropertyId != 0)
@@ -438,11 +440,17 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
         auctionEntry->deposit = 0;
         auctionEntry->expireTime = (time_t) (urand(config->GetMinTime(), config->GetMaxTime()) * 60 * 60 + time(NULL));
         auctionEntry->auctionHouseEntry = ahEntry;
-        item->SaveToDB();
-        item->RemoveFromUpdateQueueOf(AHBplayer);
-        sAuctionMgr.AddAItem(item);
+
         auctionHouse->AddAuction(auctionEntry);
+        sAuctionMgr.AddAItem(item);
+        item->RemoveFromUpdateQueueOf(AHBplayer);
+
+        CharacterDatabase.BeginTransaction();
+        item->SaveToDB();
         auctionEntry->SaveToDB();
+        AHBplayer->SaveInventoryAndGoldToDB();
+        CharacterDatabase.CommitTransaction();
+
     }
 }
 
@@ -1093,204 +1101,6 @@ void AuctionHouseBot::Initialize()
         sLog.outString("loaded %d yellow items", yellowItemsBin.size());
     }
     sLog.outString("AHBot-AHBuyer modified by /dev/rsa is now loaded");
-}
-
-void AuctionHouseBot::Commands(uint32 command, uint32 ahMapID, uint32 col, char* args)
-{
-    AHBConfig *config;
-    switch (ahMapID)
-    {
-    case 2:
-        config = &AllianceConfig;
-        break;
-    case 6:
-        config = &HordeConfig;
-        break;
-    case 7:
-        config = &NeutralConfig;
-        break;
-    }
-    std::string color;
-    switch (col)
-    {
-    case AHB_GREY:
-        color = "grey";
-        break;
-    case AHB_WHITE:
-        color = "white";
-        break;
-    case AHB_GREEN:
-        color = "green";
-        break;
-    case AHB_BLUE:
-        color = "blue";
-        break;
-    case AHB_PURPLE:
-        color = "purple";
-        break;
-    case AHB_ORANGE:
-        color = "orange";
-        break;
-    case AHB_YELLOW:
-        color = "yellow";
-        break;
-    default:
-        break;
-    }
-    switch (command)
-    {
-    case 0:     //ahexpire
-        {
-            AuctionHouseEntry const* ahEntry = sAuctionHouseStore.LookupEntry(config->GetAHID());
-            AuctionHouseObject* auctionHouse = sAuctionMgr.GetAuctionsMap(ahEntry);
-
-            AuctionHouseObject::AuctionEntryMap::iterator itr;
-            itr = auctionHouse->GetAuctionsBegin();
-
-            while (itr != auctionHouse->GetAuctionsEnd())
-            {
-                if (ObjectGuid(HIGHGUID_PLAYER,itr->second->owner) == AHBplayerGUID)
-                    itr->second->expireTime = sWorld.GetGameTime();
-
-                ++itr;
-            }
-        }break;
-    case 1:     //min items
-        {
-            char * param1 = strtok(args, " ");
-            uint32 minItems = (uint32) strtoul(param1, NULL, 0);
-            CharacterDatabase.PExecute("UPDATE auctionhousebot SET minitems = '%u' WHERE auctionhouse = '%u'", minItems, ahMapID);
-            config->SetMinItems(minItems);
-        }break;
-    case 2:     //max items
-        {
-            char * param1 = strtok(args, " ");
-            uint32 maxItems = (uint32) strtoul(param1, NULL, 0);
-            CharacterDatabase.PExecute("UPDATE auctionhousebot SET maxitems = '%u' WHERE auctionhouse = '%u'", maxItems, ahMapID);
-            config->SetMaxItems(maxItems);
-        }break;
-    case 3:     //min time
-        {
-            char * param1 = strtok(args, " ");
-            uint32 minTime = (uint32) strtoul(param1, NULL, 0);
-            CharacterDatabase.PExecute("UPDATE auctionhousebot SET mintime = '%u' WHERE auctionhouse = '%u'", minTime, ahMapID);
-            config->SetMinTime(minTime);
-        }break;
-    case 4:     //max time
-        {
-            char * param1 = strtok(args, " ");
-            uint32 maxTime = (uint32) strtoul(param1, NULL, 0);
-            CharacterDatabase.PExecute("UPDATE auctionhousebot SET maxtime = '%u' WHERE auctionhouse = '%u'", maxTime, ahMapID);
-            config->SetMaxTime(maxTime);
-        }break;
-    case 5:     //percentages
-        {
-            char * param1 = strtok(args, " ");
-            char * param2 = strtok(NULL, " ");
-            char * param3 = strtok(NULL, " ");
-            char * param4 = strtok(NULL, " ");
-            char * param5 = strtok(NULL, " ");
-            char * param6 = strtok(NULL, " ");
-            char * param7 = strtok(NULL, " ");
-            char * param8 = strtok(NULL, " ");
-            char * param9 = strtok(NULL, " ");
-            char * param10 = strtok(NULL, " ");
-            char * param11 = strtok(NULL, " ");
-            char * param12 = strtok(NULL, " ");
-            char * param13 = strtok(NULL, " ");
-            char * param14 = strtok(NULL, " ");
-            uint32 greytg = (uint32) strtoul(param1, NULL, 0);
-            uint32 whitetg = (uint32) strtoul(param2, NULL, 0);
-            uint32 greentg = (uint32) strtoul(param3, NULL, 0);
-            uint32 bluetg = (uint32) strtoul(param4, NULL, 0);
-            uint32 purpletg = (uint32) strtoul(param5, NULL, 0);
-            uint32 orangetg = (uint32) strtoul(param6, NULL, 0);
-            uint32 yellowtg = (uint32) strtoul(param7, NULL, 0);
-            uint32 greyi = (uint32) strtoul(param8, NULL, 0);
-            uint32 whitei = (uint32) strtoul(param9, NULL, 0);
-            uint32 greeni = (uint32) strtoul(param10, NULL, 0);
-            uint32 bluei = (uint32) strtoul(param11, NULL, 0);
-            uint32 purplei = (uint32) strtoul(param12, NULL, 0);
-            uint32 orangei = (uint32) strtoul(param13, NULL, 0);
-            uint32 yellowi = (uint32) strtoul(param14, NULL, 0);
-
-            CharacterDatabase.BeginTransaction();
-            CharacterDatabase.PExecute("UPDATE auctionhousebot SET percentgreytradegoods = '%u' WHERE auctionhouse = '%u'", greytg, ahMapID);
-            CharacterDatabase.PExecute("UPDATE auctionhousebot SET percentwhitetradegoods = '%u' WHERE auctionhouse = '%u'", whitetg, ahMapID);
-            CharacterDatabase.PExecute("UPDATE auctionhousebot SET percentgreentradegoods = '%u' WHERE auctionhouse = '%u'", greentg, ahMapID);
-            CharacterDatabase.PExecute("UPDATE auctionhousebot SET percentbluetradegoods = '%u' WHERE auctionhouse = '%u'", bluetg, ahMapID);
-            CharacterDatabase.PExecute("UPDATE auctionhousebot SET percentpurpletradegoods = '%u' WHERE auctionhouse = '%u'", purpletg, ahMapID);
-            CharacterDatabase.PExecute("UPDATE auctionhousebot SET percentorangetradegoods = '%u' WHERE auctionhouse = '%u'", orangetg, ahMapID);
-            CharacterDatabase.PExecute("UPDATE auctionhousebot SET percentyellowtradegoods = '%u' WHERE auctionhouse = '%u'", yellowtg, ahMapID);
-            CharacterDatabase.PExecute("UPDATE auctionhousebot SET percentgreyitems = '%u' WHERE auctionhouse = '%u'", greyi, ahMapID);
-            CharacterDatabase.PExecute("UPDATE auctionhousebot SET percentwhiteitems = '%u' WHERE auctionhouse = '%u'", whitei, ahMapID);
-            CharacterDatabase.PExecute("UPDATE auctionhousebot SET percentgreenitems = '%u' WHERE auctionhouse = '%u'", greeni, ahMapID);
-            CharacterDatabase.PExecute("UPDATE auctionhousebot SET percentblueitems = '%u' WHERE auctionhouse = '%u'", bluei, ahMapID);
-            CharacterDatabase.PExecute("UPDATE auctionhousebot SET percentpurpleitems = '%u' WHERE auctionhouse = '%u'", purplei, ahMapID);
-            CharacterDatabase.PExecute("UPDATE auctionhousebot SET percentorangeitems = '%u' WHERE auctionhouse = '%u'", orangei, ahMapID);
-            CharacterDatabase.PExecute("UPDATE auctionhousebot SET percentyellowitems = '%u' WHERE auctionhouse = '%u'", yellowi, ahMapID);
-            CharacterDatabase.CommitTransaction();
-            config->SetPercentages(greytg, whitetg, greentg, bluetg, purpletg, orangetg, yellowtg, greyi, whitei, greeni, bluei, purplei, orangei, yellowi);
-        }break;
-    case 6:     //min prices
-        {
-            char * param1 = strtok(args, " ");
-            uint32 minPrice = (uint32) strtoul(param1, NULL, 0);
-            CharacterDatabase.PExecute("UPDATE auctionhousebot SET minprice%s = '%u' WHERE auctionhouse = '%u'",color.c_str(), minPrice, ahMapID);
-            config->SetMinPrice(col, minPrice);
-        }break;
-    case 7:     //max prices
-        {
-            char * param1 = strtok(args, " ");
-            uint32 maxPrice = (uint32) strtoul(param1, NULL, 0);
-            CharacterDatabase.PExecute("UPDATE auctionhousebot SET maxprice%s = '%u' WHERE auctionhouse = '%u'",color.c_str(), maxPrice, ahMapID);
-            config->SetMaxPrice(col, maxPrice);
-        }break;
-    case 8:     //min bid price
-        {
-            char * param1 = strtok(args, " ");
-            uint32 minBidPrice = (uint32) strtoul(param1, NULL, 0);
-            CharacterDatabase.PExecute("UPDATE auctionhousebot SET minbidprice%s = '%u' WHERE auctionhouse = '%u'",color.c_str(), minBidPrice, ahMapID);
-            config->SetMinBidPrice(col, minBidPrice);
-        }break;
-    case 9:     //max bid price
-        {
-            char * param1 = strtok(args, " ");
-            uint32 maxBidPrice = (uint32) strtoul(param1, NULL, 0);
-            CharacterDatabase.PExecute("UPDATE auctionhousebot SET maxbidprice%s = '%u' WHERE auctionhouse = '%u'",color.c_str(), maxBidPrice, ahMapID);
-            config->SetMaxBidPrice(col, maxBidPrice);
-        }break;
-    case 10:        //max stacks
-        {
-            char * param1 = strtok(args, " ");
-            uint32 maxStack = (uint32) strtoul(param1, NULL, 0);
-            CharacterDatabase.PExecute("UPDATE auctionhousebot SET maxstack%s = '%u' WHERE auctionhouse = '%u'",color.c_str(), maxStack, ahMapID);
-            config->SetMaxStack(col, maxStack);
-        }break;
-    case 11:        //buyer bid prices
-        {
-            char * param1 = strtok(args, " ");
-            uint32 buyerPrice = (uint32) strtoul(param1, NULL, 0);
-            CharacterDatabase.PExecute("UPDATE auctionhousebot SET buyerprice%s = '%u' WHERE auctionhouse = '%u'",color.c_str(), buyerPrice, ahMapID);
-            config->SetBuyerPrice(col, buyerPrice);
-        }break;
-    case 12:        //buyer bidding interval
-        {
-            char * param1 = strtok(args, " ");
-            uint32 bidInterval = (uint32) strtoul(param1, NULL, 0);
-            CharacterDatabase.PExecute("UPDATE auctionhousebot SET buyerbiddinginterval = '%u' WHERE auctionhouse = '%u'", bidInterval, ahMapID);
-            config->SetBiddingInterval(bidInterval);
-        }break;
-    case 13:        //buyer bids per interval
-        {
-            char * param1 = strtok(args, " ");
-            uint32 bidsPerInterval = (uint32) strtoul(param1, NULL, 0);
-            CharacterDatabase.PExecute("UPDATE auctionhousebot SET buyerbidsperinterval = '%u' WHERE auctionhouse = '%u'", bidsPerInterval, ahMapID);
-            config->SetBidsPerInterval(bidsPerInterval);
-        }break;
-    default:
-        break;
-    }
 }
 
 void AuctionHouseBot::LoadValues(AHBConfig *config)

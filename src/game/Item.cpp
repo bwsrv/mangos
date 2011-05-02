@@ -247,8 +247,7 @@ Item::Item( )
 
 bool Item::Create( uint32 guidlow, uint32 itemid, Player const* owner)
 {
-    Object::_Create(ObjectGuid(HIGHGUID_ITEM, guidlow));
-//    Object::_Create(guidlow, 0, HIGHGUID_ITEM);
+    Object::_Create(guidlow, 0, HIGHGUID_ITEM);
 
     SetEntry(itemid);
     SetObjectScale(DEFAULT_OBJECT_SCALE);
