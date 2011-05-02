@@ -37,7 +37,6 @@ typedef std::pair<LFGRewardMap::const_iterator, LFGRewardMap::const_iterator> LF
 typedef std::map<ObjectGuid, LFGQueueInfo*> LFGQueueInfoMap;
 typedef std::map<uint32/*ID*/, LFGDungeonEntry const*> LFGDungeonMap;
 typedef std::set<ObjectGuid>  LFGQueueSet;
-typedef std::map<ObjectGuid, LFGRoleMask> LFGRolesMap;
 typedef std::map<ObjectGuid, LFGAnswer> LFGAnswerMap;
 typedef std::map<uint32/*ID*/, LFGProposal> LFGProposalMap;
 
@@ -103,17 +102,6 @@ struct LFGProposal
     uint32 ID;                                             // Proposal id
 };
 
-/// Stores all rolecheck info of a group that wants to join
-struct LFGRoleCheck
-{
-    time_t cancelTime;                                     ///< Time when the rolecheck will fail
-    LFGRolesMap roles;                                     ///< Player selected roles
-    LFGRoleCheckState state;                               ///< State of the rolecheck
-    LFGDungeonSet dungeons;                                ///< Dungeons group is applying for (expanded random dungeons)
-    uint32 randomID;                                       ///< Random Dungeon Id.
-    ObjectGuid leaderGuid;                                 ///< Leader of the group
-};
-
 /// Stores information of a current vote to kick someone from a group
 struct LFGPlayerBoot
 {
@@ -166,6 +154,10 @@ class LFGMgr
 
         // Statistic system
         LFGQueueStatus* GetDungeonQueueStatus(uint32 dungeonID);
+
+        // Role check system
+        void UpdateRoleCheck(Group* group);
+        bool CheckRoles(Group* group);
 
         // Dungeon operations
         LFGDungeonEntry const* GetDungeon(uint32 dungeonID);
