@@ -501,6 +501,7 @@ Player* PlayerbotMgr::GetPlayerBot(uint64 playerGuid) const
 
 void PlayerbotMgr::OnBotLogin(Player * const bot)
 {
+    bot->SetMap(sMapMgr.CreateMap(bot->GetMapId(), bot));
     // give the bot some AI, object is owned by the player class
     PlayerbotAI* ai = new PlayerbotAI(this, bot);
     bot->SetPlayerbotAI(ai);
