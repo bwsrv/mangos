@@ -1705,10 +1705,8 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(m_caster, spellId, true);
                     //Arcane Prisoner Kill Credit
                     unitTarget->CastSpell(m_caster, 45456, true);
-
                     break;
                 }
-<<<<<<< HEAD
                 case 45692:                                 // Use Tuskarr Torch (for Quest: Burn in Effigy)
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
@@ -1716,7 +1714,8 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     // let them burn! niah! (flame spell could be wrong one, anyway visual effect is correct)
                     unitTarget->CastSpell(unitTarget, 64561, true);
                     ((Creature*)unitTarget)->ForcedDespawn(15000);
-=======
+                    return;
+                }
                 case 45583:                                 // Throw Gnomish Grenade
                 {
                     if (!unitTarget || m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -1758,8 +1757,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                             (*iter)->Refresh();
                         }
                     }
-
->>>>>>> 28f68dbaa4e76e010be5c9e9193ffbbc288792a5
                     return;
                 }
                 case 45958:                                 // Signal Alliance
@@ -10368,6 +10365,7 @@ void Spell::EffectTransmitted(SpellEffectIndex eff_idx)
 
     if (m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->AI())
         ((Creature*)m_caster)->AI()->JustSummoned(pGameObj);
+    }
 }
 
 void Spell::EffectProspecting(SpellEffectIndex /*eff_idx*/)
