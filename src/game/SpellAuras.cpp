@@ -5650,6 +5650,13 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
                     if (spellProto->CalculateSimpleValue(EFFECT_INDEX_1) !=0 &&
                         target->GetHealth() > target->GetMaxHealth() * spellProto->CalculateSimpleValue(EFFECT_INDEX_1) / 100)
                         m_modifier.m_amount += m_modifier.m_amount * spellProto->CalculateSimpleValue(EFFECT_INDEX_2) / 100;
+
+                    // Improved Rend - Rank 1
+                    if (caster->HasAura(12286))
+                        m_modifier.m_amount += int32(m_modifier.m_amount * 0.1f);
+                    // Improved Rend - Rank 2
+                    if (caster->HasAura(12658))
+                        m_modifier.m_amount += int32(m_modifier.m_amount * 0.2f);
                 }
                 break;
             }
