@@ -179,8 +179,10 @@ bool VehicleKit::AddPassenger(Unit *passenger, int8 seatId)
     {
         switch (m_pBase->GetEntry())
         {
-            case 33118:                                     // Ignis 
-            case 32934:                                     // Kologarn Right Arm
+            case 33118:                                     // Ignis (Ulduar)
+            case 32934:                                     // Kologarn Right Arm (Ulduar)
+            case 30234:                                     // Nexus Lord's Hover Disk (Eye ofEternity, Malygos Encounter)
+            case 30248:                                     // Scion's of Eternity Hover Disk (Eye ofEternity, Malygos Encounter)
                 break;
             default:
                 passenger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);

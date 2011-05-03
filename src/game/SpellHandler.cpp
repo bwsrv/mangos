@@ -364,6 +364,10 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     else
         mover = _mover;
 
+    VehicleKit* vehicle = _mover->GetVehicleKit();
+    if (vehicle && (vehicle->GetBase()->GetEntry() == 30234 || vehicle->GetBase()->GetEntry() == 30248))
+        mover = _mover->GetCharmerOrOwnerPlayerOrPlayerItself();
+
     if (mover->GetTypeId()==TYPEID_PLAYER)
     {
         // not have spell in spellbook or spell passive and not casted by client
