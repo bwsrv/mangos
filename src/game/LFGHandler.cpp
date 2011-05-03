@@ -170,16 +170,18 @@ void WorldSession::HandleLfgSetRolesOpcode(WorldPacket &recv_data)
     uint8 roles;
     recv_data >> roles;
 
-    GetPlayer()->GetLFGState()->SetRoles(roles);
-
     Group* group = GetPlayer()->GetGroup();
     if (group && group->isLFDGroup())
     {
         DEBUG_LOG("CMSG_LFG_SET_ROLES: Group %u, Player %u, Roles: %u", group->GetObjectGuid().GetCounter(), GetPlayer()->GetObjectGuid().GetCounter(), roles);
-        sLFGMgr.UpdateRoleCheck(group);
+        if (sLFGMgr.RoleChanged(GetPlayer(), roles))
+            sLFGMgr.UpdateRoleCheck(group);
     }
     else
+    {
+        GetPlayer()->GetLFGState()->SetRoles(roles);
         DEBUG_LOG("CMSG_LFG_SET_ROLES (not in LFD group) Player %u roles %u", GetPlayer()->GetObjectGuid().GetCounter(), roles);
+    }
 }
 
 void WorldSession::HandleLfgSetBootVoteOpcode(WorldPacket &recv_data)
@@ -359,13 +361,13 @@ void WorldSession::HandleLfgPartyLockInfoRequestOpcode(WorldPacket & /*recv_data
 
 void WorldSession::HandleLfgProposalResultOpcode(WorldPacket &recv_data)
 {
-    uint32 lfgGroupID;                                      // Internal lfgGroupID
+    uint32 ID;                                              // Internal proposal ID
     bool   accept;                                          // Accept to join?
-    recv_data >> lfgGroupID;
+    recv_data >> ID;
     recv_data >> accept;
 
-    DEBUG_LOG("CMSG_LFG_PROPOSAL_RESULT %u proposal: %u accept: %u", GetPlayer()->GetObjectGuid().GetCounter(), lfgGroupID, accept ? 1 : 0);
-    //sLFGMgr.UpdateProposal(lfgGroupID, GetPlayer()->GetObjectGuid().GetCounter(), accept);
+    DEBUG_LOG("CMSG_LFG_PROPOSAL_RESULT %u proposal: %u accept: %u", GetPlayer()->GetObjectGuid().GetCounter(), ID, accept ? 1 : 0);
+    sLFGMgr.UpdateProposal(ID, GetPlayer()->GetObjectGuid(), accept);
 }
 
 void WorldSession::SendLfgJoinResult(LFGJoinResult checkResult, uint8 checkValue, bool withLockMap)
@@ -965,7 +967,11 @@ void WorldSession::SendLfgRoleChosen(ObjectGuid guid, uint8 roles)
     data << guid;                                  // Guid
     data << uint8(roles != LFG_ROLE_MASK_NONE);    // Ready
     data << uint32(roles);                         // Roles
-    SendPacket(&data);
+
+    if (GetPlayer()->GetGroup())
+        GetPlayer()->GetGroup()->BroadcastPacket(&data, false);
+    else
+        SendPacket(&data);
 }
 
 void WorldSession::SendLfgBootPlayer(LFGPlayerBoot* pBoot)
