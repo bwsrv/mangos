@@ -24072,3 +24072,31 @@ uint8 Player::GetTalentsCount(uint8 tab)
     m_cachedTC[tab] = talentCount;
     return talentCount;
 }
+
+bool Player::HasOrphan()
+{
+    if (GetMiniPet())
+    {
+        // We have a summon, is it an orphan?
+        bool hasOrphan = false;
+
+        switch (GetMiniPet()->GetEntry())
+        {
+            case 33532: //wolvar
+            case 14444: //orc
+            case 33533: //oracle
+            case 14305: //human
+            case 22818: //draenei
+            case 22817: //bloodelf
+            {
+                hasOrphan = true;
+                break;
+            }
+
+        }
+
+        if (hasOrphan)
+            return true;
+    }
+    return false;
+}
