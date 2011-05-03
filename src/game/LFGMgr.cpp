@@ -790,6 +790,50 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
     LFGProposal* pProposal = GetProposal(ID);
     if (!pProposal)
         return;
+
+    LFGQueueSet::const_iterator itr = pProposal->playerGuids.find(guid);
+    if ( itr == pProposal->playerGuids.end() )
+        return;
+
+    Player* _player = sObjectMgr.GetPlayer(guid);
+
+    _player->GetLFGState()->SetAnswer(LFGAnswer(accept));
+
+    if (!accept)
+    {
+        RemoveProposal(ID);
+        return;
+    }
+
+    // check if all have answered and reorder players (leader first)
+    LFGQueueSet newPlayers;
+    bool allAnswered = true;
+    for (LFGQueueSet::const_iterator itr = pProposal->playerGuids.begin(); itr != pProposal->playerGuids.end(); ++itr )
+    {
+        if (Player* player = sObjectMgr.GetPlayer(*itr))
+        {
+            // Only teleport new players
+            Group* group = player->GetGroup();
+            ObjectGuid gguid = group ? group->GetObjectGuid() : ObjectGuid();
+
+            if (gguid.IsEmpty() || !group->isLFDGroup() || group->GetLFGState()->GetState() == LFG_STATE_FINISHED_DUNGEON)
+                newPlayers.insert(player->GetObjectGuid());
+
+            if (player->GetLFGState()->GetState() != LFG_ANSWER_AGREE)   // No answer (-1) or not accepted (0)
+                allAnswered = false;
+
+            player->GetSession()->SendLfgUpdateProposal(pProposal);
+        }
+
+    }
+
+    if (!allAnswered)
+        return;
+
+    // make group
+    // set statistic
+    // teleport players to instance
+
 }
 
 void LFGMgr::OfferContinue(Group* group)
