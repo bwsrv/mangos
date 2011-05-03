@@ -539,7 +539,7 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
         }
         case 47496: // Ghoul's explode
         {
-            FillAreaTargets(targetUnitMap,m_targets.m_destX, m_targets.m_destY,radius,PUSH_DEST_CENTER,SPELL_TARGETS_AOE_DAMAGE);
+            FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
             break;
         }
         case 58912: // Deathstorm
@@ -561,7 +561,7 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
         }
         case 65045: // Flame of demolisher
         {
-            FillAreaTargets(targetUnitMap,m_targets.m_destX, m_targets.m_destY,radius,PUSH_DEST_CENTER,SPELL_TARGETS_AOE_DAMAGE);
+            FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
             break;
         }
         default:
@@ -2437,7 +2437,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 71481:                                 // Bloodbolt Splash 25N
                 case 71482:                                 // Bloodbolt Splash 10H
                 case 71483:                                 // Bloodbolt Splash 25H
-                    FillAreaTargets(targetUnitMap, m_targets.m_destX, m_targets.m_destY, radius, PUSH_SELF_CENTER, SPELL_TARGETS_FRIENDLY);
+                    FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
                     targetUnitMap.remove(m_caster);
                     break;
                 default:
