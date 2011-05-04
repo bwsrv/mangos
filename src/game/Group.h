@@ -102,8 +102,9 @@ enum GroupType                                              // group type flags?
     GROUPTYPE_BG     = 0x01,
     GROUPTYPE_RAID   = 0x02,
     GROUPTYPE_BGRAID = GROUPTYPE_BG | GROUPTYPE_RAID,       // mask
-    // 0x04?
+    GROUPTYPE_UNK1   = 0x04,                                // 0x04?
     GROUPTYPE_LFD    = 0x08,
+    GROUPTYPE_UNK2   = 0x10,
     // 0x10, leave/change group?, I saw this flag when leaving group and after leaving BG while in group
 };
 
@@ -265,7 +266,6 @@ class MANGOS_DLL_SPEC Group
         bool IsFull() const { return (m_groupType == GROUPTYPE_NORMAL) ? (m_memberSlots.size() >= MAX_GROUP_SIZE) : (m_memberSlots.size() >= MAX_RAID_SIZE); }
         bool isRaidGroup() const { return m_groupType & GROUPTYPE_RAID; }
         bool isBGGroup()   const { return m_bgGroup != NULL; }
-        bool isLFDGroup() const { return m_groupType &  GROUPTYPE_LFD; }
         bool IsCreated()   const { return GetMembersCount() > 0; }
         ObjectGuid GetLeaderGuid() const { return m_leaderGuid; }
         const char * GetLeaderName() const { return m_leaderName.c_str(); }
@@ -373,6 +373,10 @@ class MANGOS_DLL_SPEC Group
 
         // LFG
         LFGGroupState* GetLFGState() { return m_LFGState; };
+        bool ConvertToLFG(LFGType type);
+        bool isLFGGroup()  const { return m_groupType & GROUPTYPE_LFD; }
+        bool isLFDGroup()  const { return (m_groupType & GROUPTYPE_LFD && !(m_groupType & GROUPTYPE_RAID)) ; }
+        bool isLFRGroup()  const { return (m_groupType & GROUPTYPE_LFD && m_groupType & GROUPTYPE_RAID) ; }
 
         // Frozen Mod
         void BroadcastGroupUpdate(void);
