@@ -260,6 +260,8 @@ Unit::Unit() :
     m_CombatTimer = 0;
     m_lastManaUseTimer = 0;
 
+    m_transport = NULL;
+
     //m_victimThreat = 0.0f;
     for (int i = 0; i < MAX_SPELL_SCHOOL; ++i)
         m_threatModifier[i] = 1.0f;
@@ -399,8 +401,13 @@ void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, SplineTy
 
     float moveTime = (float)Time;
 
-    WorldPacket data( SMSG_MONSTER_MOVE, (41 + GetPackGUID().size()) );
+    WorldPacket data( (m_transport) ? SMSG_MONSTER_MOVE_TRANSPORT : SMSG_MONSTER_MOVE, (41 + GetPackGUID().size()) );
     data << GetPackGUID();
+    if (m_transport)
+    {
+        data.appendPackGUID(m_transport->GetGUID());
+        data << uint8(0);
+    }
     data << uint8(0);                                       // new in 3.1 bool, used to toggle MOVEFLAG2_UNK4 = 0x0040 on client side
     data << GetPositionX() << GetPositionY() << GetPositionZ();
     data << uint32(WorldTimer::getMSTime());
@@ -437,7 +444,14 @@ void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, SplineTy
         data << uint32(0);                                  // walk time after jump
     }
     data << uint32(1);                                      // 1 single waypoint
-    data << NewPosX << NewPosY << NewPosZ;                  // the single waypoint Point B
+    if (m_transport)
+    {
+        data << m_movementInfo.GetTransportPos()->x << m_movementInfo.GetTransportPos()->y << m_movementInfo.GetTransportPos()->z;
+    }
+    else
+    {
+        data << NewPosX << NewPosY << NewPosZ;                  // the single waypoint Point B
+    }
 
     va_end(vargs);
 
@@ -11860,7 +11874,7 @@ void Unit::EnterVehicle(VehicleKit *vehicle, int8 seatId)
     if (Transport* pTransport = GetTransport())
     {
         if (GetTypeId() == TYPEID_PLAYER)
-            pTransport->RemovePassenger((Player*)this);
+            pTransport->RemovePlayerPassenger((Player*)this);
 
         SetTransport(NULL);
     }

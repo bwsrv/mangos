@@ -45,7 +45,7 @@ VisibleNotifier::Notify()
     // but exist one case when this possible and object not out of range: transports
     if(Transport* transport = player.GetTransport())
     {
-        for(Transport::PlayerSet::const_iterator itr = transport->GetPassengers().begin();itr!=transport->GetPassengers().end();++itr)
+        for(Transport::PlayerSet::const_iterator itr = transport->GetPlayerPassengers().begin();itr!=transport->GetPlayerPassengers().end();++itr)
         {
             if (i_clientGUIDs.find((*itr)->GetGUID()) != i_clientGUIDs.end())
             {

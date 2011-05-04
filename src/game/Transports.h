@@ -33,11 +33,18 @@ class Transport : public GameObject
         bool Create(uint32 guidlow, uint32 mapid, float x, float y, float z, float ang, uint8 animprogress, uint16 dynamicHighValue);
         bool GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids);
         void Update(uint32 update_diff, uint32 p_time);
-        bool AddPassenger(Player* passenger);
-        bool RemovePassenger(Player* passenger);
+        bool AddPlayerPassenger(Player* passenger);
+        bool AddCreaturePassenger(Creature* passenger);
+        bool RemovePlayerPassenger(Player* passenger);
+        bool RemoveCreaturePassenger(Creature* passenger);
 
         typedef std::set<Player*> PlayerSet;
-        PlayerSet const& GetPassengers() const { return m_passengers; }
+        typedef std::set<Creature*> CreatureSet;
+
+        PlayerSet const& GetPlayerPassengers() const { return m_player_passengers; }
+        CreatureSet const& GetCreaturePassengers() const { return m_creature_passengers; }
+
+        void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target);
 
     private:
         struct WayPoint
@@ -65,7 +72,8 @@ class Transport : public GameObject
         uint32 m_pathTime;
         uint32 m_timer;
 
-        PlayerSet m_passengers;
+        PlayerSet m_player_passengers;
+        CreatureSet m_creature_passengers;
 
     public:
         WayPointMap m_WayPoints;

@@ -1235,11 +1235,11 @@ void ObjectMgr::LoadCreatures()
     uint32 count = 0;
     //                                                0                       1   2    3
     QueryResult *result = WorldDatabase.Query("SELECT creature.guid, creature.id, map, modelid,"
-    //   4             5           6           7           8            9              10         11
-        "equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, currentwaypoint,"
-    //   12         13       14          15            16         17         18
+    //   4             5           6           7           8            9        10       11       12       13         14             15         16
+        "equipment_id, position_x, position_y, position_z, orientation, trans_x, trans_y, trans_z, trans_o, transguid, spawntimesecs, spawndist, currentwaypoint,"
+    //   17         18       19          20            21         22         23     	
         "curhealth, curmana, DeathState, MovementType, spawnMask, phaseMask, event,"
-    //   19                        20
+    //   24                        25
         "pool_creature.pool_entry, pool_creature_template.pool_entry "
         "FROM creature "
         "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
@@ -1300,18 +1300,23 @@ void ObjectMgr::LoadCreatures()
         data.posY               = fields[ 6].GetFloat();
         data.posZ               = fields[ 7].GetFloat();
         data.orientation        = fields[ 8].GetFloat();
-        data.spawntimesecs      = fields[ 9].GetUInt32();
-        data.spawndist          = fields[10].GetFloat();
-        data.currentwaypoint    = fields[11].GetUInt32();
-        data.curhealth          = fields[12].GetUInt32();
-        data.curmana            = fields[13].GetUInt32();
-        data.is_dead            = fields[14].GetBool();
-        data.movementType       = fields[15].GetUInt8();
-        data.spawnMask          = fields[16].GetUInt8();
-        data.phaseMask          = fields[17].GetUInt16();
-        int16 gameEvent         = fields[18].GetInt16();
-        int16 GuidPoolId        = fields[19].GetInt16();
-        int16 EntryPoolId       = fields[20].GetInt16();
+        data.trans_x			= fields[ 9].GetFloat();
+        data.trans_y			= fields[10].GetFloat();
+        data.trans_z			= fields[11].GetFloat();
+        data.trans_o			= fields[12].GetFloat();
+        data.transguid			= fields[13].GetUInt32();
+        data.spawntimesecs      = fields[14].GetUInt32();
+        data.spawndist          = fields[15].GetFloat();
+        data.currentwaypoint    = fields[16].GetUInt32();
+        data.curhealth          = fields[17].GetUInt32();
+        data.curmana            = fields[18].GetUInt32();
+        data.is_dead            = fields[19].GetBool();
+        data.movementType       = fields[20].GetUInt8();
+        data.spawnMask          = fields[21].GetUInt8();
+        data.phaseMask          = fields[22].GetUInt16();
+        int16 gameEvent         = fields[23].GetInt16();
+        int16 GuidPoolId        = fields[24].GetInt16();
+        int16 EntryPoolId       = fields[25].GetInt16();
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if(!mapEntry)

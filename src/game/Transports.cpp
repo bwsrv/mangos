@@ -23,6 +23,7 @@
 #include "ObjectMgr.h"
 #include "ObjectGuid.h"
 #include "Path.h"
+#include "Unit.h"
 
 #include "WorldPacket.h"
 #include "DBCStores.h"
@@ -443,7 +444,7 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
     Map const* oldMap = GetMap();
     Relocate(x, y, z);
 
-    for(PlayerSet::iterator itr = m_passengers.begin(); itr != m_passengers.end();)
+    for(PlayerSet::iterator itr = m_player_passengers.begin(); itr != m_player_passengers.end();)
     {
         PlayerSet::iterator it2 = itr;
         ++itr;
@@ -451,7 +452,7 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
         Player *plr = *it2;
         if(!plr)
         {
-            m_passengers.erase(it2);
+            m_player_passengers.erase(it2);
             continue;
         }
 
@@ -470,6 +471,19 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
     //player far teleport would try to create same instance, but we need it NOW for transport...
     //correct me if I'm wrong O.o
     Map * newMap = sMapMgr.CreateMap(newMapid, this);
+    for (CreatureSet::iterator itr = m_creature_passengers.begin(); itr != m_creature_passengers.end(); ++itr)
+    {
+        if(!(*itr))
+        {
+            m_creature_passengers.erase(itr);
+            continue;
+        }
+
+        (*itr)->RemoveFromWorld();
+        (*itr)->SetMap(newMap);
+        //newMap->CreatureRelocation(*itr, GetPositionX() + x, GetPositionY() + y, GetPositionZ() + z, (*itr)->GetOrientation());
+        newMap->Add(*itr);
+    }
     SetMap(newMap);
 
     if(oldMap != newMap)
@@ -479,21 +493,64 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
     }
 }
 
-bool Transport::AddPassenger(Player* passenger)
+bool Transport::AddPlayerPassenger(Player* passenger)
 {
-    if (m_passengers.find(passenger) == m_passengers.end())
-    {
-        DETAIL_LOG("Player %s boarded transport %s.", passenger->GetName(), GetName());
-        m_passengers.insert(passenger);
-    }
+    if (m_player_passengers.find(passenger) != m_player_passengers.end())
+        return false;
+
+    m_player_passengers.insert(passenger);
+
+    DEBUG_LOG("Player %s boarded transport %s.", passenger->GetName(), GetName());
+
     return true;
 }
 
-bool Transport::RemovePassenger(Player* passenger)
+bool Transport::AddCreaturePassenger(Creature* passenger)
 {
-    if (m_passengers.erase(passenger))
-        DETAIL_LOG("Player %s removed from transport %s.", passenger->GetName(), GetName());
+    if (m_creature_passengers.find(passenger) != m_creature_passengers.end())
+        return false;
+
+    m_creature_passengers.insert(passenger);
+
+    DEBUG_LOG("Creature %s boarded transport %s.", passenger->GetName(), GetName());
+
     return true;
+}
+
+bool Transport::RemovePlayerPassenger(Player* passenger)
+{
+    if (!m_player_passengers.erase(passenger))
+        return false;
+
+    DEBUG_LOG("Player %s removed from transport %s.", passenger->GetName(), GetName());
+
+    return true;
+}
+
+bool Transport::RemoveCreaturePassenger(Creature* passenger)
+{
+    if (!m_creature_passengers.erase(passenger))
+        return false;
+
+    DEBUG_LOG("Creature %s removed from transport %s.", passenger->GetName(), GetName());
+
+    return true;
+}
+
+void Transport::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target)
+{
+    for (CreatureSet::const_iterator itr = m_creature_passengers.begin(); itr != m_creature_passengers.end(); ++itr)
+    {
+        if (!(*itr))
+        {
+            m_creature_passengers.erase(itr);
+            continue;
+        }
+
+        (*itr)->BuildCreateUpdateBlockForPlayer(data, target);
+    }
+
+    Object::BuildCreateUpdateBlockForPlayer(data, target);
 }
 
 void Transport::Update( uint32 update_diff, uint32 /*p_time*/)
@@ -529,6 +586,17 @@ void Transport::Update( uint32 update_diff, uint32 /*p_time*/)
             //(*it2)->SetPosition( m_curr->second.x + (*it2)->GetTransOffsetX(), m_curr->second.y + (*it2)->GetTransOffsetY(), m_curr->second.z + (*it2)->GetTransOffsetZ(), (*it2)->GetTransOffsetO() );
         }
         */
+
+        for (CreatureSet::const_iterator itr = m_creature_passengers.begin(); itr != m_creature_passengers.end(); itr++)
+        {
+            if (!(*itr))
+            {
+                m_creature_passengers.erase(itr);
+                continue;
+            }
+
+            (*itr)->GetMap()->CreatureRelocation(*itr, m_curr->second.x + (*itr)->GetTransOffsetX(), m_curr->second.y + (*itr)->GetTransOffsetY(), m_curr->second.z + (*itr)->GetTransOffsetZ(), (*itr)->GetTransOffsetO());
+        }
 
         m_nextNodeTime = m_curr->first;
 
