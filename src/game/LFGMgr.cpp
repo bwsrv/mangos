@@ -829,11 +829,57 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
 
     if (!allAnswered)
         return;
+    // save waittime (group maked, save statistic)
 
-    // make group
-    // set statistic
+    // Create a new group (if needed)
+    Group* group = pProposal->group;
+    if (!group)
+    {
+        Player* leader = LeaderElection(&pProposal->playerGuids);
+
+        if (leader->GetGroup())
+            leader->RemoveFromGroup();
+
+        group = new Group();
+        group->Create(leader->GetObjectGuid(), leader->GetName());
+//        group->ConvertToLFG();
+        sObjectMgr.AddGroup(group);
+    }
+    MANGOS_ASSERT(group);
+    pProposal->group = group;
+
+    for (LFGQueueSet::const_iterator itr = pProposal->playerGuids.begin(); itr != pProposal->playerGuids.end(); ++itr )
+    {
+        if (Player* player = sObjectMgr.GetPlayer(*itr))
+        {
+//            player->GetSession()->SendUpdateProposal(pProposal);
+            if (player->GetGroup() != group)
+            {
+                player->RemoveFromGroup();
+                player->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_GROUP_FOUND, player->GetLFGState()->GetType());
+                group->AddMember(player->GetObjectGuid(), player->GetName());
+            }
+        }
+    }
+
+    SetGroupRoles(group);
+
+    // Update statistics for dungeon/roles/etc
+
     // teleport players to instance
 
+    // Set the dungeon difficulty
+    MANGOS_ASSERT(pProposal->dungeon);
+    group->SetDungeonDifficulty(Difficulty(pProposal->dungeon->difficulty));
+    group->GetLFGState()->SetStatus(LFG_STATUS_NOT_SAVED);
+    group->SendUpdate();
+
+    // Remove players/groups from Queue
+
+    // Teleport group
+    Teleport(group, true);
+
+    RemoveProposal(ID);
 }
 
 void LFGMgr::OfferContinue(Group* group)
@@ -975,7 +1021,7 @@ void LFGMgr::UpdateBoot(Player* player, bool accept)
         if (agreeNum == pBoot->votedNeeded)                // Vote passed - Kick player
         {
             Player::RemoveFromGroup(group, victim->GetObjectGuid());
-            TeleportPlayer(victim, true, false);
+            Teleport(victim, true, false);
             victim->GetLFGState()->Clear();
             OfferContinue(group);
             group->GetLFGState()->DecreaseKicksLeft();
@@ -984,7 +1030,23 @@ void LFGMgr::UpdateBoot(Player* player, bool accept)
     }
 }
 
-void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*/)
+void LFGMgr::Teleport(Group* group, bool out)
+{
+    if (!group || !group->isLFDGroup())
+        return;
+
+    for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+    {
+        if (Player* member = itr->getSource())
+            if (member->IsInWorld())
+            {
+            // todo - if not in same dungeon
+                Teleport(member, out);
+            }
+    }
+}
+
+void LFGMgr::Teleport(Player* player, bool out, bool fromOpcode /*= false*/)
 {
     DEBUG_LOG("LFGMgr::TeleportPlayer: %u is being teleported %s", player->GetObjectGuid().GetCounter(), out ? "out" : "in");
 
@@ -1024,7 +1086,6 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
         }
         else if (group->GetDungeonDifficulty() != dungeon->difficulty)
         {
-//    group->SetDungeonDifficulty(Difficulty(dungeon->difficulty));
             error = LFG_TELEPORTERROR_UNK4;
         }
         else if (AreaTrigger const* at = sObjectMgr.GetMapEntranceTrigger(dungeon->map))
@@ -1211,4 +1272,71 @@ bool LFGMgr::RoleChanged(Player* player, uint8 roles)
         player->GetSession()->SendLfgRoleCheckUpdate();
         return false;
     }
+}
+
+Player* LFGMgr::LeaderElection(LFGQueueSet* playerGuids)
+{
+    std::set<Player*> leaders;
+    Player* leader = NULL;
+    uint32 GS = 0;
+
+    for (LFGQueueSet::const_iterator itr = playerGuids->begin(); itr != playerGuids->end(); ++itr)
+    {
+        Player* member  = sObjectMgr.GetPlayer(*itr);
+        if (member->IsInWorld())
+        {
+            if (member->GetLFGState()->GetRoles() & LFG_ROLE_MASK_LEADER)
+                leaders.insert(member);
+
+            member->GetLFGState()->RemoveRole(ROLE_LEADER);
+
+            if (member->GetEquipGearScore() > GS)
+            {
+                GS = member->GetEquipGearScore();
+                leader = member;
+            }
+        }
+    }
+
+    GS = 0;
+    if (!leaders.empty())
+    {
+        for (std::set<Player*>::const_iterator itr = leaders.begin(); itr != leaders.end(); ++itr)
+        {
+            if ((*itr)->GetEquipGearScore() > GS)
+            {
+                GS = (*itr)->GetEquipGearScore();
+                leader = (*itr);
+            }
+        }
+    }
+    MANGOS_ASSERT(leader);
+    leader->GetLFGState()->AddRole(ROLE_LEADER);
+    return leader;
+}
+
+void LFGMgr::SetGroupRoles(Group* group)
+{
+    if (!group)
+        return;
+
+    LFGRolesMap rolesMap;
+    bool hasMultiRoles = false;
+
+    for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+    {
+        if (Player* member = itr->getSource())
+        {
+            if (member->IsInWorld())
+            {
+                rolesMap.insert(std::make_pair(member->GetObjectGuid(), member->GetLFGState()->GetRoles()));
+                if (!member->GetLFGState()->IsSingleRole())
+                    hasMultiRoles = true;
+            }
+        }
+    }
+
+    if (!hasMultiRoles)
+        return;
+
 }

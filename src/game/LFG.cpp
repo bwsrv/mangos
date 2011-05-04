@@ -109,7 +109,7 @@ void LFGGroupState::Clear()
 {
     queued = false;
     update = true;
-    status = LFG_STATUS_NOT_SAVED;
+    m_status = LFG_STATUS_NOT_SAVED;
     dungeonEntry = 0;
     m_votesNeeded = 3;
     m_kicksLeft = 5;

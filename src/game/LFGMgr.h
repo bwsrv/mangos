@@ -145,6 +145,7 @@ class LFGMgr
         LFGProposal* GetProposal(uint32 ID);
         void RemoveProposal(uint32 ID);
         void UpdateProposal(uint32 ID, ObjectGuid guid, bool accept);
+        Player* LeaderElection(LFGQueueSet* playerGuids);
 
         // boot vote system
         void OfferContinue(Group* group);
@@ -152,7 +153,8 @@ class LFGMgr
         LFGPlayerBoot* GetBoot(ObjectGuid guid);
         void DeleteBoot(ObjectGuid guid);
         void UpdateBoot(Player* player, bool accept);
-        void TeleportPlayer(Player* player, bool out, bool fromOpcode = false);
+        void Teleport(Group* group, bool out);
+        void Teleport(Player* player, bool out, bool fromOpcode = false);
 
         // Statistic system
         LFGQueueStatus* GetDungeonQueueStatus(uint32 dungeonID);
@@ -162,6 +164,7 @@ class LFGMgr
         bool CheckRoles(Group* group, Player* player = NULL);
         bool CheckRoles(LFGRolesMap* roleMap);
         bool RoleChanged(Player* player, uint8 roles);
+        void SetGroupRoles(Group* group);
 
         // Dungeon operations
         LFGDungeonEntry const* GetDungeon(uint32 dungeonID);
