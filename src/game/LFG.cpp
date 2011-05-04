@@ -77,6 +77,15 @@ LFGRoleMask LFGPlayerState::GetRoles()
     return rolesMask;
 };
 
+bool LFGPlayerState::IsSingleRole()
+{
+    if (   LFGRoleMask(rolesMask & ~LFG_ROLE_MASK_TANK   & ~LFG_ROLE_MASK_LEADER) == LFG_ROLE_MASK_NONE
+        || LFGRoleMask(rolesMask & ~LFG_ROLE_MASK_HEALER & ~LFG_ROLE_MASK_LEADER) == LFG_ROLE_MASK_NONE
+        || LFGRoleMask(rolesMask & ~LFG_ROLE_MASK_TANK   & ~LFG_ROLE_MASK_LEADER) == LFG_ROLE_MASK_NONE)
+        return true;
+    return false;
+}
+
 void LFGPlayerState::SetComment(std::string comment)
 {
     m_comment.clear();
@@ -146,8 +155,16 @@ void LFGGroupState::StartRoleCheck()
 
 bool LFGGroupState::IsRoleCheckActive()
 {
-    if (GetRoleCheckState() != LFG_ROLECHECK_NONE && m_roleCheckCancelTime && QueryRoleCheckTime())
+    if (GetRoleCheckState() != LFG_ROLECHECK_NONE && m_roleCheckCancelTime)
         return true;
 
     return false;
 }
+
+LFGType LFGGroupState::GetType()
+{
+    if (m_DungeonsList.empty())
+        return LFG_TYPE_NONE;
+    else
+        return LFGType((*m_DungeonsList.begin())->type);
+};

@@ -244,6 +244,7 @@ struct LFGPlayerState
     void SetRoles(uint8 roles);
     void AddRole(LFGRoles role) { rolesMask = LFGRoleMask( rolesMask | (1 << role)); };
     void RemoveRole(LFGRoles role) { rolesMask = LFGRoleMask( rolesMask & ~(1 << role)); };
+    bool IsSingleRole();
 
     uint32         GetFlags()                { return m_flags;};
     void           AddFlags(uint32 flags)    { m_flags = m_flags | flags;};
@@ -279,13 +280,13 @@ struct LFGGroupState
     void Update(bool _update = true) { update = _update; };
     LFGDungeonSet* GetDungeons()   { return &m_DungeonsList; };
 
-    void SetState(LFGState _state) { m_state = _state; };
-    LFGState GetState() { return m_state; };
+    void          SetState(LFGState _state) { m_state = _state; };
+    LFGState      GetState() { return m_state; };
 
-    LFGProposal*   GetProposal()   { return m_proposal; };
-    void           SetProposal(LFGProposal* proposal)   { m_proposal = proposal; };
+    LFGProposal*  GetProposal()   { return m_proposal; };
+    void          SetProposal(LFGProposal* proposal)   { m_proposal = proposal; };
 
-    uint32* GetFlags()  { return &m_flags;};
+    uint32*       GetFlags()  { return &m_flags;};
     LFGType       GetType();
     uint8         GetRoles(LFGRoles role);
 

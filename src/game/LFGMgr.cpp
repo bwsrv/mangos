@@ -785,6 +785,58 @@ uint32 LFGMgr::GenerateProposalID()
     return 0;
 }
 
+void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
+{
+    // Check if the proposal exists
+    LFGProposal* pProposal = GetProposal(ID);
+    if (!pProposal)
+        return;
+
+    LFGQueueSet::const_iterator itr = pProposal->playerGuids.find(guid);
+    if ( itr == pProposal->playerGuids.end() )
+        return;
+
+    Player* _player = sObjectMgr.GetPlayer(guid);
+
+    _player->GetLFGState()->SetAnswer(LFGAnswer(accept));
+
+    if (!accept)
+    {
+        RemoveProposal(ID);
+        return;
+    }
+
+    // check if all have answered and reorder players (leader first)
+    LFGQueueSet newPlayers;
+    bool allAnswered = true;
+    for (LFGQueueSet::const_iterator itr = pProposal->playerGuids.begin(); itr != pProposal->playerGuids.end(); ++itr )
+    {
+        if (Player* player = sObjectMgr.GetPlayer(*itr))
+        {
+            // Only teleport new players
+            Group* group = player->GetGroup();
+            ObjectGuid gguid = group ? group->GetObjectGuid() : ObjectGuid();
+
+            if (gguid.IsEmpty() || !group->isLFDGroup() || group->GetLFGState()->GetState() == LFG_STATE_FINISHED_DUNGEON)
+                newPlayers.insert(player->GetObjectGuid());
+
+            if (player->GetLFGState()->GetState() != LFG_ANSWER_AGREE)   // No answer (-1) or not accepted (0)
+                allAnswered = false;
+
+            player->GetSession()->SendLfgUpdateProposal(pProposal);
+        }
+
+    }
+
+    if (!allAnswered)
+        return;
+
+    // make group
+    // set statistic
+    // teleport players to instance
+
+}
+
 void LFGMgr::OfferContinue(Group* group)
 {
     if (!sWorld.getConfig(CONFIG_BOOL_LFG_ENABLE))
@@ -1022,9 +1074,9 @@ void LFGMgr::UpdateRoleCheck(Group* group)
     if (!group)
         return;
 
-//        roleCheck->state = LFG_ROLECHECK_NO_ROLE;
     if (!group->GetLFGState()->IsRoleCheckActive())
         return;
+
 
     LFGRoleCheckState state = group->GetLFGState()->GetRoleCheckState();
     LFGRoleCheckState newstate = LFG_ROLECHECK_NONE;
@@ -1035,93 +1087,129 @@ void LFGMgr::UpdateRoleCheck(Group* group)
         {
             if (member->IsInWorld())
             {
-                if (uint8(member->GetLFGState()->GetRoles()) < LFG_ROLE_MASK_TANK)
+                if (member->GetLFGState()->GetState() != LFG_STATE_ROLECHECK && member->GetLFGState()->GetState() != LFG_STATE_QUEUED)
+                {
+                    member->GetLFGState()->SetState(LFG_STATE_ROLECHECK);
+                    member->GetSession()->SendLfgRoleCheckUpdate();
+                    newstate = LFG_ROLECHECK_INITIALITING;
+                }
+                else if (uint8(member->GetLFGState()->GetRoles()) < LFG_ROLE_MASK_TANK)
                     newstate = LFG_ROLECHECK_MISSING_ROLE;
+                else if (!member->GetLFGState()->IsSingleRole())
+                    newstate = LFG_ROLECHECK_INITIALITING;
             }
         }
     }
 
-    if (newstate == LFG_ROLECHECK_MISSING_ROLE)
-        return;
-
-    if (!CheckRoles(group))
+    if (newstate == LFG_ROLECHECK_NONE && !CheckRoles(group))
         newstate == LFG_ROLECHECK_WRONG_ROLES;
-    else 
+    else if (newstate == LFG_ROLECHECK_NONE)
         newstate = LFG_ROLECHECK_FINISHED;
+
+    // time query to end rolecheck
+    if (newstate !=  LFG_ROLECHECK_FINISHED)
+    {
+        // time for rolecheck is up
+        if (group->GetLFGState()->QueryRoleCheckTime())
+        {
+            group->GetLFGState()->Clear();
+
+            for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+            {
+                if (Player* member = itr->getSource())
+                {
+                    if (member->IsInWorld())
+                    {
+                        member->GetSession()->SendLfgRoleCheckUpdate();
+                        if (member->GetObjectGuid() == group->GetLeaderGuid())
+                            member->GetSession()->SendLfgJoinResult(ERR_LFG_ROLE_CHECK_FAILED, LFG_ROLECHECK_MISSING_ROLE);
+                    }
+                }
+            }
+            return;
+        }
+    }
+
 
     if (newstate == LFG_ROLECHECK_WRONG_ROLES)
         return;
 
-/*
-    uint8 team = 0;
-    LfgDungeonSet dungeons;
-    if (roleCheck->rDungeonId)
-        dungeons.insert(roleCheck->rDungeonId);
-    else
-        dungeons = roleCheck->dungeons;
+    group->GetLFGState()->SetRoleCheckState(LFG_ROLECHECK_FINISHED);
+    Player* leader = sObjectMgr.GetPlayer(group->GetLeaderGuid());
+    if (leader && leader->IsInWorld())
+        leader->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_ADDED_TO_QUEUE, group->GetLFGState()->GetType());
 
-//    LfgJoinResultData joinData = LfgJoinResultData(LFG_JOIN_FAILED, roleCheck->state);
-    for (LfgRolesMap::const_iterator it = roleCheck->roles.begin(); it != roleCheck->roles.end(); ++it)
-    {
-        uint64 pguid = it->first;
-        Player* plrg = sObjectMgr->GetPlayer(pguid);
-        if (!plrg)
-        {
-            if (roleCheck->state == LFG_ROLECHECK_FINISHED)
-                SetState(pguid, LFG_STATE_QUEUED);
-            else if (roleCheck->state != LFG_ROLECHECK_INITIALITING)
-                ClearState(pguid);
-            continue;
-        }
-
-        team = uint8(plrg->GetTeam());
-        if (!sendRoleChosen)
-            plrg->GetSession()->SendLfgRoleChosen(guid, roles);
-        plrg->GetSession()->SendLfgRoleCheckUpdate(roleCheck);
-        switch (roleCheck->state)
-        {
-            case LFG_ROLECHECK_INITIALITING:
-                continue;
-            case LFG_ROLECHECK_FINISHED:
-                SetState(pguid, LFG_STATE_QUEUED);
-                plrg->GetSession()->SendLfgUpdateParty(LfgUpdateData(LFG_UPDATETYPE_ADDED_TO_QUEUE, dungeons, GetComment(pguid)));
-                break;
-            default:
-                if (roleCheck->leader == pguid)
-                    plrg->GetSession()->SendLfgJoinResult(joinData);
-                plrg->GetSession()->SendLfgUpdateParty(LfgUpdateData(LFG_UPDATETYPE_ROLECHECK_FAILED));
-                ClearState(pguid);
-                break;
-        }
-    }
-
-    if (roleCheck->state == LFG_ROLECHECK_FINISHED)
-    {
-        SetState(gguid, LFG_STATE_QUEUED);
-        LfgQueueInfo* pqInfo = new LfgQueueInfo();
-        pqInfo->joinTime = time_t(time(NULL));
-        pqInfo->roles = roleCheck->roles;
-        pqInfo->dungeons = roleCheck->dungeons;
-
-        // Set queue roles needed - As we are using check_roles will not have more that 1 tank, 1 healer, 3 dps
-        for (LfgRolesMap::const_iterator it = check_roles.begin(); it != check_roles.end(); ++it)
-        {
-            uint8 roles = it->second;
-            if (roles & ROLE_TANK)
-                --pqInfo->tanks;
-            else if (roles & ROLE_HEALER)
-                --pqInfo->healers;
-            else
-                --pqInfo->dps;
-        }
-
-        m_QueueInfoMap[gguid] = pqInfo;
-        AddToQueue(gguid, team);
-    }
-*/
 }
 
-bool LFGMgr::CheckRoles(Group* group)
+bool LFGMgr::CheckRoles(Group* group, Player* player /*=NULL*/)
 {
+    if (!group)
+        return false;
+
+    LFGRolesMap rolesMap;
+
+    for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+    {
+        if (Player* member = itr->getSource())
+            if (member->IsInWorld())
+                rolesMap.insert(std::make_pair(member->GetObjectGuid(), member->GetLFGState()->GetRoles()));
+    }
+
+    if (player && player->IsInWorld())
+        rolesMap.insert(std::make_pair(player->GetObjectGuid(), player->GetLFGState()->GetRoles()));
+
+    return CheckRoles(&rolesMap);
+}
+
+bool LFGMgr::CheckRoles(LFGRolesMap* rolesMap)
+{
+    if (!rolesMap || rolesMap->size())
+        return false;
+
+    if (rolesMap->size() > MAX_GROUP_SIZE)
+        return false;
+
+    uint8 tanks   = LFG_TANKS_NEEDED;
+    uint8 healers = LFG_HEALERS_NEEDED;
+    uint8 dps     = LFG_DPS_NEEDED;
+
+
+    for (LFGRolesMap::const_iterator itr = rolesMap->begin(); itr != rolesMap->end(); ++itr)
+    {
+        Player* member   = sObjectMgr.GetPlayer((*itr).first);
+        if (member->IsInWorld())
+        {
+            if ((*itr).second & LFG_ROLE_MASK_TANK && tanks > 0)
+                --tanks;
+            else if ((*itr).second & LFG_ROLE_MASK_HEALER && healers > 0)
+                --healers;
+            else if ((*itr).second & LFG_ROLE_MASK_DAMAGE && dps > 0)
+                --dps;
+        }
+    }
+
+    if ((healers + tanks + dps) > (MAX_GROUP_SIZE - rolesMap->size()))
+        return false;
+
     return true;
+}
+
+bool LFGMgr::RoleChanged(Player* player, uint8 roles)
+{
+    uint8 oldRoles = player->GetLFGState()->GetRoles();
+    player->GetLFGState()->SetRoles(roles);
+
+    if (CheckRoles(player->GetGroup()))
+    {
+        player->GetSession()->SendLfgRoleChosen(player->GetObjectGuid(), roles);
+        player->GetLFGState()->SetState(LFG_STATE_QUEUED);
+        return true;
+    }
+    else
+    {
+        player->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_ROLECHECK_FAILED, player->GetGroup()->GetLFGState()->GetType());
+        player->GetLFGState()->SetRoles(oldRoles);
+        player->GetSession()->SendLfgRoleCheckUpdate();
+        return false;
+    }
 }

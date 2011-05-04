@@ -115,6 +115,7 @@ struct LFGPlayerBoot
 
 typedef std::map<ObjectGuid, LFGPlayerBoot>  LFGBootMap;
 typedef std::map<uint32/*ID*/, LFGQueueStatus> LFGQueueStatusMap;
+typedef std::map<ObjectGuid, LFGRoleMask>  LFGRolesMap;
 
 class LFGMgr
 {
@@ -143,6 +144,7 @@ class LFGMgr
         bool CreateProposal(LFGDungeonEntry const* dungeon, Group* group = NULL);
         LFGProposal* GetProposal(uint32 ID);
         void RemoveProposal(uint32 ID);
+        void UpdateProposal(uint32 ID, ObjectGuid guid, bool accept);
 
         // boot vote system
         void OfferContinue(Group* group);
@@ -157,7 +159,9 @@ class LFGMgr
 
         // Role check system
         void UpdateRoleCheck(Group* group);
-        bool CheckRoles(Group* group);
+        bool CheckRoles(Group* group, Player* player = NULL);
+        bool CheckRoles(LFGRolesMap* roleMap);
+        bool RoleChanged(Player* player, uint8 roles);
 
         // Dungeon operations
         LFGDungeonEntry const* GetDungeon(uint32 dungeonID);
