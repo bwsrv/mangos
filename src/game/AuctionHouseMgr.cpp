@@ -486,8 +486,11 @@ void AuctionHouseMgr::ClearRemovedAItems()
     WriteGuard guard(i_lock);
     while(!m_deletedItems.empty())
     {
-        delete m_deletedItems.front();
-//        m_deletedItems.pop();
+        Item* item = m_deletedItems.front();
+        m_deletedItems.pop();
+
+        if (item)
+            delete item;
     }
 }
 
