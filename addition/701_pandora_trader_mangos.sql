@@ -15,7 +15,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`
 #--- Итемы
 DELETE FROM `npc_vendor` WHERE (`entry`=99321);
 
-INSERT INTO `npc_vendor` VALUES (99321, 41596, 0, 0 ,3707);
+INSERT INTO `npc_vendor` VALUES (99321, 41596, 0, 0 ,2707);
 INSERT INTO `npc_vendor` VALUES (99321, 47241, 0, 0 ,1909);
 INSERT INTO `npc_vendor` VALUES (99321, 44990, 0, 0 ,2707);
 INSERT INTO `npc_vendor` VALUES (99321, 43228, 0, 0 ,2707);
