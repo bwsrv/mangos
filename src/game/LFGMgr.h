@@ -22,6 +22,7 @@
 #include "Common.h"
 #include "ObjectGuid.h"
 #include "Policies/Singleton.h"
+#include <ace/RW_Thread_Mutex.h>
 #include "LFG.h"
 
 class Group;
@@ -123,16 +124,23 @@ class LFGMgr
         LFGMgr();
         ~LFGMgr();
 
+        // Update system
         void Update(uint32 diff);
 
+        void TruCompleteGroups(LFGQueueInfoMap* groupQueue, LFGQueueInfoMap* playerQueue);
+        bool TruCompleteGroup(Group* group, LFGQueueInfoMap* playerQueue);
+        bool TruCreateGroup(LFGQueueInfoMap* playerQueue);
+
+        // Join system
         void Join(Player* player);
         void Leave(Player* player);
         void Leave(Group* group);
+        void ClearLFRList(Player* player);
 
+        // Queue system
         LFGQueueSet GetDungeonPlayerQueue(LFGDungeonEntry const* dungeon, Team team = TEAM_NONE);
         LFGQueueSet GetDungeonGroupQueue(LFGDungeonEntry const* dungeon, Team team = TEAM_NONE);
 
-        void ClearLFRList(Player* player);
 
         // reward system
         void LoadRewards();
@@ -145,6 +153,7 @@ class LFGMgr
         LFGProposal* GetProposal(uint32 ID);
         void RemoveProposal(uint32 ID);
         void UpdateProposal(uint32 ID, ObjectGuid guid, bool accept);
+        Player* LeaderElection(LFGQueueSet* playerGuids);
 
         // boot vote system
         void OfferContinue(Group* group);
@@ -152,16 +161,20 @@ class LFGMgr
         LFGPlayerBoot* GetBoot(ObjectGuid guid);
         void DeleteBoot(ObjectGuid guid);
         void UpdateBoot(Player* player, bool accept);
-        void TeleportPlayer(Player* player, bool out, bool fromOpcode = false);
+        void Teleport(Group* group, bool out);
+        void Teleport(Player* player, bool out, bool fromOpcode = false);
 
         // Statistic system
         LFGQueueStatus* GetDungeonQueueStatus(uint32 dungeonID);
+        void SetDungeonQueueStatus(uint32 dungeonID);
+        void UpdateQueueStatus(Player* player);
 
         // Role check system
         void UpdateRoleCheck(Group* group);
         bool CheckRoles(Group* group, Player* player = NULL);
         bool CheckRoles(LFGRolesMap* roleMap);
         bool RoleChanged(Player* player, uint8 roles);
+        void SetGroupRoles(Group* group);
 
         // Dungeon operations
         LFGDungeonEntry const* GetDungeon(uint32 dungeonID);
@@ -172,10 +185,16 @@ class LFGMgr
         LFGJoinResult GetPlayerJoinResult(Player* player);
         LFGJoinResult GetGroupJoinResult(Group* group);
 
+        // Player status
         LFGLockStatusType GetPlayerLockStatus(Player* player, LFGDungeonEntry const* dungeon);
         LFGLockStatusType GetGroupLockStatus(Group* group, LFGDungeonEntry const* dungeon);
-
         LFGLockStatusMap GetPlayerLockMap(Player* player);
+
+        // multithread locking
+        typedef   ACE_RW_Thread_Mutex          LockType;
+        typedef   ACE_Read_Guard<LockType>     ReadGuard;
+        typedef   ACE_Write_Guard<LockType>    WriteGuard;
+        LockType& GetLock() { return i_lock; }
 
     private:
         void _Join(ObjectGuid guid, LFGType type);
@@ -190,6 +209,8 @@ class LFGMgr
         LFGQueueStatusMap  m_queueStatus;                   // Queue statisic
         LFGProposalMap  m_proposalMap;                      // Proposal store
         LFGBootMap      m_bootMap;                          // boot store
+
+        LockType            i_lock;
 
 };
 

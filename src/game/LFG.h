@@ -283,6 +283,9 @@ struct LFGGroupState
     void          SetState(LFGState _state) { m_state = _state; };
     LFGState      GetState() { return m_state; };
 
+    void          SetStatus(LFGDungeonStatus _status) { m_status = _status; };
+    LFGDungeonStatus      GetStatus() { return m_status; };
+
     LFGProposal*  GetProposal()   { return m_proposal; };
     void          SetProposal(LFGProposal* proposal)   { m_proposal = proposal; };
 
@@ -311,7 +314,7 @@ struct LFGGroupState
     uint8         m_kicksLeft;                                 // Number of kicks left
     bool          kickActive;
     LFGState      m_state;
-    LFGDungeonStatus     status;
+    LFGDungeonStatus     m_status;
     LFGDungeonSet    m_DungeonsList;                           // Dungeons the group have applied for
     LFGProposal*  m_proposal;
     time_t        m_roleCheckCancelTime;                       // Time when the rolecheck will fail

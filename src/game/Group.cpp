@@ -2015,3 +2015,40 @@ void Group::RewardGroupAtKill(Unit* pVictim, Player* player_tap)
         }
     }
 }
+
+bool Group::ConvertToLFG(LFGType type)
+{
+    if (isBGGroup())
+        return false;
+
+    switch(type)
+    {
+        case LFG_TYPE_DUNGEON:
+        case LFG_TYPE_QUEST:
+        case LFG_TYPE_ZONE:
+        case LFG_TYPE_HEROIC_DUNGEON:
+            if (isRaidGroup())
+                return false;
+            m_groupType = GroupType(m_groupType | GROUPTYPE_LFD);
+            break;
+        case LFG_TYPE_RANDOM_DUNGEON:
+            if (isRaidGroup())
+                return false;
+            m_groupType = GroupType(m_groupType | GROUPTYPE_LFD | GROUPTYPE_UNK1);
+            break;
+        case LFG_TYPE_RAID:
+            if (!isRaidGroup())
+                ConvertToRaid();
+            m_groupType = GroupType(m_groupType | GROUPTYPE_LFD | GROUPTYPE_RAID);
+            break;
+        default:
+            break;
+    }
+
+    m_lootMethod = NEED_BEFORE_GREED;
+    SendUpdate();
+
+    static SqlStatementID updGgoup;
+    SqlStatement stmt = CharacterDatabase.CreateStatement(updGgoup, "UPDATE groups SET groupType= ? WHERE groupId= ?");
+    stmt.PExecute(uint8(m_groupType), GetObjectGuid().GetCounter());
+}

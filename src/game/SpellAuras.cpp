@@ -458,9 +458,9 @@ m_isPersistent(false), m_in_use(0), m_spellAuraHolder(holder)
             uint32 _periodicTime = m_modifier.periodictime;
 
             // Calculate new periodic timer
-            int32 ticks = oldDuration / _periodicTime + 1;
+            int32 ticks = oldDuration / _periodicTime;
 
-            _periodicTime = new_duration / ticks;
+            _periodicTime =  ticks == 0 ? new_duration : new_duration / ticks;
 
             m_modifier.periodictime = _periodicTime;
         }
