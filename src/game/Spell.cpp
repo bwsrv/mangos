@@ -576,7 +576,7 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             UnitList tmpUnitMap;
             bool m_bOneTargetHaveAura = false;
 
-            FillAreaTargets(tmpUnitMap, m_targets.m_destX, m_targets.m_destY, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+            FillAreaTargets(tmpUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
             if (!tmpUnitMap.empty())
             {
                 for (UnitList::const_iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end(); ++itr)
@@ -610,7 +610,7 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
         case 68921: case 69049: // Soulstorm (Forge of Souls - Bronjahm)
         {
             UnitList tmpUnitMap;
-            FillAreaTargets(tmpUnitMap, m_targets.m_destX, m_targets.m_destY, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+            FillAreaTargets(tmpUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
             if (!tmpUnitMap.empty())
             {
                 for (UnitList::const_iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end(); ++itr)
@@ -624,7 +624,7 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
         case 66862: case 67681: // Radiance (Trial of the Champion - Eadric the Pure)
         {
             UnitList tmpUnitMap;
-            FillAreaTargets(tmpUnitMap, m_targets.m_destX, m_targets.m_destY, radius, PUSH_DEST_CENTER,SPELL_TARGETS_AOE_DAMAGE);
+            FillAreaTargets(tmpUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
             if (!tmpUnitMap.empty())
             {
                 for (UnitList::const_iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end(); ++itr)
