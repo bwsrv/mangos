@@ -1533,11 +1533,40 @@ void Player::Update( uint32 update_diff, uint32 p_time )
     if (IsHasDelayedTeleport())
         TeleportTo(m_teleport_dest, m_teleport_options);
 
+    // area flags mod
+    if (GetSession()->GetSecurity() <= SEC_GAMEMASTER)
+    {
+        if (AreaUpdateCheck() == 0)
+            return;
+
+        if (AreaUpdateCheck() == 1)
+            SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
+        if (AreaUpdateCheck() == 2)
+            SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_PVP);
+    }
+
         // Playerbot mod
     if (m_playerbotAI)
         m_playerbotAI->UpdateAI(p_time);
     else if (m_playerbotMgr)
         m_playerbotMgr->UpdateAI(p_time);
+}
+
+int Player::AreaUpdateCheck()
+{
+    AreaTableEntry const* area = GetAreaEntryByAreaID(m_session->GetPlayer()->GetAreaId());
+    QueryResult *result = WorldDatabase.PQuery("SELECT area_flag FROM area_flags WHERE area_id = '%u'", area->ID);
+    if (result)
+    {
+        Field *fields = result->Fetch();
+        uint32 flags;
+        flags = fields[0].GetUInt32();
+
+        delete result;
+        return flags;
+    }
+    delete result;
+    return 0;
 }
 
 void Player::SetDeathState(DeathState s)
