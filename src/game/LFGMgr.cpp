@@ -73,6 +73,7 @@ void LFGMgr::Update(uint32 diff)
             continue;
 
         LFGType type = LFGType(i);
+//        DEBUG_LOG("LFGMgr::Update type %u, player queue %u group queue %u",type,m_playerQueue[i].size(), m_groupQueue[i].size());
         switch (type)
         {
             case LFG_TYPE_DUNGEON:
@@ -249,8 +250,7 @@ void LFGMgr::Join(Player* player)
     if (queue)
     {
         DEBUG_LOG("LFGMgr::Join: %u trying to join but is already in queue!", guid.GetCounter());
-        result = ERR_LFG_NO_LFG_OBJECT;
-        player->GetSession()->SendLfgJoinResult(result);
+        player->GetSession()->SendLfgJoinResult(ERR_LFG_NO_LFG_OBJECT);
         RemoveFromQueue(guid);
         return;
     }
@@ -371,7 +371,6 @@ void LFGMgr::AddToQueue(ObjectGuid guid, bool inBegin)
         return;
 
     // Joining process
-    DEBUG_LOG("LFGMgr::AddToQueue: %s %u joined",(guid.IsGroup() ? "group" : "player"), guid.GetCounter());
 
     LFGQueueInfo qInfo = LFGQueueInfo(guid);
 
@@ -391,7 +390,8 @@ void LFGMgr::AddToQueue(ObjectGuid guid, bool inBegin)
 
     LFGQueueInfo* pqInfo = GetQueueInfo(guid);
     MANGOS_ASSERT(pqInfo);
-    LFGType type = queue->second.GetDungeonType();
+
+    LFGType type = pqInfo->GetDungeonType();
 
     if (type !=  LFG_TYPE_NONE)
     {
@@ -399,18 +399,20 @@ void LFGMgr::AddToQueue(ObjectGuid guid, bool inBegin)
         if (guid.IsGroup())
             m_groupQueue[type].insert((inBegin ? m_groupQueue[type].begin() : m_groupQueue[type].end()), pqInfo);
         else
-            m_playerQueue[type].insert((inBegin ? m_groupQueue[type].begin() : m_groupQueue[type].end()), pqInfo);
+            m_playerQueue[type].insert((inBegin ? m_playerQueue[type].begin() : m_playerQueue[type].end()), pqInfo);
     }
+    DEBUG_LOG("LFGMgr::AddToQueue: %s %u joined, type %u, dungeons size %u",(guid.IsGroup() ? "group" : "player"), guid.GetCounter(), type, pqInfo->GetDungeons()->size());
 }
 
 void LFGMgr::RemoveFromQueue(ObjectGuid guid)
 {
-    DEBUG_LOG("LFGMgr::RemoveFromQueue: %s %u remover",(guid.IsGroup() ? "group" : "player"), guid.GetCounter());
     WriteGuard Guard(GetLock());
     LFGQueueInfoMap::iterator queue = m_queueInfoMap.find(guid);
     if (queue != m_queueInfoMap.end())
     {
         LFGType type = queue->second.GetDungeonType();
+
+        DEBUG_LOG("LFGMgr::RemoveFromQueue: %s %u removed, type %u, dungeons size %u",(guid.IsGroup() ? "group" : "player"), guid.GetCounter(), type, queue->second.GetDungeons()->size());
 
         if (type != LFG_TYPE_NONE)
         {
@@ -785,6 +787,7 @@ bool LFGMgr::CreateProposal(LFGDungeonEntry const* dungeon, Group* group)
     }
 
     DEBUG_LOG("LFGMgr::CreateProposal: %u, dungeon %u, %s", ID, dungeon->ID, group ? " in group" : " not in group");
+    return true;
 }
 
 bool LFGMgr::SendProposal(uint32 ID, Player* player)
@@ -800,7 +803,8 @@ bool LFGMgr::SendProposal(uint32 ID, Player* player)
     pProposal->AddMember(player->GetObjectGuid());
     player->GetLFGState()->SetAnswer(LFG_ANSWER_PENDING);
 
-    DEBUG_LOG("LFGMgr::CreateProposal: %u, dungeon %u, %s", ID, pProposal->m_dungeon->ID, pProposal->GetGroup() ? " in group" : " not in group");
+    DEBUG_LOG("LFGMgr::SendProposal: dungeon %u, dungeon %u, %s", ID, pProposal->m_dungeon->ID, pProposal->GetGroup() ? " in group" : " not in group");
+    return true;
 }
 
 LFGProposal* LFGMgr::GetProposal(uint32 ID)
@@ -1538,10 +1542,11 @@ bool LFGMgr::TruCreateGroup(LFGType type)
         if (itr->second.empty())
             continue;
 
+//        DEBUG_LOG("LFGMgr:TryCreateGroup: Try create group to dungeon %u from %u players", itr->first->ID, itr->second.size());
+
         if (itr->second.size() < MAX_GROUP_SIZE && !sWorld.getConfig(CONFIG_BOOL_LFG_DEBUG_ENABLE))
             continue;
 
-        DEBUG_LOG("LFGMgr:TryCreateGroup: Try create group to dungeon %u from %u players", itr->first->Entry(), itr->second.size());
     }
     return false;
 }
@@ -1571,6 +1576,8 @@ void LFGMgr::AddToSearchMatrix(ObjectGuid guid)
         return;
 
     LFGDungeonSet* dungeons = player->GetLFGState()->GetDungeons();
+
+    DEBUG_LOG("LFGMgr::AddToSearchMatrix %u added, dungeons size %u", guid.GetCounter(),dungeons->size());
 
     if (dungeons->empty())
         return;
@@ -1607,7 +1614,10 @@ void LFGMgr::RemoveFromSearchMatrix(ObjectGuid guid)
     if (!player)
         return;
 
+
     LFGDungeonSet* dungeons = player->GetLFGState()->GetDungeons();
+
+    DEBUG_LOG("LFGMgr::RemoveFromSearchMatrix %u removed, dungeons size %u", guid.GetCounter(),dungeons->size());
 
     if (dungeons->empty())
         return;
