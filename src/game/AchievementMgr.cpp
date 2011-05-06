@@ -25,6 +25,7 @@
 #include "ObjectMgr.h"
 #include "GuildMgr.h"
 #include "Guild.h"
+#include "GuildMgr.h"
 #include "Database/DatabaseEnv.h"
 #include "World.h"
 #include "SpellMgr.h"
