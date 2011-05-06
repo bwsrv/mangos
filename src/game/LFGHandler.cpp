@@ -1030,14 +1030,14 @@ void WorldSession::SendLfgUpdateProposal(LFGProposal* pProposal)
 
     uint32 completedEncounters = 0;
 
-    if (pProposal->group)
+    if (pProposal->GetGroup())
     {
-        isContinue = pProposal->group->isLFDGroup();
+        isContinue = pProposal->GetGroup()->isLFDGroup();
         // && sLFGMgr->GetState(gguid) != LFG_STATE_FINISHED_DUNGEON;
-        isSameDungeon = GetPlayer()->GetGroup() == pProposal->group && isContinue;
+        isSameDungeon = (GetPlayer()->GetGroup() == pProposal->GetGroup()) && isContinue;
     }
 
-    DEBUG_LOG("SMSG_LFG_PROPOSAL_UPDATE %u state: %u", GetPlayer()->GetObjectGuid().GetCounter(), pProposal->state);
+    DEBUG_LOG("SMSG_LFG_PROPOSAL_UPDATE %u state: %u", GetPlayer()->GetObjectGuid().GetCounter(), pProposal->GetState());
 
     WorldPacket data(SMSG_LFG_PROPOSAL_UPDATE, 4 + 1 + 4 + 4 + 1 + 1 + pProposal->playerGuids.size() * (4 + 1 + 1 + 1 + 1 +1));
 
@@ -1053,9 +1053,9 @@ void WorldSession::SendLfgUpdateProposal(LFGProposal* pProposal)
     if (dungeon)
     {
         // Select a player inside to be get completed encounters from
-        if (pProposal->group)
+        if (pProposal->GetGroup())
         {
-            for (GroupReference* itr = pProposal->group->GetFirstMember(); itr != NULL; itr = itr->next())
+            for (GroupReference* itr = pProposal->GetGroup()->GetFirstMember(); itr != NULL; itr = itr->next())
             {
                 Player* groupMember = itr->getSource();
                 if (groupMember && groupMember->GetMapId() == uint32(dungeon->map))
@@ -1071,7 +1071,7 @@ void WorldSession::SendLfgUpdateProposal(LFGProposal* pProposal)
     }
 
     data << uint32(dungeon->Entry());                          // Dungeon
-    data << uint8(pProposal->state);                           // Result state
+    data << uint8(pProposal->GetState());                      // Result state
     data << uint32(pProposal->ID);                             // Internal Proposal ID
     data << uint32(completedEncounters);                       // Bosses killed
     data << uint8(isSameDungeon);                              // Silent (show client window)
@@ -1085,7 +1085,7 @@ void WorldSession::SendLfgUpdateProposal(LFGProposal* pProposal)
 
         data << uint32(pPlayer->GetLFGState()->GetRoles());       // Role
         data << uint8(pPlayer->GetObjectGuid() == guid);            // Self player
-        if (!(pPlayer->GetGroup() == pProposal->group))                              // Player not it a group
+        if (!(pPlayer->GetGroup() == pProposal->GetGroup()))                              // Player not it a group
         {
             data << uint8(0);                              // Not in dungeon
             data << uint8(0);                              // Not same group
