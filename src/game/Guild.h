@@ -24,6 +24,8 @@
 
 #include "Common.h"
 #include "Item.h"
+#include "SharedDefines.h"
+#include "ObjectAccessor.h"
 
 class Item;
 

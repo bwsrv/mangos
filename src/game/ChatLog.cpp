@@ -23,6 +23,7 @@
 #include "Group.h"
 #include "Guild.h"
 #include "ObjectMgr.h"
+#include "GuildMgr.h"
 #include "ObjectGuid.h"
 #include "SpellAuras.h"
 #include "Policies/SingletonImp.h"
@@ -278,7 +279,7 @@ void ChatLog::GuildMsg(Player *player, std::string &msg, bool officer)
     }
     else
     {
-        Guild *guild = sObjectMgr.GetGuildById(player->GetGuildId());
+        Guild *guild = sGuildMgr.GetGuildById(player->GetGuildId());
         if (!guild)
         {
             log_str.append("[unknown guild] ");
