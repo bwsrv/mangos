@@ -23,7 +23,6 @@
 #include "DBCEnums.h"
 #include "GameEventMgr.h"
 #include "ObjectMgr.h"
-#include "GuildMgr.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "Database/DatabaseEnv.h"

@@ -26,7 +26,6 @@
 #include "Item.h"
 #include "ObjectAccessor.h"
 #include "SharedDefines.h"
-#include "ObjectAccessor.h"
 
 class Item;
 
