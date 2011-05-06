@@ -18,6 +18,7 @@
 
 #include "Common.h"
 #include "SharedDefines.h"
+#include "ObjectMgr.h"
 #include "LFG.h"
 #include "LFGMgr.h"
 #include "Group.h"
