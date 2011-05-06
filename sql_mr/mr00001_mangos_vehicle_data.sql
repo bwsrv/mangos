@@ -782,12 +782,12 @@ INSERT INTO npc_spellclick_spells VALUES
 (27258, 48365, 12237, 1, 12237, 3);
 
 -- Quest King of the Mountain (13280)
-UPDATE creature_template SET spell1 = 4338, spell2 = 4342, spell3 = 4336, VehicleId = 282 WHERE entry = 31784;
+UPDATE creature_template SET spell1 = 4338, spell2 = 4342, spell3 = 4336, vehicle_id = 282 WHERE entry = 31784;
 DELETE FROM npc_spellclick_spells WHERE npc_entry = 31736;
 INSERT INTO npc_spellclick_spells VALUES (31736, 59592, 13280, 1, 0, 3);
 
 -- Njorndar Proto-Drake
-UPDATE creature_template SET spell1 = 57493, spell2 = 7769, VehicleId = 228 WHERE entry = 30272;
+UPDATE creature_template SET spell1 = 57493, spell2 = 7769, vehicle_id = 228 WHERE entry = 30272;
 DELETE FROM npc_spellclick_spells WHERE npc_entry = 30272;
 INSERT INTO npc_spellclick_spells VALUES (30272, 57401, 13071, 1, 13071, 1);
 
@@ -795,7 +795,7 @@ INSERT INTO npc_spellclick_spells VALUES (30272, 57401, 13071, 1, 13071, 1);
 UPDATE creature_template SET rangeattacktime = 2000, unit_flags = 0, spell1 = 55982, spell2 = 55980, vehicle_id = 30 WHERE entry = 30021;
 UPDATE creature_template SET rangeattacktime = 2000, vehicle_id = 529 WHERE entry = 33782;
 UPDATE creature_template SET rangeattacktime = 2000, vehicle_id = 294 WHERE entry = 32189;
-UPDATE creature_template SET rangeattacktime = 2000, vehicle_id = 168 WHERE entry 29433;
+UPDATE creature_template SET rangeattacktime = 2000, vehicle_id = 168 WHERE entry = 29433;
 UPDATE creature_template SET rangeattacktime = 2000, vehicle_id = 175 WHERE entry = 29555;
 DELETE FROM npc_spellclick_spells WHERE npc_entry IN (30021, 33782, 32189, 29433, 29555);
 INSERT INTO npc_spellclick_spells VALUES 
@@ -806,8 +806,9 @@ INSERT INTO npc_spellclick_spells VALUES
 (29433, 47020, 0, 0, 0, 1),
 (29555, 47020, 0, 0, 0, 1);
 
-REPLACE creature_template_addon (entry, mount, bytes1, b2_0_sheath, b2_1_pvp_state, emote, auras) VALUES 
-(29625, 0, 50331648, 1, 0, 0, NULL),
-(29433, 0, 0, 1, 0, 0, NULL),
-(32189, 0, 50397184, 1, 0, 0, '60464'),
-(36558, 0, 0, 1, 0, 0, 0, 67865);
+DELETE FROM creature_template_addon WHERE entry IN (29625, 29433, 32189, 36558);
+INSERT INTO creature_template_addon (entry, mount, bytes1, b2_0_sheath, b2_1_pvp_state, emote, moveflags, auras) VALUES 
+(29625, 0, 50331648, 1, 0, 0, 0, NULL),
+(29433, 0,        0, 1, 0, 0, 0, NULL),
+(32189, 0, 50397184, 1, 0, 0, 0, '60464'),
+(36558, 0,        0, 1, 0, 0, 0, '67865');
