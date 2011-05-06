@@ -792,16 +792,11 @@ DELETE FROM npc_spellclick_spells WHERE npc_entry = 30272;
 INSERT INTO npc_spellclick_spells VALUES (30272, 57401, 13071, 1, 13071, 1);
 
 -- Updates vehicles by lanc
-UPDATE creature_template SET rangeattacktime = 2000, unit_flags = 0, spell1 = 55982, spell2 = 55980, vehicle_id = 30 WHERE entry = 30021;
-UPDATE creature_template SET rangeattacktime = 2000, vehicle_id = 529 WHERE entry = 33782;
 UPDATE creature_template SET rangeattacktime = 2000, vehicle_id = 294 WHERE entry = 32189;
 UPDATE creature_template SET rangeattacktime = 2000, vehicle_id = 168 WHERE entry = 29433;
 UPDATE creature_template SET rangeattacktime = 2000, vehicle_id = 175 WHERE entry = 29555;
-DELETE FROM npc_spellclick_spells WHERE npc_entry IN (30021, 33782, 32189, 29433, 29555);
+DELETE FROM npc_spellclick_spells WHERE npc_entry IN (32189, 29433, 29555);
 INSERT INTO npc_spellclick_spells VALUES 
-(30021, 46598, 0, 0, 0, 1),
-(30021, 55785, 0, 0, 0, 3),
-(33782, 63151, 0, 0, 0, 1),
 (32189, 46598, 0, 0, 0, 1),
 (29433, 47020, 0, 0, 0, 1),
 (29555, 47020, 0, 0, 0, 1);
@@ -812,3 +807,32 @@ INSERT INTO creature_template_addon (entry, mount, bytes1, b2_0_sheath, b2_1_pvp
 (29433, 0,        0, 1, 0, 0, 0, NULL),
 (32189, 0, 50397184, 1, 0, 0, 0, '60464'),
 (36558, 0,        0, 1, 0, 0, 0, '67865');
+
+-- from lanc
+-- All Support Vehicles for mount The Argent Tournament
+UPDATE `creature_template` SET spell1 = 62544, spell2 = 64342, spell3 = 63010, spell4 = 62552, spell5 = 64077, spell6 = 62863, 
+spell7 = 63034, vehicle_id = 349 WHERE entry IN (33324, 33323, 33322, 33321, 33320, 33319, 33318, 33317, 33316);
+
+DELETE FROM `npc_spellclick_spells` WHERE npc_entry = 33870;
+INSERT INTO `npc_spellclick_spells` VALUES
+(33870, 63663, 13664, 1, 0, 3);
+
+DELETE FROM `npc_spellclick_spells` WHERE npc_entry IN (33842, 33843);
+INSERT INTO `npc_spellclick_spells` VALUES
+(33842, 63791, 13829, 1, 0, 3),
+(33842, 63791, 13839, 1, 0, 3),
+(33842, 63791, 13838, 1, 0, 3),
+(33843, 63792, 13828, 1, 0, 3),
+(33843, 63792, 13837, 1, 0, 3),
+(33843, 63792, 13835, 1, 0, 3);
+
+-- Typo fix for Argent Mount
+UPDATE `creature_template` SET spell1 = 62544, spell2 = 64342, spell3 = 63010, spell4 = 62552, spell5 = 64077, spell6 = 62863, spell7 = 63034, vehicle_id = 349 WHERE entry IN (33844, 33845);
+
+UPDATE `creature_template` SET `spell1` = 55982, `spell2` = 55980, `vehicle_id` = 30 WHERE `entry` = 30021;
+UPDATE `creature_template` SET `vehicle_id` = 529 WHERE `entry` = 33782;
+
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (30021, 33782);
+INSERT INTO `npc_spellclick_spells` VALUES
+(30021, 55785, 0, 0, 0, 3),
+(33782, 63151, 0, 0, 0, 1);
