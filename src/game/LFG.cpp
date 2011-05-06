@@ -198,3 +198,40 @@ LFGType LFGQueueInfo::GetDungeonType()
 
     return LFGType(dungeon->type);
 };
+
+LFGProposal::LFGProposal(LFGDungeonEntry const* _dungeon)
+{
+    m_dungeon = _dungeon;
+    m_state = LFG_PROPOSAL_INITIATING;
+    m_group = NULL;
+    m_cancelTime = 0;
+}
+
+void LFGProposal::RemoveDecliner(ObjectGuid guid)
+{
+    if (guid.IsEmpty())
+        return;
+
+    LFGQueueSet::iterator itr = playerGuids.find(guid);
+    if (itr != playerGuids.end())
+        playerGuids.erase(itr);
+
+    declinerGuids.insert(guid);
+};
+
+void LFGProposal::AddMember(ObjectGuid guid)
+{
+    playerGuids.insert(guid);
+};
+
+bool LFGProposal::IsDecliner(ObjectGuid guid)
+{
+    if (guid.IsEmpty())
+        return true;
+
+    LFGQueueSet::iterator itr = declinerGuids.find(guid);
+    if (itr != declinerGuids.end())
+        return true;
+
+    return false;
+};

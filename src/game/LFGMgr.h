@@ -96,14 +96,22 @@ struct LFGQueueStatus
 /// Stores group data related to proposal to join
 struct LFGProposal
 {
-    LFGProposal(LFGDungeonEntry const* _dungeon): dungeon(_dungeon), state(LFG_PROPOSAL_INITIATING), group(NULL), cancelTime(0) {};
-
-    LFGDungeonEntry const* dungeon;                        // Dungeon
-    LFGQueueSet playerGuids;                               // Players in this proposal
-    LFGProposalState state;                                // State of the proposal
-    Group* group;                                          // Proposal group (NULL if not created)
-    time_t cancelTime;                                     // Time when we will cancel this proposal
-    uint32 ID;                                             // Proposal id
+    LFGProposal(LFGDungeonEntry const* _dungeon);
+    uint32 ID;                                               // Proposal id
+    LFGDungeonEntry const* m_dungeon;                        // Dungeon
+    LFGQueueSet playerGuids;                                 // Players in this proposal
+    LFGQueueSet declinerGuids;                               // Decliners in this proposal
+    LFGProposalState m_state;                                // State of the proposal
+    Group* m_group;                                          // Proposal group (NULL if not created)
+    time_t m_cancelTime;                                     // Time when we will cancel this proposal
+    // helpers
+    Group* GetGroup() { return m_group; };
+    void SetGroup(Group* group) { m_group = group; };
+    void RemoveDecliner(ObjectGuid guid);
+    void AddMember(ObjectGuid guid);
+    bool IsDecliner(ObjectGuid guid);
+    LFGProposalState GetState() {return m_state;};
+    void SetState(LFGProposalState _state ) { m_state = _state;};
 };
 
 /// Stores information of a current vote to kick someone from a group
@@ -121,6 +129,7 @@ typedef std::map<ObjectGuid, LFGPlayerBoot>  LFGBootMap;
 typedef std::map<uint32/*ID*/, LFGQueueStatus> LFGQueueStatusMap;
 typedef std::map<ObjectGuid, LFGRoleMask>  LFGRolesMap;
 typedef std::set<LFGQueueInfo*> LFGQueue;
+typedef std::map<LFGDungeonEntry const*, LFGQueueSet> LFGSearchMap;
 
 class LFGMgr
 {
@@ -156,6 +165,7 @@ class LFGMgr
 
         // Proposal system
         bool CreateProposal(LFGDungeonEntry const* dungeon, Group* group = NULL);
+        bool SendProposal(uint32 ID, Player* player);
         LFGProposal* GetProposal(uint32 ID);
         void RemoveProposal(uint32 ID);
         void UpdateProposal(uint32 ID, ObjectGuid guid, bool accept);
@@ -196,6 +206,13 @@ class LFGMgr
         LFGLockStatusType GetGroupLockStatus(Group* group, LFGDungeonEntry const* dungeon);
         LFGLockStatusMap GetPlayerLockMap(Player* player);
 
+        // Search matrix
+        void AddToSearchMatrix(ObjectGuid guid);
+        void RemoveFromSearchMatrix(ObjectGuid guid);
+        LFGQueueSet* GetSearchVector(LFGDungeonEntry const* dungeon);
+        bool IsInSearchFor(LFGDungeonEntry const* dungeon, ObjectGuid guid);
+        void CleanupSearchMatrix();
+
         // multithread locking
         typedef   ACE_RW_Thread_Mutex          LockType;
         typedef   ACE_Read_Guard<LockType>     ReadGuard;
@@ -206,6 +223,7 @@ class LFGMgr
         void _Join(ObjectGuid guid, LFGType type);
         void _JoinGroup(ObjectGuid guid, LFGType type);
         uint32 GenerateProposalID();
+        uint32          m_proposalID;
         LFGRewardMap    m_RewardMap;                        // Stores rewards for random dungeons
         LFGQueueInfoMap m_queueInfoMap;                     // Storage for queues
         LFGQueue        m_playerQueue[LFG_TYPE_MAX];        // Queue's for players
@@ -214,6 +232,7 @@ class LFGMgr
         LFGQueueStatusMap  m_queueStatus;                   // Queue statisic
         LFGProposalMap  m_proposalMap;                      // Proposal store
         LFGBootMap      m_bootMap;                          // boot store
+        LFGSearchMap    m_searchMatrix;                     // Search matrix
 
         LockType            i_lock;
 
