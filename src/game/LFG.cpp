@@ -78,6 +78,11 @@ LFGRoleMask LFGPlayerState::GetRoles()
     return rolesMask;
 };
 
+void LFGPlayerState::SetJoined()
+{
+    m_jointime = time_t(time(NULL));
+};
+
 bool LFGPlayerState::IsSingleRole()
 {
     if (   LFGRoleMask(rolesMask & ~LFG_ROLE_MASK_TANK   & ~LFG_ROLE_MASK_LEADER) == LFG_ROLE_MASK_NONE

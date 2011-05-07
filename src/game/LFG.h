@@ -250,6 +250,9 @@ struct LFGPlayerState
     void           AddFlags(uint32 flags)    { m_flags = m_flags | flags;};
     void           RemoveFlags(uint32 flags) { m_flags = m_flags & ~flags;};
 
+    void           SetJoined();
+    time_t         GetJoinTime() { return m_jointime;};
+
     void           SetAnswer(LFGAnswer _accept) { accept = _accept;};
     LFGAnswer      GetAnswer() { return accept;};
 
@@ -261,6 +264,7 @@ private:
     bool          update;
     Player*       m_player;
     LFGState      m_state;
+    time_t        m_jointime;
     LFGDungeonSet m_DungeonsList;                   // Dungeons the player have applied for
     LFGLockStatusMap m_LockMap;                     // Dungeons lock map
     std::string   m_comment;

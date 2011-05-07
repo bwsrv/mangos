@@ -100,9 +100,25 @@ void WorldSession::HandleLfgGetStatus(WorldPacket & /*recv_data*/)
 
     DEBUG_LOG("CMSG_LFG_GET_STATUS %u in group: %u", GetPlayer()->GetObjectGuid().GetCounter(), group ? 1 : 0);
 
-    // for GetPlayer()->GetLFGState()->GetDungeons()
-    // LFGQueueStatus = sLFGMgr.GetStatus(dungeon);
-    // SendLfgQueueStatus(LFGQueueStatus* status);
+    LFGDungeonSet* dungeons = GetPlayer()->GetLFGState()->GetDungeons();
+
+    if (!dungeons || dungeons->empty())
+        return;
+
+    for (LFGDungeonSet::const_iterator itr = dungeons->begin(); itr != dungeons->end(); ++itr)
+    {
+        LFGDungeonEntry const* dungeon = *itr;
+
+        if (!dungeon)
+            continue;
+
+        LFGQueueStatus* status = sLFGMgr.GetDungeonQueueStatus(dungeon);
+
+        if (!status)
+            continue;
+
+        GetPlayer()->GetSession()->SendLfgQueueStatus(dungeon, status);
+    }
 }
 
 void WorldSession::HandleLfrSearchOpcode( WorldPacket & recv_data )
@@ -949,7 +965,8 @@ void WorldSession::SendLfgQueueStatus(LFGDungeonEntry const* dungeon, LFGQueueSt
     data << uint8(status->tanks);                                  // Tanks needed
     data << uint8(status->healers);                                // Healers needed
     data << uint8(status->dps);                                    // Dps needed
-    data << uint32(status->queuedTime);                            // Player wait time in queue
+    data << uint32(time_t(time(NULL)) - GetPlayer()->GetLFGState()->GetJoinTime());
+                                                                   // Player wait time in queue
     SendPacket(&data);
 }
 

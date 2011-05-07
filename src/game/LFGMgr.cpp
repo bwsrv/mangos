@@ -38,7 +38,6 @@ LFGMgr::LFGMgr()
         if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(i))
         {
             m_dungeonMap.insert(std::make_pair(dungeon->ID, dungeon));
-            m_queueStatus.insert(std::make_pair(dungeon->ID, LFGQueueStatus()));
         }
     }
 }
@@ -86,6 +85,7 @@ void LFGMgr::Update(uint32 diff)
             {
                 TruCompleteGroups(type);
                 TruCreateGroup(type);
+                UpdateStatistic(type);
                 break;
             }
             case LFG_TYPE_RAID:
@@ -291,6 +291,7 @@ void LFGMgr::Join(Player* player)
     }
 
     player->GetLFGState()->SetState((type == LFG_TYPE_RAID) ? LFG_STATE_LFR : LFG_STATE_LFG);
+    player->GetLFGState()->SetJoined();
 
     player->GetSession()->SendLfgJoinResult(ERR_LFG_OK, 0);
 
@@ -815,11 +816,12 @@ uint32 LFGMgr::CreateProposal(LFGDungeonEntry const* dungeon, Group* group, LFGQ
     uint32 ID = GenerateProposalID();
     LFGProposal proposal = LFGProposal(dungeon);
     proposal.SetState(LFG_PROPOSAL_INITIATING);
-    if (guids)
-        proposal.playerGuids = *guids;
     proposal.SetGroup(group);
     proposal.Start();
     m_proposalMap.insert(std::make_pair(ID, proposal));
+
+    if (guids)
+        proposal.playerGuids = *guids;
 
     if (group)
     {
@@ -830,18 +832,24 @@ uint32 LFGMgr::CreateProposal(LFGDungeonEntry const* dungeon, Group* group, LFGQ
     return ID;
 }
 
-bool LFGMgr::SendProposal(uint32 ID, Player* player)
+bool LFGMgr::SendProposal(uint32 ID, ObjectGuid guid)
 {
-    if (!player || !ID)
+    if (guid.IsEmpty() || !ID)
         return false;
 
     LFGProposal* pProposal = GetProposal(ID);
 
-    if (!pProposal)
+    Player* player = sObjectMgr.GetPlayer(guid);
+
+    if (!pProposal || !player)
         return false;
 
-    pProposal->AddMember(player->GetObjectGuid());
+    pProposal->AddMember(guid);
+    player->GetLFGState()->SetState(LFG_STATE_PROPOSAL);
     player->GetLFGState()->SetAnswer(LFG_ANSWER_PENDING);
+    RemoveFromSearchMatrix(guid);
+
+    player->GetSession()->SendLfgUpdateProposal(pProposal);
 
     DEBUG_LOG("LFGMgr::SendProposal: dungeon %u, dungeon %u, %s", ID, pProposal->GetDungeon()->ID, pProposal->GetGroup() ? " in group" : " not in group");
     return true;
@@ -891,10 +899,10 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
 
     if (!accept)
     {
-//        _player->GetSession()->SendUpdateProposal(pProposal);
         // Remove member that didn't accept
         if (accept == LFG_ANSWER_DENY)
         {
+            pProposal->RemoveDecliner(guid);
             RemoveFromQueue(guid);
             DEBUG_LOG("LFGMgr::UpdateProposal: %u didn't accept. Removing from queue", guid.GetCounter());
         }
@@ -1574,12 +1582,14 @@ bool LFGMgr::TruCompleteGroup(Group* group, Player* player)
 
     if (LFGProposal* pProposal = group->GetLFGState()->GetProposal())
     {
-        SendProposal(pProposal->ID, player);
+        SendProposal(pProposal->ID, player->GetObjectGuid());
     }
     else
     {
-        CreateProposal(*group->GetLFGState()->GetDungeons()->begin(),group);
-        SendProposal(pProposal->ID, player);
+        LFGQueueSet tmpSet;
+        tmpSet.insert(player->GetObjectGuid());
+        LFGDungeonEntry const* dungeon = SelectRandomDungeonFromList(*group->GetLFGState()->GetDungeons());
+        uint32 ID = CreateProposal(dungeon,group,&tmpSet);
     }
 
     return true;
@@ -1595,7 +1605,6 @@ bool LFGMgr::TruCreateGroup(LFGType type)
 
         if (itr->second.empty())
             continue;
-
 
         if (itr->second.size() < MAX_GROUP_SIZE && !sWorld.getConfig(CONFIG_BOOL_LFG_DEBUG_ENABLE))
             continue;
@@ -1638,25 +1647,47 @@ bool LFGMgr::TruCreateGroup(LFGType type)
         {
             LFGDungeonEntry const* dungeon = SelectRandomDungeonFromList(intersection);
             uint32 ID = CreateProposal(dungeon, NULL, &newGroup);
-            break;
+            return true;
         }
     }
     return false;
 }
 
-LFGQueueStatus* LFGMgr::GetDungeonQueueStatus(uint32 dungeonID)
+LFGQueueStatus* LFGMgr::GetDungeonQueueStatus(LFGDungeonEntry const* dungeon)
 {
-    ReadGuard Guard(GetLock());
-    LFGQueueStatusMap::iterator itr = m_queueStatus.find(dungeonID);
+    LFGQueueStatusMap::iterator itr = m_queueStatus.find(dungeon);
     return itr != m_queueStatus.end() ? &itr->second : NULL;
 }
 
-void LFGMgr::SetDungeonQueueStatus(uint32 dungeonID)
+void LFGMgr::SetDungeonQueueStatus(LFGDungeonEntry const* dungeon)
 {
+    LFGQueueStatusMap::iterator itr = m_queueStatus.find(dungeon);
+    if (itr == m_queueStatus.end())
+        m_queueStatus.insert(std::make_pair(dungeon,LFGQueueStatus()));
+}
+
+void LFGMgr::RemoveDungeonQueueStatus(LFGDungeonEntry const* dungeon)
+{
+    LFGQueueStatusMap::iterator itr = m_queueStatus.find(dungeon);
+    if (itr != m_queueStatus.end())
+        m_queueStatus.erase(itr);
 }
 
 void LFGMgr::UpdateQueueStatus(Player* player)
 {
+}
+
+void LFGMgr::UpdateStatistic(LFGType type)
+{
+    for (LFGSearchMap::const_iterator itr = m_searchMatrix.begin(); itr != m_searchMatrix.end(); ++itr)
+    {
+        if (itr->first->type != type)
+            continue;
+
+        if (itr->second.empty())
+            continue;
+
+    }
 }
 
 void LFGMgr::AddToSearchMatrix(ObjectGuid guid)
@@ -1729,7 +1760,10 @@ void LFGMgr::RemoveFromSearchMatrix(ObjectGuid guid)
             LFGQueueSet _players;
             players->erase(guid);
             if (players->empty())
+            {
                 m_searchMatrix.erase(dungeon);
+                RemoveDungeonQueueStatus(dungeon);
+            }
         }
     }
 }

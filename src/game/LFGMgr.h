@@ -82,15 +82,18 @@ struct LFGQueueInfo
 
 struct LFGQueueStatus
 {
+    LFGQueueStatus(): avgWaitTime(0), waitTime(0), waitTimeTanks(0), waitTimeDps(0),
+                      tanks(0), healers(0), dps(0), playersWaited(0) {};
+
     time_t                 avgWaitTime;                      // Average Wait time
     time_t                 waitTime;                         // Wait Time
     time_t                 waitTimeTanks;                    // Wait Tanks
     time_t                 waitTimeHealer;                   // Wait Healers
     time_t                 waitTimeDps;                      // Wait Dps
-    uint8                  tanks;                            // Tanks needed
-    uint8                  healers;                          // Healers needed
-    uint8                  dps;                              // Dps needed
-    time_t                 queuedTime;                       // Player wait time in queue
+    uint8                  tanks;                            // Tanks
+    uint8                  healers;                          // Healers
+    uint8                  dps;                              // Dps
+    uint32                 playersWaited;                    // players summ
 };
 
 /// Stores group data related to proposal to join
@@ -138,7 +141,7 @@ struct LFGPlayerBoot
 };
 
 typedef std::map<ObjectGuid, LFGPlayerBoot>  LFGBootMap;
-typedef std::map<uint32/*ID*/, LFGQueueStatus> LFGQueueStatusMap;
+typedef std::map<LFGDungeonEntry const*, LFGQueueStatus> LFGQueueStatusMap;
 typedef std::map<ObjectGuid, LFGRoleMask>  LFGRolesMap;
 typedef std::set<LFGQueueInfo*> LFGQueue;
 typedef std::map<LFGDungeonEntry const*, LFGQueueSet> LFGSearchMap;
@@ -177,7 +180,7 @@ class LFGMgr
 
         // Proposal system
         uint32 CreateProposal(LFGDungeonEntry const* dungeon, Group* group = NULL, LFGQueueSet* playerGuids = NULL);
-        bool SendProposal(uint32 ID, Player* player);
+        bool SendProposal(uint32 ID, ObjectGuid guid);
         LFGProposal* GetProposal(uint32 ID);
         void RemoveProposal(uint32 ID);
         void UpdateProposal(uint32 ID, ObjectGuid guid, bool accept);
@@ -193,9 +196,11 @@ class LFGMgr
         void Teleport(Player* player, bool out, bool fromOpcode = false);
 
         // Statistic system
-        LFGQueueStatus* GetDungeonQueueStatus(uint32 dungeonID);
-        void SetDungeonQueueStatus(uint32 dungeonID);
+        LFGQueueStatus* GetDungeonQueueStatus(LFGDungeonEntry const* dungeon);
+        void SetDungeonQueueStatus(LFGDungeonEntry const* dungeon);
+        void RemoveDungeonQueueStatus(LFGDungeonEntry const* dungeon);
         void UpdateQueueStatus(Player* player);
+        void UpdateStatistic(LFGType type);
 
         // Role check system
         void UpdateRoleCheck(Group* group);
