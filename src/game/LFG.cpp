@@ -208,6 +208,11 @@ LFGProposal::LFGProposal(LFGDungeonEntry const* _dungeon)
     m_cancelTime = 0;
 }
 
+void LFGProposal::Start()
+{
+    m_cancelTime = time_t(time(NULL)) + LFG_TIME_PROPOSAL;
+};
+
 void LFGProposal::RemoveDecliner(ObjectGuid guid)
 {
     if (guid.IsEmpty())

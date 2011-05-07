@@ -97,21 +97,33 @@ struct LFGQueueStatus
 struct LFGProposal
 {
     LFGProposal(LFGDungeonEntry const* _dungeon);
+    public:
     uint32 ID;                                               // Proposal id
-    LFGDungeonEntry const* m_dungeon;                        // Dungeon
     LFGQueueSet playerGuids;                                 // Players in this proposal
     LFGQueueSet declinerGuids;                               // Decliners in this proposal
-    LFGProposalState m_state;                                // State of the proposal
-    Group* m_group;                                          // Proposal group (NULL if not created)
-    time_t m_cancelTime;                                     // Time when we will cancel this proposal
+
     // helpers
     Group* GetGroup() { return m_group; };
     void SetGroup(Group* group) { m_group = group; };
-    void RemoveDecliner(ObjectGuid guid);
     void AddMember(ObjectGuid guid);
+
+    void RemoveDecliner(ObjectGuid guid);
     bool IsDecliner(ObjectGuid guid);
+
     LFGProposalState GetState() {return m_state;};
     void SetState(LFGProposalState _state ) { m_state = _state;};
+
+    LFGDungeonEntry const* GetDungeon() { return m_dungeon;};
+    void SetDungeon(LFGDungeonEntry const* _dungeon) { m_dungeon = _dungeon;};
+
+    void Start();
+    bool IsActive() { return ( m_cancelTime >= time_t(time(NULL)));};
+
+    private:
+    LFGDungeonEntry const* m_dungeon;                        // Dungeon
+    LFGProposalState m_state;                                // State of the proposal
+    Group* m_group;                                          // Proposal group (NULL if not created)
+    time_t m_cancelTime;                                     // Time when we will cancel this proposal
 };
 
 /// Stores information of a current vote to kick someone from a group
@@ -164,7 +176,7 @@ class LFGMgr
         void SendLFGReward(Player* player);
 
         // Proposal system
-        bool CreateProposal(LFGDungeonEntry const* dungeon, Group* group = NULL);
+        uint32 CreateProposal(LFGDungeonEntry const* dungeon, Group* group = NULL, LFGQueueSet* playerGuids = NULL);
         bool SendProposal(uint32 ID, Player* player);
         LFGProposal* GetProposal(uint32 ID);
         void RemoveProposal(uint32 ID);
@@ -192,10 +204,18 @@ class LFGMgr
         bool RoleChanged(Player* player, uint8 roles);
         void SetGroupRoles(Group* group);
 
+        // Social check system
+        bool HasIgnoreState(ObjectGuid guid1, ObjectGuid guid2);
+        bool HasIgnoreState(Group* group, ObjectGuid guid);
+
         // Dungeon operations
         LFGDungeonEntry const* GetDungeon(uint32 dungeonID);
         bool IsRandomDungeon(LFGDungeonEntry const* dungeon);
         LFGDungeonSet GetRandomDungeonsForPlayer(Player* player);
+
+        // Dungeon expand operations
+        LFGDungeonSet ExpandRandomDungeonsForGroup(LFGDungeonEntry const* randomDungeon, LFGQueueSet playerGuids);
+        LFGDungeonEntry const* SelectRandomDungeonFromList(LFGDungeonSet dugeons);
 
         // Checks
         LFGJoinResult GetPlayerJoinResult(Player* player);
