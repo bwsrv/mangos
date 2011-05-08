@@ -56,7 +56,6 @@ LFGMgr::~LFGMgr()
     m_RewardMap.clear();
     for (uint8 i = LFG_TYPE_NONE; i < LFG_TYPE_MAX; ++i)
     {
-    // TODO - delete ->second from maps
         m_playerQueue[i].clear();
         m_groupQueue[i].clear();
     }
@@ -84,7 +83,7 @@ void LFGMgr::Update(uint32 diff)
     else
         m_updateTimer -= diff;
 
-    if (isFullUpdate);
+    if (isFullUpdate)
     {
         CleanupSearchMatrix();
         CleanupProposals();
@@ -1959,6 +1958,7 @@ bool LFGMgr::IsInSearchFor(LFGDungeonEntry const* dungeon, ObjectGuid guid)
 
 void LFGMgr::CleanupSearchMatrix()
 {
+    WriteGuard Guard(GetLock());
     for (LFGSearchMap::iterator itr = m_searchMatrix.begin(); itr != m_searchMatrix.end(); itr++)
     {
         LFGQueueSet players = itr->second;
