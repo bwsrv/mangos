@@ -433,12 +433,14 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
         auctionEntry->itemGuidLow = item->GetGUIDLow();
         auctionEntry->itemTemplate = item->GetEntry();
         auctionEntry->owner = AHBplayer->GetGUIDLow();
+        Utf8toWStr(AHBplayer->GetName(), auctionEntry->ownerName);
         auctionEntry->startbid = bidPrice * buyBondingK;
         auctionEntry->buyout = buyoutPrice * buyBondingK;
         auctionEntry->bidder = 0;
         auctionEntry->bid = 0;
         auctionEntry->deposit = 0;
         auctionEntry->expireTime = (time_t) (urand(config->GetMinTime(), config->GetMaxTime()) * 60 * 60 + time(NULL));
+        auctionEntry->moneyDeliveryTime = 0;
         auctionEntry->auctionHouseEntry = ahEntry;
 
         auctionHouse->AddAuction(auctionEntry);
