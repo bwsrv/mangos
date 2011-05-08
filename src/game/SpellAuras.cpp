@@ -8749,36 +8749,47 @@ void Aura::HandleAuraMirrorImage(bool apply, bool Real)
     if (!Real)
         return;
 
-    // Target of aura should always be creature (ref Spell::CheckCast)
-    Creature* pCreature = (Creature*)GetTarget();
+    Unit* target = GetTarget();
+
+    if (!target)
+        return;
 
     // Caster can be player or creature, the unit who pCreature will become an clone of.
     Unit* caster = GetCaster();
 
     if (apply)
     {
-        pCreature->SetByteValue(UNIT_FIELD_BYTES_0, 0, caster->getRace());
-        pCreature->SetByteValue(UNIT_FIELD_BYTES_0, 1, caster->getClass());
-        pCreature->SetByteValue(UNIT_FIELD_BYTES_0, 2, caster->getGender());
-        pCreature->SetByteValue(UNIT_FIELD_BYTES_0, 3, caster->getPowerType());
+        if (target->GetTypeId() == TYPEID_UNIT)
+        {
+            Creature* pCreature = (Creature*)target;
+            pCreature->SetByteValue(UNIT_FIELD_BYTES_0, 0, caster->getRace());
+            pCreature->SetByteValue(UNIT_FIELD_BYTES_0, 1, caster->getClass());
+            pCreature->SetByteValue(UNIT_FIELD_BYTES_0, 2, caster->getGender());
+            pCreature->SetByteValue(UNIT_FIELD_BYTES_0, 3, caster->getPowerType());
+        }
 
-        pCreature->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_CLONED);
+        target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_CLONED);
 
-        pCreature->SetDisplayId(caster->GetNativeDisplayId());
+        target->SetDisplayId(caster->GetDisplayId());
     }
     else
     {
-        const CreatureInfo* cinfo = pCreature->GetCreatureInfo();
-        const CreatureModelInfo* minfo = sObjectMgr.GetCreatureModelInfo(pCreature->GetNativeDisplayId());
+        if (target->GetTypeId() == TYPEID_UNIT)
+        {
+            Creature* pCreature = (Creature*)target;
 
-        pCreature->SetByteValue(UNIT_FIELD_BYTES_0, 0, 0);
-        pCreature->SetByteValue(UNIT_FIELD_BYTES_0, 1, cinfo->unit_class);
-        pCreature->SetByteValue(UNIT_FIELD_BYTES_0, 2, minfo->gender);
-        pCreature->SetByteValue(UNIT_FIELD_BYTES_0, 3, 0);
+            const CreatureInfo* cinfo = pCreature->GetCreatureInfo();
+            const CreatureModelInfo* minfo = sObjectMgr.GetCreatureModelInfo(pCreature->GetNativeDisplayId());
 
-        pCreature->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_CLONED);
+            pCreature->SetByteValue(UNIT_FIELD_BYTES_0, 0, 0);
+            pCreature->SetByteValue(UNIT_FIELD_BYTES_0, 1, cinfo->unit_class);
+            pCreature->SetByteValue(UNIT_FIELD_BYTES_0, 2, minfo->gender);
+            pCreature->SetByteValue(UNIT_FIELD_BYTES_0, 3, 0);
+        }
 
-        pCreature->SetDisplayId(pCreature->GetNativeDisplayId());
+        target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_CLONED);
+
+        target->SetDisplayId(target->GetNativeDisplayId());
     }
 }
 

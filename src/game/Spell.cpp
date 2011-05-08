@@ -6033,9 +6033,6 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (!pTarget)
                     return SPELL_FAILED_BAD_TARGETS;
 
-                if (pTarget->GetTypeId() != TYPEID_UNIT)    // Target must be creature
-                    return SPELL_FAILED_BAD_TARGETS;
-
                 if (pTarget == m_caster)                    // Clone self can't be accepted
                     return SPELL_FAILED_BAD_TARGETS;
 
