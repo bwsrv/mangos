@@ -8754,11 +8754,9 @@ void Aura::HandleAuraMirrorImage(bool apply, bool Real)
     if (!target)
         return;
 
-    // Caster can be player or creature, the unit who pCreature will become an clone of.
-    Unit* caster = GetCaster();
-
     if (apply)
     {
+        Unit* caster = GetCaster();
         if (target->GetTypeId() == TYPEID_UNIT)
         {
             Creature* pCreature = (Creature*)target;
@@ -8767,7 +8765,6 @@ void Aura::HandleAuraMirrorImage(bool apply, bool Real)
             pCreature->SetByteValue(UNIT_FIELD_BYTES_0, 2, caster->getGender());
             pCreature->SetByteValue(UNIT_FIELD_BYTES_0, 3, caster->getPowerType());
         }
-
         target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_CLONED);
 
         target->SetDisplayId(caster->GetDisplayId());
