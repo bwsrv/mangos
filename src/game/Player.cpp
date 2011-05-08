@@ -5270,7 +5270,8 @@ float Player::GetMeleeCritFromAgility()
 void Player::GetDodgeFromAgility(float &diminishing, float &nondiminishing)
 {
     // Table for base dodge values
-    static const float dodge_base[MAX_CLASSES] = {
+    const float dodge_base[MAX_CLASSES] =
+    {
          0.036640f, // Warrior
          0.034943f, // Paladin
         -0.040873f, // Hunter
@@ -5283,9 +5284,9 @@ void Player::GetDodgeFromAgility(float &diminishing, float &nondiminishing)
          0.0f,      // ??
          0.056097f  // Druid
     };
-
     // Crit/agility to dodge/agility coefficient multipliers; 3.2.0 increased required agility by 15%
-    static const float crit_to_dodge[MAX_CLASSES] = {
+    const float crit_to_dodge[MAX_CLASSES] =
+    {
          0.85f/1.15f,    // Warrior
          1.00f/1.15f,    // Paladin
          1.11f/1.15f,    // Hunter
@@ -5309,8 +5310,9 @@ void Player::GetDodgeFromAgility(float &diminishing, float &nondiminishing)
     if (dodgeRatio==NULL || pclass > MAX_CLASSES)
         return;
 
-    float bonus_agility = floor(GetPosStat(STAT_AGILITY) + GetNegStat(STAT_AGILITY));
-    float base_agility = GetStat(STAT_AGILITY) - bonus_agility;
+    // TODO: research if talents/effects that increase total agility by x% should increase non-diminishing part
+    float base_agility = GetCreateStat(STAT_AGILITY) * m_auraModifiersGroup[UNIT_MOD_STAT_START + STAT_AGILITY][BASE_PCT];
+    float bonus_agility = GetStat(STAT_AGILITY) - base_agility;
     // calculate diminishing (green in char screen) and non-diminishing (white) contribution
     diminishing = 100.0f * bonus_agility * dodgeRatio->ratio * crit_to_dodge[pclass-1];
     nondiminishing = 100.0f * (dodge_base[pclass-1] + base_agility * dodgeRatio->ratio * crit_to_dodge[pclass-1]);
@@ -13973,7 +13975,7 @@ bool Player::CanAddQuest(Quest const *pQuest, bool msg) const
     if (!SatisfyQuestLog(msg))
         return false;
 
-    if (!CanGiveQuestSourceItem(pQuest))
+    if (!CanGiveQuestSourceItemIfNeed(pQuest))
         return false;
 
     return true;
@@ -14187,7 +14189,28 @@ void Player::AddQuest( Quest const *pQuest, Object *questGiver )
             questStatusData.m_creatureOrGOcount[i] = 0;
     }
 
-    GiveQuestSourceItem(pQuest);
+    // remove start item if not need
+    if (questGiver && questGiver->isType(TYPEID_ITEM))
+    {
+        // destroy not required for quest finish quest starting item
+        bool notRequiredItem = true;
+        for(int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
+        {
+            if (pQuest->ReqItemId[i] == questGiver->GetEntry())
+            {
+                notRequiredItem = false;
+                break;
+            }
+        }
+
+        if (pQuest->GetSrcItemId() == questGiver->GetEntry())
+            notRequiredItem = false;
+
+        if (notRequiredItem)
+            DestroyItem(((Item*)questGiver)->GetBagSlot(), ((Item*)questGiver)->GetSlot(), true);
+    }
+
+    GiveQuestSourceItemIfNeed(pQuest);
 
     AdjustQuestReqItemCount( pQuest, questStatusData );
 
@@ -14835,14 +14858,18 @@ bool Player::SatisfyQuestMonth(Quest const* qInfo, bool msg) const
     return m_monthlyquests.find(qInfo->GetQuestId()) == m_monthlyquests.end();
 }
 
-bool Player::CanGiveQuestSourceItem( Quest const *pQuest, ItemPosCountVec* dest ) const
+bool Player::CanGiveQuestSourceItemIfNeed( Quest const *pQuest, ItemPosCountVec* dest) const
 {
-    uint32 srcitem = pQuest->GetSrcItemId();
-    if (srcitem > 0)
+    if (uint32 srcitem = pQuest->GetSrcItemId())
     {
         uint32 count = pQuest->GetSrcItemCount();
-        if( count <= 0 )
-            count = 1;
+
+        // player already have max amount required item (including bank), just report success
+        uint32 has_count = GetItemCount(srcitem, true);
+        if (has_count >= count)
+            return true;
+
+        count -= has_count;                                 // real need amount
 
         InventoryResult msg;
         if (!dest)
@@ -14855,9 +14882,6 @@ bool Player::CanGiveQuestSourceItem( Quest const *pQuest, ItemPosCountVec* dest 
 
         if (msg == EQUIP_ERR_OK)
             return true;
-        // player already have max amount required item, just report success
-        else if (msg == EQUIP_ERR_CANT_CARRY_MORE_OF_THIS)
-            return true;
         else
             SendEquipError( msg, NULL, NULL, srcitem );
         return false;
@@ -14866,11 +14890,10 @@ bool Player::CanGiveQuestSourceItem( Quest const *pQuest, ItemPosCountVec* dest 
     return true;
 }
 
-void Player::GiveQuestSourceItem( Quest const *pQuest )
+void Player::GiveQuestSourceItemIfNeed(Quest const *pQuest)
 {
     ItemPosCountVec dest;
-
-    if (CanGiveQuestSourceItem(pQuest, &dest) && !dest.empty())
+    if (CanGiveQuestSourceItemIfNeed(pQuest, &dest) && !dest.empty())
     {
         uint32 count = 0;
         for(ItemPosCountVec::const_iterator c_itr = dest.begin(); c_itr != dest.end(); ++c_itr)
@@ -16927,8 +16950,8 @@ void Player::_LoadQuestStatus(QueryResult *result)
 
     uint32 slot = 0;
 
-    ////                                                     0      1       2         3         4      5          6          7          8          9           10          11          12
-    //QueryResult *result = CharacterDatabase.PQuery("SELECT quest, status, rewarded, explored, timer, mobcount1, mobcount2, mobcount3, mobcount4, itemcount1, itemcount2, itemcount3, itemcount4 FROM character_queststatus WHERE guid = '%u'", GetGUIDLow());
+    ////                                                     0      1       2         3         4      5          6          7          8          9           10          11          12          13          14
+    //QueryResult *result = CharacterDatabase.PQuery("SELECT quest, status, rewarded, explored, timer, mobcount1, mobcount2, mobcount3, mobcount4, itemcount1, itemcount2, itemcount3, itemcount4, itemcount5, itemcount6 FROM character_queststatus WHERE guid = '%u'", GetGUIDLow());
 
     if(result)
     {
@@ -16978,6 +17001,8 @@ void Player::_LoadQuestStatus(QueryResult *result)
                 questStatusData.m_itemcount[1] = fields[10].GetUInt32();
                 questStatusData.m_itemcount[2] = fields[11].GetUInt32();
                 questStatusData.m_itemcount[3] = fields[12].GetUInt32();
+                questStatusData.m_itemcount[4] = fields[13].GetUInt32();
+                questStatusData.m_itemcount[5] = fields[14].GetUInt32();
 
                 questStatusData.uState = QUEST_UNCHANGED;
 
@@ -18204,8 +18229,8 @@ void Player::_SaveQuestStatus()
         {
             case QUEST_NEW :
                 {
-                    SqlStatement stmt = CharacterDatabase.CreateStatement(insertQuestStatus, "INSERT INTO character_queststatus (guid,quest,status,rewarded,explored,timer,mobcount1,mobcount2,mobcount3,mobcount4,itemcount1,itemcount2,itemcount3,itemcount4) "
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    SqlStatement stmt = CharacterDatabase.CreateStatement(insertQuestStatus, "INSERT INTO character_queststatus (guid,quest,status,rewarded,explored,timer,mobcount1,mobcount2,mobcount3,mobcount4,itemcount1,itemcount2,itemcount3,itemcount4,itemcount5,itemcount6) "
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
                     stmt.addUInt32(GetGUIDLow());
                     stmt.addUInt32(i->first);
@@ -18215,7 +18240,7 @@ void Player::_SaveQuestStatus()
                     stmt.addUInt64(uint64(i->second.m_timer / IN_MILLISECONDS+ sWorld.GetGameTime()));
                     for (int k = 0; k < QUEST_OBJECTIVES_COUNT; ++k)
                         stmt.addUInt32(i->second.m_creatureOrGOcount[k]);
-                    for (int k = 0; k < QUEST_OBJECTIVES_COUNT; ++k)
+                    for (int k = 0; k < QUEST_ITEM_OBJECTIVES_COUNT; ++k)
                         stmt.addUInt32(i->second.m_itemcount[k]);
                     stmt.Execute();
                 }
@@ -18223,7 +18248,7 @@ void Player::_SaveQuestStatus()
             case QUEST_CHANGED :
                 {
                     SqlStatement stmt = CharacterDatabase.CreateStatement(updateQuestStatus, "UPDATE character_queststatus SET status = ?,rewarded = ?,explored = ?,timer = ?,"
-                        "mobcount1 = ?,mobcount2 = ?,mobcount3 = ?,mobcount4 = ?,itemcount1 = ?,itemcount2 = ?,itemcount3 = ?,itemcount4 = ?  WHERE guid = ? AND quest = ?");
+                        "mobcount1 = ?,mobcount2 = ?,mobcount3 = ?,mobcount4 = ?,itemcount1 = ?,itemcount2 = ?,itemcount3 = ?,itemcount4 = ?,itemcount5 = ?,itemcount6 = ? WHERE guid = ? AND quest = ?");
 
                     stmt.addUInt8(i->second.m_status);
                     stmt.addUInt8(i->second.m_rewarded);
@@ -18231,7 +18256,7 @@ void Player::_SaveQuestStatus()
                     stmt.addUInt64(uint64(i->second.m_timer / IN_MILLISECONDS + sWorld.GetGameTime()));
                     for (int k = 0; k < QUEST_OBJECTIVES_COUNT; ++k)
                         stmt.addUInt32(i->second.m_creatureOrGOcount[k]);
-                    for (int k = 0; k < QUEST_OBJECTIVES_COUNT; ++k)
+                    for (int k = 0; k < QUEST_ITEM_OBJECTIVES_COUNT; ++k)
                         stmt.addUInt32(i->second.m_itemcount[k]);
                     stmt.addUInt32(GetGUIDLow());
                     stmt.addUInt32(i->first);
