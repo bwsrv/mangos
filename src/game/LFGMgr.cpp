@@ -40,6 +40,15 @@ LFGMgr::LFGMgr()
             m_dungeonMap.insert(std::make_pair(dungeon->ID, dungeon));
         }
     }
+
+    for (uint32 i = 0; i < sLFGDungeonExpansionStore.GetNumRows(); ++i)
+    {
+        if (LFGDungeonExpansionEntry const* dungeonEx = sLFGDungeonExpansionStore.LookupEntry(i))
+        {
+            m_dungeonExpansionMap.insert(std::make_pair(dungeonEx->dungeonID, dungeonEx));
+        }
+    }
+    m_proposalID = 1;
 }
 
 LFGMgr::~LFGMgr()
@@ -53,10 +62,10 @@ LFGMgr::~LFGMgr()
     }
     m_queueInfoMap.clear();
     m_dungeonMap.clear();
+    m_dungeonExpansionMap.clear();
     m_proposalMap.clear();
     m_queueStatus.clear();
     m_searchMatrix.clear();
-    m_proposalID = 1;
 }
 
 void LFGMgr::Update(uint32 diff)
@@ -65,7 +74,21 @@ void LFGMgr::Update(uint32 diff)
     if (m_queueInfoMap.empty())
         return;
 
-    CleanupSearchMatrix();
+    bool isFullUpdate = false;
+
+    if (m_updateTimer < diff)
+    {
+        isFullUpdate = true;
+        m_updateTimer = LFG_UPDATE_INTERVAL;
+    }
+    else
+        m_updateTimer -= diff;
+
+    if (isFullUpdate);
+    {
+        CleanupSearchMatrix();
+        CleanupProposals();
+    }
 
     for (uint8 i = LFG_TYPE_NONE; i < LFG_TYPE_MAX; ++i)
     {
@@ -86,15 +109,20 @@ void LFGMgr::Update(uint32 diff)
                 TruCompleteGroups(type);
                 TruCreateGroup(type);
                 UpdateStatistic(type);
+                if (isFullUpdate)
+                    UpdateStatistic(type);
                 break;
             }
             case LFG_TYPE_RAID:
             {
-                if (!sWorld.getConfig(CONFIG_BOOL_LFR_EXTEND))
-                    break;
+                if (sWorld.getConfig(CONFIG_BOOL_LFR_EXTEND))
+                {
+                    UpdateLFRGroups();
+                    if (isFullUpdate)
+                        UpdateStatistic(type);
+                }
+                break;
             }
-            break;
-
             case LFG_TYPE_NONE:
             case LFG_TYPE_MAX:
             default:
@@ -102,6 +130,7 @@ void LFGMgr::Update(uint32 diff)
                 break;
         }
     }
+
 }
 
 void LFGMgr::LoadRewards()
@@ -570,6 +599,14 @@ LFGLockStatusType LFGMgr::GetPlayerLockStatus(Player* player, LFGDungeonEntry co
     return LFG_LOCKSTATUS_OK;
 }
 
+LFGLockStatusType LFGMgr::GetPlayerExpansionLockStatus(Player* player, LFGDungeonEntry const* dungeon)
+{
+    if (!player || !player->IsInWorld())
+        return LFG_LOCKSTATUS_RAID_LOCKED;
+
+    return LFG_LOCKSTATUS_OK;
+}
+
 LFGLockStatusType LFGMgr::GetGroupLockStatus(Group* group, LFGDungeonEntry const* dungeon)
 {
     if (!group)
@@ -645,6 +682,12 @@ LFGDungeonEntry const* LFGMgr::GetDungeon(uint32 dungeonID)
 {
     LFGDungeonMap::const_iterator itr = m_dungeonMap.find(dungeonID);
     return itr != m_dungeonMap.end() ? itr->second : NULL;
+}
+
+LFGDungeonExpansionEntry const* LFGMgr::GetDungeonExpansion(uint32 dungeonID)
+{
+    LFGDungeonExpansionMap::const_iterator itr = m_dungeonExpansionMap.find(dungeonID);
+    return itr != m_dungeonExpansionMap.end() ? itr->second : NULL;
 }
 
 void LFGMgr::ClearLFRList(Player* player)
@@ -813,21 +856,47 @@ uint32 LFGMgr::CreateProposal(LFGDungeonEntry const* dungeon, Group* group, LFGQ
     if (!dungeon)
         return false;
 
-    uint32 ID = GenerateProposalID();
+    uint32 ID = 0;
+    if (group)
+    {
+        if (LFGProposal* pProposal = group->GetLFGState()->GetProposal())
+        {
+            ID = pProposal->ID;
+        }
+    }
+
     LFGProposal proposal = LFGProposal(dungeon);
     proposal.SetState(LFG_PROPOSAL_INITIATING);
     proposal.SetGroup(group);
     proposal.Start();
-    m_proposalMap.insert(std::make_pair(ID, proposal));
+    if (ID)
+    {
+        WriteGuard Guard(GetLock());
+        m_proposalMap.erase(ID);
+        proposal.ID = ID;
+        m_proposalMap.insert(std::make_pair(ID, proposal));
+    }
+    else
+    {
+        WriteGuard Guard(GetLock());
+        ID = GenerateProposalID();
+        proposal.ID = ID;
+        m_proposalMap.insert(std::make_pair(ID, proposal));
+    }
 
-    if (guids)
-        proposal.playerGuids = *guids;
+    if (guids && !guids->empty())
+    {
+        for (LFGQueueSet::const_iterator itr = guids->begin(); itr != guids->end(); ++itr )
+        {
+            if (!SendProposal(ID,*itr))
+                DEBUG_LOG("LFGMgr::CreateProposal: cannot send proposal %u, dungeon %u, %s to player %u", ID, dungeon->ID, group ? " in group" : " not in group", (*itr).GetCounter());
+        }
+    }
 
     if (group)
     {
         group->GetLFGState()->SetProposal(GetProposal(ID));
     }
-
     DEBUG_LOG("LFGMgr::CreateProposal: %u, dungeon %u, %s", ID, dungeon->ID, group ? " in group" : " not in group");
     return ID;
 }
@@ -851,7 +920,7 @@ bool LFGMgr::SendProposal(uint32 ID, ObjectGuid guid)
 
     player->GetSession()->SendLfgUpdateProposal(pProposal);
 
-    DEBUG_LOG("LFGMgr::SendProposal: dungeon %u, dungeon %u, %s", ID, pProposal->GetDungeon()->ID, pProposal->GetGroup() ? " in group" : " not in group");
+    DEBUG_LOG("LFGMgr::SendProposal: proposal %u, dungeon %u, %s", ID, pProposal->GetDungeon()->ID, pProposal->GetGroup() ? " in group" : " not in group");
     return true;
 }
 
@@ -876,7 +945,6 @@ void LFGMgr::RemoveProposal(uint32 ID)
 
 uint32 LFGMgr::GenerateProposalID()
 {
-    WriteGuard Guard(GetLock());
     uint32 newID = m_proposalID;
     ++m_proposalID;
     return newID;
@@ -906,25 +974,19 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
             RemoveFromQueue(guid);
             DEBUG_LOG("LFGMgr::UpdateProposal: %u didn't accept. Removing from queue", guid.GetCounter());
         }
-        pProposal->RemoveDecliner(guid);
         return;
     }
 
     // check if all have answered and reorder players (leader first)
-    LFGQueueSet newPlayers;
     bool allAnswered = true;
     for (LFGQueueSet::const_iterator itr = pProposal->playerGuids.begin(); itr != pProposal->playerGuids.end(); ++itr )
     {
         if (Player* player = sObjectMgr.GetPlayer(*itr))
         {
-            // Only teleport new players
             Group* group = player->GetGroup();
             ObjectGuid gguid = group ? group->GetObjectGuid() : ObjectGuid();
 
-            if (gguid.IsEmpty() || !group->isLFDGroup() || group->GetLFGState()->GetState() == LFG_STATE_FINISHED_DUNGEON)
-                newPlayers.insert(player->GetObjectGuid());
-
-            if (player->GetLFGState()->GetState() != LFG_ANSWER_AGREE)   // No answer (-1) or not accepted (0)
+            if (player->GetLFGState()->GetAnswer() != LFG_ANSWER_AGREE)   // No answer (-1) or not accepted (0)
                 allAnswered = false;
 
             player->GetSession()->SendLfgUpdateProposal(pProposal);
@@ -934,6 +996,8 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
 
     if (!allAnswered)
         return;
+
+    DEBUG_LOG("LFGMgr::UpdateProposal: all players in proposal %u answered, make group/teleport group", pProposal->ID);
     // save waittime (group maked, save statistic)
 
     // Create a new group (if needed)
@@ -950,7 +1014,9 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
         // create LFGState()
         group->ConvertToLFG(leader->GetLFGState()->GetType());
         sObjectMgr.AddGroup(group);
+        DEBUG_LOG("LFGMgr::UpdateProposal: in proposal %u created group %u", pProposal->ID, group->GetObjectGuid().GetCounter());
     }
+
     MANGOS_ASSERT(group);
     pProposal->SetGroup(group);
     group->GetLFGState()->SetProposal(pProposal);
@@ -959,12 +1025,12 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
     {
         if (Player* player = sObjectMgr.GetPlayer(*itr))
         {
-//            player->GetSession()->SendUpdateProposal(pProposal);
             if (player->GetGroup() != group)
             {
                 player->RemoveFromGroup();
                 player->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_GROUP_FOUND, player->GetLFGState()->GetType());
                 group->AddMember(player->GetObjectGuid(), player->GetName());
+//                player->GetSession()->SendLfgUpdateProposal(pProposal);
             }
         }
     }
@@ -973,11 +1039,30 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
 
     // Update statistics for dungeon/roles/etc
 
-    // teleport players to instance
-
-    // Set the dungeon difficulty
+    // Set the dungeon difficulty and real dungeon for random
     MANGOS_ASSERT(pProposal->GetDungeon());
-    group->SetDungeonDifficulty(Difficulty(pProposal->GetDungeon()->difficulty));
+    if (!group->GetLFGState()->GetDungeon())
+    {
+        if (IsRandomDungeon(pProposal->GetDungeon()))
+        {
+            LFGQueueSet tmpSet;
+            for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+                if (Player* player = itr->getSource())
+                  if (player->IsInWorld())
+                      tmpSet.insert(player->GetObjectGuid());
+
+            LFGDungeonSet randomList = ExpandRandomDungeonsForGroup(pProposal->GetDungeon(), tmpSet);
+            LFGDungeonEntry const* realdungeon = SelectRandomDungeonFromList(randomList);
+            if (!realdungeon)
+                DEBUG_LOG("LFGMgr::UpdateProposal:%u cannot set real dungeon!", pProposal->ID);
+            group->GetLFGState()->SetDungeon(realdungeon);
+        }
+        else
+            group->GetLFGState()->SetDungeon(pProposal->GetDungeon());
+    }
+
+
+    group->SetDungeonDifficulty(Difficulty(group->GetLFGState()->GetDungeon()->difficulty));
     group->GetLFGState()->SetStatus(LFG_STATUS_NOT_SAVED);
     group->SendUpdate();
 
@@ -985,8 +1070,23 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
 
     // Teleport group
     Teleport(group, true);
-
     RemoveProposal(ID);
+    group->GetLFGState()->SetState(LFG_STATE_DUNGEON);
+}
+
+void LFGMgr::CleanupProposals()
+{
+    std::set<uint32> expiredProposals;
+    for (LFGProposalMap::iterator itr = m_proposalMap.begin(); itr != m_proposalMap.end(); ++itr)
+    {
+        if (!itr->second.IsActive())
+            expiredProposals.insert(itr->second.ID);
+    }
+    if (!expiredProposals.empty())
+    {
+        for(std::set<uint32>::const_iterator itr = expiredProposals.begin(); itr != expiredProposals.end(); ++itr)
+            RemoveProposal(*itr);
+    }
 }
 
 void LFGMgr::OfferContinue(Group* group)
@@ -1141,17 +1241,23 @@ void LFGMgr::UpdateBoot(Player* player, bool accept)
 
 void LFGMgr::Teleport(Group* group, bool out)
 {
-    if (!group || !group->isLFDGroup())
+    if (!group)
         return;
+
+    DEBUG_LOG("LFGMgr::TeleportGroup %u in dungeon!", group->GetObjectGuid().GetCounter());
 
     for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
     {
         if (Player* member = itr->getSource())
+        {
             if (member->IsInWorld())
             {
-            // todo - if not in same dungeon
-                Teleport(member, out);
+                if (!member->GetLFGState()->IsTeleported() && !out)
+                    Teleport(member, out);
+                else if (out)
+                    Teleport(member, out);
             }
+        }
     }
 }
 
@@ -1187,7 +1293,12 @@ void LFGMgr::Teleport(Player* player, bool out, bool fromOpcode /*= false*/)
 
     if (error == LFG_TELEPORTERROR_OK)
     {
-        LFGDungeonEntry const* dungeon = *group->GetLFGState()->GetDungeons()->begin();
+        LFGDungeonEntry const* dungeon = group->GetLFGState()->GetDungeon();
+
+        bool leaderInDungeon = false;
+        Player* leader = sObjectMgr.GetPlayer(group->GetLeaderGuid());
+        if (leader && player != leader && leader->GetMapId() == uint32(dungeon->map))
+            leaderInDungeon = true;
 
         if (!dungeon)
         {
@@ -1196,6 +1307,14 @@ void LFGMgr::Teleport(Player* player, bool out, bool fromOpcode /*= false*/)
         else if (group->GetDungeonDifficulty() != dungeon->difficulty)
         {
             error = LFG_TELEPORTERROR_UNK4;
+        }
+        else if (leaderInDungeon && group->GetLFGState()->GetState() == LFG_STATE_DUNGEON)
+        {
+            mapid = leader->GetMapId();
+            x = leader->GetPositionX();
+            y = leader->GetPositionY();
+            z = leader->GetPositionZ();
+            orientation = leader->GetOrientation();
         }
         else if (AreaTrigger const* at = sObjectMgr.GetMapEntranceTrigger(dungeon->map))
         {
@@ -1486,6 +1605,7 @@ void LFGMgr::SetGroupRoles(Group* group)
             {
                 LFGRolesMap::iterator itr = rolesMap.find(member->GetObjectGuid());
                 member->GetLFGState()->SetRoles((*itr).second);
+                group->SetGroupRoles(member->GetObjectGuid(),(*itr).second);
             }
         }
     }
@@ -1642,7 +1762,7 @@ bool LFGMgr::TruCreateGroup(LFGType type)
             if (groupCreated)
                 break;
         }
-        DEBUG_LOG("LFGMgr:TryCreateGroup: Try create group to dungeon %u from %u players. result is %u", itr->first->ID, itr->second.size(), uint8(groupCreated));
+//        DEBUG_LOG("LFGMgr:TryCreateGroup: Try create group to dungeon %u from %u players. result is %u", itr->first->ID, itr->second.size(), uint8(groupCreated));
         if (groupCreated)
         {
             LFGDungeonEntry const* dungeon = SelectRandomDungeonFromList(intersection);
@@ -1661,9 +1781,59 @@ LFGQueueStatus* LFGMgr::GetDungeonQueueStatus(LFGDungeonEntry const* dungeon)
 
 void LFGMgr::SetDungeonQueueStatus(LFGDungeonEntry const* dungeon)
 {
+    LFGQueueStatus* status;
+
     LFGQueueStatusMap::iterator itr = m_queueStatus.find(dungeon);
     if (itr == m_queueStatus.end())
         m_queueStatus.insert(std::make_pair(dungeon,LFGQueueStatus()));
+
+    status = GetDungeonQueueStatus(dungeon);
+
+    LFGQueueSet* players = GetSearchVector(dungeon);
+
+    if (!players || players->empty())
+        return;
+
+    uint32 damagers = 0;
+    uint32 damagersTime = 0;
+
+    uint32 healers = 0;
+    uint32 healersTime = 0;
+
+    uint32 tanks = 0;
+    uint32 tanksTime = 0;
+
+    for (LFGQueueSet::iterator itr = players->begin(); itr != players->end(); ++itr)
+    {
+        Player* player = sObjectMgr.GetPlayer(*itr);
+        if (player && player->IsInWorld())
+        {
+            if (player->GetLFGState()->GetRoles() & LFG_ROLE_MASK_TANK)
+            {
+                ++tanks;
+                tanksTime += uint32( time(NULL) - player->GetLFGState()->GetJoinTime());
+            }
+
+            if (player->GetLFGState()->GetRoles() & LFG_ROLE_MASK_HEALER)
+            {
+                ++healers;
+                healersTime += uint32( time(NULL) - player->GetLFGState()->GetJoinTime());
+            }
+
+            if (player->GetLFGState()->GetRoles() & LFG_ROLE_MASK_DAMAGE)
+            {
+                ++damagers;
+                damagersTime += uint32( time(NULL) - player->GetLFGState()->GetJoinTime());
+            }
+        }
+    }
+    status->dps = damagers;
+    status->tanks = tanks;
+    status->healers = healers;
+
+    status->waitTimeTanks  = tanks    ? time_t(tanksTime/tanks)       : 0;
+    status->waitTimeHealer = healers  ? time_t(healersTime/healers)   : 0;
+    status->waitTimeDps    = damagers ? time_t(damagersTime/damagers) : 0;
 }
 
 void LFGMgr::RemoveDungeonQueueStatus(LFGDungeonEntry const* dungeon)
@@ -1832,13 +2002,16 @@ bool LFGMgr::HasIgnoreState(Group* group, ObjectGuid guid)
 LFGDungeonEntry const* LFGMgr::SelectRandomDungeonFromList(LFGDungeonSet dungeons)
 {
     if (dungeons.empty())
+    {
+        DEBUG_LOG("LFGMgr::SelectRandomDungeonFromList cannot select dungeons from empty list!");
         return NULL;
+    }
 
     if (dungeons.size() == 1)
         return *dungeons.begin();
     else
     {
-        uint32 rand = urand(0, dungeons.size());
+        uint32 rand = urand(0, dungeons.size() - 1);
         uint32 _key = 0;
         for (LFGDungeonSet::const_iterator itr = dungeons.begin(); itr != dungeons.end(); ++itr)
         {
@@ -1851,4 +2024,54 @@ LFGDungeonEntry const* LFGMgr::SelectRandomDungeonFromList(LFGDungeonSet dungeon
         }
     }
     return NULL;
+}
+
+void LFGMgr::UpdateLFRGroups()
+{
+    LFGType type = LFG_TYPE_RAID;
+    for (LFGQueue::const_iterator itr = m_groupQueue->begin(); itr != m_groupQueue->end(); ++itr)
+    {
+        ObjectGuid guid = (*itr)->guid;
+        Group* group = sObjectMgr.GetGroup(guid);
+        if (!group)
+            continue;
+
+        Player* player = sObjectMgr.GetPlayer(group->GetLeaderGuid());
+        if (!player)
+            continue;
+
+    }
+}
+
+bool LFGMgr::IsGroupCompleted(Group* group, uint8 addMembers)
+{
+    if (!group)
+        return false;
+
+    if (sWorld.getConfig(CONFIG_BOOL_LFG_DEBUG_ENABLE) && (group->GetMembersCount() + addMembers > 1))
+        return true;
+
+    if (group->isRaidGroup())
+    {
+        switch (group->GetDifficulty(true))
+        {
+            case RAID_DIFFICULTY_10MAN_NORMAL:
+            case RAID_DIFFICULTY_10MAN_HEROIC:
+                if (group->GetMembersCount() + addMembers >= 10)
+                    return true;
+                break;
+            case RAID_DIFFICULTY_25MAN_NORMAL:
+            case RAID_DIFFICULTY_25MAN_HEROIC:
+                if (group->GetMembersCount() + addMembers >= 25)
+                    return true;
+                break;
+            default:
+                return false;
+                break;
+        }
+    }
+    else if (group->GetMembersCount() + addMembers >= MAX_GROUP_SIZE)
+        return true;
+
+    return false;
 }

@@ -81,6 +81,7 @@ LFGRoleMask LFGPlayerState::GetRoles()
 void LFGPlayerState::SetJoined()
 {
     m_jointime = time_t(time(NULL));
+    m_teleported = false;
 };
 
 bool LFGPlayerState::IsSingleRole()
@@ -116,7 +117,6 @@ void LFGGroupState::Clear()
     queued = false;
     update = true;
     m_status = LFG_STATUS_NOT_SAVED;
-    dungeonEntry = 0;
     m_votesNeeded = 3;
     m_kicksLeft = 5;
     kickActive = false;
@@ -128,6 +128,7 @@ void LFGGroupState::Clear()
     m_proposal = NULL;
     m_roleCheckCancelTime = 0;
     m_roleCheckState      = LFG_ROLECHECK_NONE;
+    SetDungeon(NULL);
 }
 
 uint8 LFGGroupState::GetRoles(LFGRoles role)

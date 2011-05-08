@@ -27,6 +27,7 @@
 
 class Group;
 class Player;
+struct LFGDungeonExpansionEntry;
 
 // forward struct declarations
 struct LFGReward;
@@ -37,6 +38,7 @@ typedef std::multimap<uint32, LFGReward> LFGRewardMap;
 typedef std::pair<LFGRewardMap::const_iterator, LFGRewardMap::const_iterator> LFGRewardMapBounds;
 typedef std::map<ObjectGuid, LFGQueueInfo> LFGQueueInfoMap;
 typedef std::map<uint32/*ID*/, LFGDungeonEntry const*> LFGDungeonMap;
+typedef std::map<uint32/*ID*/, LFGDungeonExpansionEntry const*> LFGDungeonExpansionMap;
 typedef std::set<ObjectGuid>  LFGQueueSet;
 typedef std::map<ObjectGuid, LFGAnswer> LFGAnswerMap;
 typedef std::map<uint32/*ID*/, LFGProposal> LFGProposalMap;
@@ -184,6 +186,7 @@ class LFGMgr
         LFGProposal* GetProposal(uint32 ID);
         void RemoveProposal(uint32 ID);
         void UpdateProposal(uint32 ID, ObjectGuid guid, bool accept);
+        void CleanupProposals();
         Player* LeaderElection(LFGQueueSet* playerGuids);
 
         // boot vote system
@@ -192,8 +195,14 @@ class LFGMgr
         LFGPlayerBoot* GetBoot(ObjectGuid guid);
         void DeleteBoot(ObjectGuid guid);
         void UpdateBoot(Player* player, bool accept);
+
+        // teleport system
         void Teleport(Group* group, bool out);
         void Teleport(Player* player, bool out, bool fromOpcode = false);
+
+        // LFG extend system
+        void UpdateLFRGroups();
+        bool IsGroupCompleted(Group* group, uint8 addMembers = 0);
 
         // Statistic system
         LFGQueueStatus* GetDungeonQueueStatus(LFGDungeonEntry const* dungeon);
@@ -215,6 +224,7 @@ class LFGMgr
 
         // Dungeon operations
         LFGDungeonEntry const* GetDungeon(uint32 dungeonID);
+        LFGDungeonExpansionEntry const* GetDungeonExpansion(uint32 dungeonID);
         bool IsRandomDungeon(LFGDungeonEntry const* dungeon);
         LFGDungeonSet GetRandomDungeonsForPlayer(Player* player);
 
@@ -228,6 +238,7 @@ class LFGMgr
 
         // Player status
         LFGLockStatusType GetPlayerLockStatus(Player* player, LFGDungeonEntry const* dungeon);
+        LFGLockStatusType GetPlayerExpansionLockStatus(Player* player, LFGDungeonEntry const* dungeon);
         LFGLockStatusType GetGroupLockStatus(Group* group, LFGDungeonEntry const* dungeon);
         LFGLockStatusMap GetPlayerLockMap(Player* player);
 
@@ -254,10 +265,13 @@ class LFGMgr
         LFGQueue        m_playerQueue[LFG_TYPE_MAX];        // Queue's for players
         LFGQueue        m_groupQueue[LFG_TYPE_MAX];         // Queue's for groups
         LFGDungeonMap   m_dungeonMap;                       // sorted dungeon map
+        LFGDungeonExpansionMap m_dungeonExpansionMap;       // sorted dungeon expansion map
         LFGQueueStatusMap  m_queueStatus;                   // Queue statisic
         LFGProposalMap  m_proposalMap;                      // Proposal store
         LFGBootMap      m_bootMap;                          // boot store
         LFGSearchMap    m_searchMatrix;                     // Search matrix
+
+        uint32          m_updateTimer;                      // update timer for cleanup/statistic
 
         LockType            i_lock;
 

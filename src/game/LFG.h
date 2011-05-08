@@ -118,6 +118,7 @@ enum LFGenum
     LFG_HEALERS_NEEDED         = 1,
     LFG_DPS_NEEDED             = 3,
     LFG_QUEUEUPDATE_INTERVAL   = 15*IN_MILLISECONDS,
+    LFG_UPDATE_INTERVAL        = 1*IN_MILLISECONDS,
     LFG_SPELL_DUNGEON_COOLDOWN = 71328,
     LFG_SPELL_DUNGEON_DESERTER = 71041,
     LFG_SPELL_LUCK_OF_THE_DRAW = 72221,
@@ -228,7 +229,7 @@ struct LFGPlayerState
     {
         Clear();
     };
-
+public:
     void Clear();
     void Update(bool _update = true) { update = _update; };
     LFGDungeonSet* GetDungeons()   { return &m_DungeonsList; };
@@ -253,6 +254,9 @@ struct LFGPlayerState
     void           SetJoined();
     time_t         GetJoinTime() { return m_jointime;};
 
+    void           SetTeleported() {m_teleported = true;};
+    bool           IsTeleported() { return m_teleported;};
+
     void           SetAnswer(LFGAnswer _accept) { accept = _accept;};
     LFGAnswer      GetAnswer() { return accept;};
 
@@ -262,6 +266,7 @@ private:
     LFGRoleMask   rolesMask;
     uint32        m_flags;
     bool          update;
+    bool          m_teleported;
     Player*       m_player;
     LFGState      m_state;
     time_t        m_jointime;
@@ -280,9 +285,13 @@ struct LFGGroupState
         Clear();
     };
 
+public:
     void Clear();
     void Update(bool _update = true) { update = _update; };
     LFGDungeonSet* GetDungeons()   { return &m_DungeonsList; };
+
+    LFGDungeonEntry const* GetDungeon()   { return m_realdungeon; };
+    void SetDungeon(LFGDungeonEntry const* _dungeon)   { m_realdungeon = _dungeon; };
 
     void          SetState(LFGState _state) { m_state = _state; };
     LFGState      GetState() { return m_state; };
@@ -309,10 +318,10 @@ struct LFGGroupState
     bool QueryRoleCheckTime() {return !(time_t(time(NULL)) > m_roleCheckCancelTime);};
     bool IsRoleCheckActive();
 
+private:
     bool          queued;
     bool          update;
     Group*        m_group;
-    uint32        dungeonEntry;
     uint32        m_flags;
     uint8         m_votesNeeded;                               // Votes need to kick success
     uint8         m_kicksLeft;                                 // Number of kicks left
@@ -321,6 +330,7 @@ struct LFGGroupState
     LFGDungeonStatus     m_status;
     LFGDungeonSet    m_DungeonsList;                           // Dungeons the group have applied for
     LFGProposal*  m_proposal;
+    LFGDungeonEntry const* m_realdungeon;                       // real dungeon entry (if random or list)
     time_t        m_roleCheckCancelTime;                       // Time when the rolecheck will fail
     LFGRoleCheckState m_roleCheckState;                        // State of the rolecheck
 };

@@ -1043,29 +1043,22 @@ void WorldSession::SendLfgUpdateProposal(LFGProposal* pProposal)
     ObjectGuid guid = GetPlayer()->GetObjectGuid();
 
     bool isSameDungeon = false;
-    bool isContinue = false;
+    bool isContinue = false;                              // Only show proposal dungeon if it's continue
 
     uint32 completedEncounters = 0;
+    uint32 size = pProposal->playerGuids.size();
 
     if (pProposal->GetGroup())
     {
         isContinue = pProposal->GetGroup()->isLFDGroup();
         // && sLFGMgr->GetState(gguid) != LFG_STATE_FINISHED_DUNGEON;
         isSameDungeon = (GetPlayer()->GetGroup() == pProposal->GetGroup()) && isContinue;
+        size += pProposal->GetGroup()->GetMembersCount();
     }
 
-    DEBUG_LOG("SMSG_LFG_PROPOSAL_UPDATE %u state: %u", GetPlayer()->GetObjectGuid().GetCounter(), pProposal->GetState());
+    DEBUG_LOG("SMSG_LFG_PROPOSAL_UPDATE proposal %u, player %u, state: %u", pProposal->ID, GetPlayer()->GetObjectGuid().GetCounter(), pProposal->GetState());
 
-    WorldPacket data(SMSG_LFG_PROPOSAL_UPDATE, 4 + 1 + 4 + 4 + 1 + 1 + pProposal->playerGuids.size() * (4 + 1 + 1 + 1 + 1 +1));
-
-    LFGDungeonEntry const* dungeon = NULL;
-
-    if (!isContinue)                                       // Only show proposal dungeon if it's continue
-    {
-        LFGDungeonSet* playerDungeons = GetPlayer()->GetLFGState()->GetDungeons();
-        if (playerDungeons->size() == 1)
-            dungeon = (*playerDungeons->begin());
-    }
+    LFGDungeonEntry const* dungeon = pProposal->GetDungeon();
 
     if (dungeon)
     {
@@ -1085,14 +1078,22 @@ void WorldSession::SendLfgUpdateProposal(LFGProposal* pProposal)
                 }
             }
         }
+        // bind if no group
     }
+    else 
+    {
+        DEBUG_LOG("SMSG_LFG_PROPOSAL_UPDATE: no dungeon in proposal %u, returning.", pProposal->ID);
+        return;
+    }
+
+    WorldPacket data(SMSG_LFG_PROPOSAL_UPDATE, 4 + 1 + 4 + 4 + 1 + 1 + pProposal->playerGuids.size() * (4 + 1 + 1 + 1 + 1 +1));
 
     data << uint32(dungeon->Entry());                          // Dungeon
     data << uint8(pProposal->GetState());                      // Result state
     data << uint32(pProposal->ID);                             // Internal Proposal ID
     data << uint32(completedEncounters);                       // Bosses killed
     data << uint8(isSameDungeon);                              // Silent (show client window)
-    data << uint8(pProposal->playerGuids.size());              // Group size
+    data << uint8(size);                                       // Group size
 
     for (LFGQueueSet::const_iterator itr = pProposal->playerGuids.begin(); itr != pProposal->playerGuids.end(); ++itr)
     {
@@ -1101,11 +1102,11 @@ void WorldSession::SendLfgUpdateProposal(LFGProposal* pProposal)
             continue;
 
         data << uint32(pPlayer->GetLFGState()->GetRoles());       // Role
-        data << uint8(pPlayer->GetObjectGuid() == guid);            // Self player
+        data << uint8(pPlayer->GetObjectGuid() == guid);          // Self player
         if (!(pPlayer->GetGroup() == pProposal->GetGroup()))                              // Player not it a group
         {
-            data << uint8(0);                              // Not in dungeon
-            data << uint8(0);                              // Not same group
+            data << uint8(0);                                     // Not in dungeon
+            data << uint8(0);                                     // Not same group
         }
         else
         {
