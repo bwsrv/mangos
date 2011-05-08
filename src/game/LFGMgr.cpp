@@ -644,24 +644,26 @@ LFGDungeonSet LFGMgr::GetRandomDungeonsForPlayer(Player* player)
 LFGDungeonSet LFGMgr::ExpandRandomDungeonsForGroup(LFGDungeonEntry const* randomDungeon, LFGQueueSet playerGuids)
 {
     LFGDungeonSet list;
-    for (uint32 i = 0; i < sLFGDungeonExpansionStore.GetNumRows(); ++i)
+    for (uint32 i = 0; i < sLFGDungeonStore.GetNumRows(); ++i)
     {
-        if (LFGDungeonExpansionEntry const* dungeonEx = sLFGDungeonExpansionStore.LookupEntry(i))
+        if (LFGDungeonEntry const* dungeonEx = sLFGDungeonStore.LookupEntry(i))
         {
-            if (dungeonEx->randomEntry == randomDungeon->ID)
+            if ((dungeonEx->type == LFG_TYPE_DUNGEON ||
+                 dungeonEx->type == LFG_TYPE_HEROIC_DUNGEON)
+                 && dungeonEx->difficulty == randomDungeon->difficulty)
             {
                 bool checkPassed = true;
-                LFGDungeonEntry const* dungeon = GetDungeon(dungeonEx->dungeonID);
                 for (LFGQueueSet::const_iterator itr =  playerGuids.begin(); itr !=  playerGuids.end(); ++itr)
                 {
                     Player* player = sObjectMgr.GetPlayer(*itr);
-                    // Additional checks for ext there!
 
-                    if (!dungeon || GetPlayerLockStatus(player, dungeon) != LFG_LOCKSTATUS_OK)
+                    // Additional checks for expansion there!
+
+                    if (!dungeonEx || GetPlayerLockStatus(player, dungeonEx) != LFG_LOCKSTATUS_OK)
                        checkPassed = false;
                 } 
                 if (checkPassed)
-                    list.insert(dungeon);
+                    list.insert(dungeonEx);
             }
         }
     }
@@ -1012,7 +1014,6 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
         group = new Group();
         group->Create(leader->GetObjectGuid(), leader->GetName());
         // create LFGState()
-        group->ConvertToLFG(leader->GetLFGState()->GetType());
         sObjectMgr.AddGroup(group);
         DEBUG_LOG("LFGMgr::UpdateProposal: in proposal %u created group %u", pProposal->ID, group->GetObjectGuid().GetCounter());
     }
@@ -1062,6 +1063,7 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
     }
 
 
+    group->ConvertToLFG(LFGType(group->GetLFGState()->GetDungeon()->type));
     group->SetDungeonDifficulty(Difficulty(group->GetLFGState()->GetDungeon()->difficulty));
     group->GetLFGState()->SetStatus(LFG_STATUS_NOT_SAVED);
     group->SendUpdate();
@@ -1069,7 +1071,7 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
     // Remove players/groups from Queue
 
     // Teleport group
-    Teleport(group, true);
+    Teleport(group, false);
     RemoveProposal(ID);
     group->GetLFGState()->SetState(LFG_STATE_DUNGEON);
 }
@@ -1277,7 +1279,7 @@ void LFGMgr::Teleport(Player* player, bool out, bool fromOpcode /*= false*/)
 
     Group* group = player->GetGroup();
 
-    if (!group || !group->isLFDGroup())                        // should never happen, but just in case...
+    if (!group)
         error = LFG_TELEPORTERROR_INVALID_LOCATION;
     else if (!player->isAlive())
         error = LFG_TELEPORTERROR_PLAYER_DEAD;
@@ -1318,7 +1320,6 @@ void LFGMgr::Teleport(Player* player, bool out, bool fromOpcode /*= false*/)
         }
         else if (AreaTrigger const* at = sObjectMgr.GetMapEntranceTrigger(dungeon->map))
         {
-            difficulty = Difficulty(dungeon->difficulty);
             mapid = at->target_mapId;
             x = at->target_X;
             y = at->target_Y;

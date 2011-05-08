@@ -197,8 +197,8 @@ class LFGMgr
         void UpdateBoot(Player* player, bool accept);
 
         // teleport system
-        void Teleport(Group* group, bool out);
-        void Teleport(Player* player, bool out, bool fromOpcode = false);
+        void Teleport(Group* group, bool out = false);
+        void Teleport(Player* player, bool out = false, bool fromOpcode = false);
 
         // LFG extend system
         void UpdateLFRGroups();
