@@ -1390,7 +1390,7 @@ void Pet::_SaveAuras()
 
         //skip all holders from spells that are passive or channeled
         //do not save single target holders (unless they were cast by the player)
-        if (save && !holder->IsPassive() && !IsChanneledSpell(holder->GetSpellProto()) && (holder->GetCasterGUID() == GetGUID() || !holder->IsSingleTarget()))
+        if (save && !holder->IsPassive() && !IsChanneledSpell(holder->GetSpellProto()) && (holder->GetCasterGuid() == GetObjectGuid() || !holder->IsSingleTarget()))
         {
             int32  damage[MAX_EFFECT_INDEX];
             uint32 periodicTime[MAX_EFFECT_INDEX];
@@ -1404,7 +1404,7 @@ void Pet::_SaveAuras()
                 if (Aura *aur = holder->GetAuraByEffectIndex(SpellEffectIndex(i)))
                 {
                     // don't save not own area auras
-                    if (aur->IsAreaAura() && holder->GetCasterGUID() != GetGUID())
+                    if (aur->IsAreaAura() && holder->GetCasterGuid() != GetObjectGuid())
                         continue;
 
                     damage[i] = aur->GetModifier()->m_amount;
@@ -2210,7 +2210,7 @@ void Pet::ApplyStatScalingBonus(Stats stat, bool apply)
 
         SpellAuraHolder* holder = _aura->GetHolder();
 
-        if (!holder || holder->IsDeleted() || holder->IsEmptyHolder() || holder->GetCasterGUID() != GetGUID())
+        if (!holder || holder->IsDeleted() || holder->IsEmptyHolder() || holder->GetCasterGuid() != GetObjectGuid())
             continue;
 
         SpellEntry const *spellproto = holder->GetSpellProto();
@@ -2274,7 +2274,7 @@ void Pet::ApplyResistanceScalingBonus(uint32 school, bool apply)
 
         SpellAuraHolder* holder = _aura->GetHolder();
 
-        if (!holder || holder->IsDeleted() || holder->IsEmptyHolder() || holder->GetCasterGUID() != GetGUID())
+        if (!holder || holder->IsDeleted() || holder->IsEmptyHolder() || holder->GetCasterGuid() != GetObjectGuid())
             continue;
 
         SpellEntry const *spellproto = holder->GetSpellProto();
@@ -2388,7 +2388,7 @@ void Pet::ApplyAttackPowerScalingBonus(bool apply)
 
         SpellAuraHolder* holder = _aura->GetHolder();
 
-        if (!holder || holder->IsDeleted() || holder->IsEmptyHolder() || holder->GetCasterGUID() != GetGUID())
+        if (!holder || holder->IsDeleted() || holder->IsEmptyHolder() || holder->GetCasterGuid() != GetObjectGuid())
             continue;
 
         SpellEntry const *spellproto = holder->GetSpellProto();
@@ -2478,7 +2478,7 @@ void Pet::ApplyDamageScalingBonus(bool apply)
 
         SpellAuraHolder* holder = _aura->GetHolder();
 
-        if (!holder || holder->IsDeleted() || holder->IsEmptyHolder() || holder->GetCasterGUID() != GetGUID())
+        if (!holder || holder->IsDeleted() || holder->IsEmptyHolder() || holder->GetCasterGuid() != GetObjectGuid())
             continue;
 
         SpellEntry const *spellproto = holder->GetSpellProto();
@@ -2586,7 +2586,7 @@ void Pet::ApplySpellDamageScalingBonus(bool apply)
 
         SpellAuraHolder* holder = _aura->GetHolder();
 
-        if (!holder || holder->IsDeleted() || holder->IsEmptyHolder() || holder->GetCasterGUID() != GetGUID())
+        if (!holder || holder->IsDeleted() || holder->IsEmptyHolder() || holder->GetCasterGuid() != GetObjectGuid())
             continue;
 
         SpellEntry const *spellproto = holder->GetSpellProto();
@@ -2661,7 +2661,7 @@ void Pet::ApplyHitScalingBonus(bool apply)
 
         SpellAuraHolder* holder = _aura->GetHolder();
 
-        if (!holder || holder->IsDeleted() || holder->IsEmptyHolder() || holder->GetCasterGUID() != GetGUID())
+        if (!holder || holder->IsDeleted() || holder->IsEmptyHolder() || holder->GetCasterGuid() != GetObjectGuid())
             continue;
 
         SpellEntry const *spellproto = holder->GetSpellProto();
@@ -2715,7 +2715,7 @@ void Pet::ApplySpellHitScalingBonus(bool apply)
 
         SpellAuraHolder* holder = _aura->GetHolder();
 
-        if (!holder || holder->IsDeleted() || holder->IsEmptyHolder() || holder->GetCasterGUID() != GetGUID())
+        if (!holder || holder->IsDeleted() || holder->IsEmptyHolder() || holder->GetCasterGuid() != GetObjectGuid())
             continue;
 
         SpellEntry const *spellproto = holder->GetSpellProto();
@@ -2767,7 +2767,7 @@ void Pet::ApplyExpertizeScalingBonus(bool apply)
 
         SpellAuraHolder* holder = _aura->GetHolder();
 
-        if (!holder || holder->IsDeleted() || holder->IsEmptyHolder() || holder->GetCasterGUID() != GetGUID())
+        if (!holder || holder->IsDeleted() || holder->IsEmptyHolder() || holder->GetCasterGuid() != GetObjectGuid())
             continue;
 
         SpellEntry const *spellproto = holder->GetSpellProto();
@@ -2821,7 +2821,7 @@ void Pet::ApplyPowerregenScalingBonus(bool apply)
 
         SpellAuraHolder* holder = _aura->GetHolder();
 
-        if (!holder || holder->IsDeleted() || holder->IsEmptyHolder() || holder->GetCasterGUID() != GetGUID())
+        if (!holder || holder->IsDeleted() || holder->IsEmptyHolder() || holder->GetCasterGuid() != GetObjectGuid())
             continue;
 
         SpellEntry const *spellproto = holder->GetSpellProto();

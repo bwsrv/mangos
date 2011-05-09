@@ -1567,7 +1567,7 @@ void Group::UpdateLooterGuid( WorldObject* object, bool ifneed )
             {
                 if (pl->IsWithinDist(object, sWorld.getConfig(CONFIG_FLOAT_GROUP_XP_DISTANCE), false))
                 {
-                    bool refresh = pl->GetLootGUID() == object->GetGUID();
+                    bool refresh = pl->GetLootGuid() == object->GetObjectGuid();
 
                     //if(refresh)                           // update loot for new looter
                     //    pl->GetSession()->DoLootRelease(pl->GetLootGUID());
@@ -1588,7 +1588,7 @@ void Group::UpdateLooterGuid( WorldObject* object, bool ifneed )
         {
             if (pl->IsWithinDist(object, sWorld.getConfig(CONFIG_FLOAT_GROUP_XP_DISTANCE), false))
             {
-                bool refresh = pl->GetLootGUID() == object->GetGUID();
+                bool refresh = pl->GetLootGuid() == object->GetObjectGuid();
 
                 //if(refresh)                               // update loot for new looter
                 //    pl->GetSession()->DoLootRelease(pl->GetLootGUID());
