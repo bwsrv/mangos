@@ -1840,11 +1840,8 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     // We have to perform this check before the teleport, otherwise the
     // ObjectAccessor won't find the flag.
     if (duel && GetMapId() != mapid)
-    {
-        GameObject* obj = GetMap()->GetGameObject(GetUInt64Value(PLAYER_DUEL_ARBITER));
-        if (obj)
+        if (GameObject* obj = GetMap()->GetGameObject(GetGuidValue(PLAYER_DUEL_ARBITER)))
             DuelComplete(DUEL_FLED);
-    }
 
     // reset movement flags at teleport, because player will continue move with these flags after teleport
     m_movementInfo.SetMovementFlags(MOVEFLAG_NONE);
@@ -7158,17 +7155,16 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 //If players are too far way of duel flag... then player loose the duel
 void Player::CheckDuelDistance(time_t currTime)
 {
-    if(!duel)
+    if (!duel)
         return;
 
-    uint64 duelFlagGUID = GetUInt64Value(PLAYER_DUEL_ARBITER);
-    GameObject* obj = GetMap()->GetGameObject(duelFlagGUID);
+    GameObject* obj = GetMap()->GetGameObject(GetGuidValue(PLAYER_DUEL_ARBITER));
     if(!obj)
         return;
 
-    if(duel->outOfBound == 0)
+    if (duel->outOfBound == 0)
     {
-        if(!IsWithinDistInMap(obj, 50))
+        if (!IsWithinDistInMap(obj, 50))
         {
             duel->outOfBound = currTime;
 
@@ -7178,14 +7174,14 @@ void Player::CheckDuelDistance(time_t currTime)
     }
     else
     {
-        if(IsWithinDistInMap(obj, 40))
+        if (IsWithinDistInMap(obj, 40))
         {
             duel->outOfBound = 0;
 
             WorldPacket data(SMSG_DUEL_INBOUNDS, 0);
             GetSession()->SendPacket(&data);
         }
-        else if(currTime >= (duel->outOfBound+10))
+        else if (currTime >= (duel->outOfBound+10))
         {
             DuelComplete(DUEL_FLED);
         }
@@ -7220,9 +7216,8 @@ void Player::DuelComplete(DuelCompleteType type)
     }
 
     //Remove Duel Flag object
-    GameObject* obj = GetMap()->GetGameObject(GetUInt64Value(PLAYER_DUEL_ARBITER));
-    if(obj)
-        duel->initiator->RemoveGameObject(obj,true);
+    if (GameObject* obj = GetMap()->GetGameObject(GetGuidValue(PLAYER_DUEL_ARBITER)))
+        duel->initiator->RemoveGameObject(obj, true);
 
     /* remove auras */
     std::vector<uint32> auras2remove;
@@ -7243,7 +7238,7 @@ void Player::DuelComplete(DuelCompleteType type)
         if (!i->second->IsPositive() && i->second->GetCasterGuid() == duel->opponent->GetObjectGuid() && i->second->GetAuraApplyTime() >= duel->startTime)
             auras2remove.push_back(i->second->GetId());
     }
-    for(size_t i=0; i<auras2remove.size(); ++i)
+    for (size_t i=0; i<auras2remove.size(); ++i)
         RemoveAurasDueToSpell(auras2remove[i]);
 
     // cleanup combo points
@@ -7258,9 +7253,9 @@ void Player::DuelComplete(DuelCompleteType type)
         duel->opponent->ClearComboPoints();
 
     //cleanups
-    SetUInt64Value(PLAYER_DUEL_ARBITER, 0);
+    SetGuidValue(PLAYER_DUEL_ARBITER, ObjectGuid());
     SetUInt32Value(PLAYER_DUEL_TEAM, 0);
-    duel->opponent->SetUInt64Value(PLAYER_DUEL_ARBITER, 0);
+    duel->opponent->SetGuidValue(PLAYER_DUEL_ARBITER, ObjectGuid());
     duel->opponent->SetUInt32Value(PLAYER_DUEL_TEAM, 0);
 
     delete duel->opponent->duel;
@@ -8583,7 +8578,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
 
     // add 'this' player as one of the players that are looting 'loot'
     if (permission != NONE_PERMISSION)
-        loot->AddLooter(GetGUID());
+        loot->AddLooter(GetObjectGuid());
 
     if (loot_type == LOOT_CORPSE && !guid.IsItem())
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_LOOTING);
@@ -16172,7 +16167,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SqlQueryHolder *holder )
     ClearInCombat();
 
     // make sure the unit is considered not in duel for proper loading
-    SetUInt64Value(PLAYER_DUEL_ARBITER, 0);
+    SetGuidValue(PLAYER_DUEL_ARBITER, ObjectGuid());
     SetUInt32Value(PLAYER_DUEL_TEAM, 0);
 
     // reset stats before loading any modifiers
@@ -16184,7 +16179,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SqlQueryHolder *holder )
     // rest bonus can only be calculated after InitStatsForLevel()
     m_rest_bonus = fields[21].GetFloat();
 
-    if(time_diff > 0)
+    if (time_diff > 0)
     {
         //speed collect rest bonus in offline, in logout, far from tavern, city (section/in hour)
         float bubble0 = 0.031f;
