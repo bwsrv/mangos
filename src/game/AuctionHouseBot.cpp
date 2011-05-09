@@ -109,16 +109,14 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
 
     for (AuctionHouseObject::AuctionEntryMap::const_iterator itr = auctionHouse->GetAuctionsBegin();itr != auctionHouse->GetAuctionsEnd();++itr)
     {
-        AuctionHouseMgr::ReadGuard Guard(sAuctionMgr.GetLock());
-
         AuctionEntry* Aentry = itr->second;
 
         if (Aentry->IsDeleted())
             continue;
 
-        if (ItemPrototype const* prototype = sAuctionMgr.GetAItemProto(Aentry->itemGuidLow))
+        if (Item* item = sAuctionMgr.GetAItem(Aentry->itemGuidLow))
         {
-            if (prototype)
+            if (ItemPrototype const* prototype = item->GetProto())
             {
                 switch (prototype->Quality)
                 {

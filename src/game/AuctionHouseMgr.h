@@ -176,18 +176,6 @@ class AuctionHouseMgr
             return NULL;
         }
 
-        ItemPrototype const* GetAItemProto(uint32 id)
-        {
-            ReadGuard guard(i_lock);
-            ItemMap::const_iterator itr = mAitems.find(id);
-            if (itr != mAitems.end())
-            {
-                if (itr->second)
-                    return itr->second->GetProto();
-            }
-            return NULL;
-        }
-
         //auction messages
         void SendAuctionWonMail( AuctionEntry * auction );
         void SendAuctionSalePendingMail( AuctionEntry * auction );
