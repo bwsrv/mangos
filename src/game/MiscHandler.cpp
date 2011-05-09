@@ -714,7 +714,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
         return;
 
     uint32 quest_id = sObjectMgr.GetQuestForAreaTrigger( Trigger_ID );
-    if( quest_id && pl->isAlive() && pl->IsActiveQuest(quest_id) )
+    if ( quest_id && pl->isAlive() && pl->IsActiveQuest(quest_id) )
     {
         Quest const* pQuest = sObjectMgr.GetQuestTemplate(quest_id);
         if( pQuest )
@@ -725,7 +725,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
     }
 
     // enter to tavern, not overwrite city rest
-    if(sObjectMgr.IsTavernAreaTrigger(Trigger_ID))
+    if (sObjectMgr.IsTavernAreaTrigger(Trigger_ID))
     {
         // set resting flag we are in the inn
         if (pl->GetRestType() != REST_TYPE_IN_CITY)
@@ -733,7 +733,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
         return;
     }
 
-    if(pl->InBattleGround())
+    if (pl->InBattleGround())
     {
         if (BattleGround* bg = pl->GetBattleGround())
             bg->HandleAreaTrigger(pl, Trigger_ID);
@@ -744,11 +744,52 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
     if (!at)
         return;
 
-    MapEntry const* mapEntry = sMapStore.LookupEntry(at->target_mapId);
-    if (!mapEntry)
+    MapEntry const* targetMapEntry = sMapStore.LookupEntry(at->target_mapId);
+    if (!targetMapEntry)
         return;
 
-    switch (GetPlayer()->GetAreaTriggerLockStatus(at, GetPlayer()->GetDifficulty(mapEntry->IsRaid())))
+    if (!pl->isGameMaster())
+    {
+        // ghost resurrected at enter attempt to dungeon with corpse (including fail enter cases)
+        if (!pl->isAlive() && targetMapEntry->IsDungeon())
+        {
+            int32 corpseMapId = 0;
+            if (Corpse *corpse = pl->GetCorpse())
+                corpseMapId = corpse->GetMapId();
+
+            // check back way from corpse to entrance
+            uint32 instance_map = corpseMapId;
+            do
+            {
+                // most often fast case
+                if (instance_map==targetMapEntry->MapID)
+                    break;
+
+                InstanceTemplate const* instance = ObjectMgr::GetInstanceTemplate(instance_map);
+                instance_map = instance ? instance->parent : 0;
+            }
+            while (instance_map);
+
+            // corpse not in dungeon or some linked deep dungeons
+            if (!instance_map)
+            {
+                WorldPacket data(SMSG_AREA_TRIGGER_NO_CORPSE);
+                pl->GetSession()->SendPacket(&data);
+                return;
+            }
+
+            // need find areatrigger to inner dungeon for landing point
+            if (at->target_mapId != corpseMapId)
+                if (AreaTrigger const* corpseAt = sObjectMgr.GetMapEntranceTrigger(corpseMapId))
+                    at = corpseAt;
+
+            // now we can resurrect player, and then check teleport requirements
+            pl->ResurrectPlayer(0.5f);
+            pl->SpawnCorpseBones();
+        }
+    }
+
+    switch (GetPlayer()->GetAreaTriggerLockStatus(at, GetPlayer()->GetDifficulty(targetMapEntry->IsRaid())))
     {
         case AREA_LOCKSTATUS_OK:
             GetPlayer()->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, at->target_Orientation, TELE_TO_NOT_LEAVE_TRANSPORT);
@@ -765,23 +806,23 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
             // No break here!
         case AREA_LOCKSTATUS_MISSING_ITEM:
             {
-                MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mapEntry->MapID,GetPlayer()->GetDifficulty(mapEntry->IsRaid()));
+                MapDifficultyEntry const* mapDiff = GetMapDifficultyData(targetMapEntry->MapID,GetPlayer()->GetDifficulty(targetMapEntry->IsRaid()));
                 if (mapDiff && mapDiff->mapDifficultyFlags & MAP_DIFFICULTY_FLAG_CONDITION)
                 {
                     SendAreaTriggerMessage(mapDiff->areaTriggerText[GetSessionDbcLocale()]);
                 }
                 // do not report anything for quest areatriggers
-                DEBUG_LOG("HandleAreaTriggerOpcode:  LockAreaStatus %u, do action", uint8(GetPlayer()->GetAreaTriggerLockStatus(at, GetPlayer()->GetDifficulty(mapEntry->IsRaid()))));
+                DEBUG_LOG("HandleAreaTriggerOpcode:  LockAreaStatus %u, do action", uint8(GetPlayer()->GetAreaTriggerLockStatus(at, GetPlayer()->GetDifficulty(targetMapEntry->IsRaid()))));
                 return;
             }
         case AREA_LOCKSTATUS_MISSING_DIFFICULTY:
             {
-                Difficulty difficulty = GetPlayer()->GetDifficulty(mapEntry->IsRaid());
+                Difficulty difficulty = GetPlayer()->GetDifficulty(targetMapEntry->IsRaid());
                 GetPlayer()->SendTransferAborted(at->target_mapId, TRANSFER_ABORT_DIFFICULTY, difficulty > RAID_DIFFICULTY_10MAN_HEROIC ? RAID_DIFFICULTY_10MAN_HEROIC : difficulty);
                 return;
             }
         case AREA_LOCKSTATUS_INSUFFICIENT_EXPANSION:
-            GetPlayer()->SendTransferAborted(at->target_mapId, TRANSFER_ABORT_INSUF_EXPAN_LVL, mapEntry->Expansion());
+            GetPlayer()->SendTransferAborted(at->target_mapId, TRANSFER_ABORT_INSUF_EXPAN_LVL, targetMapEntry->Expansion());
             return;
         case AREA_LOCKSTATUS_NOT_ALLOWED:
             GetPlayer()->SendTransferAborted(at->target_mapId, TRANSFER_ABORT_MAP_NOT_ALLOWED);
@@ -794,7 +835,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
                 return;
             }
         default:
-            DEBUG_LOG("HandleAreaTriggerOpcode: unhandled LockAreaStatus %u, do nothing", uint8(GetPlayer()->GetAreaTriggerLockStatus(at, GetPlayer()->GetDifficulty(mapEntry->IsRaid()))));
+            DEBUG_LOG("HandleAreaTriggerOpcode: unhandled LockAreaStatus %u, do nothing", uint8(GetPlayer()->GetAreaTriggerLockStatus(at, GetPlayer()->GetDifficulty(targetMapEntry->IsRaid()))));
             return;
     }
 }

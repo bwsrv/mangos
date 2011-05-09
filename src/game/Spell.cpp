@@ -6030,6 +6030,10 @@ SpellCastResult Spell::CheckCast(bool strict)
             {
                 Unit* pTarget = m_targets.getUnitTarget();
 
+                // In case of TARGET_SCRIPT, we have already added a target. Use it here (and find a better solution)
+                if (m_UniqueTargetInfo.size() == 1)
+                    pTarget = m_caster->GetMap()->GetAnyTypeCreature(m_UniqueTargetInfo.front().targetGUID);
+
                 if (!pTarget)
                     return SPELL_FAILED_BAD_TARGETS;
 
