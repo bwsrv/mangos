@@ -49,6 +49,7 @@ LFGMgr::LFGMgr()
         }
     }
     m_proposalID = 1;
+    m_updateTimer = LFG_UPDATE_INTERVAL;
 }
 
 LFGMgr::~LFGMgr()
@@ -91,11 +92,11 @@ void LFGMgr::Update(uint32 diff)
     for (uint8 i = LFG_TYPE_NONE; i < LFG_TYPE_MAX; ++i)
     {
 
+//        DEBUG_LOG("LFGMgr::Update type %u, player queue %u group queue %u",i,m_playerQueue[i].size(), m_groupQueue[i].size());
         if (m_playerQueue[i].empty() && m_groupQueue[i].empty())
             continue;
 
         LFGType type = LFGType(i);
-//        DEBUG_LOG("LFGMgr::Update type %u, player queue %u group queue %u",type,m_playerQueue[i].size(), m_groupQueue[i].size());
         switch (type)
         {
             case LFG_TYPE_DUNGEON:
@@ -114,9 +115,11 @@ void LFGMgr::Update(uint32 diff)
             {
                 if (sWorld.getConfig(CONFIG_BOOL_LFR_EXTEND))
                 {
-                    UpdateLFRGroups();
                     if (isFullUpdate)
+                    {
+                        UpdateLFRGroups();
                         UpdateStatistic(type);
+                    }
                 }
                 break;
             }
@@ -2080,16 +2083,10 @@ void LFGMgr::UpdateLFRGroups()
         if (!group || !group->isLFRGroup())
             continue;
 
-        if (group->GetLFGState()->GetState() != LFG_STATE_LFG)
+        if (group->GetLFGState()->GetState() != LFG_STATE_LFR)
             continue;
 
         if (!IsGroupCompleted(group))
-            continue;
-
-        if (group->GetLFGState()->GetState() != LFG_STATE_LFG)
-            continue;
-
-        if (group->GetLFGState()->GetStatus() == LFG_STATUS_NOT_SAVED)
             continue;
 
         if (!group->GetLFGState()->GetDungeon())
@@ -2108,6 +2105,7 @@ void LFGMgr::UpdateLFRGroups()
             }
         }
 
+        uint8 tpnum = 0;
         for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             if (Player* member = itr->getSource())
@@ -2118,11 +2116,13 @@ void LFGMgr::UpdateLFRGroups()
                     {
                         AddMemberToLFDGroup(member->GetObjectGuid());
                         member->GetLFGState()->SetState(LFG_STATE_DUNGEON);
+                        ++tpnum;
                     }
                 }
             }
         }
-        Teleport(group, false);
+        if (tpnum)
+            Teleport(group, false);
     }
 }
 
@@ -2179,6 +2179,9 @@ void LFGMgr::AddMemberToLFDGroup(ObjectGuid guid)
     player->CastSpell(player,LFG_SPELL_DUNGEON_COOLDOWN,true);
 
     player->GetLFGState()->SetState(group->isRaidGroup() ? LFG_STATE_LFR : LFG_STATE_LFG);
+
+    if (group->isRaidGroup())
+        group->GetLFGState()->SetState(LFG_STATE_LFR);
 }
 
 void LFGMgr::RemoveMemberFromLFDGroup(ObjectGuid guid)
