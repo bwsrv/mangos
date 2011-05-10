@@ -367,7 +367,8 @@ void LFGMgr::Leave(Player* player)
         group->GetLFGState()->Clear();
         player->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_REMOVED_FROM_QUEUE, type);
     }
-    player->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_REMOVED_FROM_QUEUE, type);
+    else
+        player->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_REMOVED_FROM_QUEUE, type);
 
     if(sWorld.getConfig(CONFIG_BOOL_RESTRICTED_LFG_CHANNEL) && player->GetSession()->GetSecurity() == SEC_PLAYER )
         player->LeaveLFGChannel();
@@ -1327,7 +1328,10 @@ void LFGMgr::Teleport(Player* player, bool out, bool fromOpcode /*= false*/)
 
     LFGDungeonEntry const* dungeon = group->GetLFGState()->GetDungeon();
     if (!dungeon)
+    {
         error = LFG_TELEPORTERROR_INVALID_LOCATION;
+        DEBUG_LOG("LFGMgr::TeleportPlayer %u error %u, no dungeon!", player->GetObjectGuid().GetCounter(), error);
+    }
 
     if (error == LFG_TELEPORTERROR_OK)
     {
@@ -1340,10 +1344,12 @@ void LFGMgr::Teleport(Player* player, bool out, bool fromOpcode /*= false*/)
         if (group->GetDungeonDifficulty() != Difficulty(dungeon->difficulty))
         {
             error = LFG_TELEPORTERROR_UNK4;
+            DEBUG_LOG("LFGMgr::TeleportPlayer %u error %u, difficulty not match!", player->GetObjectGuid().GetCounter(), error);
         }
         else if (GetPlayerLockStatus(player,dungeon) != LFG_LOCKSTATUS_OK)
         {
             error = LFG_TELEPORTERROR_INVALID_LOCATION;
+            DEBUG_LOG("LFGMgr::TeleportPlayer %u error %u, player not enter to this instance!", player->GetObjectGuid().GetCounter(), error);
         }
         else if (leaderInDungeon && group->GetLFGState()->GetState() == LFG_STATE_DUNGEON)
         {
@@ -1362,7 +1368,10 @@ void LFGMgr::Teleport(Player* player, bool out, bool fromOpcode /*= false*/)
             orientation = at->target_Orientation;
         }
         else
+        {
             error = LFG_TELEPORTERROR_INVALID_LOCATION;
+            DEBUG_LOG("LFGMgr::TeleportPlayer %u error %u, no areatrigger to map %u!", player->GetObjectGuid().GetCounter(), error, dungeon->map);
+        }
     }
 
     if (error == LFG_TELEPORTERROR_OK)
@@ -1424,7 +1433,7 @@ void LFGMgr::UpdateRoleCheck(Group* group)
     }
 
     if (newstate == LFG_ROLECHECK_NONE && !CheckRoles(group))
-        newstate == LFG_ROLECHECK_WRONG_ROLES;
+        newstate = LFG_ROLECHECK_WRONG_ROLES;
     else if (newstate == LFG_ROLECHECK_NONE)
         newstate = LFG_ROLECHECK_FINISHED;
 
@@ -2071,18 +2080,32 @@ void LFGMgr::UpdateLFRGroups()
         if (!group || !group->isLFRGroup())
             continue;
 
+        if (group->GetLFGState()->GetState() != LFG_STATE_LFG)
+            continue;
+
         if (!IsGroupCompleted(group))
+            continue;
+
+        if (group->GetLFGState()->GetState() != LFG_STATE_LFG)
+            continue;
+
+        if (group->GetLFGState()->GetStatus() == LFG_STATUS_NOT_SAVED)
             continue;
 
         if (!group->GetLFGState()->GetDungeon())
         {
             LFGDungeonEntry const* realdungeon = SelectRandomDungeonFromList(*group->GetLFGState()->GetDungeons());
-            if (!realdungeon)
-            {
-                DEBUG_LOG("LFGMgr::UpdateLFRGroup:%u cannot set real dungeon! Try dungeon from leader list.", group->GetObjectGuid().GetCounter());
-                LFGDungeonEntry const* realdungeon = SelectRandomDungeonFromList(*sObjectMgr.GetPlayer(group->GetLeaderGuid())->GetLFGState()->GetDungeons());
-            }
+            MANGOS_ASSERT(realdungeon);
             group->GetLFGState()->SetDungeon(realdungeon);
+            DEBUG_LOG("LFGMgr::UpdateLFRGroup: %u set real dungeon to %u.", group->GetObjectGuid().GetCounter(), realdungeon->ID);
+
+            Player* leader = sObjectMgr.GetPlayer(group->GetLeaderGuid());
+            if (leader && leader->GetMapId() != uint32(realdungeon->map))
+            {
+                group->SetDungeonDifficulty(Difficulty(realdungeon->difficulty));
+                group->GetLFGState()->SetStatus(LFG_STATUS_NOT_SAVED);
+                group->SendUpdate();
+            }
         }
 
         for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
@@ -2148,8 +2171,11 @@ void LFGMgr::AddMemberToLFDGroup(ObjectGuid guid)
     if (!group)
         return;
 
-    Leave(player);
+    RemoveFromQueue(player->GetObjectGuid());
+    RemoveFromSearchMatrix(player->GetObjectGuid());
+
     player->CastSpell(player,LFG_SPELL_LUCK_OF_THE_DRAW,true);
+
     player->CastSpell(player,LFG_SPELL_DUNGEON_COOLDOWN,true);
 
     player->GetLFGState()->SetState(group->isRaidGroup() ? LFG_STATE_LFR : LFG_STATE_LFG);
@@ -2164,11 +2190,13 @@ void LFGMgr::RemoveMemberFromLFDGroup(ObjectGuid guid)
 
     if (player->HasAura(LFG_SPELL_DUNGEON_COOLDOWN))
         player->CastSpell(player,LFG_SPELL_DUNGEON_DESERTER,true);
+
     player->RemoveAurasDueToSpell(LFG_SPELL_LUCK_OF_THE_DRAW);
 
     if (player->GetLFGState()->GetState() == LFG_STATE_DUNGEON
         || player->GetLFGState()->GetState() == LFG_STATE_FINISHED_DUNGEON)
         Teleport(player, true);
 
-    player->GetLFGState()->SetState(LFG_STATE_NONE);
+    Leave(player);
+    player->GetLFGState()->Clear();
 }

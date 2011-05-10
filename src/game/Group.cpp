@@ -2057,6 +2057,7 @@ bool Group::ConvertToLFG(LFGType type)
     static SqlStatementID updGgoup;
     SqlStatement stmt = CharacterDatabase.CreateStatement(updGgoup, "UPDATE groups SET groupType= ? WHERE groupId= ?");
     stmt.PExecute(uint8(m_groupType), GetObjectGuid().GetCounter());
+    return true;
 }
 
 void Group::SetGroupRoles(ObjectGuid guid, uint8 roles)
