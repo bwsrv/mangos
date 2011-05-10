@@ -1098,6 +1098,9 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading Vehicle Accessories...");
     sObjectMgr.LoadVehicleAccessories();
 
+    sLog.outString("Loading Vehicle scaling information...");
+    sObjectMgr.LoadVehicleScaling();
+
     sLog.outString( "Loading Creature Respawn Data..." );   // must be after PackInstances()
     sMapPersistentStateMgr.LoadCreatureRespawnTimes();
 

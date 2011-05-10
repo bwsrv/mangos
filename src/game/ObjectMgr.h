@@ -722,6 +722,14 @@ class ObjectMgr
             return NULL;
         }
 
+        VehicleScalingInfo const* GetVehicleScalingInfo(uint32 vehicleEntry) const
+        {
+            VehicleScalingMap::const_iterator itr = m_VehicleScalingMap.find(vehicleEntry);
+            if (itr != m_VehicleScalingMap.end())
+                return &itr->second;
+            return NULL;
+        }
+
         DungeonEncounterList const* GetDungeonEncounterList(uint32 mapId, Difficulty difficulty)
         {
             UNORDERED_MAP<uint32, DungeonEncounterList>::const_iterator itr = mDungeonEncounters.find(MAKE_PAIR32(mapId, difficulty));
@@ -814,6 +822,7 @@ class ObjectMgr
         void LoadTrainers() { LoadTrainers("npc_trainer", false); }
 
         void LoadVehicleAccessories();
+        void LoadVehicleScaling();
 
         std::string GeneratePetName(uint32 entry);
         uint32 GetBaseXP(uint32 level) const;
@@ -1236,6 +1245,7 @@ class ObjectMgr
         ItemRequiredTargetMap m_ItemRequiredTarget;
 
         VehicleAccessoryMap m_VehicleAccessoryMap;
+        VehicleScalingMap m_VehicleScalingMap;
 
         typedef             std::vector<LocaleConstant> LocalForIndex;
         LocalForIndex        m_LocalForIndex;
