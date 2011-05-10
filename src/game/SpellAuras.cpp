@@ -1001,15 +1001,27 @@ void Aura::ReapplyAffectedPassiveAuras()
 
 bool Aura::IsEffectStacking()
 {
-    if (GetSpellSpecific(GetSpellProto()->Id) == SPELL_SCROLL)
+    SpellEntry const *spellProto = GetSpellProto();
+
+    if (GetSpellSpecific(spellProto->Id) == SPELL_SCROLL)
         return false;
 
     switch(GetModifier()->m_auraname)
     {
         case SPELL_AURA_MOD_HIT_CHANCE:                                 // Insect Swarm / Scorpid Sting
         case SPELL_AURA_HASTE_SPELLS:                                   // Slow / Curse of Tongues
-            if (GetSpellProto()->AttributesEx6 & SPELL_ATTR_EX6_NO_STACK_DEBUFF)
+            if (spellProto->AttributesEx6 & SPELL_ATTR_EX6_NO_STACK_DEBUFF)
                 return false;
+            break;
+        case SPELL_AURA_MOD_RESISTANCE_PCT:                             // Expose Armor / Sunder Armor
+            // Sunder Armor hardcoded check (only spell triggering this aura has the flag)
+            if (spellProto->SpellFamilyName == SPELLFAMILY_WARRIOR &&
+                spellProto->SpellFamilyFlags & UI64LIT(0x0000000000004000))
+                return false;
+            else if (spellProto->AttributesEx6 & SPELL_ATTR_EX6_NO_STACK_DEBUFF)
+                return false;
+
+            break;
         case SPELL_AURA_MOD_HEALING_DONE:                               // Demonic Pact
         case SPELL_AURA_MOD_DAMAGE_DONE:                                // Demonic Pact
         case SPELL_AURA_HASTE_ALL:                                      // Imp. Moonkin Aur / Swift Retribution
@@ -1022,7 +1034,7 @@ bool Aura::IsEffectStacking()
         case SPELL_AURA_MOD_POWER_REGEN:                                // (Greater) Blessing of Wisdom
         case SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN:                       // Glyph of Salvation / Pain Suppression / Safeguard ? 
         case SPELL_AURA_MOD_SPELL_CRIT_CHANCE:                          // Elemental Oath
-            if (GetSpellProto()->AttributesEx6 & SPELL_ATTR_EX6_NO_STACK_BUFF)
+            if (spellProto->AttributesEx6 & SPELL_ATTR_EX6_NO_STACK_BUFF)
                 return false;
             break;
         case SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK:                    // Mind Numbing Poison / Wrath of Air Totem
@@ -1030,11 +1042,11 @@ bool Aura::IsEffectStacking()
             return (GetModifier()->m_amount > 0);                       // (only negative values don't stack)
         case SPELL_AURA_MOD_CRIT_PERCENT:
             // Rampage
-            if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_WARRIOR && GetSpellProto()->SpellIconID == 2006)
+            if (spellProto->SpellFamilyName == SPELLFAMILY_WARRIOR && spellProto->SpellIconID == 2006)
                 return false;
             break;
         case SPELL_AURA_MOD_ATTACKER_SPELL_CRIT_CHANCE:                 // Winter's Chill / Improved Scorch
-            if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_MAGE)
+            if (spellProto->SpellFamilyName == SPELLFAMILY_MAGE)
                 return false;
             break;
         // these effects never stack
@@ -1052,7 +1064,7 @@ bool Aura::IsEffectStacking()
     // Flametongue Totem / Totem of Wrath / Strength of Earth Totem / Fel Intelligence / Leader of the Pack
     // Moonkin Aura / Mana Spring Totem / Tree of Life Aura / Improved Devotion Aura / Improved Icy Talons / Trueshot Aura
     // Improved Moonkin Form / Sanctified Retribution Aura / Blood Pact
-    if (GetSpellProto()->Effect[m_effIndex] == SPELL_EFFECT_APPLY_AREA_AURA_RAID)
+    if (spellProto->Effect[m_effIndex] == SPELL_EFFECT_APPLY_AREA_AURA_RAID)
         return false;
 
     return true;
@@ -5423,13 +5435,15 @@ void Aura::HandlePeriodicHealthFunnel(bool apply, bool /*Real*/)
 
 void Aura::HandleAuraModResistanceExclusive(bool apply, bool /*Real*/)
 {
+    Unit *target = GetTarget();
+
     for(int8 x = SPELL_SCHOOL_NORMAL; x < MAX_SPELL_SCHOOL;x++)
     {
         if(m_modifier.m_miscvalue & int32(1<<x))
         {
-            GetTarget()->HandleStatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + x), BASE_VALUE, float(m_modifier.m_amount), apply);
-            if(GetTarget()->GetTypeId() == TYPEID_PLAYER)
-                GetTarget()->ApplyResistanceBuffModsMod(SpellSchools(x), m_positive, float(m_modifier.m_amount), apply);
+            float change = target->CheckAuraStackingAndApply(this, UnitMods(UNIT_MOD_RESISTANCE_START + x), TOTAL_VALUE, float(m_modifier.m_amount), apply, int32(1<<x));
+            if (change != 0)
+                target->ApplyResistanceBuffModsMod(SpellSchools(x), m_modifier.m_amount > 0, change, true);
         }
     }
 }
@@ -5442,7 +5456,7 @@ void Aura::HandleAuraModResistance(bool apply, bool /*Real*/)
         {
             GetTarget()->HandleStatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + x), TOTAL_VALUE, float(m_modifier.m_amount), apply);
             if(GetTarget()->GetTypeId() == TYPEID_PLAYER || ((Creature*)GetTarget())->IsPet())
-                GetTarget()->ApplyResistanceBuffModsMod(SpellSchools(x), m_positive, float(m_modifier.m_amount), apply);
+                GetTarget()->ApplyResistanceBuffModsMod(SpellSchools(x), m_modifier.m_amount > 0, float(m_modifier.m_amount), apply);
         }
     }
 }
@@ -5474,12 +5488,9 @@ void Aura::HandleModResistancePercent(bool apply, bool /*Real*/)
     {
         if(m_modifier.m_miscvalue & int32(1<<i))
         {
-            target->HandleStatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + i), TOTAL_PCT, float(m_modifier.m_amount), apply);
-            if(target->GetTypeId() == TYPEID_PLAYER || ((Creature*)target)->IsPet())
-            {
-                target->ApplyResistanceBuffModsPercentMod(SpellSchools(i), true, float(m_modifier.m_amount), apply);
-                target->ApplyResistanceBuffModsPercentMod(SpellSchools(i), false, float(m_modifier.m_amount), apply);
-            }
+            float change = target->CheckAuraStackingAndApply(this, UnitMods(UNIT_MOD_RESISTANCE_START + i), TOTAL_PCT, float(m_modifier.m_amount), apply, int32(1<<i));
+            if (change)
+                target->ApplyResistanceBuffModsPercentMod(SpellSchools(i), m_modifier.m_amount > 0, change, apply);
         }
     }
 }

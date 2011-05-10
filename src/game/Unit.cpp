@@ -4037,36 +4037,55 @@ float Unit::GetTotalAuraMultiplierByMiscValueForMask(AuraType auratype, uint32 m
 
 float Unit::CheckAuraStackingAndApply(Aura *Aur, UnitMods unitMod, UnitModifierType modifierType, float amount, bool apply, int32 miscMask, int32 miscValue)
 {
-    if(!Aur->IsStacking())
+    if (!Aur->IsStacking())
     {
-        if(modifierType == TOTAL_VALUE)
+        if (modifierType == TOTAL_VALUE)
             modifierType = NONSTACKING_VALUE;
         else if(modifierType == TOTAL_PCT)
             modifierType = NONSTACKING_PCT;
         // need a sanity check here?
 
         float current = GetModifierValue(unitMod, modifierType);
+        bool bIsPositive = amount > 0;
 
-        if(amount < current)                                // value does not change as a result of applying/removing this aura
-            return 0.0f;
-
-        if(!apply)                                          // aura removed is the aura that is currently in effect, must find second highest nonstacking aura's m_amount
+        if (bIsPositive && amount < current ||               // value does not change as a result of applying/removing this aura
+            !bIsPositive && amount > current)
         {
-            if(miscMask)
-                amount = (float)GetMaxPositiveAuraModifierByMiscMask(Aur->GetModifier()->m_auraname, miscMask, true);
+            return 0.0f;
+        }
+
+        if (!apply)                                          // aura removed is the aura that is currently in effect, must find second highest nonstacking aura's m_amount
+        {
+            if (miscMask)
+            {
+                if (bIsPositive)
+                    amount = (float)GetMaxPositiveAuraModifierByMiscMask(Aur->GetModifier()->m_auraname, miscMask, true);
+                else
+                    amount = (float)GetMaxNegativeAuraModifierByMiscMask(Aur->GetModifier()->m_auraname, miscMask, true);
+            }
             else if(miscValue)
-                amount = (float)GetMaxPositiveAuraModifierByMiscValue(Aur->GetModifier()->m_auraname, miscValue-1, true);
+            {
+                if (bIsPositive)
+                    amount = (float)GetMaxPositiveAuraModifierByMiscValue(Aur->GetModifier()->m_auraname, miscValue-1, true);
+                else
+                    amount = (float)GetMaxNegativeAuraModifierByMiscValue(Aur->GetModifier()->m_auraname, miscValue-1, true);
+            }
             else
-                amount = (float)GetMaxPositiveAuraModifier(Aur->GetModifier()->m_auraname, true);
+            {
+                if (bIsPositive)
+                    amount = (float)GetMaxPositiveAuraModifier(Aur->GetModifier()->m_auraname, true);
+                else
+                    amount = (float)GetMaxNegativeAuraModifier(Aur->GetModifier()->m_auraname, true);
+            }
         }
 
         HandleStatModifier(unitMod, modifierType, amount, apply);
 
-        if(modifierType == NONSTACKING_VALUE)
+        if (modifierType == NONSTACKING_VALUE)
             amount -= current;
         else
         {
-            if(apply)
+            if (apply)
                 amount = ((100.0f + amount) / (100.0f + current) - 1.0f) * 100.0f;
             else
                 amount = ((100.0f + current) / (100.0f + amount) - 1.0f) * 100.0f;
