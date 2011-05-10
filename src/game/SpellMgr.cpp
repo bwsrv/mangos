@@ -1823,9 +1823,6 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
     if(!spellInfo_1 || !spellInfo_2)
         return false;
 
-    if(spellId_1 == spellId_2)
-        return false;
-
     // Specific spell family spells
     switch(spellInfo_1->SpellFamilyName)
     {
@@ -1882,6 +1879,10 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
 
     if (IsRankSpellDueToSpell(spellInfo_1, spellId_2))
         return true;
+
+    // same id spells stack if no exception found above
+    if(spellId_1 == spellId_2)
+        return false;
 
     return false;
 }
