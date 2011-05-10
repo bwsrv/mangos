@@ -534,9 +534,9 @@ Aura* CreateAura(SpellEntry const* spellproto, SpellEffectIndex eff, int32 *curr
     return new Aura(spellproto, eff, currentBasePoints, holder, target, caster, castItem);
 }
 
-SpellAuraHolder* CreateSpellAuraHolder(SpellEntry const* spellproto, Unit *target, WorldObject *caster, Item *castItem)
+SpellAuraHolder* CreateSpellAuraHolder(SpellEntry const* spellproto, Unit *target, WorldObject *caster, Item *castItem, SpellEntry const* triggeredBySpellProto)
 {
-    return new SpellAuraHolder(spellproto, target, caster, castItem);
+    return new SpellAuraHolder(spellproto, target, caster, castItem, triggeredBySpellProto);
 }
 
 void Aura::SetModifier(AuraType t, int32 a, uint32 pt, int32 miscValue)
@@ -725,7 +725,7 @@ void AreaAura::Update(uint32 diff)
                     bool addedToExisting = true;
                     if (!holder)
                     {
-                        holder = CreateSpellAuraHolder(actualSpellInfo, (*tIter), caster);
+                        holder = CreateSpellAuraHolder(actualSpellInfo, (*tIter), caster, NULL, GetHolder()->GetTriggeredBySpellProto());
                         addedToExisting = false;
                     }
 
@@ -1001,6 +1001,8 @@ void Aura::ReapplyAffectedPassiveAuras()
 
 bool Aura::IsEffectStacking()
 {
+    SpellEntry const* triggeredBy = GetHolder()->GetTriggeredBySpellProto();
+
     if (GetSpellSpecific(GetSpellProto()->Id) == SPELL_SCROLL)
         return false;
 
@@ -1008,7 +1010,9 @@ bool Aura::IsEffectStacking()
     {
         case SPELL_AURA_MOD_HIT_CHANCE:                                 // Insect Swarm / Scorpid Sting
         case SPELL_AURA_HASTE_SPELLS:                                   // Slow / Curse of Tongues
-            if (GetSpellProto()->AttributesEx6 & SPELL_ATTR_EX6_NO_STACK_DEBUFF)
+        case SPELL_AURA_MOD_RESISTANCE_PCT:                             // Expose Armor / Sunder Armor
+            if (GetSpellProto()->AttributesEx6 & SPELL_ATTR_EX6_NO_STACK_DEBUFF ||
+                triggeredBy && triggeredBy->AttributesEx6 & SPELL_ATTR_EX6_NO_STACK_DEBUFF) // Sunder Armor check (only spell triggering this aura has the flag, don't know how to check this)
                 return false;
         case SPELL_AURA_MOD_HEALING_DONE:                               // Demonic Pact
         case SPELL_AURA_MOD_DAMAGE_DONE:                                // Demonic Pact
@@ -8407,8 +8411,8 @@ bool Aura::HasMechanic(uint32 mechanic) const
         GetSpellProto()->EffectMechanic[m_effIndex] == mechanic;
 }
 
-SpellAuraHolder::SpellAuraHolder(SpellEntry const* spellproto, Unit *target, WorldObject *caster, Item *castItem) :
-m_spellProto(spellproto), m_target(target), m_castItemGuid(castItem ? castItem->GetObjectGuid() : ObjectGuid()),
+SpellAuraHolder::SpellAuraHolder(SpellEntry const* spellproto, Unit *target, WorldObject *caster, Item *castItem, SpellEntry const* triggeredBySpellProto) :
+m_spellProto(spellproto), m_triggeredBySpellProto(triggeredBySpellProto), m_target(target), m_castItemGuid(castItem ? castItem->GetObjectGuid() : ObjectGuid()),
 m_auraSlot(MAX_AURAS), m_auraFlags(AFLAG_NONE), m_auraLevel(1), m_procCharges(0),
 m_stackAmount(1), m_removeMode(AURA_REMOVE_BY_DEFAULT), m_AuraDRGroup(DIMINISHING_NONE), m_timeCla(1000),
 m_permanent(false), m_isRemovedOnShapeLost(true), m_deleted(false), m_in_use(0)
