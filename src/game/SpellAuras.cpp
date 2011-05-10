@@ -1006,6 +1006,7 @@ bool Aura::IsEffectStacking()
 
     switch(GetModifier()->m_auraname)
     {
+        case SPELL_AURA_MOD_HIT_CHANCE:                                 // Insect Swarm / Scorpid Sting
         case SPELL_AURA_HASTE_SPELLS:                                   // Slow / Curse of Tongues
             if (GetSpellProto()->AttributesEx6 & SPELL_ATTR_EX6_NO_STACK_DEBUFF)
                 return false;
@@ -5961,13 +5962,14 @@ void Aura::HandleModHitChance(bool apply, bool /*Real*/)
 
     if(target->GetTypeId() == TYPEID_PLAYER)
     {
+        // stacking check is made further
         ((Player*)target)->UpdateMeleeHitChances();
         ((Player*)target)->UpdateRangedHitChances();
     }
     else
     {
-        target->m_modMeleeHitChance += apply ? m_modifier.m_amount : (-m_modifier.m_amount);
-        target->m_modRangedHitChance += apply ? m_modifier.m_amount : (-m_modifier.m_amount);
+        target->m_modMeleeHitChance = target->GetTotalAuraModifier(SPELL_AURA_MOD_HIT_CHANCE);
+        target->m_modRangedHitChance = target->GetTotalAuraModifier(SPELL_AURA_MOD_HIT_CHANCE);
     }
 }
 
