@@ -1091,6 +1091,13 @@ bool Aura::IsEffectStacking()
             }
             else if (spellProto->AttributesEx6 & SPELL_ATTR_EX6_NO_STACK_BUFF) // Totem
                 return false;
+        case SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE:                  // Misery / Imp. Faerie Fire (must find triggered aura)
+            if (spellProto->SpellFamilyName == SPELLFAMILY_PRIEST &&
+                spellProto->SpellIconId == 2211)                        // Misery
+            {
+                return false;
+            }
+            break;
 
         default:
             break;
