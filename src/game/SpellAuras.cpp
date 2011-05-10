@@ -1013,10 +1013,12 @@ bool Aura::IsEffectStacking()
             if (spellProto->AttributesEx6 & SPELL_ATTR_EX6_NO_STACK_DEBUFF)
                 return false;
             break;
-        case SPELL_AURA_MOD_RESISTANCE_PCT:                             // Expose Armor / Sunder Armor
-            // Sunder Armor hardcoded check (only spell triggering this aura has the flag)
-            if (spellProto->SpellFamilyName == SPELLFAMILY_WARRIOR &&
-                spellProto->SpellFamilyFlags & UI64LIT(0x0000000000004000))
+        case SPELL_AURA_MOD_RESISTANCE_PCT:                             // Expose Armor / Sunder Armor / Sting / Faerie Fire / Curse of Weakness
+            // hardcoded checks
+            if (spellProto->SpellFamilyName == SPELLFAMILY_WARRIOR &&               // Sunder Armor
+                spellProto->SpellFamilyFlags & UI64LIT(0x0000000000004000) ||       // (only spell triggering this aura has the flag)
+                spellProto->SpellFamilyName == SPELLFAMILY_HUNTER &&                // Sting (Hunter Pet)
+                spellProto->SpellFamilyFlags & UI64LIT(0x1000000000000000))
                 return false;
             else if (spellProto->AttributesEx6 & SPELL_ATTR_EX6_NO_STACK_DEBUFF)
                 return false;

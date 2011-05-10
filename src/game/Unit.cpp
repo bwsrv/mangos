@@ -239,6 +239,7 @@ Unit::Unit() :
         m_auraModifiersGroup[i][TOTAL_PCT] = 1.0f;
         m_auraModifiersGroup[i][NONSTACKING_VALUE] = 0.0f;
         m_auraModifiersGroup[i][NONSTACKING_PCT] = 0.0f;
+        m_auraModifiersGroup[i][NONSTACKING_PCT_MINOR] = 0.0f;
     }
                                                             // implement 50% base damage from offhand
     m_auraModifiersGroup[UNIT_MOD_DAMAGE_OFFHAND][TOTAL_PCT] = 0.5f;
@@ -4037,6 +4038,11 @@ float Unit::GetTotalAuraMultiplierByMiscValueForMask(AuraType auratype, uint32 m
 
 float Unit::CheckAuraStackingAndApply(Aura *Aur, UnitMods unitMod, UnitModifierType modifierType, float amount, bool apply, int32 miscMask, int32 miscValue)
 {
+    if (!Aur)
+        return 0.0f;
+
+    SpellEntry const *spellProto = Aur->GetSpellProto();
+
     if (!Aur->IsStacking())
     {
         if (modifierType == TOTAL_VALUE)
@@ -4044,6 +4050,15 @@ float Unit::CheckAuraStackingAndApply(Aura *Aur, UnitMods unitMod, UnitModifierT
         else if(modifierType == TOTAL_PCT)
             modifierType = NONSTACKING_PCT;
         // need a sanity check here?
+
+        // special case: minor and major categories for armor reduction debuffs
+        // TODO: find some better way of dividing to ategories
+        if (Aur->GetId() == 770 ||                                              // Faerie Fire
+            spellProto->SpellFamilyName == SPELLFAMILY_HUNTER &&                // Sting (Hunter Pet)
+            spellProto->SpellFamilyFlags & UI64LIT(0x1000000000000000) ||
+            spellProto->SpellFamilyName == SPELLFAMILY_WARLOCK &&               // Curse of Weakness
+            spellProto->SpellFamilyFlags & UI64LIT(0x0000000000008000))
+            modifierType = NONSTACKING_PCT_MINOR;
 
         float current = GetModifierValue(unitMod, modifierType);
         bool bIsPositive = amount > 0;
@@ -9045,6 +9060,7 @@ bool Unit::HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, f
             m_auraModifiersGroup[unitMod][modifierType] *= apply ? val : (1.0f/val);
             break;
         case NONSTACKING_PCT:
+        case NONSTACKING_PCT_MINOR:
         case NONSTACKING_VALUE:
             m_auraModifiersGroup[unitMod][modifierType] = amount;
             break;
@@ -9108,7 +9124,7 @@ float Unit::GetModifierValue(UnitMods unitMod, UnitModifierType modifierType) co
         if(m_auraModifiersGroup[unitMod][modifierType] <= 0.0f)
             return 0.0f;
         else
-            return m_auraModifiersGroup[unitMod][TOTAL_PCT] * (m_auraModifiersGroup[unitMod][NONSTACKING_PCT] + 100.0f) / 100.0f;
+            return m_auraModifiersGroup[unitMod][TOTAL_PCT] * (m_auraModifiersGroup[unitMod][NONSTACKING_PCT] + m_auraModifiersGroup[unitMod][NONSTACKING_PCT_MINOR] + 100.0f) / 100.0f;
     }
     else if(modifierType == TOTAL_VALUE)
     {
@@ -9129,7 +9145,7 @@ float Unit::GetTotalStatValue(Stats stat) const
     float value  = m_auraModifiersGroup[unitMod][BASE_VALUE] + GetCreateStat(stat);
     value *= m_auraModifiersGroup[unitMod][BASE_PCT];
     value += (m_auraModifiersGroup[unitMod][TOTAL_VALUE] + m_auraModifiersGroup[unitMod][NONSTACKING_VALUE]);
-    value *= (m_auraModifiersGroup[unitMod][TOTAL_PCT] * (m_auraModifiersGroup[unitMod][NONSTACKING_PCT] + 100.0f) / 100.0f);
+    value *= (m_auraModifiersGroup[unitMod][TOTAL_PCT] * (m_auraModifiersGroup[unitMod][NONSTACKING_PCT] + m_auraModifiersGroup[unitMod][NONSTACKING_PCT_MINOR] + 100.0f) / 100.0f);
 
     return value;
 }
@@ -9148,7 +9164,7 @@ float Unit::GetTotalAuraModValue(UnitMods unitMod) const
     float value  = m_auraModifiersGroup[unitMod][BASE_VALUE];
     value *= m_auraModifiersGroup[unitMod][BASE_PCT];
     value += (m_auraModifiersGroup[unitMod][TOTAL_VALUE] + m_auraModifiersGroup[unitMod][NONSTACKING_VALUE]);
-    value *= (m_auraModifiersGroup[unitMod][TOTAL_PCT] * (m_auraModifiersGroup[unitMod][NONSTACKING_PCT] + 100.0f) / 100.0f);
+    value *= (m_auraModifiersGroup[unitMod][TOTAL_PCT] * (m_auraModifiersGroup[unitMod][NONSTACKING_PCT] + m_auraModifiersGroup[unitMod][NONSTACKING_PCT_MINOR] + 100.0f) / 100.0f);
 
     return value;
 }
