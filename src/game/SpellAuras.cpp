@@ -1019,7 +1019,9 @@ bool Aura::IsEffectStacking()
                 spellProto->SpellFamilyFlags & UI64LIT(0x0000000000004000) ||       // (only spell triggering this aura has the flag)
                 spellProto->SpellFamilyName == SPELLFAMILY_HUNTER &&                // Sting (Hunter Pet)
                 spellProto->SpellFamilyFlags & UI64LIT(0x1000000000000000))
+            {
                 return false;
+            }
             else if (spellProto->AttributesEx6 & SPELL_ATTR_EX6_NO_STACK_DEBUFF)
                 return false;
 
@@ -1051,6 +1053,13 @@ bool Aura::IsEffectStacking()
             if (spellProto->SpellFamilyName == SPELLFAMILY_MAGE)
                 return false;
             break;
+        case SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT:              // Mangle / Trauma
+            if (spellProto->SpellFamilyName == SPELLFAMILY_DRUID &&
+                spellProto->SpellFamilyFlags & UI64LIT(0x0000044000000000) ||
+                spellProto->Id == 46856 || spellProto->Id == 46857)     // Trauma has SPELLFAMILY_GENERIC and no flags
+            {
+                return false;
+            }
         // these effects never stack
         case SPELL_AURA_MOD_MELEE_HASTE:                                // Melee haste changing don't stack (pos with pos, neg with neg)
         case SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE:
