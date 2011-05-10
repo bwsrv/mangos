@@ -9234,7 +9234,7 @@ void Spell::EffectSanctuary(SpellEffectIndex /*eff_idx*/)
         for (uint32 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_MAX_SPELL; ++i)
         {
             if ((*tIter)->GetCurrentSpell(CurrentSpellTypes(i))
-            && (*tIter)->GetCurrentSpell(CurrentSpellTypes(i))->m_targets.getUnitTargetGUID() == unitTarget->GetGUID())
+            && (*tIter)->GetCurrentSpell(CurrentSpellTypes(i))->m_targets.getUnitTargetGuid() == unitTarget->GetGUID())
             {
                 (*tIter)->InterruptSpell(CurrentSpellTypes(i), false);
             }
