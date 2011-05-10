@@ -202,11 +202,9 @@ int get_rev(char *from_msg)
     pch = strstr(from_msg,"[mr");
     if (!pch) return 0;
     strncpy (pch,"[00",3);
-    printf ("%s\n",from_msg);
     char nr_str[256];
     if(sscanf(from_msg, "[%[0123456789]]",nr_str) != 1) return 0;
 //    if(from_msg[strlen(nr_str)+1] != ']') return 0;
-    printf ("%s\n",nr_str);
     return atoi(nr_str);
 }
 
@@ -263,7 +261,7 @@ void system_switch_index(const char *cmd)
 
 bool write_rev_nr()
 {
-    printf("+ writing revision_nr.h\n");
+    printf("+ writing revision_R2.h\n");
     char rev_str[256];
     sprintf(rev_str, "%d", rev);
     std::string header = generateNrHeader(rev_str);
