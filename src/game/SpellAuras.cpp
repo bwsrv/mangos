@@ -1944,6 +1944,11 @@ void Aura::TriggerSpell()
                 triggerTarget->CastCustomSpell(triggerTarget, trigger_spell_id, &mana, NULL, NULL, true, NULL, this);
                 return;
             }
+            case 71340:
+            {
+                triggerTarget->CastSpell(triggerTarget, 71341, true);
+                break;
+            }
         }
     }
 
@@ -8309,21 +8314,6 @@ void Aura::PeriodicDummyTick()
                     target->CastCustomSpell(target, 66240, &damage, NULL, NULL, true, NULL, this);
                     if (Unit* caster = GetCaster())
                         target->CastCustomSpell(caster, 66125, &heal, NULL, NULL, true, NULL, this);
-                    return;
-                }
-                case 71340:                                // Pact of darkfallen remove effect
-                {
-                    int32 radius = m_modifier.m_amount  / 1000;
-                    bool inRadius = true;
-                    Map::PlayerList const& pList = target->GetMap()->GetPlayers();
-                    for (Map::PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
-                        if (itr->getSource() && itr->getSource()->HasAura(spell->Id) && !itr->getSource()->IsWithinDistInMap(target,radius))
-                        {
-                            inRadius = false;
-                            break;
-                        }
-                    if (inRadius)
-                        target->RemoveAurasDueToSpell(spell->Id);
                     return;
                 }
 // Exist more after, need add later

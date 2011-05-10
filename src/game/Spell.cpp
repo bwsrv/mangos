@@ -564,6 +564,65 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
             break;
         }
+        case 72378: // Blood Nova
+        case 73058:
+        {
+            UnitList tempTargetUnitMap;
+            FillAreaTargets(tempTargetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+            if (!tempTargetUnitMap.empty())
+            {
+                for (UnitList::const_iterator iter = tempTargetUnitMap.begin(); iter != tempTargetUnitMap.end(); ++iter)
+                {
+                    if (!(*iter)->GetObjectGuid().IsPlayerOrPet())
+                        continue;
+
+                    if (m_caster->GetDistance(*iter) < 8.0f)
+                        continue;
+
+                    targetUnitMap.push_back((*iter));
+                }
+
+                if (!targetUnitMap.empty())
+                    return true;
+            }
+        }
+        case 71336:                                     // Pact of the Darkfallen
+        {
+            UnitList tempTargetUnitMap;
+            FillAreaTargets(tempTargetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+            if (!tempTargetUnitMap.empty())
+            {
+                for (UnitList::const_iterator iter = tempTargetUnitMap.begin(); iter != tempTargetUnitMap.end(); ++iter)
+                {
+                    if (!(*iter)->GetObjectGuid().IsPlayer())
+                        continue;
+                    targetUnitMap.push_back((*iter));
+                }
+
+                if (!targetUnitMap.empty())
+                    return true;
+            }
+        }
+        case 71341:
+        case 71390:                                     // Pact of the Darkfallen
+        {
+            UnitList tempTargetUnitMap;
+            FillAreaTargets(tempTargetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_FRIENDLY);
+            if (!tempTargetUnitMap.empty())
+            {
+                for (UnitList::const_iterator iter = tempTargetUnitMap.begin(); iter != tempTargetUnitMap.end(); ++iter)
+                {
+                    if (!(*iter)->GetObjectGuid().IsPlayer())
+                        continue;
+
+                    if (!(*iter)->HasAura(71340))
+                        continue;
+
+                    targetUnitMap.push_back((*iter));
+                }
+            }
+            return true;
+        }
         default:
             return false;
         break;
@@ -1754,11 +1813,16 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 67297:
                 case 67298:
                 case 68950:                                 // Fear
+                case 73058:                                 // Blood Nova
+                case 72378:                                 // Blood Nova
                     unMaxTargets = 1;
                     break;
                 case 28542:                                 // Life Drain
                 case 66013:                                 // Penetrating Cold (10 man)
                 case 68509:                                 // Penetrating Cold (10 man heroic)
+                case 69278:                                 // Gas spore - 10
+                case 71336:                                 // Pact of the Darkfallen
+                case 71390:                                 // Pact of the Darkfallen
                     unMaxTargets = 2;
                     break;
                 case 28796:                                 // Poison Bolt Volley
@@ -1768,6 +1832,9 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 51904:                                 // Limiting the count of Summoned Ghouls
                 case 54522:
                     unMaxTargets = 3;
+                    break;
+                case 71221:                                 // Gas spore - 25
+                    unMaxTargets = 4;
                     break;
                 case 30843:                                 // Enfeeble TODO: exclude top threat target from target selection
                 case 42005:                                 // Bloodboil TODO: need to be 5 targets(players) furthest away from caster
@@ -1813,14 +1880,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     if (Unit* realCaster = GetAffectiveCaster())
                         radius = realCaster->GetFloatValue(OBJECT_FIELD_SCALE_X) * 6;
                     break;
-                case 69278:                                 // Gas spore - 10
-                    unMaxTargets = 2;
-                    break;
-                case 71221:                                 // Gas spore - 25
-                    unMaxTargets = 4;
-                    break;
-                case 71340:                                 // Pact of darkfallen (hack for script work)
-                    unMaxTargets = 1;
+                default:
                     break;
             }
             break;
@@ -2114,7 +2174,10 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             break;
         }
         case TARGET_ALL_ENEMY_IN_AREA:
-            FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+            if (FillCustomTargetMap(effIndex, targetUnitMap))
+                break;
+            else
+                FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
             break;
         case TARGET_AREAEFFECT_INSTANT:
         {
@@ -2432,6 +2495,15 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 64904:                                 // Hymn of Hope
                     // target amount stored in parent spell dummy effect but hard to access
                     FillRaidOrPartyManaPriorityTargets(targetUnitMap, m_caster, m_caster, radius, 3, true, false, true);
+                    break;
+                case 71390:                                 // Pact of the Darkfallen
+                    if (FillCustomTargetMap(effIndex, targetUnitMap)) 
+                        break;
+                    break;
+                case 71341:                                 // Pact of the Darkfallen
+                    if (effIndex == EFFECT_INDEX_1)
+                        if (FillCustomTargetMap(effIndex, targetUnitMap)) 
+                          break;
                     break;
                 case 71447:                                 // Bloodbolt Splash 10N
                 case 71481:                                 // Bloodbolt Splash 25N

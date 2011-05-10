@@ -494,6 +494,13 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                         else damage = 0;
                         break;
                     }
+                    // Pact of the Darkfallen
+                    case 71341:
+                    {
+                        if (m_caster->GetObjectGuid() != unitTarget->GetObjectGuid() && unitTarget->HasAura(71340))
+                            damage = 0;
+                        break;
+                    }
                 }
                 break;
             }
@@ -2597,12 +2604,31 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     ((Player*)m_caster)->RemoveSpellCooldown(53385, true);
                     return;
                 }
-                case 71390:                                 // Pact of darkfallen
+                case 71336:                                 // Pact of the Darkfallen
                 {
                     if (!unitTarget)
                         return;
 
-                    unitTarget->CastSpell(unitTarget, 71341, true);
+                    unitTarget->CastSpell(unitTarget, 71340, true);
+                    break;
+                }
+                case 71341:                                 // Pact of the Darkfallen
+                {
+                    if (!unitTarget)
+                        return;
+
+                    bool needRemove = true;
+                    for(TargetList::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                    {
+                        Unit *unit = m_caster->GetObjectGuid() == ihit->targetGUID ? m_caster : ObjectAccessor::GetUnit(*unitTarget, ihit->targetGUID);
+                        if (unit && unitTarget->GetDistance(unit) > 5.0f)
+                        {
+                            needRemove = false;
+                            break;
+                        }
+                    }
+                    if (needRemove)
+                        unitTarget->RemoveAurasDueToSpell(71340);
                     break;
                 }
                 case 72202:                                 // Blade power
