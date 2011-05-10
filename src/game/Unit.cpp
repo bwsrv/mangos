@@ -197,7 +197,8 @@ Unit::Unit() :
     m_modAttackSpeedPct[BASE_ATTACK] = 1.0f;
     m_modAttackSpeedPct[OFF_ATTACK] = 1.0f;
     m_modAttackSpeedPct[RANGED_ATTACK] = 1.0f;
-    m_modAttackSpeedPct[NONSTACKING_MOD_MELEE] = 0.0f;
+    m_modAttackSpeedPct[NONSTACKING_POS_MOD_MELEE] = 0.0f;
+    m_modAttackSpeedPct[NONSTACKING_NEG_MOD_MELEE] = 0.0f;
     m_modAttackSpeedPct[NONSTACKING_MOD_ALL] = 0.0f;
 
     m_extraAttacks = 0;
