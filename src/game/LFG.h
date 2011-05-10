@@ -235,6 +235,8 @@ public:
     LFGDungeonSet* GetDungeons()   { return &m_DungeonsList; };
     LFGLockStatusMap* GetLockMap();
 
+    LFGType GetDungeonType();
+
     std::string    GetComment()    { return m_comment; };
     void SetComment(std::string comment);
 
@@ -288,7 +290,10 @@ struct LFGGroupState
 public:
     void Clear();
     void Update(bool _update = true) { update = _update; };
+
     LFGDungeonSet* GetDungeons()   { return &m_DungeonsList; };
+
+    LFGType GetDungeonType();
 
     LFGDungeonEntry const* GetDungeon()   { return m_realdungeon; };
     void SetDungeon(LFGDungeonEntry const* _dungeon)   { m_realdungeon = _dungeon; };

@@ -320,6 +320,9 @@ bool Group::AddMember(ObjectGuid guid, const char* name)
 
     SendUpdate();
 
+    if (isLFDGroup())
+        sLFGMgr.AddMemberToLFDGroup(guid);
+
     if (Player *player = sObjectMgr.GetPlayer(guid))
     {
         if (!IsLeader(player->GetObjectGuid()) && !isBGGroup())
@@ -350,7 +353,6 @@ bool Group::AddMember(ObjectGuid guid, const char* name)
         if(isRaidGroup())
             player->UpdateForQuestWorldObjects();
 
-        sLFGMgr.Leave(player);
     }
 
     return true;
@@ -404,7 +406,8 @@ uint32 Group::RemoveMember(ObjectGuid guid, uint8 method)
 
             _homebindIfInstance(player);
 
-            sLFGMgr.Leave(player);
+            if (isLFDGroup())
+                sLFGMgr.RemoveMemberFromLFDGroup(guid);
         }
 
         if (leaderChanged)
@@ -468,6 +471,9 @@ void Group::Disband(bool hideDestroy)
 
         if(!player->GetSession())
             continue;
+
+        if (isLFDGroup())
+            sLFGMgr.RemoveMemberFromLFDGroup(player->GetObjectGuid());
 
         WorldPacket data;
         if(!hideDestroy)
@@ -1874,7 +1880,7 @@ void Group::_homebindIfInstance(Player *player)
     if (player && !player->isGameMaster())
     {
         Map* map = player->GetMap();
-        if (map->IsDungeon())
+        if (map && map->IsDungeon())
         {
             // leaving the group in an instance, the homebind timer is started
             // unless the player is permanently saved to the instance
@@ -2039,10 +2045,10 @@ bool Group::ConvertToLFG(LFGType type)
         case LFG_TYPE_RAID:
             if (!isRaidGroup())
                 ConvertToRaid();
-            m_groupType = GroupType(m_groupType | GROUPTYPE_LFD | GROUPTYPE_RAID);
+            m_groupType = GroupType(m_groupType | GROUPTYPE_LFD);
             break;
         default:
-            break;
+            return false;
     }
 
     m_lootMethod = NEED_BEFORE_GREED;

@@ -40,10 +40,19 @@ void WorldSession::HandleLfgJoinOpcode( WorldPacket & recv_data )
         DEBUG_LOG("CMSG_LFG_JOIN %u processing...", GetPlayer()->GetObjectGuid().GetCounter());
 
     uint8  numDungeons;
-    uint32 dungeon;
+    uint32 dungeonID;
     uint32 roles;
     std::string comment;
     LFGDungeonSet* newDungeons = GetPlayer()->GetLFGState()->GetDungeons();
+    LFGDungeonSet* groupDungeons = NULL;
+    if (GetPlayer()->GetGroup())
+    {
+        if (GetPlayer()->GetObjectGuid() == GetPlayer()->GetGroup()->GetLeaderGuid())
+        {
+            groupDungeons = GetPlayer()->GetGroup()->GetLFGState()->GetDungeons();
+        }
+    }
+    GetPlayer()->GetLFGState()->GetDungeons();
 
 
     recv_data >> roles;                                     // lfg roles
@@ -62,8 +71,14 @@ void WorldSession::HandleLfgJoinOpcode( WorldPacket & recv_data )
 
     for (int8 i = 0 ; i < numDungeons; ++i)
     {
-        recv_data >> dungeon;
-        newDungeons->insert(sLFGMgr.GetDungeon(dungeon & 0x00FFFFFF));         // remove the type from the dungeon entry
+        recv_data >> dungeonID;
+        LFGDungeonEntry const* dungeon = sLFGMgr.GetDungeon(dungeonID & 0x00FFFFFF);    // remove the type from the dungeon entry
+        if (dungeon)
+        {
+            newDungeons->insert(dungeon);
+            if (groupDungeons)
+                groupDungeons->insert(dungeon);
+        }
     }
 
     uint8 counter2;                                         // unk - always 3
@@ -105,20 +120,15 @@ void WorldSession::HandleLfgGetStatus(WorldPacket & /*recv_data*/)
     if (!dungeons || dungeons->empty())
         return;
 
-    for (LFGDungeonSet::const_iterator itr = dungeons->begin(); itr != dungeons->end(); ++itr)
-    {
-        LFGDungeonEntry const* dungeon = *itr;
+    LFGDungeonEntry const* dungeon = (*dungeons->begin());
+    if (!dungeon)
+        return;
 
-        if (!dungeon)
-            continue;
+    LFGQueueStatus* status = sLFGMgr.GetDungeonQueueStatus(LFGType(dungeon->type));
+    if (!status)
+        return;
 
-        LFGQueueStatus* status = sLFGMgr.GetDungeonQueueStatus(dungeon);
-
-        if (!status)
-            continue;
-
-        GetPlayer()->GetSession()->SendLfgQueueStatus(dungeon, status);
-    }
+    GetPlayer()->GetSession()->SendLfgQueueStatus(dungeon, status);
 }
 
 void WorldSession::HandleLfrSearchOpcode( WorldPacket & recv_data )
