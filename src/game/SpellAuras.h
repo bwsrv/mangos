@@ -44,7 +44,7 @@ struct ReapplyAffectedPassiveAurasHelper;
 class MANGOS_DLL_SPEC SpellAuraHolder
 {
     public:
-        SpellAuraHolder (SpellEntry const* spellproto, Unit *target, WorldObject *caster, Item *castItem, SpellEntry const* triggeredBySpellProto);
+        SpellAuraHolder (SpellEntry const* spellproto, Unit *target, WorldObject *caster, Item *castItem);
         Aura* m_auras[MAX_EFFECT_INDEX];
 
         void AddAura(Aura *aura, SpellEffectIndex index);
@@ -68,7 +68,6 @@ class MANGOS_DLL_SPEC SpellAuraHolder
 
         uint32 GetId() const { return m_spellProto->Id; }
         SpellEntry const* GetSpellProto() const { return m_spellProto; }
-        SpellEntry const* GetTriggeredBySpellProto() const { return m_triggeredBySpellProto; }
 
         uint64 const& GetCasterGUID() const { return m_casterGuid.GetRawValue(); }
         ObjectGuid const& GetCasterGuid() const { return m_casterGuid; }
@@ -167,7 +166,6 @@ class MANGOS_DLL_SPEC SpellAuraHolder
         time_t m_applyTime;
 
         SpellEntry const* m_spellProto;
-        SpellEntry const* m_triggeredBySpellProto;
 
         uint8 m_auraSlot;                                   // Aura slot on unit (for show in client)
         uint8 m_auraFlags;                                  // Aura info flag (for send data to client)
@@ -531,5 +529,5 @@ class MANGOS_DLL_SPEC SingleEnemyTargetAura : public Aura
 };
 
 Aura* CreateAura(SpellEntry const* spellproto, SpellEffectIndex eff, int32 *currentBasePoints, SpellAuraHolder *holder, Unit *target, Unit *caster = NULL, Item* castItem = NULL);
-SpellAuraHolder* CreateSpellAuraHolder(SpellEntry const* spellproto, Unit *target, WorldObject *caster, Item *castItem = NULL, SpellEntry const* triggeredBySpellProto = NULL);
+SpellAuraHolder* CreateSpellAuraHolder(SpellEntry const* spellproto, Unit *target, WorldObject *caster, Item *castItem = NULL);
 #endif
