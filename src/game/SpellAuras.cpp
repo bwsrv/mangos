@@ -79,7 +79,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleAuraModPacify,                             // 25 SPELL_AURA_MOD_PACIFY
     &Aura::HandleAuraModRoot,                               // 26 SPELL_AURA_MOD_ROOT
     &Aura::HandleAuraModSilence,                            // 27 SPELL_AURA_MOD_SILENCE
-    &Aura::HandleAuraReflectSpells,                         // 28 SPELL_AURA_REFLECT_SPELLS        implement in Unit::SpellHitResult
+    &Aura::HandleAuraModReflectSpells,                      // 28 SPELL_AURA_REFLECT_SPELLS    actual reflecting implemented in Unit::SpellHitResult
     &Aura::HandleAuraModStat,                               // 29 SPELL_AURA_MOD_STAT
     &Aura::HandleAuraModSkill,                              // 30 SPELL_AURA_MOD_SKILL
     &Aura::HandleAuraModIncreaseSpeed,                      // 31 SPELL_AURA_MOD_INCREASE_SPEED
@@ -298,7 +298,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleComprehendLanguage,                        //244 SPELL_AURA_COMPREHEND_LANGUAGE
     &Aura::HandleNoImmediateEffect,                         //245 SPELL_AURA_MOD_DURATION_OF_MAGIC_EFFECTS     implemented in Unit::CalculateAuraDuration
     &Aura::HandleNoImmediateEffect,                         //246 SPELL_AURA_MOD_DURATION_OF_EFFECTS_BY_DISPEL implemented in Unit::CalculateAuraDuration
-    &Aura::HandleAuraMirrorImage,                           //247 SPELL_AURA_MIRROR_IMAGE
+    &Aura::HandleAuraMirrorImage,                           //247 SPELL_AURA_MIRROR_IMAGE                      target to become a clone of the caster
     &Aura::HandleNoImmediateEffect,                         //248 SPELL_AURA_MOD_COMBAT_RESULT_CHANCE         implemented in Unit::RollMeleeOutcomeAgainst
     &Aura::HandleAuraConvertRune,                           //249 SPELL_AURA_CONVERT_RUNE
     &Aura::HandleAuraModIncreaseHealth,                     //250 SPELL_AURA_MOD_INCREASE_HEALTH_2
@@ -794,7 +794,7 @@ void AreaAura::Update(uint32 diff)
                     if(actualSpellInfo != GetSpellProto())
                         actualBasePoints = actualSpellInfo->CalculateSimpleValue(m_effIndex);
 
-                    SpellAuraHolder *holder = (*tIter)->GetSpellAuraHolder(actualSpellInfo->Id, GetCasterGUID());
+                    SpellAuraHolder *holder = (*tIter)->GetSpellAuraHolder(actualSpellInfo->Id, GetCasterGuid());
 
                     bool addedToExisting = true;
                     if (!holder)
@@ -839,7 +839,7 @@ void AreaAura::Update(uint32 diff)
             caster->IsFriendlyTo(target) != needFriendly
            )
         {
-            target->RemoveSingleAuraFromSpellAuraHolder(GetId(), GetEffIndex(),GetCasterGUID());
+            target->RemoveSingleAuraFromSpellAuraHolder(GetId(), GetEffIndex(), GetCasterGuid());
         }
         else if( m_areaAuraType == AREA_AURA_PARTY)         // check if in same sub group
         {
@@ -853,10 +853,10 @@ void AreaAura::Update(uint32 diff)
                 {
                     Player* checkTarget = target->GetCharmerOrOwnerPlayerOrPlayerItself();
                     if(!checkTarget || !pGroup->SameSubGroup(check, checkTarget))
-                        target->RemoveSingleAuraFromSpellAuraHolder(GetId(), GetEffIndex(),GetCasterGUID());
+                        target->RemoveSingleAuraFromSpellAuraHolder(GetId(), GetEffIndex(), GetCasterGuid());
                 }
                 else
-                    target->RemoveSingleAuraFromSpellAuraHolder(GetId(), GetEffIndex(),GetCasterGUID());
+                    target->RemoveSingleAuraFromSpellAuraHolder(GetId(), GetEffIndex(), GetCasterGuid());
             }
         }
         else if( m_areaAuraType == AREA_AURA_RAID)          // TODO: fix me!
@@ -871,16 +871,16 @@ void AreaAura::Update(uint32 diff)
                 {
                     Player* checkTarget = target->GetCharmerOrOwnerPlayerOrPlayerItself();
                     if(!checkTarget)
-                        target->RemoveSingleAuraFromSpellAuraHolder(GetId(), GetEffIndex(), GetCasterGUID());
+                        target->RemoveSingleAuraFromSpellAuraHolder(GetId(), GetEffIndex(), GetCasterGuid());
                 }
                 else
-                    target->RemoveSingleAuraFromSpellAuraHolder(GetId(), GetEffIndex(), GetCasterGUID());
+                    target->RemoveSingleAuraFromSpellAuraHolder(GetId(), GetEffIndex(), GetCasterGuid());
             }
         }
         else if (m_areaAuraType == AREA_AURA_PET || m_areaAuraType == AREA_AURA_OWNER)
         {
             if (target->GetObjectGuid() != caster->GetCharmerOrOwnerGuid())
-                target->RemoveSingleAuraFromSpellAuraHolder(GetId(), GetEffIndex(), GetCasterGUID());
+                target->RemoveSingleAuraFromSpellAuraHolder(GetId(), GetEffIndex(), GetCasterGuid());
         }
     }
 }
@@ -2062,7 +2062,12 @@ void Aura::TriggerSpell()
             {
                 if (!(triggerTarget->HasAura(47757) || triggerTarget->HasAura(52986) || triggerTarget->HasAura(52987) || triggerTarget->HasAura(52988)))
                     triggerTarget = target;
-
+                
+                break;
+            }
+            case 71340:
+            {
+                triggerTarget->CastSpell(triggerTarget, 71341, true);
                 break;
             }
         }
@@ -2547,12 +2552,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 break;
             }
             case SPELLFAMILY_MAGE:
-            {
-                // Fingers of Frost stacks set to max at apply
-                if (GetId() == 74396)
-                    GetHolder()->SetAuraCharges(GetSpellProto()->StackAmount);
                 break;
-            }
             case SPELLFAMILY_HUNTER:
             {
                 switch(GetId())
@@ -3259,10 +3259,10 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     // final heal
                     if (target->IsInWorld() && GetStackAmount() > 0)
                     {
-                        target->CastCustomSpell(target, 33778, &m_modifier.m_amount, NULL, NULL, true, NULL, this, GetCasterGUID());
+                        target->CastCustomSpell(target, 33778, &m_modifier.m_amount, NULL, NULL, true, NULL, this, GetCasterGuid());
 
                         int32 returnmana = (GetSpellProto()->ManaCostPercentage * caster->GetCreateMana() / 100) * GetStackAmount() / 2;
-                        caster->CastCustomSpell(caster, 64372, &returnmana, NULL, NULL, true, NULL, this, GetCasterGUID());
+                        caster->CastCustomSpell(caster, 64372, &returnmana, NULL, NULL, true, NULL, this, GetCasterGuid());
                     }
                 }
                 return;
@@ -5999,9 +5999,9 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
             target->CastSpell(target, 55601, true);
 
         else if (spellProto->Id == 74562) // SPELL_FIERY_COMBUSTION - Ruby sanctum boss Halion
-            target->CastSpell(target, 74607, true, NULL, NULL, GetCasterGUID());
+            target->CastSpell(target, 74607, true, NULL, NULL, GetCasterGuid());
         else if (spellProto->Id == 74792) // SPELL_SOUL_CONSUMPTION - Ruby sanctum boss Halion
-            target->CastSpell(target, 74799, true, NULL, NULL, GetCasterGUID());
+            target->CastSpell(target, 74799, true, NULL, NULL, GetCasterGuid());
     }
 }
 
@@ -7766,12 +7766,12 @@ void Aura::PeriodicTick()
                     }
                     case 74562: // SPELL_FIERY_COMBUSTION - Ruby sanctum boss Halion, added mark (74567, dummy) every tick
                     {
-                        target->CastSpell(target, 74567, true, NULL, NULL, GetCasterGUID());
+                        target->CastSpell(target, 74567, true, NULL, NULL, GetCasterGuid());
                         break;
                     }
                     case 74792: // SPELL_SOUL_CONSUMPTION - Ruby sanctum boss Halion, added mark (74795, dummy) every tick
                     {
-                        target->CastSpell(target, 74795, true, NULL, NULL, GetCasterGUID());
+                        target->CastSpell(target, 74795, true, NULL, NULL, GetCasterGuid());
                         break;
                     };
                     case 31803: // Holy Vengeance should not tick if paladin haven't Seal of Vengeance up
@@ -8671,7 +8671,7 @@ void Aura::PeriodicDummyTick()
                     Unit *caster = GetCaster();
 
                     if (caster && target)
-                        caster->CastSpell(target, (spell->Id == 62717) ? 65722 : 65723, true, 0, this, this->GetCasterGUID(), this->GetSpellProto());
+                        caster->CastSpell(target, (spell->Id == 62717) ? 65722 : 65723, true, 0, this, this->GetCasterGuid(), this->GetSpellProto());
                     return;
                 }
                 case 69008:                                 // Soulstorm (OOC aura)
@@ -8754,21 +8754,6 @@ void Aura::PeriodicDummyTick()
                     target->CastCustomSpell(target, 66240, &damage, NULL, NULL, true, NULL, this);
                     if (Unit* caster = GetCaster())
                         target->CastCustomSpell(caster, 66125, &heal, NULL, NULL, true, NULL, this);
-                    return;
-                }
-                case 71340:                                // Pact of darkfallen remove effect
-                {
-                    int32 radius = m_modifier.m_amount  / 1000;
-                    bool inRadius = true;
-                    Map::PlayerList const& pList = target->GetMap()->GetPlayers();
-                    for (Map::PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
-                        if (itr->getSource() && itr->getSource()->HasAura(spell->Id) && !itr->getSource()->IsWithinDistInMap(target,radius))
-                        {
-                            inRadius = false;
-                            break;
-                        }
-                    if (inRadius)
-                        target->RemoveAurasDueToSpell(spell->Id);
                     return;
                 }
 // Exist more after, need add later
@@ -9150,7 +9135,7 @@ void Aura::HandleAuraLinked(bool apply, bool Real)
     if (apply)
         GetTarget()->CastSpell(GetTarget(), linkedSpell, true, NULL, this);
     else
-        GetTarget()->RemoveAurasByCasterSpell(linkedSpell, GetCasterGUID());
+        GetTarget()->RemoveAurasByCasterSpell(linkedSpell, GetCasterGuid());
 }
 
 void Aura::HandleAuraAddMechanicAbilities(bool apply, bool Real)
@@ -9197,6 +9182,52 @@ void Aura::HandleAuraOpenStable(bool apply, bool Real)
         player->GetSession()->SendStablePet(player->GetObjectGuid());
 
     // client auto close stable dialog at !apply aura
+}
+
+void Aura::HandleAuraMirrorImage(bool apply, bool Real)
+{
+    if (!Real)
+        return;
+
+    Unit* target = GetTarget();
+
+    if (!target)
+        return;
+
+    if (apply)
+    {
+        Unit* caster = GetCaster();
+        if (target->GetTypeId() == TYPEID_UNIT)
+        {
+            Creature* pCreature = (Creature*)target;
+            pCreature->SetByteValue(UNIT_FIELD_BYTES_0, 0, caster->getRace());
+            pCreature->SetByteValue(UNIT_FIELD_BYTES_0, 1, caster->getClass());
+            pCreature->SetByteValue(UNIT_FIELD_BYTES_0, 2, caster->getGender());
+            pCreature->SetByteValue(UNIT_FIELD_BYTES_0, 3, caster->getPowerType());
+        }
+        target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_CLONED);
+
+        target->SetDisplayId(caster->GetDisplayId());
+    }
+    else
+    {
+        if (target->GetTypeId() == TYPEID_UNIT)
+        {
+            Creature* pCreature = (Creature*)target;
+
+            const CreatureInfo* cinfo = pCreature->GetCreatureInfo();
+            const CreatureModelInfo* minfo = sObjectMgr.GetCreatureModelInfo(pCreature->GetNativeDisplayId());
+
+            pCreature->SetByteValue(UNIT_FIELD_BYTES_0, 0, 0);
+            pCreature->SetByteValue(UNIT_FIELD_BYTES_0, 1, cinfo->unit_class);
+            pCreature->SetByteValue(UNIT_FIELD_BYTES_0, 2, minfo->gender);
+            pCreature->SetByteValue(UNIT_FIELD_BYTES_0, 3, 0);
+        }
+
+        target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_CLONED);
+
+        target->SetDisplayId(target->GetNativeDisplayId());
+    }
 }
 
 void Aura::HandleAuraConvertRune(bool apply, bool Real)
@@ -9372,12 +9403,6 @@ bool Aura::IsLastAuraOnHolder()
     return true;
 }
 
-bool Aura::HasMechanic(uint32 mechanic) const
-{
-    return GetSpellProto()->Mechanic == mechanic ||
-        GetSpellProto()->EffectMechanic[m_effIndex] == mechanic;
-}
-
 SpellAuraHolder::SpellAuraHolder(SpellEntry const* spellproto, Unit *target, WorldObject *caster, Item *castItem) :
 m_spellProto(spellproto), m_target(target), m_castItemGuid(castItem ? castItem->GetObjectGuid() : ObjectGuid()),
 m_auraSlot(MAX_AURAS), m_auraFlags(AFLAG_NONE), m_auraLevel(1), m_procCharges(0),
@@ -9432,6 +9457,7 @@ m_permanent(false), m_isRemovedOnShapeLost(true), m_deleted(false), m_in_use(0)
         case 55166:                                         // Tidal Force
         case 58914:                                         // Kill Command (pet part)
         case 71564:                                         // Deadly Precision
+        case 74396:                                         // Fingers of Frost
             m_stackAmount = m_spellProto->StackAmount;
             break;
     }
@@ -10744,13 +10770,13 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
     else
     {
         if (spellId1)
-            m_target->RemoveAurasByCasterSpell(spellId1, GetCasterGUID());
+            m_target->RemoveAurasByCasterSpell(spellId1, GetCasterGuid());
         if (spellId2)
-            m_target->RemoveAurasByCasterSpell(spellId2, GetCasterGUID());
+            m_target->RemoveAurasByCasterSpell(spellId2, GetCasterGuid());
         if (spellId3)
-            m_target->RemoveAurasByCasterSpell(spellId3, GetCasterGUID());
+            m_target->RemoveAurasByCasterSpell(spellId3, GetCasterGuid());
         if (spellId4)
-            m_target->RemoveAurasByCasterSpell(spellId4, GetCasterGUID());
+            m_target->RemoveAurasByCasterSpell(spellId4, GetCasterGuid());
     }
 
     SetInUse(false);
@@ -10803,7 +10829,7 @@ void SpellAuraHolder::Update(uint32 diff)
         Unit* caster = GetCaster();
         if(!caster)
         {
-            m_target->RemoveAurasByCasterSpell(GetId(), GetCasterGUID());
+            m_target->RemoveAurasByCasterSpell(GetId(), GetCasterGuid());
             return;
         }
 
@@ -10915,30 +10941,7 @@ void SpellAuraHolder::UnregisterSingleCastHolder()
     }
 }
 
-void Aura::HandleAuraMirrorImage(bool Apply, bool Real)
-{
-    if (!Real)
-        return;
-
-    Unit* target = GetTarget();
-
-    if (Apply)
-    {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-        // Set display id
-        target->SetDisplayId(caster->GetDisplayId());
-        target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
-    }
-    else
-    {
-        target->SetDisplayId(target->GetNativeDisplayId());
-        target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
-    }
-}
-
-void Aura::HandleAuraReflectSpells(bool Apply, bool Real)
+void Aura::HandleAuraModReflectSpells(bool Apply, bool Real)
 {
     if (!Real)
         return;

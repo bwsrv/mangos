@@ -4515,10 +4515,10 @@ SpellAuraProcResult Unit::HandleMendingAuraProc( Unit* /*pVictim*/, uint32 /*dam
 
                 // remove before apply next (locked against deleted)
                 triggeredByAura->SetInUse(true);
-                RemoveAurasByCasterSpell(spellProto->Id,caster->GetGUID());
+                RemoveAurasByCasterSpell(spellProto->Id,caster->GetObjectGuid());
 
                 caster->AddSpellMod(mod, true);
-                CastCustomSpell(target,spellProto->Id,&heal,NULL,NULL,true,NULL,triggeredByAura,caster->GetGUID());
+                CastCustomSpell(target, spellProto->Id, &heal, NULL, NULL, true, NULL, triggeredByAura, caster->GetObjectGuid());
                 caster->AddSpellMod(mod, false);
                 triggeredByAura->SetInUse(false);
             }
@@ -4767,7 +4767,7 @@ SpellAuraProcResult Unit::HandleModRating(Unit* /*pVictim*/, uint32 /*damage*/, 
 SpellAuraProcResult Unit::HandleRemoveByDamageProc(Unit* pVictim, uint32 damage, Aura* triggeredByAura, SpellEntry const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown)
 {
     triggeredByAura->SetInUse(true);
-    RemoveAurasByCasterSpell(triggeredByAura->GetSpellProto()->Id, triggeredByAura->GetCasterGUID());
+    RemoveAurasByCasterSpell(triggeredByAura->GetSpellProto()->Id, triggeredByAura->GetCasterGuid());
     triggeredByAura->SetInUse(false);
 
     return SPELL_AURA_PROC_OK;

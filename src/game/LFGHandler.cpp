@@ -100,9 +100,25 @@ void WorldSession::HandleLfgGetStatus(WorldPacket & /*recv_data*/)
 
     DEBUG_LOG("CMSG_LFG_GET_STATUS %u in group: %u", GetPlayer()->GetObjectGuid().GetCounter(), group ? 1 : 0);
 
-    // for GetPlayer()->GetLFGState()->GetDungeons()
-    // LFGQueueStatus = sLFGMgr.GetStatus(dungeon);
-    // SendLfgQueueStatus(LFGQueueStatus* status);
+    LFGDungeonSet* dungeons = GetPlayer()->GetLFGState()->GetDungeons();
+
+    if (!dungeons || dungeons->empty())
+        return;
+
+    for (LFGDungeonSet::const_iterator itr = dungeons->begin(); itr != dungeons->end(); ++itr)
+    {
+        LFGDungeonEntry const* dungeon = *itr;
+
+        if (!dungeon)
+            continue;
+
+        LFGQueueStatus* status = sLFGMgr.GetDungeonQueueStatus(dungeon);
+
+        if (!status)
+            continue;
+
+        GetPlayer()->GetSession()->SendLfgQueueStatus(dungeon, status);
+    }
 }
 
 void WorldSession::HandleLfrSearchOpcode( WorldPacket & recv_data )
@@ -199,7 +215,7 @@ void WorldSession::HandleLfgTeleportOpcode(WorldPacket &recv_data)
     recv_data >> agree;
 
     DEBUG_LOG("CMSG_LFG_TELEPORT  %u teleport: %u", GetPlayer()->GetObjectGuid().GetCounter(), agree ? 1 : 0);
-    //sLFGMgr.TeleportPlayer(GetPlayer(), agree, true);
+    sLFGMgr.Teleport(GetPlayer(), agree, true);
 }
 
 void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket &/*recv_data*/)
@@ -949,7 +965,8 @@ void WorldSession::SendLfgQueueStatus(LFGDungeonEntry const* dungeon, LFGQueueSt
     data << uint8(status->tanks);                                  // Tanks needed
     data << uint8(status->healers);                                // Healers needed
     data << uint8(status->dps);                                    // Dps needed
-    data << uint32(status->queuedTime);                            // Player wait time in queue
+    data << uint32(time_t(time(NULL)) - GetPlayer()->GetLFGState()->GetJoinTime());
+                                                                   // Player wait time in queue
     SendPacket(&data);
 }
 
@@ -1026,36 +1043,29 @@ void WorldSession::SendLfgUpdateProposal(LFGProposal* pProposal)
     ObjectGuid guid = GetPlayer()->GetObjectGuid();
 
     bool isSameDungeon = false;
-    bool isContinue = false;
+    bool isContinue = false;                              // Only show proposal dungeon if it's continue
 
     uint32 completedEncounters = 0;
+    uint32 size = pProposal->playerGuids.size();
 
-    if (pProposal->group)
+    if (pProposal->GetGroup())
     {
-        isContinue = pProposal->group->isLFDGroup();
+        isContinue = pProposal->GetGroup()->isLFDGroup();
         // && sLFGMgr->GetState(gguid) != LFG_STATE_FINISHED_DUNGEON;
-        isSameDungeon = GetPlayer()->GetGroup() == pProposal->group && isContinue;
+        isSameDungeon = (GetPlayer()->GetGroup() == pProposal->GetGroup()) && isContinue;
+        size += pProposal->GetGroup()->GetMembersCount();
     }
 
-    DEBUG_LOG("SMSG_LFG_PROPOSAL_UPDATE %u state: %u", GetPlayer()->GetObjectGuid().GetCounter(), pProposal->state);
+    DEBUG_LOG("SMSG_LFG_PROPOSAL_UPDATE proposal %u, player %u, state: %u", pProposal->ID, GetPlayer()->GetObjectGuid().GetCounter(), pProposal->GetState());
 
-    WorldPacket data(SMSG_LFG_PROPOSAL_UPDATE, 4 + 1 + 4 + 4 + 1 + 1 + pProposal->playerGuids.size() * (4 + 1 + 1 + 1 + 1 +1));
-
-    LFGDungeonEntry const* dungeon = NULL;
-
-    if (!isContinue)                                       // Only show proposal dungeon if it's continue
-    {
-        LFGDungeonSet* playerDungeons = GetPlayer()->GetLFGState()->GetDungeons();
-        if (playerDungeons->size() == 1)
-            dungeon = (*playerDungeons->begin());
-    }
+    LFGDungeonEntry const* dungeon = pProposal->GetDungeon();
 
     if (dungeon)
     {
         // Select a player inside to be get completed encounters from
-        if (pProposal->group)
+        if (pProposal->GetGroup())
         {
-            for (GroupReference* itr = pProposal->group->GetFirstMember(); itr != NULL; itr = itr->next())
+            for (GroupReference* itr = pProposal->GetGroup()->GetFirstMember(); itr != NULL; itr = itr->next())
             {
                 Player* groupMember = itr->getSource();
                 if (groupMember && groupMember->GetMapId() == uint32(dungeon->map))
@@ -1068,14 +1078,22 @@ void WorldSession::SendLfgUpdateProposal(LFGProposal* pProposal)
                 }
             }
         }
+        // bind if no group
+    }
+    else 
+    {
+        DEBUG_LOG("SMSG_LFG_PROPOSAL_UPDATE: no dungeon in proposal %u, returning.", pProposal->ID);
+        return;
     }
 
+    WorldPacket data(SMSG_LFG_PROPOSAL_UPDATE, 4 + 1 + 4 + 4 + 1 + 1 + pProposal->playerGuids.size() * (4 + 1 + 1 + 1 + 1 +1));
+
     data << uint32(dungeon->Entry());                          // Dungeon
-    data << uint8(pProposal->state);                           // Result state
+    data << uint8(pProposal->GetState());                      // Result state
     data << uint32(pProposal->ID);                             // Internal Proposal ID
     data << uint32(completedEncounters);                       // Bosses killed
     data << uint8(isSameDungeon);                              // Silent (show client window)
-    data << uint8(pProposal->playerGuids.size());              // Group size
+    data << uint8(size);                                       // Group size
 
     for (LFGQueueSet::const_iterator itr = pProposal->playerGuids.begin(); itr != pProposal->playerGuids.end(); ++itr)
     {
@@ -1084,11 +1102,11 @@ void WorldSession::SendLfgUpdateProposal(LFGProposal* pProposal)
             continue;
 
         data << uint32(pPlayer->GetLFGState()->GetRoles());       // Role
-        data << uint8(pPlayer->GetObjectGuid() == guid);            // Self player
-        if (!(pPlayer->GetGroup() == pProposal->group))                              // Player not it a group
+        data << uint8(pPlayer->GetObjectGuid() == guid);          // Self player
+        if (!(pPlayer->GetGroup() == pProposal->GetGroup()))                              // Player not it a group
         {
-            data << uint8(0);                              // Not in dungeon
-            data << uint8(0);                              // Not same group
+            data << uint8(0);                                     // Not in dungeon
+            data << uint8(0);                                     // Not same group
         }
         else
         {

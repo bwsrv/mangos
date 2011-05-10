@@ -756,6 +756,7 @@ bool IsPositiveEffect(SpellEntry const *spellproto, SpellEffectIndex effIndex)
                     }
                 }   break;
                 case SPELL_AURA_MOD_DAMAGE_DONE:            // dependent from base point sign (negative -> negative)
+                case SPELL_AURA_MOD_RESISTANCE:
                 case SPELL_AURA_MOD_STAT:
                 case SPELL_AURA_MOD_SKILL:
                 case SPELL_AURA_MOD_DODGE_PERCENT:
@@ -789,7 +790,7 @@ bool IsPositiveEffect(SpellEntry const *spellproto, SpellEffectIndex effIndex)
                             {
                                 // if non-positive trigger cast targeted to positive target this main cast is non-positive
                                 // this will place this spell auras as debuffs
-                                if (IsPositiveTarget(spellTriggeredProto->EffectImplicitTargetA[effIndex], spellTriggeredProto->EffectImplicitTargetB[effIndex]) &&
+                                if (IsPositiveTarget(spellTriggeredProto->EffectImplicitTargetA[i], spellTriggeredProto->EffectImplicitTargetB[i]) &&
                                     !IsPositiveEffect(spellTriggeredProto, SpellEffectIndex(i)))
                                     return false;
                             }
@@ -2206,6 +2207,16 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 // Shadowflame and Curse of Agony
                 if (((spellInfo_1->SpellFamilyFlags2 & 0x2) && spellInfo_2->SpellIconID == 544) ||
                     ((spellInfo_2->SpellFamilyFlags2 & 0x2) && spellInfo_1->SpellIconID == 544))
+                    return false;
+
+                // Shadowflame and Curse of Agony
+                if( spellInfo_1->SpellIconID == 544 && spellInfo_2->SpellIconID == 3317 ||
+                    spellInfo_2->SpellIconID == 544 && spellInfo_1->SpellIconID == 3317 )
+                    return false;
+
+                // Shadowflame and Curse of Doom
+                if( spellInfo_1->SpellIconID == 91 && spellInfo_2->SpellIconID == 3317 ||
+                    spellInfo_2->SpellIconID == 91 && spellInfo_1->SpellIconID == 3317 )
                     return false;
 
                 // Metamorphosis, diff effects

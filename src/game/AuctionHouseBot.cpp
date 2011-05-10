@@ -109,16 +109,14 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
 
     for (AuctionHouseObject::AuctionEntryMap::const_iterator itr = auctionHouse->GetAuctionsBegin();itr != auctionHouse->GetAuctionsEnd();++itr)
     {
-        AuctionHouseMgr::ReadGuard Guard(sAuctionMgr.GetLock());
-
         AuctionEntry* Aentry = itr->second;
 
         if (Aentry->IsDeleted())
             continue;
 
-        if (ItemPrototype const* prototype = sAuctionMgr.GetAItemProto(Aentry->itemGuidLow))
+        if (Item* item = sAuctionMgr.GetAItem(Aentry->itemGuidLow))
         {
-            if (prototype)
+            if (ItemPrototype const* prototype = item->GetProto())
             {
                 switch (prototype->Quality)
                 {
@@ -433,12 +431,14 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
         auctionEntry->itemGuidLow = item->GetGUIDLow();
         auctionEntry->itemTemplate = item->GetEntry();
         auctionEntry->owner = AHBplayer->GetGUIDLow();
+        Utf8toWStr(AHBplayer->GetName(), auctionEntry->ownerName);
         auctionEntry->startbid = bidPrice * buyBondingK;
         auctionEntry->buyout = buyoutPrice * buyBondingK;
         auctionEntry->bidder = 0;
         auctionEntry->bid = 0;
         auctionEntry->deposit = 0;
         auctionEntry->expireTime = (time_t) (urand(config->GetMinTime(), config->GetMaxTime()) * 60 * 60 + time(NULL));
+        auctionEntry->moneyDeliveryTime = 0;
         auctionEntry->auctionHouseEntry = ahEntry;
 
         auctionHouse->AddAuction(auctionEntry);

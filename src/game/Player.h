@@ -1204,7 +1204,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         void Say(const std::string& text, const uint32 language);
         void Yell(const std::string& text, const uint32 language);
         void TextEmote(const std::string& text);
-        void Whisper(const std::string& text, const uint32 language,uint64 receiver);
+        void Whisper(const std::string& text, const uint32 language, ObjectGuid receiver);
         void BuildPlayerChat(WorldPacket *data, uint8 msgtype, const std::string& text, uint32 language) const;
 
         /*********************************************************/
@@ -1221,6 +1221,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         Item* GetItemByLimitedCategory(uint32 limitedCategory) const;
         Item* GetItemByPos( uint16 pos ) const;
         Item* GetItemByPos( uint8 bag, uint8 slot ) const;
+        uint32 GetItemDisplayIdInSlot(uint8 bag, uint8 slot) const;
         Item* GetWeaponForAttack(WeaponAttackType attackType) const { return GetWeaponForAttack(attackType,false,false); }
         Item* GetWeaponForAttack(WeaponAttackType attackType, bool nonbroken, bool useable) const;
         Item* GetShield(bool useable = false) const;
@@ -1318,7 +1319,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         uint32 GetMaxKeyringSize() const { return KEYRING_SLOT_END-KEYRING_SLOT_START; }
         void SendEquipError( InventoryResult msg, Item* pItem, Item *pItem2 = NULL, uint32 itemid = 0 ) const;
         void SendBuyError( BuyResult msg, Creature* pCreature, uint32 item, uint32 param );
-        void SendSellError( SellResult msg, Creature* pCreature, uint64 guid, uint32 param );
+        void SendSellError( SellResult msg, Creature* pCreature, ObjectGuid itemGuid, uint32 param );
         void AddWeaponProficiency(uint32 newflag) { m_WeaponProficiency |= newflag; }
         void AddArmorProficiency(uint32 newflag) { m_ArmorProficiency |= newflag; }
         uint32 GetWeaponProficiency() const { return m_WeaponProficiency; }
@@ -1415,8 +1416,8 @@ class MANGOS_DLL_SPEC Player : public Unit
         bool SatisfyQuestDay( Quest const* qInfo, bool msg ) const;
         bool SatisfyQuestWeek( Quest const* qInfo, bool msg ) const;
         bool SatisfyQuestMonth(Quest const* qInfo, bool msg) const;
-        bool CanGiveQuestSourceItem( Quest const *pQuest, ItemPosCountVec* dest = NULL) const;
-        void GiveQuestSourceItem( Quest const *pQuest );
+        bool CanGiveQuestSourceItemIfNeed( Quest const *pQuest, ItemPosCountVec* dest = NULL) const;
+        void GiveQuestSourceItemIfNeed(Quest const *pQuest);
         bool TakeQuestSourceItem( uint32 quest_id, bool msg );
         bool GetQuestRewardStatus( uint32 quest_id ) const;
         QuestStatus GetQuestStatus( uint32 quest_id ) const;
@@ -1485,8 +1486,9 @@ class MANGOS_DLL_SPEC Player : public Unit
         void SendPushToPartyResponse( Player *pPlayer, uint32 msg );
         void SendQuestUpdateAddCreatureOrGo(Quest const* pQuest, ObjectGuid guid, uint32 creatureOrGO_idx, uint32 count);
 
-        uint64 GetDivider() { return m_divider; }
-        void SetDivider( uint64 guid ) { m_divider = guid; }
+        ObjectGuid GetDividerGuid() const { return m_dividerGuid; }
+        void SetDividerGuid(ObjectGuid guid) { m_dividerGuid = guid; }
+        void ClearDividerGuid() { m_dividerGuid.Clear(); }
 
         uint32 GetInGameTime() { return m_ingametime; }
 
@@ -1875,8 +1877,8 @@ class MANGOS_DLL_SPEC Player : public Unit
         void ApplyManaRegenBonus(int32 amount, bool apply);
         void UpdateManaRegen();
 
-        const uint64& GetLootGUID() const { return m_lootGuid.GetRawValue(); }
-        void SetLootGUID(ObjectGuid const& guid) { m_lootGuid = guid; }
+        ObjectGuid const& GetLootGuid() const { return m_lootGuid; }
+        void SetLootGuid(ObjectGuid const& guid) { m_lootGuid = guid; }
 
         void RemovedInsignia(Player* looterPlr);
 
@@ -2470,7 +2472,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         QuestSet m_weeklyquests;
         QuestSet m_monthlyquests;
 
-        uint64 m_divider;
+        ObjectGuid m_dividerGuid;
         uint32 m_ingametime;
 
         /*********************************************************/
@@ -2673,10 +2675,13 @@ class MANGOS_DLL_SPEC Player : public Unit
         DeclinedName *m_declinedname;
         Runes *m_runes;
         EquipmentSets m_EquipmentSets;
+
         // Refer-A-Friend
         ObjectGuid m_curGrantLevelGiverGuid;
-
         int32 m_GrantableLevelsCount;
+
+        /// class dependent melee diminishing constant for dodge/parry/missed chances
+        static const float m_diminishing_k[MAX_CLASSES];
 
     private:
         void _HandleDeadlyPoison(Unit* Target, WeaponAttackType attType, SpellEntry const *spellInfo);

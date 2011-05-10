@@ -155,8 +155,8 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry *auction)
             // FIXME: for offline player need also
             bidder->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WON_AUCTIONS, 1);
         }
-        else
-            RemoveAItem(pItem->GetGUIDLow());               // we have to remove the item, before we delete it !!
+
+        RemoveAItem(pItem->GetGUIDLow());               // we have to remove the item from auction, before we delete it !!
 
         // will delete item or place to receiver mail list
         MailDraft(msgAuctionWonSubject.str(), msgAuctionWonBody.str())
@@ -486,8 +486,11 @@ void AuctionHouseMgr::ClearRemovedAItems()
     WriteGuard guard(i_lock);
     while(!m_deletedItems.empty())
     {
-        delete m_deletedItems.front();
-//        m_deletedItems.pop();
+        Item* item = m_deletedItems.front();
+        m_deletedItems.pop();
+
+        if (item)
+            delete item;
     }
 }
 

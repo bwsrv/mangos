@@ -35,7 +35,7 @@ void WorldSession::HandleAutostoreLootItemOpcode( WorldPacket & recv_data )
 {
     DEBUG_LOG("WORLD: CMSG_AUTOSTORE_LOOT_ITEM");
     Player  *player =   GetPlayer();
-    ObjectGuid lguid = player->GetLootGUID();
+    ObjectGuid lguid = player->GetLootGuid();
     Loot    *loot;
     uint8    lootSlot;
     Item* pItem = NULL;
@@ -180,7 +180,7 @@ void WorldSession::HandleLootMoneyOpcode( WorldPacket & /*recv_data*/ )
     DEBUG_LOG("WORLD: CMSG_LOOT_MONEY");
 
     Player *player = GetPlayer();
-    ObjectGuid guid = player->GetLootGUID();
+    ObjectGuid guid = player->GetLootGuid();
     if (guid.IsEmpty())
         return;
 
@@ -298,8 +298,9 @@ void WorldSession::HandleLootReleaseOpcode( WorldPacket & recv_data )
     // use internal stored guid
     recv_data.read_skip<uint64>();                          // guid;
 
-    if(uint64 lguid = GetPlayer()->GetLootGUID())
-        DoLootRelease(lguid);
+    ObjectGuid lootGuid = GetPlayer()->GetLootGuid();
+    if (!lootGuid.IsEmpty())
+        DoLootRelease(lootGuid);
 }
 
 void WorldSession::DoLootRelease(ObjectGuid lguid)
@@ -307,7 +308,7 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
     Player  *player = GetPlayer();
     Loot    *loot;
 
-    player->SetLootGUID(ObjectGuid());
+    player->SetLootGuid(ObjectGuid());
     player->SendLootRelease(lguid);
 
     player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_LOOTING);
@@ -496,7 +497,7 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
     }
 
     //Player is not looking at loot list, he doesn't need to see updates on the loot list
-    loot->RemoveLooter(player->GetGUID());
+    loot->RemoveLooter(player->GetObjectGuid());
 }
 
 void WorldSession::HandleLootMasterGiveOpcode( WorldPacket & recv_data )
@@ -509,7 +510,7 @@ void WorldSession::HandleLootMasterGiveOpcode( WorldPacket & recv_data )
 
     if (!_player->GetGroup() || _player->GetGroup()->GetLooterGuid() != _player->GetObjectGuid())
     {
-        _player->SendLootRelease(GetPlayer()->GetLootGUID());
+        _player->SendLootRelease(GetPlayer()->GetLootGuid());
         return;
     }
 
@@ -519,7 +520,7 @@ void WorldSession::HandleLootMasterGiveOpcode( WorldPacket & recv_data )
 
     DEBUG_LOG("WorldSession::HandleLootMasterGiveOpcode (CMSG_LOOT_MASTER_GIVE, 0x02A3) Target = %s [%s].", target_playerguid.GetString().c_str(), target->GetName());
 
-    if (_player->GetLootGUID() != lootguid.GetRawValue())
+    if (_player->GetLootGuid() != lootguid)
         return;
 
     Loot *pLoot = NULL;

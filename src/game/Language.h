@@ -948,7 +948,6 @@ enum MangosStrings
     //                                    10000-10999
 
     // Use for custom patches             11000-11999
-    LANG_ARENA_STARTED_ANNOUNCE_WORLD   = 17898,
 
     LANG_BG_SA_START_TWO_MINUTE             = 20000,
     LANG_BG_SA_START_ONE_MINUTE             = 20001,
@@ -977,6 +976,7 @@ enum MangosStrings
     LANG_BG_SA_HORDE_END_1ROUND             = 20020,
     LANG_BG_SA_ALLIANCE_END_2ROUND          = 20021,
     LANG_BG_SA_HORDE_END_2ROUND             = 20022,
+
     /*##############################################
     #          Strings for SendWarningToAll        #
     ##############################################*/
@@ -1012,8 +1012,9 @@ enum MangosStrings
     LANG_BG_SA_HORDE_TIMEOUT_END_2ROUND           = 20050,
     LANG_BG_SA_ALLIANCE_TIMEOUT_END_2ROUND        = 20051,
 
-    LANG_COMMAND_FRIEND                           = 11133,
-    LANG_COMMAND_FRIEND_ERROR                     = 11134,
+    LANG_COMMAND_FRIEND                 = 11133,
+    LANG_COMMAND_FRIEND_ERROR           = 11134,
+    LANG_ARENA_STARTED_ANNOUNCE_WORLD   = 17898,
 
     // NOT RESERVED IDS                   12000-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)

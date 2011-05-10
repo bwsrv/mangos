@@ -31,6 +31,7 @@
 #include "ObjectMgr.h"
 #include "Group.h"
 #include "Guild.h"
+#include "GuildMgr.h"
 #include "World.h"
 #include "BattleGroundMgr.h"
 #include "MapManager.h"
@@ -383,8 +384,9 @@ void WorldSession::LogoutPlayer(bool Save)
 
         sLog.outChar("Account: %d (IP: %s) Logout Character:[%s] (guid: %u)", GetAccountId(), GetRemoteAddress().c_str(), _player->GetName() ,_player->GetGUIDLow());
 
-        if (uint64 lguid = GetPlayer()->GetLootGUID())
-            DoLootRelease(lguid);
+        ObjectGuid lootGuid = GetPlayer()->GetLootGuid();
+        if (!lootGuid.IsEmpty())
+            DoLootRelease(lootGuid);
 
         ///- If the player just died before logging out, make him appear as a ghost
         //FIXME: logout must be delayed in case lost connection with client in time of combat
@@ -483,7 +485,7 @@ void WorldSession::LogoutPlayer(bool Save)
         }
 
         ///- If the player is in a guild, update the guild roster and broadcast a logout message to other guild members
-        if (Guild *guild = sObjectMgr.GetGuildById(_player->GetGuildId()))
+        if (Guild* guild = sGuildMgr.GetGuildById(_player->GetGuildId()))
         {
             if (MemberSlot* slot = guild->GetMemberSlot(_player->GetObjectGuid()))
             {

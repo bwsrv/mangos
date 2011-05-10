@@ -24,6 +24,7 @@
 #include "GameEventMgr.h"
 #include "ObjectMgr.h"
 #include "Guild.h"
+#include "GuildMgr.h"
 #include "Database/DatabaseEnv.h"
 #include "World.h"
 #include "SpellMgr.h"
@@ -645,7 +646,7 @@ void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement)
     if(achievement->flags & ACHIEVEMENT_FLAG_HIDDEN)
         return;
 
-    if(Guild* guild = sObjectMgr.GetGuildById(GetPlayer()->GetGuildId()))
+    if (Guild* guild = sGuildMgr.GetGuildById(GetPlayer()->GetGuildId()))
     {
         MaNGOS::AchievementChatBuilder say_builder(*GetPlayer(), CHAT_MSG_GUILD_ACHIEVEMENT, LANG_ACHIEVEMENT_EARNED,achievement->ID);
         MaNGOS::LocalizedPacketDo<MaNGOS::AchievementChatBuilder> say_do(say_builder);

@@ -635,6 +635,65 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             }
             break;
         }
+        case 72378: // Blood Nova
+        case 73058:
+        {
+            UnitList tempTargetUnitMap;
+            FillAreaTargets(tempTargetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+            if (!tempTargetUnitMap.empty())
+            {
+                for (UnitList::const_iterator iter = tempTargetUnitMap.begin(); iter != tempTargetUnitMap.end(); ++iter)
+                {
+                    if (!(*iter)->GetObjectGuid().IsPlayerOrPet())
+                        continue;
+
+                    if (m_caster->GetDistance(*iter) < 8.0f)
+                        continue;
+
+                    targetUnitMap.push_back((*iter));
+                }
+
+                if (!targetUnitMap.empty())
+                    return true;
+            }
+        }
+        case 71336:                                     // Pact of the Darkfallen
+        {
+            UnitList tempTargetUnitMap;
+            FillAreaTargets(tempTargetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+            if (!tempTargetUnitMap.empty())
+            {
+                for (UnitList::const_iterator iter = tempTargetUnitMap.begin(); iter != tempTargetUnitMap.end(); ++iter)
+                {
+                    if (!(*iter)->GetObjectGuid().IsPlayer())
+                        continue;
+                    targetUnitMap.push_back((*iter));
+                }
+
+                if (!targetUnitMap.empty())
+                    return true;
+            }
+        }
+        case 71341:
+        case 71390:                                     // Pact of the Darkfallen
+        {
+            UnitList tempTargetUnitMap;
+            FillAreaTargets(tempTargetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_FRIENDLY);
+            if (!tempTargetUnitMap.empty())
+            {
+                for (UnitList::const_iterator iter = tempTargetUnitMap.begin(); iter != tempTargetUnitMap.end(); ++iter)
+                {
+                    if (!(*iter)->GetObjectGuid().IsPlayer())
+                        continue;
+
+                    if (!(*iter)->HasAura(71340))
+                        continue;
+
+                    targetUnitMap.push_back((*iter));
+                }
+            }
+            return true;
+        }
         default:
             return false;
         break;
@@ -1865,6 +1924,8 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 66152:                                 // Bullet Foced Cast (Trial of the Crusader, ->
                 case 66153:                                 // -> Twin Valkyr encounter, 10 and 25 mode)
                 case 66339:                                 // Summon Scarab (Trial of the Crusader, Anub'arak encounter)
+                case 73058:                                 // Blood Nova
+                case 72378:                                 // Blood Nova
                     unMaxTargets = 1;
                     break;
                 case 28542:                                 // Life Drain
@@ -1872,6 +1933,9 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 68509:                                 // Penetrating Cold (10 man heroic)
                 case 66332:                                 // Nerubian Burrower (Trial of the Crusader, ->
                 case 67755:                                 // -> Anub'arak encounter, 10 and 10 heroic)
+                case 69278:                                 // Gas spore - 10
+                case 71336:                                 // Pact of the Darkfallen
+                case 71390:                                 // Pact of the Darkfallen
                     unMaxTargets = 2;
                     break;
                 case 28796:                                 // Poison Bolt Volley
@@ -1884,6 +1948,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     break;
                 case 67756:                                 // Nerubian Burrower (Trial of the Crusader, ->
                 case 67757:                                 // -> Anub'arak encounter, 25 and 25 heroic)
+                case 71221:                                 // Gas spore - 25
                     unMaxTargets = 4;
                     break;
                 case 30843:                                 // Enfeeble TODO: exclude top threat target from target selection
@@ -1930,14 +1995,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     if (Unit* realCaster = GetAffectiveCaster())
                         radius = realCaster->GetFloatValue(OBJECT_FIELD_SCALE_X) * 6;
                     break;
-                case 69278:                                 // Gas spore - 10
-                    unMaxTargets = 2;
-                    break;
-                case 71221:                                 // Gas spore - 25
-                    unMaxTargets = 4;
-                    break;
-                case 71340:                                 // Pact of darkfallen (hack for script work)
-                    unMaxTargets = 1;
+                default:
                     break;
                 case 66881:                                 // Slime Pool (Acidmaw & Dreadscale encounter)
                 case 67638:                                 // (Trial of the Crusader, all difficulties)
@@ -2246,7 +2304,10 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             break;
         }
         case TARGET_ALL_ENEMY_IN_AREA:
-            FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+            if (FillCustomTargetMap(effIndex, targetUnitMap))
+                break;
+            else
+                FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
             break;
         case TARGET_AREAEFFECT_INSTANT:
         {
@@ -2568,6 +2629,15 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 64904:                                 // Hymn of Hope
                     // target amount stored in parent spell dummy effect but hard to access
                     FillRaidOrPartyManaPriorityTargets(targetUnitMap, m_caster, m_caster, radius, 3, true, false, true);
+                    break;
+                case 71390:                                 // Pact of the Darkfallen
+                    if (FillCustomTargetMap(effIndex, targetUnitMap)) 
+                        break;
+                    break;
+                case 71341:                                 // Pact of the Darkfallen
+                    if (effIndex == EFFECT_INDEX_1)
+                        if (FillCustomTargetMap(effIndex, targetUnitMap)) 
+                          break;
                     break;
                 case 71447:                                 // Bloodbolt Splash 10N
                 case 71481:                                 // Bloodbolt Splash 25N
@@ -3404,7 +3474,7 @@ void Spell::cancel()
                 {
                     Unit* unit = m_caster->GetObjectGuid() == (*ihit).targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID);
                     if (unit && unit->isAlive())
-                        unit->RemoveAurasByCasterSpell(m_spellInfo->Id, m_caster->GetGUID());
+                        unit->RemoveAurasByCasterSpell(m_spellInfo->Id, m_caster->GetObjectGuid());
                 }
             }
 
@@ -3585,8 +3655,14 @@ void Spell::cast(bool skipCheck)
             break;
         case SPELLFAMILY_HUNTER:
         {
+            // Kill Command
+            if (m_spellInfo->Id == 34026)
+            {
+                if (m_caster->HasAura(37483))               // Improved Kill Command - Item set bonus
+                    m_caster->CastSpell(m_caster, 37482, true);// Exploited Weakness
+            }
             // Lock and Load
-            if (m_spellInfo->Id == 56453)
+            else if (m_spellInfo->Id == 56453)
                 AddPrecastSpell(67544);                     // Lock and Load Marker
             // Deterrence
             else if (m_spellInfo->Id == 19263)
@@ -4540,12 +4616,12 @@ void Spell::SendChannelUpdate(uint32 time)
 {
     if(time == 0)
     {
-        m_caster->RemoveAurasByCasterSpell(m_spellInfo->Id, m_caster->GetGUID());
+        m_caster->RemoveAurasByCasterSpell(m_spellInfo->Id, m_caster->GetObjectGuid());
 
         ObjectGuid target_guid = m_caster->GetChannelObjectGuid();
         if (target_guid != m_caster->GetObjectGuid() && target_guid.IsUnit())
             if (Unit* target = ObjectAccessor::GetUnit(*m_caster, target_guid))
-                target->RemoveAurasByCasterSpell(m_spellInfo->Id, m_caster->GetGUID());
+                target->RemoveAurasByCasterSpell(m_spellInfo->Id, m_caster->GetObjectGuid());
 
         m_caster->SetChannelObjectGuid(ObjectGuid());
         m_caster->SetUInt32Value(UNIT_CHANNEL_SPELL, 0);
@@ -5144,7 +5220,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         if(non_caster_target)
         {
             // target state requirements (apply to non-self only), to allow cast affects to self like Dirty Deeds
-            if (m_spellInfo->TargetAuraState && !target->HasAuraStateForCaster(AuraState(m_spellInfo->TargetAuraState), m_caster->GetGUID()) &&
+            if (m_spellInfo->TargetAuraState && !target->HasAuraStateForCaster(AuraState(m_spellInfo->TargetAuraState), m_caster->GetObjectGuid()) &&
                 !m_caster->IsIgnoreUnitState(m_spellInfo, m_spellInfo->TargetAuraState == AURA_STATE_FROZEN ? IGNORE_UNIT_TARGET_NON_FROZEN : IGNORE_UNIT_TARGET_STATE))
                 return SPELL_FAILED_TARGET_AURASTATE;
 
@@ -6182,6 +6258,26 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 break;
             }
+            case SPELL_AURA_MIRROR_IMAGE:
+            {
+                Unit* pTarget = m_targets.getUnitTarget();
+
+                // In case of TARGET_SCRIPT, we have already added a target. Use it here (and find a better solution)
+                if (m_UniqueTargetInfo.size() == 1)
+                    pTarget = m_caster->GetMap()->GetAnyTypeCreature(m_UniqueTargetInfo.front().targetGUID);
+
+                if (!pTarget)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                if (pTarget == m_caster)                    // Clone self can't be accepted
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                // It is assumed that target can not be cloned if already cloned by same or other clone auras
+                if (pTarget->HasAuraType(SPELL_AURA_MIRROR_IMAGE))
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                break;
+            }
             default:
                 break;
         }
@@ -6349,25 +6445,8 @@ SpellCastResult Spell::CheckCasterAuras() const
     SpellCastResult prevented_reason = SPELL_CAST_OK;
     // Have to check if there is a stun aura. Otherwise will have problems with ghost aura apply while logging out
     uint32 unitflag = m_caster->GetUInt32Value(UNIT_FIELD_FLAGS);     // Get unit state
-    if (unitflag & UNIT_FLAG_STUNNED)
-    {
-        // spell is usable while stunned, check if caster has only mechanic stun auras, another stun types must prevent cast spell
-        if (m_spellInfo->AttributesEx5 & SPELL_ATTR_EX5_USABLE_WHILE_STUNNED)
-        {
-            bool is_stun_mechanic = true;
-            Unit::AuraList const& stunAuras = m_caster->GetAurasByType(SPELL_AURA_MOD_STUN);
-            for (Unit::AuraList::const_iterator itr = stunAuras.begin(); itr != stunAuras.end(); ++itr)
-                if (!(*itr)->HasMechanic(MECHANIC_STUN))
-                {
-                    is_stun_mechanic = false;
-                    break;
-                }
-            if (!is_stun_mechanic)
-                prevented_reason = SPELL_FAILED_STUNNED;
-        }
-        else
-            prevented_reason = SPELL_FAILED_STUNNED;
-    }
+    if (unitflag & UNIT_FLAG_STUNNED && !(m_spellInfo->AttributesEx5 & SPELL_ATTR_EX5_USABLE_WHILE_STUNNED))
+        prevented_reason = SPELL_FAILED_STUNNED;
     else if (unitflag & UNIT_FLAG_CONFUSED && !(m_spellInfo->AttributesEx5 & SPELL_ATTR_EX5_USABLE_WHILE_CONFUSED))
         prevented_reason = SPELL_FAILED_CONFUSED;
     else if (unitflag & UNIT_FLAG_FLEEING && !(m_spellInfo->AttributesEx5 & SPELL_ATTR_EX5_USABLE_WHILE_FEARED))
@@ -6419,7 +6498,7 @@ SpellCastResult Spell::CheckCasterAuras() const
                     switch(aura->GetModifier()->m_auraname)
                     {
                         case SPELL_AURA_MOD_STUN:
-                            if (!(m_spellInfo->AttributesEx5 & SPELL_ATTR_EX5_USABLE_WHILE_STUNNED) || !aura->HasMechanic(MECHANIC_STUN))
+                            if (!(m_spellInfo->AttributesEx5 & SPELL_ATTR_EX5_USABLE_WHILE_STUNNED))
                                 return SPELL_FAILED_STUNNED;
                             break;
                         case SPELL_AURA_MOD_CONFUSE:
@@ -7227,7 +7306,7 @@ void Spell::DelayedChannel()
         if ((*ihit).missCondition == SPELL_MISS_NONE)
         {
             if (Unit* unit = m_caster->GetObjectGuid() == ihit->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID))
-                unit->DelaySpellAuraHolder(m_spellInfo->Id, delaytime, unit->GetGUID());
+                unit->DelaySpellAuraHolder(m_spellInfo->Id, delaytime, unit->GetObjectGuid());
         }
     }
 

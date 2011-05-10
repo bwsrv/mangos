@@ -29,6 +29,7 @@
 #include "ChannelMgr.h"
 #include "Group.h"
 #include "Guild.h"
+#include "GuildMgr.h"
 #include "Player.h"
 #include "SpellAuras.h"
 #include "Language.h"
@@ -248,7 +249,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
                 GetPlayer()->m_speakCount = 0;
             }
             else
-                GetPlayer()->Whisper(msg, lang, player->GetGUID());
+                GetPlayer()->Whisper(msg, lang, player->GetObjectGuid());
         } break;
 
         case CHAT_MSG_PARTY:
@@ -321,7 +322,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
             sChatLog.GuildMsg(GetPlayer(), msg, false);
 
             if (GetPlayer()->GetGuildId())
-                if (Guild *guild = sObjectMgr.GetGuildById(GetPlayer()->GetGuildId()))
+                if (Guild* guild = sGuildMgr.GetGuildById(GetPlayer()->GetGuildId()))
                     guild->BroadcastToGuild(this, msg, lang == LANG_ADDON ? LANG_ADDON : LANG_UNIVERSAL);
         } break;
 
@@ -345,7 +346,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
             sChatLog.GuildMsg(GetPlayer(), msg, true);
 
             if (GetPlayer()->GetGuildId())
-                if (Guild *guild = sObjectMgr.GetGuildById(GetPlayer()->GetGuildId()))
+                if (Guild* guild = sGuildMgr.GetGuildById(GetPlayer()->GetGuildId()))
                     guild->BroadcastToOfficers(this, msg, lang == LANG_ADDON ? LANG_ADDON : LANG_UNIVERSAL);
         } break;
 

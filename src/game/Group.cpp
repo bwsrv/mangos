@@ -1567,7 +1567,7 @@ void Group::UpdateLooterGuid( WorldObject* object, bool ifneed )
             {
                 if (pl->IsWithinDist(object, sWorld.getConfig(CONFIG_FLOAT_GROUP_XP_DISTANCE), false))
                 {
-                    bool refresh = pl->GetLootGUID() == object->GetGUID();
+                    bool refresh = pl->GetLootGuid() == object->GetObjectGuid();
 
                     //if(refresh)                           // update loot for new looter
                     //    pl->GetSession()->DoLootRelease(pl->GetLootGUID());
@@ -1588,7 +1588,7 @@ void Group::UpdateLooterGuid( WorldObject* object, bool ifneed )
         {
             if (pl->IsWithinDist(object, sWorld.getConfig(CONFIG_FLOAT_GROUP_XP_DISTANCE), false))
             {
-                bool refresh = pl->GetLootGUID() == object->GetGUID();
+                bool refresh = pl->GetLootGuid() == object->GetObjectGuid();
 
                 //if(refresh)                               // update loot for new looter
                 //    pl->GetSession()->DoLootRelease(pl->GetLootGUID());
@@ -2051,4 +2051,16 @@ bool Group::ConvertToLFG(LFGType type)
     static SqlStatementID updGgoup;
     SqlStatement stmt = CharacterDatabase.CreateStatement(updGgoup, "UPDATE groups SET groupType= ? WHERE groupId= ?");
     stmt.PExecute(uint8(m_groupType), GetObjectGuid().GetCounter());
+}
+
+void Group::SetGroupRoles(ObjectGuid guid, uint8 roles)
+{
+    for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+    {
+        if (itr->guid == guid )
+        {
+            itr->roles = roles;
+            return;
+        }
+    }
 }
