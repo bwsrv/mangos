@@ -4804,7 +4804,7 @@ void Player::SpawnCorpseBones()
 
 Corpse* Player::GetCorpse() const
 {
-    return sObjectAccessor.GetCorpseForPlayerGUID(GetGUID());
+    return sObjectAccessor.GetCorpseForPlayerGUID(GetObjectGuid());
 }
 
 void Player::DurabilityLossAll(double percent, bool inventory)
@@ -9050,7 +9050,7 @@ void Player::SendPetSkillWipeConfirm()
     if(!pet)
         return;
     WorldPacket data(SMSG_PET_UNLEARN_CONFIRM, (8+4));
-    data << pet->GetGUID();
+    data << ObjectGuid(pet->GetObjectGuid());
     data << uint32(pet->resetTalentsCost());
     GetSession()->SendPacket( &data );
 }
@@ -13505,7 +13505,7 @@ void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId)
     if (canTalkToCredit)
     {
         if (pSource->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
-            TalkedToCreature(pSource->GetEntry(), pSource->GetGUID());
+            TalkedToCreature(pSource->GetEntry(), pSource->GetObjectGuid());
     }
 
     // some gossips aren't handled in normal way ... so we need to do it this way .. TODO: handle it in normal way ;-)
@@ -13557,7 +13557,7 @@ void Player::SendPreparedGossip(WorldObject *pSource)
     if (uint32 menuId = PlayerTalkClass->GetGossipMenu().GetMenuId())
         textId = GetGossipTextId(menuId);
 
-    PlayerTalkClass->SendGossipMenu(textId, pSource->GetGUID());
+    PlayerTalkClass->SendGossipMenu(textId, pSource->GetObjectGuid());
 }
 
 void Player::OnGossipSelect(WorldObject* pSource, uint32 gossipListId, uint32 menuId)
@@ -13613,7 +13613,7 @@ void Player::OnGossipSelect(WorldObject* pSource, uint32 gossipListId, uint32 me
             else if (pMenuData.m_gAction_menu < 0)
             {
                 PlayerTalkClass->CloseGossip();
-                TalkedToCreature(pSource->GetEntry(), pSource->GetGUID());
+                TalkedToCreature(pSource->GetEntry(), pSource->GetObjectGuid());
             }
 
             if (pMenuData.m_gAction_script)
@@ -13628,7 +13628,7 @@ void Player::OnGossipSelect(WorldObject* pSource, uint32 gossipListId, uint32 me
         }
         case GOSSIP_OPTION_SPIRITHEALER:
             if (isDead())
-                ((Creature*)pSource)->CastSpell(((Creature*)pSource),17251,true,NULL,NULL,GetGUID());
+                ((Creature*)pSource)->CastSpell(((Creature*)pSource), 17251, true, NULL, NULL, GetObjectGuid());
             break;
         case GOSSIP_OPTION_QUESTGIVER:
             PrepareQuestMenu(guid);
@@ -17542,7 +17542,7 @@ void Player::ConvertInstancesToGroup(Player *player, Group *group, ObjectGuid pl
 
     if (player)
     {
-        player_guid = player->GetGUID();
+        player_guid = player->GetObjectGuid();
         if (!group)
             group = player->GetGroup();
     }
@@ -19305,7 +19305,7 @@ void Player::HandleStealthedUnitsDetection()
         {
             if(!hasAtClient)
             {
-                ObjectGuid i_guid = (*i)->GetGUID();
+                ObjectGuid i_guid = (*i)->GetObjectGuid();
                 (*i)->SendCreateUpdateToPlayer(this);
                 m_clientGUIDs.insert(i_guid);
 
@@ -19322,7 +19322,7 @@ void Player::HandleStealthedUnitsDetection()
             if(hasAtClient)
             {
                 (*i)->DestroyForPlayer(this);
-                m_clientGUIDs.erase((*i)->GetGUID());
+                m_clientGUIDs.erase((*i)->GetObjectGuid());
             }
         }
     }
@@ -20542,7 +20542,7 @@ template<>
 inline void UpdateVisibilityOf_helper(ObjectGuidSet& s64, GameObject* target)
 {
     if(!target->IsTransport())
-        s64.insert(target->GetGUID());
+        s64.insert(target->GetObjectGuid());
 }
 
 template<class T>
@@ -20809,7 +20809,7 @@ void Player::ApplyEquipCooldown( Item * pItem )
         AddSpellCooldown(spellData.SpellId, pItem->GetEntry(), time(NULL) + 30);
 
         WorldPacket data(SMSG_ITEM_COOLDOWN, 12);
-        data << pItem->GetGUID();
+        data << ObjectGuid(pItem->GetObjectGuid());
         data << uint32(spellData.SpellId);
         GetSession()->SendPacket(&data);
     }

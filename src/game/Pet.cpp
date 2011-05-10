@@ -70,7 +70,7 @@ void Pet::AddToWorld()
     ///- Register the pet for guid lookup
     if (!((Creature*)this)->IsInWorld())
     {
-        GetMap()->GetObjectsStore().insert<Pet>(GetGUID(), (Pet*)this);
+        GetMap()->GetObjectsStore().insert<Pet>(GetObjectGuid(), (Pet*)this);
         sObjectAccessor.AddObject(this);
     }
 
@@ -82,7 +82,7 @@ void Pet::RemoveFromWorld()
     ///- Remove the pet from the accessor
     if (((Creature*)this)->IsInWorld())
     {
-        GetMap()->GetObjectsStore().erase<Pet>(GetGUID(), (Pet*)NULL);
+        GetMap()->GetObjectsStore().erase<Pet>(GetObjectGuid(), (Pet*)NULL);
         sObjectAccessor.RemoveObject(this);
     }
 
@@ -1137,7 +1137,7 @@ void Pet::_LoadSpellCooldowns()
         time_t curTime = time(NULL);
 
         WorldPacket data(SMSG_SPELL_COOLDOWN, (8+1+size_t(result->GetRowCount())*8));
-        data << GetGUID();
+        data << ObjectGuid(GetObjectGuid());
         data << uint8(0x0);                                 // flags (0x1, 0x2)
 
         do

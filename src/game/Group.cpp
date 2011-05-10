@@ -784,7 +784,7 @@ void Group::StartLootRool(WorldObject* lootTarget, LootMethod method, Loot* loot
 
     LootItem const& lootItem =  loot->items[itemSlot];
 
-    Roll* r = new Roll(lootTarget->GetGUID(), method, lootItem);
+    Roll* r = new Roll(lootTarget->GetObjectGuid(), method, lootItem);
 
     //a vector is filled with only near party members
     for(GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
