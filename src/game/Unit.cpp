@@ -4154,39 +4154,6 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
                 RemoveSpellAuraHolder(foundHolder, AURA_REMOVE_BY_STACK);
                 break;
             }
-
-            // Judgements are always single 
-            else if (GetSpellSpecific(holder->GetId()) == SPELL_JUDGEMENT) 
-            {
-                RemoveSpellAuraHolder(foundHolder,AURA_REMOVE_BY_STACK);
-                break;
-            }
-
-            bool bStop = false;
-
-            for (int32 i = 0; i < MAX_EFFECT_INDEX && !bStop; ++i)
-            {
-                // no need to check non stacking auras that weren't/won't be applied on this target
-                if (!foundHolder->m_auras[i] || !holder->m_auras[i])
-                    continue;
-
-                // m_auraname can be modified to SPELL_AURA_NONE for area auras, use original
-                AuraType aurNameReal = AuraType(aurSpellInfo->EffectApplyAuraName[i]);
-
-                switch (aurNameReal)
-                {
-                    case SPELL_AURA_PERIODIC_ENERGIZE:      // all or self or clear non-stackable
-                        // can be only single (this check done at _each_ aura add
-                        RemoveSpellAuraHolder(foundHolder,AURA_REMOVE_BY_STACK);
-                        bStop = true;
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            if (bStop)
-                break;
         }
     }
 
