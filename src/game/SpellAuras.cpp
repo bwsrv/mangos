@@ -1003,6 +1003,7 @@ bool Aura::IsEffectStacking()
 {
     SpellEntry const *spellProto = GetSpellProto();
 
+    // scrolls don't stack
     if (GetSpellSpecific(spellProto->Id) == SPELL_SCROLL)
         return false;
 
@@ -1012,19 +1013,6 @@ bool Aura::IsEffectStacking()
         case SPELL_AURA_HASTE_SPELLS:                                   // Slow / Curse of Tongues
             if (spellProto->AttributesEx6 & SPELL_ATTR_EX6_NO_STACK_DEBUFF)
                 return false;
-            break;
-        case SPELL_AURA_MOD_RESISTANCE_PCT:                             // Expose Armor / Sunder Armor / Sting / Faerie Fire / Curse of Weakness
-            // hardcoded checks
-            if (spellProto->SpellFamilyName == SPELLFAMILY_WARRIOR &&               // Sunder Armor
-                spellProto->SpellFamilyFlags & UI64LIT(0x0000000000004000) ||       // (only spell triggering this aura has the flag)
-                spellProto->SpellFamilyName == SPELLFAMILY_HUNTER &&                // Sting (Hunter Pet)
-                spellProto->SpellFamilyFlags & UI64LIT(0x1000000000000000))
-            {
-                return false;
-            }
-            else if (spellProto->AttributesEx6 & SPELL_ATTR_EX6_NO_STACK_DEBUFF)
-                return false;
-
             break;
         case SPELL_AURA_MOD_HEALING_DONE:                               // Demonic Pact
         case SPELL_AURA_MOD_DAMAGE_DONE:                                // Demonic Pact
@@ -1036,7 +1024,6 @@ bool Aura::IsEffectStacking()
         case SPELL_AURA_MOD_STAT:                                       // Horn of Winter / Arcane Intellect / Divine Spirit and (Greater) Blessing of Kings(later group check by miscvalue)
         case SPELL_AURA_MOD_RANGED_ATTACK_POWER:
         case SPELL_AURA_MOD_POWER_REGEN:                                // (Greater) Blessing of Wisdom
-        case SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN:                       // Glyph of Salvation / Pain Suppression / Safeguard ? 
         case SPELL_AURA_MOD_SPELL_CRIT_CHANCE:                          // Elemental Oath
             if (spellProto->AttributesEx6 & SPELL_ATTR_EX6_NO_STACK_BUFF)
                 return false;
@@ -1044,6 +1031,42 @@ bool Aura::IsEffectStacking()
         case SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK:                    // Mind Numbing Poison / Wrath of Air Totem
         case SPELL_AURA_MOD_HEALING_PCT:                                // Mortal Strike / Wound Poison / Aimed Shot / Furious Attacks
             return (GetModifier()->m_amount > 0);                       // (only negative values don't stack)
+        // these effects never stack
+        case SPELL_AURA_MOD_MELEE_HASTE:                                // Melee haste changing don't stack (pos with pos, neg with neg)
+        case SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE:
+        case SPELL_AURA_MOD_PARTY_MAX_HEALTH:                           // Commanding Shout / Blood Pact
+            return false;
+        // hardcoded checks are needed (given attrEx6 not present)
+        case SPELL_AURA_MOD_DAMAGE_PERCENT_DONE:                        // Ferocious Inspiration / Sanctified Retribution
+            if (spellProto->SpellFamilyName == SPELLFAMILY_PALADIN &&
+                spellProto->SpellFamilyFlags & UI64LIT(0x000000000000000008)) // Sanctified Retribution
+            {
+                return false;
+            }
+            else if (spellProto->AttributesEx6 & SPELL_ATTR_EX6_NO_STACK_BUFF)
+                return false;
+            break;
+        case SPELL_AURA_MOD_RESISTANCE_PCT:                             // Expose Armor / Sunder Armor / Sting / Faerie Fire / Curse of Weakness
+            if (spellProto->SpellFamilyName == SPELLFAMILY_WARRIOR &&               // Sunder Armor
+                spellProto->SpellFamilyFlags & UI64LIT(0x0000000000004000) ||       // (only spell triggering this aura has the flag)
+                spellProto->SpellFamilyName == SPELLFAMILY_HUNTER &&                // Sting (Hunter Pet)
+                spellProto->SpellFamilyFlags & UI64LIT(0x1000000000000000))
+            {
+                return false;
+            }
+            else if (spellProto->AttributesEx6 & SPELL_ATTR_EX6_NO_STACK_DEBUFF)
+                return false;
+
+            break;
+        case SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN:                       // Glyph of Salvation / Pain Suppression / Safeguard / Ancestral Healing / Inspiration // Curse of the Elements / Ebon Plague / Earth and Moon
+            if (spellProto->SpellFamilyName == SPELLFAMILY_DRUID &&     // Earth and Moon
+                spellProto->SpellIconID == 2991)
+            {
+                return false;
+            }
+            else if (spellProto->AttributesEx6 & SPELL_ATTR_EX6_NO_STACK_DEBUFF)
+                return false;
+            break;
         case SPELL_AURA_MOD_CRIT_PERCENT:
             // Rampage
             if (spellProto->SpellFamilyName == SPELLFAMILY_WARRIOR && spellProto->SpellIconID == 2006)
@@ -1060,11 +1083,6 @@ bool Aura::IsEffectStacking()
             {
                 return false;
             }
-        // these effects never stack
-        case SPELL_AURA_MOD_MELEE_HASTE:                                // Melee haste changing don't stack (pos with pos, neg with neg)
-        case SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE:
-        case SPELL_AURA_MOD_PARTY_MAX_HEALTH:                           // Commanding Shout / Blood Pact
-            return false;
 
         default:
             break;
