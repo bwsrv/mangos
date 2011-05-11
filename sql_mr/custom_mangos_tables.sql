@@ -25,3 +25,10 @@ WHERE required_quest_done_A > 0;
 
 UPDATE areatrigger_teleport SET required_quest_done_heroic_H = required_quest_done_heroic_A
 WHERE required_quest_done_heroic_A > 0;
+
+-- Creature on kill Reputation
+
+ALTER TABLE creature_onkill_reputation
+ ADD COLUMN ChampioningAura int(11) unsigned NOT NULL default 0 AFTER TeamDependent;
+
+
