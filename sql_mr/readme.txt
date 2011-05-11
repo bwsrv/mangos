@@ -9,7 +9,6 @@ Instruction for CLEAN DBs:
 6. Apply mr*mangos*.sql
 
 Instruction for EXISTING DBs:
-(optional: Apply custom_mangos_tables.sql)
 1. Apply mr*characters*.sql
 2. Apply mr*realmd*.sql
 3. Apply mr*mangos*sql
