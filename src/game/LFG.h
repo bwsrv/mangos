@@ -119,6 +119,7 @@ enum LFGenum
     LFG_DPS_NEEDED             = 3,
     LFG_QUEUEUPDATE_INTERVAL   = 15*IN_MILLISECONDS,
     LFG_UPDATE_INTERVAL        = 1*IN_MILLISECONDS,
+    LFR_UPDATE_INTERVAL        = 3*IN_MILLISECONDS,
     LFG_SPELL_DUNGEON_COOLDOWN = 71328,
     LFG_SPELL_DUNGEON_DESERTER = 71041,
     LFG_SPELL_LUCK_OF_THE_DRAW = 72221,
@@ -223,13 +224,15 @@ enum LFGDungeonStatus
 typedef std::set<LFGDungeonEntry const*> LFGDungeonSet;
 typedef std::map<LFGDungeonEntry const*, LFGLockStatusType> LFGLockStatusMap;
 
+struct LFGProposal;
+
 struct LFGPlayerState
 {
     LFGPlayerState(Player* player) : m_player(player)
     {
         Clear();
     };
-public:
+    public:
     void Clear();
     void Update(bool _update = true) { update = _update; };
     LFGDungeonSet* GetDungeons()   { return &m_DungeonsList; };
@@ -249,6 +252,9 @@ public:
     void RemoveRole(LFGRoles role) { rolesMask = LFGRoleMask( rolesMask & ~(1 << role)); };
     bool IsSingleRole();
 
+    LFGProposal*  GetProposal()   { return m_proposal; };
+    void          SetProposal(LFGProposal* proposal)   { m_proposal = proposal; };
+
     uint32         GetFlags()                { return m_flags;};
     void           AddFlags(uint32 flags)    { m_flags = m_flags | flags;};
     void           RemoveFlags(uint32 flags) { m_flags = m_flags & ~flags;};
@@ -264,7 +270,7 @@ public:
 
     LFGType        GetType();
 
-private:
+    private:
     LFGRoleMask   rolesMask;
     uint32        m_flags;
     bool          update;
@@ -276,9 +282,9 @@ private:
     LFGLockStatusMap m_LockMap;                     // Dungeons lock map
     std::string   m_comment;
     LFGAnswer     accept;                           ///< Accept status (-1 not answer | 0 Not agree | 1 agree)
+    LFGProposal*  m_proposal;
 };
 
-struct LFGProposal;
 
 struct LFGGroupState
 {

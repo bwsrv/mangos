@@ -42,6 +42,7 @@ void LFGPlayerState::Clear()
     m_LockMap.clear();
     m_comment.clear();
     accept = LFG_ANSWER_PENDING;
+    m_proposal = NULL;
 }
 
 LFGLockStatusMap* LFGPlayerState::GetLockMap()
