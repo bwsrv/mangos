@@ -157,9 +157,9 @@ class LFGMgr
         // Update system
         void Update(uint32 diff);
 
-        void TruCompleteGroups(LFGType type);
-        bool TruCompleteGroup(Group* group, Player* player);
-        bool TruCreateGroup(LFGType type);
+        void TryCompleteGroups(LFGType type);
+        bool TryCompleteGroup(Group* group, Player* player);
+        bool TryCreateGroup(LFGType type);
 
         // Join system
         void Join(Player* player);
@@ -185,7 +185,8 @@ class LFGMgr
         uint32 CreateProposal(LFGDungeonEntry const* dungeon, Group* group = NULL, LFGQueueSet* playerGuids = NULL);
         bool SendProposal(uint32 ID, ObjectGuid guid);
         LFGProposal* GetProposal(uint32 ID);
-        void RemoveProposal(uint32 ID);
+        void RemoveProposal(Player* decliner, uint32 ID);
+        void RemoveProposal(uint32 ID, bool success = false);
         void UpdateProposal(uint32 ID, ObjectGuid guid, bool accept);
         void CleanupProposals();
         Player* LeaderElection(LFGQueueSet* playerGuids);
@@ -247,7 +248,7 @@ class LFGMgr
         LFGLockStatusMap GetPlayerLockMap(Player* player);
 
         // Search matrix
-        void AddToSearchMatrix(ObjectGuid guid);
+        void AddToSearchMatrix(ObjectGuid guid, bool inBegin = false);
         void RemoveFromSearchMatrix(ObjectGuid guid);
         LFGQueueSet* GetSearchVector(LFGDungeonEntry const* dungeon);
         bool IsInSearchFor(LFGDungeonEntry const* dungeon, ObjectGuid guid);
@@ -276,6 +277,7 @@ class LFGMgr
         LFGSearchMap    m_searchMatrix;                     // Search matrix
 
         uint32          m_updateTimer;                      // update timer for cleanup/statistic
+        uint32          m_updateTimer2;                     // update timer for LFR extend system
 
         LockType            i_lock;
 
