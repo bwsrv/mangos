@@ -140,7 +140,7 @@ class MANGOS_DLL_SPEC Object
         }
 
         ObjectGuid const& GetObjectGuid() const { return GetGuidValue(OBJECT_FIELD_GUID); }
-        const uint64& GetGUID() const { return GetObjectGuid().GetRawValue(); }  // DEPRICATED, not use, will removed soon
+        const uint64& GetGUID() const { return GetObjectGuid().GetRawValue(); }  // DEPRECATED, not use, will removed soon
         uint32 GetGUIDLow() const { return GetObjectGuid().GetCounter(); }
         PackedGuid const& GetPackGUID() const { return m_PackGUID; }
         std::string GetGuidStr() const { return GetObjectGuid().GetString(); }
