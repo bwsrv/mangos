@@ -44,16 +44,16 @@ void WorldSession::HandleLfgJoinOpcode( WorldPacket & recv_data )
     uint32 roles;
     std::string comment;
     LFGDungeonSet* newDungeons = GetPlayer()->GetLFGState()->GetDungeons();
+    newDungeons->clear();
     LFGDungeonSet* groupDungeons = NULL;
     if (GetPlayer()->GetGroup())
     {
         if (GetPlayer()->GetObjectGuid() == GetPlayer()->GetGroup()->GetLeaderGuid())
         {
             groupDungeons = GetPlayer()->GetGroup()->GetLFGState()->GetDungeons();
+            groupDungeons->clear();
         }
     }
-    GetPlayer()->GetLFGState()->GetDungeons();
-
 
     recv_data >> roles;                                     // lfg roles
     recv_data >> Unused<uint8>();                           // unk1 (unused?)
@@ -66,8 +66,6 @@ void WorldSession::HandleLfgJoinOpcode( WorldPacket & recv_data )
         recv_data.rpos(recv_data.wpos());
         return;
     }
-
-    newDungeons->clear();
 
     for (int8 i = 0 ; i < numDungeons; ++i)
     {

@@ -784,7 +784,7 @@ void Group::StartLootRool(WorldObject* lootTarget, LootMethod method, Loot* loot
 
     LootItem const& lootItem =  loot->items[itemSlot];
 
-    Roll* r = new Roll(lootTarget->GetGUID(), method, lootItem);
+    Roll* r = new Roll(lootTarget->GetObjectGuid(), method, lootItem);
 
     //a vector is filled with only near party members
     for(GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
@@ -2057,6 +2057,7 @@ bool Group::ConvertToLFG(LFGType type)
     static SqlStatementID updGgoup;
     SqlStatement stmt = CharacterDatabase.CreateStatement(updGgoup, "UPDATE groups SET groupType= ? WHERE groupId= ?");
     stmt.PExecute(uint8(m_groupType), GetObjectGuid().GetCounter());
+    return true;
 }
 
 void Group::SetGroupRoles(ObjectGuid guid, uint8 roles)

@@ -46,7 +46,7 @@ void LFGPlayerState::Clear()
 
 LFGLockStatusMap* LFGPlayerState::GetLockMap()
 {
-    if (update)
+    if (update || m_LockMap.empty())
     {
         m_LockMap.clear();
         m_LockMap = sLFGMgr.GetPlayerLockMap(m_player);
