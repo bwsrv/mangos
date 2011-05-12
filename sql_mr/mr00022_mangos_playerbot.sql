@@ -1,5 +1,5 @@
 -- Playerbot
--- 
+
 DELETE FROM `command` WHERE `name` = 'bot';
 INSERT INTO `command`
     (`name`, `security`, `help`)
