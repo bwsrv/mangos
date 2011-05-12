@@ -681,8 +681,8 @@ bool ChatHandler::HandlePlayerbotCommand(char* args)
                 delete resultchar;
                 return false;
             }
+        delete resultchar;
     }
-    delete resultchar;
 
     QueryResult *resultlvl = CharacterDatabase.PQuery("SELECT level,name FROM characters WHERE guid = '%lu'", guid);
     if (resultlvl)
@@ -698,8 +698,8 @@ bool ChatHandler::HandlePlayerbotCommand(char* args)
                 delete resultlvl;
                 return false;
             }
+        delete resultlvl;
     }
-    delete resultlvl;
     // end of gmconfig patch
     if (cmdStr == "add" || cmdStr == "login")
     {
