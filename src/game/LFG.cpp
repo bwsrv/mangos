@@ -43,6 +43,8 @@ void LFGPlayerState::Clear()
     m_comment.clear();
     accept = LFG_ANSWER_PENDING;
     m_proposal = NULL;
+    SetState(LFG_STATE_NONE);
+    m_teleported = false;
 }
 
 LFGLockStatusMap* LFGPlayerState::GetLockMap()
@@ -138,6 +140,7 @@ void LFGGroupState::Clear()
     m_roleCheckCancelTime = 0;
     m_roleCheckState      = LFG_ROLECHECK_NONE;
     SetDungeon(NULL);
+    SetState(LFG_STATE_NONE);
 }
 
 uint8 LFGGroupState::GetRoles(LFGRoles role)
@@ -167,6 +170,7 @@ void LFGGroupState::StartRoleCheck()
 {
     m_roleCheckCancelTime = time_t(time(NULL)) + LFG_TIME_ROLECHECK;
     SetRoleCheckState(LFG_ROLECHECK_INITIALITING);
+    SetState(LFG_STATE_ROLECHECK);
 }
 
 bool LFGGroupState::IsRoleCheckActive()

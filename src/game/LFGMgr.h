@@ -213,6 +213,8 @@ class LFGMgr
         void UpdateStatistic(LFGType type);
 
         // Role check system
+        void CleanupRoleChecks(LFGType type);
+        void StartRoleCheck(Group* group);
         void UpdateRoleCheck(Group* group);
         bool CheckRoles(Group* group, Player* player = NULL);
         bool CheckRoles(LFGRolesMap* roleMap);
