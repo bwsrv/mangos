@@ -639,7 +639,7 @@ bool ChatHandler::HandleReloadSpellScriptTargetCommand(char* /*args*/)
 
 bool ChatHandler::HandleReloadSpellTargetPositionCommand(char* /*args*/)
 {
-    sLog.outString( "Re-Loading Spell target coordinates..." );
+    sLog.outString( "Re-Loading spell target destination coordinates..." );
     sSpellMgr.LoadSpellTargetPositions();
     SendGlobalSysMessage("DB table `spell_target_position` (destination coordinates for spell targets) reloaded.");
     return true;
@@ -5895,7 +5895,7 @@ bool ChatHandler::HandlePDumpWriteCommand(char *args)
             return false;
         }
 
-        guid = sObjectMgr.GetPlayerGUIDByName(name);
+        guid = sObjectMgr.GetPlayerGuidByName(name);
         if (guid.IsEmpty())
         {
             PSendSysMessage(LANG_PLAYER_NOT_FOUND);

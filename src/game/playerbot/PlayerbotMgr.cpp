@@ -464,7 +464,7 @@ void PlayerbotMgr::LogoutAllBots()
         PlayerBotMap::const_iterator itr = GetPlayerBotsBegin();
         if (itr == GetPlayerBotsEnd()) break;
         Player* bot = itr->second;
-        LogoutPlayerBot(bot->GetGUID());
+        LogoutPlayerBot(bot->GetObjectGuid());
     }
 }
 
@@ -481,7 +481,7 @@ void PlayerbotMgr::Stay()
 
 
 // Playerbot mod: logs out a Playerbot.
-void PlayerbotMgr::LogoutPlayerBot(uint64 guid)
+void PlayerbotMgr::LogoutPlayerBot(ObjectGuid guid)
 {
     Player* bot = GetPlayerBot(guid);
     if (bot)
@@ -494,7 +494,7 @@ void PlayerbotMgr::LogoutPlayerBot(uint64 guid)
 }
 
 // Playerbot mod: Gets a player bot Player object for this WorldSession master
-Player* PlayerbotMgr::GetPlayerBot(uint64 playerGuid) const
+Player* PlayerbotMgr::GetPlayerBot(ObjectGuid playerGuid) const
 {
     PlayerBotMap::const_iterator it = m_playerBots.find(playerGuid);
     return (it == m_playerBots.end()) ? 0 : it->second;
@@ -643,8 +643,8 @@ bool ChatHandler::HandlePlayerbotCommand(char* args)
     if (!normalizePlayerName(charnameStr))
         return false;
 
-    uint64 guid = sObjectMgr.GetPlayerGUIDByName(charnameStr.c_str());
-    if (guid == 0 || (guid == m_session->GetPlayer()->GetGUID()))
+    ObjectGuid guid = sObjectMgr.GetPlayerGuidByName(charnameStr.c_str());
+    if (guid.IsEmpty() || (guid == m_session->GetPlayer()->GetObjectGuid()))
     {
         SendSysMessage(LANG_PLAYER_NOT_FOUND);
         SetSentErrorMessage(true);
@@ -739,8 +739,8 @@ bool ChatHandler::HandlePlayerbotCommand(char* args)
         if (orderStr == "protect" || orderStr == "assist")
         {
             char *targetChar = strtok(NULL, " ");
-            ObjectGuid targetGUID = m_session->GetPlayer()->GetSelectionGuid();
-            if (!targetChar && targetGUID.IsEmpty())
+            ObjectGuid targetGuid = m_session->GetPlayer()->GetSelectionGuid();
+            if (!targetChar && targetGuid.IsEmpty())
             {
                 PSendSysMessage("|cffff0000Combat orders protect and assist expect a target either by selection or by giving target player in command string!");
                 SetSentErrorMessage(true);
@@ -749,9 +749,9 @@ bool ChatHandler::HandlePlayerbotCommand(char* args)
             if (targetChar)
             {
                 std::string targetStr = targetChar;
-                targetGUID.Set(sObjectMgr.GetPlayerGUIDByName(targetStr.c_str()));
+                targetGuid = sObjectMgr.GetPlayerGuidByName(targetStr.c_str());
             }
-            target = ObjectAccessor::GetUnit(*m_session->GetPlayer(), targetGUID);
+            target = ObjectAccessor::GetUnit(*m_session->GetPlayer(), targetGuid);
             if (!target)
             {
                 PSendSysMessage("|cffff0000Invalid target for combat order protect or assist!");

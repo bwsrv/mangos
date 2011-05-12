@@ -269,7 +269,7 @@ void ChatHandler::HandleCharacterDeletedRestoreHelper(DeletedInfo const& delInfo
         return;
     }
 
-    if (sObjectMgr.GetPlayerGUIDByName(delInfo.name))
+    if (!sObjectMgr.GetPlayerGuidByName(delInfo.name).IsEmpty())
     {
         PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_NAME, delInfo.name.c_str(), delInfo.lowguid, delInfo.accountId);
         return;
@@ -418,7 +418,7 @@ bool ChatHandler::HandleCharacterEraseCommand(char* args)
     if(!normalizePlayerName(target_name))
         return false;
 
-    ObjectGuid target_guid = sObjectMgr.GetPlayerGUIDByName(nameStr);
+    ObjectGuid target_guid = sObjectMgr.GetPlayerGuidByName(nameStr);
     uint32 account_id = sObjectMgr.GetPlayerAccountIdByGUID(target_guid);
 
     if (target_guid.IsEmpty() || !account_id)

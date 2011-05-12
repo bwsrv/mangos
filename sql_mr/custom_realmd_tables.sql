@@ -1,5 +1,6 @@
 -- Refer a friend
 
+  -- better not to drop table here, because of custom data
 CREATE TABLE IF NOT EXISTS `account_friends` (
     `id` int(11) unsigned NOT NULL default '0',
     `friend_id` int(11) unsigned NOT NULL default '0',

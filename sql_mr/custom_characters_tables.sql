@@ -10,36 +10,36 @@ CREATE TABLE `character_battleground_random` (
 -- Anticheat tables from /dev/rsa
 
 DROP TABLE IF EXISTS `anticheat_config`;
-CREATE TABLE IF NOT EXISTS `anticheat_config` (
-    `checktype`          mediumint(8) unsigned NOT NULL COMMENT 'Type of check',
-    `description`        varchar(255),
-    `check_period`       int(11) unsigned NOT NULL default '0' COMMENT 'Time period of check, in ms, 0 - always',
-    `alarmscount`        int(11) unsigned NOT NULL default '1'COMMENT 'Count of alarms before action',
-    `disableoperation`   tinyint(3) unsigned NOT NULL default '0'COMMENT 'Anticheat disable operations in main core code after check fail',
-    `messagenum`         int(11) NOT NULL default '0' COMMENT 'Number of system message',
-    `intparam1`          mediumint(8) NOT NULL default '0' COMMENT 'Int parameter 1',
-    `intparam2`          mediumint(8) NOT NULL default '0' COMMENT 'Int parameter 2',
-    `floatparam1`        float NOT NULL default '0' COMMENT 'Float parameter 1',
-    `floatparam2`        float NOT NULL default '0' COMMENT 'Float parameter 2',
-    `action1`            mediumint(8) NOT NULL default '0' COMMENT 'Action 1',
-    `actionparam1`       mediumint(8) NOT NULL default '0' COMMENT 'Action parameter 1',
-    `action2`            mediumint(8) NOT NULL default '0' COMMENT 'Action 1',
-    `actionparam2`       mediumint(8) NOT NULL default '0' COMMENT 'Action parameter 1',
-    PRIMARY KEY  (`checktype`)
+CREATE TABLE `anticheat_config` (
+    `checktype` mediumint(8) unsigned NOT NULL COMMENT 'Type of check',
+    `description` varchar(255),
+    `check_period` int(11) unsigned NOT NULL default '0' COMMENT 'Time period of check, in ms, 0 - always',
+    `alarmscount` int(11) unsigned NOT NULL default '1'COMMENT 'Count of alarms before action',
+    `disableoperation` tinyint(3) unsigned NOT NULL default '0'COMMENT 'Anticheat disable operations in main core code after check fail',
+    `messagenum` int(11) NOT NULL default '0' COMMENT 'Number of system message',
+    `intparam1` mediumint(8) NOT NULL default '0' COMMENT 'Int parameter 1',
+    `intparam2` mediumint(8) NOT NULL default '0' COMMENT 'Int parameter 2',
+    `floatparam1` float NOT NULL default '0' COMMENT 'Float parameter 1',
+    `floatparam2` float NOT NULL default '0' COMMENT 'Float parameter 2',
+    `action1` mediumint(8) NOT NULL default '0' COMMENT 'Action 1',
+    `actionparam1` mediumint(8) NOT NULL default '0' COMMENT 'Action parameter 1',
+    `action2` mediumint(8) NOT NULL default '0' COMMENT 'Action 1',
+    `actionparam2` mediumint(8) NOT NULL default '0' COMMENT 'Action parameter 1',
+    PRIMARY KEY (`checktype`)
 ) DEFAULT CHARSET=utf8 PACK_KEYS=0 COMMENT='Anticheat configuration';
 
-  -- DROP TABLE IF EXISTS `anticheat_log`;
+  -- better not drop table here, because of custom data
 CREATE TABLE IF NOT EXISTS `anticheat_log` (
-    `playername`     varchar(32) NOT NULL,
-    `checktype`      mediumint(8) unsigned NOT NULL,
-    `alarm_time`     datetime NOT NULL,
-    `reason`         varchar(255) NOT NULL DEFAULT 'Unknown',
-    `guid`           int(11) unsigned NOT NULL,
-    `action1`        mediumint(8) NOT NULL default '0',
-    `action2`        mediumint(8) NOT NULL default '0',
+    `playername` varchar(32) NOT NULL,
+    `checktype` mediumint(8) unsigned NOT NULL,
+    `alarm_time` datetime NOT NULL,
+    `reason` varchar(255) NOT NULL DEFAULT 'Unknown',
+    `guid` int(11) unsigned NOT NULL,
+    `action1` mediumint(8) NOT NULL default '0',
+    `action2` mediumint(8) NOT NULL default '0',
     PRIMARY KEY (`checktype`, `alarm_time`, `guid`),
     KEY idx_Player (`guid`)
-)  DEFAULT CHARSET=utf8 COMMENT='Anticheat log table';
+) DEFAULT CHARSET=utf8 COMMENT='Anticheat log table';
 
 -- Auctionhouse Bot
 -- Commit 7c97114488b36b4427ed
@@ -116,6 +116,7 @@ CREATE TABLE `auctionhousebot` (
 -- Autobroadcast
 -- Commit 72d1f7a22d13399135d0
 
+  -- better not drop table here, because of custom data
 CREATE TABLE IF NOT EXISTS `autobroadcast` (
   `id` int(11) NOT NULL auto_increment,
   `text` longtext NOT NULL,
@@ -123,59 +124,26 @@ CREATE TABLE IF NOT EXISTS `autobroadcast` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
--- Group flags and roles support
--- Commit a5e57729fc5211bb6a2f
-
-ALTER TABLE group_member ADD COLUMN roles
-TINYINT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Member roles bit mask'
-AFTER subgroup;
-ALTER TABLE group_member CHANGE assistant memberFlags
-TINYINT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Member flags bit mask';
-
-ALTER TABLE groups DROP mainTank, DROP mainAssistant;
-
--- dungeon DBC encounters support
-
-ALTER TABLE instance ADD COLUMN encountersMask
-INT(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Dungeon encounter bit mask'
-AFTER difficulty;
-
--- Instance Extend LFG
--- Commit 020d4e346d38b961bf62
-
-ALTER TABLE character_instance ADD COLUMN extend
-TINYINT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Instance extend (bool)'
-AFTER permanent;
-
 -- BOP item trade
 
-DROP TABLE IF EXISTS `item_soulbound_trade_data`;
-CREATE TABLE `item_soulbound_trade_data` (
+  -- better not drop table here, because of custom data
+CREATE TABLE IF NOT EXISTS `item_soulbound_trade_data` (
     `itemGuid` int(16) unsigned NOT NULL DEFAULT '0',
     `allowedPlayers` varchar(255) NOT NULL DEFAULT '',
     PRIMARY KEY (`itemGuid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='BOP item trade cache';
 
--- Refer a friend
-
-ALTER TABLE characters ADD COLUMN grantableLevels  tinyint(3) unsigned NOT NULL default '0' AFTER actionBars;
-
--- Saved Variables
--- Commit 0525ca144e282cec2478
-
-ALTER TABLE saved_variables ADD COLUMN NextRandomBGResetTime bigint(40) unsigned NOT NULL default 0 AFTER NextWeeklyQuestResetTime;
-
 -- Wow Armory
 
-DROP TABLE IF EXISTS `armory_character_stats`;
-CREATE TABLE `armory_character_stats` (
+  -- better not drop table here, because of custom data
+CREATE TABLE IF NOT EXISTS `armory_character_stats` (
     `guid` int(11) NOT NULL,
     `data longtext` NOT NULL,
     PRIMARY KEY (`guid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='World of Warcraft Armory table';
 
-DROP TABLE IF EXISTS `armory_character`_feed_log;
-CREATE TABLE `armory_character_feed_log` (
+  -- better not drop table here, because of custom data
+CREATE TABLE IF NOT EXISTS `armory_character_feed_log` (
     `guid` int(11) NOT NULL,
     `type` smallint(1) NOT NULL,
     `data` int(11) NOT NULL,
@@ -186,8 +154,8 @@ CREATE TABLE `armory_character_feed_log` (
     PRIMARY KEY (`guid`, `type`, `data`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='World of Warcraft Armory feed log';
 
-DROP TABLE IF EXISTS `armory_game_chart`;
-CREATE TABLE `armory_game_chart` (
+  -- better not drop table here, because of custom data
+CREATE TABLE IF NOT EXISTS `armory_game_chart` (
     `gameid` int(11) NOT NULL,
     `teamid` int(11) NOT NULL,
     `guid` int(11) NOT NULL,
@@ -205,3 +173,38 @@ CREATE TABLE `armory_game_chart` (
     `end` int(11) NOT NULL,
     PRIMARY KEY  (`gameid`, `teamid`, `guid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='WoWArmory Game Chart';
+
+-- Group flags and roles support
+-- Commit a5e57729fc5211bb6a2f
+
+ALTER TABLE `group_member`
+    ADD COLUMN  `roles` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Member roles bit mask' AFTER `subgroup`;
+
+ALTER TABLE `group_member`
+    CHANGE `assistant` `memberFlags` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Member flags bit mask';
+
+ALTER TABLE `groups`
+    DROP `mainTank`,
+    DROP `mainAssistant`;
+
+-- dungeon DBC encounters support
+
+ALTER TABLE `instance`
+    ADD COLUMN `encountersMask` INT(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Dungeon encounter bit mask' AFTER `difficulty`;
+
+-- Instance Extend LFG
+-- Commit 020d4e346d38b961bf62
+
+ALTER TABLE `character_instance`
+    ADD COLUMN `extend` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Instance extend (bool)' AFTER `permanent`;
+
+-- Refer a friend
+
+ALTER TABLE `characters`
+    ADD COLUMN `grantableLevels` tinyint(3) unsigned NOT NULL default '0' AFTER `actionBars`;
+
+-- Saved Variables
+-- Commit 0525ca144e282cec2478
+
+ALTER TABLE `saved_variables`
+    ADD COLUMN `NextRandomBGResetTime` bigint(40) unsigned NOT NULL default 0 AFTER `NextWeeklyQuestResetTime`;

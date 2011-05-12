@@ -540,8 +540,8 @@ void WorldSession::HandleCancelTradeOpcode(WorldPacket& /*recvPacket*/)
 
 void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
 {
-    uint64 ID;
-    recvPacket >> ID;
+    ObjectGuid otherGuid;
+    recvPacket >> otherGuid;
 
     if (GetPlayer()->m_trade)
         return;
@@ -570,7 +570,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    Player* pOther = ObjectAccessor::FindPlayer( ID );
+    Player* pOther = ObjectAccessor::FindPlayer( otherGuid );
 
     if (!pOther)
     {
