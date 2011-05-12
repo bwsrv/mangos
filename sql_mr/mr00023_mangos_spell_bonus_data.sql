@@ -19,4 +19,4 @@ VALUES
     -- Judgement
     (54158,0,0,0,0,'Judgement'),
     -- Glyph of Prayer of Healing
-    (56161,0,0,0,0,'Glyph of Prayer of Healing'),
+    (56161,0,0,0,0,'Glyph of Prayer of Healing');

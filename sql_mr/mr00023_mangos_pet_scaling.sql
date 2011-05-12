@@ -2,7 +2,7 @@
 
 DELETE FROM `pet_scaling_data` WHERE `creature_entry` IN (0,1,89,416,417,510,1860,1863,15352,15438,17252,19668,24207,26125,27829,29264,31216,37994);
 INSERT INTO `pet_scaling_data`
-    (`creature_entry`, `aura`, `healthbase`, `health`, `powerbase`, `power`, `str`, `agi`, `sta`, `inte`, `spi`, `armor`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `apbase`, `apbasescale`, `attackpower`, `damage`, `spelldamage`, `spellhit`, `hit`, `expertize`, `attackspeed`, `crit, `regen`)
+    (`creature_entry`, `aura`, `healthbase`, `health`, `powerbase`, `power`, `str`, `agi`, `sta`, `inte`, `spi`, `armor`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `apbase`, `apbasescale`, `attackpower`, `damage`, `spelldamage`, `spellhit`, `hit`, `expertize`, `attackspeed`, `crit`, `regen`)
 VALUES
     -- Creature (default) - MUST be exist!
     (0, 0, 0, 1000, 0, 1500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 200, 0, 0, 0, 100, 100, 100, 100, 0, 0),
@@ -33,8 +33,8 @@ VALUES
     -- Pet - Priest Shadowfiend
     (19668, 0, 0, 1000, 0, 1500, 0, 0, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 200, 400, 0, 67, 100, 100, 100, 100, 0, 0),
     -- Guardian - DK Army of the Dead Ghoul
-    (24207,  1,   42, 0, 20, 2, 3, 10, 22, 0, 22, 0, 0),
-    (24207, 80, 5200, 0, 4000, 400, 500, 24, 62, 0, 92, 0, 0),
+    (24207,  1, 42, 0, 20, 2, 3, 10, 22, 0, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+    (24207, 80, 5200, 0, 4000, 400, 500, 24, 62, 0, 92, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
     -- Pet - DK ghoul
     (26125, 0, 0, 1000, 0, 0, 70, 0, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 200, 0, 0, 0, 0, 100, 100, 100, 0, 0),
     (26125, 48965, 0, 0, 0, 0, 14, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
