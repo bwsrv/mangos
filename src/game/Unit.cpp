@@ -6398,8 +6398,6 @@ void Unit::RemoveGuardians()
     {
         if (Pet* pet = GetMap()->GetPet(*m_guardianPets.begin()))
             pet->Unsummon(PET_SAVE_AS_DELETED, this);
-        else
-            m_guardianPets.erase(m_guardianPets.begin());
     }
     m_guardianPets.clear();
 }
