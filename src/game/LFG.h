@@ -319,6 +319,7 @@ public:
 
     // VoteKick
     uint8 GetVotesNeeded() const;
+    void SetVotesNeeded(uint8 votes);
     uint8 GetKicksLeft() const;
     void DecreaseKicksLeft() {--m_kicksLeft;};
 

@@ -161,6 +161,11 @@ uint8 LFGGroupState::GetVotesNeeded() const
     return m_votesNeeded;
 }
 
+void LFGGroupState::SetVotesNeeded(uint8 votes)
+{
+    m_votesNeeded = votes;
+}
+
 uint8 LFGGroupState::GetKicksLeft() const
 {
     return m_kicksLeft;
@@ -208,6 +213,8 @@ LFGProposal::LFGProposal(LFGDungeonEntry const* _dungeon)
     m_state = LFG_PROPOSAL_INITIATING;
     m_group = NULL;
     m_cancelTime = 0;
+    declinerGuids.clear();
+    playerGuids.clear();
 }
 
 void LFGProposal::Start()
@@ -244,6 +251,9 @@ bool LFGProposal::IsDecliner(ObjectGuid guid)
 {
     if (guid.IsEmpty())
         return true;
+
+    if (declinerGuids.empty())
+        return false;
 
     LFGQueueSet::iterator itr = declinerGuids.find(guid);
     if (itr != declinerGuids.end())

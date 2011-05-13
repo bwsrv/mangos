@@ -259,6 +259,16 @@ void WorldSession::HandleGroupUninviteGuidOpcode(WorldPacket & recv_data)
         return;
     }
 
+    Group* grp = GetPlayer()->GetGroup();
+    if(!grp)
+        return;
+
+    if (grp->IsMember(guid) && grp->isLFGGroup())
+    {
+        sLFGMgr.InitBoot(GetPlayer(), guid, reason);
+        return;
+    }
+
     PartyResult res = GetPlayer()->CanUninviteFromGroup();
     if (res != ERR_PARTY_RESULT_OK)
     {
@@ -266,16 +276,9 @@ void WorldSession::HandleGroupUninviteGuidOpcode(WorldPacket & recv_data)
         return;
     }
 
-    Group* grp = GetPlayer()->GetGroup();
-    if(!grp)
-        return;
-
     if (grp->IsMember(guid))
     {
-        if (grp->isLFDGroup())
-            sLFGMgr.InitBoot(GetPlayer(), guid, reason);
-        else
-            Player::RemoveFromGroup(grp, guid);
+        Player::RemoveFromGroup(grp, guid);
         return;
     }
 
@@ -304,6 +307,18 @@ void WorldSession::HandleGroupUninviteOpcode(WorldPacket & recv_data)
         return;
     }
 
+    Group* grp = GetPlayer()->GetGroup();
+    if (!grp)
+        return;
+
+    ObjectGuid guid = grp->GetMemberGuid(membername);
+
+    if (grp->IsMember(guid) && grp->isLFGGroup())
+    {
+        sLFGMgr.InitBoot(GetPlayer(), guid, "");
+        return;
+    }
+
     PartyResult res = GetPlayer()->CanUninviteFromGroup();
     if (res != ERR_PARTY_RESULT_OK)
     {
@@ -311,17 +326,9 @@ void WorldSession::HandleGroupUninviteOpcode(WorldPacket & recv_data)
         return;
     }
 
-    Group* grp = GetPlayer()->GetGroup();
-    if (!grp)
-        return;
-
-    ObjectGuid guid = grp->GetMemberGuid(membername);
     if (!guid.IsEmpty())
     {
-        if (grp->isLFDGroup())
-            sLFGMgr.InitBoot(GetPlayer(), guid, "");
-        else
-            Player::RemoveFromGroup(grp, guid);
+        Player::RemoveFromGroup(grp, guid);
         return;
     }
 
