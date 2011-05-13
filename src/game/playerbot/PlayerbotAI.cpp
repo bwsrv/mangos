@@ -54,7 +54,7 @@ PlayerbotAI::PlayerbotAI(PlayerbotMgr* const mgr, Player* const bot) :
     m_combatOrder(ORDERS_NONE), m_ScenarioType(SCENARIO_PVEEASY),
     m_TimeDoneEating(0), m_TimeDoneDrinking(0),
     m_CurrentlyCastingSpellId(0), m_spellIdCommand(0),
-    m_targetGuidCommand(0), m_classAI(0)
+    m_classAI(0)
 {
 
     // set bot state and needed item list
@@ -527,9 +527,9 @@ void PlayerbotAI::HandleBotOutgoingPacket(const WorldPacket& packet)
         {
             m_ignoreAIUpdatesUntilTime = 0;
             WorldPacket p(packet);
-            uint64 flagGuid;
+            ObjectGuid flagGuid;
             p >> flagGuid;
-            uint64 playerGuid;
+            ObjectGuid playerGuid;
             p >> playerGuid;
             Player* const pPlayer = ObjectAccessor::FindPlayer(playerGuid);
             if (canObeyCommandFrom(*pPlayer))
@@ -599,7 +599,7 @@ void PlayerbotAI::HandleBotOutgoingPacket(const WorldPacket& packet)
             uint8 castCount;
             uint32 spellId;
 
-            uint64 casterGuid = p.readPackGUID();
+            ObjectGuid casterGuid = p.readPackGUID();
             if (casterGuid != m_bot->GetGUID())
                 return;
 
@@ -617,7 +617,7 @@ void PlayerbotAI::HandleBotOutgoingPacket(const WorldPacket& packet)
         case SMSG_FORCE_RUN_SPEED_CHANGE:
         {
             WorldPacket p(packet);
-            uint64 guid = p.readPackGUID();
+            ObjectGuid guid = p.readPackGUID();
             if (guid != GetMaster()->GetGUID())
                 return;
             if (GetMaster()->IsMounted() && !m_bot->IsMounted())
@@ -686,7 +686,7 @@ void PlayerbotAI::HandleBotOutgoingPacket(const WorldPacket& packet)
         case SMSG_MOVE_SET_CAN_FLY:
         {
             WorldPacket p(packet);
-            uint64 guid = p.readPackGUID();
+            ObjectGuid guid = p.readPackGUID();
             if (guid != m_bot->GetGUID())
                 return;
             m_bot->m_movementInfo.AddMovementFlag(MOVEFLAG_FLYING);
@@ -698,7 +698,7 @@ void PlayerbotAI::HandleBotOutgoingPacket(const WorldPacket& packet)
         case SMSG_MOVE_UNSET_CAN_FLY:
         {
             WorldPacket p(packet);
-            uint64 guid = p.readPackGUID();
+            ObjectGuid guid = p.readPackGUID();
             if (guid != m_bot->GetGUID())
                 return;
             m_bot->m_movementInfo.RemoveMovementFlag(MOVEFLAG_FLYING);
@@ -883,8 +883,8 @@ void PlayerbotAI::HandleBotOutgoingPacket(const WorldPacket& packet)
         case SMSG_SPELL_START:
         {
             WorldPacket p(packet);
-            uint64 castItemGuid = p.readPackGUID();
-            uint64 casterGuid = p.readPackGUID();
+            ObjectGuid castItemGuid = p.readPackGUID();
+            ObjectGuid casterGuid = p.readPackGUID();
             if (casterGuid != m_bot->GetGUID())
                 return;
 
@@ -912,8 +912,8 @@ void PlayerbotAI::HandleBotOutgoingPacket(const WorldPacket& packet)
         case SMSG_SPELL_GO:
         {
             WorldPacket p(packet);
-            uint64 castItemGuid = p.readPackGUID();
-            uint64 casterGuid = p.readPackGUID();
+            ObjectGuid castItemGuid = p.readPackGUID();
+            ObjectGuid casterGuid = p.readPackGUID();
             if (casterGuid != m_bot->GetGUID())
                 return;
 
@@ -2319,7 +2319,7 @@ void PlayerbotAI::UpdateAttackersForTarget(Unit *victim)
     while (ref)
     {
         ThreatManager *target = ref->getSource();
-        uint64 guid = target->getOwner()->GetGUID();
+        ObjectGuid guid = target->getOwner()->GetGUID();
         m_attackerInfo[guid].attacker = target->getOwner();
         m_attackerInfo[guid].victim = target->getOwner()->getVictim();
         m_attackerInfo[guid].threat = target->getThreat(victim);
@@ -2736,7 +2736,7 @@ void PlayerbotAI::UpdateAI(const uint32 p_time)
             if (pTarget)
                 CastSpell(m_spellIdCommand, *pTarget);
             m_spellIdCommand = 0;
-            m_targetGuidCommand = 0;
+            m_targetGuidCommand.Clear();
         }
 
         // handle combat (either self/master/group in combat, or combat state and valid target)
@@ -2923,7 +2923,7 @@ bool PlayerbotAI::CastSpell(uint32 spellId)
             if (target_type == TARGET_FLAG_OBJECT)
             {
                 WorldPacket* const packetgouse = new WorldPacket(CMSG_GAMEOBJ_REPORT_USE, 8);
-                *packetgouse << uint64(m_lootCurrent.GetRawValue());
+                *packetgouse << ObjectGuid(m_lootCurrent.GetRawValue());
                 m_bot->GetSession()->QueuePacket(packetgouse);  // queue the packet to get around race condition
             }
         }
@@ -3365,7 +3365,7 @@ void PlayerbotAI::extractSpellIdList(const std::string& text, BotSpellList& m_sp
     }
 }
 
-void PlayerbotAI::extractGOinfo(const std::string& text, std::list<uint64>& m_lootTargets) const
+void PlayerbotAI::extractGOinfo(const std::string& text, std::list<ObjectGuid>& m_lootTargets) const
 {
 
     //    Link format

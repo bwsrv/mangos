@@ -667,7 +667,7 @@ bool ChatHandler::HandlePlayerbotCommand(char* args)
         m_session->GetPlayer()->SetPlayerbotMgr(mgr);
     }
 
-    QueryResult *resultchar = CharacterDatabase.PQuery("SELECT COUNT(*) FROM characters WHERE online = '1' AND account = '%u'", m_session->GetAccountId());
+    QueryResult *resultchar = CharacterDatabase.PQuery("SELECT COUNT(*) FROM characters WHERE online = '1' AND account = '%u'", accountId);
     if (resultchar)
     {
         Field *fields = resultchar->Fetch();
@@ -681,10 +681,10 @@ bool ChatHandler::HandlePlayerbotCommand(char* args)
                 delete resultchar;
                 return false;
             }
+        delete resultchar;
     }
-    delete resultchar;
 
-    QueryResult *resultlvl = CharacterDatabase.PQuery("SELECT level,name FROM characters WHERE guid = '%lu'", guid);
+    QueryResult *resultlvl = CharacterDatabase.PQuery("SELECT level,name FROM characters WHERE guid = '%u'", guid.GetCounter());
     if (resultlvl)
     {
         Field *fields = resultlvl->Fetch();
@@ -698,8 +698,8 @@ bool ChatHandler::HandlePlayerbotCommand(char* args)
                 delete resultlvl;
                 return false;
             }
+        delete resultlvl;
     }
-    delete resultlvl;
     // end of gmconfig patch
     if (cmdStr == "add" || cmdStr == "login")
     {
@@ -709,7 +709,7 @@ bool ChatHandler::HandlePlayerbotCommand(char* args)
             SetSentErrorMessage(true);
             return false;
         }
-        CharacterDatabase.DirectPExecute("UPDATE characters SET online = 1 WHERE guid = '%lu'", guid);
+        CharacterDatabase.DirectPExecute("UPDATE characters SET online = 1 WHERE guid = '%u'", guid.GetCounter());
         mgr->AddPlayerBot(guid);
         PSendSysMessage("Bot added successfully.");
     }
@@ -721,7 +721,7 @@ bool ChatHandler::HandlePlayerbotCommand(char* args)
             SetSentErrorMessage(true);
             return false;
         }
-        CharacterDatabase.DirectPExecute("UPDATE characters SET online = 0 WHERE guid = '%lu'", guid);
+        CharacterDatabase.DirectPExecute("UPDATE characters SET online = 0 WHERE guid = '%u'", guid.GetCounter());
         mgr->LogoutPlayerBot(guid);
         PSendSysMessage("Bot removed successfully.");
     }

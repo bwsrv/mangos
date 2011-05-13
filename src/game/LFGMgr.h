@@ -178,8 +178,9 @@ class LFGMgr
         // reward system
         void LoadRewards();
         LFGReward const* GetRandomDungeonReward(LFGDungeonEntry const* dungeon, Player* player);
-        void SendLFGRewards(Player* player);
-        void SendLFGReward(Player* player);
+        void SendLFGRewards(Group* group);
+        void SendLFGReward(Player* player, LFGDungeonEntry const* dungeon);
+        void DungeonEncounterReached(Group* group);
 
         // Proposal system
         uint32 CreateProposal(LFGDungeonEntry const* dungeon, Group* group = NULL, LFGQueueSet* playerGuids = NULL);
@@ -233,7 +234,7 @@ class LFGMgr
 
         // Group operations
         void AddMemberToLFDGroup(ObjectGuid guid);
-        void RemoveMemberFromLFDGroup(ObjectGuid guid);
+        void RemoveMemberFromLFDGroup(Group* group, ObjectGuid guid);
 
         // Dungeon expand operations
         LFGDungeonSet ExpandRandomDungeonsForGroup(LFGDungeonEntry const* randomDungeon, LFGQueueSet playerGuids);
