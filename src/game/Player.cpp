@@ -23902,7 +23902,7 @@ uint8 Player::GetTalentsCount(uint8 tab)
             continue;
 
         // skip another tab talents
-        if(talent.m_talentEntry->TalentTab != talentTabId)
+        if(talent.talentEntry->TalentTab != talentTabId)
             continue;
 
         talentCount += talent.currentRank + 1;
