@@ -1150,14 +1150,10 @@ BattleGroundMgr::~BattleGroundMgr()
 void BattleGroundMgr::DeleteAllBattleGrounds()
 {
     // will also delete template bgs:
-    for(uint32 i = BATTLEGROUND_TYPE_NONE; i < MAX_BATTLEGROUND_TYPE_ID; i++)
+    for(uint32 i = BATTLEGROUND_TYPE_NONE; i < MAX_BATTLEGROUND_TYPE_ID; ++i)
     {
-        for(BattleGroundSet::iterator itr = m_BattleGrounds[i].begin(); itr != m_BattleGrounds[i].end();)
-        {
-            BattleGround * bg = itr->second;
-            itr++;
-            delete bg;
-        }
+        for(BattleGroundSet::iterator itr = m_BattleGrounds[i].begin(); itr != m_BattleGrounds[i].end(); ++itr)
+            delete itr->second;
     }
 }
 
