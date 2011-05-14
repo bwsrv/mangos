@@ -905,12 +905,19 @@ void LFGMgr::SendLFGRewards(Group* group)
         return;
     }
 
+    group->GetLFGState()->SetState(LFG_STATE_FINISHED_DUNGEON);
+
     LFGDungeonEntry const* dungeon = *group->GetLFGState()->GetDungeons()->begin();
 
-    if (!dungeon || dungeon->type != LFG_TYPE_RANDOM_DUNGEON)
+    if (!dungeon)
     {
-        DEBUG_LOG("LFGMgr::SendLFGReward: group %u dungeon is not random", group->GetObjectGuid().GetCounter());
+        DEBUG_LOG("LFGMgr::SendLFGReward: group %u - no dungeon in list", group->GetObjectGuid().GetCounter());
         return;
+    }
+    else  if (dungeon->type != LFG_TYPE_RANDOM_DUNGEON)
+    {
+        DEBUG_LOG("LFGMgr::SendLFGReward: group %u dungeon %u is not random (%u)", group->GetObjectGuid().GetCounter(), dungeon->ID, dungeon->type);
+//        return;
     }
 
     for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
@@ -935,26 +942,22 @@ void LFGMgr::SendLFGReward(Player* player, LFGDungeonEntry const* dungeon)
         return;
 
     uint8 index = 0;
+
+    // if we can take the quest, means that we haven't done this kind of "run", IE: First Heroic Random of Day.
+    if (player->GetQuestRewardStatus(reward->reward[0].questId))
+        index = 1;
+
     Quest const* qReward = sObjectMgr.GetQuestTemplate(reward->reward[index].questId);
+
     if (!qReward)
         return;
 
-    // if we can take the quest, means that we haven't done this kind of "run", IE: First Heroic Random of Day.
-    if (player->CanRewardQuest(qReward,false))
-        player->RewardQuest(qReward,0,NULL,false);
-    else
-    {
-        index = 1;
-        qReward = sObjectMgr.GetQuestTemplate(reward->reward[index].questId);
-        if (!qReward)
-            return;
-        // we give reward without informing client (retail does this)
-        player->RewardQuest(qReward,0,NULL,false);
-    }
+    // we give reward without informing client (retail does this)
+    player->RewardQuest(qReward,0,NULL,false);
 
     // Give rewards
     DEBUG_LOG("LFGMgr::RewardDungeonDoneFor: %u done dungeon %u, %s previously done.", player->GetObjectGuid().GetCounter(), dungeon->ID, index > 0 ? " " : " not");
-    player->GetSession()->SendLfgPlayerReward(dungeon, reward, qReward, index == 0);
+    player->GetSession()->SendLfgPlayerReward(dungeon, reward, qReward, index != 0);
 }
 
 uint32 LFGMgr::CreateProposal(LFGDungeonEntry const* dungeon, Group* group, LFGQueueSet* guids)
@@ -1489,6 +1492,8 @@ void LFGMgr::Teleport(Group* group, bool out)
     if (group->GetLFGState()->GetState() == LFG_STATE_LFG
         || group->GetLFGState()->GetState() == LFG_STATE_LFR)
         group->GetLFGState()->SetState(LFG_STATE_DUNGEON);
+
+    group->SendUpdate();
 }
 
 void LFGMgr::Teleport(Player* player, bool out, bool fromOpcode /*= false*/)
@@ -1654,12 +1659,13 @@ void LFGMgr::StartRoleCheck(Group* group)
                 if (member->GetObjectGuid() != group->GetLeaderGuid())
                 {
                     member->GetLFGState()->SetRoles(LFG_ROLE_MASK_NONE);
+                    member->GetLFGState()->SetState(LFG_STATE_ROLECHECK);
                 }
-                else if (!member->GetLFGState()->IsSingleRole())
+                else
                 {
-                    member->GetLFGState()->SetRoles(LFG_ROLE_MASK_LEADER);
+                    member->GetLFGState()->AddRole(ROLE_LEADER);
+                    member->GetLFGState()->SetState(LFG_STATE_QUEUED);
                 }
-                member->GetLFGState()->SetState(LFG_STATE_ROLECHECK);
                 member->GetSession()->SendLfgRoleCheckUpdate();
             }
         }
@@ -1738,7 +1744,7 @@ void LFGMgr::UpdateRoleCheck(Group* group)
                 member->GetLFGState()->SetJoined();
                 member->GetLFGState()->SetState(LFG_STATE_QUEUED);
                 member->GetSession()->SendLfgJoinResult(ERR_LFG_OK, LFG_ROLECHECK_NONE, true);
-                member->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_ADDED_TO_QUEUE, group->GetLFGState()->GetDungeonType());
+                member->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_ADDED_TO_QUEUE, group->GetLFGState()->GetDungeonType());
             }
             else
             {

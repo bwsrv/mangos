@@ -479,6 +479,13 @@ struct AchievementCriteriaEntry
             uint32  killCount;                              // 4
         } honorable_kill;
 
+        // ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS    = 119
+        struct
+        {
+            uint32  unused;                                 // 3
+            uint32  dungeonsComplete;                       // 4
+        } use_lfg;
+
         struct
         {
             uint32  value;                                  // 3        m_asset_id

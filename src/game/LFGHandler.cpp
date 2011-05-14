@@ -254,7 +254,7 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket &/*recv_data
     }
     else
     {
-        uint8 done;
+        uint8 done = 0;
         data << uint8(rsize);                               // Random Dungeon count
         for (LFGDungeonSet::const_iterator itr = randomlist.begin(); itr != randomlist.end(); ++itr)
         {
@@ -264,13 +264,13 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket &/*recv_data
             qRew = NULL;
             if (reward)
             {
-                qRew = sObjectMgr.GetQuestTemplate(reward->reward[0].questId);
-                if (qRew)
+                if (GetPlayer()->GetQuestRewardStatus(reward->reward[0].questId))
                 {
-                    done = !GetPlayer()->CanRewardQuest(qRew,false);
-                    if (done)
-                        qRew = sObjectMgr.GetQuestTemplate(reward->reward[1].questId);
+                    qRew = sObjectMgr.GetQuestTemplate(reward->reward[1].questId);
+                    done = 1;
                 }
+                else
+                    qRew = sObjectMgr.GetQuestTemplate(reward->reward[0].questId);
 
             }
             if (qRew)
