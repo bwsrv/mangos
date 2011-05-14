@@ -1,4 +1,5 @@
 -- Implement DBC encounters
+TRUNCATE TABLE `instance_encounters`;
 
 INSERT INTO `instance_encounters`
     (`entry`, `creditType`, `creditEntry`, `lastEncounterDungeon`, `comment`)

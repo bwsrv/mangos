@@ -1,5 +1,7 @@
 -- Refer a friend
 
+DELETE FROM `command` WHERE `name` IN ('account friend add','account friend delete', 'account friend list');
+
 INSERT INTO `command`
     (`name`, `security`, `help`)
 VALUES
