@@ -201,6 +201,7 @@ Unit::Unit() :
     m_modAttackSpeedPct[NONSTACKING_NEG_MOD_MELEE] = 0.0f;
     m_modAttackSpeedPct[NONSTACKING_MOD_ALL] = 0.0f;
     m_modSpellSpeedPctNeg = 0.0f;
+    m_modSpellSpeedPctPos = 0.0f;
 
     m_extraAttacks = 0;
 
