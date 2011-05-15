@@ -23436,20 +23436,6 @@ void Player::SetRestType( RestType n_r_type, uint32 areaTriggerId /*= 0*/)
     }
 }
 
-std::string Player::GetKnownPetName(uint32 petnumber)
-{
-    KnownPetNames::const_iterator itr = m_knownPetNames.find(petnumber);
-    if (itr != m_knownPetNames.end())
-        return itr->second;
-
-    return "";
-}
-
-void Player::AddKnownPetName(uint32 petnumber, std::string name)
-{
-    m_knownPetNames[petnumber] = name;
-}
-
 void Player::SetRandomWinner(bool isWinner)
 {
     m_IsBGRandomWinner = isWinner;
