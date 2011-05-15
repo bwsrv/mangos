@@ -979,7 +979,7 @@ void Group::SetTargetIcon(uint8 id, ObjectGuid whoGuid, ObjectGuid targetGuid)
         return;
 
     // clean other icons
-    if (!targetGuid.IsEmpty())
+    if (targetGuid)
         for(int i = 0; i < TARGET_ICON_COUNT; ++i)
             if (m_targetIcons[i] == targetGuid)
                 SetTargetIcon(i, ObjectGuid(), ObjectGuid());
@@ -1045,7 +1045,7 @@ void Group::SendTargetIconList(WorldSession *session)
 
     for(int i = 0; i < TARGET_ICON_COUNT; ++i)
     {
-        if (m_targetIcons[i].IsEmpty())
+        if (!m_targetIcons[i])
             continue;
 
         data << uint8(i);
@@ -1130,7 +1130,7 @@ void Group::BroadcastPacket(WorldPacket *packet, bool ignorePlayersInBGRaid, int
     for(GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player *pl = itr->getSource();
-        if (!pl || (!ignore.IsEmpty() && pl->GetObjectGuid() == ignore) || (ignorePlayersInBGRaid && pl->GetGroup() != this) )
+        if (!pl || (ignore && pl->GetObjectGuid() == ignore) || (ignorePlayersInBGRaid && pl->GetGroup() != this) )
             continue;
 
         if (pl->GetSession() && (group == -1 || itr->getSubGroup() == group))
@@ -1194,7 +1194,7 @@ bool Group::_addMember(ObjectGuid guid, const char* name, uint8 group, GroupFlag
     if(IsFull())
         return false;
 
-    if (guid.IsEmpty())
+    if (!guid)
         return false;
 
     Player *player = sObjectMgr.GetPlayer(guid);
@@ -1416,7 +1416,7 @@ void Group::SetGroupUniqueFlag(ObjectGuid guid, GroupFlagsAssignment assignment,
             return;
     };
 
-    if (!guid.IsEmpty())
+    if (guid)
     {
         SqlStatement stmt = CharacterDatabase.CreateStatement(updGgoupMember, "UPDATE group_member SET memberFlags = ? WHERE memberGuid = ?");
 

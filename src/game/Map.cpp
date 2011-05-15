@@ -1678,7 +1678,7 @@ void Map::ScriptsProcess()
 
         Object* source = NULL;
 
-        if (!step.sourceGuid.IsEmpty())
+        if (step.sourceGuid)
         {
             switch(step.sourceGuid.GetHigh())
             {
@@ -1716,7 +1716,7 @@ void Map::ScriptsProcess()
 
         Object* target = NULL;
 
-        if (!step.targetGuid.IsEmpty())
+        if (step.targetGuid)
         {
             switch(step.targetGuid.GetHigh())
             {

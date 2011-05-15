@@ -725,7 +725,7 @@ void Creature::RegenerateHealth()
     uint32 addvalue = 0;
 
     // Not only pet, but any controlled creature
-    if (!GetCharmerOrOwnerGuid().IsEmpty())
+    if (GetCharmerOrOwnerGuid())
     {
         float HealthIncreaseRate = sWorld.getConfig(CONFIG_FLOAT_RATE_HEALTH);
         float Spirit = GetStat(STAT_SPIRIT);
@@ -1849,7 +1849,7 @@ bool Creature::CanAssistTo(const Unit* u, const Unit* enemy, bool checkfaction /
         return false;
 
     // only free creature
-    if (!GetCharmerOrOwnerGuid().IsEmpty())
+    if (GetCharmerOrOwnerGuid())
         return false;
 
     // only from same creature faction

@@ -5086,7 +5086,7 @@ void Spell::EffectSummonType(SpellEffectIndex eff_idx)
 
 void Spell::DoSummonGroupPets(SpellEffectIndex eff_idx)
 {
-    if (!m_caster->GetPetGuid().IsEmpty())
+    if (m_caster->GetPetGuid())
         return;
 
     if (!unitTarget)
@@ -8093,7 +8093,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     for(Unit::SpellAuraHolderMap::const_iterator itr = auras.begin(); itr!=auras.end(); ++itr)
                     {
                         if (itr->second->GetSpellProto()->Dispel == DISPEL_DISEASE &&
-                            itr->second->GetCasterGuid() == m_caster->GetGUID())
+                            itr->second->GetCasterGuid() == m_caster->GetObjectGuid())
                         if (Aura* aura =itr->second->GetAuraByEffectIndex(EFFECT_INDEX_0))
                         {
                             uint32 countMin = aura->GetAuraMaxDuration();
@@ -9178,9 +9178,7 @@ void Spell::EffectSummonObject(SpellEffectIndex eff_idx)
         default: return;
     }
 
-    ObjectGuid guid = m_caster->m_ObjectSlotGuid[slot];
-
-    if (!guid.IsEmpty())
+    if (ObjectGuid guid = m_caster->m_ObjectSlotGuid[slot])
     {
         if (GameObject* obj = m_caster ? m_caster->GetMap()->GetGameObject(guid) : NULL)
             obj->SetLootState(GO_JUST_DEACTIVATED);

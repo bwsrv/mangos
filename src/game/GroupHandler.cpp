@@ -567,8 +567,7 @@ void WorldSession::HandleGroupChangeSubGroupOpcode( WorldPacket & recv_data )
         group->ChangeMembersGroup(player, groupNr);
     else
     {
-        ObjectGuid guid = sObjectMgr.GetPlayerGuidByName(name.c_str());
-        if (!guid.IsEmpty())
+        if (ObjectGuid guid = sObjectMgr.GetPlayerGuidByName(name.c_str()))
             group->ChangeMembersGroup(guid, groupNr);
     }
 }

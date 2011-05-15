@@ -600,7 +600,7 @@ void PlayerbotAI::HandleBotOutgoingPacket(const WorldPacket& packet)
             uint32 spellId;
 
             ObjectGuid casterGuid = p.readPackGUID();
-            if (casterGuid != m_bot->GetGUID())
+            if (casterGuid != m_bot->GetObjectGuid())
                 return;
 
             p >> castCount >> spellId;
@@ -618,7 +618,7 @@ void PlayerbotAI::HandleBotOutgoingPacket(const WorldPacket& packet)
         {
             WorldPacket p(packet);
             ObjectGuid guid = p.readPackGUID();
-            if (guid != GetMaster()->GetGUID())
+            if (guid != GetMaster()->GetObjectGuid())
                 return;
             if (GetMaster()->IsMounted() && !m_bot->IsMounted())
             {
@@ -687,7 +687,7 @@ void PlayerbotAI::HandleBotOutgoingPacket(const WorldPacket& packet)
         {
             WorldPacket p(packet);
             ObjectGuid guid = p.readPackGUID();
-            if (guid != m_bot->GetGUID())
+            if (guid != m_bot->GetObjectGuid())
                 return;
             m_bot->m_movementInfo.AddMovementFlag(MOVEFLAG_FLYING);
             //m_bot->SetSpeed(MOVE_RUN, GetMaster()->GetSpeed(MOVE_FLIGHT) +0.1f, true);
@@ -699,7 +699,7 @@ void PlayerbotAI::HandleBotOutgoingPacket(const WorldPacket& packet)
         {
             WorldPacket p(packet);
             ObjectGuid guid = p.readPackGUID();
-            if (guid != m_bot->GetGUID())
+            if (guid != m_bot->GetObjectGuid())
                 return;
             m_bot->m_movementInfo.RemoveMovementFlag(MOVEFLAG_FLYING);
             //m_bot->SetSpeed(MOVE_RUN,GetMaster()->GetSpeedRate(MOVE_RUN),true);
@@ -715,10 +715,10 @@ void PlayerbotAI::HandleBotOutgoingPacket(const WorldPacket& packet)
             p >> name;
             if (m_bot->GetGroup() && name == m_bot->GetName())
             {
-                if (m_bot->GetGroup()->IsMember(GetMaster()->GetGUID()))
+                if (m_bot->GetGroup()->IsMember(GetMaster()->GetObjectGuid()))
                 {
                     p.resize(8);
-                    p << GetMaster()->GetGUID();
+                    p << GetMaster()->GetObjectGuid();
                     m_bot->GetSession()->HandleGroupSetLeaderOpcode(p);
                 }
                 else
@@ -885,7 +885,7 @@ void PlayerbotAI::HandleBotOutgoingPacket(const WorldPacket& packet)
             WorldPacket p(packet);
             ObjectGuid castItemGuid = p.readPackGUID();
             ObjectGuid casterGuid = p.readPackGUID();
-            if (casterGuid != m_bot->GetGUID())
+            if (casterGuid != m_bot->GetObjectGuid())
                 return;
 
             uint8 castCount;
@@ -914,7 +914,7 @@ void PlayerbotAI::HandleBotOutgoingPacket(const WorldPacket& packet)
             WorldPacket p(packet);
             ObjectGuid castItemGuid = p.readPackGUID();
             ObjectGuid casterGuid = p.readPackGUID();
-            if (casterGuid != m_bot->GetGUID())
+            if (casterGuid != m_bot->GetObjectGuid())
                 return;
 
             uint32 spellId;
@@ -1756,7 +1756,7 @@ void PlayerbotAI::GetCombatTarget(Unit* forcedTarget)
     m_bot->Attack(m_targetCombat, true);
 
     // add thingToAttack to loot list
-    m_lootTargets.push_back(m_targetCombat->GetGUID());
+    m_lootTargets.push_back(m_targetCombat->GetObjectGuid());
 
     return;
 }
@@ -2200,7 +2200,7 @@ void PlayerbotAI::TurnInQuests(WorldObject *questgiver)
         m_bot->SetSelectionGuid(giverGUID);
 
         // auto complete every completed quest this NPC has
-        m_bot->PrepareQuestMenu(giverGUID.GetRawValue());
+        m_bot->PrepareQuestMenu(giverGUID);
         QuestMenu& questMenu = m_bot->PlayerTalkClass->GetQuestMenu();
         for (uint32 iI = 0; iI < questMenu.MenuItemCount(); ++iI)
         {
@@ -2319,7 +2319,7 @@ void PlayerbotAI::UpdateAttackersForTarget(Unit *victim)
     while (ref)
     {
         ThreatManager *target = ref->getSource();
-        ObjectGuid guid = target->getOwner()->GetGUID();
+        ObjectGuid guid = target->getOwner()->GetObjectGuid();
         m_attackerInfo[guid].attacker = target->getOwner();
         m_attackerInfo[guid].victim = target->getOwner()->getVictim();
         m_attackerInfo[guid].threat = target->getThreat(victim);
@@ -3768,7 +3768,7 @@ void PlayerbotAI::HandleTeleportAck()
     if (m_bot->IsBeingTeleportedNear())
     {
         WorldPacket p = WorldPacket(MSG_MOVE_TELEPORT_ACK, 8 + 4 + 4);
-        p.appendPackGUID(m_bot->GetGUID());
+        p.appendPackGUID(m_bot->GetObjectGuid());
         p << (uint32) 0; // supposed to be flags? not used currently
         p << (uint32) time(0); // time - not currently used
         m_bot->GetSession()->HandleMoveTeleportAckOpcode(p);
@@ -3830,7 +3830,7 @@ void PlayerbotAI::HandleCommand(const std::string& text, Player& fromPlayer)
     }
 
     // if in the middle of a trade, and player asks for an item/money
-    else if (m_bot->GetTrader() && m_bot->GetTrader()->GetGUID() == fromPlayer.GetGUID())
+    else if (m_bot->GetTrader() && m_bot->GetTrader()->GetObjectGuid() == fromPlayer.GetObjectGuid())
     {
         uint32 copper = extractMoney(text);
         if (copper > 0)
@@ -3925,7 +3925,7 @@ void PlayerbotAI::HandleCommand(const std::string& text, Player& fromPlayer)
 
         if (m_bot->HasAura(spellId))
         {
-            m_bot->RemoveAurasByCasterSpell(spellId, m_bot->GetGUID());
+            m_bot->RemoveAurasByCasterSpell(spellId, m_bot->GetObjectGuid());
             return;
         }
 
@@ -4221,7 +4221,7 @@ void PlayerbotAI::HandleCommand(const std::string& text, Player& fromPlayer)
             {
                 if (pet->HasAura(spellId))
                 {
-                    pet->RemoveAurasByCasterSpell(spellId, pet->GetGUID());
+                    pet->RemoveAurasByCasterSpell(spellId, pet->GetObjectGuid());
                     return;
                 }
 
@@ -4250,7 +4250,7 @@ void PlayerbotAI::HandleCommand(const std::string& text, Player& fromPlayer)
                     {
                         pet->ToggleAutocast(spellId, false);
                         if (pet->HasAura(spellId))
-                            pet->RemoveAurasByCasterSpell(spellId, pet->GetGUID());
+                            pet->RemoveAurasByCasterSpell(spellId, pet->GetObjectGuid());
                     }
                     else
                         pet->ToggleAutocast(spellId, true);
