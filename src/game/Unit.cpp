@@ -6399,7 +6399,11 @@ void Unit::RemoveGuardians()
 
     for (GuardianPetList::const_iterator itr = m_guardianPets.begin(); itr != m_guardianPets.end(); ++itr)
     {
-        if (Pet* pet = _GetPet(*itr))
+        ObjectGuid guid = *itr;
+        if (guid.IsEmpty())
+            continue;
+
+        if (Pet* pet = _GetPet(guid))
             pet->Unsummon(PET_SAVE_AS_DELETED, this);
     }
     m_guardianPets.clear();
