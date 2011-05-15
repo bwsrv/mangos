@@ -276,10 +276,17 @@ void LFGMgr::Join(Player* player)
 
     if (queue)
     {
-        DEBUG_LOG("LFGMgr::Join: %u trying to join but is already in queue!", guid.GetCounter());
-        player->GetSession()->SendLfgJoinResult(ERR_LFG_NO_LFG_OBJECT);
-        RemoveFromQueue(guid);
-        return;
+        DEBUG_LOG("LFGMgr::Join: %u trying to join but is already in queue! May be OfferContinue?", guid.GetCounter());
+        if (group && group->GetLFGState()->GetState() == LFG_STATE_DUNGEON)
+        {
+            RemoveFromQueue(guid);
+        }
+        else
+        {
+            player->GetSession()->SendLfgJoinResult(ERR_LFG_NO_LFG_OBJECT);
+            RemoveFromQueue(guid);
+            return;
+        }
     }
 
     LFGJoinResult result = guid.IsGroup() ? GetGroupJoinResult(group) : GetPlayerJoinResult(player);
@@ -1201,7 +1208,7 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
     pProposal->SetGroup(group);
     group->SendUpdate();
 
-
+    // move players from proposal to group
     for (LFGQueueSet::const_iterator itr = pProposal->playerGuids.begin(); itr != pProposal->playerGuids.end(); ++itr )
     {
         Player* player = sObjectMgr.GetPlayer(*itr);
@@ -1222,12 +1229,21 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
             pProposal->RemoveMember(player->GetObjectGuid());
 //            player->GetSession()->SendLfgUpdateProposal(pProposal);
             player->GetLFGState()->SetProposal(NULL);
-            group->SendUpdate();
         }
     }
 
+    // Special case for unupdated group members
+    for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+        if (Player* member = itr->getSource())
+            if (member->IsInWorld())
+            {
+                member->SetGroupUpdateFlag(GROUP_UPDATE_FULL);
+                group->UpdatePlayerOutOfRange(member);
+            }
+
 
     // Update statistics for dungeon/roles/etc
+
 
     // Set the dungeon difficulty and real dungeon for random
     MANGOS_ASSERT(pProposal->GetDungeon());
@@ -2104,6 +2120,9 @@ bool LFGMgr::TryCompleteGroup(Group* group, Player* player)
 {
 //    DEBUG_LOG("LFGMgr:TryCompleteGroup: Try complete group %u with player %u", group->GetObjectGuid().GetCounter(),player->GetObjectGuid().GetCounter());
 
+    if (!CheckTeam(group, player))
+       return false;
+
     if (!CheckRoles(group, player))
        return false;
 
@@ -2171,7 +2190,7 @@ bool LFGMgr::TryCreateGroup(LFGType type)
             for (LFGQueueSet::const_iterator itr2 = newGroup.begin(); itr2 != newGroup.end(); ++itr2)
             {
                 ObjectGuid guid2 = *itr2;
-                if ( guid != guid2 && HasIgnoreState(guid, guid2))
+                if ( guid != guid2 && (!CheckTeam(guid, guid2) || HasIgnoreState(guid, guid2)))
                     checkPassed = false;
             }
             if (!checkPassed)
@@ -2417,6 +2436,44 @@ bool LFGMgr::HasIgnoreState(Group* group, ObjectGuid guid)
         if (Player* member = itr->getSource())
             if (HasIgnoreState(member->GetObjectGuid(), guid))
                 return true;
+    }
+
+    return false;
+}
+
+bool LFGMgr::CheckTeam(ObjectGuid guid1, ObjectGuid guid2)
+{
+
+    if (guid1.IsEmpty() || guid2.IsEmpty())
+        return true;
+
+    Player* player1 = sObjectMgr.GetPlayer(guid1);
+    Player* player2 = sObjectMgr.GetPlayer(guid2);
+
+    if (!player1 || !player2)
+        return true;
+
+    if (sWorld.getConfig(CONFIG_BOOL_ALLOW_TWO_SIDE_INTERACTION_GROUP))
+        return true;
+
+    if (player1->GetTeam() == player2->GetTeam())
+        return true;
+
+    return false;
+}
+
+bool LFGMgr::CheckTeam(Group* group, Player* player)
+{
+    if (!group || !player)
+        return true;
+
+    if (sWorld.getConfig(CONFIG_BOOL_ALLOW_TWO_SIDE_INTERACTION_GROUP))
+        return true;
+
+    if (Player* leader = sObjectMgr.GetPlayer(group->GetLeaderGuid()))
+    {
+        if (leader->GetTeam() == player->GetTeam())
+            return true;
     }
 
     return false;

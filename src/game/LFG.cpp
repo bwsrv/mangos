@@ -141,6 +141,7 @@ void LFGGroupState::Clear()
     m_roleCheckState      = LFG_ROLECHECK_NONE;
     SetDungeon(NULL);
     SetState(LFG_STATE_NONE);
+    SaveState();
 }
 
 uint8 LFGGroupState::GetRoles(LFGRoles role)
