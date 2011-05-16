@@ -158,7 +158,7 @@ bool VehicleKit::AddPassenger(Unit *passenger, int8 seatId)
     VehicleSeatEntry const *seatInfo = seat->second.seatInfo;
 
     passenger->m_movementInfo.AddMovementFlag(MOVEFLAG_ONTRANSPORT);
-    passenger->m_movementInfo.SetTransportData(m_pBase->GetGUID(),
+    passenger->m_movementInfo.SetTransportData(m_pBase->GetObjectGuid(),
         seatInfo->m_attachmentOffsetX, seatInfo->m_attachmentOffsetY, seatInfo->m_attachmentOffsetZ,
         seatInfo->m_passengerYaw, WorldTimer::getMSTime(), seat->first, seatInfo);
 

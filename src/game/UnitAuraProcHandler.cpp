@@ -1299,7 +1299,7 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 {
                     Unit* caster = triggeredByAura->GetCaster();
                     // it should not be triggered from other ignites
-                    if (caster && pVictim && caster->GetGUID() == pVictim->GetGUID())
+                    if (caster && pVictim && caster->GetObjectGuid() == pVictim->GetObjectGuid())
                     {
                         Unit::AuraList const& auras = caster->GetAurasByType(SPELL_AURA_ADD_FLAT_MODIFIER);
                         for (Unit::AuraList::const_iterator i = auras.begin(); i != auras.end(); i++)
@@ -2969,7 +2969,7 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 if (runeBlade && pVictim && damage && procSpell)
                 {
                     int32 procDmg = damage * 0.5;
-                    runeBlade->CastCustomSpell(pVictim, procSpell->Id, &procDmg, NULL, NULL, true, NULL, NULL, runeBlade->GetGUID());
+                    runeBlade->CastCustomSpell(pVictim, procSpell->Id, &procDmg, NULL, NULL, true, NULL, NULL, runeBlade->GetObjectGuid());
                     SendSpellNonMeleeDamageLog(pVictim, procSpell->Id, procDmg, SPELL_SCHOOL_MASK_NORMAL, 0, 0, false, 0, false);
                     break;
                 }
