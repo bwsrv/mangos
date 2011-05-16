@@ -3997,7 +3997,8 @@ int32 Unit::GetMaxPositiveAuraModifierByMiscValue(AuraType auratype, int32 misc_
     for(AuraList::const_iterator i = mTotalAuraList.begin();i != mTotalAuraList.end(); ++i)
     {
         Modifier* mod = (*i)->GetModifier();
-        if (!(nonStackingOnly && (*i)->IsStacking()) && mod->m_miscvalue == misc_value && mod->m_amount > modifier)
+        if (!(nonStackingOnly && (*i)->IsStacking()) && mod->m_amount > modifier &&
+            (mod->m_miscvalue == misc_value || mod->m_miscvalue < 0))
             modifier = mod->m_amount;
     }
 
@@ -4072,7 +4073,9 @@ float Unit::CheckAuraStackingAndApply(Aura *Aur, UnitMods unitMod, UnitModifierT
             spellProto->SpellFamilyFlags & UI64LIT(0x1000000000000000) ||
             spellProto->SpellFamilyName == SPELLFAMILY_WARLOCK &&               // Curse of Weakness
             spellProto->SpellFamilyFlags & UI64LIT(0x0000000000008000))
+        {
             modifierType = NONSTACKING_PCT_MINOR;
+        }
 
         float current = GetModifierValue(unitMod, modifierType);
         bool bIsPositive = amount > 0;
