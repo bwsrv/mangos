@@ -1041,7 +1041,9 @@ bool Aura::IsEffectStacking()
                 spellProto->SpellFamilyName == SPELLFAMILY_DRUID &&                 // Earth and Moon
                 spellProto->SpellIconID == 2991 ||
                 spellProto->SpellFamilyName == SPELLFAMILY_ROGUE &&                 // Mind-Numbing Poison
-                spellProto->SpellFamilyFlags & UI64LIT(0x0000000000008000))
+                spellProto->SpellFamilyFlags & UI64LIT(0x0000000000008000) ||
+                spellProto->SpellFamilyName == SPELLFAMILY_PRIEST &&                 // Inspiration
+                spellProto->SpellFamilyFlags & UI64LIT(0x0000100000000000))
             {
                 return false;
             }
@@ -6143,7 +6145,7 @@ void Aura::HandleModCombatSpeedPct(bool apply, bool /*Real*/)
         }
 
         if(!apply)
-            amount = target->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_MELEE_HASTE, true);
+            amount = target->GetMaxPositiveAuraModifier(GetModifier()->m_auraname, true);
 
         target->ApplyCastTimePercentMod(amount, true);
         target->ApplyAttackTimePercentMod(BASE_ATTACK, amount, true);
