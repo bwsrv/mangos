@@ -108,23 +108,6 @@ enum LFGUpdateType
     LFG_UPDATETYPE_GROUP_DISBAND        = 16,
 };
 
-enum LFGenum
-{
-    LFG_TIME_ROLECHECK         = 2*MINUTE,
-    LFG_TIME_BOOT              = 2*MINUTE,
-    LFG_TIME_PROPOSAL          = 2*MINUTE,
-    LFG_TIME_JOIN_WARNING      = 1*IN_MILLISECONDS,
-    LFG_TANKS_NEEDED           = 1,
-    LFG_HEALERS_NEEDED         = 1,
-    LFG_DPS_NEEDED             = 3,
-    LFG_QUEUEUPDATE_INTERVAL   = 15*IN_MILLISECONDS,
-    LFG_UPDATE_INTERVAL        = 1*IN_MILLISECONDS,
-    LFR_UPDATE_INTERVAL        = 3*IN_MILLISECONDS,
-    LFG_SPELL_DUNGEON_COOLDOWN = 71328,
-    LFG_SPELL_DUNGEON_DESERTER = 71041,
-    LFG_SPELL_LUCK_OF_THE_DRAW = 72221,
-};
-
 enum LFGType
 {
     LFG_TYPE_NONE                 = 0,
@@ -285,6 +268,7 @@ struct LFGPlayerState
     LFGProposal*  m_proposal;
 };
 
+typedef std::map<ObjectGuid, LFGAnswer> LFGAnswerMap;
 
 struct LFGGroupState
 {
@@ -304,32 +288,43 @@ public:
     LFGDungeonEntry const* GetDungeon()   { return m_realdungeon; };
     void SetDungeon(LFGDungeonEntry const* _dungeon)   { m_realdungeon = _dungeon; };
 
+    // Current state operations
     void          SetState(LFGState _state) { m_state = _state; };
     LFGState      GetState() { return m_state; };
     void          SaveState() { m_savedstate = m_state; };
     void          RestoreState() { m_state = m_savedstate; };
 
+    // Group status
     void          SetStatus(LFGDungeonStatus _status) { m_status = _status; };
     LFGDungeonStatus      GetStatus() { return m_status; };
 
+    // Proposal system
     LFGProposal*  GetProposal()   { return m_proposal; };
     void          SetProposal(LFGProposal* proposal)   { m_proposal = proposal; };
 
     uint32*       GetFlags()  { return &m_flags;};
     LFGType       GetType();
-    uint8         GetRoles(LFGRoles role);
 
-    // VoteKick
+    // Boot system
+    LFGAnswerMap*  GetBootMap() { return &m_bootVotes; };
+    void  StartBoot(ObjectGuid kicker, ObjectGuid victim, std::string reason);
+    void  StopBoot();
+    ObjectGuid GetBootVictim() { return m_bootVictim; };
+    void  UpdateBoot(ObjectGuid kicker, LFGAnswer vote);
+    LFGAnswer  GetBootResult();
+    std::string GetBootReason() { return m_bootReason; };
+    bool  IsBootActive();
+    time_t GetBootCancelTime() { return m_bootCancelTime; };
     uint8 GetVotesNeeded() const;
-    void SetVotesNeeded(uint8 votes);
+    void  SetVotesNeeded(uint8 votes);
     uint8 GetKicksLeft() const;
-    void DecreaseKicksLeft() {--m_kicksLeft;};
+    void  DecreaseKicksLeft() {--m_kicksLeft;};
 
     // Role checks
     LFGRoleCheckState GetRoleCheckState() const { return m_roleCheckState;};
     void SetRoleCheckState( LFGRoleCheckState _state) { m_roleCheckState = _state; };
     void StartRoleCheck();
-    bool QueryRoleCheckTime() {return !(time_t(time(NULL)) > m_roleCheckCancelTime);};
+    bool QueryRoleCheckTime() {return (time_t(time(NULL)) < m_roleCheckCancelTime);};
     bool IsRoleCheckActive();
 
 private:
@@ -337,17 +332,23 @@ private:
     bool          update;
     Group*        m_group;
     uint32        m_flags;
-    uint8         m_votesNeeded;                               // Votes need to kick success
-    uint8         m_kicksLeft;                                 // Number of kicks left
-    bool          kickActive;
     LFGState      m_state;
     LFGState      m_savedstate;
     LFGDungeonStatus     m_status;
     LFGDungeonSet    m_DungeonsList;                           // Dungeons the group have applied for
     LFGProposal*  m_proposal;
     LFGDungeonEntry const* m_realdungeon;                       // real dungeon entry (if random or list)
+    // Role check
     time_t        m_roleCheckCancelTime;                       // Time when the rolecheck will fail
     LFGRoleCheckState m_roleCheckState;                        // State of the rolecheck
+    // Boot
+    time_t        m_bootCancelTime;                            // Time left to vote
+    uint8         m_votesNeeded;                               // Votes need to kick success
+    uint8         m_kicksLeft;                                 // Number of kicks left
+    LFGAnswerMap  m_bootVotes;                                 // Player votes (-1 not answer | 0 Not agree | 1 agree)
+    ObjectGuid    m_bootVictim;                                // Player guid to be kicked (can't vote)
+    std::string   m_bootReason;                                // kick reason
+
 };
 
 #endif

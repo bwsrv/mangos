@@ -391,10 +391,10 @@ bool AntiCheat::CheckNeeded(AntiCheatCheck checktype)
                 return false;
             break;
         case CHECK_DAMAGE:
+        case CHECK_ITEM:
             break;
         default:
             return false;
-            break;
     }
 
     if (checktype < 100 )
