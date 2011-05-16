@@ -4161,7 +4161,7 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
         {
             SpellAuraHolder *foundHolder = iter->second;
             if (foundHolder->GetCasterGuid() == holder->GetCasterGuid() ||
-                holder->GetCasterGuid().IsPet() && holder->GetCasterGuid().IsPet())
+                foundHolder->GetCasterGuid().IsPet() && holder->GetCasterGuid().IsPet())
             {
                 // Aura can stack on self -> Stack it;
                 if (aurSpellInfo->StackAmount)
