@@ -924,7 +924,7 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
             case SPELLFAMILY_DEATHKNIGHT:
             {
                 // Blood Boil - bonus for diseased targets
-                if (m_spellInfo->SpellFamilyFlags & 0x00040000 && unitTarget->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DEATHKNIGHT, 0, 0x00000002, m_caster->GetGUID()))
+                if (m_spellInfo->SpellFamilyFlags & 0x00040000 && unitTarget->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DEATHKNIGHT, 0, 0x00000002, m_caster->GetObjectGuid()))
                 {
                     damage += damage / 2;
                     damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK)* 0.035f);
@@ -9250,7 +9250,7 @@ void Spell::EffectSanctuary(SpellEffectIndex /*eff_idx*/)
         for (uint32 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_MAX_SPELL; ++i)
         {
             if ((*tIter)->GetCurrentSpell(CurrentSpellTypes(i))
-            && (*tIter)->GetCurrentSpell(CurrentSpellTypes(i))->m_targets.getUnitTargetGuid() == unitTarget->GetGUID())
+            && (*tIter)->GetCurrentSpell(CurrentSpellTypes(i))->m_targets.getUnitTargetGuid() == unitTarget->GetObjectGuid())
             {
                 (*tIter)->InterruptSpell(CurrentSpellTypes(i), false);
             }
