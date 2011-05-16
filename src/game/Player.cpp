@@ -314,7 +314,7 @@ TradeData* TradeData::GetTraderData() const
 
 Item* TradeData::GetItem( TradeSlots slot ) const
 {
-    return !m_items[slot].IsEmpty() ? m_player->GetItemByGuid(m_items[slot]) : NULL;
+    return m_items[slot] ? m_player->GetItemByGuid(m_items[slot]) : NULL;
 }
 
 bool TradeData::HasItem( ObjectGuid item_guid ) const
@@ -328,7 +328,7 @@ bool TradeData::HasItem( ObjectGuid item_guid ) const
 
 Item* TradeData::GetSpellCastItem() const
 {
-    return !m_spellCastItem.IsEmpty() ?  m_player->GetItemByGuid(m_spellCastItem) : NULL;
+    return m_spellCastItem ?  m_player->GetItemByGuid(m_spellCastItem) : NULL;
 }
 
 void TradeData::SetItem( TradeSlots slot, Item* item )
@@ -860,7 +860,7 @@ bool Player::Create( uint32 guidlow, const std::string& name, uint8 race, uint8 
         }
     }
 
-    for (PlayerCreateInfoItems::const_iterator item_id_itr = info->item.begin(); item_id_itr!=info->item.end(); ++item_id_itr++)
+    for (PlayerCreateInfoItems::const_iterator item_id_itr = info->item.begin(); item_id_itr != info->item.end(); ++item_id_itr)
         StoreNewItemInBestSlots(item_id_itr->item_id, item_id_itr->item_amount);
 
     // bags and main-hand weapon must equipped at this moment
@@ -1526,7 +1526,7 @@ void Player::Update( uint32 update_diff, uint32 p_time )
     SendUpdateToOutOfRangeGroupMembers();
 
     Pet* pet = GetPet();
-    if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityDistance()) && (!GetCharmGuid().IsEmpty() && (pet->GetObjectGuid() != GetCharmGuid())))
+    if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityDistance()) && (GetCharmGuid() && (pet->GetObjectGuid() != GetCharmGuid())))
         pet->Unsummon(PET_SAVE_REAGENTS, this);
 
     if (IsHasDelayedTeleport())
@@ -2328,7 +2328,7 @@ void Player::RegenerateHealth(uint32 diff)
 Creature* Player::GetNPCIfCanInteractWith(ObjectGuid guid, uint32 npcflagmask)
 {
     // some basic checks
-    if (guid.IsEmpty() || !IsInWorld() || IsTaxiFlying())
+    if (!guid || !IsInWorld() || IsTaxiFlying())
         return NULL;
 
     // not in interactive state
@@ -2358,7 +2358,7 @@ Creature* Player::GetNPCIfCanInteractWith(ObjectGuid guid, uint32 npcflagmask)
         return NULL;
 
     // not allow interaction under control, but allow with own pets
-    if (!unit->GetCharmerGuid().IsEmpty())
+    if (unit->GetCharmerGuid())
         return NULL;
 
     // not enemy
@@ -2382,7 +2382,7 @@ Creature* Player::GetNPCIfCanInteractWith(ObjectGuid guid, uint32 npcflagmask)
 GameObject* Player::GetGameObjectIfCanInteractWith(ObjectGuid guid, uint32 gameobject_type) const
 {
     // some basic checks
-    if (guid.IsEmpty() || !IsInWorld() || IsTaxiFlying())
+    if (!guid || !IsInWorld() || IsTaxiFlying())
         return NULL;
 
     // not in interactive state
@@ -3379,8 +3379,8 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool dependen
         {
             PlayerTalent talent;
             talent.currentRank = talentPos->rank;
-            talent.m_talentEntry =  sTalentStore.LookupEntry(talentPos->talent_id);
-            talent.state = IsInWorld() ? PLAYERSPELL_NEW : PLAYERSPELL_UNCHANGED;
+            talent.talentEntry = sTalentStore.LookupEntry(talentPos->talent_id);
+            talent.state       = IsInWorld() ? PLAYERSPELL_NEW : PLAYERSPELL_UNCHANGED;
             m_talents[m_activeSpec][talentPos->talent_id] = talent;
         }
 
@@ -3958,14 +3958,14 @@ bool Player::resetTalents(bool no_cost, bool all_specs)
             continue;
         }
 
-        TalentEntry const *talentInfo = (*iter).second.m_talentEntry;
+        TalentEntry const* talentInfo = iter->second.talentEntry;
         if (!talentInfo)
         {
             m_talents[m_activeSpec].erase(iter++);
             continue;
         }
 
-        TalentTabEntry const *talentTabInfo = sTalentTabStore.LookupEntry( talentInfo->TalentTab );
+        TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
 
         if (!talentTabInfo)
         {
@@ -8299,8 +8299,7 @@ void Player::SendLootRelease(ObjectGuid guid)
 
 void Player::SendLoot(ObjectGuid guid, LootType loot_type)
 {
-    ObjectGuid lootGuid = GetLootGuid();
-    if (!lootGuid.IsEmpty())
+    if (ObjectGuid lootGuid = GetLootGuid())
         m_session->DoLootRelease(lootGuid);
 
     Loot    *loot = 0;
@@ -8395,7 +8394,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
                         {
                             if (group->GetLootMethod() == FREE_FOR_ALL)
                                 permission = ALL_PERMISSION;
-                            else if (group->GetLooterGuid() == GetGUID())
+                            else if (group->GetLooterGuid() == GetObjectGuid())
                             {
                                 if (group->GetLootMethod() == MASTER_LOOT)
                                     permission = MASTER_PERMISSION;
@@ -14533,18 +14532,20 @@ void Player::RewardQuest(Quest const *pQuest, uint32 reward, Object* questGiver,
         SendQuestReward(pQuest, XP, questGiver);
 
     bool handled = false;
-
-    switch(questGiver->GetTypeId())
+    if (questGiver)
     {
-        case TYPEID_UNIT:
-            handled = sScriptMgr.OnQuestRewarded(this, (Creature*)questGiver, pQuest);
-            break;
-        case TYPEID_GAMEOBJECT:
-            handled = sScriptMgr.OnQuestRewarded(this, (GameObject*)questGiver, pQuest);
-            break;
+        switch(questGiver->GetTypeId())
+        {
+            case TYPEID_UNIT:
+                handled = sScriptMgr.OnQuestRewarded(this, (Creature*)questGiver, pQuest);
+                break;
+            case TYPEID_GAMEOBJECT:
+                handled = sScriptMgr.OnQuestRewarded(this, (GameObject*)questGiver, pQuest);
+                break;
+        }
     }
 
-    if (!handled && pQuest->GetQuestCompleteScript() != 0)
+    if (!handled && questGiver && pQuest->GetQuestCompleteScript() != 0)
         GetMap()->ScriptsStart(sQuestEndScripts, pQuest->GetQuestCompleteScript(), questGiver, this);
 
     // cast spells after mark quest complete (some spells have quest completed state reqyurements in spell_area data)
@@ -17322,7 +17323,7 @@ void Player::_LoadTalents(QueryResult *result)
             Field *fields = result->Fetch();
 
             uint32 talent_id = fields[0].GetUInt32();
-            TalentEntry const *talentInfo = sTalentStore.LookupEntry( talent_id );
+            TalentEntry const* talentInfo = sTalentStore.LookupEntry(talent_id);
 
             if (!talentInfo)
             {
@@ -17331,7 +17332,7 @@ void Player::_LoadTalents(QueryResult *result)
                 continue;
             }
 
-            TalentTabEntry const *talentTabInfo = sTalentTabStore.LookupEntry( talentInfo->TalentTab );
+            TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
 
             if (!talentTabInfo)
             {
@@ -17379,8 +17380,8 @@ void Player::_LoadTalents(QueryResult *result)
             {
                 PlayerTalent talent;
                 talent.currentRank = currentRank;
-                talent.m_talentEntry = talentInfo;
-                talent.state = PLAYERSPELL_UNCHANGED;
+                talent.talentEntry = talentInfo;
+                talent.state       = PLAYERSPELL_UNCHANGED;
                 m_talents[spec][talentInfo->TalentID] = talent;
             }
         }
@@ -17388,6 +17389,7 @@ void Player::_LoadTalents(QueryResult *result)
         delete result;
     }
 }
+
 void Player::_LoadGroup(QueryResult *result)
 {
     //QueryResult *result = CharacterDatabase.PQuery("SELECT groupId FROM group_member WHERE memberGuid='%u'", GetGUIDLow());
@@ -17668,7 +17670,7 @@ void Player::ConvertInstancesToGroup(Player *player, Group *group, ObjectGuid pl
             group = player->GetGroup();
     }
 
-    MANGOS_ASSERT(!player_guid.IsEmpty());
+    MANGOS_ASSERT(player_guid);
 
     // copy all binds to the group, when changing leader it's assumed the character
     // will not have any solo binds
@@ -19056,7 +19058,7 @@ void Player::PetSpellInitialize()
 
 void Player::SendPetGUIDs()
 {
-    if (GetPetGuid().IsEmpty())
+    if (!GetPetGuid())
         return;
 
     // Later this function might get modified for multiple guids
@@ -22562,7 +22564,7 @@ PlayerTalent const* Player::GetKnownTalentById(int32 talentId) const
 SpellEntry const* Player::GetKnownTalentRankById(int32 talentId) const
 {
     if (PlayerTalent const* talent = GetKnownTalentById(talentId))
-        return sSpellStore.LookupEntry(talent->m_talentEntry->RankID[talent->currentRank]);
+        return sSpellStore.LookupEntry(talent->talentEntry->RankID[talent->currentRank]);
     else
         return NULL;
 }
@@ -22577,12 +22579,12 @@ void Player::LearnTalent(uint32 talentId, uint32 talentRank)
     if (talentRank >= MAX_TALENT_RANK)
         return;
 
-    TalentEntry const *talentInfo = sTalentStore.LookupEntry( talentId );
+    TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
 
     if(!talentInfo)
         return;
 
-    TalentTabEntry const *talentTabInfo = sTalentTabStore.LookupEntry( talentInfo->TalentTab );
+    TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
 
     if(!talentTabInfo)
         return;
@@ -22630,7 +22632,7 @@ void Player::LearnTalent(uint32 talentId, uint32 talentRank)
     if (talentInfo->Row > 0)
     {
         for (PlayerTalentMap::const_iterator iter = m_talents[m_activeSpec].begin(); iter != m_talents[m_activeSpec].end(); ++iter)
-            if (iter->second.state != PLAYERSPELL_REMOVED && iter->second.m_talentEntry->TalentTab == tTab)
+            if (iter->second.state != PLAYERSPELL_REMOVED && iter->second.talentEntry->TalentTab == tTab)
                 spentPoints += iter->second.currentRank + 1;
     }
 
@@ -22839,7 +22841,7 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
     if (IsPetNeedBeTemporaryUnsummoned())
         return;
 
-    if (!GetPetGuid().IsEmpty())
+    if (GetPetGuid())
         return;
 
     Pet* NewPet = new Pet;
@@ -22892,10 +22894,10 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket *data)
                         continue;
 
                     // skip another tab talents
-                    if(talent.m_talentEntry->TalentTab != talentTabId)
+                    if (talent.talentEntry->TalentTab != talentTabId)
                         continue;
 
-                    *data << uint32(talent.m_talentEntry->TalentID);  // Talent.dbc
+                    *data << uint32(talent.talentEntry->TalentID);  // Talent.dbc
                     *data << uint8(talent.currentRank);      // talentMaxRank (0-4)
 
                     ++talentIdCount;
@@ -23250,7 +23252,7 @@ void Player::ActivateSpec(uint8 specNum)
     // remove all talent spells that don't exist in next spec but exist in old
     for (PlayerTalentMap::iterator specIter = m_talents[m_activeSpec].begin(); specIter != m_talents[m_activeSpec].end();)
     {
-        PlayerTalent& talent = (*specIter).second;
+        PlayerTalent& talent = specIter->second;
 
         if (talent.state == PLAYERSPELL_REMOVED)
         {
@@ -23263,7 +23265,7 @@ void Player::ActivateSpec(uint8 specNum)
         // remove any talent rank if talent not listed in temp spec
         if (iterTempSpec == tempSpec.end() || iterTempSpec->second.state == PLAYERSPELL_REMOVED)
         {
-            TalentEntry const *talentInfo = talent.m_talentEntry;
+            TalentEntry const *talentInfo = talent.talentEntry;
 
             for(int r = 0; r < MAX_TALENT_RANK; ++r)
                 if (talentInfo->RankID[r])
@@ -23278,7 +23280,7 @@ void Player::ActivateSpec(uint8 specNum)
     // now new spec data have only talents (maybe different rank) as in temp spec data, sync ranks then.
     for (PlayerTalentMap::const_iterator tempIter = tempSpec.begin(); tempIter != tempSpec.end(); ++tempIter)
     {
-        PlayerTalent const& talent = (*tempIter).second;
+        PlayerTalent const& talent = tempIter->second;
 
         // removed state talent already unlearned in prev. loop
         // but we need restore it if it deleted for finish removed-marked data in DB
@@ -23288,7 +23290,7 @@ void Player::ActivateSpec(uint8 specNum)
             continue;
         }
 
-        uint32 talentSpellId = talent.m_talentEntry->RankID[talent.currentRank];
+        uint32 talentSpellId = talent.talentEntry->RankID[talent.currentRank];
 
         // learn talent spells if they not in new spec (old spec copy)
         // and if they have different rank
@@ -23303,7 +23305,7 @@ void Player::ActivateSpec(uint8 specNum)
         // sync states - original state is changed in addSpell that learnSpell calls
         PlayerTalentMap::iterator specIter = m_talents[m_activeSpec].find(tempIter->first);
         if (specIter != m_talents[m_activeSpec].end())
-            (*specIter).second.state = talent.state;
+            specIter->second.state = talent.state;
         else
         {
             sLog.outError("ActivateSpec: Talent spell %u expected to learned at spec switch but not listed in talents at final check!", talentSpellId);
@@ -23555,20 +23557,6 @@ void Player::SetRestType( RestType n_r_type, uint32 areaTriggerId /*= 0*/)
         if(sWorld.IsFFAPvPRealm())
             SetFFAPvP(false);
     }
-}
-
-std::string Player::GetKnownPetName(uint32 petnumber)
-{
-    KnownPetNames::const_iterator itr = m_knownPetNames.find(petnumber);
-    if (itr != m_knownPetNames.end())
-        return itr->second;
-
-    return "";
-}
-
-void Player::AddKnownPetName(uint32 petnumber, std::string name)
-{
-    m_knownPetNames[petnumber] = name;
 }
 
 void Player::SetRandomWinner(bool isWinner)
@@ -24025,7 +24013,7 @@ uint8 Player::GetTalentsCount(uint8 tab)
             continue;
 
         // skip another tab talents
-        if(talent.m_talentEntry->TalentTab != talentTabId)
+        if(talent.talentEntry->TalentTab != talentTabId)
             continue;
 
         talentCount += talent.currentRank + 1;

@@ -220,11 +220,14 @@ class LFGMgr
         bool CheckRoles(Group* group, Player* player = NULL);
         bool CheckRoles(LFGRolesMap* roleMap);
         bool RoleChanged(Player* player, uint8 roles);
-        void SetGroupRoles(Group* group);
+        bool SetGroupRoles(Group* group, Player* player = NULL);
+        bool TrySetRoles(LFGRolesMap* roleMap);
 
         // Social check system
         bool HasIgnoreState(ObjectGuid guid1, ObjectGuid guid2);
         bool HasIgnoreState(Group* group, ObjectGuid guid);
+        bool CheckTeam(Group* group, Player* player = NULL);
+        bool CheckTeam(ObjectGuid guid1, ObjectGuid guid2);
 
         // Dungeon operations
         LFGDungeonEntry const* GetDungeon(uint32 dungeonID);

@@ -308,7 +308,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
     {
         ObjectGuid itemGuid = guids[i];
 
-        if (itemGuid.IsEmpty())
+        if (!itemGuid)
             continue;
 
         uint32 stackSize = stackSizes[i];

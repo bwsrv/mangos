@@ -112,9 +112,9 @@ struct PlayerSpell
 
 struct PlayerTalent
 {
-    PlayerSpellState state;
-    TalentEntry const *m_talentEntry;
+    TalentEntry const *talentEntry;
     uint32 currentRank;
+    PlayerSpellState state;
 };
 
 typedef UNORDERED_MAP<uint32, PlayerSpell> PlayerSpellMap;
@@ -2315,9 +2315,6 @@ class MANGOS_DLL_SPEC Player : public Unit
         void UnsummonPetTemporaryIfAny();
         void ResummonPetTemporaryUnSummonedIfAny();
         bool IsPetNeedBeTemporaryUnsummoned() const { return !IsInWorld() || !isAlive() || IsMounted() /*+in flight*/; }
-        KnownPetNames m_knownPetNames;
-        std::string GetKnownPetName(uint32 petnumber);
-        void AddKnownPetName(uint32 petnumber, std::string name);
 
         void SendCinematicStart(uint32 CinematicSequenceId);
         void SendMovieStart(uint32 MovieId);

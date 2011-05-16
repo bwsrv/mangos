@@ -306,6 +306,8 @@ public:
 
     void          SetState(LFGState _state) { m_state = _state; };
     LFGState      GetState() { return m_state; };
+    void          SaveState() { m_savedstate = m_state; };
+    void          RestoreState() { m_state = m_savedstate; };
 
     void          SetStatus(LFGDungeonStatus _status) { m_status = _status; };
     LFGDungeonStatus      GetStatus() { return m_status; };
@@ -339,6 +341,7 @@ private:
     uint8         m_kicksLeft;                                 // Number of kicks left
     bool          kickActive;
     LFGState      m_state;
+    LFGState      m_savedstate;
     LFGDungeonStatus     m_status;
     LFGDungeonSet    m_DungeonsList;                           // Dungeons the group have applied for
     LFGProposal*  m_proposal;

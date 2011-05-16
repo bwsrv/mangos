@@ -1,0 +1,22 @@
+-- Pet (same pet and pet summon) spells correct (only for use with pet scaling system!)
+
+-- Need correct spellcasting for this!
+-- UPDATE creature_template SET spell1 = 12470, spell2 = 57984 WHERE entry = 15438;
+-- UPDATE creature_template SET spell1 = 36213 WHERE entry = 15352;
+UPDATE `creature_template` SET `spell1`='0', `spell2`='0' WHERE `entry`='15438';
+UPDATE `creature_template` SET `spell1`= '0', `spell2`='0' WHERE `entry`='15352';
+UPDATE `creature_template` SET `spell1`='40133' WHERE `entry`='15439';
+UPDATE `creature_template` SET `spell1`='40132' WHERE `entry`='15430';
+
+DELETE FROM `creature_template_addon` WHERE `entry`='89';
+INSERT INTO `creature_template_addon`
+    (`entry`, `auras`)
+VALUES
+    (89, 39007);
+
+DELETE FROM `event_scripts` WHERE `id` IN (14859,14858);
+INSERT INTO `event_scripts`
+    (`id`, `delay`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `comments`)
+VALUES
+    (14858, 1, 15, 33663, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Summon greater Earth elemental'),
+    (14859, 1, 15, 32982, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Summon greater Fire  elemental');
