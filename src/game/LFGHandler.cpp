@@ -740,7 +740,8 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonID)
             {
                 for (int i = 0; i < 3; ++i)
                 {
-                    data << uint8(group->GetLFGState()->GetRoles(LFGRoles(i+1)));
+                // need implement function for roles count calculation. or not need?
+                    data << uint8(0);
                 }
             }
 
@@ -956,6 +957,14 @@ void WorldSession::SendLfgQueueStatus(LFGDungeonEntry const* dungeon, LFGQueueSt
 {
     DEBUG_LOG("SMSG_LFG_QUEUE_STATUS %u dungeonEntry: %u ", GetPlayer()->GetObjectGuid().GetCounter(), dungeon->ID);
 
+    LFGQueueInfo* pqInfo = sLFGMgr.GetQueueInfo(GetPlayer()->GetObjectGuid());
+
+    if (GetPlayer()->GetGroup() && GetPlayer()->GetGroup()->isLFGGroup())
+        pqInfo = sLFGMgr.GetQueueInfo(GetPlayer()->GetGroup()->GetObjectGuid());
+
+    if (!pqInfo)
+        return;
+
     WorldPacket data(SMSG_LFG_QUEUE_STATUS, 4 + 4 + 4 + 4 + 4 +4 + 1 + 1 + 1 + 4);
     data << uint32(dungeon->Entry());                              // Dungeon
     data << int32(status->avgWaitTime);                            // Average Wait time
@@ -963,11 +972,11 @@ void WorldSession::SendLfgQueueStatus(LFGDungeonEntry const* dungeon, LFGQueueSt
     data << int32(status->waitTimeTanks);                          // Wait Tanks
     data << int32(status->waitTimeHealer);                         // Wait Healers
     data << int32(status->waitTimeDps);                            // Wait Dps
-    data << uint8(status->tanks);                                  // Tanks needed
-    data << uint8(status->healers);                                // Healers needed
-    data << uint8(status->dps);                                    // Dps needed
-    data << uint32(time_t(time(NULL)) - GetPlayer()->GetLFGState()->GetJoinTime());
-                                                                   // Player wait time in queue
+    data << uint8(pqInfo->tanks);                                  // Tanks needed
+    data << uint8(pqInfo->healers);                                // Healers needed
+    data << uint8(pqInfo->dps);                                    // Dps needed
+    data << uint32(time(NULL) - pqInfo->joinTime);
+                                                                   // Player/group wait time in queue
     SendPacket(&data);
 }
 
@@ -989,41 +998,59 @@ void WorldSession::SendLfgRoleChosen(ObjectGuid guid, uint8 roles)
     SendPacket(&data);
 }
 
-void WorldSession::SendLfgBootPlayer(LFGPlayerBoot* pBoot)
+void WorldSession::SendLfgBootPlayer()
 {
     if (!sWorld.getConfig(CONFIG_BOOL_LFG_ENABLE))
     {
         DEBUG_LOG("SendLfgBootPlayer %u failed - Dungeon finder disabled", GetPlayer()->GetObjectGuid().GetCounter());
         return;
     }
+    Group* group = GetPlayer()->GetGroup();
+
+    if (!group)
+    {
+        sLog.outError("ERROR:SendLfgBootPlayer %u failed - player not in group!", GetPlayer()->GetObjectGuid().GetCounter());
+        return;
+    }
 
     ObjectGuid guid = GetPlayer()->GetObjectGuid();
-    LFGAnswer playerVote = pBoot->votes.find(guid)->second;
+    LFGAnswerMap* votes = group->GetLFGState()->GetBootMap();
+
+    if (votes->empty())
+    {
+        sLog.outError("ERROR:SendLfgBootPlayer %u failed - votes map is empty!", GetPlayer()->GetObjectGuid().GetCounter());
+        return;
+    }
+
+    LFGAnswer playerVote = votes->find(guid)->second;
     uint8 votesNum = 0;
     uint8 agreeNum = 0;
-    uint32 secsleft = uint8((pBoot->cancelTime - time(NULL)) / 1000);
-    for (LFGAnswerMap::const_iterator it = pBoot->votes.begin(); it != pBoot->votes.end(); ++it)
+    uint32 secsleft = uint8((group->GetLFGState()->GetBootCancelTime() - time(NULL)) / 1000);
+
+    bool isBootContinued = (group->GetLFGState()->GetBootResult() == LFG_ANSWER_PENDING);
+
+    for (LFGAnswerMap::const_iterator itr = votes->begin(); itr != votes->end(); ++itr)
     {
-        if (it->second != LFG_ANSWER_PENDING)
+        if (itr->second != LFG_ANSWER_PENDING)
         {
             ++votesNum;
-            if (it->second == LFG_ANSWER_AGREE)
+            if (itr->second == LFG_ANSWER_AGREE)
                 ++agreeNum;
         }
     }
-    DEBUG_LOG("SMSG_LFG_BOOT_PLAYER %u  inProgress: %u - didVote: %u - agree: %u - victim: %u votes: %u - agrees: %u - left: %u - needed: %u - reason %s", 
-    GetPlayer()->GetObjectGuid().GetCounter(), uint8(pBoot->inProgress), uint8(playerVote != LFG_ANSWER_PENDING), uint8(playerVote == LFG_ANSWER_AGREE), pBoot->victim.GetCounter(), votesNum, agreeNum, secsleft, pBoot->votedNeeded, pBoot->reason.c_str());
 
-    WorldPacket data(SMSG_LFG_BOOT_PLAYER, 1 + 1 + 1 + 8 + 4 + 4 + 4 + 4 + pBoot->reason.length()+1);
-    data << uint8(pBoot->inProgress);                      // Vote in progress
-    data << uint8(playerVote != LFG_ANSWER_PENDING);       // Did Vote
-    data << uint8(playerVote == LFG_ANSWER_AGREE);         // Agree
-    data << pBoot->victim;                                 // Victim GUID
-    data << uint32(votesNum);                              // Total Votes
-    data << uint32(agreeNum);                              // Agree Count
-    data << uint32(secsleft);                              // Time Left
-    data << uint32(pBoot->votedNeeded);                    // Needed Votes
-    data << pBoot->reason.c_str();                         // Kick reason
+    DEBUG_LOG("SMSG_LFG_BOOT_PLAYER %u   didVote: %u - agree: %u - victim: %u votes: %u - agrees: %u - left: %u - needed: %u - reason %s",
+    GetPlayer()->GetObjectGuid().GetCounter(), uint8(playerVote != LFG_ANSWER_PENDING), uint8(playerVote == LFG_ANSWER_AGREE), group->GetLFGState()->GetBootVictim().GetCounter(), votesNum, agreeNum, secsleft, group->GetLFGState()->GetVotesNeeded(), group->GetLFGState()->GetBootReason().c_str());
+    WorldPacket data(SMSG_LFG_BOOT_PLAYER, 1 + 1 + 1 + 8 + 4 + 4 + 4 + 4 + group->GetLFGState()->GetBootReason().length()+1);
+    data << uint8(isBootContinued);                           // Vote in progress
+    data << uint8(playerVote != LFG_ANSWER_PENDING);          // Did Vote
+    data << uint8(playerVote == LFG_ANSWER_AGREE);            // Agree
+    data << group->GetLFGState()->GetBootVictim();            // Victim GUID
+    data << uint32(votesNum);                                 // Total Votes
+    data << uint32(agreeNum);                                 // Agree Count
+    data << uint32(secsleft);                                 // Time Left
+    data << uint32(group->GetLFGState()->GetVotesNeeded());   // Needed Votes
+    data << group->GetLFGState()->GetBootReason().c_str();    // Kick reason
     SendPacket(&data);
 }
 

@@ -25,6 +25,23 @@
 #include <ace/RW_Thread_Mutex.h>
 #include "LFG.h"
 
+enum LFGenum
+{
+    LFG_TIME_ROLECHECK         = 2*MINUTE,
+    LFG_TIME_BOOT              = 2*MINUTE,
+    LFG_TIME_PROPOSAL          = 2*MINUTE,
+    LFG_TIME_JOIN_WARNING      = 1*IN_MILLISECONDS,
+    LFG_TANKS_NEEDED           = 1,
+    LFG_HEALERS_NEEDED         = 1,
+    LFG_DPS_NEEDED             = 3,
+    LFG_QUEUEUPDATE_INTERVAL   = 35*IN_MILLISECONDS,
+    LFG_UPDATE_INTERVAL        = 1*IN_MILLISECONDS,
+    LFR_UPDATE_INTERVAL        = 3*IN_MILLISECONDS,
+    LFG_SPELL_DUNGEON_COOLDOWN = 71328,
+    LFG_SPELL_DUNGEON_DESERTER = 71041,
+    LFG_SPELL_LUCK_OF_THE_DRAW = 72221,
+};
+
 class Group;
 class Player;
 struct LFGDungeonExpansionEntry;
@@ -40,7 +57,6 @@ typedef std::map<ObjectGuid, LFGQueueInfo> LFGQueueInfoMap;
 typedef std::map<uint32/*ID*/, LFGDungeonEntry const*> LFGDungeonMap;
 typedef std::map<uint32/*ID*/, LFGDungeonExpansionEntry const*> LFGDungeonExpansionMap;
 typedef std::set<ObjectGuid>  LFGQueueSet;
-typedef std::map<ObjectGuid, LFGAnswer> LFGAnswerMap;
 typedef std::map<uint32/*ID*/, LFGProposal> LFGProposalMap;
 
 // Reward info
@@ -71,10 +87,15 @@ struct LFGQueueInfo
 {
     LFGQueueInfo(ObjectGuid _guid, LFGType type);
     ObjectGuid guid;                                        // guid (player or group) of queue owner
-    time_t     joinTime;                                    // Player queue join time (to calculate wait times)
+    time_t     joinTime;                                    // Player/group queue join time (to calculate wait times)
     uint8      tanks;                                       // Tanks needed
     uint8      healers;                                     // Healers needed
     uint8      dps;                                         // Dps needed
+
+    uint8      tryTanks;                                    // Tanks needed - best search result
+    uint8      tryHealers;                                  // Healers needed - best search result
+    uint8      tryDps;                                      // Dps needed - best search result
+
     // helpers
     LFGType    GetDungeonType() {return m_type;};
     private:
@@ -91,9 +112,9 @@ struct LFGQueueStatus
     time_t                 waitTimeTanks;                    // Wait Tanks
     time_t                 waitTimeHealer;                   // Wait Healers
     time_t                 waitTimeDps;                      // Wait Dps
-    uint8                  tanks;                            // Tanks
-    uint8                  healers;                          // Healers
-    uint8                  dps;                              // Dps
+    uint32                 tanks;                            // Tanks
+    uint32                 healers;                          // Healers
+    uint32                 dps;                              // Dps
     uint32                 playersWaited;                    // players summ
 };
 
@@ -131,18 +152,6 @@ struct LFGProposal
     time_t m_cancelTime;                                     // Time when we will cancel this proposal
 };
 
-/// Stores information of a current vote to kick someone from a group
-struct LFGPlayerBoot
-{
-    time_t cancelTime;                                     ///< Time left to vote
-    bool inProgress;                                       ///< Vote in progress
-    LFGAnswerMap votes;                                    ///< Player votes (-1 not answer | 0 Not agree | 1 agree)
-    ObjectGuid victim;                                     ///< Player guid to be kicked (can't vote)
-    uint8 votedNeeded;                                     ///< Votes needed to kick the player
-    std::string reason;                                    ///< kick reason
-};
-
-typedef std::map<ObjectGuid, LFGPlayerBoot>  LFGBootMap;
 typedef std::map<LFGDungeonEntry const*, LFGQueueStatus> LFGQueueStatusMap;
 typedef std::map<ObjectGuid, LFGRoleMask>  LFGRolesMap;
 typedef std::set<LFGQueueInfo*> LFGQueue;
@@ -189,15 +198,14 @@ class LFGMgr
         void RemoveProposal(Player* decliner, uint32 ID);
         void RemoveProposal(uint32 ID, bool success = false);
         void UpdateProposal(uint32 ID, ObjectGuid guid, bool accept);
-        void CleanupProposals();
+        void CleanupProposals(LFGType type);
         Player* LeaderElection(LFGQueueSet* playerGuids);
 
         // boot vote system
         void OfferContinue(Group* group);
         void InitBoot(Player* kicker, ObjectGuid victimGuid, std::string reason);
-        LFGPlayerBoot* GetBoot(ObjectGuid guid);
-        void DeleteBoot(ObjectGuid guid);
         void UpdateBoot(Player* player, bool accept);
+        void CleanupBoots(LFGType type);
 
         // teleport system
         void Teleport(Group* group, bool out = false);
@@ -209,9 +217,10 @@ class LFGMgr
 
         // Statistic system
         LFGQueueStatus* GetDungeonQueueStatus(LFGType type);
-        void SetDungeonQueueStatus(LFGType type);
         void UpdateQueueStatus(Player* player);
-        void UpdateStatistic(LFGType type);
+        void UpdateQueueStatus(Group* group);
+        void UpdateQueueStatus(LFGType type);
+        void SendStatistic(LFGType type);
 
         // Role check system
         void CleanupRoleChecks(LFGType type);
@@ -279,11 +288,11 @@ class LFGMgr
         LFGDungeonExpansionMap m_dungeonExpansionMap;       // sorted dungeon expansion map
         LFGQueueStatus  m_queueStatus[LFG_TYPE_MAX];        // Queue statisic
         LFGProposalMap  m_proposalMap;                      // Proposal store
-        LFGBootMap      m_bootMap;                          // boot store
         LFGSearchMap    m_searchMatrix;                     // Search matrix
 
         uint32          m_updateTimer;                      // update timer for cleanup/statistic
         uint32          m_updateTimer2;                     // update timer for LFR extend system
+        uint32          m_updateTimer3;                     // update timer for statistic send
 
         LockType            i_lock;
 

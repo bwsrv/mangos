@@ -130,7 +130,6 @@ void LFGGroupState::Clear()
     m_status = LFG_STATUS_NOT_SAVED;
     m_votesNeeded = 3;
     m_kicksLeft = 5;
-    kickActive = false;
     m_DungeonsList.clear();
     m_flags = LFG_MEMBER_FLAG_NONE |
               LFG_MEMBER_FLAG_COMMENT |
@@ -143,19 +142,6 @@ void LFGGroupState::Clear()
     SetState(LFG_STATE_NONE);
     SaveState();
 }
-
-uint8 LFGGroupState::GetRoles(LFGRoles role)
-{
-    uint8 count = 0;
-    for (GroupReference* itr = m_group->GetFirstMember(); itr != NULL; itr = itr->next())
-    {
-        if (Player* member = itr->getSource())
-            if (member->IsInWorld())
-                if (member->GetLFGState()->GetRoles() & (1 << role))
-                    ++count;
-    }
-    return count;
-};
 
 uint8 LFGGroupState::GetVotesNeeded() const
 {
@@ -194,6 +180,95 @@ LFGType LFGGroupState::GetDungeonType()
 
     return LFGType((*GetDungeons()->begin())->type);
 };
+
+bool LFGGroupState::IsBootActive()
+{
+    if (GetState() != LFG_STATE_BOOT)
+        return false;
+    return (time_t(time(NULL)) < m_bootCancelTime);
+};
+
+void LFGGroupState::StartBoot(ObjectGuid kicker, ObjectGuid victim, std::string reason)
+{
+    SaveState();
+    m_bootVotes.clear();
+
+    m_bootReason = reason;
+    m_bootVictim = victim;
+    m_bootCancelTime = time_t(time(NULL) + LFG_TIME_BOOT);
+    for (GroupReference* itr = m_group->GetFirstMember(); itr != NULL; itr = itr->next())
+    {
+        Player* player = itr->getSource();
+
+        if (!player)
+            continue;
+
+        ObjectGuid guid = player->GetObjectGuid();
+
+        LFGAnswer vote = LFG_ANSWER_PENDING;
+
+        if (guid == victim)
+            vote = LFG_ANSWER_DENY;
+        else if (guid == kicker)
+            vote = LFG_ANSWER_AGREE;
+
+        m_bootVotes.insert(std::make_pair(guid, vote));
+    }
+    SetState(LFG_STATE_BOOT);
+};
+
+void LFGGroupState::UpdateBoot(ObjectGuid kicker, LFGAnswer answer)
+{
+    LFGAnswerMap::iterator itr = m_bootVotes.find(kicker);
+
+    if ((*itr).second == LFG_ANSWER_PENDING)
+        (*itr).second = answer;
+};
+
+void LFGGroupState::StopBoot()
+{
+    m_bootVotes.clear();
+    m_bootVictim.Clear();
+    m_bootReason.clear();
+    m_bootCancelTime = 0;
+    RestoreState();
+}
+
+LFGAnswer LFGGroupState::GetBootResult()
+{
+    m_bootVotes.clear();
+
+    uint8 votesNum = 0;
+    uint8 agreeNum = 0;
+    uint8 denyNum  = 0;
+
+    for (LFGAnswerMap::const_iterator itr = m_bootVotes.begin(); itr != m_bootVotes.end(); ++itr)
+    {
+        switch (itr->second)
+        {
+            case LFG_ANSWER_AGREE:
+                ++votesNum;
+                ++agreeNum;
+                break;
+            case LFG_ANSWER_DENY:
+                ++votesNum;
+                ++denyNum;
+                break;
+            case LFG_ANSWER_PENDING:
+                break;
+            default:
+                break;
+        }
+    }
+    if (agreeNum >= GetVotesNeeded())
+        return LFG_ANSWER_AGREE;
+    else if (denyNum > m_bootVotes.size() - GetVotesNeeded())
+        return LFG_ANSWER_DENY;
+    else if (votesNum < m_bootVotes.size())
+        return LFG_ANSWER_PENDING;
+
+    return LFG_ANSWER_PENDING;
+}
 
 LFGQueueInfo::LFGQueueInfo(ObjectGuid _guid, LFGType type)
 {
