@@ -7682,7 +7682,7 @@ void Aura::HandleSchoolAbsorb(bool apply, bool Real)
                 // Send activate cooldown timer (possible 0) at client side
                 WorldPacket data(SMSG_MODIFY_COOLDOWN, (4+8+4));
                 data << spellProto->Id;
-                data << plr->GetGUID();
+                data << plr->GetObjectGuid();
                 data << end_time*IN_MILLISECONDS;
                 plr->SendDirectMessage(&data);
             }
@@ -10106,7 +10106,7 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                 // Glyph of Frostbolt
                 if (Unit * caster = GetCaster())
                     if (caster->HasAura(56370))
-                        m_target->RemoveAurasByCasterSpell(GetId(), caster->GetGUID());
+                        m_target->RemoveAurasByCasterSpell(GetId(), caster->GetObjectGuid());
             }
 
             switch(GetId())
@@ -11003,7 +11003,7 @@ void Aura::HandleAuraSetVehicle(bool apply, bool real)
             target->RemoveVehicleKit();
 
     WorldPacket data(SMSG_SET_VEHICLE_REC_ID, target->GetPackGUID().size()+4);
-    data.appendPackGUID(target->GetGUID());
+    data.appendPackGUID(target->GetObjectGuid());
     data << uint32(apply ? vehicleId : 0);
     target->SendMessageToSet(&data, true);
 
