@@ -4236,6 +4236,9 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
                         break;
                 }
             }
+
+            if (bStop)
+                break;
         }
     }
 
