@@ -7345,7 +7345,7 @@ void Aura::HandleSchoolAbsorb(bool apply, bool Real)
                 // Send activate cooldown timer (possible 0) at client side
                 WorldPacket data(SMSG_MODIFY_COOLDOWN, (4+8+4));
                 data << spellProto->Id;
-                data << plr->GetObjectGuid();
+                data << plr->GetObjectGuid().GetRawValue();
                 data << end_time*IN_MILLISECONDS;
                 plr->SendDirectMessage(&data);
             }
@@ -10508,7 +10508,7 @@ void Aura::HandleAuraSetVehicle(bool apply, bool real)
             target->RemoveVehicleKit();
 
     WorldPacket data(SMSG_SET_VEHICLE_REC_ID, target->GetPackGUID().size()+4);
-    data.appendPackGUID(target->GetObjectGuid());
+    data.appendPackGUID(target->GetObjectGuid().GetRawValue());
     data << uint32(apply ? vehicleId : 0);
     target->SendMessageToSet(&data, true);
 
