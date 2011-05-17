@@ -2323,19 +2323,18 @@ bool LFGMgr::TryCreateGroup(LFGType type)
             if (player1 && player1->IsInWorld())
             {
                 rolesMap.insert(std::make_pair(player1->GetObjectGuid(), player1->GetLFGState()->GetRoles()));
-            }
 
             if (!CheckRoles(&rolesMap))
                 continue;
 
             newGroup.insert(guid);
             if (newGroup.size() == 1)
-                intersection = *sObjectMgr.GetPlayer(guid)->GetLFGState()->GetDungeons();
+                intersection = *player1->GetLFGState()->GetDungeons();
             else
             {
                 LFGDungeonSet groupDungeons = intersection;
                 intersection.clear();
-                LFGDungeonSet* playerDungeons = sObjectMgr.GetPlayer(guid)->GetLFGState()->GetDungeons();
+                LFGDungeonSet* playerDungeons = player1->GetLFGState()->GetDungeons();
                 std::set_intersection(groupDungeons.begin(),groupDungeons.end(), playerDungeons->begin(),playerDungeons->end(),std::inserter(intersection,intersection.end()));
             }
 
@@ -2347,6 +2346,7 @@ bool LFGMgr::TryCreateGroup(LFGType type)
 
             SetRoles(&rolesMap);
             break;
+            }
         }
         DEBUG_LOG("LFGMgr:TryCreateGroup: Try create group to dungeon %u from %u players. result is %u", itr->first->ID, itr->second.size(), uint8(groupCreated));
         if (groupCreated)
