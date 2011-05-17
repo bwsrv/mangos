@@ -199,9 +199,10 @@ enum LFGAnswer
 
 enum LFGDungeonStatus
 {
-    LFG_STATUS_SAVED           = 0,
-    LFG_STATUS_NOT_SAVED       = 1,
-    LFG_STATUS_COMPLETE        = 2,
+    LFG_STATUS_SAVED                 = 0,
+    LFG_STATUS_NOT_SAVED             = 1,
+    LFG_STATUS_OFFER_CONTINUE        = 2,
+    LFG_STATUS_COMPLETE              = 3,
 };
 
 typedef std::set<LFGDungeonEntry const*> LFGDungeonSet;
