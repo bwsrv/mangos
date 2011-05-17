@@ -2324,28 +2324,28 @@ bool LFGMgr::TryCreateGroup(LFGType type)
             {
                 rolesMap.insert(std::make_pair(player1->GetObjectGuid(), player1->GetLFGState()->GetRoles()));
 
-            if (!CheckRoles(&rolesMap))
-                continue;
+                if (!CheckRoles(&rolesMap))
+                   continue;
 
-            newGroup.insert(guid);
-            if (newGroup.size() == 1)
-                intersection = *player1->GetLFGState()->GetDungeons();
-            else
-            {
-                LFGDungeonSet groupDungeons = intersection;
-                intersection.clear();
-                LFGDungeonSet* playerDungeons = player1->GetLFGState()->GetDungeons();
-                std::set_intersection(groupDungeons.begin(),groupDungeons.end(), playerDungeons->begin(),playerDungeons->end(),std::inserter(intersection,intersection.end()));
-            }
+                newGroup.insert(guid);
+                if (newGroup.size() == 1)
+                   intersection = *player1->GetLFGState()->GetDungeons();
+                else
+                {
+                   LFGDungeonSet groupDungeons = intersection;
+                   intersection.clear();
+                   LFGDungeonSet* playerDungeons = player1->GetLFGState()->GetDungeons();
+                   std::set_intersection(groupDungeons.begin(),groupDungeons.end(), playerDungeons->begin(),playerDungeons->end(),std::inserter(intersection,intersection.end()));
+                }
 
-            if (IsGroupCompleted(NULL, newGroup.size()))
-               groupCreated = true;
+                if (IsGroupCompleted(NULL, newGroup.size()))
+                   groupCreated = true;
 
-            if (!groupCreated)
-                continue;
+                if (!groupCreated)
+                   continue;
 
-            SetRoles(&rolesMap);
-            break;
+                SetRoles(&rolesMap);
+                break;
             }
         }
         DEBUG_LOG("LFGMgr:TryCreateGroup: Try create group to dungeon %u from %u players. result is %u", itr->first->ID, itr->second.size(), uint8(groupCreated));
