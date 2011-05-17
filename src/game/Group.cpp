@@ -2067,6 +2067,9 @@ void Group::SetGroupRoles(ObjectGuid guid, uint8 roles)
         if (itr->guid == guid )
         {
             itr->roles = roles;
+            static SqlStatementID updGgoupMember;
+            SqlStatement stmt = CharacterDatabase.CreateStatement(updGgoupMember, "UPDATE group_member SET roles = ? WHERE memberGuid = ?");
+            stmt.PExecute(uint8(itr->roles), itr->guid.GetCounter());
             return;
         }
     }

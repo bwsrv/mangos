@@ -112,21 +112,7 @@ void WorldSession::HandleLfgGetStatus(WorldPacket & /*recv_data*/)
     Group* group = GetPlayer()->GetGroup();
 
     DEBUG_LOG("CMSG_LFG_GET_STATUS %u in group: %u", GetPlayer()->GetObjectGuid().GetCounter(), group ? 1 : 0);
-
-    LFGDungeonSet* dungeons = GetPlayer()->GetLFGState()->GetDungeons();
-
-    if (!dungeons || dungeons->empty())
-        return;
-
-    LFGDungeonEntry const* dungeon = (*dungeons->begin());
-    if (!dungeon)
-        return;
-
-    LFGQueueStatus* status = sLFGMgr.GetDungeonQueueStatus(LFGType(dungeon->type));
-    if (!status)
-        return;
-
-    GetPlayer()->GetSession()->SendLfgQueueStatus(dungeon, status);
+    // Need implement
 }
 
 void WorldSession::HandleLfrSearchOpcode( WorldPacket & recv_data )

@@ -55,7 +55,6 @@ typedef std::multimap<uint32, LFGReward> LFGRewardMap;
 typedef std::pair<LFGRewardMap::const_iterator, LFGRewardMap::const_iterator> LFGRewardMapBounds;
 typedef std::map<ObjectGuid, LFGQueueInfo> LFGQueueInfoMap;
 typedef std::map<uint32/*ID*/, LFGDungeonEntry const*> LFGDungeonMap;
-typedef std::map<uint32/*ID*/, LFGDungeonExpansionEntry const*> LFGDungeonExpansionMap;
 typedef std::set<ObjectGuid>  LFGQueueSet;
 typedef std::map<uint32/*ID*/, LFGProposal> LFGProposalMap;
 
@@ -221,6 +220,7 @@ class LFGMgr
         void UpdateQueueStatus(Group* group);
         void UpdateQueueStatus(LFGType type);
         void SendStatistic(LFGType type);
+        LFGQueueStatus* GetOverallQueueStatus();
 
         // Role check system
         void CleanupRoleChecks(LFGType type);
@@ -229,8 +229,8 @@ class LFGMgr
         bool CheckRoles(Group* group, Player* player = NULL);
         bool CheckRoles(LFGRolesMap* roleMap);
         bool RoleChanged(Player* player, uint8 roles);
-        bool SetGroupRoles(Group* group, Player* player = NULL);
-        bool TrySetRoles(LFGRolesMap* roleMap);
+        void SetGroupRoles(Group* group, Player* player = NULL);
+        void SetRoles(LFGRolesMap* roleMap);
 
         // Social check system
         bool HasIgnoreState(ObjectGuid guid1, ObjectGuid guid2);
@@ -240,7 +240,6 @@ class LFGMgr
 
         // Dungeon operations
         LFGDungeonEntry const* GetDungeon(uint32 dungeonID);
-        LFGDungeonExpansionEntry const* GetDungeonExpansion(uint32 dungeonID);
         bool IsRandomDungeon(LFGDungeonEntry const* dungeon);
         LFGDungeonSet GetRandomDungeonsForPlayer(Player* player);
 
@@ -285,7 +284,6 @@ class LFGMgr
         LFGQueue        m_playerQueue[LFG_TYPE_MAX];        // Queue's for players
         LFGQueue        m_groupQueue[LFG_TYPE_MAX];         // Queue's for groups
         LFGDungeonMap   m_dungeonMap;                       // sorted dungeon map
-        LFGDungeonExpansionMap m_dungeonExpansionMap;       // sorted dungeon expansion map
         LFGQueueStatus  m_queueStatus[LFG_TYPE_MAX];        // Queue statisic
         LFGProposalMap  m_proposalMap;                      // Proposal store
         LFGSearchMap    m_searchMatrix;                     // Search matrix

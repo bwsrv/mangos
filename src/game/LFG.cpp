@@ -141,6 +141,7 @@ void LFGGroupState::Clear()
     SetDungeon(NULL);
     SetState(LFG_STATE_NONE);
     SaveState();
+    StopBoot();
 }
 
 uint8 LFGGroupState::GetVotesNeeded() const
@@ -236,8 +237,6 @@ void LFGGroupState::StopBoot()
 
 LFGAnswer LFGGroupState::GetBootResult()
 {
-    m_bootVotes.clear();
-
     uint8 votesNum = 0;
     uint8 agreeNum = 0;
     uint8 denyNum  = 0;
