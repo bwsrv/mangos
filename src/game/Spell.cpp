@@ -7916,7 +7916,7 @@ void Spell::DoSummonSnakes(SpellEffectIndex eff_idx)
     GameObject* pTrap = m_caster->GetMap()->GetGameObject(m_originalCasterGUID);
     if (!pTrap)
     {
-        sLog.outError("EffectSummonSnakes faild to find trap for caster %s (GUID: %u)",m_caster->GetName(),m_caster->GetObjectGuid());
+        sLog.outError("EffectSummonSnakes faild to find trap for caster %s (GUID: %u)", m_caster->GetName(), m_caster->GetObjectGuid().GetCounter());
         return;
     }
 
@@ -7940,7 +7940,7 @@ void Spell::DoSummonSnakes(SpellEffectIndex eff_idx)
         if (!pSummon->IsPositionValid())
         {
             sLog.outError("EffectSummonSnakes failed to summon snakes for Unit %s (GUID: %u) bacause of invalid position (x = %f, y = %f, z = %f map = %u)"
-                ,m_caster->GetName(),m_caster->GetObjectGuid(), position_x, position_y, position_z, m_caster->GetMap());
+                ,m_caster->GetName(), m_caster->GetObjectGuid().GetCounter(), position_x, position_y, position_z, m_caster->GetMap());
             delete pSummon;
             continue;
         }

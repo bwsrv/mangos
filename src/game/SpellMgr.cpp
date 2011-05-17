@@ -2438,8 +2438,9 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 if (spellInfo_1->SpellIconID == 3837 && spellInfo_2->SpellIconID == 3837)
                     return false;
 
-                // Seal of Vengeance and Righteous Vengeance
-                if (spellInfo_1->Id == 61840 && spellInfo_2->SpellIconID == 2292 || spellInfo_2->Id == 61840 && spellInfo_1->SpellIconID == 2292)
+                // Blood Corruption, Holy Vengeance, Righteous Vengeance
+                if ((spellInfo_1->SpellIconID == 2292 && spellInfo_2->SpellIconID == 3025) ||
+                    (spellInfo_2->SpellIconID == 2292 && spellInfo_1->SpellIconID == 3025))
                     return false;
 
                 // Blessing of Sanctuary (multi-family check, some from 16 spell icon spells)
