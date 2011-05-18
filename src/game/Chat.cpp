@@ -695,6 +695,13 @@ ChatCommand * ChatHandler::getCommandTable()
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
 
+	static ChatCommand mazeCommandTable[] = 
+	{
+		{ "generate",       SEC_GAMEMASTER,     true,  &ChatHandler::HandleMazeGenerateCommand,        "", NULL },
+		{ "clean",          SEC_GAMEMASTER,     true,  &ChatHandler::HandleMazeCleanCommand,           "", NULL },
+		{ NULL,             0,                  true,  NULL,                                           "", NULL }
+	};
+
     static ChatCommand commandTable[] =
     {
         { "account",        SEC_PLAYER,         true,  NULL,                                           "", accountCommandTable  },
@@ -714,6 +721,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "list",           SEC_ADMINISTRATOR,  true,  NULL,                                           "", listCommandTable     },
         { "lookup",         SEC_MODERATOR,      true,  NULL,                                           "", lookupCommandTable   },
         { "modify",         SEC_MODERATOR,      false, NULL,                                           "", modifyCommandTable   },
+        { "maze",	        SEC_GAMEMASTER,     true,  NULL,                                           "", mazeCommandTable     },
         { "npc",            SEC_MODERATOR,      false, NULL,                                           "", npcCommandTable      },
         { "pool",           SEC_GAMEMASTER,     true,  NULL,                                           "", poolCommandTable     },
         { "pdump",          SEC_ADMINISTRATOR,  true,  NULL,                                           "", pdumpCommandTable    },

@@ -5414,3 +5414,340 @@ bool ChatHandler::HandleTitlesCurrentCommand(char* args)
 
     return true;
 }
+
+// mazemaze
+
+const int MAZE_MAP_ID = 13;
+
+bool ChatHandler::HandleMazeCleanCommand(char* args)
+{
+    Map* map = sMapMgr.FindMap(MAZE_MAP_ID);
+    if (!map){
+        SendSysMessage("Maze Clean: Map (id 13) does not exist.");
+        return false;
+    }
+
+    SendSysMessage("Maze Clean: start working");
+
+    QueryResult *result = WorldDatabase.PQuery("SELECT guid FROM gameobject WHERE map = 13");
+    uint32 count = 0;
+
+    if (result)
+    {
+        do
+        {
+            uint32 guid = result->Fetch()[0].GetUInt32();
+            if (GameObjectData const* data = sObjectMgr.GetGOData(guid)){
+                if (GameObject* obj = map->GetGameObject(ObjectGuid(HIGHGUID_GAMEOBJECT, data->id, guid))){
+                    obj->SetRespawnTime(0);
+                    obj->Delete();
+                    ++count;
+                }
+            }
+        }
+        while (result->NextRow());
+        delete result;
+    }
+
+    WorldDatabase.Execute("DELETE FROM gameobject WHERE map = 13");
+
+    SendSysMessage("Maze Clean: All objects deleted from map 13");
+
+    return true;
+}
+
+int getRandomBoxId(){
+	switch(rand()%3){
+		case 0: return 13; break; 
+		case 1: return 18; break; 
+		case 2: return 19; break; 
+	}
+	return 0;
+}
+
+// Z: -144.708649
+// map: 13 (Test)
+// xy +- -145 (290-290)
+// Runebox: 4.00f-4.27f (72-68)
+	const int iterations = 5000;
+	const float xStepSize = 4.00f;
+	const float yStepSize = 4.27f;
+	const float zStepSize = 4.00f;
+	const float xStart = -128.0f;
+	const float yStart = -136.79f;
+	const float zStart = -144.7f;
+	
+	const int xSteps = 64;
+	const int ySteps = 64;
+	const int zSteps = 4;
+	const int width = xSteps/8; // (64\8=8)
+
+	// main mazee bool array 3D
+	bool maze[xSteps+1][ySteps+1][zSteps+1];
+
+bool ChatHandler::HandleMazeGenerateCommand (char* args){
+	SendSysMessage("Maze Generate: start working, 'some lags was occured!'");
+	int level;
+	if (*args) level = (int)atoi(args);
+	else level = 0;
+	
+	int i, x, y, z;
+	int d, dx, dy, count;
+
+	if (level==0||level==-1){
+		SendSysMessage("Maze Generate: maze[xSteps+1][ySteps+1][zSteps];");
+		int wallLength = 0;
+		// cleaning maze
+		for (x=0; x<=xSteps; x++)
+			for (y=0; y<=ySteps; y++)
+				for (z=0; z<=zSteps; z++)
+					maze[x][y][z]=false;
+		// get all floors (0..zSteps)
+		for (z=1; z<=zSteps; z++){
+			switch(z){
+				case 1: wallLength=8; break;
+				case 2: wallLength=6; break;
+				case 3: wallLength=4; break;
+			}
+			// draw perimetr
+			for (x=0; x<=xSteps; x++) {
+				maze[x][0][z]=true;
+				maze[x][ySteps][z]=true;
+			}
+			for (y=0; y<=ySteps; y++) {
+				maze[0][y][z]=true;
+				maze[xSteps][y][z]=true;
+			}
+			if (z==3){ // if floor 3 then need more perimetrs
+				for (x=0; x<=xSteps; x++) {
+					maze[x][1/4*ySteps][z]=true;
+					maze[x][3/4*ySteps][z]=true;
+				}
+				for (y=0; y<=ySteps; y++) {
+					maze[1/4*xSteps][y][z]=true;
+					maze[3/4*xSteps][y][z]=true;
+				}
+			}
+			// generate wall-bytes
+			for (i=0; i<=iterations; i++){
+				x = (rand() % (xSteps/2)) * 2;
+				y = (rand() % (ySteps/2)) * 2; // take a random even point within the maze
+				if (maze[x][y][z]) continue; // if at this point already is a wall, then continue to randomly throw points
+				d = rand() % 4; // otherwise recoverable random direction
+				switch (d){
+					case 0: dx= 1; dy= 0; break;
+					case 1: dx=-1; dy= 0; break;
+					case 2: dx= 0; dy= 1; break;
+					case 3: dx= 0; dy=-1; break;
+				} // and express it through dx, dy
+				count=0;
+				while (!maze[x][y][z] && count<=wallLength){ // until we meet another wall
+					maze[x][y][z]=true; // establish its wall
+					x+=dx;
+					y+=dy; // go to next cell
+					count++;
+				}
+			}
+			// make central cell empty for a staircase
+			maze[xSteps/2+0][ySteps/2+0][z]=false;
+			maze[xSteps/2+1][ySteps/2+0][z]=false;
+			maze[xSteps/2-1][ySteps/2+0][z]=false;
+			maze[xSteps/2+0][ySteps/2+1][z]=false;
+			maze[xSteps/2+0][ySteps/2-1][z]=false;
+		}
+	}
+
+	if (level==0||level==1){
+		SendSysMessage("Maze Generate: placing level 1: walls of 1st floor");
+		for (int x = 0; x <= xSteps; x++)
+			for (int y = 0; y <= ySteps; y++)
+				if (maze[x][y][1]) // get info from maze[x][y][1]
+					MazeAddGameObject(getRandomBoxId(), xStart+(x*xStepSize), yStart+(y*yStepSize), zStart+((1-1)*zStepSize), 0.0f);
+	}
+
+	if (level==0||level==2){	
+		SendSysMessage("Maze Generate: placing level 2: walls of 1st floor, ground of microlevel");
+		for (int x = 0; x <= xSteps; x++)
+			for (int y = 0; y <= ySteps; y++)
+				if (maze[x][y][1]&&(((x+y)%4)!=0)) // get info from maze[x][y][1], but delete every 4th block
+					MazeAddGameObject(getRandomBoxId(), xStart+(x*xStepSize), yStart+(y*yStepSize), zStart+((2-1)*zStepSize), 0.0f);
+	}
+
+	//SendSysMessage("Maze Generate: skipping level 3: empty walls of 2st floor");
+	//SendSysMessage("Maze Generate: skipping level 4: empty roof of 2st floor");
+
+	if (level==0||level==5){
+		SendSysMessage("Maze Generate: placing level 5: ground of 2nd floor");
+		for (int x = 0; x <= xSteps; x++)
+			for (int y = 0; y <= ySteps; y++){
+				if (!((x==1||x==xSteps-1)&&(y==1||y==ySteps-1)))
+					if (!maze[x][y][2])
+						MazeAddGameObject(13, xStart+(x*xStepSize), yStart+(y*yStepSize), zStart+((5-1)*zStepSize), 0.0f);
+			}
+	}
+
+	if (level==0||level==6){
+		SendSysMessage("Maze Generate: placing level 6: walls of 2nd floor");
+		for (int x = 0; x <= xSteps; x++)
+			for (int y = 0; y <= ySteps; y++)
+				if (maze[x][y][2]) // get info from maze[x][y][2]
+					MazeAddGameObject(getRandomBoxId(), xStart+(x*xStepSize), yStart+(y*yStepSize), zStart+((6-1)*zStepSize), 0.0f);
+	}
+
+	if (level==0||level==7){
+		SendSysMessage("Maze Generate: placing level 7: walls of 2nd floor (only in center 1\4)");
+		for (int x = 1*xSteps/4; x <= 3*xSteps/4; x++)
+			for (int y = 1*ySteps/4; y <= 3*ySteps/4; y++)
+				if (maze[x][y][2]) // get info from maze[x][y][2], but placing only in center 1\4
+					MazeAddGameObject(getRandomBoxId(), xStart+(x*xStepSize), yStart+(y*yStepSize), zStart+((7-1)*zStepSize), 0.0f);
+	}
+
+	if (level==0||level==8){
+		SendSysMessage("Maze Generate: placing level 8: hole-roof of 2nd floor - hole-ground of 3rd floor ");
+		for (int x = 1*xSteps/4; x <= 3*xSteps/4; x++)
+			for (int y = 1*ySteps/4; y <= 3*ySteps/4; y++) // (only in center 1\4)
+				if ((((x+y)%2)!=0)||(x==1*xSteps/4||x==3*xSteps/4||y==1*ySteps/4||y==3*ySteps/4)) // every 2nd box to delete (except perimetr)
+					MazeAddGameObject(13, xStart+(x*xStepSize), yStart+(y*yStepSize), zStart+((8-1)*zStepSize), 0.0f);
+	}
+
+	if (level==0||level==9){
+		SendSysMessage("Maze Generate: placing level 9: walls of 3rd floor");
+		for (int x = 1*xSteps/4; x <= 3*xSteps/4; x++)
+			for (int y = 1*ySteps/4; y <= 3*ySteps/4; y++) // (only in center 1\4)
+				if (maze[x][y][3]) // get info from maze[x][y][3]
+					MazeAddGameObject(getRandomBoxId(), xStart+(x*xStepSize), yStart+(y*yStepSize), zStart+((9-1)*zStepSize), 0.0f);
+	}
+
+	if (level==0||level==10){
+		SendSysMessage("Maze Generate: placing level 10: walls(2) of 3rd floor");
+		for (int x = 1*xSteps/4; x <= 3*xSteps/4; x++)
+			for (int y = 1*ySteps/4; y <= 3*ySteps/4; y++) // (only in center 1\4)
+				if (maze[x][y][3]) // get info from maze[x][y][3]
+					MazeAddGameObject(getRandomBoxId(), xStart+(x*xStepSize), yStart+(y*yStepSize), zStart+((10-1)*zStepSize), 0.0f);
+	}
+
+	if (level==0||level==11){
+		SendSysMessage("Maze Generate: placing level 11: roof of 3rd floor (only in center 1\4)");
+		for (int x = 1*xSteps/4; x <= 3*xSteps/4; x++)
+			for (int y = 1*ySteps/4; y <= 3*ySteps/4; y++)
+				if (!((x==xSteps/2+width+1||x==xSteps/2-width-1)&&(y==ySteps/2+width+1||y==ySteps/2-width-1))) // holes on 1\4 corner
+					MazeAddGameObject(13, xStart+(x*xStepSize), yStart+(y*yStepSize), zStart+((11-1)*zStepSize), 0.0f);
+	}
+
+	if (level==0||level==12){
+		int lvl = 12;
+		SendSysMessage("Maze Generate: placing level 12: walls and chests of 4th WIN-floor");
+		for (int i = xSteps/2-width; i<=xSteps/2+width; i++){
+			MazeAddGameObject(19, xStart+(i*xStepSize), yStart+yStepSize*(ySteps/2-1),     zStart+((lvl-1)*zStepSize), 0.0f);
+			MazeAddGameObject(19, xStart+(i*xStepSize), yStart+yStepSize*(ySteps/2-width), zStart+((lvl-1)*zStepSize), 0.0f);
+			MazeAddGameObject(19, xStart+(i*xStepSize), yStart+yStepSize*(ySteps/2+1),     zStart+((lvl-1)*zStepSize), 0.0f);
+			MazeAddGameObject(19, xStart+(i*xStepSize), yStart+yStepSize*(ySteps/2+width), zStart+((lvl-1)*zStepSize), 0.0f);
+		}
+		for (int i = ySteps/2-width; i<=ySteps/2+width; i++){
+			MazeAddGameObject(19, xStart+xStepSize*(xSteps/2-1),     yStart+(i*yStepSize), zStart+((lvl-1)*zStepSize), 0.0f);
+			MazeAddGameObject(19, xStart+xStepSize*(xSteps/2-width), yStart+(i*yStepSize), zStart+((lvl-1)*zStepSize), 0.0f);
+			MazeAddGameObject(19, xStart+xStepSize*(xSteps/2+1),     yStart+(i*yStepSize), zStart+((lvl-1)*zStepSize), 0.0f);
+			MazeAddGameObject(19, xStart+xStepSize*(xSteps/2+width), yStart+(i*yStepSize), zStart+((lvl-1)*zStepSize), 0.0f);
+		}
+		// maze win chests
+		//MazeAddGameObject(14, xStart+(xSteps/2-width/2)*xStepSize, yStart+(ySteps/2-width/2)*yStepSize, zStart+((lvl-1)*zStepSize), 0.0f);
+		//MazeAddGameObject(14, xStart+(xSteps/2-width/2)*xStepSize, yStart+(ySteps/2+width/2)*yStepSize, zStart+((lvl-1)*zStepSize), 0.0f);
+		//MazeAddGameObject(14, xStart+(xSteps/2+width/2)*xStepSize, yStart+(ySteps/2-width/2)*yStepSize, zStart+((lvl-1)*zStepSize), 0.0f);
+		//MazeAddGameObject(14, xStart+(xSteps/2+width/2)*xStepSize, yStart+(ySteps/2+width/2)*yStepSize, zStart+((lvl-1)*zStepSize), 0.0f);
+
+		MazeAddGameObject(19, xStart+(xSteps/2)*xStepSize, yStart+(ySteps/2)*yStepSize, zStart+((lvl-1)*zStepSize), 0.0f); // central box
+		MazeAddGameObject(15, xStart+(xSteps/2)*xStepSize, yStart+(ySteps/2)*yStepSize, zStart+((lvl+0)*zStepSize), 0.0f); // win chest
+	}
+
+	if (level==0||level==-2){
+		SendSysMessage("Maze Generate: placing staircases");
+		// center 1->3
+		MazeAddStaircase(xSteps/2, ySteps/2, 0, 4); 
+		// corner 3->6
+		MazeAddStaircase(xSteps-1, ySteps-1, 2, 6); 
+		MazeAddStaircase(       1, ySteps-1, 2, 6); 
+		MazeAddStaircase(xSteps-1,        1, 2, 6); 
+		MazeAddStaircase(       1,        1, 2, 6); 
+		// center 6->9
+		MazeAddStaircase(xSteps/2, ySteps/2, 5, 6);
+		// 1\8 corner 9->13
+		MazeAddStaircase(xSteps/2+width+1, ySteps/2+width+1, 8, 8);
+		MazeAddStaircase(xSteps/2-width-1, ySteps/2+width+1, 8, 8);
+		MazeAddStaircase(xSteps/2+width+1, ySteps/2-width-1, 8, 8);
+		MazeAddStaircase(xSteps/2-width-1, ySteps/2-width-1, 8, 8);
+	}
+
+	SendSysMessage("Maze Generate: done!");
+	return true;
+}
+
+bool ChatHandler::MazeAddStaircase(int x, int y, int z, int height){
+	int i;
+	float dx, dy;
+	for (i = 0; i<height; i++){
+		switch(i%4){
+			case 0: dx= 1.0f; dy= 1.0f; break;
+			case 1: dx=-1.0f; dy= 1.0f; break;
+			case 2: dx=-1.0f; dy=-1.0f; break;
+			case 3: dx= 1.0f; dy=-1.0f; break;
+		}
+		MazeAddGameObject(12, xStart+(x*xStepSize)+dx, yStart+(y*yStepSize)+dy, zStart+(z*zStepSize)+(i*zStepSize/2), 0.0f);
+	}
+	return true;
+}
+
+bool ChatHandler::MazeAddGameObject(int id, float x, float y, float z, float o)
+{
+    const GameObjectInfo *gInfo = ObjectMgr::GetGameObjectInfo(id);
+
+    if (!gInfo)
+    {
+        // PSendSysMessage(LANG_GAMEOBJECT_NOT_EXIST,id);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    if (gInfo->displayId && !sGameObjectDisplayInfoStore.LookupEntry(gInfo->displayId))
+    {
+        // report to DB errors log as in loading case
+        sLog.outErrorDb("Gameobject (Entry %u GoType: %u) have invalid displayId (%u), not spawned.",id, gInfo->type, gInfo->displayId);
+        // PSendSysMessage(LANG_GAMEOBJECT_HAVE_INVALID_DATA,id);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+	Map* map = sMapMgr.FindMap(MAZE_MAP_ID);
+
+    GameObject* pGameObj = new GameObject;
+
+    // used guids from specially reserved range (can be 0 if no free values)
+    uint32 db_lowGUID = sObjectMgr.GenerateStaticGameObjectLowGuid();
+    if (!db_lowGUID)
+    {
+        SendSysMessage(LANG_NO_FREE_STATIC_GUID_FOR_SPAWN);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    if (!pGameObj->Create(db_lowGUID, gInfo->id, map, 1, x, y, z, o, 0.0f, 0.0f, 0.0f, 0.0f, GO_ANIMPROGRESS_DEFAULT, GO_STATE_READY))
+    {
+        delete pGameObj;
+        return false;
+    }
+	
+    // fill the gameobject data and save to the db
+	pGameObj->SetRespawnTime(86400); // 24 hours
+    pGameObj->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), 1);
+
+    // this will generate a new guid if the object is in an instance
+    if (!pGameObj->LoadFromDB(db_lowGUID, map))
+    {
+        delete pGameObj;
+        return false;
+    }
+
+    DEBUG_LOG(GetMangosString(LANG_GAMEOBJECT_CURRENT), gInfo->name, db_lowGUID, x, y, z, o);
+    map->Add(pGameObj);
+    sObjectMgr.AddGameobjectToGrid(db_lowGUID, sObjectMgr.GetGOData(db_lowGUID));
+    return true;
+}
