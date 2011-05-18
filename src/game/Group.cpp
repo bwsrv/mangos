@@ -1070,10 +1070,11 @@ void Group::SendUpdate()
         data << uint8(citr->group);                         // groupid
         data << uint8(citr->flags);                         // group flags
         data << uint8(citr->roles);                         // roles mask
-        if(m_groupType & GROUPTYPE_LFD)
+        if(isLFGGroup())
         {
-            data << uint8(0);
-            data << uint32(0);
+            uint32 dungeonID = GetLFGState()->GetDungeon() ? GetLFGState()->GetDungeon()->ID : 0;
+            data << uint8(GetLFGState()->GetState() == LFG_STATE_FINISHED_DUNGEON ? 2 : 0);
+            data << uint32(dungeonID);
         }
         data << uint64(0x50000000FFFFFFFELL);               // related to voice chat?
         data << uint32(0);                                  // 3.3, this value increments every time SMSG_GROUP_LIST is sent
@@ -1170,6 +1171,10 @@ bool Group::_addMember(ObjectGuid guid, const char* name)
     uint8 groupid = 0;
     GroupFlagMask flags   = GROUP_MEMBER;
     uint8 roles   = 0;
+
+    if (isLFGGroup() && sObjectMgr.GetPlayer(guid))
+        roles = sObjectMgr.GetPlayer(guid)->GetLFGState()->GetRoles();
+
     if (m_subGroupsCounts)
     {
         bool groupFound = false;
@@ -2070,6 +2075,7 @@ void Group::SetGroupRoles(ObjectGuid guid, uint8 roles)
             static SqlStatementID updGgoupMember;
             SqlStatement stmt = CharacterDatabase.CreateStatement(updGgoupMember, "UPDATE group_member SET roles = ? WHERE memberGuid = ?");
             stmt.PExecute(uint8(itr->roles), itr->guid.GetCounter());
+            SendUpdate();
             return;
         }
     }

@@ -2795,6 +2795,7 @@ void LFGMgr::AddMemberToLFDGroup(ObjectGuid guid)
     if (!group)
         return;
 
+    group->SetGroupRoles(guid, player->GetLFGState()->GetRoles());
     RemoveFromQueue(player->GetObjectGuid());
     RemoveFromSearchMatrix(player->GetObjectGuid());
 
