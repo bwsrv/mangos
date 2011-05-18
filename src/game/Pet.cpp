@@ -1201,7 +1201,15 @@ void Pet::_SaveSpellCooldowns()
 
 void Pet::_LoadSpells()
 {
-    QueryResult *result = CharacterDatabase.PQuery("SELECT spell,active FROM pet_spell WHERE guid = '%u'",m_charmInfo->GetPetNumber());
+    uint8 spec = 0;
+    if (getPetType() == HUNTER_PET)
+    {
+        Unit* owner = GetOwner();
+        if(owner && owner->GetTypeId() == TYPEID_PLAYER)
+            spec = ((Player*)owner)->GetActiveSpec();
+    }
+
+    QueryResult *result = CharacterDatabase.PQuery("SELECT spell,active FROM pet_spell WHERE guid = '%u' AND `spec` = '%u'",m_charmInfo->GetPetNumber(), spec);
 
     if(result)
     {
@@ -1222,6 +1230,14 @@ void Pet::_SaveSpells()
     static SqlStatementID delSpell ;
     static SqlStatementID insSpell ;
 
+    uint8 spec = 0;
+    if (getPetType() == HUNTER_PET)
+    {
+        Unit* owner = GetOwner();
+        if(owner && owner->GetTypeId() == TYPEID_PLAYER)
+            spec = ((Player*)owner)->GetActiveSpec();
+    }
+
     for (PetSpellMap::iterator itr = m_spells.begin(), next = m_spells.begin(); itr != m_spells.end(); itr = next)
     {
         ++next;
@@ -1234,24 +1250,24 @@ void Pet::_SaveSpells()
         {
             case PETSPELL_REMOVED:
                 {
-                    SqlStatement stmt = CharacterDatabase.CreateStatement(delSpell, "DELETE FROM pet_spell WHERE guid = ? and spell = ?");
-                    stmt.PExecute(m_charmInfo->GetPetNumber(), itr->first);
+                    SqlStatement stmt = CharacterDatabase.CreateStatement(delSpell, "DELETE FROM pet_spell WHERE guid = ? AND spell = ? AND spec = ?");
+                    stmt.PExecute(m_charmInfo->GetPetNumber(), itr->first, spec);
                     m_spells.erase(itr);
                 }
                 continue;
             case PETSPELL_CHANGED:
                 {
-                    SqlStatement stmt = CharacterDatabase.CreateStatement(delSpell, "DELETE FROM pet_spell WHERE guid = ? and spell = ?");
-                    stmt.PExecute(m_charmInfo->GetPetNumber(), itr->first);
+                    SqlStatement stmt = CharacterDatabase.CreateStatement(delSpell, "DELETE FROM pet_spell WHERE guid = ? AND spell = ? AND spec = ?");
+                    stmt.PExecute(m_charmInfo->GetPetNumber(), itr->first, spec);
 
-                    stmt = CharacterDatabase.CreateStatement(insSpell, "INSERT INTO pet_spell (guid,spell,active) VALUES (?, ?, ?)");
-                    stmt.PExecute(m_charmInfo->GetPetNumber(), itr->first, uint32(itr->second.active));
+                    stmt = CharacterDatabase.CreateStatement(insSpell, "INSERT INTO pet_spell (guid,spell,active,spec) VALUES (?, ?, ?, ?)");
+                    stmt.PExecute(m_charmInfo->GetPetNumber(), itr->first, uint32(itr->second.active), spec);
                 }
                 break;
             case PETSPELL_NEW:
                 {
-                    SqlStatement stmt = CharacterDatabase.CreateStatement(insSpell, "INSERT INTO pet_spell (guid,spell,active) VALUES (?, ?, ?)");
-                    stmt.PExecute(m_charmInfo->GetPetNumber(), itr->first, uint32(itr->second.active));
+                    SqlStatement stmt = CharacterDatabase.CreateStatement(insSpell, "INSERT INTO pet_spell (guid,spell,active,spec) VALUES (?, ?, ?, ?)");
+                    stmt.PExecute(m_charmInfo->GetPetNumber(), itr->first, uint32(itr->second.active), spec);
                 }
                 break;
             case PETSPELL_UNCHANGED:
