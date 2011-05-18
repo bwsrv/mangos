@@ -78,7 +78,7 @@ UPDATE creature SET position_x = 394.327148, position_y = -394.871399, position_
 -- Stormpike Battleguard (inside)
 -- Existing NPC's
 DELETE FROM creature WHERE id = 14284 AND map = 30;
-INSERT INTO creature VALUES
+INSERT INTO creature (guid, id, map, spawnMask, phaseMask, modelid, equipment_id, position_x,	position_y, position_z,	orientation, spawntimesecs, spawndist, currentwaypoint, curhealth, curmana, DeathState,	MovementType) VALUES
 (150134, 14284, 30, 15, 1, 0, 0, 947.412, -509.982, 95.1098, 2.82743, 120, 0, 0, 4100, 0, 0, 0),
 (150135, 14284, 30, 15, 1, 0, 0, 934.557, -512.395, 93.662, 3.61004, 120, 0, 0, 4100, 0, 0, 0),
 (150136, 14284, 30, 15, 1, 0, 0, 939.42, -502.777, 94.5887, 5.14872, 120, 0, 0, 4100, 0, 0, 0),

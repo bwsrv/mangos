@@ -208,3 +208,10 @@ ALTER TABLE `characters`
 
 ALTER TABLE `saved_variables`
     ADD COLUMN `NextRandomBGResetTime` bigint(40) unsigned NOT NULL default 0 AFTER `NextWeeklyQuestResetTime`;
+
+-- Pet dualspec for hunter pets (mangosR2 repo)
+
+ALTER TABLE `pet_spell`
+    ADD COLUMN `spec` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0' AFTER `active`,
+    DROP PRIMARY KEY,
+    ADD PRIMARY KEY (`guid`, `spell`, `spec`);
