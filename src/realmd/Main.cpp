@@ -90,11 +90,20 @@ extern int main(int argc, char **argv)
 {
     ///- Command line parsing
     char const* cfg_file = _REALMD_CONFIG;
-    bool hasConfig = false;
+
     char const *options = ":c:s:";
 
     ACE_Get_Opt cmd_opts(argc, argv, options);
     cmd_opts.long_option("version", 'v');
+
+#ifndef WIN32                                               // need call before options for posix daemon
+    if (!sConfig.SetSource(cfg_file))
+    {
+        sLog.outError("Could not find configuration file %s.", cfg_file);
+        Log::WaitBeforeContinueIfNeed();
+        return 1;
+    }
+#endif
 
     int option;
 
@@ -137,11 +146,8 @@ extern int main(int argc, char **argv)
                 }
 #else
                 const char *mode = cmd_opts.opt_arg();
-                if (sConfig.SetSource(cfg_file) && !strcmp(mode, "run"))
-                {
-                    hasConfig = true;
+                if (!strcmp(mode, "run"))
                     startDaemon();
-                }
                 else if (!strcmp(mode, "stop"))
                     stopDaemon();
                 else
@@ -167,12 +173,14 @@ extern int main(int argc, char **argv)
         }
     }
 
-    if (!hasConfig && !sConfig.SetSource(cfg_file))
+#ifdef WIN32                                                // need call after options for windows service
+    if (!sConfig.SetSource(cfg_file))
     {
         sLog.outError("Could not find configuration file %s.", cfg_file);
         Log::WaitBeforeContinueIfNeed();
         return 1;
     }
+#endif
 
     sLog.Initialize();
 
