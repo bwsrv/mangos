@@ -449,20 +449,15 @@ m_isPersistent(false), m_in_use(0), m_spellAuraHolder(holder)
         // Apply haste to duration
         if (applyHaste)
         {
-            uint32 oldDuration = GetHolder()->GetAuraDuration();
-
-            int32 new_duration = (int32)(oldDuration * caster->GetFloatValue(UNIT_MOD_CAST_SPEED));
-            GetHolder()->SetAuraMaxDuration(new_duration);
-            GetHolder()->SetAuraDuration(new_duration);
-
-            uint32 _periodicTime = m_modifier.periodictime;
-
+            int32 oldDuration = GetSpellMaxDuration(spellproto); // Maximum duration of aura
+            int32 new_duration = GetHolder()->GetAuraDuration(); // Modified duration of aura
+            uint32 _periodicTime = m_modifier.periodictime; // Periodic time
             // Calculate new periodic timer
-            int32 ticks = oldDuration / _periodicTime;
+            int32 ticks = oldDuration / _periodicTime; // Calculate tick count based on old duration
 
-            _periodicTime =  ticks == 0 ? new_duration : new_duration / ticks;
+            _periodicTime =  ticks == 0 ? new_duration : new_duration / ticks; // Recalculate periodic time
 
-            m_modifier.periodictime = _periodicTime;
+            m_modifier.periodictime = _periodicTime; // Set new Periodic time
         }
     }
 
