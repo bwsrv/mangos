@@ -3546,17 +3546,19 @@ SpellAuraProcResult Unit::HandleProcTriggerSpellAuraProc(Unit *pVictim, uint32 d
                 }
                 case 64568:                                 // Blood Reserve
                 {
-                    // Check health condition - should drop to less 35%
-                    if (!(10*(int32(GetHealth() - damage)) < 3.5 * GetMaxHealth()))
-                       return SPELL_AURA_PROC_FAILED;
-
-                    if (!roll_chance_f(50))
+                    // When your health drops below 35% ....
+                    uint32 health35 = uint32(GetMaxHealth() * 0.35);
+                    if (GetHealth() - damage > health35 || GetHealth() < health35)
                         return SPELL_AURA_PROC_FAILED;
 
                     trigger_spell_id = 64569;
-                    basepoints[0] = triggerAmount;
+
+                    // need scale damage base at stack size
+                    if (SpellEntry const* trigEntry = sSpellStore.LookupEntry(trigger_spell_id))
+                        basepoints[EFFECT_INDEX_0] = trigEntry->CalculateSimpleValue(EFFECT_INDEX_0) * triggeredByAura->GetStackAmount();
+
                     break;
-                } 
+                }
                 case 67702:                                 // Death's Choice, Item - Coliseum 25 Normal Melee Trinket
                 {
                     float stat = 0.0f;
