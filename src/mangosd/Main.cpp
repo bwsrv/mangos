@@ -80,21 +80,12 @@ extern int main(int argc, char **argv)
 {
     ///- Command line parsing
     char const* cfg_file = _MANGOSD_CONFIG;
-
+    bool hasConfig = false;
 
     char const *options = ":c:s:";
 
     ACE_Get_Opt cmd_opts(argc, argv, options);
     cmd_opts.long_option("version", 'v');
-
-#ifndef WIN32                                               // need call before options for posix daemon
-    if (!sConfig.SetSource(cfg_file))
-    {
-        sLog.outError("Could not find configuration file %s.", cfg_file);
-        Log::WaitBeforeContinueIfNeed();
-        return 1;
-    }
-#endif
 
     int option;
     while ((option = cmd_opts()) != EOF)
@@ -136,8 +127,11 @@ extern int main(int argc, char **argv)
                 break;
 #else
                 const char *mode = cmd_opts.opt_arg();
-                if (!strcmp(mode, "run"))
+                if (sConfig.SetSource(cfg_file) && !strcmp(mode, "run"))
+                {
                     startDaemon(120);
+                    hasConfig = true;
+                }
                 else if (!strcmp(mode, "stop"))
                     stopDaemon();
                 else
@@ -163,14 +157,12 @@ extern int main(int argc, char **argv)
         }
     }
 
-#ifdef WIN32                                                // need call after options for windows service
-    if (!sConfig.SetSource(cfg_file))
+    if (!hasConfig && !sConfig.SetSource(cfg_file))
     {
         sLog.outError("Could not find configuration file %s.", cfg_file);
         Log::WaitBeforeContinueIfNeed();
         return 1;
     }
-#endif
 
     sLog.outString( "%s [world-daemon]", _FULLVERSION(REVISION_DATE,REVISION_TIME,REVISION_NR,REVISION_ID) );
     sLog.outString( "<Ctrl-C> to stop.\n\n" );
