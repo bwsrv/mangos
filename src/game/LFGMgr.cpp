@@ -2261,18 +2261,21 @@ bool LFGMgr::TryCompleteGroup(Group* group, Player* player)
     else
         intersection = *group->GetLFGState()->GetDungeons();
 
-    if (LFGProposal* pProposal = group->GetLFGState()->GetProposal())
+    if (player)
     {
-        if (pProposal->IsDecliner(player->GetObjectGuid()))
-            return false;
-        SendProposal(pProposal->ID, player->GetObjectGuid());
-    }
-    else
-    {
-        LFGQueueSet tmpSet;
-        tmpSet.insert(player->GetObjectGuid());
-        LFGDungeonEntry const* dungeon = SelectRandomDungeonFromList(intersection);
-        uint32 ID = CreateProposal(dungeon,group,&tmpSet);
+        if (LFGProposal* pProposal = group->GetLFGState()->GetProposal())
+        {
+            if (pProposal->IsDecliner(player->GetObjectGuid()))
+               return false;
+            SendProposal(pProposal->ID, player->GetObjectGuid());
+        }
+        else
+        {
+            LFGQueueSet tmpSet;
+            tmpSet.insert(player->GetObjectGuid());
+            LFGDungeonEntry const* dungeon = SelectRandomDungeonFromList(intersection);
+            uint32 ID = CreateProposal(dungeon,group,&tmpSet);
+        }
     }
 
     return true;
