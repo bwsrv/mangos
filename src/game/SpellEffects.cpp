@@ -2831,7 +2831,16 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 
                     if (VehicleKit* vehicle = unitTarget->GetVehicleKit())
                         vehicle->RemoveAllPassengers();
+                    return;
+                }
+                case 67400:                                 // Zergling Attack (on Grunty companion)
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT || !((Creature*)unitTarget)->IsPet())
+                        return;
 
+                    m_caster->DealDamage(unitTarget, unitTarget->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    ((Pet*)unitTarget)->Unsummon(PET_SAVE_AS_DELETED);
+                    m_caster->GetMotionMaster()->MovementExpired();
                     return;
                 }
                 case 69922:                                 // Temper Quel'Delar
@@ -8531,6 +8540,24 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     // Totem of the Earthen Ring does not really require or take reagents.
                     // Expecting RewardQuest() to already destroy them or we need additional code here to destroy.
                     unitTarget->CastSpell(unitTarget, 66747, true);
+                    return;
+                }
+                case 67398:                                 // Zergling Periodic Effect (Called by Zergling Passive)
+                {
+                    if (!unitTarget || !unitTarget->isAlive())
+                        return;
+                                                            // Only usable on Grunty companion
+                    Unit* pGrunty = unitTarget->GetMiniPet();
+                    if (pGrunty && pGrunty->GetEntry() == 34694)
+                    {
+                        if (m_caster->IsWithinDist(pGrunty, 2.0f))
+                            m_caster->CastSpell(pGrunty, 67400, true); //zerg attack
+                        else
+                        {
+                            m_caster->CastSpell(pGrunty, 67397, true); // zerg rush dummy aura
+                            m_caster->GetMotionMaster()->MoveFollow(pGrunty,0,0);
+                        }
+                    }
                     return;
                 }
                 case 68861:                                 // Consume Soul (ICC FoS: Bronjahm)
