@@ -166,7 +166,8 @@ class LFGMgr
         void Update(uint32 diff);
 
         void TryCompleteGroups(LFGType type);
-        bool TryCompleteGroup(Group* group, Player* player);
+        bool TryAddMembersToGroup(Group* group, LFGQueueSet* players);
+        void CompleteGroup(Group* group, LFGQueueSet* players);
         bool TryCreateGroup(LFGType type);
 
         // Join system
@@ -229,7 +230,7 @@ class LFGMgr
         bool CheckRoles(Group* group, Player* player = NULL);
         bool CheckRoles(LFGRolesMap* roleMap);
         bool RoleChanged(Player* player, uint8 roles);
-        void SetGroupRoles(Group* group, Player* player = NULL);
+        void SetGroupRoles(Group* group, LFGQueueSet* = NULL);
         void SetRoles(LFGRolesMap* roleMap);
 
         // Social check system
