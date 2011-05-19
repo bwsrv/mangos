@@ -82,6 +82,8 @@ int32 CalculateSpellDuration(SpellEntry const *spellInfo, Unit const* caster)
 
             if (duration < 0)
                 duration = 0;
+
+            duration = modOwner->CalculateSpellDurationWithHaste(spellInfo, duration);
         }
     }
 

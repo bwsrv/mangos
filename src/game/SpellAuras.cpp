@@ -429,37 +429,11 @@ m_isPersistent(false), m_in_use(0), m_spellAuraHolder(holder)
     // Apply periodic time mod
     if (modOwner && m_modifier.periodictime)
     {
-        modOwner->ApplySpellMod(spellproto->Id, SPELLMOD_ACTIVATION_TIME, m_modifier.periodictime);
-
-        bool applyHaste = (spellproto->AttributesEx5 & SPELL_ATTR_EX5_AFFECTED_BY_HASTE) != 0;
-
-        if (!applyHaste)
+        uint32 newperiodictime  = modOwner->CalculateAuraPeriodicTimeWithHaste(spellproto, m_modifier.periodictime);
+        if (newperiodictime != m_modifier.periodictime)
         {
-            Unit::AuraList const& mModByHaste = caster->GetAurasByType(SPELL_AURA_MOD_PERIODIC_HASTE);
-            for (Unit::AuraList::const_iterator itr = mModByHaste.begin(); itr != mModByHaste.end(); ++itr)
-            {
-                if ((*itr)->isAffectedOnSpell(spellproto))
-                {
-                    applyHaste = true;
-                    break;
-                }
-            }
-        }
-
-        // Apply haste to duration
-        if (applyHaste)
-        {
-            int32 oldDuration = GetSpellMaxDuration(spellproto); // Maximum duration of aura
-            int32 new_duration = GetHolder()->GetAuraDuration(); // Modified duration of aura
-            int32 diff_duration = new_duration - oldDuration; // diff duration of aura
-            uint32 _periodicTime = m_modifier.periodictime; // Periodic time
-            // Calculate new periodic timer
-            int32 ticks = oldDuration / _periodicTime; // Calculate tick count based on old duration
-            int32 diff_ticks = diff_duration / _periodicTime; // Calculate tick diff count based on new duration
-
-            _periodicTime =  (ticks + diff_ticks) == 0 ? new_duration : new_duration / (ticks + diff_ticks) ; // Recalculate periodic time
-
-            m_modifier.periodictime = _periodicTime; // Set new Periodic time
+            m_modifier.periodictime = newperiodictime;
+            modOwner->ApplySpellMod(spellproto->Id, SPELLMOD_ACTIVATION_TIME, m_modifier.periodictime);
         }
     }
 
