@@ -23248,10 +23248,8 @@ void Player::ActivateSpec(uint8 specNum)
     if(specNum >= GetSpecsCount())
         return;
 
-    if (getClass() == CLASS_HUNTER || getClass() == CLASS_WARLOCK)
-        UnsummonPetTemporaryIfAny();
-    else if (Pet* pet = GetPet())
-        pet->Unsummon(PET_SAVE_NOT_IN_SLOT, this);
+    if (Pet* pet = GetPet())
+        pet->Unsummon(PET_SAVE_REAGENTS, this);
 
     SendActionButtons(2);
 

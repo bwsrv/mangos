@@ -1051,51 +1051,53 @@ void WorldSession::SendLfgUpdateProposal(LFGProposal* pProposal)
     if (!pProposal)
         return;
 
-    ObjectGuid guid = GetPlayer()->GetObjectGuid();
-
-    bool isSameDungeon = false;
-    bool isContinue = false;                              // Only show proposal dungeon if it's continue
-
-    uint32 completedEncounters = 0;
-    uint32 size = pProposal->playerGuids.size();
-
-    if (pProposal->GetGroup())
-    {
-        isContinue = pProposal->GetGroup()->isLFDGroup();
-        // && sLFGMgr->GetState(gguid) != LFG_STATE_FINISHED_DUNGEON;
-        isSameDungeon = (GetPlayer()->GetGroup() == pProposal->GetGroup()) && isContinue;
-        size += pProposal->GetGroup()->GetMembersCount();
-    }
-
-    DEBUG_LOG("SMSG_LFG_PROPOSAL_UPDATE proposal %u, player %u, state: %u", pProposal->ID, GetPlayer()->GetObjectGuid().GetCounter(), pProposal->GetState());
-
     LFGDungeonEntry const* dungeon = pProposal->GetDungeon();
-
-    if (dungeon)
-    {
-        // Select a player inside to be get completed encounters from
-        if (pProposal->GetGroup())
-        {
-            for (GroupReference* itr = pProposal->GetGroup()->GetFirstMember(); itr != NULL; itr = itr->next())
-            {
-                Player* groupMember = itr->getSource();
-                if (groupMember && groupMember->GetMapId() == uint32(dungeon->map))
-                {
-                    if (InstancePlayerBind* bind = groupMember->GetBoundInstance(dungeon->map, Difficulty(dungeon->difficulty)))
-                    {
-                        if (DungeonPersistentState* state = bind->state)
-                            completedEncounters = state->GetCompletedEncountersMask();
-                    }
-                }
-            }
-        }
-        // bind if no group
-    }
-    else 
+    if (!dungeon)
     {
         DEBUG_LOG("SMSG_LFG_PROPOSAL_UPDATE: no dungeon in proposal %u, returning.", pProposal->ID);
         return;
     }
+
+    ObjectGuid guid = GetPlayer()->GetObjectGuid();
+
+    bool isSameDungeon = false;
+    bool isSameGroup   = false;
+
+    uint32 completedEncounters = 0;
+    LFGRolesMap rolesMap;
+
+    if (Group* group = pProposal->GetGroup())
+    {
+        for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+            if (Player* member = itr->getSource())
+                if (member->IsInWorld())
+                {
+                    rolesMap.insert(std::make_pair(member->GetObjectGuid(), member->GetLFGState()->GetRoles()));
+
+                    if (InstancePlayerBind* bind = member->GetBoundInstance(dungeon->map, Difficulty(dungeon->difficulty)))
+                    {
+                        if (DungeonPersistentState* state = bind->state)
+                            completedEncounters |= state->GetCompletedEncountersMask();
+                    }
+                }
+
+        // isContinue = group->isLFGGroup() && sLFGMgr->GetState(gguid) != LFG_STATE_FINISHED_DUNGEON;
+        isSameDungeon =  dungeon->map == GetPlayer()->GetMapId();
+        isSameGroup   =  GetPlayer()->GetGroup() == group;
+    }
+
+    if (!pProposal->playerGuids.empty())
+    {
+        for (LFGQueueSet::const_iterator itr = pProposal->playerGuids.begin(); itr != pProposal->playerGuids.end(); ++itr)
+            if (Player* player = sObjectMgr.GetPlayer(*itr))
+                if (player->IsInWorld())
+                    rolesMap.insert(std::make_pair(player->GetObjectGuid(), player->GetLFGState()->GetRoles()));
+    }
+
+    uint32 size = rolesMap.size();
+
+    DEBUG_LOG("SMSG_LFG_PROPOSAL_UPDATE proposal %u, player %u, state: %u", pProposal->ID, GetPlayer()->GetObjectGuid().GetCounter(), pProposal->GetState());
+
 
     WorldPacket data(SMSG_LFG_PROPOSAL_UPDATE, 4 + 1 + 4 + 4 + 1 + 1 + pProposal->playerGuids.size() * (4 + 1 + 1 + 1 + 1 +1));
 
@@ -1106,24 +1108,19 @@ void WorldSession::SendLfgUpdateProposal(LFGProposal* pProposal)
     data << uint8(isSameDungeon);                              // Silent (show client window)
     data << uint8(size);                                       // Group size
 
-    for (LFGQueueSet::const_iterator itr = pProposal->playerGuids.begin(); itr != pProposal->playerGuids.end(); ++itr)
+    for (LFGRolesMap::const_iterator itr = rolesMap.begin(); itr != rolesMap.end(); ++itr)
     {
-        Player* pPlayer = sObjectMgr.GetPlayer(*itr);
+        Player* pPlayer = sObjectMgr.GetPlayer(itr->first);
         if (!pPlayer)
             continue;
 
-        data << uint32(pPlayer->GetLFGState()->GetRoles());       // Role
+        isSameDungeon =  dungeon->map == pPlayer->GetMapId();
+        isSameGroup   =  pPlayer->GetGroup() == pProposal->GetGroup();
+
+        data << uint32(itr->second);                              // Role
         data << uint8(pPlayer->GetObjectGuid() == guid);          // Self player
-        if (!(pPlayer->GetGroup() == pProposal->GetGroup()))                              // Player not it a group
-        {
-            data << uint8(0);                                     // Not in dungeon
-            data << uint8(0);                                     // Not same group
-        }
-        else
-        {
-            data << uint8(1);  // In dungeon (silent)
-            data << uint8(1); // Same Group than player
-        }
+        data << uint8(isSameDungeon);                             // Not in dungeon
+        data << uint8(isSameGroup);                               // Not same group
         data << uint8(pPlayer->GetLFGState()->GetAnswer() != LFG_ANSWER_PENDING); // Answered
         data << uint8(pPlayer->GetLFGState()->GetAnswer() == LFG_ANSWER_AGREE); // Accepted
     }
