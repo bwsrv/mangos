@@ -429,28 +429,11 @@ m_isPersistent(false), m_in_use(0), m_spellAuraHolder(holder)
     // Apply periodic time mod
     if (modOwner && m_modifier.periodictime)
     {
-        modOwner->ApplySpellMod(spellproto->Id, SPELLMOD_ACTIVATION_TIME, m_modifier.periodictime);
-
-        bool applyHaste = (spellproto->AttributesEx5 & SPELL_ATTR_EX5_AFFECTED_BY_HASTE) != 0;
-
-        if (!applyHaste)
+        uint32 newperiodictime  = modOwner->CalculateAuraPeriodicTimeWithHaste(spellproto, m_modifier.periodictime);
+        if (newperiodictime != m_modifier.periodictime)
         {
-            Unit::AuraList const& mModByHaste = caster->GetAurasByType(SPELL_AURA_MOD_PERIODIC_HASTE);
-            for (Unit::AuraList::const_iterator itr = mModByHaste.begin(); itr != mModByHaste.end(); ++itr)
-            {
-                if ((*itr)->isAffectedOnSpell(spellproto))
-                {
-                    applyHaste = true;
-                    break;
-                }
-            }
-        }
-
-        // Apply haste to duration
-        if (applyHaste)
-        {
-            uint32 _periodicTime = (uint32)(m_modifier.periodictime * modOwner->GetFloatValue(UNIT_MOD_CAST_SPEED)); // Periodic time
-            m_modifier.periodictime = _periodicTime; // Set new Periodic time
+            m_modifier.periodictime = newperiodictime;
+            modOwner->ApplySpellMod(spellproto->Id, SPELLMOD_ACTIVATION_TIME, m_modifier.periodictime);
         }
     }
 
