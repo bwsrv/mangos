@@ -3675,13 +3675,20 @@ SpellAuraProcResult Unit::HandleProcTriggerSpellAuraProc(Unit *pVictim, uint32 d
             break;
         }
         case SPELLFAMILY_ROGUE:
+        {
+            if (auraSpellInfo->SpellIconID == 2260)         // Combat Potency
+            {
+                if (!(procFlags & PROC_FLAG_SUCCESSFUL_OFFHAND_HIT))
+                    return SPELL_AURA_PROC_FAILED;
+            }
             // Item - Rogue T10 2P Bonus
-            if (auraSpellInfo->Id == 70805)
+            else if (auraSpellInfo->Id == 70805)
             {
                 if (pVictim != this)
                     return SPELL_AURA_PROC_FAILED;
             }
             break;
+        }
         case SPELLFAMILY_HUNTER:
         {
             // Piercing Shots
