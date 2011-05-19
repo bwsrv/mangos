@@ -451,11 +451,13 @@ m_isPersistent(false), m_in_use(0), m_spellAuraHolder(holder)
         {
             int32 oldDuration = GetSpellMaxDuration(spellproto); // Maximum duration of aura
             int32 new_duration = GetHolder()->GetAuraDuration(); // Modified duration of aura
+            int32 diff_duration = new_duration - oldDuration; // diff duration of aura
             uint32 _periodicTime = m_modifier.periodictime; // Periodic time
             // Calculate new periodic timer
             int32 ticks = oldDuration / _periodicTime; // Calculate tick count based on old duration
+            int32 diff_ticks = diff_duration / _periodicTime; // Calculate tick diff count based on new duration
 
-            _periodicTime =  ticks == 0 ? new_duration : new_duration / ticks; // Recalculate periodic time
+            _periodicTime =  (ticks + diff_ticks) == 0 ? new_duration : new_duration / (ticks + diff_ticks) ; // Recalculate periodic time
 
             m_modifier.periodictime = _periodicTime; // Set new Periodic time
         }
