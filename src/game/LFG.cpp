@@ -286,7 +286,6 @@ LFGProposal::LFGProposal(LFGDungeonEntry const* _dungeon)
 {
     m_dungeon = _dungeon;
     m_state = LFG_PROPOSAL_INITIATING;
-    m_group = NULL;
     m_cancelTime = 0;
     declinerGuids.clear();
     playerGuids.clear();
@@ -340,4 +339,22 @@ bool LFGProposal::IsDecliner(ObjectGuid guid)
 LFGType LFGProposal::GetType()
 {
     return (m_dungeon ? LFGType(m_dungeon->type) : LFG_TYPE_NONE);
+};
+
+Group* LFGProposal::GetGroup()
+{
+    if (m_groupGuid.IsEmpty())
+        return NULL;
+
+    return sObjectMgr.GetGroup(m_groupGuid);
+};
+
+void LFGProposal::SetGroup(Group* group)
+{
+    if (!group)
+    {
+        m_groupGuid.Clear();
+        return;
+    }
+    m_groupGuid = group->GetObjectGuid();
 };
