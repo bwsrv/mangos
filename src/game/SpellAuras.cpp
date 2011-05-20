@@ -425,16 +425,13 @@ m_isPersistent(false), m_in_use(0), m_spellAuraHolder(holder)
 
     Player* modOwner = caster ? caster->GetSpellModOwner() : NULL;
 
-
     // Apply periodic time mod
     if (modOwner && m_modifier.periodictime)
     {
-        uint32 newperiodictime  = modOwner->CalculateAuraPeriodicTimeWithHaste(spellproto, m_modifier.periodictime);
+        modOwner->ApplySpellMod(spellproto->Id, SPELLMOD_ACTIVATION_TIME, m_modifier.periodictime);
+        uint32 newperiodictime  = modOwner->CalculateAuraPeriodicTimeWithHaste(spellproto, m_modifier.periodictime, eff);
         if (newperiodictime != m_modifier.periodictime)
-        {
             m_modifier.periodictime = newperiodictime;
-            modOwner->ApplySpellMod(spellproto->Id, SPELLMOD_ACTIVATION_TIME, m_modifier.periodictime);
-        }
     }
 
     // Start periodic on next tick or at aura apply
