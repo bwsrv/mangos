@@ -1623,12 +1623,16 @@ bool ChatHandler::HandleNpcAddCommand(char* args)
     if (chr->GetTransport())
     {
         pCreature->SetTransport(chr->GetTransport());
+
+        float tX = chr->GetTransOffsetX();
+        float tY = chr->GetTransOffsetY();
+        float tZ = chr->GetTransOffsetZ();
+        float tO = chr->GetTransOffsetO();
+        pCreature->m_movementInfo.SetTransportData(ObjectGuid(chr->GetTransport()->GetGUID()), tX, tY, tZ, tO, 0, -1);
+        map->CreatureRelocation(pCreature, chr->GetTransport()->GetPositionX() + tX, chr->GetTransport()->GetPositionY() + tY, chr->GetTransport()->GetPositionZ() + tZ, chr->GetTransOffsetO());
+        chr->GetTransport()->AddPassenger(pCreature);
         
-        pCreature->m_movementInfo.SetTransportData(ObjectGuid(chr->GetTransport()->GetGUID()), chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO(), 0, -1);
-        map->CreatureRelocation(pCreature, chr->GetTransport()->GetPositionX() + chr->GetTransOffsetX(), chr->GetTransport()->GetPositionY() + chr->GetTransOffsetY(), chr->GetTransport()->GetPositionZ() + chr->GetTransOffsetZ(), chr->GetTransOffsetO());
-        chr->GetTransport()->AddCreaturePassenger(pCreature);
-        
-        pCreature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMaskForSpawn());
+        pCreature->SaveToDB(chr->GetTransport()->GetGOInfo()->moTransport.mapID, (1 << map->GetSpawnMode()), chr->GetPhaseMaskForSpawn());
 
         pCreature->AIM_Initialize();
         map->Add(pCreature);

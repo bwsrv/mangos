@@ -444,47 +444,45 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
     Map const* oldMap = GetMap();
     Relocate(x, y, z);
 
-    for(PlayerSet::iterator itr = m_player_passengers.begin(); itr != m_player_passengers.end();)
-    {
-        PlayerSet::iterator it2 = itr;
-        ++itr;
-
-        Player *plr = *it2;
-        if(!plr)
-        {
-            m_player_passengers.erase(it2);
-            continue;
-        }
-
-        if (plr->isDead() && !plr->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
-        {
-            plr->ResurrectPlayer(1.0);
-        }
-        plr->TeleportTo(newMapid, x, y, z, GetOrientation(), TELE_TO_NOT_LEAVE_TRANSPORT);
-
-        //WorldPacket data(SMSG_811, 4);
-        //data << uint32(0);
-        //plr->GetSession()->SendPacket(&data);
-    }
-
     //we need to create and save new Map object with 'newMapid' because if not done -> lead to invalid Map object reference...
     //player far teleport would try to create same instance, but we need it NOW for transport...
     //correct me if I'm wrong O.o
     Map * newMap = sMapMgr.CreateMap(newMapid, this);
-    for (CreatureSet::iterator itr = m_creature_passengers.begin(); itr != m_creature_passengers.end(); ++itr)
+    SetMap(newMap);
+
+    for (UnitSet::iterator itr = _passengers.begin(); itr != _passengers.end();)
     {
-        if(!(*itr))
+        Unit* UnitOnTransport = *itr;
+        ++itr;
+
+        if (!UnitOnTransport)
         {
-            m_creature_passengers.erase(itr);
+            _passengers.erase(itr);
             continue;
         }
 
-        (*itr)->RemoveFromWorld();
-        (*itr)->SetMap(newMap);
-        //newMap->CreatureRelocation(*itr, GetPositionX() + x, GetPositionY() + y, GetPositionZ() + z, (*itr)->GetOrientation());
-        newMap->Add(*itr);
+        switch (UnitOnTransport->GetTypeId())
+        {
+            case TYPEID_UNIT:
+            {
+                Creature* NpcOnTransport = (Creature*)UnitOnTransport;
+                newMap->CreatureRelocation(NpcOnTransport, x, y, z, GetOrientation());
+                break;
+            }
+            case TYPEID_PLAYER:
+            {
+                Player* PlayerOnTransport = (Player*)UnitOnTransport;
+                if (PlayerOnTransport->isDead() && !PlayerOnTransport->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+                    PlayerOnTransport->ResurrectPlayer(1.0f);
+                PlayerOnTransport->TeleportTo(newMapid, x, y, z, GetOrientation(), TELE_TO_NOT_LEAVE_TRANSPORT);
+
+                //WorldPacket data(SMSG_811, 4);
+                //data << uint32(0);
+                //PlayerOnTransport->GetSession()->SendPacket(&data);
+                break;
+            }
+        }
     }
-    SetMap(newMap);
 
     if(oldMap != newMap)
     {
@@ -493,67 +491,46 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
     }
 }
 
-bool Transport::AddPlayerPassenger(Player* passenger)
+bool Transport::AddPassenger(Unit* passenger)
 {
-    if (m_player_passengers.find(passenger) != m_player_passengers.end())
+    if (_passengers.find(passenger) != _passengers.end())
         return false;
 
-    m_player_passengers.insert(passenger);
+    _passengers.insert(passenger);
 
-    DEBUG_LOG("Player %s boarded transport %s.", passenger->GetName(), GetName());
-
+    DEBUG_LOG("Unit %s boarded transport %s.", passenger->GetName(), GetName());
     return true;
 }
 
-bool Transport::AddCreaturePassenger(Creature* passenger)
+bool Transport::RemovePassenger(Unit* passenger)
 {
-    if (m_creature_passengers.find(passenger) != m_creature_passengers.end())
+    if (!_passengers.erase(passenger))
         return false;
 
-    m_creature_passengers.insert(passenger);
-
-    DEBUG_LOG("Creature %s boarded transport %s.", passenger->GetName(), GetName());
-
-    return true;
-}
-
-bool Transport::RemovePlayerPassenger(Player* passenger)
-{
-    if (!m_player_passengers.erase(passenger))
-        return false;
-
-    DEBUG_LOG("Player %s removed from transport %s.", passenger->GetName(), GetName());
-
-    return true;
-}
-
-bool Transport::RemoveCreaturePassenger(Creature* passenger)
-{
-    if (!m_creature_passengers.erase(passenger))
-        return false;
-
-    DEBUG_LOG("Creature %s removed from transport %s.", passenger->GetName(), GetName());
-
+    DEBUG_LOG("Unit %s removed from transport %s.", passenger->GetName(), GetName());
     return true;
 }
 
 void Transport::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target)
 {
-    for (CreatureSet::const_iterator itr = m_creature_passengers.begin(); itr != m_creature_passengers.end(); ++itr)
+    for (UnitSet::const_iterator itr = _passengers.begin(); itr != _passengers.end(); ++itr)
     {
-        if (!(*itr))
+        if ((*itr)->GetTypeId() == TYPEID_UNIT)
         {
-            m_creature_passengers.erase(itr);
-            continue;
-        }
+            if (!(*itr))
+            {
+                _passengers.erase(itr);
+                continue;
+            }
 
-        (*itr)->BuildCreateUpdateBlockForPlayer(data, target);
+            (*itr)->BuildCreateUpdateBlockForPlayer(data, target);
+        }
     }
 
     Object::BuildCreateUpdateBlockForPlayer(data, target);
 }
 
-void Transport::Update( uint32 update_diff, uint32 /*p_time*/)
+void Transport::Update(uint32 update_diff, uint32 /*p_time*/)
 {
     if (m_WayPoints.size() <= 1)
         return;
@@ -587,15 +564,25 @@ void Transport::Update( uint32 update_diff, uint32 /*p_time*/)
         }
         */
 
-        for (CreatureSet::const_iterator itr = m_creature_passengers.begin(); itr != m_creature_passengers.end(); itr++)
+        for (UnitSet::const_iterator itr = _passengers.begin(); itr != _passengers.end(); itr++)
         {
-            if (!(*itr))
+            if ((*itr)->GetTypeId() == TYPEID_PLAYER)
+                return;
+
+            Creature* npc = ((Creature*)(*itr));
+
+            if (!npc)
             {
-                m_creature_passengers.erase(itr);
+                _passengers.erase(itr);
                 continue;
             }
 
-            (*itr)->GetMap()->CreatureRelocation(*itr, m_curr->second.x + (*itr)->GetTransOffsetX(), m_curr->second.y + (*itr)->GetTransOffsetY(), m_curr->second.z + (*itr)->GetTransOffsetZ(), (*itr)->GetTransOffsetO());
+            float tX = GetPositionX() + (npc->GetTransOffsetX()*cos(GetOrientation()) + npc->GetTransOffsetY()*sin(GetOrientation() + M_PI));
+            float tY = GetPositionY() + (npc->GetTransOffsetY()*cos(GetOrientation()) + npc->GetTransOffsetX()*sin(GetOrientation()));
+            float tZ = GetPositionZ() + npc->GetTransOffsetZ();
+            float tO = GetOrientation() + npc->GetTransOffsetO();
+            if (npc)
+                npc->GetMap()->CreatureRelocation(npc, m_curr->second.x + tX, m_curr->second.y + tY, m_curr->second.z + tZ, tO);
         }
 
         m_nextNodeTime = m_curr->first;

@@ -11928,7 +11928,7 @@ void Unit::EnterVehicle(VehicleKit *vehicle, int8 seatId)
     if (Transport* pTransport = GetTransport())
     {
         if (GetTypeId() == TYPEID_PLAYER)
-            pTransport->RemovePlayerPassenger((Player*)this);
+            pTransport->RemovePassenger((Player*)this);
 
         SetTransport(NULL);
     }
