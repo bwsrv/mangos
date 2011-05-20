@@ -47,6 +47,9 @@ VisibleNotifier::Notify()
     {
         for(Transport::UnitSet::const_iterator itr = transport->GetUnitPassengers().begin(); itr != transport->GetUnitPassengers().end(); ++itr)
         {
+            if ((*itr)->GetTypeId() != TYPEID_PLAYER)
+                return;
+
             if (i_clientGUIDs.find((*itr)->GetObjectGuid()) != i_clientGUIDs.end())
             {
                 // ignore far sight case
