@@ -1431,10 +1431,6 @@ void GameObject::Use(Unit* user)
 
             spellId = info->spellcaster.spellId;
 
-            // dismount players
-            if (user && user->IsMounted())
-                user->Unmount();
-
             AddUse();
             break;
         }
