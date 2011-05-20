@@ -512,8 +512,11 @@ void Pet::SetDeathState(DeathState s)                       // overwrite virtual
             if( HasSpell(55709) && GetOwner())
                 GetOwner()->CastSpell(GetOwner(), 54114, false);
 
-            if( HasSpell(55709) && GetOwner() && GetOwner()->GetTypeId() == TYPEID_PLAYER)
+            if (HasSpell(55709) && GetOwner() && GetOwner()->GetTypeId() == TYPEID_PLAYER)
+            {
                 GetOwner()->CastSpell(GetOwner(), 54114, false);
+                SetHealth(GetMaxHealth());
+            }
 
             SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
         }
