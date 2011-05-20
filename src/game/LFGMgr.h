@@ -37,9 +37,19 @@ enum LFGenum
     LFG_QUEUEUPDATE_INTERVAL   = 35*IN_MILLISECONDS,
     LFG_UPDATE_INTERVAL        = 1*IN_MILLISECONDS,
     LFR_UPDATE_INTERVAL        = 3*IN_MILLISECONDS,
+    DEFAULT_LFG_DELAY          = 1,
+    SHORT_LFG_DELAY            = 3,
+    LONG_LFG_DELAY             = 10,
     LFG_SPELL_DUNGEON_COOLDOWN = 71328,
     LFG_SPELL_DUNGEON_DESERTER = 71041,
     LFG_SPELL_LUCK_OF_THE_DRAW = 72221,
+};
+
+enum LFGEventType
+{
+    LFG_EVENT_NONE                        = 0,
+    LFG_EVENT_TELEPORT_PLAYER             = 1,
+    LFG_EVENT_TELEPORT_GROUP              = 2,
 };
 
 class Group;
@@ -151,10 +161,25 @@ struct LFGProposal
     time_t m_cancelTime;                                     // Time when we will cancel this proposal
 };
 
+// Event manager
+struct LFGEvent
+{
+    LFGEvent(LFGEventType _type, ObjectGuid _guid, uint8 _parm) :
+            type(_type), guid(_guid), eventParm(_parm), executeTime(0) {};
+    LFGEventType  type;
+    ObjectGuid    guid;
+    uint8         eventParm;
+    time_t        executeTime;
+    // helpers
+    void          Start(uint32 delay) { executeTime = time_t(time(NULL) + delay); };
+    bool          IsActive() { return ((executeTime > 0) && (time_t(time(NULL)) >= executeTime)); };
+};
+
 typedef std::map<LFGDungeonEntry const*, LFGQueueStatus> LFGQueueStatusMap;
 typedef std::map<ObjectGuid, LFGRoleMask>  LFGRolesMap;
 typedef std::set<LFGQueueInfo*> LFGQueue;
 typedef std::map<LFGDungeonEntry const*, LFGQueueSet> LFGSearchMap;
+typedef std::list<LFGEvent> LFGEventList;
 
 class LFGMgr
 {
@@ -269,6 +294,10 @@ class LFGMgr
         bool IsInSearchFor(LFGDungeonEntry const* dungeon, ObjectGuid guid);
         void CleanupSearchMatrix();
 
+        // Sheduler
+        void SheduleEvent();
+        void AddEvent(ObjectGuid guid, LFGEventType type, time_t delay = DEFAULT_LFG_DELAY, uint8 param = 0);
+
         // multithread locking
         typedef   ACE_RW_Thread_Mutex          LockType;
         typedef   ACE_Read_Guard<LockType>     ReadGuard;
@@ -288,6 +317,7 @@ class LFGMgr
         LFGQueueStatus  m_queueStatus[LFG_TYPE_MAX];        // Queue statisic
         LFGProposalMap  m_proposalMap;                      // Proposal store
         LFGSearchMap    m_searchMatrix;                     // Search matrix
+        LFGEventList    m_eventList;                        // events storage
 
         uint32          m_updateTimer;                      // update timer for cleanup/statistic
         uint32          m_updateTimer2;                     // update timer for LFR extend system

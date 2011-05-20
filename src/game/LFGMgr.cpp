@@ -59,10 +59,13 @@ LFGMgr::~LFGMgr()
     m_dungeonMap.clear();
     m_proposalMap.clear();
     m_searchMatrix.clear();
+    m_eventList.clear();
 }
 
 void LFGMgr::Update(uint32 diff)
 {
+
+    SheduleEvent();
 
     if (m_queueInfoMap.empty())
         return;
@@ -146,7 +149,6 @@ void LFGMgr::Update(uint32 diff)
                 break;
         }
     }
-
 }
 
 void LFGMgr::LoadRewards()
@@ -1389,10 +1391,12 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
     group->SendUpdate();
 
     // Teleport group
-    Teleport(group, false);
+    //    Teleport(group, false);
+    AddEvent(group->GetObjectGuid(),LFG_EVENT_TELEPORT_GROUP);
+
     RemoveProposal(ID, true);
     group->GetLFGState()->SetState(LFG_STATE_DUNGEON);
-    Leave(group);
+    RemoveFromQueue(group->GetObjectGuid());
 }
 
 void LFGMgr::RemoveProposal(Player* decliner, uint32 ID)
@@ -1669,7 +1673,7 @@ void LFGMgr::Teleport(Group* group, bool out)
             if (member->IsInWorld())
             {
                 if (!member->GetLFGState()->IsTeleported() && !out)
-                    Teleport(member, out);
+                    AddEvent(member->GetObjectGuid(),LFG_EVENT_TELEPORT_PLAYER, LONG_LFG_DELAY, uint8(out));
                 else if (out)
                     Teleport(member, out);
             }
@@ -2941,4 +2945,51 @@ void LFGMgr::DungeonEncounterReached(Group* group)
                 member->RemoveAurasDueToSpell(LFG_SPELL_DUNGEON_COOLDOWN);
         }
     }
+}
+
+void LFGMgr::SheduleEvent()
+{
+    if (m_eventList.empty())
+        return;
+
+    for (LFGEventList::iterator itr = m_eventList.begin(); itr != m_eventList.end(); ++itr)
+    {
+    // we run only one event for tick!!!
+        if (!itr->IsActive())
+            continue;
+        else
+        {
+            DEBUG_LOG("LFGMgr::SheduleEvent guid %u type %u",itr->guid.GetCounter(), itr->type);
+            switch (itr->type)
+            {
+                case LFG_EVENT_TELEPORT_PLAYER:
+                    {
+                        Player* player = sObjectMgr.GetPlayer(itr->guid);
+                        if (player)
+                            Teleport(player, bool(itr->eventParm));
+                    }
+                    break;
+                case LFG_EVENT_TELEPORT_GROUP:
+                    {
+                        Group* group = sObjectMgr.GetGroup(itr->guid);
+                        if (group)
+                            Teleport(group, bool(itr->eventParm));
+                    }
+                    break;
+                case LFG_EVENT_NONE:
+                default:
+                    break;
+            }
+            m_eventList.erase(itr);
+            break;
+        }
+    }
+}
+
+void LFGMgr::AddEvent(ObjectGuid guid, LFGEventType type, time_t delay, uint8 param)
+{
+    DEBUG_LOG("LFGMgr::AddEvent guid %u type %u",guid.GetCounter(), type);
+    LFGEvent event = LFGEvent(type,guid,param);
+    m_eventList.push_back(event);
+    m_eventList.rbegin()->Start(delay);
 }

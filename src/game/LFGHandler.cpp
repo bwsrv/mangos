@@ -881,6 +881,10 @@ void WorldSession::SendLfgOfferContinue(LFGDungeonEntry const* dungeon)
     if (!dungeon)
         return;
 
+    Group* group = GetPlayer()->GetGroup();
+    if (!group)
+        return;
+
     DEBUG_LOG("SMSG_LFG_OFFER_CONTINUE %u dungeon entry: %u", GetPlayer()->GetObjectGuid().GetCounter(), dungeon->ID);
     WorldPacket data(SMSG_LFG_OFFER_CONTINUE, 4);
     data << uint32(dungeon->Entry());
@@ -1013,7 +1017,7 @@ void WorldSession::SendLfgBootPlayer()
     LFGAnswer playerVote = votes->find(guid)->second;
     uint8 votesNum = 0;
     uint8 agreeNum = 0;
-    uint32 secsleft = uint8((group->GetLFGState()->GetBootCancelTime() - time(NULL)) / 1000);
+    uint32 secsleft = uint8(group->GetLFGState()->GetBootCancelTime() - time(NULL));
 
     bool isBootContinued = (group->GetLFGState()->GetBootResult() == LFG_ANSWER_PENDING);
 
