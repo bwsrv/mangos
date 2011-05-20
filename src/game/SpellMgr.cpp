@@ -1891,7 +1891,7 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     ((spellInfo_2->SpellFamilyFlags2 & 0x00000020) && (spellInfo_1->SpellIconID == 291 || spellInfo_1->SpellIconID == 3028)))
                     return false;
             }
-            case SPELLFAMILY_DEATHKNIGHT:
+        case SPELLFAMILY_DEATHKNIGHT:
             if (spellInfo_2->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT)
             {
                 // Crypt Fever and Ebon Plague
@@ -1900,66 +1900,8 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     return true;
             }
             break;
-            break;
         default:
             break;
-    }
-
-    // more generic checks
-    if (spellInfo_1->SpellIconID == spellInfo_2->SpellIconID &&
-        spellInfo_1->SpellIconID != 0 && spellInfo_2->SpellIconID != 0)
-    {
-        switch (spellInfo_1->SpellIconID)
-        {
-            case 61:                                                    // Lichborne  and Lichborne (triggered)
-            case 2636:                                                  // Blood Presence and Blood Presence (triggered)
-            case 2633:                                                  // Unholy Presence and Unholy Presence (triggered)
-            case 2632:                                                  // Frost Presence and Frost Presence (triggered)
-            case 3837:                                                  // Divine Sacrifice and Divine Guardian
-            case 2292:                                                  // Seal of Corruption (caster/target parts stacking allow, other stacking checked by spell specs)
-            case 1487:                                                  // Concentration Aura and Improved Concentration Aura and Aura Mastery
-            case 3032:                                                  // Beacon of Light and Light's Beacon
-            case 1662:                                                  // Blood Fury and Rage of the Unraveller
-            case 3559:                                                  // Kindred Spirits
-            case 1930:                                                  // Fel Rage (Gurtog Bloodboil spell)
-            case 2834:                                                  // Vigilance and Damage Reduction (Vigilance triggered spell)
-            case 240:                                                   // Heart of the Wild, Agility and various Idol Triggers
-            case 2606:                                                  // Personalized Weather (thunder effect should overwrite rainy aura)
-            case 2903:                                                  // some Rouge spell?
-            case 1691:                                                  // Dragonmaw Illusion, Blood Elf Illusion, Human Illusion, Illidari Agent Illusion, Scarlet Crusade Disguise
-            case 2947:                                                  // Fingers of Frost effects
-            case 3314:                                                  // Metamorphosis, diff effects
-            case 62:                                                    // Innervate and Glyph of Innervate and some other spells
-            case 2865:                                                  // Savage Roar and Savage Roar (triggered)
-            case 2231:                                                  // Misdirection
-            case 83:                                                    // Deterrence
-            case 1680:                                                  // Bestial Wrath
-            case 67:                                                    // Ghost Wolf
-            case 2019:                                                  // Totem of Wrath (positive/negative), ranks checked early
-                return false;
-            default:
-                break;
-        }
-
-        bool isModifier = false;
-        for (int i = 0; i < MAX_EFFECT_INDEX; ++i)
-        {
-            // stack all DoT auras
-            if (spellInfo_1->EffectApplyAuraName[i] == SPELL_AURA_PERIODIC_DAMAGE ||
-                spellInfo_1->EffectApplyAuraName[i] == SPELL_AURA_PERIODIC_DAMAGE_PERCENT ||
-                spellInfo_2->EffectApplyAuraName[i] == SPELL_AURA_PERIODIC_DAMAGE ||
-                spellInfo_2->EffectApplyAuraName[i] == SPELL_AURA_PERIODIC_DAMAGE_PERCENT)
-                return false;
-
-            if (spellInfo_1->EffectApplyAuraName[i] == SPELL_AURA_ADD_FLAT_MODIFIER ||
-                spellInfo_1->EffectApplyAuraName[i] == SPELL_AURA_ADD_PCT_MODIFIER  ||
-                spellInfo_2->EffectApplyAuraName[i] == SPELL_AURA_ADD_FLAT_MODIFIER ||
-                spellInfo_2->EffectApplyAuraName[i] == SPELL_AURA_ADD_PCT_MODIFIER )
-                isModifier = true;
-        }
-
-        if (!isModifier)
-            return true;
     }
 
     if (IsRankSpellDueToSpell(spellInfo_1, spellId_2))
