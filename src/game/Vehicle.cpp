@@ -319,7 +319,7 @@ void VehicleKit::RemovePassenger(Unit *passenger)
         {
             Player* player = (Player*)passenger;
 
-            if (m_bonusHP)
+            if (m_bonusHP != 0)
             {
                 m_pBase->SetHealth(m_pBase->GetHealth() - m_bonusHP);
                 m_pBase->SetMaxHealth(m_pBase->GetMaxHealth() - m_bonusHP);

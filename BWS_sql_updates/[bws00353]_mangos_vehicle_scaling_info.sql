@@ -7,6 +7,6 @@ CREATE TABLE vehicle_scaling_info (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED;
 
 INSERT INTO vehicle_scaling_info VALUES 
-(336,170,0.01),
-(335,170,0.01),
-(338,170,0.01);
+(336,170,0.03),
+(335,170,0.03),
+(338,170,0.03);
