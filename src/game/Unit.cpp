@@ -12388,7 +12388,6 @@ uint32 Unit::CalculateAuraPeriodicTimeWithHaste(SpellEntry const* spellProto, ui
     if (!applyHaste)
         return oldPeriodicTime;
 
-    Player* modOwner = GetSpellModOwner();
     uint32 _periodicTime = oldPeriodicTime;
 
     int32 ticks = ceil(float(GetSpellDuration(spellProto)) / float(_periodicTime));
@@ -12424,7 +12423,7 @@ uint32 Unit::CalculateSpellDurationWithHaste(SpellEntry const* spellProto, uint3
 
     // Apply haste to duration
 
-    uint32 duration = ceil(float(duration) * GetFloatValue(UNIT_MOD_CAST_SPEED));
+    uint32 duration = ceil(float(oldduration) * GetFloatValue(UNIT_MOD_CAST_SPEED));
 
     return duration;
 }

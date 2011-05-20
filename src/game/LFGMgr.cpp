@@ -1492,7 +1492,7 @@ void LFGMgr::CleanupProposals(LFGType type)
     }
     if (!expiredProposals.empty())
     {
-        WriteGuard Guard(GetLock());
+//        WriteGuard Guard(GetLock());
         for(std::set<uint32>::const_iterator itr = expiredProposals.begin(); itr != expiredProposals.end(); ++itr)
             RemoveProposal(*itr);
     }
