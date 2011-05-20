@@ -31,7 +31,7 @@ VehicleInfo::VehicleInfo(VehicleEntry const* entry) :
 {
 }
 
-VehicleKit::VehicleKit(Unit* base) : m_pBase(base), m_uiNumFreeSeats(0), m_bonusHP(0)
+VehicleKit::VehicleKit(Unit* base) : m_pBase(base), m_uiNumFreeSeats(0)
 {
     for (uint32 i = 0; i < MAX_VEHICLE_SEAT; ++i)
     {
@@ -229,19 +229,6 @@ bool VehicleKit::AddPassenger(Unit *passenger, int8 seatId)
 
             Player* player = (Player*)passenger;
             player->SetMover(m_pBase);
-            
-            if (VehicleScalingInfo const *scalingInfo = sObjectMgr.GetVehicleScalingInfo(m_pBase->GetVehicleInfo()->GetEntry()->m_ID))
-            {
-                float averageItemLevel = player->GetAverageItemLevel();
-                if (averageItemLevel < scalingInfo->baseItemLevel)
-                    averageItemLevel = scalingInfo->baseItemLevel;
-                averageItemLevel -= scalingInfo->baseItemLevel;
-
-                m_bonusHP = uint32(m_pBase->GetMaxHealth() * (averageItemLevel * scalingInfo->scalingFactor));
-                m_pBase->SetMaxHealth(m_pBase->GetMaxHealth() + m_bonusHP);
-                m_pBase->SetHealth(m_pBase->GetHealth() + m_bonusHP);
-            }
-
             player->SetClientControl(m_pBase, 1);
             player->VehicleSpellInitialize();
         }
@@ -318,14 +305,6 @@ void VehicleKit::RemovePassenger(Unit *passenger)
         if (passenger->GetTypeId() == TYPEID_PLAYER)
         {
             Player* player = (Player*)passenger;
-
-            if (m_bonusHP)
-            {
-                m_pBase->SetHealth(m_pBase->GetHealth() - m_bonusHP);
-                m_pBase->SetMaxHealth(m_pBase->GetMaxHealth() - m_bonusHP);
-                m_bonusHP = 0;
-            }
-
             player->SetMover(NULL);
             player->SetClientControl(m_pBase, 0);
             player->RemovePetActionBar();

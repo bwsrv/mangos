@@ -54,16 +54,8 @@ struct VehicleAccessory
     uint32 bMinion;
 };
 
-struct VehicleScalingInfo
-{
-    uint32 ID;
-    float baseItemLevel;
-    float scalingFactor;
-};
-
 typedef std::vector<VehicleAccessory> VehicleAccessoryList;
 typedef std::map<uint32, VehicleAccessoryList> VehicleAccessoryMap;
-typedef std::map<uint32, VehicleScalingInfo> VehicleScalingMap;
 
 class MANGOS_DLL_SPEC VehicleKit
 {
@@ -92,7 +84,6 @@ class MANGOS_DLL_SPEC VehicleKit
         SeatMap m_Seats;
         uint32 m_uiNumFreeSeats;
         Unit* m_pBase;
-        uint32 m_bonusHP;
 
 };
 
