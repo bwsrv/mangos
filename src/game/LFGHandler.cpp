@@ -903,7 +903,9 @@ void WorldSession::SendLfgPlayerReward(LFGDungeonEntry const* dungeon, const LFG
         return;
     }
 
-    if (!dungeon || !reward || !qRew)
+    LFGDungeonEntry const* realdungeon = *GetPlayer()->GetLFGState()->GetDungeons()->begin();
+
+    if (!dungeon || !realdungeon || !reward || !qRew)
         return;
 
     uint8 itemNum = uint8(qRew ? qRew->GetRewItemsCount() : 0);
@@ -912,8 +914,8 @@ void WorldSession::SendLfgPlayerReward(LFGDungeonEntry const* dungeon, const LFG
     DEBUG_LOG("SMSG_LFG_PLAYER_REWARD %u dungeonEntry: %u ", GetPlayer()->GetObjectGuid().GetCounter(), dungeon->ID);
 
     WorldPacket data(SMSG_LFG_PLAYER_REWARD, 4 + 4 + 1 + 4 + 4 + 4 + 4 + 4 + 1 + itemNum * (4 + 4 + 4));
-    data << uint32(dungeon->Entry());                         // Random Dungeon Finished
-    data << uint32(0);                                        // Dungeon Finished
+    data << uint32(dungeon->Entry());                                            // Random Dungeon Finished
+    data << uint32(realdungeon->Entry());                                        // Dungeon Finished
     data << uint8(done);
     data << uint32(1);
     data << uint32(qRew->GetRewOrReqMoney());
