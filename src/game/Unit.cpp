@@ -3998,8 +3998,7 @@ int32 Unit::GetMaxPositiveAuraModifierByMiscValue(AuraType auratype, int32 misc_
     for(AuraList::const_iterator i = mTotalAuraList.begin();i != mTotalAuraList.end(); ++i)
     {
         Modifier* mod = (*i)->GetModifier();
-        if (!(nonStackingOnly && (*i)->IsStacking()) && mod->m_amount > modifier &&
-            (mod->m_miscvalue == misc_value || mod->m_miscvalue < 0))
+        if (!(nonStackingOnly && (*i)->IsStacking()) && mod->m_amount > modifier && mod->m_miscvalue == misc_value)
             modifier = mod->m_amount;
     }
 
@@ -4062,12 +4061,14 @@ float Unit::CheckAuraStackingAndApply(Aura *Aur, UnitMods unitMod, UnitModifierT
     if (!Aur->IsStacking())
     {
         bool bIsPositive = amount > 0;
-        float current = GetModifierValue(unitMod, modifierType);
 
         if (modifierType == TOTAL_VALUE)
             modifierType = bIsPositive ? NONSTACKING_VALUE_POS : NONSTACKING_VALUE_NEG;
         else if(modifierType == TOTAL_PCT)
             modifierType = NONSTACKING_PCT;
+
+        float current = GetModifierValue(unitMod, modifierType);
+
         // need a sanity check here?
 
         // special case: minor and major categories for armor reduction debuffs
@@ -4228,7 +4229,8 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
                 // m_auraname can be modified to SPELL_AURA_NONE for area auras, use original
                 AuraType aurNameReal = AuraType(aurSpellInfo->EffectApplyAuraName[i]);
 
-                if (aurNameReal == SPELL_AURA_PERIODIC_ENERGIZE)
+                // problem with stacking comes for negative auras, so let's check positive auras exceptions for speedup
+                if (foundHolder->IsPositive() && aurNameReal != SPELL_AURA_PERIODIC_HEAL)
                 {
                     // can be only single (this check done at _each_ aura add
                     RemoveSpellAuraHolder(foundHolder,AURA_REMOVE_BY_STACK);
