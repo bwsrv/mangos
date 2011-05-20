@@ -39,6 +39,7 @@ autom4te.cache
 *~
 *.bak
 *.orig
+*.rej
 *.patch
 callgrind.out.*
 
