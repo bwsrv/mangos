@@ -1006,11 +1006,12 @@ bool Aura::IsEffectStacking()
     // generic check
     if (spellProto->AttributesEx6 & (SPELL_ATTR_EX6_NO_STACK_DEBUFF | SPELL_ATTR_EX6_NO_STACK_BUFF))
     {
-        // early exception check
-        if (spellProto->SpellFamilyName == SPELLFAMILY_DRUID &&         // Mark/Gift of the Wild - stack with other stat buffs, don't stack Mark with Gift holders
+        // Mark/Gift of the Wild early exception check
+        if (spellProto->SpellFamilyName == SPELLFAMILY_DRUID &&
             spellProto->SpellFamilyFlags & UI64LIT(0x0000000000040000))
         {
-            return true;
+            // only mod resistance exclusive isn't stacking
+            return (GetModifier()->m_auraname != SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE);
         }
         else
             return false;
@@ -1026,7 +1027,6 @@ bool Aura::IsEffectStacking()
         // these effects never stack
         case SPELL_AURA_MOD_MELEE_HASTE:
         case SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE:
-        case SPELL_AURA_MOD_RESISTANCE:
         case SPELL_AURA_MOD_PARTY_MAX_HEALTH:                           // Commanding Shout / Blood Pact
         case SPELL_AURA_MOD_HEALING_PCT:                                // Mortal Strike / Wound Poison / Aimed Shot / Furious Attacks
         case SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK:                    // Wrath of Air Totem / Mind-Numbing Poison and many more
