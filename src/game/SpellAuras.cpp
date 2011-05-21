@@ -1597,8 +1597,10 @@ void Aura::TriggerSpell()
 //                    case 62571: break;
 //                    // Mulgore Hatchling
 //                    case 62586: break;
-//                    // Durotar Scorpion
-//                    case 62679: break;
+                    // Durotar Scorpion
+                    case 62679:
+                        trigger_spell_id = auraSpellInfo->CalculateSimpleValue(m_effIndex);
+                        break;
 //                    // Fighting Fish
 //                    case 62833: break;
 //                    // Shield Level 1
@@ -2132,6 +2134,14 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     case 48025:                             // Headless Horseman's Mount
                         Spell::SelectMountByAreaAndSkill(target, GetSpellProto(), 51621, 48024, 51617, 48023, 0);
                         return;
+                    case 48143:                             // Forgotten Aura
+                        // See Death's Door
+                        target->CastSpell(target, 48814, true, NULL, this);
+                        return;
+                    case 51405:                             // Digging for Treasure
+                        target->HandleEmote(EMOTE_STATE_WORK);
+                        // Pet will be following owner, this makes him stop
+                        target->addUnitState(UNIT_STAT_STUNNED);
                     case 50141:                             // Blood Oath
                         // Blood Oath
                         target->CastSpell(target, 50001, true, NULL, this);
@@ -4799,6 +4809,9 @@ void Aura::HandleInvisibility(bool apply, bool Real)
                     target->SetVisibility(VISIBILITY_ON);
             }
         }
+
+        if (GetId() == 48809)                               // Binding Life
+            target->CastSpell(target, GetSpellProto()->CalculateSimpleValue(m_effIndex), true);
     }
 }
 
@@ -8244,14 +8257,14 @@ void Aura::PeriodicDummyTick()
                 case 52441:                                 // Cool Down
                     target->CastSpell(target, 52443, true);
                     return;
-                case 53035:                                 // Summon Anub'ar Champion (Azjol Nerub)
-                    target->CastSpell(target, 53014, true);
+                case 53035:                                 // Summon Anub'ar Champion Periodic (Azjol Nerub)
+                    target->CastSpell(target, 53014, true); // Summon Anub'ar Champion
                     return;
-                case 53036:                                 // Summon Anub'ar Necromancer (Azjol Nerub)
-                    target->CastSpell(target, 53015, true);
+                case 53036:                                 // Summon Anub'ar Necromancer Periodic (Azjol Nerub)
+                    target->CastSpell(target, 53015, true); // Summon Anub'ar Necromancer
                     return;
-                case 53037:                                 // Summon Crypt Fiend (Azjol Nerub)
-                    target->CastSpell(target, 53016, true);
+                case 53037:                                 // Summon Anub'ar Crypt Fiend Periodic (Azjol Nerub)
+                    target->CastSpell(target, 53016, true); // Summon Anub'ar Crypt Fiend
                     return;
                 case 53520:                                 // Carrion Beetles
                     target->CastSpell(target, 53521, true, NULL, this);
