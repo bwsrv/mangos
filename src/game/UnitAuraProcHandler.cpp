@@ -1939,7 +1939,7 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 case 70723:
                 {
                     basepoints[0] = int32(triggerAmount * damage / 100);
-                    basepoints[0] = int32(basepoints[0] / 2);
+                    basepoints[0] = int32(basepoints[0] / 2);   // 2 ticks
                     triggered_spell_id = 71023;
                     break;
                 } 

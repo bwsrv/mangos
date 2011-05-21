@@ -1703,7 +1703,7 @@ void LFGMgr::Teleport(Player* player, bool out, bool fromOpcode /*= false*/)
     Group* group = player->GetGroup();
 
     if (!group)
-        error = LFG_TELEPORTERROR_INVALID_LOCATION;
+        error = LFG_TELEPORTERROR_UNK4;
     else if (!player->isAlive())
         error = LFG_TELEPORTERROR_PLAYER_DEAD;
 //    else if (player->IsFalling())
@@ -1716,11 +1716,16 @@ void LFGMgr::Teleport(Player* player, bool out, bool fromOpcode /*= false*/)
     float orientation = 0;
     Difficulty difficulty;
 
-    LFGDungeonEntry const* dungeon = group->GetLFGState()->GetDungeon();
-    if (!dungeon)
+    LFGDungeonEntry const* dungeon = NULL; 
+
+    if (error == LFG_TELEPORTERROR_OK)
     {
-        error = LFG_TELEPORTERROR_INVALID_LOCATION;
-        DEBUG_LOG("LFGMgr::TeleportPlayer %u error %u, no dungeon!", player->GetObjectGuid().GetCounter(), error);
+        dungeon = group->GetLFGState()->GetDungeon();
+        if (!dungeon)
+        {
+            error = LFG_TELEPORTERROR_INVALID_LOCATION;
+            DEBUG_LOG("LFGMgr::TeleportPlayer %u error %u, no dungeon!", player->GetObjectGuid().GetCounter(), error);
+        }
     }
 
     if (error == LFG_TELEPORTERROR_OK)

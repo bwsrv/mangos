@@ -6189,19 +6189,11 @@ bool Unit::Attack(Unit *victim, bool meleeAttack)
     if(!isAlive() || !victim->IsInWorld() || !victim->isAlive())
         return false;
 
-    // player cannot attack while being mounted
-    if(GetTypeId()==TYPEID_PLAYER && IsMounted())
+    // player cannot attack while mounted or in vehicle (exclude special vehicles)if 
+    if (GetTypeId()==TYPEID_PLAYER && (IsMounted() || 
+        (GetVehicle() && (!GetVehicle()->GetSeatInfo(this) ||
+        !(GetVehicle()->GetSeatInfo(this)->m_flags & (SEAT_FLAG_CAN_CAST | SEAT_FLAG_CAN_ATTACK))))))
         return false;
-
-    // player cannot attack while sitting on vehicle (except Hover Disk during Malygos Encounter in Eye of Eternity)
-    if (GetVehicle())
-    {
-        if (Unit* VehicleBase = GetVehicle()->GetBase())
-        {
-            if (VehicleBase->GetEntry() != 30234 && VehicleBase->GetEntry() != 30248)
-                return false;
-        }
-    }
 
     // nobody can attack GM in GM-mode
     if(victim->GetTypeId()==TYPEID_PLAYER)
