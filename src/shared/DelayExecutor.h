@@ -18,6 +18,7 @@
 
 #ifndef _M_DELAY_EXECUTOR_H
 #define _M_DELAY_EXECUTOR_H
+#define FLUSH_TIMEOUT 5  	/* timeout in seconds */
 
 #include <ace/Task.h>
 #include <ace/Activation_Queue.h>
