@@ -11058,7 +11058,7 @@ void Unit::UpdateModelData()
         if (GetTypeId() == TYPEID_PLAYER)
             SetFloatValue(UNIT_FIELD_COMBATREACH, 1.5f);
         else
-            SetFloatValue(UNIT_FIELD_COMBATREACH, GetObjectScale() * modelInfo->combat_reach);
+            SetFloatValue(UNIT_FIELD_COMBATREACH, GetObjectScale() * ( modelInfo->bounding_radius < 2.0 ? modelInfo->combat_reach : modelInfo->combat_reach / modelInfo->bounding_radius ));
     }
 }
 
