@@ -7279,9 +7279,9 @@ bool Unit::IsSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                         if (spellProto->SpellFamilyFlags & UI64LIT(0x0000000000000002) && spellProto->SpellIconID == 12)
                         {
                             // Glyph of Fire Blast
-                            Aura* aura = GetAura(56369, EFFECT_INDEX_0);
-                            if (pVictim->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED) || pVictim->isInRoots())
-                                crit_chance += aura->GetModifier()->m_amount;
+                            if (Aura* aura = GetAura(56369, EFFECT_INDEX_0))
+                                if (pVictim->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED) || pVictim->isInRoots())
+                                    crit_chance += aura->GetModifier()->m_amount;
                         }
                         break;
                     }
