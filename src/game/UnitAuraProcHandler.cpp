@@ -1856,16 +1856,6 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                     triggered_spell_id = 63974;
                     break;
                 }
-                // Glyph of Rejuvenation
-                case 54754:
-                {
-                    // less 50% health
-                    if (pVictim->GetMaxHealth() < 2 * pVictim->GetHealth())
-                        return SPELL_AURA_PROC_FAILED;
-                    basepoints[0] = triggerAmount * damage / 100;
-                    triggered_spell_id = 54755;
-                    break;
-                }
                 // Glyph of Rake
                 case 54821:
                 {
@@ -3513,6 +3503,11 @@ SpellAuraProcResult Unit::HandleProcTriggerSpellAuraProc(Unit *pVictim, uint32 d
                 // spell applied only to permanent immunes to stun targets (bosses)
                 if (pVictim->GetTypeId() != TYPEID_UNIT ||
                     (((Creature*)pVictim)->GetCreatureInfo()->MechanicImmuneMask & (1 << (MECHANIC_STUN - 1))) == 0)
+                    return SPELL_AURA_PROC_FAILED;
+            }
+            else if (auraSpellInfo->SpellIconID == 3261)
+            {
+                if (HasAura(44401) || HasAura(57761))
                     return SPELL_AURA_PROC_FAILED;
             }
             break;

@@ -9699,16 +9699,14 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                 case 48108:                                 // Hot Streak (triggered)
                 case 57761:                                 // Fireball! (Brain Freeze triggered)
                 {
-                    // consumed aura
-                    if (!apply && m_removeMode != AURA_REMOVE_BY_EXPIRE)
+                    if (!apply)
                     {
                         Unit* caster = GetCaster();
-                        // Item - Mage T10 2P Bonus
-                        if (!caster || !caster->HasAura(70752))
-                            return;
-
-                        cast_at_remove = true;
-                        spellId1 = 70753;                   // Pushing the Limit
+                        if (caster || caster->HasAura(70752))   // Item - Mage T10 2P Bonus
+                        {
+                            cast_at_remove = true;
+                            spellId1 = 70753;                   // Pushing the Limit
+                        }
                     }
                     else
                         return;
