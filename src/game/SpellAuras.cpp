@@ -2632,6 +2632,16 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
 
                 return;
             }
+            case 43681:                                     // Inactive
+            {
+                if (!target || target->GetTypeId() != TYPEID_PLAYER || m_removeMode != AURA_REMOVE_BY_EXPIRE)
+                    return;
+
+                if (target->GetMap()->IsBattleGround())
+                    ((Player*)target)->LeaveBattleground();
+
+                return;
+            }
             case 43969:                                     // Feathered Charm
             {
                 // Steelfeather Quest Credit, Are there any requirements for this, like area?
