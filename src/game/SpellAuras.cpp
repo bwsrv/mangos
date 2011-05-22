@@ -2188,6 +2188,15 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         target->setFaction(1990);           // Ambient (hostile)
                         target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                         return;
+                    case 63322:                             // Saronite Vapors
+                        if (Unit* caster = GetCaster())
+                        {
+                            int32 damage = 50 << GetStackAmount();
+                            target->CastCustomSpell(target, 63338, &damage, 0, 0, true, 0, 0, caster->GetObjectGuid()); // damage spell
+                            damage = damage >> 1;
+                            target->CastCustomSpell(target, 63337, &damage, 0, 0, true, 0, 0, caster->GetObjectGuid()); // manareg spell
+                        }
+                        return;
                     case 63624:                             // Learn a Second Talent Specialization
                         // Teach Learn Talent Specialization Switches, required for client triggered casts, allow after 30 sec delay
                         if (target->GetTypeId() == TYPEID_PLAYER)
