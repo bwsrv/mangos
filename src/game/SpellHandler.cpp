@@ -365,6 +365,16 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     else
         mover = _mover;
 
+    // casting own spells on some vehicles
+    if (mover->GetObjectGuid().IsVehicle() && mover->GetCharmerOrOwnerPlayerOrPlayerItself())
+    {
+        Player *plr = mover->GetCharmerOrOwnerPlayerOrPlayerItself();
+        if (mover->GetVehicleKit()->GetSeatInfo(plr) &&
+           (mover->GetVehicleKit()->GetSeatInfo(plr)->m_flags & SEAT_FLAG_CAN_ATTACK ||
+            mover->GetVehicleKit()->GetSeatInfo(plr)->m_flags & SEAT_FLAG_CAN_CAST ))
+            mover = plr;
+    }
+
     if (mover->GetTypeId()==TYPEID_PLAYER)
     {
         // not have spell in spellbook or spell passive and not casted by client
