@@ -695,6 +695,12 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                         }
                     }
                 }
+                // Improved Devouring Plague health leech
+                else if (m_spellInfo->Id == 63675)
+                {
+                    int32 heal = damage * 15 / 100;
+                    m_caster->CastCustomSpell(m_caster, 75999, &heal, NULL, NULL, true);
+                }
                 break;
             }
             case SPELLFAMILY_DRUID:
@@ -4883,6 +4889,7 @@ void Spell::EffectEnergize(SpellEffectIndex eff_idx)
         case 63375:                                         // Improved Stormstrike
         case 67545:                                         // Empowered Fire
         case 68082:                                         // Glyph of Seal of Command
+        case 71031:                                         // Glyph of Shadow Word: Pain
             damage = damage * unitTarget->GetCreateMana() / 100;
             break;
         case 67487:                                         // Mana Potion Injector

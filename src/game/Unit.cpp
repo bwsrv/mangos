@@ -7152,6 +7152,13 @@ uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, u
                     }
                 }
             }
+            // Glyph of Shadow word: Death
+            else if (spellProto->SpellFamilyFlags & UI64LIT(0x0000000200000000))
+            {
+                if (pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT))
+                    if (Aura* aur = GetAura(55682, EFFECT_INDEX_0))
+                        DoneTotalMod *= (aur->GetModifier()->m_amount + 100.0f) / 100.0f;
+            }
             break;
         }
         case SPELLFAMILY_DRUID:
@@ -7457,6 +7464,18 @@ bool Unit::IsSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                 // Custom crit by class
                 switch(spellProto->SpellFamilyName)
                 {
+                    case SPELLFAMILY_MAGE:
+                    {
+                        // Fire Blast
+                        if (spellProto->SpellFamilyFlags & UI64LIT(0x0000000000000002) && spellProto->SpellIconID == 12)
+                        {
+                            // Glyph of Fire Blast
+                            if (Aura* aura = GetAura(56369, EFFECT_INDEX_0))
+                                if (pVictim->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED) || pVictim->isInRoots())
+                                    crit_chance += aura->GetModifier()->m_amount;
+                        }
+                        break;
+                    }
                     case SPELLFAMILY_PRIEST:
                         // Flash Heal
                         if (spellProto->SpellFamilyFlags & UI64LIT(0x0000000000000800))
@@ -7743,6 +7762,16 @@ uint32 Unit::SpellHealingBonusDone(Unit *pVictim, SpellEntry const *spellProto, 
 
             if (Aura* glyph = GetAura(62971, EFFECT_INDEX_0))// Glyph of Nourish
                 DoneTotalMod *= (glyph->GetModifier()->m_amount * ownHotCount + 100.0f) / 100.0f;
+        }
+    }
+
+    // Glyph of Rejuvenation
+    else if (spellProto->SpellFamilyName == SPELLFAMILY_DRUID && (spellProto->SpellFamilyFlags & UI64LIT(0x0000000000000010)))
+    {
+        if (Aura* aura = GetAura(54754, EFFECT_INDEX_0))
+        {
+            if (pVictim->GetHealth() < pVictim->GetMaxHealth() / 2)
+                DoneTotalMod *= (aura->GetModifier()->m_amount + 100.0f) / 100.0f;
         }
     }
 
@@ -11314,7 +11343,7 @@ void Unit::UpdateModelData()
         if (GetTypeId() == TYPEID_PLAYER)
             SetFloatValue(UNIT_FIELD_COMBATREACH, 1.5f);
         else
-            SetFloatValue(UNIT_FIELD_COMBATREACH, GetObjectScale() * modelInfo->combat_reach);
+            SetFloatValue(UNIT_FIELD_COMBATREACH, GetObjectScale() * ( modelInfo->bounding_radius < 2.0 ? modelInfo->combat_reach : modelInfo->combat_reach / modelInfo->bounding_radius ));
     }
 }
 

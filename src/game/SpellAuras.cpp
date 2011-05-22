@@ -5409,12 +5409,10 @@ void Aura::HandleModMechanicImmunity(bool apply, bool /*Real*/)
     {
         if (target->GetTypeId() != TYPEID_PLAYER)
             return;
+
         if (apply)
-        {
-            GameObject* obj = target->GetGameObject(48018);
-            if (obj)
-                ((Player*)target)->TeleportTo(obj->GetMapId(),obj->GetPositionX(),obj->GetPositionY(),obj->GetPositionZ(),obj->GetOrientation());
-        }
+            if (GameObject* obj = target->GetGameObject(48018))
+                ((Player*)target)->TeleportTo(obj->GetMapId(),obj->GetPositionX(),obj->GetPositionY(),obj->GetPositionZ(),obj->GetOrientation(), TELE_TO_NOT_LEAVE_COMBAT);
     }
 
     // Bestial Wrath
@@ -9136,7 +9134,8 @@ void Aura::HandleAuraControlVehicle(bool apply, bool Real)
         if (caster->GetTypeId() == TYPEID_PLAYER)
             ((Player*)caster)->RemovePet(PET_SAVE_AS_CURRENT);
 
-        caster->EnterVehicle(target->GetVehicleKit());
+        int8 seat = target->GetVehicleKit()->HasEmptySeat(GetModifier()->m_amount) ? GetModifier()->m_amount : -1;
+        caster->EnterVehicle(target->GetVehicleKit(), seat);
     }
     else
     {
@@ -10184,16 +10183,14 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                 case 48108:                                 // Hot Streak (triggered)
                 case 57761:                                 // Fireball! (Brain Freeze triggered)
                 {
-                    // consumed aura
-                    if (!apply && m_removeMode != AURA_REMOVE_BY_EXPIRE && m_removeMode != AURA_REMOVE_BY_STACK)
+                    if (!apply)
                     {
                         Unit* caster = GetCaster();
-                        // Item - Mage T10 2P Bonus
-                        if (!caster || !caster->HasAura(70752))
-                            return;
-
-                        cast_at_remove = true;
-                        spellId1 = 70753;                   // Pushing the Limit
+                        if (caster || caster->HasAura(70752))   // Item - Mage T10 2P Bonus
+                        {
+                            cast_at_remove = true;
+                            spellId1 = 70753;                   // Pushing the Limit
+                        }
                     }
                     else
                         return;

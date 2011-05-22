@@ -364,9 +364,15 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     else
         mover = _mover;
 
-    VehicleKit* vehicle = _mover->GetVehicleKit();
-    if (vehicle && (vehicle->GetBase()->GetEntry() == 30234 || vehicle->GetBase()->GetEntry() == 30248))
-        mover = _mover->GetCharmerOrOwnerPlayerOrPlayerItself();
+    // casting own spells on some vehicles
+    if (mover->GetObjectGuid().IsVehicle() && mover->GetCharmerOrOwnerPlayerOrPlayerItself())
+    {
+        Player *plr = mover->GetCharmerOrOwnerPlayerOrPlayerItself();
+        if (mover->GetVehicleKit()->GetSeatInfo(plr) &&
+           (mover->GetVehicleKit()->GetSeatInfo(plr)->m_flags & SEAT_FLAG_CAN_ATTACK ||
+            mover->GetVehicleKit()->GetSeatInfo(plr)->m_flags & SEAT_FLAG_CAN_CAST ))
+            mover = plr;
+    }
 
     if (mover->GetTypeId()==TYPEID_PLAYER)
     {
