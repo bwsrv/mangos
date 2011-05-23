@@ -811,6 +811,10 @@
 			</FileConfiguration>
 		</File>
 		<File
+			RelativePath="..\..\src\shared\revision_R2.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\src\shared\revision_nr.h"
 			>
 		</File>
