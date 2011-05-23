@@ -9701,7 +9701,7 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                     if (!apply)
                     {
                         Unit* caster = GetCaster();
-                        if (caster || caster->HasAura(70752))   // Item - Mage T10 2P Bonus
+                        if (caster && caster->HasAura(70752))   // Item - Mage T10 2P Bonus
                         {
                             cast_at_remove = true;
                             spellId1 = 70753;                   // Pushing the Limit
