@@ -3711,6 +3711,16 @@ SpellAuraProcResult Unit::HandleProcTriggerSpellAuraProc(Unit *pVictim, uint32 d
                 if (HasAura(67544))
                     return SPELL_AURA_PROC_FAILED;
             }
+            else if (auraSpellInfo->Id == 67151)
+            {
+                if (Pet* pet = GetPet())
+                {
+                    trigger_spell_id = 68130;
+                    target = (Unit*)pet;
+                }
+                else
+                    return SPELL_AURA_PROC_FAILED;
+            }
             break;
         }
         case SPELLFAMILY_PALADIN:
