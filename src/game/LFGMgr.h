@@ -152,7 +152,7 @@ struct LFGProposal
     LFGType GetType();
 
     void Start();
-    bool IsActive() { return ( m_cancelTime >= time_t(time(NULL)));};
+    bool IsExpired() { return ( m_cancelTime > 0 && m_cancelTime < time_t(time(NULL)));};
 
     private:
     LFGDungeonEntry const* m_dungeon;                        // Dungeon
@@ -208,6 +208,7 @@ class LFGMgr
         LFGQueueSet GetDungeonPlayerQueue(LFGDungeonEntry const* dungeon, Team team = TEAM_NONE);
         LFGQueueSet GetDungeonGroupQueue(LFGDungeonEntry const* dungeon, Team team = TEAM_NONE);
         LFGQueueSet GetDungeonPlayerQueue(LFGType type);
+        LFGQueueSet GetDungeonGroupQueue(LFGType type);
 
         // reward system
         void LoadRewards();
