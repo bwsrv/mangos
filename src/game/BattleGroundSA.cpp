@@ -28,6 +28,7 @@
 #include "Util.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
+#include "Chat.h"
 
 /*
 * BattleGround Strand of the Ancients:
@@ -454,8 +455,8 @@ bool BattleGroundSA::SetupShips()
         }
     }
 
-    GetBGObject(BG_SA_BOAT_ONE)->UpdateRotationFields(1.0f, 0.0002f);
-    GetBGObject(BG_SA_BOAT_TWO)->UpdateRotationFields(1.0f, 0.00001f);
+    GetBGObject(BG_SA_BOAT_ONE)->SetRotationAngles(1.0f, 1.0f, 0.0002f);
+    GetBGObject(BG_SA_BOAT_TWO)->SetRotationAngles(1.0f, 1.0f, 0.00001f);
     SpawnBGObject(m_BgObjects[BG_SA_BOAT_ONE], RESPAWN_IMMEDIATELY);
     SpawnBGObject(m_BgObjects[BG_SA_BOAT_TWO], RESPAWN_IMMEDIATELY);
 
