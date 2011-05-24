@@ -4196,21 +4196,21 @@ SpellAuraProcResult Unit::HandleProcTriggerSpellAuraProc(Unit *pVictim, uint32 d
         // Maelstrom Weapon
         case 53817:
         {
-            // Item - Shaman T10 Enhancement 4P Bonus
-            // Calculate before roll_chance of ranks
-            if (Aura * dummy = GetDummyAura(70832))
-            {
-              if (SpellAuraHolder *aurHolder = GetSpellAuraHolder(53817))
-                if ((aurHolder->GetStackAmount() == aurHolder->GetSpellProto()->StackAmount) && roll_chance_i(dummy->GetBasePoints()))               
-                    CastSpell(this,70831,true,castItem,triggeredByAura);
-            }
-
             // have rank dependent proc chance, ignore too often cases
             // PPM = 2.5 * (rank of talent),
             uint32 rank = sSpellMgr.GetSpellRank(auraSpellInfo->Id);
             // 5 rank -> 100% 4 rank -> 80% and etc from full rate
             if(!roll_chance_i(20*rank))
                 return SPELL_AURA_PROC_FAILED;
+
+            // Item - Shaman T10 Enhancement 4P Bonus
+            if (Aura * dummy = GetDummyAura(70832))
+            {
+                // only chance to proc if Maelstrom Weapon reaches 5 charges
+                if (SpellAuraHolder *aurHolder = GetSpellAuraHolder(53817))
+                    if ((aurHolder->GetStackAmount() == 4) && roll_chance_i(dummy->GetBasePoints()))   
+                        CastSpell(this,70831,true,castItem,triggeredByAura);
+            }
             break;
         }
         // Brain Freeze
