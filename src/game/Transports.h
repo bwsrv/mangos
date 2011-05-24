@@ -26,7 +26,7 @@
 #include <set>
 #include <string>
 
-class Transport : public GameObject
+class MANGOS_DLL_SPEC Transport : public GameObject
 {
     public:
         explicit Transport();
@@ -42,6 +42,8 @@ class Transport : public GameObject
         UnitSet const& GetUnitPassengers() const { return _passengers; }
 
         void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target);
+        void BuildStartMovePacket(Map const* targetMap);
+        void BuildStopMovePacket(Map const* targetMap);
 
     private:
         struct WayPoint

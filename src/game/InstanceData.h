@@ -100,6 +100,9 @@ class MANGOS_DLL_SPEC InstanceData
         virtual uint32 GetData(uint32 /*Type*/) { return 0; }
         virtual void SetData(uint32 /*Type*/, uint32 /*Data*/) {}
 
+        // Get Entry from GameObject in instance data
+        virtual uint32 GetGameObjectEntry(uint32 entry) { return entry; }
+
         // Achievement criteria additional requirements check
         // NOTE: not use this if same can be checked existing requirement types from AchievementCriteriaRequirementType
         virtual bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* source, Unit const* target = NULL, uint32 miscvalue1 = 0);

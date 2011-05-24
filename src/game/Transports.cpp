@@ -36,17 +36,17 @@ void MapManager::LoadTransports()
 
     uint32 count = 0;
 
-    if( !result )
+    if (!result)
     {
-        barGoLink bar( 1 );
+        barGoLink bar(1);
         bar.step();
 
         sLog.outString();
-        sLog.outString( ">> Loaded %u transports", count );
+        sLog.outString(">> Loaded %u transports", count);
         return;
     }
 
-    barGoLink bar( (int)result->GetRowCount() );
+    barGoLink bar((int)result->GetRowCount());
 
     do
     {
@@ -62,14 +62,24 @@ void MapManager::LoadTransports()
 
         const GameObjectInfo *goinfo = ObjectMgr::GetGameObjectInfo(entry);
 
-        if(!goinfo)
+        // InstanceData is called after adding to map, so fetch the script using map
+        /*if (GetMap()->IsDungeon())
+        {
+            if (InstanceData* instance = GetInstanceData())
+                entry = instance->GetGameObjectEntry(entry);
+
+            if (!entry)
+                return NULL;
+        }*/
+
+        if (!goinfo)
         {
             sLog.outErrorDb("Transport ID:%u, Name: %s, will not be loaded, gameobject_template missing", entry, name.c_str());
             delete t;
             continue;
         }
 
-        if(goinfo->type != GAMEOBJECT_TYPE_MO_TRANSPORT)
+        if (goinfo->type != GAMEOBJECT_TYPE_MO_TRANSPORT)
         {
             sLog.outErrorDb("Transport ID:%u, Name: %s, will not be loaded, gameobject_template type wrong", entry, name.c_str());
             delete t;
@@ -77,12 +87,11 @@ void MapManager::LoadTransports()
         }
 
         // sLog.outString("Loading transport %d between %s, %s", entry, name.c_str(), goinfo->name);
-
         std::set<uint32> mapsUsed;
 
-        if(!t->GenerateWaypoints(goinfo->moTransport.taxiPathId, mapsUsed))
-            // skip transports with empty waypoints list
+        if (!t->GenerateWaypoints(goinfo->moTransport.taxiPathId, mapsUsed))
         {
+            // skip transports with empty waypoints list
             sLog.outErrorDb("Transport (path id %u) path size = 0. Transport ignored, check DBC files or transport GO data0 field.",goinfo->moTransport.taxiPathId);
             delete t;
             continue;
@@ -125,7 +134,7 @@ void MapManager::LoadTransports()
 
     // check transport data DB integrity
     result = WorldDatabase.Query("SELECT gameobject.guid,gameobject.id,transports.name FROM gameobject,transports WHERE gameobject.id = transports.entry");
-    if(result)                                              // wrong data found
+    if (result)                                              // wrong data found
     {
         do
         {
@@ -152,10 +161,9 @@ bool Transport::Create(uint32 guidlow, uint32 mapid, float x, float y, float z, 
     Relocate(x,y,z,ang);
     // instance id and phaseMask isn't set to values different from std.
 
-    if(!IsPositionValid())
+    if (!IsPositionValid())
     {
-        sLog.outError("Transport (GUID: %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)",
-            guidlow,x,y);
+        sLog.outError("Transport (GUID: %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)", guidlow, x, y);
         return false;
     }
 
@@ -447,7 +455,7 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
     //we need to create and save new Map object with 'newMapid' because if not done -> lead to invalid Map object reference...
     //player far teleport would try to create same instance, but we need it NOW for transport...
     //correct me if I'm wrong O.o
-    Map * newMap = sMapMgr.CreateMap(newMapid, this);
+    Map* newMap = sMapMgr.CreateMap(newMapid, this);
     SetMap(newMap);
 
     for (UnitSet::iterator itr = _passengers.begin(); itr != _passengers.end();)
@@ -484,7 +492,7 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
         }
     }
 
-    if(oldMap != newMap)
+    if (oldMap != newMap)
     {
         UpdateForMap(oldMap);
         UpdateForMap(newMap);
@@ -620,11 +628,11 @@ void Transport::UpdateForMap(Map const* targetMap)
     if(pl.isEmpty())
         return;
 
-    if(GetMapId()==targetMap->GetId())
+    if(GetMapId() == targetMap->GetId())
     {
-        for(Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
+        for (Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
         {
-            if(this != itr->getSource()->GetTransport())
+            if (this != itr->getSource()->GetTransport())
             {
                 UpdateData transData;
                 BuildCreateUpdateBlockForPlayer(&transData, itr->getSource());
@@ -641,8 +649,8 @@ void Transport::UpdateForMap(Map const* targetMap)
         WorldPacket out_packet;
         transData.BuildPacket(&out_packet);
 
-        for(Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
-            if(this != itr->getSource()->GetTransport())
+        for (Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
+            if (this != itr->getSource()->GetTransport())
                 itr->getSource()->SendDirectMessage(&out_packet);
     }
 }
@@ -656,4 +664,12 @@ void Transport::DoEventIfAny(WayPointMap::value_type const& node, bool departure
         if (!sScriptMgr.OnProcessEvent(eventid, this, this, departure))
             GetMap()->ScriptsStart(sEventScripts, eventid, this, this);
     }
+}
+
+void Transport::BuildStartMovePacket(Map const* targetMap)
+{
+}
+
+void Transport::BuildStopMovePacket(Map const* targetMap)
+{
 }
