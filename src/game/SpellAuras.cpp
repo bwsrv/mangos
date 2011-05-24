@@ -138,7 +138,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleModRegen,                                  // 84 SPELL_AURA_MOD_REGEN
     &Aura::HandleModPowerRegen,                             // 85 SPELL_AURA_MOD_POWER_REGEN
     &Aura::HandleChannelDeathItem,                          // 86 SPELL_AURA_CHANNEL_DEATH_ITEM
-    &Aura::HandleNoImmediateEffect,                         // 87 SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN implemented in Unit::MeleeDamageBonusTaken and Unit::SpellDamageBonusTaken
+    &Aura::HandleModDamagePctTaken,                         // 87 SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN implemented in Unit::MeleeDamageBonusTaken and Unit::SpellDamageBonusTaken
     &Aura::HandleNoImmediateEffect,                         // 88 SPELL_AURA_MOD_HEALTH_REGEN_PERCENT implemented in Player::RegenerateHealth
     &Aura::HandlePeriodicDamagePCT,                         // 89 SPELL_AURA_PERIODIC_DAMAGE_PERCENT
     &Aura::HandleUnused,                                    // 90 unused (3.0.8a-3.2.2a) old SPELL_AURA_MOD_RESIST_CHANCE
@@ -11240,5 +11240,46 @@ void Aura::HandleAuraStopNaturalManaRegen(bool apply, bool real)
         target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
     else
         target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
+}
 
+void Aura::HandleModDamagePctTaken(bool Apply, bool Real)
+{
+    if (!Real)
+        return;
+
+    Unit* target = GetTarget();
+    Unit* caster = GetCaster();
+
+    if(!target || !caster)
+        return;
+
+    if (Apply)
+    {
+        // Icebound Fortitude
+        if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && GetSpellProto()->SpellFamilyFlags & 0x00100000)
+        {
+            if (caster->GetTypeId() == TYPEID_PLAYER)
+            {
+                int32 value = -GetModifier()->m_amount;
+
+                // Glyph of Icebound Fortitude
+                if (Aura * aur = caster->GetAura(58625, EFFECT_INDEX_0))
+                    value = aur->GetModifier()->m_amount;
+
+                uint32 defval = uint32(((Player*)caster)->GetSkillValue(SKILL_DEFENSE) + ((Player*)caster)->GetRatingBonusValue(CR_DEFENSE_SKILL));
+                if (defval > 400)
+                    value += int32((defval - 400) * 0.075);
+
+                m_modifier.m_amount = -value;
+            }
+        }
+        // Hand of Salvation
+        else if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_PALADIN && GetSpellProto()->SpellFamilyFlags & 0x00000100)
+        {
+            //Glyph of Salvation
+            if (caster->GetObjectGuid() == target->GetObjectGuid())
+                if (Aura * aur = caster->GetAura(63225, EFFECT_INDEX_0))
+                    m_modifier.m_amount = -aur->GetModifier()->m_amount;
+        }
+    }
 }
