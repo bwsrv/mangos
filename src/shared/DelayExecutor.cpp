@@ -62,9 +62,7 @@ int DelayExecutor::svc()
 
     for (;;)
     {
-        ACE_Time_Value timeout = ACE_OS::gettimeofday();
-        timeout += FLUSH_TIMEOUT;
-        ACE_Method_Request* rq = queue_.dequeue(&timeout);
+        ACE_Method_Request* rq = queue_.dequeue();
 
         if (!rq)
             break;
