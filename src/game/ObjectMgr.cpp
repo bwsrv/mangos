@@ -5786,6 +5786,64 @@ AreaTrigger const* ObjectMgr::GetMapEntranceTrigger(uint32 Map) const
     return NULL;
 }
 
+void ObjectMgr::PackGroupIds()
+{
+    // this routine renumbers groups in such a way so they start from 1 and go up
+
+    // obtain set of all groups
+    std::set<uint32> groupIds;
+
+    // all valid ids are in the instance table
+    // any associations to ids not in this table are assumed to be
+    // cleaned already in CleanupInstances
+    QueryResult *result = CharacterDatabase.Query("SELECT groupId FROM groups");
+    if( result )
+    {
+        do
+        {
+            Field *fields = result->Fetch();
+
+            uint32 id = fields[0].GetUInt32();
+
+            if (id == 0)
+            {
+                CharacterDatabase.BeginTransaction();
+                CharacterDatabase.PExecute("DELETE FROM groups WHERE groupId = '%u'", id);
+                CharacterDatabase.PExecute("DELETE FROM group_member WHERE groupId = '%u'", id);
+                CharacterDatabase.CommitTransaction();
+                continue;
+            }
+
+            groupIds.insert(id);
+        }
+        while (result->NextRow());
+        delete result;
+    }
+
+    barGoLink bar( groupIds.size() + 1);
+    bar.step();
+
+    uint32 groupId = 1;
+    // we do assume std::set is sorted properly on integer value
+    for (std::set<uint32>::iterator i = groupIds.begin(); i != groupIds.end(); ++i)
+    {
+        if (*i != groupId)
+        {
+            // remap group id
+            CharacterDatabase.BeginTransaction();
+            CharacterDatabase.PExecute("UPDATE groups SET groupId = '%u' WHERE groupId = '%u'", groupId, *i);
+            CharacterDatabase.PExecute("UPDATE group_member SET groupId = '%u' WHERE groupId = '%u'", groupId, *i);
+            CharacterDatabase.CommitTransaction();
+        }
+
+        ++groupId;
+        bar.step();
+    }
+
+    sLog.outString( ">> Group Ids remapped, next group id is %u", groupId );
+    sLog.outString();
+}
+
 void ObjectMgr::SetHighestGuids()
 {
     QueryResult *result = CharacterDatabase.Query( "SELECT MAX(guid) FROM characters" );

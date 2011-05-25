@@ -73,7 +73,7 @@ enum HighGuid
     HIGHGUID_CORPSE         = 0xF500,                       // blizz F100/F500 used second variant to resolve conflict with HIGHGUID_DYNAMICOBJECT
     HIGHGUID_MO_TRANSPORT   = 0x1FC0,                       // blizz 1FC0 (for GAMEOBJECT_TYPE_MO_TRANSPORT)
     HIGHGUID_INSTANCE       = 0x1F42,                       // blizz 1F42/1F44/1F44/1F47
-    HIGHGUID_GROUP          = 0x1F50,                       // Firstly implemented for Dungeon Finder
+    HIGHGUID_GROUP          = 0x1F50,                       // blizz 1F5x
 };
 
 class ObjectGuid;
@@ -126,24 +126,24 @@ class MANGOS_DLL_SPEC ObjectGuid
 
         uint32 GetMaxCounter() const { return GetMaxCounter(GetHigh()); }
 
-        bool IsEmpty()         const { return m_guid == 0; }
-        bool IsCreature()      const { return GetHigh() == HIGHGUID_UNIT; }
-        bool IsPet()           const { return GetHigh() == HIGHGUID_PET; }
-        bool IsVehicle()       const { return GetHigh() == HIGHGUID_VEHICLE; }
-        bool IsCreatureOrPet() const { return IsCreature() || IsPet(); }
-        bool IsCreatureOrVehicle() const { return IsCreature() || IsVehicle(); }
-        bool IsAnyTypeCreature() const { return IsCreature() || IsPet() || IsVehicle(); }
-        bool IsPlayer()        const { return !IsEmpty() && GetHigh() == HIGHGUID_PLAYER; }
-        bool IsUnit()          const { return IsAnyTypeCreature() || IsPlayer(); }
-        bool IsItem()          const { return GetHigh() == HIGHGUID_ITEM; }
-        bool IsGameObject()    const { return GetHigh() == HIGHGUID_GAMEOBJECT; }
-        bool IsDynamicObject() const { return GetHigh() == HIGHGUID_DYNAMICOBJECT; }
-        bool IsCorpse()        const { return GetHigh() == HIGHGUID_CORPSE; }
-        bool IsTransport()     const { return GetHigh() == HIGHGUID_TRANSPORT; }
-        bool IsMOTransport()   const { return GetHigh() == HIGHGUID_MO_TRANSPORT; }
-        bool IsInstance()      const { return GetHigh() == HIGHGUID_INSTANCE; }
-        bool IsGroup()         const { return GetHigh() == HIGHGUID_GROUP; }
-        bool IsPlayerOrPet()   const { return !IsEmpty() && (GetHigh() == HIGHGUID_PLAYER || GetHigh() == HIGHGUID_PET); }
+        bool IsEmpty()             const { return m_guid == 0;                                }
+        bool IsCreature()          const { return GetHigh() == HIGHGUID_UNIT;                 }
+        bool IsPet()               const { return GetHigh() == HIGHGUID_PET;                  }
+        bool IsVehicle()           const { return GetHigh() == HIGHGUID_VEHICLE;              }
+        bool IsCreatureOrPet()     const { return IsCreature() || IsPet();                    }
+        bool IsCreatureOrVehicle() const { return IsCreature() || IsVehicle();                }
+        bool IsAnyTypeCreature()   const { return IsCreature() || IsPet() || IsVehicle();     }
+        bool IsPlayer()            const { return !IsEmpty() && GetHigh() == HIGHGUID_PLAYER; }
+        bool IsUnit()              const { return IsAnyTypeCreature() || IsPlayer();          }
+        bool IsItem()              const { return GetHigh() == HIGHGUID_ITEM;                 }
+        bool IsGameObject()        const { return GetHigh() == HIGHGUID_GAMEOBJECT;           }
+        bool IsDynamicObject()     const { return GetHigh() == HIGHGUID_DYNAMICOBJECT;        }
+        bool IsCorpse()            const { return GetHigh() == HIGHGUID_CORPSE;               }
+        bool IsTransport()         const { return GetHigh() == HIGHGUID_TRANSPORT;            }
+        bool IsMOTransport()       const { return GetHigh() == HIGHGUID_MO_TRANSPORT;         }
+        bool IsInstance()          const { return GetHigh() == HIGHGUID_INSTANCE;             }
+        bool IsGroup()             const { return GetHigh() == HIGHGUID_GROUP;                }
+        bool IsPlayerOrPet()       const { return !IsEmpty() && (GetHigh() == HIGHGUID_PLAYER || GetHigh() == HIGHGUID_PET); }
 
         static TypeID GetTypeId(HighGuid high)
         {
@@ -161,6 +161,7 @@ class MANGOS_DLL_SPEC ObjectGuid
                 case HIGHGUID_VEHICLE:      return TYPEID_UNIT;
                 // unknown
                 case HIGHGUID_INSTANCE:
+                case HIGHGUID_GROUP:
                 default:                    return TYPEID_OBJECT;
             }
         }
@@ -188,13 +189,13 @@ class MANGOS_DLL_SPEC ObjectGuid
                 case HIGHGUID_CORPSE:
                 case HIGHGUID_MO_TRANSPORT:
                 case HIGHGUID_INSTANCE:
+                case HIGHGUID_GROUP:
                     return false;
                 case HIGHGUID_GAMEOBJECT:
                 case HIGHGUID_TRANSPORT:
                 case HIGHGUID_UNIT:
                 case HIGHGUID_PET:
                 case HIGHGUID_VEHICLE:
-                case HIGHGUID_GROUP:
                 default:
                     return true;
             }

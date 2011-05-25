@@ -38,6 +38,7 @@ char const* ObjectGuid::GetTypeName(HighGuid high)
         case HIGHGUID_CORPSE:       return "Corpse";
         case HIGHGUID_MO_TRANSPORT: return "MoTransport";
         case HIGHGUID_INSTANCE:     return "InstanceID";
+        case HIGHGUID_GROUP:        return "Group";
         default:
             return "<unknown>";
     }
