@@ -328,6 +328,9 @@ public:
     bool QueryRoleCheckTime() {return (time_t(time(NULL)) < m_roleCheckCancelTime);};
     bool IsRoleCheckActive();
 
+    uint8 GetRandomPlayersCount() const { return m_randomPlayersCount; };
+    void  SetRandomPlayersCount(uint8 _count) { m_randomPlayersCount = _count; };
+
 private:
     bool          queued;
     bool          update;
@@ -346,6 +349,7 @@ private:
     time_t        m_bootCancelTime;                            // Time left to vote
     uint8         m_votesNeeded;                               // Votes need to kick success
     uint8         m_kicksLeft;                                 // Number of kicks left
+    uint8         m_randomPlayersCount;                        // Count of random players in this group
     LFGAnswerMap  m_bootVotes;                                 // Player votes (-1 not answer | 0 Not agree | 1 agree)
     ObjectGuid    m_bootVictim;                                // Player guid to be kicked (can't vote)
     std::string   m_bootReason;                                // kick reason
