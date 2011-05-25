@@ -2151,9 +2151,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         target->HandleEmote(EMOTE_STATE_WORK);
                         // Pet will be following owner, this makes him stop
                         target->addUnitState(UNIT_STAT_STUNNED);
-                    case 50141:                             // Blood Oath
-                        // Blood Oath
-                        target->CastSpell(target, 50001, true, NULL, this);
                         return;
                     case 55328:                                 // Stoneclaw Totem I
                         target->CastSpell(target, 5728, true);
