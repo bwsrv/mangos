@@ -8723,8 +8723,7 @@ void Aura::HandleAuraControlVehicle(bool apply, bool Real)
         if (caster->GetTypeId() == TYPEID_PLAYER)
             ((Player*)caster)->RemovePet(PET_SAVE_AS_CURRENT);
 
-        int8 seat = target->GetVehicleKit()->HasEmptySeat(GetModifier()->m_amount) ? GetModifier()->m_amount : -1;
-        caster->EnterVehicle(target->GetVehicleKit(), seat);
+        caster->EnterVehicle(target->GetVehicleKit());
     }
     else
     {
