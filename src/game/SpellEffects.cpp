@@ -8164,6 +8164,24 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, damage, false);
                     break;
                 }
+                case 58983:                                 // Big Blizzard Bear
+                {  
+                    if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)  
+                        return;  
+ 
+                    // Prevent stacking of mounts  
+                    unitTarget->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);  
+ 
+                    // Triggered spell id dependent of riding skill  
+                    if(uint16 skillval = ((Player*)unitTarget)->GetSkillValue(SKILL_RIDING))  
+                    {  
+                        if (skillval >= 150)  
+                            unitTarget->CastSpell(unitTarget, 58999, true);  
+                        else  
+                            unitTarget->CastSpell(unitTarget, 58997, true);  
+                    }  
+                    return;  
+                }
                 case 52941:                                 // Song of Cleansing
                 {
                     uint32 spellId = 0;
