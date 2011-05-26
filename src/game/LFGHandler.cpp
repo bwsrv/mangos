@@ -1171,22 +1171,28 @@ void WorldSession::SendLfgRoleCheckUpdate()
     if (group->GetMembersCount())
     {
         // Leader info MUST be sent 1st :S
-        ObjectGuid   guid = group->GetLeaderGuid();
-        Player*    leader = sObjectMgr.GetPlayer(guid);
-        LFGRoleMask roles = leader->GetLFGState()->GetRoles();
-        data << guid;                                                        // Guid
+        ObjectGuid   leaderguid = group->GetLeaderGuid();
+        Player*    leader = sObjectMgr.GetPlayer(leaderguid);
+        LFGRoleMask roles = LFG_ROLE_MASK_NONE;
+        uint8       leaderLevel = 1;
+        if (leader)
+        {
+            roles = leader->GetLFGState()->GetRoles();
+            leaderLevel = leader->getLevel();
+        }
+        data << leaderguid;                                                  // Guid
         data << uint8(roles != LFG_ROLE_MASK_NONE);                          // Ready
         data << uint32(roles);                                               // Roles
-        data << uint8(leader->getLevel());                                   // Level
+        data << uint8(leaderLevel);                                          // Level
 
         for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             if (Player* member = itr->getSource())
             {
-                if (member == leader)
+                ObjectGuid guid = member->GetObjectGuid();
+                if (guid == leaderguid)
                     continue;
 
-                guid = member->GetObjectGuid();
                 roles = member->GetLFGState()->GetRoles();
                 data << guid;                                                    // Guid
                 data << uint8(roles != LFG_ROLE_MASK_NONE);                      // Ready
