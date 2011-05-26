@@ -744,7 +744,6 @@ class MANGOS_DLL_SPEC GameObject : public WorldObject
 
         GridReference<GameObject> &GetGridRef() { return m_gridRef; }
 
-<<<<<<< HEAD
         bool IsInRange(float x, float y, float z, float radius) const;
         void DamageTaken(Unit *pDoneBy, uint32 uiDamage);
         void Rebuild(Unit *pWho);
@@ -752,9 +751,7 @@ class MANGOS_DLL_SPEC GameObject : public WorldObject
         uint32 GetHealth() const { return m_health; }
         uint32 GetMaxHealth() const { return m_goInfo->destructibleBuilding.intactNumHits + m_goInfo->destructibleBuilding.damagedNumHits; }
 
-=======
         uint64 GetRotation() const { return m_rotation; }
->>>>>>> parent of 2bcbc0f... [11529] Pack and send to client all gameobject's quaternion components which allows place gameobjects cornerwise.
     protected:
         uint32      m_spellId;
         time_t      m_respawnTime;                          // (secs) time of next respawn (or despawn if GO have owner()),
