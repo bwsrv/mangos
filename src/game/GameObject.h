@@ -627,9 +627,7 @@ class MANGOS_DLL_SPEC GameObject : public WorldObject
 
         bool HasStaticDBSpawnData() const;                  // listed in `gameobject` table and have fixed in DB guid
 
-        // z_rot, y_rot, x_rot - rotation angles around z, y and x axes
-        void SetRotationAngles(float z_rot, float y_rot, float x_rot);
-        int64 GetRotation() const { return m_rotation; }
+        void UpdateRotationFields(float rotation2 = 0.0f, float rotation3 = 0.0f);
 
         // overwrite WorldObject function for proper name localization
         const char* GetNameForLocaleIdx(int32 locale_idx) const;
@@ -746,6 +744,7 @@ class MANGOS_DLL_SPEC GameObject : public WorldObject
 
         GridReference<GameObject> &GetGridRef() { return m_gridRef; }
 
+<<<<<<< HEAD
         bool IsInRange(float x, float y, float z, float radius) const;
         void DamageTaken(Unit *pDoneBy, uint32 uiDamage);
         void Rebuild(Unit *pWho);
@@ -753,6 +752,9 @@ class MANGOS_DLL_SPEC GameObject : public WorldObject
         uint32 GetHealth() const { return m_health; }
         uint32 GetMaxHealth() const { return m_goInfo->destructibleBuilding.intactNumHits + m_goInfo->destructibleBuilding.damagedNumHits; }
 
+=======
+        uint64 GetRotation() const { return m_rotation; }
+>>>>>>> parent of 2bcbc0f... [11529] Pack and send to client all gameobject's quaternion components which allows place gameobjects cornerwise.
     protected:
         uint32      m_spellId;
         time_t      m_respawnTime;                          // (secs) time of next respawn (or despawn if GO have owner()),
@@ -783,10 +785,9 @@ class MANGOS_DLL_SPEC GameObject : public WorldObject
 
         GameObjectInfo const* m_goInfo;
         GameObjectDisplayInfoEntry const* m_displayInfo;
-        int64 m_rotation;
+        uint64 m_rotation;
     private:
         void SwitchDoorOrButton(bool activate, bool alternative = false);
-        void SetRotationQuat(float qx, float qy, float qz, float qw);
 
         GridReference<GameObject> m_gridRef;
 };
