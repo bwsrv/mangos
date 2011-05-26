@@ -454,8 +454,8 @@ bool BattleGroundSA::SetupShips()
         }
     }
 
-    GetBGObject(BG_SA_BOAT_ONE)->SetRotationAngles(2 * acosf(0.0002f), 0.0f, 0.0f);
-    GetBGObject(BG_SA_BOAT_TWO)->SetRotationAngles(2 * acosf(0.00001f), 0.0f, 0.0f);
+    GetBGObject(BG_SA_BOAT_ONE)->SetRotationAngles(0.0f, acosf(0.0002f), 0.0f);
+    GetBGObject(BG_SA_BOAT_TWO)->SetRotationAngles(0.0f, acosf(0.00001f), 0.0f);
     SpawnBGObject(m_BgObjects[BG_SA_BOAT_ONE], RESPAWN_IMMEDIATELY);
     SpawnBGObject(m_BgObjects[BG_SA_BOAT_TWO], RESPAWN_IMMEDIATELY);
 
