@@ -556,6 +556,7 @@ class ObjectMgr
         void LoadGameobjectInfo();
         void AddGameobjectInfo(GameObjectInfo *goinfo);
 
+        void PackGroupIds();
         Group* GetGroupById(uint32 id) const;
         Group* GetGroup(ObjectGuid guid) const;
         void AddGroup(Group* group);
@@ -838,11 +839,11 @@ class ObjectMgr
         uint32 GenerateStaticCreatureLowGuid() { if (m_StaticCreatureGuids.GetNextAfterMaxUsed() >= m_FirstTemporaryCreatureGuid) return 0; return m_StaticCreatureGuids.Generate(); }
         uint32 GenerateStaticGameObjectLowGuid() { if (m_StaticGameObjectGuids.GetNextAfterMaxUsed() >= m_FirstTemporaryGameObjectGuid) return 0; return m_StaticGameObjectGuids.Generate(); }
 
-        uint32 GeneratePlayerLowGuid() { return m_CharGuids.Generate(); }
-        uint32 GenerateItemLowGuid() { return m_ItemGuids.Generate(); }
-        uint32 GenerateCorpseLowGuid() { return m_CorpseGuids.Generate(); }
+        uint32 GeneratePlayerLowGuid()   { return m_CharGuids.Generate();     }
+        uint32 GenerateItemLowGuid()     { return m_ItemGuids.Generate();     }
+        uint32 GenerateCorpseLowGuid()   { return m_CorpseGuids.Generate();   }
         uint32 GenerateInstanceLowGuid() { return m_InstanceGuids.Generate(); }
-        uint32 GenerateGroupLowGuid() { return m_GroupGuids.Generate(); }
+        uint32 GenerateGroupLowGuid()    { return m_GroupGuids.Generate();    }
 
         uint32 GenerateArenaTeamId() { return m_ArenaTeamIds.Generate(); }
         uint32 GenerateAuctionID() { return m_AuctionIds.Generate(); }
