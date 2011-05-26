@@ -42,8 +42,9 @@ class MANGOS_DLL_SPEC Transport : public GameObject
         UnitSet const& GetUnitPassengers() const { return _passengers; }
 
         void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target);
-        void BuildStartMovePacket(Map const* targetMap);
-        void BuildStopMovePacket(Map const* targetMap);
+        void BuildMovementPacket(Map const* targetMap, bool isMoving = false);
+        bool GetStopped() const { return isStopped; }
+        void SetStopped(bool values) { isStopped = values; }
 
     private:
         struct WayPoint
@@ -72,6 +73,7 @@ class MANGOS_DLL_SPEC Transport : public GameObject
         uint32 m_timer;
 
         UnitSet _passengers;
+        bool isStopped;
 
     public:
         WayPointMap m_WayPoints;
