@@ -133,6 +133,7 @@ class MANGOS_DLL_DECL MapManager : public MaNGOS::Singleton<MapManager, MaNGOS::
         void RemoveAllObjectsInRemoveList();
 
         void LoadTransports();
+        void LoadTransportNPCs();
 
         typedef std::set<Transport *> TransportSet;
         TransportSet m_Transports;
