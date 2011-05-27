@@ -9176,17 +9176,23 @@ void Player::SendTalentWipeConfirm(ObjectGuid guid)
 void Player::SendPetSkillWipeConfirm()
 {
     Pet* pet = GetPet();
-    if (!pet || pet->getPetType() != HUNTER_PET || pet->m_usedTalentCount == 0)
+
+    if(!pet)
         return;
 
+    if (pet->getPetType() != HUNTER_PET || pet->m_usedTalentCount == 0)
+        return;
+
+    CharmInfo* charmInfo = pet->GetCharmInfo();
+
+    if (!charmInfo)
+    {
+        sLog.outError("WorldSession::HandlePetUnlearnOpcode: %s is considered pet-like but doesn't have a charminfo!", pet->GetGuidStr().c_str());
+        return;
+    }
     pet->resetTalents();
     SendTalentsInfoData(true);
-/*
-    WorldPacket data(SMSG_PET_UNLEARN_CONFIRM, (8+4));
-    data << ObjectGuid(pet->GetObjectGuid());
-    data << uint32(pet->resetTalentsCost());
-    GetSession()->SendPacket( &data );
-*/
+
 }
 
 /*********************************************************/
