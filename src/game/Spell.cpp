@@ -2507,8 +2507,9 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             switch(m_spellInfo->Id)
             {
                 case 24604:                                 // Furious Howl
+                case 70728:                                 // Exploit Weakness
                 {
-                    // from 3.1.0 only affect pet and owner
+                    // only affect pet and owner
                     targetUnitMap.push_back(m_caster);
                     if (Unit *owner = m_caster->GetOwner())
                         targetUnitMap.push_back(owner);
