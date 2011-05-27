@@ -206,7 +206,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectTriggerSpellWithValue,                    //142 SPELL_EFFECT_TRIGGER_SPELL_WITH_VALUE
     &Spell::EffectApplyAreaAura,                            //143 SPELL_EFFECT_APPLY_AREA_AURA_OWNER
     &Spell::EffectNULL,                                     //144 SPELL_EFFECT_144                      Spectral Blast
-    &Spell::EffectNULL,                                     //145 SPELL_EFFECT_145                      Black Hole Effect
+    &Spell::EffectSuspendGravity,                           //145 SPELL_EFFECT_145                      Black Hole Effect
     &Spell::EffectActivateRune,                             //146 SPELL_EFFECT_ACTIVATE_RUNE
     &Spell::EffectQuestFail,                                //147 SPELL_EFFECT_QUEST_FAIL               quest fail
     &Spell::EffectNULL,                                     //148 SPELL_EFFECT_148                      single spell: Inflicts Fire damage to an enemy.
@@ -11020,4 +11020,17 @@ void Spell::EffectCancelAura(SpellEffectIndex eff_idx)
     }
 
     unitTarget->RemoveAurasDueToSpell(spellId);
+}
+
+void Spell::EffectSuspendGravity(SpellEffectIndex eff_idx)
+{
+    if (!unitTarget)
+        return;
+
+    float fTargetX, fTargetY, fTargetZ;
+    unitTarget->GetPosition(fTargetX, fTargetY, fTargetZ);
+    float mapZ = unitTarget->GetTerrain()->GetHeight(fTargetX, fTargetY, fTargetZ);
+    float radius = m_spellInfo->EffectMiscValue[eff_idx]/10;
+    if (fTargetZ < mapZ + 0.5)
+        unitTarget->KnockBackFrom(m_caster, -radius, radius);
 }
