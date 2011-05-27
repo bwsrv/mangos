@@ -268,9 +268,8 @@ class Pet : public Creature
 
         void InitPetCreateSpells();
 
-        bool resetTalents(bool no_cost = false);
+        bool resetTalents();
         static void resetTalentsForAllPetsOf(Player* owner, Pet* online_pet = NULL);
-        uint32 resetTalentsCost() const;
         void InitTalentForLevel();
 
         uint8 GetMaxTalentPointsForLevel(uint32 level);

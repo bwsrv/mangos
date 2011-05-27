@@ -270,8 +270,8 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     // since last save (in seconds)
     uint32 timediff = uint32(time(NULL) - fields[14].GetUInt64());
 
-    m_resetTalentsCost = fields[15].GetUInt32();
-    m_resetTalentsTime = fields[16].GetUInt64();
+    m_resetTalentsCost = fields[15].GetUInt32();  // deprecated
+    m_resetTalentsTime = fields[16].GetUInt64();  // deprecated
 
     delete result;
 
@@ -1726,7 +1726,7 @@ void Pet::InitPetCreateSpells()
     CastPetAuras(false);
 }
 
-bool Pet::resetTalents(bool no_cost)
+bool Pet::resetTalents()
 {
     Unit *owner = GetOwner();
     if (!owner || owner->GetTypeId()!=TYPEID_PLAYER)
@@ -1754,17 +1754,6 @@ bool Pet::resetTalents(bool no_cost)
 
     uint32 cost = 0;
 
-    if(!no_cost)
-    {
-        cost = resetTalentsCost();
-
-        if (player->GetMoney() < cost)
-        {
-            player->SendBuyError( BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
-            return false;
-        }
-    }
-
     for (unsigned int i = 0; i < sTalentStore.GetNumRows(); ++i)
     {
         TalentEntry const *talentInfo = sTalentStore.LookupEntry(i);
@@ -1787,13 +1776,6 @@ bool Pet::resetTalents(bool no_cost)
 
     UpdateFreeTalentPoints(false);
 
-    if(!no_cost)
-    {
-        player->ModifyMoney(-(int32)cost);
-
-        m_resetTalentsCost = cost;
-        m_resetTalentsTime = time(NULL);
-    }
     player->PetSpellInitialize();
     return true;
 }
@@ -1806,7 +1788,7 @@ void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* online_pet /*= NULL*/)
 
     // reset for online
     if(online_pet)
-        online_pet->resetTalents(true);
+        online_pet->resetTalents();
 
     // now need only reset for offline pets (all pets except online case)
     uint32 except_petnumber = online_pet ? online_pet->GetCharmInfo()->GetPetNumber() : 0;
@@ -1894,7 +1876,7 @@ void Pet::UpdateFreeTalentPoints(bool resetIfNeed)
         {
             Unit *owner = GetOwner();
             if (!owner || owner->GetTypeId() != TYPEID_PLAYER || ((Player*)owner)->GetSession()->GetSecurity() < SEC_ADMINISTRATOR)
-                resetTalents(true);
+                resetTalents();
             else
                 SetFreeTalentPoints(0);
         }
@@ -1916,24 +1898,6 @@ void Pet::InitTalentForLevel()
 
     if(!m_loading)
         ((Player*)owner)->SendTalentsInfoData(true);
-}
-
-uint32 Pet::resetTalentsCost() const
-{
-    uint32 days = uint32(sWorld.GetGameTime() - m_resetTalentsTime)/DAY;
-
-    // The first time reset costs 10 silver; after 1 day cost is reset to 10 silver
-    if(m_resetTalentsCost < 10*SILVER || days > 0)
-        return 10*SILVER;
-    // then 50 silver
-    else if(m_resetTalentsCost < 50*SILVER)
-        return 50*SILVER;
-    // then 1 gold
-    else if(m_resetTalentsCost < 1*GOLD)
-        return 1*GOLD;
-    // then increasing at a rate of 1 gold; cap 10 gold
-    else
-        return (m_resetTalentsCost + 1*GOLD > 10*GOLD ? 10*GOLD : m_resetTalentsCost + 1*GOLD);
 }
 
 uint8 Pet::GetMaxTalentPointsForLevel(uint32 level)
