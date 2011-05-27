@@ -1342,6 +1342,19 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
     if (!IsInMap(obj)) return false;
     float ox,oy,oz;
     obj->GetPosition(ox,oy,oz);
+
+    if(GetMapId() == 618)
+    {
+        for(int i = 0; i < 4; ++i)
+        {
+            const int pillars[4] = {194583, 194584, 194585, 194587};
+            if(GameObject * pPillar = ((WorldObject*)this)->GetClosestGameObjectWithEntry(this, pillars[i], 35))
+                if(pPillar->GetGoState() == GO_STATE_ACTIVE)
+                    if(pPillar->IsInBetween(this, obj, pPillar->GetObjectBoundingRadius()))
+                        return false;
+        }
+    }
+
     return(IsWithinLOS(ox, oy, oz ));
 }
 
