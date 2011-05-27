@@ -1891,6 +1891,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 63024:                                 // XT002's Gravitiy Bomb
                 case 64234:                                 // XT002's Gravitiy Bomb (h)
                 case 55479:                                 // Forced Obedience (Naxxramas - Razovius encounter)
+                case 64218:                                 // Overcharge
                 case 66001:                                 // Touch of Darkness
                 case 67281:
                 case 67282:
@@ -2502,11 +2503,17 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             break;
         }
         case TARGET_ALL_PARTY_AROUND_CASTER:
-        case TARGET_ALL_PARTY_AROUND_CASTER_2:
-        case TARGET_ALL_PARTY:
         {
             switch(m_spellInfo->Id)
             {
+                case 24604:                                 // Furious Howl
+                {
+                    // from 3.1.0 only affect pet and owner
+                    targetUnitMap.push_back(m_caster);
+                    if (Unit *owner = m_caster->GetOwner())
+                        targetUnitMap.push_back(owner);
+                    break;
+                }
                 case 70893:                                 // Culling the Herd
                 case 53434:                                 // Call of the Wild
                 {
@@ -2520,6 +2527,12 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     break;
                 }
             }
+            break;
+        }
+        case TARGET_ALL_PARTY_AROUND_CASTER_2:
+        case TARGET_ALL_PARTY:
+        {
+            FillRaidOrPartyTargets(targetUnitMap, m_caster, m_caster, radius, false, true, true);
             break;
         }
         case TARGET_ALL_RAID_AROUND_CASTER:
