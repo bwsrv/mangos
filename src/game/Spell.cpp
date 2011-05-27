@@ -1797,6 +1797,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 64531:                                 // Rapid Burst (h)
                 case 61916:                                 // Lightning Whirl (10 man)
                 case 63482:                                 // Lightning Whirl (25 man)
+                case 64218:                                 // Overcharge
                 case 66336:                                 // Mistress' Kiss (Trial of the Crusader, ->
                 case 67077:                                 // -> Lord Jaraxxus encounter, 10 and 10 heroic)
                 case 66001:                                 // Touch of Darkness
@@ -2376,11 +2377,17 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             break;
         }
         case TARGET_ALL_PARTY_AROUND_CASTER:
-        case TARGET_ALL_PARTY_AROUND_CASTER_2:
-        case TARGET_ALL_PARTY:
         {
             switch(m_spellInfo->Id)
             {
+                case 24604:                                 // Furious Howl
+                {
+                    // from 3.1.0 only affect pet and owner
+                    targetUnitMap.push_back(m_caster);
+                    if (Unit *owner = m_caster->GetOwner())
+                        targetUnitMap.push_back(owner);
+                    break;
+                }
                 case 70893:                                 // Culling the Herd
                 case 53434:                                 // Call of the Wild
                 {
@@ -2394,6 +2401,12 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     break;
                 }
             }
+            break;
+        }
+        case TARGET_ALL_PARTY_AROUND_CASTER_2:
+        case TARGET_ALL_PARTY:
+        {
+            FillRaidOrPartyTargets(targetUnitMap, m_caster, m_caster, radius, false, true, true);
             break;
         }
         case TARGET_ALL_RAID_AROUND_CASTER:
