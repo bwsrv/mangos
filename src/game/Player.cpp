@@ -9060,12 +9060,17 @@ void Player::SendTalentWipeConfirm(ObjectGuid guid)
 void Player::SendPetSkillWipeConfirm()
 {
     Pet* pet = GetPet();
-    if(!pet)
+    if (!pet || pet->getPetType() != HUNTER_PET || pet->m_usedTalentCount == 0)
         return;
+
+    pet->resetTalents();
+    SendTalentsInfoData(true);
+/*
     WorldPacket data(SMSG_PET_UNLEARN_CONFIRM, (8+4));
     data << ObjectGuid(pet->GetObjectGuid());
     data << uint32(pet->resetTalentsCost());
     GetSession()->SendPacket( &data );
+*/
 }
 
 /*********************************************************/
