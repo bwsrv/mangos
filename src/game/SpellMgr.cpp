@@ -2010,6 +2010,11 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 if (spellInfo_1->SpellIconID == 1662 && spellInfo_2->SpellIconID == 1662)
                     return false;
 
+                // Aura of Despair auras
+                if ((spellInfo_1->Id == 64848 && spellInfo_2->Id == 62692) ||
+                    (spellInfo_2->Id == 64848 && spellInfo_1->Id == 62692))
+                     return false;
+
                 // Kindred Spirits
                 if (spellInfo_1->SpellIconID == 3559 && spellInfo_2->SpellIconID == 3559)
                     return false;

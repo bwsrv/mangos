@@ -2191,7 +2191,6 @@ void Player::Regenerate(Powers power, uint32 diff)
         {
             if (HasAuraType(SPELL_AURA_STOP_NATURAL_MANA_REGEN))
                 break;
-
             bool recentCast = IsUnderLastManaUseEffect();
             float ManaIncreaseRate = sWorld.getConfig(CONFIG_FLOAT_RATE_POWER_MANA);
             if (recentCast)
