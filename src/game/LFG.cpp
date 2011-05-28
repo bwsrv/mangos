@@ -142,6 +142,7 @@ void LFGGroupState::Clear()
     SetState(LFG_STATE_NONE);
     SaveState();
     StopBoot();
+    SetRandomPlayersCount(0);
 }
 
 uint8 LFGGroupState::GetVotesNeeded() const

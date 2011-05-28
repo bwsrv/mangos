@@ -7514,6 +7514,20 @@ bool Unit::IsSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                             }
                         }
                         break;
+                        // Improved Faerie Fire
+                        if(pVictim->HasAura(770) || pVictim->HasAura(16857))
+                        {
+                            AuraList const& ImprovedAura = GetAurasByType(SPELL_AURA_DUMMY);
+                            for(AuraList::const_iterator iter = ImprovedAura.begin(); iter != ImprovedAura.end(); ++iter)
+                            {
+                                if((*iter)->GetEffIndex() == 0 && (*iter)->GetSpellProto()->SpellIconID == 109 && (*iter)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_DRUID)
+                                {
+                                    crit_chance += (*iter)->GetModifier()->m_amount;
+                                    break;
+                                }
+                            }
+                        }
+                        break;
                     case SPELLFAMILY_PALADIN:
                         // Sacred Shield
                         if (spellProto->SpellFamilyFlags & UI64LIT(0x0000000040000000))
@@ -11088,8 +11102,17 @@ void Unit::SendPetCastFail(uint32 spellid, SpellCastResult msg)
     data << uint8(0);                                       // cast count?
     data << uint32(spellid);
     data << uint8(msg);
-    // uint32 for some reason
-    // uint32 for some reason
+
+    // More cases exist, see Spell::SendCastResult (can possibly be unified)
+    switch(msg)
+    {
+        case SPELL_FAILED_NOT_READY:
+            data << uint32(0);                              // unknown
+            break;
+        default:
+            break;
+    }
+
     ((Player*)owner)->GetSession()->SendPacket(&data);
 }
 
@@ -11841,6 +11864,9 @@ void Unit::MonsterJump(float x, float y, float z, float o, uint32 transitTime, u
 
     if (GetTypeId() != TYPEID_PLAYER)
     {
+        // Interrupt spells cause of movement
+        InterruptNonMeleeSpells(false);
+
         Creature* c = (Creature*)this;
         // Creature relocation acts like instant movement generator, so current generator expects interrupt/reset calls to react properly
         if (!c->GetMotionMaster()->empty())
