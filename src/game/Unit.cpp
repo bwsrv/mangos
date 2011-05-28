@@ -11583,6 +11583,9 @@ void Unit::MonsterJump(float x, float y, float z, float o, uint32 transitTime, u
 
     if (GetTypeId() != TYPEID_PLAYER)
     {
+        // Interrupt spells cause of movement
+        InterruptNonMeleeSpells(false);
+
         Creature* c = (Creature*)this;
         // Creature relocation acts like instant movement generator, so current generator expects interrupt/reset calls to react properly
         if (!c->GetMotionMaster()->empty())
