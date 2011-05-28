@@ -3607,6 +3607,13 @@ void Spell::cast(bool skipCheck)
                 AddTriggeredSpell(55095);                   // Frost Fever
             break;
         }
+        case SPELLFAMILY_WARLOCK:
+        {
+            // Consume shadows - invisible detect part
+            if (m_spellInfo->SpellIconID == 207 && (m_spellInfo->SpellFamilyFlags & UI64LIT(0x000000000000000002000000)))
+                AddPrecastSpell(54501);                     // Consume shadows - MOD_STEALTH_DETECT
+            break;
+        }
         default:
             break;
     }
