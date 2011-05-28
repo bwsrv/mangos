@@ -1066,14 +1066,19 @@ void LFGMgr::SendLFGReward(Player* player, LFGDungeonEntry const* dungeon)
     if (!player || !dungeon)
         return;
 
-    // Update achievements
-    if (dungeon->difficulty == DUNGEON_DIFFICULTY_HEROIC)
-        player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS, 1);
 
     if (player->GetLFGState()->GetState() == LFG_STATE_FINISHED_DUNGEON)
     {
         DEBUG_LOG("LFGMgr::SendLFGReward: player %u already rewarded!",player->GetObjectGuid().GetCounter());
         return;
+    }
+
+    // Update achievements
+    if (dungeon->difficulty == DUNGEON_DIFFICULTY_HEROIC)
+    {
+        if (Group* group = player->GetGroup())
+            if (group->GetLFGState()->GetRandomPlayersCount())
+                player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS, group->GetLFGState()->GetRandomPlayersCount());
     }
 
     player->GetLFGState()->SetState(LFG_STATE_FINISHED_DUNGEON);
@@ -1149,8 +1154,12 @@ uint32 LFGMgr::CreateProposal(LFGDungeonEntry const* dungeon, Group* group, LFGQ
             {
                 member->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_PROPOSAL_BEGIN, LFGType(dungeon->type));
                 member->GetSession()->SendLfgUpdateProposal(GetProposal(ID));
+                if (!sWorld.getConfig(CONFIG_BOOL_LFG_DEBUG_ENABLE))
+                    member->CastSpell(member,LFG_SPELL_DUNGEON_COOLDOWN,true);
             }
         }
+        if (guids && !guids->empty())
+            group->GetLFGState()->SetRandomPlayersCount(uint8(guids->size()));
     }
     if (guids && !guids->empty())
     {
@@ -1185,9 +1194,15 @@ bool LFGMgr::SendProposal(uint32 ID, ObjectGuid guid)
     if (player->GetGroup())
         player->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_PROPOSAL_BEGIN, LFGType(pProposal->GetDungeon()->type));
     else
+    {
+        player->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_GROUP_FOUND, LFGType(pProposal->GetDungeon()->type));
         player->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_PROPOSAL_BEGIN, LFGType(pProposal->GetDungeon()->type));
+    }
 
     player->GetSession()->SendLfgUpdateProposal(pProposal);
+
+    if (!sWorld.getConfig(CONFIG_BOOL_LFG_DEBUG_ENABLE))
+        player->CastSpell(player,LFG_SPELL_DUNGEON_COOLDOWN,true);
 
     if (pProposal->GetGroup())
     {
@@ -1803,6 +1818,7 @@ void LFGMgr::Teleport(Player* player, bool out, bool fromOpcode /*= false*/)
 
         DETAIL_LOG("LFGMgr: Sending %s to map %u, difficulty %u X %f, Y %f, Z %f, O %f", player->GetName(), uint8(difficulty), mapid, x, y, z, orientation);
 
+        player->CastSpell(player,LFG_SPELL_LUCK_OF_THE_DRAW,true);
         player->TeleportTo(mapid, x, y, z, orientation);
         player->GetLFGState()->SetState(LFG_STATE_DUNGEON);
         player->GetLFGState()->SetTeleported();
@@ -1916,7 +1932,7 @@ void LFGMgr::UpdateRoleCheck(Group* group)
 
 
     if (!isFinished)
-        group->GetLFGState()->SetRoleCheckState(LFG_ROLECHECK_NO_ROLE);
+        group->GetLFGState()->SetRoleCheckState(LFG_ROLECHECK_INITIALITING);
     else if (!CheckRoles(group))
         group->GetLFGState()->SetRoleCheckState(LFG_ROLECHECK_WRONG_ROLES);
     else
@@ -2267,8 +2283,9 @@ void LFGMgr::TryCompleteGroups(LFGType type)
         if (IsGroupCompleted(group))
         {
             DEBUG_LOG("LFGMgr:TryCompleteGroups: Try complete group %u  type %u, but his already completed!", group->GetObjectGuid().GetCounter(), type);
-            // remove from queue
-            continue;
+            CompleteGroup(group,NULL);
+            isGroupCompleted = true;
+            break;
         }
         LFGQueueSet applicants;
 
@@ -2365,21 +2382,23 @@ bool LFGMgr::TryAddMembersToGroup(Group* group, LFGQueueSet* players)
 void LFGMgr::CompleteGroup(Group* group, LFGQueueSet* players)
 {
 
-    DEBUG_LOG("LFGMgr:CompleteGroup: Try complete group %u with %u players", group->GetObjectGuid().GetCounter(),players->size());
+    DEBUG_LOG("LFGMgr:CompleteGroup: Try complete group %u with %u players", group->GetObjectGuid().GetCounter(), players ? players->size() : 0);
 
     LFGDungeonSet* groupDungeons = group->GetLFGState()->GetDungeons();
     LFGDungeonSet  intersection  = *groupDungeons;
-
-    for (LFGQueueSet::const_iterator itr = players->begin(); itr != players->end(); ++itr)
+    if (players)
     {
-        Player* player = sObjectMgr.GetPlayer(*itr);
-        if (!player || !player->IsInWorld())
-            return;
+        for (LFGQueueSet::const_iterator itr = players->begin(); itr != players->end(); ++itr)
+        {
+            Player* player = sObjectMgr.GetPlayer(*itr);
+            if (!player || !player->IsInWorld())
+                return;
 
-        LFGDungeonSet* playerDungeons = player->GetLFGState()->GetDungeons();
-        LFGDungeonSet  tmpIntersection;
-        std::set_intersection(intersection.begin(),intersection.end(), playerDungeons->begin(),playerDungeons->end(),std::inserter(tmpIntersection,tmpIntersection.end()));
-        intersection = tmpIntersection;
+            LFGDungeonSet* playerDungeons = player->GetLFGState()->GetDungeons();
+            LFGDungeonSet  tmpIntersection;
+            std::set_intersection(intersection.begin(),intersection.end(), playerDungeons->begin(),playerDungeons->end(),std::inserter(tmpIntersection,tmpIntersection.end()));
+            intersection = tmpIntersection;
+        }
     }
 
     if (intersection.empty())
@@ -2391,7 +2410,7 @@ void LFGMgr::CompleteGroup(Group* group, LFGQueueSet* players)
     SetGroupRoles(group, players);
     LFGDungeonEntry const* dungeon = SelectRandomDungeonFromList(intersection);
     uint32 ID = CreateProposal(dungeon,group,players);
-    DEBUG_LOG("LFGMgr:CompleteGroup: dungeons for group %u with %u players found, created proposal %u", group->GetObjectGuid().GetCounter(),players->size(), ID);
+    DEBUG_LOG("LFGMgr:CompleteGroup: dungeons for group %u with %u players found, created proposal %u", group->GetObjectGuid().GetCounter(),players ? players->size() : 0, ID);
 }
 
 bool LFGMgr::TryCreateGroup(LFGType type)
@@ -2937,11 +2956,6 @@ void LFGMgr::AddMemberToLFDGroup(ObjectGuid guid)
     group->SetGroupRoles(guid, player->GetLFGState()->GetRoles());
     RemoveFromQueue(player->GetObjectGuid());
     RemoveFromSearchMatrix(player->GetObjectGuid());
-
-    player->CastSpell(player,LFG_SPELL_LUCK_OF_THE_DRAW,true);
-
-    if (!sWorld.getConfig(CONFIG_BOOL_LFG_DEBUG_ENABLE))
-        player->CastSpell(player,LFG_SPELL_DUNGEON_COOLDOWN,true);
 
     player->GetLFGState()->SetState(group->GetLFGState()->GetState());
 }
