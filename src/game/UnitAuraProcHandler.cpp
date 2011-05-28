@@ -3764,6 +3764,26 @@ SpellAuraProcResult Unit::HandleProcTriggerSpellAuraProc(Unit *pVictim, uint32 d
                         return SPELL_AURA_PROC_FAILED;
                 }
             }
+            // Barkskin
+            else if(auraSpellInfo->Id == 22812)
+            {
+                Unit::AuraList const& auras = GetAurasByType(SPELL_AURA_ADD_FLAT_MODIFIER);
+                for (Unit::AuraList::const_iterator i = auras.begin(); i != auras.end(); i++)
+                {
+                    switch((*i)->GetId())
+                    {
+                        case 16836: // Brambles - do not proc Barkskin's daze without this talent
+                        case 16839:
+                        case 16840:
+                        {
+                            if(!roll_chance_i((*i)->GetSpellProto()->CalculateSimpleValue(EFFECT_INDEX_2)))
+                                return SPELL_AURA_PROC_FAILED;
+                        }
+                        default:
+                            return SPELL_AURA_PROC_FAILED;
+                    }
+                }
+            }
             // Druid T9 Feral Relic (Lacerate, Swipe, Mangle, and Shred)
             else if (auraSpellInfo->Id==67353)
             {
