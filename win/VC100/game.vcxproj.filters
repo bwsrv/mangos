@@ -546,6 +546,7 @@
     </ClCompile>
     <ClCompile Include="..\..\src\game\PlayerBot\PlayerbotWarriorAI.cpp">
       <Filter>playerbot</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\game\WardenHandler.cpp">
       <Filter>World/Handlers</Filter>
     </ClCompile>
@@ -1040,6 +1041,7 @@
     </ClInclude>
     <ClInclude Include="..\..\src\game\PlayerBot\PlayerbotWarriorAI.h">
       <Filter>playerbot</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\src\game\WardenHandler.h">
       <Filter>World/Handlers</Filter>
     </ClInclude>
