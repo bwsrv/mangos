@@ -9898,6 +9898,9 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
             if (GetSpellProto()->SpellFamilyFlags & UI64LIT(0x0000000000000010))
             {
                 Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
                 if (caster->HasAura(64760))                 // Item - Druid T8 Restoration 4P Bonus
                 {
                     Aura* aura = GetAuraByEffectIndex(EFFECT_INDEX_0);
