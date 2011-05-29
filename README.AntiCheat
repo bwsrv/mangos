@@ -1,14 +1,16 @@
 ==============================================================================================
 English translations, big thx to Faq
 
-AntiCheat v3 for mangos, (c) 2010 /dev/rsa
-http://github.com/rsa
+AntiCheat v4.0 for mangos, (c) 2010-2011 /dev/rsa for mangosR2 branch
+http://github.com/mangosR2
 
 I express gratitude to authors of previous anticheat versions, on what base is made this code
 - gimly
 - CWN
 also thnx to those who wrote code for extra checking, what used in this code
 - Insider42
+- zhenya
+- TOM_RUS
 
 Anticheat configs can be changed in characters/anticheat_config table.
 Config can be reloaded with ".reload anticheat"  command.
@@ -47,6 +49,14 @@ Check ON_TRANSPORT condition by Insider42
 
     CHECK_DAMAGE = 5,
 Check server bugs with damage.
+
+    CHECK_ITEM   = 6,
+Check ons WPE cheating with item duplicate.
+
+    CHECK_WARDEN   = 7,
+Warden checks from zhenya && TOM_RUS as part of anticheat
+
+DON'T FORGET put /warden subdirectory from sources to your server DataDir!
 
 2. Subchecks
 additional checks:
@@ -98,6 +108,21 @@ Spell damage limit. Parameter - limited meaning.
 
     CHECK_DAMAGE_MELEE = 100 * CHECK_DAMAGE + 2,
 Melee damage limit. Parameter - limited meaning.
+
+    // Item checks
+    CHECK_ITEM_UPDATE           = 100 * CHECK_ITEM   + 1,
+mangos check on item duplicate with anicheat actions.
+
+    // Warden checks
+    CHECK_WARDEN_MEMORY         = 100 * CHECK_WARDEN + 1,
+Many warden-related memory checks 
+
+    CHECK_WARDEN_KEY            = 100 * CHECK_WARDEN + 2,
+check encryption key
+
+    CHECK_WARDEN_CHECKSUM       = 100 * CHECK_WARDEN + 3,
+check checksum
+
     // End of list
     CHECK_MAX
 
@@ -181,6 +206,14 @@ Anticheat.GmLevel = 0 (уровень, выше которого не прове
     CHECK_DAMAGE            = 5,
 проверка на баги сервера с дамагом.
 
+    CHECK_ITEM   = 6,
+проверки на баги предметов (в настоящее время только на дуп при помощи WPE).
+
+    CHECK_WARDEN   = 7,
+Проверки встроенного анитичита WOW Warden как часть античита
+
+НЕ ЗАБУДЬТЕ скопировать каталог /warden из исходнков в DataDir вашего сервера!
+
 2. Субпроверки
 дополнительные проверки:
     // Check subtypes
@@ -230,6 +263,21 @@ Anticheat.GmLevel = 0 (уровень, выше которого не прове
 
     CHECK_DAMAGE_MELEE          = 100 * CHECK_DAMAGE + 2,
 ограничение по мили-дамаге. параметр - просто предельное значение.
+
+    // Item checks
+    CHECK_ITEM_UPDATE           = 100 * CHECK_ITEM   + 1,
+просто экшн при непрохождении встроеной проверки мангоса на соответствие предмета.
+
+    // Warden checks
+    CHECK_WARDEN_MEMORY         = 100 * CHECK_WARDEN + 1,
+множество разных проверок памяти из Warden. Подробнее - в доку на Warden 
+
+    CHECK_WARDEN_KEY            = 100 * CHECK_WARDEN + 2,
+проверка валидности ключа Warden.
+
+    CHECK_WARDEN_CHECKSUM       = 100 * CHECK_WARDEN + 3,
+проверка контрольной суммы пакетов. основной метод борьбы с WPE.
+
     // End of list
     CHECK_MAX
 

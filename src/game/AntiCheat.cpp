@@ -36,6 +36,7 @@ static AntiCheatCheckEntry AntiCheatCheckList[] =
     { true,  CHECK_TRANSPORT,               &AntiCheat::CheckOnTransport   },
     { true,  CHECK_DAMAGE,                  &AntiCheat::CheckDamage        },
     { true,  CHECK_ITEM,                    &AntiCheat::CheckItem          },
+    { true,  CHECK_WARDEN,                  &AntiCheat::CheckWarden        },
 // Subchecks
     { true,  CHECK_MOVEMENT_SPEED,          &AntiCheat::CheckSpeed         },
     { true,  CHECK_MOVEMENT_FLY,            &AntiCheat::CheckFly           },
@@ -53,6 +54,9 @@ static AntiCheatCheckEntry AntiCheatCheckList[] =
     { true,  CHECK_SPELL_FAMILY,            &AntiCheat::CheckSpellFamily   },
     { true,  CHECK_SPELL_INBOOK,            &AntiCheat::CheckSpellInbook   },
     { true,  CHECK_ITEM_UPDATE,             &AntiCheat::CheckItemUpdate    },
+    { true,  CHECK_WARDEN_KEY,              &AntiCheat::CheckWardenKey     },
+    { true,  CHECK_WARDEN_CHECKSUM,         &AntiCheat::CheckWardenCheckSum},
+    { true,  CHECK_WARDEN_MEMORY,           &AntiCheat::CheckWardenMemory  },
     // Finish for search
     { false, CHECK_MAX,                     NULL }
 };
@@ -361,6 +365,7 @@ bool AntiCheat::CheckNeeded(AntiCheatCheck checktype)
     if (!sWorld.getConfig(CONFIG_BOOL_ANTICHEAT_ENABLE)
         || !GetPlayer()->IsInWorld()
         || GetPlayer()->IsBeingTeleported()
+        || GetPlayer()->GetPlayerbotAI()
         || GetPlayer()->GetSession()->GetSecurity() > sWorld.getConfig(CONFIG_UINT32_ANTICHEAT_GMLEVEL))
         return false;
 
@@ -392,6 +397,7 @@ bool AntiCheat::CheckNeeded(AntiCheatCheck checktype)
             break;
         case CHECK_DAMAGE:
         case CHECK_ITEM:
+        case CHECK_WARDEN:
             break;
         default:
             return false;
@@ -932,3 +938,82 @@ bool AntiCheat::CheckItemUpdate()
     return false;
 }
 
+// Warden checks
+bool AntiCheat::CheckWarden()
+{
+// in process
+    return true;
+}
+
+bool AntiCheat::CheckWardenCheckSum()
+{
+    if (!m_wardenCheckResult)
+        return true;
+
+    char buffer[255];
+    sprintf(buffer," Warden detect not valid checksum in answer. Possible cheating (WPE hack).");
+
+    m_currentCheckResult.clear();
+    m_currentCheckResult.append(buffer);
+    return false;
+}
+
+bool AntiCheat::CheckWardenKey()
+{
+    if (!m_wardenCheckResult)
+        return true;
+
+    char buffer[255];
+    sprintf(buffer," Warden detect not valid key code in answer. Possible cheating (WPE hack).");
+
+    m_currentCheckResult.clear();
+    m_currentCheckResult.append(buffer);
+    return false;
+}
+
+bool AntiCheat::CheckWardenMemory()
+{
+    if (!m_wardenCheckResult)
+        return true;
+
+    std::string mode;
+
+    switch (m_wardenCheck)
+    {
+        case MEM_CHECK:
+            mode = "memory check";
+            break;
+        case PAGE_CHECK_A:
+        case PAGE_CHECK_B:
+            mode = "page check";
+            break;
+        case MPQ_CHECK:
+            mode = "MPQ check";
+            break;
+        case LUA_STR_CHECK:
+            mode = "LUA check";
+            break;
+        case DRIVER_CHECK:
+            mode = "driver check";
+            break;
+        case TIMING_CHECK:
+            mode = "timing check";
+            break;
+        case PROC_CHECK:
+            mode = "proc check";
+            break;
+        case MODULE_CHECK:
+            mode = "module check";
+            break;
+        default:
+            mode = "unknown check";
+            break;
+    }
+
+    char buffer[255];
+    sprintf(buffer," Warden report that %s is fail. Client use cheat software!", mode.c_str());
+
+    m_currentCheckResult.clear();
+    m_currentCheckResult.append(buffer);
+    return false;
+}

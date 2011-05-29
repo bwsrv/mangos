@@ -30,6 +30,7 @@
 #include "LFGMgr.h"
 #include "AuctionHouseMgr.h"
 #include "Item.h"
+#include "WardenHandler.h"
 
 struct ItemPrototype;
 struct AuctionEntry;
@@ -222,6 +223,8 @@ class MANGOS_DLL_SPEC WorldSession
         std::string const& GetRemoteAddress() { return m_Address; }
         void SetPlayer(Player *plr);
         uint8 Expansion() const { return m_expansion; }
+
+        void InitWarden(BigNumber *K);
 
         /// Session in auth.queue currently
         void SetInQueue(bool state) { m_inQueue = state; }
@@ -883,6 +886,9 @@ class MANGOS_DLL_SPEC WorldSession
         AccountTypes _security;
         uint32 _accountId;
         uint8 m_expansion;
+
+        // Warden 
+        Warden m_Warden;
 
         time_t _logoutTime;
         bool m_inQueue;                                     // session wait in auth.queue

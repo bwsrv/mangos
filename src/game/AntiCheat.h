@@ -33,6 +33,7 @@ enum AntiCheatCheck
     CHECK_TRANSPORT         = 4,
     CHECK_DAMAGE            = 5,
     CHECK_ITEM              = 6,
+    CHECK_WARDEN            = 7,
     // Check subtypes
     // Movement checks
     CHECK_MOVEMENT_SPEED        = 100 * CHECK_MOVEMENT + 1,
@@ -54,6 +55,10 @@ enum AntiCheatCheck
     CHECK_DAMAGE_MELEE          = 100 * CHECK_DAMAGE + 2,
     // Item checks
     CHECK_ITEM_UPDATE           = 100 * CHECK_ITEM   + 1,
+    // Warden checks
+    CHECK_WARDEN_MEMORY         = 100 * CHECK_WARDEN + 1,
+    CHECK_WARDEN_KEY            = 100 * CHECK_WARDEN + 2,
+    CHECK_WARDEN_CHECKSUM       = 100 * CHECK_WARDEN + 3,
     // End of list
     CHECK_MAX
 };
@@ -118,6 +123,13 @@ class AntiCheat
                 return _DoAntiCheatCheck(checkType);
             }
 
+        bool DoAntiCheatCheck(AntiCheatCheck checkType, uint8 wardenType, bool result)
+            {
+                m_wardenCheck = wardenType;
+                m_wardenCheckResult = result;
+                return _DoAntiCheatCheck(checkType);
+            }
+
         void DoAntiCheatAction(AntiCheatCheck checkType, std::string reason);
 
         // Check functions
@@ -156,6 +168,12 @@ class AntiCheat
         // Items
         bool CheckItem();
         bool CheckItemUpdate();
+
+        // Warden
+        bool CheckWarden();
+        bool CheckWardenKey();
+        bool CheckWardenCheckSum();
+        bool CheckWardenMemory();
 
     private:
 
@@ -196,6 +214,8 @@ class AntiCheat
         float                      m_currentDeltaZ;
         Item*                      m_item;
         Item*                      m_testitem;
+        uint8                      m_wardenCheck;
+        bool                       m_wardenCheckResult;
 
 };
 
