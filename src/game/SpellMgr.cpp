@@ -673,6 +673,7 @@ bool IsPositiveEffect(SpellEntry const *spellproto, SpellEffectIndex effIndex)
         case 37675:                                         // Chaos Blast
         case 56266:                                         // Vortex
         case 42786:                                         // Echo Of Ymiron
+        case 63355:                                         // Crunch Armor
             return false;
         case 36032:                                         // Arcane Blast
         case 47540:                                         // Penance start dummy aura
