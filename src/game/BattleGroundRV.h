@@ -52,6 +52,5 @@ class BattleGroundRV : public BattleGround
     private:
         uint32 m_uiTeleport;
         uint32 m_uiPillarSwitch;
-        uint32 m_uiFireTimer;
 };
 #endif

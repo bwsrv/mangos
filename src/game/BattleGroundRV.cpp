@@ -46,7 +46,6 @@ void BattleGroundRV::Reset()
     //call parent's class reset
     BattleGround::Reset();
     m_uiTeleport = 22000;
-    m_uiFireTimer = 90000;
     m_uiPillarSwitch = 45000 + urand(0, 30000);
 }
 
@@ -93,18 +92,10 @@ void BattleGroundRV::Update(uint32 diff)
                 break; // End on 1 succesful iteration
             }
 
-            m_uiPillarSwitch = 120000;// + urand(0, 30000);
+            m_uiPillarSwitch = 30000;
         }
         else
             m_uiPillarSwitch -= diff;
-
-        if (m_uiFireTimer < diff)
-        {
-            // Handle Fire-lines
-            m_uiFireTimer = 90000 + urand(0, 30000);
-        }
-        else
-            m_uiFireTimer -= diff;
     }
 }
 
