@@ -692,7 +692,6 @@ bool IsPositiveEffect(SpellEntry const *spellproto, SpellEffectIndex effIndex)
         case 552:                                           // Abolish Disease
         case 59286:                                         // Opening
         case 64343:                                         // Impact
-        case 12042:                                         // Arcane Power
             return true;
         default:
             break;
