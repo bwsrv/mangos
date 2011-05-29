@@ -3555,10 +3555,10 @@ void Aura::HandleAuraModShapeshift(bool apply, bool Real)
         // now only powertype must be set
         switch (form)
         {
-            case FORM_CAT:
             case FORM_SHADOW_DANCE:
-                PowerType = POWER_ENERGY;
                 target->SetByteValue(UNIT_FIELD_BYTES_2, 3, uint8(FORM_STEALTH));
+            case FORM_CAT:
+                PowerType = POWER_ENERGY;
                 break;
             case FORM_BEAR:
             case FORM_DIREBEAR:
