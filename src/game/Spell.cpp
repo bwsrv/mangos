@@ -1993,8 +1993,6 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     if (Unit* realCaster = GetAffectiveCaster())
                         radius = realCaster->GetFloatValue(OBJECT_FIELD_SCALE_X) * 6;
                     break;
-                default:
-                    break;
                 case 66881:                                 // Slime Pool (Acidmaw & Dreadscale encounter)
                 case 67638:                                 // (Trial of the Crusader, all difficulties)
                 case 67639:                                 // ----- // -----
