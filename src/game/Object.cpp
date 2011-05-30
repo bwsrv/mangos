@@ -124,7 +124,7 @@ void Object::SendForcedObjectUpdate()
     UpdateDataMapType update_players;
 
     BuildUpdateData(update_players);
-    RemoveFromClientUpdateList();
+//    RemoveFromClientUpdateList();
 
     WorldPacket packet;                                     // here we allocate a std::vector with a size of 0x10000
     for(UpdateDataMapType::iterator iter = update_players.begin(); iter != update_players.end(); ++iter)

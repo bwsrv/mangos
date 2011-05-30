@@ -4140,11 +4140,11 @@ bool ChatHandler::HandleNpcInfoCommand(char* /*args*/)
             break;
 
     if (diff < MAX_DIFFICULTY)
-        PSendSysMessage(LANG_NPCINFO_CHAR_DIFFICULTY,  target->GetGUIDLow(), faction, npcflags,
+        PSendSysMessage(LANG_NPCINFO_CHAR_DIFFICULTY, target->GetGuidStr().c_str(), faction, npcflags,
             Entry, target->GetCreatureInfo()->Entry, diff,
             displayid, nativeid);
     else
-        PSendSysMessage(LANG_NPCINFO_CHAR,  target->GetGUIDLow(), faction, npcflags, Entry, displayid, nativeid);
+        PSendSysMessage(LANG_NPCINFO_CHAR, target->GetGuidStr().c_str(), faction, npcflags, Entry, displayid, nativeid);
 
     PSendSysMessage("VehicleId: %u", cInfo->vehicleId);
     PSendSysMessage("difficulty_entry_1: %u, difficulty_entry_2: %u, difficulty_entry_3: %u", difficulty_entry_1, difficulty_entry_2, difficulty_entry_3);

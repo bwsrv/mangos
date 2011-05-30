@@ -3730,10 +3730,10 @@ void Aura::HandleAuraModShapeshift(bool apply, bool Real)
         // now only powertype must be set
         switch (form)
         {
-            case FORM_CAT:
             case FORM_SHADOW_DANCE:
-                PowerType = POWER_ENERGY;
                 target->SetByteValue(UNIT_FIELD_BYTES_2, 3, uint8(FORM_STEALTH));
+            case FORM_CAT:
+                PowerType = POWER_ENERGY;
                 break;
             case FORM_BEAR:
             case FORM_DIREBEAR:
@@ -5694,6 +5694,7 @@ void Aura::HandlePeriodicTriggerSpell(bool apply, bool /*Real*/)
                             pVictim->RemoveAurasDueToSpell(67574);
                     }
                 }
+
                 return;
             case 66083:                                     // Lightning Arrows (Trial of the Champion encounter)
                 if (m_removeMode == AURA_REMOVE_BY_EXPIRE)
@@ -10425,6 +10426,9 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
             if (GetSpellProto()->SpellFamilyFlags & UI64LIT(0x0000000000000010))
             {
                 Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
                 if (caster->HasAura(64760))                 // Item - Druid T8 Restoration 4P Bonus
                 {
                     Aura* aura = GetAuraByEffectIndex(EFFECT_INDEX_0);
