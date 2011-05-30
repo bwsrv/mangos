@@ -12057,7 +12057,7 @@ void Unit::KnockBackFrom(Unit* target, float horizontalSpeed, float verticalSpee
     }
     else
     {
-        if (((Creature*)this)->GetCreatureInfo()->MechanicImmuneMask & MECHANIC_KNOCKOUT)
+        if (target != this && (((Creature*)this)->GetCreatureInfo()->MechanicImmuneMask & MECHANIC_KNOCKOUT))
             return;
 
         float dh = verticalSpeed*verticalSpeed / (2*19.23f); // maximum parabola height
@@ -12065,22 +12065,9 @@ void Unit::KnockBackFrom(Unit* target, float horizontalSpeed, float verticalSpee
  
         float dis = time * horizontalSpeed;
 
-        float ox, oy, oz;
-        GetPosition(ox, oy, oz);
+        float fx, fy, fz;
 
-        float fx = ox + dis * vcos;
-        float fy = oy + dis * vsin;
-        float fz = oz;
-
-        float fx2, fy2, fz2;                                // getObjectHitPos overwrite last args in any result case
-        if(VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(GetMapId(), ox,oy,oz+0.5f, fx,fy,oz+0.5f,fx2,fy2,fz2, -0.5f))
-        {
-            fx = fx2;
-            fy = fy2;
-            fz = fz2;
-        }
-
-        UpdateAllowedPositionZ(fx, fy, fz);
+        GetClosePoint(fx, fy, fz, GetObjectBoundingRadius(), dis, angle);
 
         GetMap()->CreatureRelocation((Creature*)this, fx, fy, fz, GetOrientation());//it's a hack, need motion master support
         SendMonsterMoveJump(fx, fy, fz, verticalSpeed, SPLINEFLAG_WALKMODE, uint32(time * 1000.0f));
