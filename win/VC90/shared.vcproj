@@ -727,6 +727,10 @@
 				RelativePath="..\..\src\shared\Auth\Sha1.h"
 				>
 			</File>
+			<File
+				RelativePath="..\..\src\shared\Auth\WardenKeyGeneration.h"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath="..\..\src\shared\Common.cpp"

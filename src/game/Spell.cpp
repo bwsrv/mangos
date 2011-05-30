@@ -2512,9 +2512,9 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                  // Shadowstep dummy (Ahn'Kahet) - lets choose fourthest target
                  if (!targetUnitMap.empty() && m_spellInfo->Id == 55965)
                  {
-                    targetUnitMap.sort(TargetDistanceOrder(m_caster));
+                    targetUnitMap.sort(TargetDistanceOrderNear(m_caster));
                  }
-                    break;
+                 break;
             }
             break;
         }
