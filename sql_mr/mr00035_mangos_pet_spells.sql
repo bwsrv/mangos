@@ -20,3 +20,7 @@ INSERT INTO `event_scripts`
 VALUES
     (14858, 1, 15, 33663, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Summon greater Earth elemental'),
     (14859, 1, 15, 32982, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Summon greater Fire  elemental');
+
+DELETE FROM `creature_template_addon` WHERE `entry` IN ('15438','15352');
+INSERT INTO `creature_template_addon`(`entry`, `auras`)
+    VALUES (15438, 7942),(15352, 7941);
