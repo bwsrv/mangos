@@ -12199,7 +12199,7 @@ void Unit::SetVehicleId(uint32 entry)
     }
 }
 
-uint32 Unit::CalculateAuraPeriodicTimeWithHaste(SpellEntry const* spellProto, uint32 oldPeriodicTime, SpellEffectIndex eff_idx)
+uint32 Unit::CalculateAuraPeriodicTimeWithHaste(SpellEntry const* spellProto, uint32 oldPeriodicTime)
 {
     if (!spellProto || oldPeriodicTime == 0)
         return 0;
@@ -12222,12 +12222,7 @@ uint32 Unit::CalculateAuraPeriodicTimeWithHaste(SpellEntry const* spellProto, ui
     if (!applyHaste)
         return oldPeriodicTime;
 
-    uint32 _periodicTime = oldPeriodicTime;
-
-    if(IsChanneledSpell(spellProto) && spellProto->EffectAmplitude[eff_idx])
-        _periodicTime = ceil(float(spellProto->EffectAmplitude[eff_idx]) * GetFloatValue(UNIT_MOD_CAST_SPEED));
-    else
-        _periodicTime = ceil(float(oldPeriodicTime) * GetFloatValue(UNIT_MOD_CAST_SPEED));
+    uint32 _periodicTime = ceil(float(oldPeriodicTime) * GetFloatValue(UNIT_MOD_CAST_SPEED)); 
 
     return _periodicTime;
 }
