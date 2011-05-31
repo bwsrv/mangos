@@ -2088,10 +2088,10 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     targetUnitMap.push_back(m_caster);
             // This targetMode is often used as 'last' implicitTarget for positive spells, that just require coordinates
             // and no unitTarget (e.g. summon effects). As MaNGOS always needs a unitTarget we add just the caster here.
-            
+
             // Prevent multiple summons
             if (m_spellInfo->Effect[effIndex] == SPELL_EFFECT_SUMMON || m_spellInfo->Effect[effIndex] == SPELL_EFFECT_SUMMON_OBJECT_WILD)
-                unMaxTargets = 1;
+                unMaxTargets = m_spellInfo->CalculateSimpleValue(effIndex);
 
             break;
         }
@@ -2526,7 +2526,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
         {
             switch(m_spellInfo->Id)
             {
-                case 24604:                                 // Furious Howl
+                case 24604:                                 // Furious Howl, from 3.1.0
                 case 70728:                                 // Exploit Weakness
                 {
                     // only affect pet and owner

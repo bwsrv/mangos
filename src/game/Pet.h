@@ -159,7 +159,7 @@ typedef std::vector<uint32> AutoSpellList;
 class Player;
 struct PetScalingData;
 
-class Pet : public Creature
+class MANGOS_DLL_SPEC Pet : public Creature
 {
     public:
         explicit Pet(PetType type = MAX_PET_TYPE);

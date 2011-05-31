@@ -7120,9 +7120,6 @@ void Player::UpdateArea(uint32 newArea)
 
     if (area)
     {
-        // check leave duel allowed area
-        CheckDuelArea(area);
-
         // Dalaran restricted flight zone
         if ((area->flags & AREA_FLAG_CANNOT_FLY) && IsFreeFlying() && !isGameMaster() && !HasAura(58600))
             CastSpell(this, 58600, true);                   // Restricted Flight Area
@@ -7235,15 +7232,6 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 
     UpdateZoneDependentAuras();
     UpdateZoneDependentPets();
-}
-
-void Player::CheckDuelArea(AreaTableEntry const* areaEntry)
-{
-    if (!duel)
-        return;
-
-    if (!(areaEntry->flags & AREA_FLAG_DUEL))
-        DuelComplete(DUEL_FLED);
 }
 
 //If players are too far way of duel flag... then player loose the duel
