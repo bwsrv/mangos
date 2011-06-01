@@ -3700,6 +3700,9 @@ void Aura::HandleAuraModShapeshift(bool apply, bool Real)
 
     if(target->GetTypeId() == TYPEID_PLAYER)
         ((Player*)target)->InitDataForForm();
+
+    target->SendForcedObjectUpdate();
+
 }
 
 void Aura::HandleAuraTransform(bool apply, bool Real)
