@@ -11814,13 +11814,13 @@ void Unit::KnockBackFrom(Unit* target, float horizontalSpeed, float verticalSpee
         float fy = oy + dis * vsin;
         float fz = oz;
 
-        float fx2, fy2, fz2;                                // getObjectHitPos overwrite last args in any result case
-        if(VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(GetMapId(), ox,oy,oz+0.5f, fx,fy,oz+0.5f,fx2,fy2,fz2, -0.5f))
-        {
-            fx = fx2;
-            fy = fy2;
-            fz = fz2;
-        }
+        MaNGOS::NormalizeMapCoord(fx); 
+        MaNGOS::NormalizeMapCoord(fy); 
+
+        if (GetTerrain()->CheckPathAccurate(ox,oy,oz,fx,fy,fz, NULL))
+            DEBUG_LOG("Unit::KnockBack unit %u knockbacked back on %f",GetObjectGuid().GetCounter(), GetDistance(fx,fy,fz));
+        else
+            DEBUG_LOG("Unit::KnockBack unit %u NOT knockbacked on full distance, real distance is %f",GetObjectGuid().GetCounter(), GetDistance(fx,fy,fz));
 
         UpdateAllowedPositionZ(fx, fy, fz);
 
