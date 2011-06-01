@@ -1494,8 +1494,7 @@ BattleGround * BattleGroundMgr::CreateNewBattleGround(BattleGroundTypeId bgTypeI
     if (bg_template->isArena())
     {
         BattleGroundTypeId arenas[] = {BATTLEGROUND_NA, BATTLEGROUND_BE, BATTLEGROUND_RL, BATTLEGROUND_DS, BATTLEGROUND_RV};
-        uint32 arena_num = urand(0,4);
-        bgTypeId = arenas[arena_num];
+        bgTypeId = arenas[urand(0, countof(arenas)-1)];
         bg_template = GetBattleGroundTemplate(bgTypeId);
         if (!bg_template)
         {
@@ -1902,12 +1901,18 @@ void BattleGroundMgr::SendToBattleGround(Player *pl, uint32 instanceId, BattleGr
 
 bool BattleGroundMgr::IsArenaType(BattleGroundTypeId bgTypeId)
 {
-    return ( bgTypeId == BATTLEGROUND_AA ||
-        bgTypeId == BATTLEGROUND_BE ||
-        bgTypeId == BATTLEGROUND_NA ||
-        bgTypeId == BATTLEGROUND_RL ||
-        bgTypeId == BATTLEGROUND_DS ||
-        bgTypeId == BATTLEGROUND_RV );
+    switch(bgTypeId)
+    {
+        case BATTLEGROUND_NA:
+        case BATTLEGROUND_BE:
+        case BATTLEGROUND_RL:
+        case BATTLEGROUND_DS:
+        case BATTLEGROUND_RV:
+        case BATTLEGROUND_AA:
+            return true;
+        default:
+            return false;
+    };
 }
 
 BattleGroundQueueTypeId BattleGroundMgr::BGQueueTypeId(BattleGroundTypeId bgTypeId, ArenaType arenaType)
