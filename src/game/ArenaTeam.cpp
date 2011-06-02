@@ -835,7 +835,7 @@ void ArenaTeam::OfflineMemberLost(ObjectGuid guid, uint32 againstRating)
             if (int32(itr->matchmaker_rating) + mod < 0)
                 itr->matchmaker_rating = 0;
             else 
-                itr->matchmaker_rating + mod;
+                itr->matchmaker_rating += mod;
 
             if(GetType() == ARENA_TYPE_2v2)
                 CharacterDatabase.PExecute("UPDATE hidden_rating SET rating2 = '%u' WHERE guid = '%u'", itr->matchmaker_rating, guid.GetCounter());
