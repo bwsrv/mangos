@@ -4597,6 +4597,15 @@ void Aura::HandleAuraModStun(bool apply, bool Real)
         data << uint32(0);
         target->SendMessageToSet(&data, true);
 
+        // Deep Freeze damage part
+        if(GetId() == 44572 && target->IsImmuneToSpellEffect(GetSpellProto(), EFFECT_INDEX_0))
+        {
+            Unit* caster = GetCaster();
+            if(!caster)
+                return;
+            caster->CastSpell(target, 71757, true); 
+        }
+
         // Summon the Naj'entus Spine GameObject on target if spell is Impaling Spine
         if(GetId() == 39837)
         {
