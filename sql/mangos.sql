@@ -24,11 +24,7 @@ CREATE TABLE `db_version` (
   `version` varchar(120) default NULL,
   `creature_ai_version` varchar(120) default NULL,
   `cache_id` int(10) default '0',
-<<<<<<< HEAD
   `required_11567_01_mangos_spell_proc_event` bit(1) default NULL
-=======
-  `required_11530_01_mangos_spell_proc_event` bit(1) default NULL
->>>>>>> parent of 454cd6c... Temporally!! Revert "[11529] Pack and send to client all gameobject's quaternion components which allows place gameobjects cornerwise."
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Used DB version notes';
 
 --
