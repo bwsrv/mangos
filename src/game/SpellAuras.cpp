@@ -4598,7 +4598,7 @@ void Aura::HandleAuraModStun(bool apply, bool Real)
         target->SendMessageToSet(&data, true);
 
         // Deep Freeze damage part
-        if(GetId() == 44572 && target->IsImmuneToSpellEffect(GetSpellProto(), EFFECT_INDEX_0))
+        if(GetId() == 44572 && !(target->IsCharmerOrOwnerPlayerOrPlayerItself() || target->IsVehicle()) && target->IsImmuneToSpellEffect(GetSpellProto(), EFFECT_INDEX_0))
         {
             Unit* caster = GetCaster();
             if(!caster)
