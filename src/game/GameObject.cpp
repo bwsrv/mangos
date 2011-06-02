@@ -136,6 +136,9 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMa
 
     SetObjectScale(goinfo->size);
 
+    rotation2 = (rotation2 == 0.0f) ? sin(ang/2) : rotation2;
+    rotation3 = (rotation3 == 0.0f) ? cos(ang/2) : rotation3;
+
     SetRotationQuat(rotation0,rotation1,rotation2,rotation3);
 
     SetUInt32Value(GAMEOBJECT_FACTION, goinfo->faction);
