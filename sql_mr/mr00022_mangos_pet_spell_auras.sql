@@ -45,10 +45,8 @@ VALUES
     (0,0,1863,34958),
     (0,0,1863,61013),
     -- Greater Earth Elemetal
-    (0,0,15352,7941),
     (0,0,15352,34947),
     -- Shaman Greater Fire Elemetal
-    (0,0,15438,7942),
     (0,0,15438,34956),
     (0,0,15438,34947),
     -- Warlock Felguard

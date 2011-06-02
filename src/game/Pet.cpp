@@ -1002,6 +1002,7 @@ bool Pet::InitStatsForLevel(uint32 petlevel, Unit* owner)
         {
             SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
             SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, 1000);
+            SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
             // DK ghouls have energy
             if (cinfo->family == CREATURE_FAMILY_GHOUL)
                 setPowerType(POWER_ENERGY);
@@ -2871,8 +2872,6 @@ bool Pet::Summon()
             SetUInt32Value(UNIT_NPC_FLAGS, GetCreatureInfo()->npcflag);
             SetUInt32Value(UNIT_FIELD_FLAGS, 0);
             SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-            SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
-//            SetName("");
             SetNeedSave(false);
             owner->AddGuardian(this);
             break;
@@ -2882,10 +2881,8 @@ bool Pet::Summon()
             level = owner->getLevel();
             SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
             SetUInt32Value(UNIT_FIELD_BYTES_0, 2048);
-            SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
             SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
             SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, 1000);
-//            SetName("");
             SetNeedSave(true);
             owner->SetPet(this);
             break;
@@ -2896,7 +2893,6 @@ bool Pet::Summon()
             SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
             SetUInt32Value(UNIT_FIELD_BYTES_0, 0x02020100);
             SetByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED | UNIT_CAN_BE_ABANDONED);
-            SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
             SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
             SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, sObjectMgr.GetXPForPetLevel(getLevel()));
             SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, time(NULL));

@@ -827,6 +827,11 @@ LexicsCutterNoActionOnGM = 1
 #        You can bypass this setting by typing "/script SetAllowLowLevelRaid(true/false)" command in chat
 #        Default: 10
 #
+#    CheckGOInPath
+#        very simple checking for GO in unit path (for avoid problems with teleport throwgh door ).
+#        may use many CPU resources!
+#        Default: 0
+#
 ###################################################################################################################
 
 GameType = 1
@@ -900,6 +905,7 @@ ShowProgressBars = 1
 WaitAtStartupError = 0
 Motd = "Welcome to the Massive Network Game Object Server."
 Raid.MinLevel = 10
+CheckGOInPath = 0
 
 ###################################################################################################################
 # PLAYER INTERACTION

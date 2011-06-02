@@ -429,7 +429,7 @@ m_isPersistent(false), m_in_use(0), m_spellAuraHolder(holder)
     if (modOwner && m_modifier.periodictime)
     {
         modOwner->ApplySpellMod(spellproto->Id, SPELLMOD_ACTIVATION_TIME, m_modifier.periodictime);
-        uint32 newperiodictime  = modOwner->CalculateAuraPeriodicTimeWithHaste(spellproto, m_modifier.periodictime, eff);
+        uint32 newperiodictime  = modOwner->CalculateAuraPeriodicTimeWithHaste(spellproto, m_modifier.periodictime);
         if (newperiodictime != m_modifier.periodictime)
             m_modifier.periodictime = newperiodictime;
     }
@@ -3875,6 +3875,9 @@ void Aura::HandleAuraModShapeshift(bool apply, bool Real)
 
     if(target->GetTypeId() == TYPEID_PLAYER)
         ((Player*)target)->InitDataForForm();
+
+    target->SendForcedObjectUpdate();
+
 }
 
 void Aura::HandleAuraTransform(bool apply, bool Real)

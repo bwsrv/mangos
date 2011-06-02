@@ -12068,9 +12068,22 @@ void Unit::KnockBackFrom(Unit* target, float horizontalSpeed, float verticalSpee
  
         float dis = time * horizontalSpeed;
 
-        float fx, fy, fz;
+        float ox, oy, oz;
+        GetPosition(ox, oy, oz);
 
-        GetClosePoint(fx, fy, fz, GetObjectBoundingRadius(), dis, angle);
+        float fx = ox + dis * vcos;
+        float fy = oy + dis * vsin;
+        float fz = oz;
+
+        MaNGOS::NormalizeMapCoord(fx); 
+        MaNGOS::NormalizeMapCoord(fy); 
+
+        if (GetTerrain()->CheckPathAccurate(ox,oy,oz,fx,fy,fz, NULL))
+            DEBUG_LOG("Unit::KnockBack unit %u knockbacked back on %f",GetObjectGuid().GetCounter(), GetDistance(fx,fy,fz));
+        else
+            DEBUG_LOG("Unit::KnockBack unit %u NOT knockbacked on full distance, real distance is %f",GetObjectGuid().GetCounter(), GetDistance(fx,fy,fz));
+
+        UpdateAllowedPositionZ(fx, fy, fz);
 
         GetMap()->CreatureRelocation((Creature*)this, fx, fy, fz, GetOrientation());//it's a hack, need motion master support
         SendMonsterMoveJump(fx, fy, fz, verticalSpeed, SPLINEFLAG_WALKMODE, uint32(time * 1000.0f));
@@ -12375,16 +12388,16 @@ ObjectGuid const& Unit::GetCreatorGuid() const
                 return ((TemporarySummon*)this)->GetSummonerGuid();
             }
             else
-                return ObjectGuid();
+                return GetObjectGuid();
 
         case HIGHGUID_PET:
             return GetGuidValue(UNIT_FIELD_CREATEDBY);
 
         case HIGHGUID_PLAYER:
-            return ObjectGuid();
+            return GetObjectGuid();
 
         default:
-            return ObjectGuid();
+            return GetObjectGuid();
     }
 }
 
@@ -12418,7 +12431,7 @@ void Unit::SetVehicleId(uint32 entry)
     }
 }
 
-uint32 Unit::CalculateAuraPeriodicTimeWithHaste(SpellEntry const* spellProto, uint32 oldPeriodicTime, SpellEffectIndex eff_idx)
+uint32 Unit::CalculateAuraPeriodicTimeWithHaste(SpellEntry const* spellProto, uint32 oldPeriodicTime)
 {
     if (!spellProto || oldPeriodicTime == 0)
         return 0;
@@ -12441,12 +12454,7 @@ uint32 Unit::CalculateAuraPeriodicTimeWithHaste(SpellEntry const* spellProto, ui
     if (!applyHaste)
         return oldPeriodicTime;
 
-    uint32 _periodicTime = oldPeriodicTime;
-
-    if(IsChanneledSpell(spellProto) && spellProto->EffectAmplitude[eff_idx])
-        _periodicTime = ceil(float(spellProto->EffectAmplitude[eff_idx]) * GetFloatValue(UNIT_MOD_CAST_SPEED));
-    else
-        _periodicTime = ceil(float(oldPeriodicTime) * GetFloatValue(UNIT_MOD_CAST_SPEED));
+    uint32 _periodicTime = ceil(float(oldPeriodicTime) * GetFloatValue(UNIT_MOD_CAST_SPEED)); 
 
     return _periodicTime;
 }
