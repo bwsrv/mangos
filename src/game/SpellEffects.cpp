@@ -7988,6 +7988,21 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(m_caster,59805,true);
                     return;
                 }
+                case 63845:                                 // Create lance
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    uint32 spellid;
+
+                    if (((Player*)unitTarget)->GetTeam() == HORDE)
+                       spellid = 63919;
+                    else
+                       spellid = 63914;
+
+                    unitTarget->CastSpell(unitTarget, spellid, true);
+                    return;
+                }
                                                             // random spell learn instead placeholder
                 case 60893:                                 // Northrend Alchemy Research
                 case 61177:                                 // Northrend Inscription Research
