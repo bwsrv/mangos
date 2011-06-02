@@ -12156,16 +12156,16 @@ ObjectGuid const& Unit::GetCreatorGuid() const
                 return ((TemporarySummon*)this)->GetSummonerGuid();
             }
             else
-                return ObjectGuid();
+                return GetObjectGuid();
 
         case HIGHGUID_PET:
             return GetGuidValue(UNIT_FIELD_CREATEDBY);
 
         case HIGHGUID_PLAYER:
-            return ObjectGuid();
+            return GetObjectGuid();
 
         default:
-            return ObjectGuid();
+            return GetObjectGuid();
     }
 }
 
