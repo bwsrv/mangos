@@ -33,10 +33,10 @@ class MANGOS_DLL_SPEC Transport : public GameObject
 
         bool Create(uint32 guidlow, uint32 mapid, float x, float y, float z, float ang, uint8 animprogress, uint16 dynamicHighValue);
         bool GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids);
-        void Update(uint32 update_diff, uint32 p_time);
+        void Update(uint32 update_diff, uint32 p_time) override;
         void UpdateUnitPositions();
-        bool AddPassenger(Unit* passenger);
-        bool RemovePassenger(Unit* passenger);
+        bool AddPassenger(Player* passenger);
+        bool RemovePassenger(Player* passenger);
 
         typedef std::set<Unit*> UnitSet;
         UnitSet const& GetUnitPassengers() const { return _passengers; }

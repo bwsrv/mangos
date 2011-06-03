@@ -9204,10 +9204,12 @@ void Aura::HandleAuraLinked(bool apply, bool Real)
 
     if (apply)
     {
-        if (GetCaster()->GetTypeId() == TYPEID_PLAYER &&
+        if (GetCaster() &&
+            GetCaster()->GetTypeId() == TYPEID_PLAYER &&
+            GetTarget() &&
             GetTarget()->GetTypeId() != TYPEID_PLAYER &&
-            spellInfo->AttributesEx  &  SPELL_ATTR_EX_UNK28
-            && spellInfo->Attributes &  SPELL_ATTR_UNK8)
+            spellInfo->AttributesEx  &  SPELL_ATTR_EX_UNK28 &&
+            spellInfo->Attributes &  SPELL_ATTR_UNK8)
         {
             float healBonus   = float(GetCaster()->GetTotalAuraModifier(SPELL_AURA_MOD_HEALING_PCT))/100.0;
             if (healBonus < 0.0)

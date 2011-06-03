@@ -163,7 +163,7 @@ void LFGMgr::LoadRewards()
 
     if (!result)
     {
-        barGoLink bar(1);
+        BarGoLink bar(1);
         bar.step();
 
         sLog.outString();
@@ -171,7 +171,7 @@ void LFGMgr::LoadRewards()
         return;
     }
 
-    barGoLink bar(result->GetRowCount());
+    BarGoLink bar(result->GetRowCount());
 
     Field* fields = NULL;
     do

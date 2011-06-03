@@ -483,7 +483,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX7_UNK7                       0x00000080            // 7
 #define SPELL_ATTR_EX7_UNK8                       0x00000100            // 8
 #define SPELL_ATTR_EX7_UNK9                       0x00000200            // 9
-#define SPELL_ATTR_EX7_UNK10                      0x00000400            // 10
+#define SPELL_ATTR_EX7_DISPEL_CHARGES             0x00000400            // 10 Dispel and Spellsteal individual charges instead of whole aura.
 #define SPELL_ATTR_EX7_UNK11                      0x00000800            // 11
 #define SPELL_ATTR_EX7_UNK12                      0x00001000            // 12
 #define SPELL_ATTR_EX7_UNK13                      0x00002000            // 13
