@@ -701,7 +701,7 @@ WHERE entry IN (27061);
 
 DELETE FROM npc_spellclick_spells WHERE npc_entry IN (27061);
 INSERT INTO npc_spellclick_spells VALUES (27061, 47920, 0, 0, 0, 1);
-REPLACE INTO spell_script_target VALUES (47939, 2, 188539);
+REPLACE INTO spell_script_target VALUES (47939, 0, 188539);
 
 -- Argent Cannon (quest 13086)
 UPDATE creature_template SET
@@ -766,8 +766,9 @@ UPDATE creature_template SET spell1=48766, spell2=54469, spell3=54467, spell4=55
 REPLACE INTO creature_template_addon (entry,auras) VALUES (29414,'57403');
 
 -- Quest: Defending Wyrmrest Temple (12372)
-REPLACE INTO gossip_scripts (id,command,datalong,datalong2,comments) VALUES (27629,15,49256,3,'');
-REPLACE INTO gossip_menu_option VALUES (9568,0,0,'We need to get into the fight. Are you ready?',1,1,-1,0,27629,0,0,NULL,9,12372,0,0,0,0,0,0,0);
+DELETE FROM gossip_scripts WHERE id=9568;
+REPLACE INTO gossip_scripts (id,command,datalong,datalong2,comments) VALUES (9568,15,49256,3,'');
+REPLACE INTO gossip_menu_option VALUES (9568,0,0,'We need to get into the fight. Are you ready?',1,1,-1,0,9568,0,0,NULL,9,12372,0,0,0,0,0,0,0);
 UPDATE creature_template SET spell1=49161,spell2=49243,spell3=49263,spell4=49264,spell5=49367,unit_flags=0,InhabitType=3 WHERE entry=27629;
 REPLACE INTO creature_template_addon (entry,bytes1,b2_0_sheath,auras) VALUES (27629,33554432,1,'50069');
 REPLACE INTO creature_ai_scripts VALUES (2769801,27698,8,0,100,0,49367,-1,0,0,33,27698,6,0,0,0,0,0,0,0,0,0,'q12372');
