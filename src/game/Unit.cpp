@@ -4865,7 +4865,12 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGuid, U
         new_holder->AddAura(new_aur, new_aur->GetEffIndex());
     }
 
-    if (holder->ModStackAmount(-1))
+    if (holder->GetSpellProto()->AttributesEx7 & SPELL_ATTR_EX7_DISPEL_CHARGES)
+    {
+        if (holder->DropAuraCharge())
+            RemoveSpellAuraHolder(holder, AURA_REMOVE_BY_DISPEL);
+    }
+    else if (holder->ModStackAmount(-1))
         // Remove aura as dispel
         RemoveSpellAuraHolder(holder, AURA_REMOVE_BY_DISPEL);
 
@@ -4873,6 +4878,9 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGuid, U
     new_holder->SetIsSingleTarget(false);
 
     stealer->AddSpellAuraHolder(new_holder);
+
+    if (holder->GetSpellProto()->AttributesEx7 & SPELL_ATTR_EX7_DISPEL_CHARGES)
+        new_holder->SetAuraCharges(1);
 }
 
 void Unit::RemoveAurasDueToSpellByCancel(uint32 spellId)
