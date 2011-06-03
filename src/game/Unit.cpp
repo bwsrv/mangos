@@ -4738,7 +4738,7 @@ void Unit::RemoveSingleAuraFromSpellAuraHolder(uint32 spellId, SpellEffectIndex 
     }
 }
 
-void Unit::RemoveAuraHolderDueToSpellByDispel(uint32 spellId, uint32 stackAmount, ObjectGuid casterGuid, Unit *dispeller)
+void Unit::RemoveAuraHolderDueToSpellByDispel(uint32 spellId, uint32 stackAmount, ObjectGuid casterGuid, Unit *dispeller, bool charges)
 {
     SpellEntry const* spellEntry = sSpellStore.LookupEntry(spellId);
 
@@ -4828,10 +4828,10 @@ void Unit::RemoveAuraHolderDueToSpellByDispel(uint32 spellId, uint32 stackAmount
         }
     }
 
-    RemoveAuraHolderFromStack(spellId, stackAmount, casterGuid, AURA_REMOVE_BY_DISPEL);
+    RemoveAuraHolderFromStack(spellId, stackAmount, casterGuid, AURA_REMOVE_BY_DISPEL, charges);
 }
 
-void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGuid, Unit *stealer)
+void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGuid, Unit *stealer, bool charges)
 {
     SpellAuraHolder *holder = GetSpellAuraHolder(spellId, casterGuid);
     SpellEntry const* spellProto = sSpellStore.LookupEntry(spellId);
@@ -4865,7 +4865,9 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGuid, U
         new_holder->AddAura(new_aur, new_aur->GetEffIndex());
     }
 
-    if (holder->ModStackAmount(-1))
+    if (charges && holder->DropAuraCharge())
+        RemoveAuraHolderFromStack(holder->GetId(), AURA_REMOVE_BY_DISPEL);
+    else if (holder->ModStackAmount(-1))
         // Remove aura as dispel
         RemoveSpellAuraHolder(holder, AURA_REMOVE_BY_DISPEL);
 
@@ -4906,14 +4908,25 @@ void Unit::RemoveAurasWithDispelType(DispelType type, ObjectGuid casterGuid)
     }
 }
 
-void Unit::RemoveAuraHolderFromStack(uint32 spellId, uint32 stackAmount, ObjectGuid casterGuid, AuraRemoveMode mode)
+void Unit::RemoveAuraHolderFromStack(uint32 spellId, uint32 stackAmount, ObjectGuid casterGuid, AuraRemoveMode mode, bool charges)
 {
     SpellAuraHolderBounds spair = GetSpellAuraHolderBounds(spellId);
     for (SpellAuraHolderMap::iterator iter = spair.first; iter != spair.second; ++iter)
     {
         if (!casterGuid || iter->second->GetCasterGuid() == casterGuid)
         {
-            if (iter->second->ModStackAmount(-int32(stackAmount)))
+            if (charges)
+            {
+                if (stackAmount > iter->second->GetAuraCharges())
+                {
+                   SetAuraCharges(0);
+                   RemoveSpellAuraHolder(iter->second, mode);
+                }
+                else
+                   iter->second->SetAuraCharges(iter->second->GetAuraCharges() - stackAmount);
+                break;
+            }
+            else if (iter->second->ModStackAmount(-int32(stackAmount)))
             {
                 RemoveSpellAuraHolder(iter->second, mode);
                 break;
