@@ -439,7 +439,6 @@ WorldObject* Spell::FindCorpseUsing()
     return result;
 }
 
-
 // explicitly instantiate for use in SpellEffects.cpp
 template WorldObject* Spell::FindCorpseUsing<MaNGOS::RaiseDeadObjectCheck>();
 
@@ -7750,30 +7749,19 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
     {
         case 46584: // Raise Dead
         {
-            WorldObject* result = FindCorpseUsing <MaNGOS::RaiseDeadObjectCheck>  ();
-            if (result)
-            {
-                switch(result->GetTypeId())
-                {
-                    case TYPEID_UNIT:
-                    case TYPEID_PLAYER:
-                        targetUnitMap.push_back((Unit*)result);
-                        break;
-                    case TYPEID_CORPSE:
-                        m_targets.setCorpseTarget((Corpse*)result);
-                        if (Player* owner = ObjectAccessor::FindPlayer(((Corpse*)result)->GetOwnerGuid()))
-                            targetUnitMap.push_back(owner);
-                        break;
-                    default:
-                        targetUnitMap.push_back((Unit*)m_caster);
-                        break;
-                };
-            }
+            Unit* pCorpseTarget = NULL;
+            MaNGOS::NearestCorpseInObjectRangeCheck u_check(*m_caster, radius);
+            MaNGOS::UnitLastSearcher<MaNGOS::NearestCorpseInObjectRangeCheck> searcher(pCorpseTarget, u_check);
+            Cell::VisitGridObjects(m_caster, searcher, radius);
+
+            if (pCorpseTarget)
+                targetUnitMap.push_back(pCorpseTarget);
             else
                 targetUnitMap.push_back((Unit*)m_caster);
             return true;
         }
         case 47496: // Ghoul's explode
+        case 50444:
         {
             FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
             return true;
@@ -7789,38 +7777,25 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             targetUnitMap.remove(m_caster);
             unitTarget = m_targets.getUnitTarget();
 
-            if (unitTarget)
-            {
-                // Cast on corpses...
-                if ((unitTarget->getDeathState() == CORPSE && !unitTarget->IsTaxiFlying() &&
-                    (unitTarget->GetDisplayId() == unitTarget->GetNativeDisplayId()) && m_caster->IsWithinDistInMap(unitTarget, radius) &&
-                    (unitTarget->GetCreatureTypeMask() & CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL) == 0) ||
+            // Cast on corpses...
+            if (unitTarget &&
+                unitTarget->getDeathState() == CORPSE && 
+                (unitTarget->GetCreatureTypeMask() & CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL) == 0 ||
                     // ...or own Risen Ghoul pet - self explode effect
-                    (unitTarget->GetEntry() == 26125 && unitTarget->GetCreatorGuid() == m_caster->GetObjectGuid()) )
-                {
-                    targetUnitMap.push_back(unitTarget);
-                    return true;
-                }
-            }
-
-            WorldObject* result = FindCorpseUsing <MaNGOS::RaiseDeadObjectCheck>  ();
-            if (result)
+                (unitTarget && unitTarget->GetEntry() == 26125 && 
+                unitTarget->GetCreatorGuid() == m_caster->GetObjectGuid()) )
             {
-                switch(result->GetTypeId())
-                {
-                    case TYPEID_UNIT:
-                    case TYPEID_PLAYER:
-                        targetUnitMap.push_back((Unit*)result);
-                        break;
-                    case TYPEID_CORPSE:
-                        m_targets.setCorpseTarget((Corpse*)result);
-                        if (Player* owner = ObjectAccessor::FindPlayer(((Corpse*)result)->GetOwnerGuid()))
-                            targetUnitMap.push_back(owner);
-                        break;
-                    default:
-                        targetUnitMap.push_back((Unit*)m_caster);
-                        break;
-                };
+                targetUnitMap.push_back(unitTarget);
+            }
+            else
+            {
+                Unit* pCorpseTarget = NULL;
+                MaNGOS::NearestCorpseInObjectRangeCheck u_check(*m_caster, radius);
+                MaNGOS::UnitLastSearcher<MaNGOS::NearestCorpseInObjectRangeCheck> searcher(pCorpseTarget, u_check);
+                Cell::VisitGridObjects(m_caster, searcher, radius);
+
+                if (pCorpseTarget)
+                    targetUnitMap.push_back(pCorpseTarget);
             }
 
             if (targetUnitMap.empty())
@@ -7830,11 +7805,7 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
                     ((Player*)m_caster)->RemoveSpellCooldown(m_spellInfo->Id, true);
                 SendCastResult(SPELL_FAILED_NO_VALID_TARGETS);
                 finish(false);
-                return false;
             }
-            // OK, we have all possible targets, let's sort them by distance from m_caster and keep the closest one
-            targetUnitMap.sort(TargetDistanceOrderNear(m_caster));
-            targetUnitMap.resize(1);
             return true;
         }
         case 58912: // Deathstorm
