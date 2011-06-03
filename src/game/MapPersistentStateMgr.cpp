@@ -772,7 +772,7 @@ void MapPersistentStateManager::_DelHelper(DatabaseType &db, const char *fields,
 
 void MapPersistentStateManager::CleanupInstances()
 {
-    barGoLink bar(2);
+    BarGoLink bar(2);
     bar.step();
 
     // load reset times and clean expired instances
@@ -824,7 +824,7 @@ void MapPersistentStateManager::PackInstances()
         delete result;
     }
 
-    barGoLink bar( InstanceSet.size() + 1);
+    BarGoLink bar(InstanceSet.size() + 1);
     bar.step();
 
     uint32 InstanceNumber = 1;
@@ -987,9 +987,9 @@ void MapPersistentStateManager::LoadCreatureRespawnTimes()
     uint32 count = 0;
 
     QueryResult *result = CharacterDatabase.Query("SELECT guid, respawntime, map, instance, difficulty, resettime, encountersMask FROM creature_respawn LEFT JOIN instance ON instance = id");
-    if(!result)
+    if (!result)
     {
-        barGoLink bar(1);
+        BarGoLink bar(1);
 
         bar.step();
 
@@ -998,7 +998,7 @@ void MapPersistentStateManager::LoadCreatureRespawnTimes()
         return;
     }
 
-    barGoLink bar((int)result->GetRowCount());
+    BarGoLink bar(result->GetRowCount());
 
     do
     {
@@ -1054,9 +1054,9 @@ void MapPersistentStateManager::LoadGameobjectRespawnTimes()
 
     QueryResult *result = CharacterDatabase.Query("SELECT guid, respawntime, map, instance, difficulty, resettime, encountersMask FROM gameobject_respawn LEFT JOIN instance ON instance = id");
 
-    if(!result)
+    if (!result)
     {
-        barGoLink bar(1);
+        BarGoLink bar(1);
 
         bar.step();
 
@@ -1065,7 +1065,7 @@ void MapPersistentStateManager::LoadGameobjectRespawnTimes()
         return;
     }
 
-    barGoLink bar((int)result->GetRowCount());
+    BarGoLink bar(result->GetRowCount());
 
     do
     {
