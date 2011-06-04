@@ -149,22 +149,29 @@ void WorldSession::HandleWardenDataOpcode(WorldPacket & recv_data)
     m_Warden.DecryptData(const_cast<uint8*>(recv_data.contents()), recv_data.size());
     uint8 Opcode;
     recv_data >> Opcode;
-    DEBUG_LOG("WARDEN:Got packet, %02X, size %u.", Opcode, recv_data.size() - 1);
+    DEBUG_LOG("WARDEN:Got packet, opcode %02X, size %u.", Opcode, recv_data.size() - 1);
+    recv_data.hexlike();
 
     switch(Opcode)
     {
-        case WARDEN_CMSG_HASMODULE_NO_ANSWER:
+        case WARDEN_CMSG_MODULE_MISSING:
             m_Warden.SendModuleToClient();
             break;
-        case WARDEN_CMSG_HASMODULE_YES_ANSWER:
+        case WARDEN_CMSG_MODULE_OK:
             m_Warden.RequestHash();
             break;
-        case WARDEN_CMSG_MODULE_REQUEST_REPLY:
+        case WARDEN_CMSG_CHEAT_CHECKS_RESULT:
             m_Warden.HandleData(recv_data);
             break;
-        case WARDEN_CMSG_HASH_REQUEST_REPLY:
+        case WARDEN_CMSG_MEM_CHECKS_RESULT:
+            sLog.outError("WARDEN: WARDEN_CMSG_MEM_CHECKS_RESULT received!");
+            break;
+        case WARDEN_CMSG_HASH_RESULT:
             m_Warden.RequestHashReply(recv_data);
             m_Warden.InitializeModule();
+            break;
+        case WARDEN_CMSG_MODULE_FAILED:
+            sLog.outError("WARDEN: WARDEN_CMSG_MODULE_FAILED received!");
             break;
         default:
             sLog.outError("WARDEN:Got unknown opcode %02X of size %u.", Opcode, recv_data.size() - 1);
@@ -174,8 +181,9 @@ void WorldSession::HandleWardenDataOpcode(WorldPacket & recv_data)
 
 void Warden::SendModuleToClient()
 {
-    DEBUG_LOG("WARDEN:SendModuleToClient");
+    DEBUG_LOG("WARDEN: Send module to client");
 
+    // Create packet structure
     WardenModuleTransfer pkt;
 
     uint32 size_left = Module->CompressedSize;
@@ -184,7 +192,7 @@ void Warden::SendModuleToClient()
     while (size_left > 0)
     {
         burst_size = size_left < 500 ? size_left : 500;
-        pkt.Command = WARDEN_SMSG_MODULE_TRANSMIT;
+        pkt.Command = WARDEN_SMSG_MODULE_CACHE;
         pkt.DataSize = burst_size;
         memcpy(pkt.Data, &Module->CompressedData[pos], burst_size);
         size_left -= burst_size;
@@ -201,18 +209,18 @@ void Warden::RequestModule()
 {
     DEBUG_LOG("WARDEN:Request module");
     // Create packet structure
-    WardenHasModuleRequest Request;
-    Request.Command = WARDEN_SMSG_HASMODULE_REQUEST;
+    WardenModuleUse Request;
+    Request.Command = WARDEN_SMSG_MODULE_USE;
 
     memcpy(Request.Module_Id, Module->ID, 16);
     memcpy(Request.Module_Key, Module->Key, 16);
     Request.Size = Module->CompressedSize;
 
     // Encrypt with warden RC4 key.
-    EncryptData((uint8*)&Request, sizeof(WardenHasModuleRequest));
+    EncryptData((uint8*)&Request, sizeof(WardenModuleUse));
 
-    WorldPacket pkt(SMSG_WARDEN_DATA, sizeof(WardenHasModuleRequest));
-    pkt.append((uint8*)&Request, sizeof(WardenHasModuleRequest));
+    WorldPacket pkt(SMSG_WARDEN_DATA, sizeof(WardenModuleUse));
+    pkt.append((uint8*)&Request, sizeof(WardenModuleUse));
     Client->SendPacket(&pkt);
 }
 
@@ -227,12 +235,12 @@ void Warden::InitializeModule()
     Request.CheckSumm1 = BuildChecksum(&Request.Unk1, 20);
     Request.Unk1 = 1;
     Request.Unk2 = 0;
-    Request.Library_index = 1;
+    Request.Type = 1;
     Request.String_library1 = 0;
-    Request.Function1[0] = 0x00024F80;      // 0x00400000 + 0x00024F80 SFileOpenFile
-    Request.Function1[1] = 0x000218C0;      // 0x00400000 + 0x000218C0 SFileGetFileSize
-    Request.Function1[2] = 0x00022530;      // 0x00400000 + 0x00022530 SFileReadFile
-    Request.Function1[3] = 0x00022910;      // 0x00400000 + 0x00022910 SFileCloseFile
+    Request.Function1[0] = 0x00024F80;                      // 0x00400000 + 0x00024F80 SFileOpenFile
+    Request.Function1[1] = 0x000218C0;                      // 0x00400000 + 0x000218C0 SFileGetFileSize
+    Request.Function1[2] = 0x00022530;                      // 0x00400000 + 0x00022530 SFileReadFile
+    Request.Function1[3] = 0x00022910;                      // 0x00400000 + 0x00022910 SFileCloseFile
 
     Request.Command2 = WARDEN_SMSG_MODULE_INITIALIZE;
     Request.Size2 = 8;
@@ -240,7 +248,7 @@ void Warden::InitializeModule()
     Request.Unk3 = 4;
     Request.Unk4 = 0;
     Request.String_library2 = 0;
-    Request.Function2 = 0x00419D40;         // 0x00400000 + 0x00419D40 FrameScript::GetText
+    Request.Function2 = 0x00419D40;                         // 0x00400000 + 0x00419D40 FrameScript::GetText
     Request.Function2_set = 1;
 
     Request.Command3 = WARDEN_SMSG_MODULE_INITIALIZE;
@@ -249,7 +257,7 @@ void Warden::InitializeModule()
     Request.Unk5 = 1;
     Request.Unk6 = 1;
     Request.String_library3 = 0;
-    Request.Function3 = 0x0046AE20;         // 0x00400000 + 0x0046AE20 PerformanceCounter
+    Request.Function3 = 0x0046AE20;                         // 0x00400000 + 0x0046AE20 PerformanceCounter
     Request.Function3_set = 1;
 
     // Encrypt with warden RC4 key.
@@ -297,11 +305,13 @@ void Warden::RequestHashReply(ByteBuffer &buff)
     // verify key not equal kick player
     if (memcmp(buff.contents() + 1, validHash, sizeof(validHash)) != 0)
     {
-        sLog.outError("WARDEN:0x04 isn't equal");
+        sLog.outError("WARDEN: Request hash reply failed");
         if (Client->GetPlayer())
             Client->GetPlayer()->GetAntiCheat()->DoAntiCheatCheck(CHECK_WARDEN_KEY,0,true);
         return;
     }
+
+    sLog.outDebug("WARDEN: Request hash reply succeed");
 
     // client 7F96EEFDA5B63D20A4DF8E00CBF48304
     const uint8 client_key[16] = { 0x7F, 0x96, 0xEE, 0xFD, 0xA5, 0xB6, 0x3D, 0x20, 0xA4, 0xDF, 0x8E, 0x00, 0xCB, 0xF4, 0x83, 0x04 };
@@ -346,7 +356,7 @@ void Warden::RequestData()
     }
 
     ByteBuffer buff;
-    buff << uint8(WARDEN_SMSG_MODULE_REQUEST_DATA);
+    buff << uint8(WARDEN_SMSG_CHEAT_CHECKS_REQUEST);
 
     for (int i = 0; i < 5; ++i)                             // for now include 5 random checks
     {
@@ -365,9 +375,6 @@ void Warden::RequestData()
                 break;
         }
     }
-
-    for (std::vector<uint32>::iterator itr = SendDataId.begin(); itr != SendDataId.end(); ++itr)
-        DEBUG_LOG("WARDEN:SendDataId send check id %u", *itr);
 
     uint8 xorByte = InputKey[0];
 
@@ -443,7 +450,6 @@ void Warden::RequestData()
     WorldPacket pkt(SMSG_WARDEN_DATA, buff.size());
     pkt.append(buff);
     Client->SendPacket(&pkt);
-    DEBUG_LOG("WARDEN:Request data send");
 
     m_WardenDataSent = true;
 }
@@ -466,7 +472,7 @@ bool Warden::IsValidCheckSum(uint32 checksum, const uint8 *Data, const uint16 Le
 
 void Warden::HandleData(ByteBuffer &buff)
 {
-    buff.hexlike();
+    DEBUG_LOG("WARDEN: Handle date");
 
     m_WardenDataSent = false;
     m_WardenKickTimer = 0;
@@ -500,16 +506,13 @@ void Warden::HandleData(ByteBuffer &buff)
         uint32 newClientTicks;
         buff >> newClientTicks;
 
-        if (Player *plr = Client->GetPlayer())
-        {
-            uint32 ticksNow = WorldTimer::getMSTime();
-            uint32 ourTicks = newClientTicks + (ticksNow - ServerTicks);
+        uint32 ticksNow = WorldTimer::getMSTime();
+        uint32 ourTicks = newClientTicks + (ticksNow - ServerTicks);
 
-            DEBUG_LOG("WARDEN:ServerTicks %u", ticksNow);     // now
-            DEBUG_LOG("WARDEN:RequestTicks %u", ServerTicks); // at request
-            DEBUG_LOG("WARDEN:Ticks %u", newClientTicks);     // at response
-            DEBUG_LOG("WARDEN:Ticks diff %u", ourTicks - newClientTicks);
-        }
+        DEBUG_LOG("WARDEN:ServerTicks %u", ticksNow);         // now
+        DEBUG_LOG("WARDEN:RequestTicks %u", ServerTicks);     // at request
+        DEBUG_LOG("WARDEN:Ticks %u", newClientTicks);         // at response
+        DEBUG_LOG("WARDEN:Ticks diff %u", ourTicks - newClientTicks);
     }
 
     WardenDataResult *rs;
