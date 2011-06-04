@@ -7,5 +7,5 @@ CREATE TABLE IF NOT EXISTS `creature_spell` (
     `active`    tinyint(3) unsigned NOT NULL DEFAULT '0'COMMENT 'Active state for this spell',
     `disabled`  tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT 'Boolean state for spell',
     `flags`     int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell custom flags',
-     PRIMARY KEY (`guid`,`spell`,`index`)
+     PRIMARY KEY (`guid`,`index`,`active`)
 ) DEFAULT CHARSET=utf8 PACK_KEYS=0 COMMENT='Creature spells storage';
