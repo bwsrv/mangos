@@ -1061,6 +1061,9 @@ void World::SetInitialWorldSettings()
     sLog.outString( "Loading Creature templates..." );
     sObjectMgr.LoadCreatureTemplates();
 
+    sLog.outString( "Loading Creature spells..." );
+    sObjectMgr.LoadCreatureSpells();
+
     sLog.outString( "Loading Creature Model for race..." ); // must be after creature templates
     sObjectMgr.LoadCreatureModelRace();
 

@@ -167,9 +167,6 @@ m_creatureInfo(NULL), m_splineFlags(SPLINEFLAG_WALKMODE)
     m_regenTimer = 200;
     m_valuesCount = UNIT_END;
 
-    for(int i = 0; i < CREATURE_MAX_SPELLS; ++i)
-        m_spells[i] = 0;
-
     m_CreatureSpellCooldowns.clear();
     m_CreatureCategoryCooldowns.clear();
 
@@ -397,9 +394,6 @@ bool Creature::UpdateEntry(uint32 Entry, Team team, const CreatureData *data /*=
         else
             SetPvP(false);
     }
-
-    for(int i = 0; i < CREATURE_MAX_SPELLS; ++i)
-        m_spells[i] = GetCreatureInfo()->spells[i];
 
     SetVehicleId(GetCreatureInfo()->vehicleId);
 
@@ -1651,14 +1645,16 @@ SpellEntry const *Creature::ReachWithSpellAttack(Unit *pVictim)
     if(!pVictim)
         return NULL;
 
-    for(uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
+    for(uint32 i = 0; i <= GetSpellMaxIndex(); ++i)
     {
-        if(!m_spells[i])
+        uint32 spellID = GetSpell(i);
+        if(!spellID)
             continue;
-        SpellEntry const *spellInfo = sSpellStore.LookupEntry(m_spells[i] );
+
+        SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellID);
         if(!spellInfo)
         {
-            sLog.outError("WORLD: unknown spell id %i", m_spells[i]);
+            sLog.outError("WORLD: unknown spell id %i", spellID);
             continue;
         }
 
@@ -1703,14 +1699,16 @@ SpellEntry const *Creature::ReachWithSpellCure(Unit *pVictim)
     if(!pVictim)
         return NULL;
 
-    for(uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
+    for(uint32 i = 0; i <= GetSpellMaxIndex(); ++i)
     {
-        if(!m_spells[i])
+        uint32 spellID = GetSpell(i);
+        if (spellID)
             continue;
-        SpellEntry const *spellInfo = sSpellStore.LookupEntry(m_spells[i] );
+
+        SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellID);
         if(!spellInfo)
         {
-            sLog.outError("WORLD: unknown spell id %i", m_spells[i]);
+            sLog.outError("WORLD: unknown spell id %i", spellID);
             continue;
         }
 
@@ -2140,13 +2138,12 @@ bool Creature::IsInEvadeMode() const
     return !i_motionMaster.empty() && i_motionMaster.GetCurrentMovementGeneratorType() == HOME_MOTION_TYPE;
 }
 
-bool Creature::HasSpell(uint32 spellID) const
+bool Creature::HasSpell(uint32 spellID)
 {
-    uint8 i;
-    for(i = 0; i < CREATURE_MAX_SPELLS; ++i)
-        if(spellID == m_spells[i])
-            break;
-    return i < CREATURE_MAX_SPELLS;                         // break before end of iteration of known spells
+    for(uint8 i = 0; i <= GetSpellMaxIndex(); ++i)
+        if (spellID == GetSpell(i))
+            return true;
+    return false;
 }
 
 time_t Creature::GetRespawnTimeEx() const
@@ -2515,4 +2512,41 @@ void Creature::SpawnInMaps(uint32 db_guid, CreatureData const* data)
 bool Creature::HasStaticDBSpawnData() const
 {
     return sObjectMgr.GetCreatureData(GetGUIDLow()) != NULL;
+}
+
+uint32 Creature::GetSpell(uint8 index)
+{
+    if (index > GetSpellMaxIndex())
+        return 0;
+
+    CreatureSpellsList const* spellList = sObjectMgr.GetCreatureSpells(GetEntry());
+    if (!spellList)
+        return 0;
+
+    CreatureSpellsList::const_iterator itr = spellList->find(index);
+
+    if (itr == spellList->end())
+        return 0;
+
+    CreatureSpellEntry const* spellEntry = &itr->second;
+
+    if (!spellEntry)
+        return 0;
+
+    if (spellEntry->disabled)
+        return 0;
+
+    // other checks there
+
+    return spellEntry->spell;
+}
+
+uint8 Creature::GetSpellMaxIndex()
+{
+    CreatureSpellsList const* spellList = sObjectMgr.GetCreatureSpells(GetEntry());
+    if (!spellList)
+        return 0;
+
+    return (spellList ? spellList->rbegin()->first : 0);
+
 }
