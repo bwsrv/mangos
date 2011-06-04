@@ -2264,11 +2264,6 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
         {
             if (m_caster->GetObjectGuid().IsPet())
             {
-//                case 24604:                                 // Furious Howl, from 3.1.0
-//                case 70728:                                 // Exploit Weakness
-//                case 70893:                                 // Culling the Herd
-//                case 53434:                                 // Call of the Wild
-//                64491 and similate
                 // only affect pet and owner
                 targetUnitMap.push_back(m_caster);
                 if (Unit* owner = m_caster->GetOwner())
@@ -2394,16 +2389,8 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             }
             break;
         case TARGET_ALL_FRIENDLY_UNITS_IN_AREA:
-            // Death Pact (in fact selection by player selection)
-            if (m_spellInfo->Id == 48743)
-            {
-                // checked in Spell::CheckCast
-                if (m_caster->GetTypeId()==TYPEID_PLAYER)
-                    if (Unit* target = m_caster->GetMap()->GetPet(((Player*)m_caster)->GetSelectionGuid()))
-                        targetUnitMap.push_back(target);
-            }
             // Circle of Healing
-            else if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PRIEST && m_spellInfo->SpellVisual[0] == 8253)
+            if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PRIEST && m_spellInfo->SpellVisual[0] == 8253)
             {
                 Unit* target = m_targets.getUnitTarget();
                 if(!target)
@@ -3475,13 +3462,6 @@ void Spell::cast(bool skipCheck)
             // Chains of Ice
             if (m_spellInfo->Id == 45524)
                 AddTriggeredSpell(55095);                   // Frost Fever
-            break;
-        }
-        case SPELLFAMILY_WARLOCK:
-        {
-            // Consume shadows - invisible detect part
-            if (m_spellInfo->SpellIconID == 207 && (m_spellInfo->SpellFamilyFlags & UI64LIT(0x000000000000000002000000)))
-                AddPrecastSpell(54501);                     // Consume shadows - MOD_STEALTH_DETECT
             break;
         }
         default:
@@ -5445,32 +5425,6 @@ SpellCastResult Spell::CheckCast(bool strict)
         switch(m_spellInfo->Effect[i])
         {
             case SPELL_EFFECT_INSTAKILL:
-                // Death Pact
-                if(m_spellInfo->Id == 48743)
-                {
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                        return SPELL_FAILED_ERROR;
-
-                    if (!((Player*)m_caster)->GetSelectionGuid())
-                        return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
-                    Pet* target = m_caster->GetMap()->GetPet(((Player*)m_caster)->GetSelectionGuid());
-
-                    // alive
-                    if (!target || target->isDead())
-                        return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
-                    // undead
-                    if (target->GetCreatureType() != CREATURE_TYPE_UNDEAD)
-                        return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
-                    // owned
-                    if (target->GetOwnerGuid() != m_caster->GetObjectGuid())
-                        return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
-
-                    float dist = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
-                    if (!target->IsWithinDistInMap(m_caster,dist))
-                        return SPELL_FAILED_OUT_OF_RANGE;
-
-                    // will set in target selection code
-                }
                 break;
             case SPELL_EFFECT_DUMMY:
             {
@@ -7841,6 +7795,53 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
         {
             FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
             break;
+        }
+        case 48743:
+        {
+            if (i != EFFECT_INDEX_1)
+                return false;
+
+            Unit* unitTarget = m_targets.getUnitTarget();
+            if (unitTarget && (unitTarget->GetEntry() == 26125 || unitTarget->GetEntry() == 24207) &&
+                unitTarget->GetObjectGuid().IsPet() && unitTarget->GetOwnerGuid() == m_caster->GetObjectGuid())
+            {
+                targetUnitMap.push_back(unitTarget);
+            }
+            else
+            {
+                unitTarget = NULL;
+                GuardianPetList const* petList = &m_caster->GetGuardians();
+
+                if (petList)
+                {
+
+                    for (GuardianPetList::const_iterator itr = petList->begin(); itr != petList->end(); ++itr)
+                        if (Unit* ghoul = m_caster->GetMap()->GetUnit(*itr))
+                            if (ghoul->GetEntry() == 24207)
+                                targetUnitMap.push_back(ghoul);
+
+                    if (targetUnitMap.size() > 1)
+                    {
+                        targetUnitMap.sort(TargetDistanceOrderNear(m_caster));
+                        targetUnitMap.resize(1);
+                    }
+                }
+
+                if (targetUnitMap.empty())
+                   if (m_caster->GetPet() && m_caster->GetPet()->GetEntry() == 26125)
+                       targetUnitMap.push_back((Unit*)m_caster->GetPet());
+            }
+
+            if (targetUnitMap.empty())
+            {
+                // no valid targets, clear cooldown at fail
+                if (m_caster->GetTypeId() == TYPEID_PLAYER)
+                    ((Player*)m_caster)->RemoveSpellCooldown(m_spellInfo->Id, true);
+                SendCastResult(SPELL_FAILED_NO_VALID_TARGETS);
+                finish(false);
+            }
+            break;
+
         }
         case 49158: // Corpse explosion
         case 51325:
