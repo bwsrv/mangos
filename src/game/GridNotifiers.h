@@ -1159,7 +1159,7 @@ namespace MaNGOS
                 if (u->GetObjectGuid() != i_obj.GetObjectGuid() && 
                     (!u->isAlive() || u->IsCorpse()) &&
                     !u->IsDeadByDefault() &&
-                    (u->GetCreatureTypeMask() & CREATURE_TYPEMASK_HUMANOID_OR_UNDEAD) != 0 &&
+                    (u->GetCreatureTypeMask() & CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL) == 0 &&
                     i_obj.IsWithinDistInMap(u, i_range))
                 {
                     i_range = i_obj.GetDistance(u);         // use found unit range as new range limit for next check
