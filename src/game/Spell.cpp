@@ -1643,7 +1643,6 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 65121:                                 // XT002's Light Bomb (h)
                 case 63024:                                 // XT002's Gravitiy Bomb
                 case 64234:                                 // XT002's Gravitiy Bomb (h)
-                case 55479:                                 // Forced Obedience (Naxxramas - Razovius encounter)
                 case 64218:                                 // Overcharge
                 case 66001:                                 // Touch of Darkness
                 case 67281:

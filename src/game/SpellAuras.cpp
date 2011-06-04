@@ -2020,10 +2020,6 @@ void Aura::TriggerSpell()
                 return;
             // Static Charge (Lady Vashj in Serpentshrine Cavern)
             case 38280:
-            // Static Overload normal (Ionar in Halls of Lightning)
-            case 52658:
-            // Static Overload heroic (Ionar in Halls of Lightning)
-            case 59795:
             case 53563:                                     // Beacon of Light
             case 52658:                                     // Static Overload (normal&heroic) (Ionar in Halls of Lightning)
             case 59795:
@@ -11294,18 +11290,3 @@ void Aura::HandleAuraAoeCharm(bool apply, bool real)
     }
 }
 
-void Aura::HandleAuraStopNaturalManaRegen(bool apply, bool real)
-{
-    if (!real)
-        return;
-
-    Unit* target = GetTarget();
-
-    if (!target)
-        return;
-
-    if (apply)
-        target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
-    else
-        target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
-}
