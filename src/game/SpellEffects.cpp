@@ -3121,7 +3121,10 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     {
                         SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
 
-                        if (spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && spellInfo->Id != 23989 && GetSpellRecoveryTime(spellInfo) > 0 )
+                        if (spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && 
+                            spellInfo->Id != 23989 &&
+                            spellInfo->SpellIconID != 1680 &&
+                            GetSpellRecoveryTime(spellInfo) > 0 )
                             ((Player*)m_caster)->RemoveSpellCooldown((itr++)->first,true);
                         else
                             ++itr;
