@@ -138,7 +138,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleModRegen,                                  // 84 SPELL_AURA_MOD_REGEN
     &Aura::HandleModPowerRegen,                             // 85 SPELL_AURA_MOD_POWER_REGEN
     &Aura::HandleChannelDeathItem,                          // 86 SPELL_AURA_CHANNEL_DEATH_ITEM
-    &Aura::HandleModDamagePctTaken,                         // 87 SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN implemented in Unit::MeleeDamageBonusTaken and Unit::SpellDamageBonusTaken
+    &Aura::HandleNoImmediateEffect,                         // 87 SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN implemented in Unit::MeleeDamageBonusTaken and Unit::SpellDamageBonusTaken
     &Aura::HandleNoImmediateEffect,                         // 88 SPELL_AURA_MOD_HEALTH_REGEN_PERCENT implemented in Player::RegenerateHealth
     &Aura::HandlePeriodicDamagePCT,                         // 89 SPELL_AURA_PERIODIC_DAMAGE_PERCENT
     &Aura::HandleUnused,                                    // 90 unused (3.0.8a-3.2.2a) old SPELL_AURA_MOD_RESIST_CHANCE
@@ -2025,15 +2025,6 @@ void Aura::TriggerSpell()
             // Static Overload heroic (Ionar in Halls of Lightning)
             case 59795:
             case 53563:                                     // Beacon of Light
-<<<<<<< HEAD
-            // Searing Light (normal&heroic) (XT-002 in Ulduar)
-            case 63018:
-            case 65121:
-            // Gravity Bomb (normal&heroic) (XT-002 in Ulduar)
-            case 63024:
-            case 64234:
-                // original caster must be target (beacon)
-=======
             case 52658:                                     // Static Overload (normal&heroic) (Ionar in Halls of Lightning)
             case 59795:
             case 63018:                                     // Searing Light (normal&heroic) (XT-002 in Ulduar)
@@ -2041,7 +2032,6 @@ void Aura::TriggerSpell()
             case 63024:                                     // Gravity Bomb (normal&heroic) (XT-002 in Ulduar)
             case 64234:
                 // original caster must be target
->>>>>>> 6aca80261d2b4d632d4f92810790bc282f04d937
                 target->CastSpell(target, trigger_spell_id, true, NULL, this, target->GetObjectGuid());
                 return;
             case 56654:                                     // Rapid Recuperation (triggered energize have baspioints == 0)
@@ -11276,44 +11266,18 @@ void Aura::HandleAuraAoeCharm(bool apply, bool real)
     }
 }
 
-void Aura::HandleModDamagePctTaken(bool Apply, bool Real)
+void Aura::HandleAuraStopNaturalManaRegen(bool apply, bool real)
 {
-    if (!Real)
+    if (!real)
         return;
 
     Unit* target = GetTarget();
-    Unit* caster = GetCaster();
 
-    if(!target || !caster)
+    if (!target)
         return;
 
-    if (Apply)
-    {
-        // Icebound Fortitude
-        if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && GetSpellProto()->SpellFamilyFlags & 0x00100000)
-        {
-            if (caster->GetTypeId() == TYPEID_PLAYER)
-            {
-                int32 value = -GetModifier()->m_amount;
-
-                // Glyph of Icebound Fortitude
-                if (Aura * aur = caster->GetAura(58625, EFFECT_INDEX_0))
-                    value = aur->GetModifier()->m_amount;
-
-                uint32 defval = uint32(((Player*)caster)->GetSkillValue(SKILL_DEFENSE) + ((Player*)caster)->GetRatingBonusValue(CR_DEFENSE_SKILL));
-                if (defval > 400)
-                    value += int32((defval - 400) * 0.075);
-
-                m_modifier.m_amount = -value;
-            }
-        }
-        // Hand of Salvation
-        else if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_PALADIN && GetSpellProto()->SpellFamilyFlags & 0x00000100)
-        {
-            //Glyph of Salvation
-            if (caster->GetObjectGuid() == target->GetObjectGuid())
-                if (Aura * aur = caster->GetAura(63225, EFFECT_INDEX_0))
-                    m_modifier.m_amount = -aur->GetModifier()->m_amount;
-        }
-    }
+    if (apply)
+        target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
+    else
+        target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
 }
