@@ -1249,12 +1249,9 @@ void Spell::DoSpellHitOnUnit(Unit *unit, uint32 effectMask)
             }
 
             // not break stealth by cast targeting
-            if (!(m_spellInfo->AttributesEx & SPELL_ATTR_EX_NOT_BREAK_STEALTH) && m_spellInfo->Id != 58838 &&
-                m_spellInfo->Id != 51690 && m_spellInfo->Id != 53055 && m_spellInfo->Id != 3600 &&
-                m_spellInfo->Id != 44416 && m_spellInfo->SpellIconID != 1954 && m_spellInfo->SpellIconID != 2267 &&
-                !(m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellInfo->SpellIconID == 9) && // Warlock's Voidwalker's Suffering
-                m_spellInfo->Id != 39897 && m_spellInfo->Id != 32592 && m_spellInfo->Id != 32375 && m_spellInfo->Id != 1725 &&
-                m_spellInfo->Id != 1038 && !(m_spellInfo->SpellFamilyFlags2 & UI64LIT(0x00000100)) && m_spellInfo->SpellFamilyFlags != SPELLFAMILYFLAG_ROGUE_SAP)
+            if (!(m_spellInfo->AttributesEx  & SPELL_ATTR_EX_NOT_BREAK_STEALTH) &&
+                !(m_spellInfo->AttributesEx  & SPELL_ATTR_EX_NO_THREAT) &&
+                !(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_UNK28))
                 unit->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
 
             // can cause back attack (if detected), stealth removed at Spell::cast if spell break it
@@ -7208,6 +7205,11 @@ bool Spell::CheckTarget( Unit* target, SpellEffectIndex eff )
     {
         case SPELL_EFFECT_FRIEND_SUMMON:
         case SPELL_EFFECT_SUMMON_PLAYER:                    // from anywhere
+            break;
+        case SPELL_EFFECT_THREAT:
+        case SPELL_EFFECT_THREAT_ALL:
+            if( target->GetTypeId() == TYPEID_PLAYER && !target->GetCharmer() )
+                return false;
             break;
         case SPELL_EFFECT_DUMMY:
             if(m_spellInfo->Id != 20577)                    // Cannibalize
