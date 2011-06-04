@@ -2025,6 +2025,7 @@ void Aura::TriggerSpell()
             // Static Overload heroic (Ionar in Halls of Lightning)
             case 59795:
             case 53563:                                     // Beacon of Light
+<<<<<<< HEAD
             // Searing Light (normal&heroic) (XT-002 in Ulduar)
             case 63018:
             case 65121:
@@ -2032,6 +2033,15 @@ void Aura::TriggerSpell()
             case 63024:
             case 64234:
                 // original caster must be target (beacon)
+=======
+            case 52658:                                     // Static Overload (normal&heroic) (Ionar in Halls of Lightning)
+            case 59795:
+            case 63018:                                     // Searing Light (normal&heroic) (XT-002 in Ulduar)
+            case 65121:
+            case 63024:                                     // Gravity Bomb (normal&heroic) (XT-002 in Ulduar)
+            case 64234:
+                // original caster must be target
+>>>>>>> 6aca80261d2b4d632d4f92810790bc282f04d937
                 target->CastSpell(target, trigger_spell_id, true, NULL, this, target->GetObjectGuid());
                 return;
             case 56654:                                     // Rapid Recuperation (triggered energize have baspioints == 0)

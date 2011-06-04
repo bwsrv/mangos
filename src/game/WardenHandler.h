@@ -27,32 +27,35 @@
 enum WardenOpcodes
 {
     // Client->Server
-    WARDEN_CMSG_HASMODULE_NO_ANSWER             = 0,
-    WARDEN_CMSG_HASMODULE_YES_ANSWER            = 1,
-    WARDEN_CMSG_MODULE_REQUEST_REPLY            = 2,
-    // unknown 3 - exists as response on server 0x04 packet
-    WARDEN_CMSG_HASH_REQUEST_REPLY              = 4,
-
+    WARDEN_CMSG_MODULE_MISSING                  = 0,
+    WARDEN_CMSG_MODULE_OK                       = 1,
+    WARDEN_CMSG_CHEAT_CHECKS_RESULT             = 2,
+    WARDEN_CMSG_MEM_CHECKS_RESULT               = 3,        // only sent if MEM_CHECK bytes doesn't match
+    WARDEN_CMSG_HASH_RESULT                     = 4,
+    WARDEN_CMSG_MODULE_FAILED                   = 5,        // this is sent when client failed to load uploaded module due to cache fail
+ 
     // Server->Client
-    WARDEN_SMSG_HASMODULE_REQUEST               = 0,
-    WARDEN_SMSG_MODULE_TRANSMIT                 = 1,
-    WARDEN_SMSG_MODULE_REQUEST_DATA             = 2,
+    WARDEN_SMSG_MODULE_USE                      = 0,
+    WARDEN_SMSG_MODULE_CACHE                    = 1,
+    WARDEN_SMSG_CHEAT_CHECKS_REQUEST            = 2,
     WARDEN_SMSG_MODULE_INITIALIZE               = 3,
-    // unknown 4 - exists byte len, byte[len]
+    WARDEN_SMSG_MEM_CHECKS_REQUEST              = 4,        // byte len; whole(!EOF) { byte unk(1); byte index(++); string module(can be 0); int offset; byte len; byte[] bytes_to_compare[len]; }
     WARDEN_SMSG_HASH_REQUEST                    = 5
 };
 
 enum WardenCheckType
 {
-    MEM_CHECK               = 0xF3,                         // byte strIndex + uint Offset + byte Len (checks to ensure memory isn't modified?)
-    PAGE_CHECK_A            = 0xB2,                         // uint Seed + byte[20] SHA1 + uint Addr + byte Len
-    PAGE_CHECK_B            = 0xBF,                         // uint Seed + byte[20] SHA1 + uint Addr + byte Len
-    MPQ_CHECK               = 0x98,                         // byte strIndex (checks to ensure MPQ file isn't modified?)
-    LUA_STR_CHECK           = 0x8B,                         // byte strIndex (checks to ensure LUA string isn't used?)
-    DRIVER_CHECK            = 0x71,                         // uint Seed + byte[20] SHA1 + byte strIndex (checks to ensure driver isn't loaded?)
-    TIMING_CHECK            = 0x57,                         // empty (checks to ensure TickCount isn't detoured?)
-    PROC_CHECK              = 0x7E,                         // uint Seed + byte[20] SHA1 + byte strIndex1 + byte strIndex2 + uint Offset + byte Len (checks to ensure proc isn't detoured?)
-    MODULE_CHECK            = 0xD9,                         // uint Seed + byte[20] SHA1 (checks to ensure module isn't loaded)
+
+    MEM_CHECK               = 0xF3,                         // byte moduleNameIndex + uint Offset + byte Len (check to ensure memory isn't modified)
+    PAGE_CHECK_A            = 0xB2,                         // uint Seed + byte[20] SHA1 + uint Addr + byte Len (scans all pages for specified hash)
+    PAGE_CHECK_B            = 0xBF,                         // uint Seed + byte[20] SHA1 + uint Addr + byte Len (scans only pages starts with MZ+PE headers for specified hash)
+    MPQ_CHECK               = 0x98,                         // byte fileNameIndex (check to ensure MPQ file isn't modified)
+    LUA_STR_CHECK           = 0x8B,                         // byte luaNameIndex (check to ensure LUA string isn't used)
+    DRIVER_CHECK            = 0x71,                         // uint Seed + byte[20] SHA1 + byte driverNameIndex (check to ensure driver isn't loaded)
+    TIMING_CHECK            = 0x57,                         // empty (check to ensure GetTickCount() isn't detoured)
+    PROC_CHECK              = 0x7E,                         // uint Seed + byte[20] SHA1 + byte moluleNameIndex + byte procNameIndex + uint Offset + byte Len (check to ensure proc isn't detoured)
+    MODULE_CHECK            = 0xD9,                         // uint Seed + byte[20] SHA1 (check to ensure module isn't injected)
+
 };
 
 #if defined(__GNUC__)
@@ -61,7 +64,7 @@ enum WardenCheckType
 #pragma pack(push,1)
 #endif
 
-struct WardenHasModuleRequest
+struct WardenModuleUse
 {
     uint8 Command;
     uint8 Module_Id[16];
@@ -83,7 +86,7 @@ struct WardenInitModuleRequest
     uint32 CheckSumm1;
     uint8 Unk1;
     uint8 Unk2;
-    uint8 Library_index;
+    uint8 Type;
     uint8 String_library1;
     uint32 Function1[4];
 
@@ -144,7 +147,6 @@ class WorldSession;
 
 class Warden
 {
-    WorldSession * Client;
     public:
         Warden();
         ~Warden();
@@ -167,6 +169,7 @@ class Warden
         uint32 BuildChecksum(const uint8* data, uint32 dataLen);
 
     private:
+        WorldSession * Client;
         uint8 InputKey[16];
         uint8 OutputKey[16];
         uint8 Seed[16];
@@ -178,7 +181,6 @@ class Warden
         uint32 m_WardenKickTimer;                           // time after send packet
         uint32 m_WardenTimer;
         ClientWardenModule *Module;
-        // uint32 id of send data`s
         std::vector<uint32> SendDataId;
         std::vector<uint32> MemCheck;
         bool m_initialized;

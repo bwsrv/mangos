@@ -3331,7 +3331,10 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     {
                         SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
 
-                        if (spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && spellInfo->Id != 23989 && GetSpellRecoveryTime(spellInfo) > 0 )
+                        if (spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && 
+                            spellInfo->Id != 23989 &&
+                            spellInfo->SpellIconID != 1680 &&
+                            GetSpellRecoveryTime(spellInfo) > 0 )
                             ((Player*)m_caster)->RemoveSpellCooldown((itr++)->first,true);
                         else
                             ++itr;
@@ -3623,21 +3626,22 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
             if(m_spellInfo->SpellIconID == 1737)
             {
                 // Living ghoul as a target
-                if (unitTarget->GetEntry() == 26125 && unitTarget->isAlive())
+                if (unitTarget->isAlive() && unitTarget->GetObjectGuid().IsPet() && unitTarget->GetEntry() == 26125)
                 {
-                    int32 bp = unitTarget->GetMaxHealth()*0.25f;
+                    int32 bp = int32(unitTarget->GetMaxHealth()/4.0f);
                     unitTarget->CastCustomSpell(unitTarget,47496,&bp,NULL,NULL,true);
+                    unitTarget->CastSpell(unitTarget, 53730, true, NULL, NULL, m_caster->GetObjectGuid());
+                    unitTarget->CastSpell(unitTarget,43999,true);
+                    if (unitTarget->getDeathState() == CORPSE)
+                        unitTarget->RemoveFromWorld();
                 }
-                // other target (died)
-                else   
+                else if (!unitTarget->isAlive())
                 {
-                    if (!unitTarget->isDead())
-                        return;
-
-                    int32 bp = m_currentBasePoints[0]+1;
-                    m_caster->CastCustomSpell(unitTarget,50444,&bp,NULL,NULL,true);
+                    m_caster->CastSpell(unitTarget, 50444, true, NULL, NULL, m_caster->GetObjectGuid());
+                    m_caster->CastSpell(unitTarget, 53730, true, NULL, NULL, m_caster->GetObjectGuid());
+                    if (unitTarget->getDeathState() == CORPSE)
+                        unitTarget->RemoveFromWorld();
                 }
-                unitTarget->SetDisplayId(25537+urand(0,3));
                 return;
             }
             // Death Coil
