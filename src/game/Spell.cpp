@@ -7758,13 +7758,13 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
                 targetUnitMap.push_back(pCorpseTarget);
             else
                 targetUnitMap.push_back((Unit*)m_caster);
-            return true;
+            break;
         }
         case 47496: // Ghoul's explode
         case 50444:
         {
             FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
-            return true;
+            break;
         }
         case 49158: // Corpse explosion
         case 51325:
@@ -7806,15 +7806,15 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
                 SendCastResult(SPELL_FAILED_NO_VALID_TARGETS);
                 finish(false);
             }
-            return true;
+            break;
         }
         case 58912: // Deathstorm
         {
             if (!m_caster->GetObjectGuid().IsVehicle())
-                return false;
+                break;
 
             SetTargetMap(SpellEffectIndex(i), TARGET_RANDOM_ENEMY_CHAIN_IN_AREA, targetUnitMap);
-            return true;
+            break;
         }
         case 61999: // Raise ally
         {
@@ -7823,12 +7823,12 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
                 targetUnitMap.push_back((Unit*)result);
             else
                 targetUnitMap.push_back((Unit*)m_caster);
-            return true;
+            break;
         }
         case 65045: // Flame of demolisher
         {
             FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
-            return true;
+            break;
         }
         case 72378: // Blood Nova
         case 73058:
@@ -7847,9 +7847,6 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
 
                     targetUnitMap.push_back((*iter));
                 }
-
-                if (!targetUnitMap.empty())
-                    return true;
             }
             break;
         }
@@ -7865,9 +7862,6 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
                         continue;
                     targetUnitMap.push_back((*iter));
                 }
-
-                if (!targetUnitMap.empty())
-                    return true;
             }
             break;
         }
@@ -7892,10 +7886,10 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
                     targetUnitMap.push_back((*iter));
                 }
             }
-            return true;
+            break;
         }
         default:
             return false;
     }
-    return false;
+    return true;
 }
