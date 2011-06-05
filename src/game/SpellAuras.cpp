@@ -4618,7 +4618,7 @@ void Aura::HandleModCharm(bool apply, bool Real)
             // restore faction
             if(((Creature*)target)->IsPet())
             {
-                if(Unit* owner = target->GetOwner())
+                if(Unit* owner = ((Pet*)target)->GetOwner())
                     target->setFaction(owner->getFaction());
                 else if(cinfo)
                     target->setFaction(cinfo->faction_A);
