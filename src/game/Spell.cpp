@@ -7816,6 +7816,15 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             }
             break;
         }
+        case 49821: // Mind Sear
+        case 53022:
+        {
+            Unit* unitTarget = m_targets.getUnitTarget();
+            FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+            if  (unitTarget)
+                targetUnitMap.remove(unitTarget);
+            return true;
+        }
         case 58912: // Deathstorm
         {
             if (!m_caster->GetObjectGuid().IsVehicle())
