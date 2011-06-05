@@ -1261,7 +1261,7 @@ struct MapEntry
     uint32  MapID;                                          // 0        m_ID
     //char*       internalname;                             // 1        m_Directory
     uint32  map_type;                                       // 2        m_InstanceType
-    //uint32 mapFlags;                                      // 3        m_Flags (0x100 - CAN_CHANGE_PLAYER_DIFFICULTY)
+    uint32 mapFlags;                                        // 3        m_Flags (0x100 - CAN_CHANGE_PLAYER_DIFFICULTY)
     //uint32 isPvP;                                         // 4        m_PVP 0 or 1 for battlegrounds (not arenas)
     char*   name[16];                                       // 5-20     m_MapName_lang
                                                             // 21 string flags
@@ -1303,6 +1303,11 @@ struct MapEntry
     bool IsContinent() const
     {
         return MapID == 0 || MapID == 1 || MapID == 530 || MapID == 571;
+    }
+
+    bool IsTransport() const
+    {
+        return map_type == MAP_COMMON &&  mapFlags == 1;
     }
 };
 
