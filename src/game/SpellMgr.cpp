@@ -114,6 +114,9 @@ uint32 GetSpellCastTime(SpellEntry const* spellInfo, Spell const* spell)
 
     if (spell)
     {
+        if (spellInfo->RequiresSpellFocus == 4 && spell->GetCaster()->HasAura(67556))
+            castTime /= 2;
+
         if (Player* modOwner = spell->GetCaster()->GetSpellModOwner())
             modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_CASTING_TIME, castTime, spell);
 
