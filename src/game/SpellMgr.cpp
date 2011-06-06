@@ -664,12 +664,6 @@ bool IsPositiveEffect(SpellEntry const *spellproto, SpellEffectIndex effIndex)
     if (!spellproto)
         return false;
 
-    // explicit targeting set positiveness independent from real effect
-    // Note: IsExplicitNegativeTarget can't be used symmetric (look some TARGET_SINGLE_ENEMY spells for example)
-    if (IsExplicitPositiveTarget(spellproto->EffectImplicitTargetA[effIndex]) ||
-        IsExplicitPositiveTarget(spellproto->EffectImplicitTargetB[effIndex]))
-        return true;
-
     switch(spellproto->Id)
     {
         case 72219:                                         // Gastric Bloat 10 N
@@ -775,8 +769,9 @@ bool IsPositiveEffect(SpellEntry const *spellproto, SpellEffectIndex effIndex)
                         return false;
                     break;
                 case SPELL_AURA_MOD_DAMAGE_TAKEN:           // dependent from bas point sign (positive -> negative)
-                    if(spellproto->CalculateSimpleValue(effIndex) > 0)
-                        return false;
+                    if (spellproto->CalculateSimpleValue(effIndex) < 0)
+                        return true;
+                    // let check by target modes (for Amplify Magic cases/etc)
                     break;
                 case SPELL_AURA_MOD_SPELL_CRIT_CHANCE:
                 case SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT:
@@ -916,9 +911,17 @@ bool IsPositiveEffect(SpellEntry const *spellproto, SpellEffectIndex effIndex)
                     }
                 }   break;
                 case SPELL_AURA_FORCE_REACTION:
-                    if(spellproto->Id==42792)               // Recently Dropped Flag (prevent cancel)
-                        return false;
+                {
+                    switch (spellproto->Id)
+                    {
+                        case 42792:                         // Recently Dropped Flag (prevent cancel)
+                        case 46221:                         // Animal Blood
+                            return false;
+                        default:
+                            break;
+                    }
                     break;
+                }
                 default:
                     break;
             }
@@ -4722,28 +4725,24 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
     return true;
 }
 
-SpellEntry const* GetSpellEntryByDifficulty(uint32 id, Difficulty difficulty)
+SpellEntry const* GetSpellEntryByDifficulty(uint32 id, Difficulty difficulty, bool isRaid)
 {
     SpellDifficultyEntry const* spellDiff = sSpellDifficultyStore.LookupEntry(id);
 
     if (!spellDiff)
         return NULL;
 
-    if (!spellDiff->spellId[difficulty])
-    {
-        if (difficulty == RAID_DIFFICULTY_25MAN_HEROIC)
-            difficulty = RAID_DIFFICULTY_25MAN_NORMAL;
-    }
-
-    if (!spellDiff->spellId[difficulty])
-        return NULL;
-
-    sLog.outDebug("Searching spell %u in SpellDifficulty.dbc: Result is: %u/%u/%u/%u ",id, 
+    DEBUG_LOG("Searching spell %u in SpellDifficulty.dbc: Result is: %u/%u/%u/%u ",id, 
     spellDiff->spellId[RAID_DIFFICULTY_10MAN_NORMAL],
     spellDiff->spellId[RAID_DIFFICULTY_25MAN_NORMAL],
     spellDiff->spellId[RAID_DIFFICULTY_10MAN_HEROIC],
     spellDiff->spellId[RAID_DIFFICULTY_25MAN_HEROIC]);
 
-    SpellEntry const* spellEntry = sSpellStore.LookupEntry(spellDiff->spellId[difficulty]);
-    return spellEntry;
+    for (Difficulty diff = difficulty; diff >= REGULAR_DIFFICULTY; diff = GetPrevDifficulty(diff, isRaid))
+    {
+        if (spellDiff->spellId[diff])
+            return sSpellStore.LookupEntry(spellDiff->spellId[difficulty]);
+    }
+
+    return NULL;
 }
