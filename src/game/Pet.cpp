@@ -235,9 +235,7 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
             break;
     }
 
-    if (owner->GetTypeId() == TYPEID_PLAYER)
-        setFaction(((Player*)owner)->GetTeam());
-    else if (getFaction() != owner->getFaction())
+    if (getFaction() != owner->getFaction())
         setFaction(owner->getFaction());
 
     if(owner->IsPvP())
@@ -2021,10 +2019,7 @@ bool Pet::Create(uint32 guidlow, CreatureCreatePos& cPos, CreatureInfo const* ci
     else
         m_charmInfo->SetPetNumber(pet_number, false);
 
-    if (owner->GetTypeId() == TYPEID_PLAYER)
-        setFaction(((Player*)owner)->GetTeam());
-    else 
-        setFaction(owner->getFaction());
+    setFaction(owner->getFaction());
                                            // Faction be owerwritten later, if ForceFaction present
 
     SetOwnerGuid(owner->GetObjectGuid());
@@ -2890,10 +2885,7 @@ bool Pet::Summon()
             RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP | UNIT_BYTE2_FLAG_SANCTUARY | UNIT_BYTE2_FLAG_PVP);
             SetNeedSave(true);
             owner->SetPet(this);
-            if (owner->GetTypeId() == TYPEID_PLAYER)
-                setFaction(((Player*)owner)->GetTeam());
-            else if (getFaction() != owner->getFaction())
-                setFaction(owner->getFaction());
+            setFaction(owner->getFaction());
             break;
         }
         case HUNTER_PET:  // Called only if new tamed pet created
@@ -2911,10 +2903,7 @@ bool Pet::Summon()
             SetPower(POWER_HAPPINESS, HAPPINESS_LEVEL_SIZE);
             SetNeedSave(true);
             owner->SetPet(this);
-            if (owner->GetTypeId() == TYPEID_PLAYER)
-                setFaction(((Player*)owner)->GetTeam());
-            else if (getFaction() != owner->getFaction())
-                setFaction(owner->getFaction());
+            setFaction(owner->getFaction());
             break;
         }
         case MINI_PET:
