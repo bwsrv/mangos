@@ -365,7 +365,7 @@ void WorldSession::HandleLfgPartyLockInfoRequestOpcode(WorldPacket & /*recv_data
             }
         }
 
-        GetPlayer()->GetGroup()->BroadcastPacket(&data, false);
+        SendPacket(&data);
     }
 }
 
