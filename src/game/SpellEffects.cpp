@@ -4344,6 +4344,25 @@ void Spell::EffectApplyAura(SpellEffectIndex eff_idx)
         }
     }
 
+    // Arcane Overload - Reduce protection aura radius (Malygos - triggered by 56432)
+    if(m_spellInfo->Id == 56438 && m_caster->HasAura(56435))
+    {
+        if(Aura* sizeAur = m_caster->GetAura(56435, EFFECT_INDEX_0))
+        {
+            uint8 stackAmount = sizeAur->GetStackAmount();
+            float reduceRadius = stackAmount * 0.267; // radius 12.0 -> reduction at 1 tick per sec for duration of 45 secs ~ 0.267
+
+            float newRadius = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[eff_idx])) - reduceRadius;
+            
+            // prevent negative radius
+            if (newRadius < 0.0)
+                newRadius = 0.0;
+
+            if (!unitTarget->IsWithinDist(m_caster, newRadius, true))
+                return;
+        }
+    }
+
     if(duration != aur->GetAuraMaxDuration())
     {
         m_spellAuraHolder->SetAuraMaxDuration(duration);
