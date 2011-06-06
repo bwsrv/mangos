@@ -7296,18 +7296,18 @@ bool Unit::IsSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                     case SPELLFAMILY_MAGE:
                     {
                         // Fire Blast
-                        if (spellProto->SpellFamilyFlags & UI64LIT(0x0000000000000002) && spellProto->SpellIconID == 12)
+                        if (spellProto->IsFitToFamilyMask(UI64LIT(0x0000000000000002)) && spellProto->SpellIconID == 12)
                         {
                             // Glyph of Fire Blast
-                            if (Aura* aura = GetAura(56369, EFFECT_INDEX_0))
-                                if (pVictim->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED) || pVictim->isInRoots())
+                            if (pVictim->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED) || pVictim->isInRoots())
+                                if (Aura* aura = GetAura(56369, EFFECT_INDEX_0))
                                     crit_chance += aura->GetModifier()->m_amount;
                         }
                         break;
                     }
                     case SPELLFAMILY_PRIEST:
                         // Flash Heal
-                        if (spellProto->SpellFamilyFlags & UI64LIT(0x0000000000000800))
+                        if (spellProto->IsFitToFamilyMask(UI64LIT(0x0000000000000800)))
                         {
                             if (pVictim->GetHealth() > pVictim->GetMaxHealth()/2)
                                 break;
@@ -7326,7 +7326,7 @@ bool Unit::IsSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                         break;
                     case SPELLFAMILY_DRUID:
                         // Improved Insect Swarm (Starfire part)
-                        if (spellProto->SpellFamilyFlags & UI64LIT(0x0000000000000004))
+                        if (spellProto->IsFitToFamilyMask(UI64LIT(0x0000000000000004)))
                         {
                             // search for Moonfire on target
                             if (pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DRUID, UI64LIT(0x000000000000002), 0, GetObjectGuid()))
@@ -7374,7 +7374,7 @@ bool Unit::IsSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                         break;
                     case SPELLFAMILY_SHAMAN:
                         // Lava Burst
-                        if (spellProto->SpellFamilyFlags & UI64LIT(0x0000100000000000))
+                        if (spellProto->IsFitToFamilyMask(UI64LIT(0x0000100000000000)))
                         {
                             // Flame Shock
                             if (pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_SHAMAN, UI64LIT(0x0000000010000000), 0, GetObjectGuid()))
