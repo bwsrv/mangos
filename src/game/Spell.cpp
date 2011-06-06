@@ -1659,6 +1659,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 66152:                                 // Bullet Foced Cast (Trial of the Crusader, ->
                 case 66153:                                 // -> Twin Valkyr encounter, 10 and 25 mode)
                 case 66339:                                 // Summon Scarab (Trial of the Crusader, Anub'arak encounter)
+                case 69140:                                 // Coldflame (Icecrown Citadel, Lord Marrowgar encounter)
                 case 73058:                                 // Blood Nova
                 case 72378:                                 // Blood Nova
                     unMaxTargets = 1;

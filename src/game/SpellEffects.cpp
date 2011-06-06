@@ -8714,6 +8714,17 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         unitTarget->CastSpell(unitTarget, 66334, true);
                     return;
                 }
+                case 69140:                                 // Coldflame (Lord Marrowgar - Icecrown Citadel)
+                {
+                    if (unitTarget)
+                        unitTarget->CastSpell(m_caster, m_spellInfo->EffectBasePoints[eff_idx], true);
+                    return;
+                }
+                case 69147:                                 // Coldflame (circle, Lord Marrowgar - Icecrown Citadel)
+                {
+                    m_caster->CastSpell(m_caster, m_spellInfo->EffectBasePoints[eff_idx], true);
+                    return;
+                }
                 case 70117:                                 // Ice grip (Sindragosa pull effect)
                 {
                     if (!unitTarget)
@@ -8846,6 +8857,14 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, 72231, true);
 
                     break;
+                }
+                case 72705:                                 // Coldflame (in bone storm, Lord Marrowgar - Icecrown Citadel)
+                {
+                    m_caster->CastSpell(m_caster, 72701, true);
+                    m_caster->CastSpell(m_caster, 72702, true);
+                    m_caster->CastSpell(m_caster, 72703, true);
+                    m_caster->CastSpell(m_caster, 72704, true);
+                    return;
                 }
                 case 72864:                                 // Death plague
                 {
