@@ -324,6 +324,7 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
         CleanupActionBar();                                     // remove unknown spells from action bar after load
         if (isControlled() && !GetPetCounter())
         {
+            SetNeedSave(true);
             ((Player*)owner)->PetSpellInitialize();
             ((Player*)owner)->SendTalentsInfoData(true);
         }
