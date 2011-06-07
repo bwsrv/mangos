@@ -7778,8 +7778,14 @@ bool Unit::IsImmuneToSpell(SpellEntry const* spellInfo)
 
         AuraList const& immuneAuraApply = GetAurasByType(SPELL_AURA_MECHANIC_IMMUNITY_MASK);
         for(AuraList::const_iterator iter = immuneAuraApply.begin(); iter != immuneAuraApply.end(); ++iter)
+        {
+            if ((*iter)->GetId() == 46924 && mechanic == MECHANIC_DISARM)
+                continue;
+
             if ((*iter)->GetModifier()->m_miscvalue & (1 << (mechanic-1)))
                 return true;
+        }
+
     }
 
     return false;
@@ -7803,8 +7809,19 @@ bool Unit::IsImmuneToSpellEffect(SpellEntry const* spellInfo, SpellEffectIndex i
 
         AuraList const& immuneAuraApply = GetAurasByType(SPELL_AURA_MECHANIC_IMMUNITY_MASK);
         for(AuraList::const_iterator iter = immuneAuraApply.begin(); iter != immuneAuraApply.end(); ++iter)
+        {
+            if ((*iter)->GetId() == 46924)
+            {
+                if (mechanic == MECHANIC_DISARM)
+                    continue;
+                else if (spellInfo->EffectMechanic[index] & IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK ||
+                    spellInfo->Mechanic & IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK)
+                    return true;
+            }
+
             if ((*iter)->GetModifier()->m_miscvalue & (1 << (mechanic-1)))
                 return true;
+        }
     }
 
     if(uint32 aura = spellInfo->EffectApplyAuraName[index])
@@ -7828,20 +7845,6 @@ bool Unit::IsImmuneToSpellEffect(SpellEntry const* spellInfo, SpellEffectIndex i
                     return true;
         }
 
-        AuraList const& immuneMechanicAuraApply = GetAurasByType(SPELL_AURA_MECHANIC_IMMUNITY_MASK);
-        // need more checks like ^ there
-        if (!immuneMechanicAuraApply.empty())
-        {
-            for(AuraList::const_iterator i = immuneMechanicAuraApply.begin(); i != immuneMechanicAuraApply.end(); ++i)
-            {
-                if ((spellInfo->EffectMechanic[index] & (*i)->GetMiscValue() ||
-                    spellInfo->Mechanic & (*i)->GetMiscValue()) ||
-                    ((*i)->GetId() == 46924 &&                                                // Bladestorm Immunity
-                    spellInfo->EffectMechanic[index] & IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK ||
-                    spellInfo->Mechanic & IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK))
-                    return true;
-            }
-        }
     }
 
     return false;

@@ -893,6 +893,20 @@ bool Aura::isAffectedOnSpell(SpellEntry const *spell) const
     // Check family name
     if (spell->SpellFamilyName != GetSpellProto()->SpellFamilyName)
         return false;
+
+    // hacks for bad DBC data
+    switch (GetId())
+    {
+        case 46924:
+            if (spell->Id == 1680 || spell->Id == 44949)
+                return false;
+            else if (spell->Id == 50622)
+                return true;
+            break;
+        default:
+            break;
+    }
+
     // Check EffectClassMask
     uint32 const *ptr = getAuraSpellClassMask();
     if (((uint64*)ptr)[0] & spell->SpellFamilyFlags)
