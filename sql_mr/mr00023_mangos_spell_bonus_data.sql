@@ -20,3 +20,7 @@ VALUES
     (54158,0,0,0,0,'Judgement'),
     -- Glyph of Prayer of Healing
     (56161,0,0,0,0,'Glyph of Prayer of Healing');
+
+-- hack from Selector (it's correct, but bonus value is simple)
+DELETE FROM `spell_bonus_data` WHERE entry = 58621;
+INSERT INTO `spell_bonus_data` VALUES (58621, 0, 0, 0.08, 0, 'Glyph of Chains of Ice\r\n');
