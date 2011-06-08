@@ -7483,8 +7483,14 @@ void Aura::HandleSchoolAbsorb(bool apply, bool Real)
 
 void Aura::PeriodicTick()
 {
-    Unit *target = GetTarget();
+    Unit* target = GetTarget();
     SpellEntry const* spellProto = GetSpellProto();
+
+    if (!target || !spellProto)
+        return;
+
+    if (target->IsImmuneToSpell(spellProto))
+        return;
 
     switch(m_modifier.m_auraname)
     {
