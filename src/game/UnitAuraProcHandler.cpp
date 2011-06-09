@@ -47,7 +47,7 @@ pAuraProcHandler AuraProcHandler[TOTAL_AURAS]=
     &Unit::HandleNULLProc,                                  // 12 SPELL_AURA_MOD_STUN
     &Unit::HandleNULLProc,                                  // 13 SPELL_AURA_MOD_DAMAGE_DONE
     &Unit::HandleNULLProc,                                  // 14 SPELL_AURA_MOD_DAMAGE_TAKEN
-    &Unit::HandleNULLProc,                                  // 15 SPELL_AURA_DAMAGE_SHIELD
+    &Unit::HandleDamageShieldAuraProc,                      // 15 SPELL_AURA_DAMAGE_SHIELD
     &Unit::HandleRemoveByDamageProc,                        // 16 SPELL_AURA_MOD_STEALTH
     &Unit::HandleNULLProc,                                  // 17 SPELL_AURA_MOD_STEALTH_DETECT
     &Unit::HandleRemoveByDamageProc,                        // 18 SPELL_AURA_MOD_INVISIBILITY
@@ -353,7 +353,11 @@ pAuraProcHandler AuraProcHandler[TOTAL_AURAS]=
 
 bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, SpellAuraHolder* holder, SpellEntry const* procSpell, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, bool isVictim, SpellProcEventEntry const*& spellProcEvent )
 {
-    SpellEntry const* spellProto = holder->GetSpellProto ();
+
+    if (IsTriggeredAtCustomProcEvent(pVictim, holder, procSpell, procFlag, procExtra, attType, isVictim, spellProcEvent))
+        return true;
+
+    SpellEntry const* spellProto = holder->GetSpellProto();
 
     // Get proc Event Entry
     spellProcEvent = sSpellMgr.GetSpellProcEvent(spellProto->Id);
@@ -4750,6 +4754,88 @@ SpellAuraProcResult Unit::HandleModResistanceAuraProc(Unit* /*pVictim*/, uint32 
         if (!damage)
             return SPELL_AURA_PROC_FAILED;
     }
+
+    return SPELL_AURA_PROC_OK;
+}
+
+bool Unit::IsTriggeredAtCustomProcEvent(Unit *pVictim, SpellAuraHolder* holder, SpellEntry const* procSpell, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, bool isVictim, SpellProcEventEntry const*& spellProcEvent )
+{
+    if (!holder || holder->IsDeleted())
+        return false;
+
+    SpellEntry const* spellProto = holder->GetSpellProto();
+
+//    if (procSpell == spellProto)
+//        return false;
+
+    for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)
+    {
+        if (Aura* aura = holder->GetAuraByEffectIndex(SpellEffectIndex(i)))
+        {
+            AuraType auraName = AuraType(spellProto->EffectApplyAuraName[i]);
+
+            switch (auraName)
+            {
+                case SPELL_AURA_DAMAGE_SHIELD:
+                    if (procFlag & PROC_FLAG_TAKEN_MELEE_HIT)
+                        return true;
+                    break;
+                default:
+                    break;
+            }
+
+        }
+    }
+    return false;
+}
+
+SpellAuraProcResult Unit::HandleDamageShieldAuraProc(Unit* pVictim, uint32 damage, Aura* triggeredByAura, SpellEntry const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown)
+{
+    if (!triggeredByAura)
+        return SPELL_AURA_PROC_FAILED;
+
+    SpellEntry const *spellProto = triggeredByAura->GetSpellProto();
+
+    if (!spellProto)
+        return SPELL_AURA_PROC_FAILED;
+
+    uint32 retdamage = triggeredByAura->GetModifier()->m_amount;
+
+    // Thorns
+    if (spellProto && spellProto->SpellFamilyName == SPELLFAMILY_DRUID && spellProto->SpellFamilyFlags & UI64LIT(0x00000100))
+    {
+        Unit::AuraList const& dummyList = pVictim->GetAurasByType(SPELL_AURA_DUMMY);
+        for(Unit::AuraList::const_iterator iter = dummyList.begin(); iter != dummyList.end(); ++iter)
+        {
+            // Brambles
+            if((*iter)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_DRUID &&
+                (*iter)->GetSpellProto()->SpellIconID == 53)
+                {
+                    damage += uint32(damage * (*iter)->GetModifier()->m_amount / 100);
+                    break;
+                }
+        }
+    }
+
+    int32 DoneAdvertisedBenefit = SpellBaseDamageBonusDone(GetSpellSchoolMask(spellProto));
+    int32 realBenefit = int32(float(DoneAdvertisedBenefit)*3.3f/100.0f);
+    retdamage += realBenefit;
+
+    DealDamageMods(pVictim,retdamage,NULL);
+
+    uint32 targetHealth = pVictim->GetHealth();
+    uint32 overkill = retdamage > targetHealth ? retdamage - targetHealth : 0;
+
+    WorldPacket data(SMSG_SPELLDAMAGESHIELD,(8+8+4+4+4+4));
+    data << GetObjectGuid();
+    data << pVictim->GetObjectGuid();
+    data << uint32(spellProto->Id);
+    data << uint32(retdamage);                  // Damage
+    data << uint32(overkill);                // Overkill
+    data << uint32(spellProto->SchoolMask);
+    SendMessageToSet(&data, true );
+
+    DealDamage(pVictim, retdamage, 0, SPELL_DIRECT_DAMAGE, GetSpellSchoolMask(spellProto), spellProto, true);
 
     return SPELL_AURA_PROC_OK;
 }
