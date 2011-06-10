@@ -13,6 +13,3 @@ INSERT INTO spell_proc_event VALUES (51682, 0x00, 8, 0x10014000, 0x10014000, 0x1
 
 -- Vanish & Invisibility
 DELETE FROM spell_proc_event WHERE entry IN (26888, 32612);
-INSERT INTO spell_proc_event (entry, procFlags) VALUES
-(26888, 664232),
-(32612, 664232);

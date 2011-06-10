@@ -4765,8 +4765,8 @@ bool Unit::IsTriggeredAtCustomProcEvent(Unit *pVictim, SpellAuraHolder* holder, 
 
     SpellEntry const* spellProto = holder->GetSpellProto();
 
-//    if (procSpell == spellProto)
-//        return false;
+    if (procSpell == spellProto)
+        return false;
 
     for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)
     {
@@ -4780,6 +4780,21 @@ bool Unit::IsTriggeredAtCustomProcEvent(Unit *pVictim, SpellAuraHolder* holder, 
                     if (procFlag & PROC_FLAG_TAKEN_MELEE_HIT)
                         return true;
                     break;
+                case SPELL_AURA_MOD_STEALTH:
+                case SPELL_AURA_MOD_INVISIBILITY:
+                {
+                    uint32 anydamageMask = (PROC_FLAG_TAKEN_MELEE_HIT |
+                                        PROC_FLAG_TAKEN_MELEE_SPELL_HIT |
+                                        PROC_FLAG_TAKEN_RANGED_HIT |
+                                        PROC_FLAG_TAKEN_AOE_SPELL_HIT |
+                                        PROC_FLAG_TAKEN_NEGATIVE_SPELL_HIT |
+                                        PROC_FLAG_TAKEN_ANY_DAMAGE |
+                                        PROC_FLAG_ON_TRAP_ACTIVATION);
+                    if (procFlag & anydamageMask &&
+                        spellProto->AuraInterruptFlags & AURA_INTERRUPT_FLAG_DAMAGE)
+                        return true;
+                    break;
+                }
                 default:
                     break;
             }
