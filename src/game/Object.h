@@ -130,7 +130,7 @@ class MANGOS_DLL_SPEC Object
             m_inWorld = true;
 
             // synchronize values mirror with values array (changes will send in updatecreate opcode any way
-            ClearUpdateMask(false);                         // false - we can't have update dat in update queue before adding to world
+            ClearUpdateMask(false);                         // false - we can't have update data in update queue before adding to world
         }
         virtual void RemoveFromWorld()
         {

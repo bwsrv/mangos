@@ -2811,7 +2811,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
             case 57934: //Tricks of Trade
             {
                 if(Unit * caster = GetCaster())
-                    caster->SetThreatRedirectionTarget(0, 0);
+                    caster->SetThreatRedirectionTarget(ObjectGuid(), 0);
                 return;
             }
             case 52098:                                     // Charge Up

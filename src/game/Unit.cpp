@@ -265,7 +265,7 @@ Unit::Unit() :
     m_charmInfo = NULL;
 
     m_ThreatRedirectionPercent = 0;
-    m_misdirectionTargetGUID = 0;
+    m_misdirectionTargetGUID.Clear();
 
     // remove aurastates allowing special moves
     for(int i=0; i < MAX_REACTIVE; ++i)
@@ -8835,12 +8835,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced, float ratio)
     switch(mtype)
     {
         case MOVE_WALK:
-            if (GetTypeId() == TYPEID_UNIT)
-            {
-                ratio *= ((Creature*)this)->GetCreatureInfo()->speed_walk;
-                SetSpeedRate(mtype, ratio, forced);
-            }
-            return;
+            break;
         case MOVE_RUN:
         {
             if (GetTypeId() == TYPEID_UNIT)

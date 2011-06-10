@@ -599,7 +599,9 @@ void PlayerbotAI::HandleBotOutgoingPacket(const WorldPacket& packet)
             uint8 castCount;
             uint32 spellId;
 
-            ObjectGuid casterGuid = p.readPackGUID();
+            ObjectGuid casterGuid;
+            p >> casterGuid.ReadAsPacked();
+
             if (casterGuid != m_bot->GetObjectGuid())
                 return;
 
@@ -617,7 +619,8 @@ void PlayerbotAI::HandleBotOutgoingPacket(const WorldPacket& packet)
         case SMSG_FORCE_RUN_SPEED_CHANGE:
         {
             WorldPacket p(packet);
-            ObjectGuid guid = p.readPackGUID();
+            ObjectGuid guid;
+            p >> guid.ReadAsPacked();
             if (guid != GetMaster()->GetObjectGuid())
                 return;
             if (GetMaster()->IsMounted() && !m_bot->IsMounted())
@@ -686,7 +689,8 @@ void PlayerbotAI::HandleBotOutgoingPacket(const WorldPacket& packet)
         case SMSG_MOVE_SET_CAN_FLY:
         {
             WorldPacket p(packet);
-            ObjectGuid guid = p.readPackGUID();
+            ObjectGuid guid;
+            p >> guid.ReadAsPacked();
             if (guid != m_bot->GetObjectGuid())
                 return;
             m_bot->m_movementInfo.AddMovementFlag(MOVEFLAG_FLYING);
@@ -698,7 +702,8 @@ void PlayerbotAI::HandleBotOutgoingPacket(const WorldPacket& packet)
         case SMSG_MOVE_UNSET_CAN_FLY:
         {
             WorldPacket p(packet);
-            ObjectGuid guid = p.readPackGUID();
+            ObjectGuid guid;
+            p >> guid.ReadAsPacked();
             if (guid != m_bot->GetObjectGuid())
                 return;
             m_bot->m_movementInfo.RemoveMovementFlag(MOVEFLAG_FLYING);
@@ -883,8 +888,10 @@ void PlayerbotAI::HandleBotOutgoingPacket(const WorldPacket& packet)
         case SMSG_SPELL_START:
         {
             WorldPacket p(packet);
-            ObjectGuid castItemGuid = p.readPackGUID();
-            ObjectGuid casterGuid = p.readPackGUID();
+            ObjectGuid castItemGuid;
+            p >>  castItemGuid.ReadAsPacked();
+            ObjectGuid casterGuid;
+            p >>  casterGuid.ReadAsPacked();
             if (casterGuid != m_bot->GetObjectGuid())
                 return;
 
@@ -912,8 +919,10 @@ void PlayerbotAI::HandleBotOutgoingPacket(const WorldPacket& packet)
         case SMSG_SPELL_GO:
         {
             WorldPacket p(packet);
-            ObjectGuid castItemGuid = p.readPackGUID();
-            ObjectGuid casterGuid = p.readPackGUID();
+            ObjectGuid castItemGuid;
+            p >>  castItemGuid.ReadAsPacked();
+            ObjectGuid casterGuid;
+            p >>  casterGuid.ReadAsPacked();
             if (casterGuid != m_bot->GetObjectGuid())
                 return;
 
@@ -3399,7 +3408,7 @@ void PlayerbotAI::extractGOinfo(const std::string& text, std::list<ObjectGuid>& 
         ObjectGuid lootCurrent = ObjectGuid(HIGHGUID_GAMEOBJECT, entry, guid);
 
         if (guid)
-            m_lootTargets.push_back(lootCurrent.GetRawValue());
+            m_lootTargets.push_back(lootCurrent);
     }
 }
 
@@ -3542,7 +3551,7 @@ void PlayerbotAI::findNearbyGO()
         {
             GameObject* go = (*iter);
             if (go->isSpawned())
-                m_lootTargets.push_back(go->GetObjectGuid().GetRawValue());
+                m_lootTargets.push_back(go->GetObjectGuid());
         }
     }
 }
@@ -3933,7 +3942,7 @@ void PlayerbotAI::HandleCommand(const std::string& text, Player& fromPlayer)
         if (spellId != 0 && !castOnGuid.IsEmpty() && m_bot->HasSpell(spellId))
         {
             m_spellIdCommand = spellId;
-            m_targetGuidCommand = castOnGuid.GetRawValue();
+            m_targetGuidCommand = castOnGuid;
         }
 
     }
@@ -3999,7 +4008,7 @@ void PlayerbotAI::HandleCommand(const std::string& text, Player& fromPlayer)
 
             if (c->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE) || c->HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE))
             {
-                m_lootTargets.push_back(getOnGuid.GetRawValue());
+                m_lootTargets.push_back(getOnGuid);
                 SetState(BOTSTATE_LOOTING);
             }
             else

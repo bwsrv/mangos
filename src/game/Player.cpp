@@ -5165,7 +5165,7 @@ void Player::JoinLFGChannel()
     {
         if((*i)->IsLFG())
         {
-            (*i)->Join(GetGUID(),"");
+            (*i)->Join(GetObjectGuid(),"");
             break;
         }
     }
@@ -15746,7 +15746,7 @@ void Player::_LoadArenaTeamInfo(QueryResult *result)
 
 void Player::_LoadEquipmentSets(QueryResult *result)
 {
-    // SetPQuery(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS,   "SELECT setguid, setindex, name, iconname, item0, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18 FROM character_equipmentsets WHERE guid = '%u' ORDER BY setindex", GUID_LOPART(m_guid));
+    // SetPQuery(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS,   "SELECT setguid, setindex, name, iconname, ignore_mask, item0, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18 FROM character_equipmentsets WHERE guid = '%u' ORDER BY setindex", GUID_LOPART(m_guid));
     if (!result)
         return;
 
@@ -15757,14 +15757,15 @@ void Player::_LoadEquipmentSets(QueryResult *result)
 
         EquipmentSet eqSet;
 
-        eqSet.Guid      = fields[0].GetUInt64();
-        uint32 index    = fields[1].GetUInt32();
-        eqSet.Name      = fields[2].GetCppString();
-        eqSet.IconName  = fields[3].GetCppString();
-        eqSet.state     = EQUIPMENT_SET_UNCHANGED;
+        eqSet.Guid          = fields[0].GetUInt64();
+        uint32 index        = fields[1].GetUInt32();
+        eqSet.Name          = fields[2].GetCppString();
+        eqSet.IconName      = fields[3].GetCppString();
+        eqSet.IgnoreMask    = fields[4].GetUInt32();
+        eqSet.state         = EQUIPMENT_SET_UNCHANGED;
 
         for(uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-            eqSet.Items[i] = fields[4+i].GetUInt32();
+            eqSet.Items[i] = fields[5+i].GetUInt32();
 
         m_EquipmentSets[index] = eqSet;
 
@@ -23055,7 +23056,13 @@ void Player::SendEquipmentSetList()
         data << itr->second.Name;
         data << itr->second.IconName;
         for(uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-            data << ObjectGuid(HIGHGUID_ITEM, itr->second.Items[i]).WriteAsPacked();
+        {
+            // ignored slots stored in IgnoreMask, client wants "1" as raw GUID, so no HIGHGUID_ITEM
+            if (itr->second.IgnoreMask & (1 << i))
+                data << ObjectGuid(uint64(1)).WriteAsPacked();
+            else
+                data << ObjectGuid(HIGHGUID_ITEM, itr->second.Items[i]).WriteAsPacked();
+        }
 
         ++count;                                            // client have limit but it checked at loading and set
     }
@@ -23121,12 +23128,13 @@ void Player::_SaveEquipmentSets()
                 break;                                      // nothing do
             case EQUIPMENT_SET_CHANGED:
             {
-                SqlStatement stmt = CharacterDatabase.CreateStatement(updSets, "UPDATE character_equipmentsets SET name=?, iconname=?, item0=?, item1=?, item2=?, item3=?, item4=?, "
+                SqlStatement stmt = CharacterDatabase.CreateStatement(updSets, "UPDATE character_equipmentsets SET name=?, iconname=?, ignore_mask=?, item0=?, item1=?, item2=?, item3=?, item4=?, "
                     "item5=?, item6=?, item7=?, item8=?, item9=?, item10=?, item11=?, item12=?, item13=?, item14=?, "
                     "item15=?, item16=?, item17=?, item18=? WHERE guid=? AND setguid=? AND setindex=?");
 
                 stmt.addString(eqset.Name);
                 stmt.addString(eqset.IconName);
+                stmt.addUInt32(eqset.IgnoreMask);
 
                 for (int i = 0; i < EQUIPMENT_SLOT_END; ++i)
                     stmt.addUInt32(eqset.Items[i]);
@@ -23143,12 +23151,13 @@ void Player::_SaveEquipmentSets()
             }
             case EQUIPMENT_SET_NEW:
             {
-                SqlStatement stmt = CharacterDatabase.CreateStatement(insSets, "INSERT INTO character_equipmentsets VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                SqlStatement stmt = CharacterDatabase.CreateStatement(insSets, "INSERT INTO character_equipmentsets VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 stmt.addUInt32(GetGUIDLow());
                 stmt.addUInt64(eqset.Guid);
                 stmt.addUInt32(index);
                 stmt.addString(eqset.Name);
                 stmt.addString(eqset.IconName);
+                stmt.addUInt32(eqset.IgnoreMask);
 
                 for (int i = 0; i < EQUIPMENT_SLOT_END; ++i)
                     stmt.addUInt32(eqset.Items[i]);
