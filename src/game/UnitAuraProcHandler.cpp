@@ -128,7 +128,7 @@ pAuraProcHandler AuraProcHandler[TOTAL_AURAS]=
     &Unit::HandleNULLProc,                                  // 93 SPELL_AURA_MOD_UNATTACKABLE
     &Unit::HandleNULLProc,                                  // 94 SPELL_AURA_INTERRUPT_REGEN
     &Unit::HandleNULLProc,                                  // 95 SPELL_AURA_GHOST
-    &Unit::HandleNULLProc,                                  // 96 SPELL_AURA_SPELL_MAGNET
+    &Unit::HandleDropChargeByDamageProc,                    // 96 SPELL_AURA_SPELL_MAGNET
     &Unit::HandleManaShieldAuraProc,                        // 97 SPELL_AURA_MANA_SHIELD
     &Unit::HandleNULLProc,                                  // 98 SPELL_AURA_MOD_SKILL_TALENT
     &Unit::HandleNULLProc,                                  // 99 SPELL_AURA_MOD_ATTACK_POWER
@@ -143,7 +143,7 @@ pAuraProcHandler AuraProcHandler[TOTAL_AURAS]=
     &Unit::HandleAddPctModifierAuraProc,                    //108 SPELL_AURA_ADD_PCT_MODIFIER
     &Unit::HandleNULLProc,                                  //109 SPELL_AURA_ADD_TARGET_TRIGGER
     &Unit::HandleNULLProc,                                  //110 SPELL_AURA_MOD_POWER_REGEN_PERCENT
-    &Unit::HandleNULLProc,                                  //111 SPELL_AURA_ADD_CASTER_HIT_TRIGGER
+    &Unit::HandleDropChargeByDamageProc,                    //111 SPELL_AURA_ADD_CASTER_HIT_TRIGGER
     &Unit::HandleOverrideClassScriptAuraProc,               //112 SPELL_AURA_OVERRIDE_CLASS_SCRIPTS
     &Unit::HandleNULLProc,                                  //113 SPELL_AURA_MOD_RANGED_DAMAGE_TAKEN
     &Unit::HandleNULLProc,                                  //114 SPELL_AURA_MOD_RANGED_DAMAGE_TAKEN_PCT
@@ -4856,6 +4856,24 @@ SpellAuraProcResult Unit::HandleDamageShieldAuraProc(Unit* pVictim, uint32 damag
     SendMessageToSet(&data, true );
 
     DealDamage(pVictim, retdamage, 0, SPELL_DIRECT_DAMAGE, GetSpellSchoolMask(spellProto), spellProto, true);
+
+    return SPELL_AURA_PROC_OK;
+}
+
+SpellAuraProcResult Unit::HandleDropChargeByDamageProc(Unit* pVictim, uint32 damage, Aura* triggeredByAura, SpellEntry const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown)
+{
+    if (!triggeredByAura)
+        return SPELL_AURA_PROC_FAILED;
+
+    if (SpellAuraHolder *holder = triggeredByAura->GetHolder())
+    {
+        triggeredByAura->SetInUse(true);
+        if (holder->DropAuraCharge())
+            RemoveSpellAuraHolder(holder);
+        triggeredByAura->SetInUse(false);
+    }
+    else
+        return SPELL_AURA_PROC_FAILED;
 
     return SPELL_AURA_PROC_OK;
 }

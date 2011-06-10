@@ -665,6 +665,16 @@ void Spell::FillTargetMap()
             }
         }
 
+        if (tmpUnitMap.size() == 1 && *tmpUnitMap.begin() == m_caster->getVictim())
+        {
+            if (Unit* pMagnetTarget = m_caster->SelectMagnetTarget(*tmpUnitMap.begin(), this, SpellEffectIndex(i)))
+                if (pMagnetTarget != *tmpUnitMap.begin())
+                {
+                    tmpUnitMap.clear();
+                    tmpUnitMap.push_back(pMagnetTarget);
+                }
+        }
+
         for (UnitList::iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end();)
         {
             if (!CheckTarget (*itr, SpellEffectIndex(i)))

@@ -1903,6 +1903,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
             return SPELL_AURA_PROC_CANT_TRIGGER;
         }
         SpellAuraProcResult HandleDamageShieldAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAura, SpellEntry const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
+        SpellAuraProcResult HandleDropChargeByDamageProc(Unit *pVictim, uint32 damage, Aura* triggeredByAura, SpellEntry const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
 
         void SetLastManaUse()
         {
