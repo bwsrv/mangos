@@ -1264,8 +1264,12 @@ enum Targets
     TARGET_POINT_AT_SW                 = 85,                // from spell desc: "(SW)"
     TARGET_RANDOM_NEARBY_DEST          = 86,                // "Test Nearby Dest Random" - random around selected destination
     TARGET_SELF2                       = 87,
+    TARGET_88                          = 88,
     TARGET_DIRECTLY_FORWARD            = 89,
     TARGET_NONCOMBAT_PET               = 90,
+    TARGET_91                          = 91,
+    TARGET_UNIT_CREATOR                = 92,
+    TARGET_93                          = 93,
     TARGET_OWNED_VEHICLE               = 94,
     TARGET_UNIT_DRIVER                 = 95,
     TARGET_UNIT_PASSENGER_0            = 96,
@@ -1277,7 +1281,15 @@ enum Targets
     TARGET_UNIT_PASSENGER_6            = 102,
     TARGET_UNIT_PASSENGER_7            = 103,
     TARGET_IN_FRONT_OF_CASTER_30       = 104,
+    TARGET_105                         = 105,
+    TARGET_106                         = 106,
+    TARGET_107                         = 107,
+    TARGET_108                         = 108,
+    TARGET_109                         = 109,
+    TARGET_110                         = 110,
 };
+
+#define MAX_SPELL_TARGET               110
 
 enum SpellMissInfo
 {

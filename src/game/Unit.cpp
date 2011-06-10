@@ -12112,8 +12112,14 @@ ObjectGuid const& Unit::GetCreatorGuid() const
 {
     switch(GetObjectGuid().GetHigh())
     {
-        case HIGHGUID_UNIT:
         case HIGHGUID_VEHICLE:
+            {
+                if (!(const_cast<Unit*>(this)->GetVehicleInfo()->GetEntry()->m_flags & (VEHICLE_FLAG_NOT_DISMISS | VEHICLE_FLAG_ACCESSORY)))
+                    if (GetOwner())
+                        return GetOwner()->GetObjectGuid();
+            }
+        // No break here!
+        case HIGHGUID_UNIT:
             if (((Creature*)this)->IsTemporarySummon())
             {
                 return ((TemporarySummon*)this)->GetSummonerGuid();
