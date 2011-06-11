@@ -2340,7 +2340,7 @@ void Unit::CalculateDamageAbsorbAndResist(Unit *pCaster, SpellSchoolMask schoolM
                     continue;
                 }
                 // Reflective Shield
-                if (spellProto->SpellFamilyFlags == 0x1 && canReflect)
+                if (spellProto->IsFitToFamilyMask(UI64LIT(0x0000000000000001)) && canReflect)
                 {
                     if (pCaster == this)
                         break;
@@ -4335,7 +4335,7 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
                 // Priest's Mind Flay must stack from different casters
                 if (const SpellEntry* sp = foundHolder->GetSpellProto())
                 {
-                    if (sp && sp->SpellFamilyName == SPELLFAMILY_PRIEST && sp->SpellIconID == 548 && (sp->SpellFamilyFlags2 & UI64LIT(0x00000040)))
+                    if (sp && sp->IsFitToFamily(SPELLFAMILY_PRIEST, UI64LIT(0x000004400000000000000000)))
                         break;
                 }
 
@@ -10715,9 +10715,9 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
             {
                 if (spellProcEvent)
                 {
-                    if (spellProcEvent->spellFamilyMask[i] || spellProcEvent->spellFamilyMask2[i])
+                    if (spellProcEvent->spellFamilyMask[i])
                     {
-                        if (!procSpell->IsFitToFamilyMask(spellProcEvent->spellFamilyMask[i], spellProcEvent->spellFamilyMask2[i]))
+                        if (!procSpell->IsFitToFamilyMask(spellProcEvent->spellFamilyMask[i]))
                             continue;
                     }
                     // don't check dbc FamilyFlags if schoolMask exists
