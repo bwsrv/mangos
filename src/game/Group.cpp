@@ -230,6 +230,12 @@ bool Group::LoadMemberFromDB(uint32 guidLow, uint8 subgroup, GroupFlagMask flags
 
     SubGroupCounterIncrease(subgroup);
 
+    if (Player* player = sObjectMgr.GetPlayer(member.guid))
+    {
+        if (player->IsInWorld())
+            player->GetLFGState()->SetRoles(roles);
+    }
+
     return true;
 }
 
@@ -2077,4 +2083,14 @@ void Group::SetGroupRoles(ObjectGuid guid, uint8 roles)
             return;
         }
     }
+}
+
+uint8 Group::GetGroupRoles(ObjectGuid guid)
+{
+    for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+    {
+        if (itr->guid == guid)
+            return itr->roles;
+    }
+    return 0;
 }

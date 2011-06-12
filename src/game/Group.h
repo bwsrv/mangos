@@ -378,6 +378,7 @@ class MANGOS_DLL_SPEC Group
         bool isLFGGroup()  const { return (m_groupType & GROUPTYPE_LFD && !(m_groupType & GROUPTYPE_RAID)) ; }
         bool isLFRGroup()  const { return (m_groupType & GROUPTYPE_LFD && m_groupType & GROUPTYPE_RAID) ; }
         void SetGroupRoles(ObjectGuid guid, uint8 roles);
+        uint8 GetGroupRoles(ObjectGuid guid);
 
         // Frozen Mod
         void BroadcastGroupUpdate(void);

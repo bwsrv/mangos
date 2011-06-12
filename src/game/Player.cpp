@@ -17346,6 +17346,8 @@ void Player::_LoadGroup(QueryResult *result)
                 SetDungeonDifficulty(group->GetDungeonDifficulty());
                 SetRaidDifficulty(group->GetRaidDifficulty());
             }
+            if (group->isLFDGroup())
+                sLFGMgr.LoadLFDGroupPropertiesForPlayer(this);
         }
     }
 }

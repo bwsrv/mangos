@@ -1484,13 +1484,19 @@ void LFGMgr::RemoveProposal(uint32 ID, bool success)
                 player->GetLFGState()->SetProposal(NULL);
 
                 // re-adding players to queue. decliner already removed
-                AddToQueue(player->GetObjectGuid(),LFGType(pProposal->GetDungeon()->type), true);
-                player->GetLFGState()->SetState(LFG_STATE_QUEUED);
-                player->GetSession()->SendLfgJoinResult(ERR_LFG_OK, LFG_ROLECHECK_NONE);
-                player->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_JOIN_PROPOSAL, LFGType(pProposal->GetDungeon()->type));
-                player->GetSession()->SendLfgUpdateSearch(true);
-//                player->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_ADDED_TO_QUEUE, LFGType(pProposal->GetDungeon()->type));
-                DEBUG_LOG("LFGMgr::RemoveProposal: %u re-adding to queue", player->GetObjectGuid().GetCounter());
+                if (player->GetLFGState()->GetAnswer() == LFG_ANSWER_AGREE)
+                {
+                    player->RemoveAurasDueToSpell(LFG_SPELL_DUNGEON_COOLDOWN);
+                    AddToQueue(player->GetObjectGuid(),LFGType(pProposal->GetDungeon()->type), true);
+                    player->GetLFGState()->SetState(LFG_STATE_QUEUED);
+                    player->GetSession()->SendLfgJoinResult(ERR_LFG_OK, LFG_ROLECHECK_NONE);
+                    player->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_JOIN_PROPOSAL, LFGType(pProposal->GetDungeon()->type));
+                    player->GetSession()->SendLfgUpdateSearch(true);
+//                    player->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_ADDED_TO_QUEUE, LFGType(pProposal->GetDungeon()->type));
+                    DEBUG_LOG("LFGMgr::RemoveProposal: %u re-adding to queue", player->GetObjectGuid().GetCounter());
+                }
+                else
+                    RemoveFromQueue(player->GetObjectGuid());
             }
         }
 
@@ -3052,3 +3058,37 @@ void LFGMgr::AddEvent(ObjectGuid guid, LFGEventType type, time_t delay, uint8 pa
     m_eventList.push_back(event);
     m_eventList.rbegin()->Start(delay);
 }
+
+void LFGMgr::LoadLFDGroupPropertiesForPlayer(Player* player)
+{
+    if (!player || !player->IsInWorld())
+        return;
+
+    Group* group = player->GetGroup();
+    if (!group)
+        return;
+
+    player->GetLFGState()->SetRoles(group->GetGroupRoles(player->GetObjectGuid()));
+    if(sWorld.getConfig(CONFIG_BOOL_RESTRICTED_LFG_CHANNEL))
+        player->JoinLFGChannel();
+
+    switch (group->GetLFGState()->GetState())
+    {
+        case LFG_STATE_NONE:
+        case LFG_STATE_FINISHED_DUNGEON:
+        {
+            player->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_JOIN_PROPOSAL, group->GetLFGState()->GetType());
+            break;
+        }
+        case LFG_STATE_DUNGEON:
+        {
+            if (group->GetLFGState()->GetType() == LFG_TYPE_RAID)
+                break;
+            player->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_GROUP_FOUND, group->GetLFGState()->GetType());
+            break;
+        }
+        default:
+           break;
+    }
+}
+
