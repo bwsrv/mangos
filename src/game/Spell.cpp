@@ -812,7 +812,7 @@ void Spell::prepareDataForTriggerSystem()
 
     // Hunter traps spells: Immolation Trap Effect, Frost Trap (triggering spell!!),
     // Freezing Trap Effect(+ Freezing Arrow Effect), Explosive Trap Effect, Snake Trap Effect
-    if (m_spellInfo->IsFitToFamily(SPELLFAMILY_HUNTER,UI64LIT(0x0000200000002008)))
+    if (m_spellInfo->IsFitToFamily(SPELLFAMILY_HUNTER,ClassFamilyMask(UI64LIT(0x0000200000002008),0x00064000)))
         m_procAttacker |= PROC_FLAG_ON_TRAP_ACTIVATION;
 }
 

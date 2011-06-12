@@ -3734,7 +3734,7 @@ SpellAuraProcResult Unit::HandleProcTriggerSpellAuraProc(Unit *pVictim, uint32 d
             }
             // Entrapment correction
             else if ((auraSpellInfo->Id == 19184 || auraSpellInfo->Id == 19387 || auraSpellInfo->Id == 19388) &&
-                !(procSpell->IsFitToFamilyMask(UI64LIT(0x200000000000),UI64LIT(0x40000))))
+                !(procSpell->IsFitToFamilyMask(UI64LIT(0x200000000000),0x40000)))
                     return SPELL_AURA_PROC_FAILED;
             // Lock and Load
             else if (auraSpellInfo->SpellIconID == 3579)

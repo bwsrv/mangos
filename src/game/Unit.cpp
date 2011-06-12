@@ -4335,7 +4335,7 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
                 // Priest's Mind Flay must stack from different casters
                 if (const SpellEntry* sp = foundHolder->GetSpellProto())
                 {
-                    if (sp && sp->IsFitToFamily(SPELLFAMILY_PRIEST, UI64LIT(0x000004400000000000000000)))
+                    if (sp && sp->IsFitToFamily(SPELLFAMILY_PRIEST, ClassFamilyMask(UI64LIT(0x0000000000000000),0x00000440)))
                         break;
                 }
 
