@@ -6501,7 +6501,9 @@ Unit* Unit::SelectMagnetTarget(Unit *victim, Spell* spell, SpellEffectIndex eff)
         return NULL;
 
     // Magic case
-    if (spell && (spell->m_spellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE || spell->m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC))
+    if (spell && (spell->m_spellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE || 
+                  spell->m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC ||
+                  spell->m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_NONE ))
     {
         Unit::AuraList const& magnetAuras = victim->GetAurasByType(SPELL_AURA_SPELL_MAGNET);
         for(Unit::AuraList::const_iterator itr = magnetAuras.begin(); itr != magnetAuras.end(); ++itr)
