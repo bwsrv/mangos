@@ -992,8 +992,7 @@ bool Aura::IsEffectStacking()
     if (spellProto->AttributesEx6 & (SPELL_ATTR_EX6_NO_STACK_DEBUFF | SPELL_ATTR_EX6_NO_STACK_BUFF))
     {
         // Mark/Gift of the Wild early exception check
-        if (spellProto->SpellFamilyName == SPELLFAMILY_DRUID &&
-            spellProto->SpellFamilyFlags & UI64LIT(0x0000000000040000))
+        if (spellProto->IsFitToFamily(SPELLFAMILY_DRUID, UI64LIT(0x0000000000040000)))
         {
             // only mod resistance exclusive isn't stacking
             return (GetModifier()->m_auraname != SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE);
@@ -1012,48 +1011,42 @@ bool Aura::IsEffectStacking()
         // these effects never stack
         case SPELL_AURA_MOD_MELEE_HASTE:
         case SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE:
-        case SPELL_AURA_MOD_PARTY_MAX_HEALTH:                           // Commanding Shout / Blood Pact
-        case SPELL_AURA_MOD_HEALING_PCT:                                // Mortal Strike / Wound Poison / Aimed Shot / Furious Attacks
-        case SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK:                    // Wrath of Air Totem / Mind-Numbing Poison and many more
-        case SPELL_AURA_MOD_STAT:                                       // various stat buffs
+        case SPELL_AURA_MOD_PARTY_MAX_HEALTH:                                                  // Commanding Shout / Blood Pact
+        case SPELL_AURA_MOD_HEALING_PCT:                                                       // Mortal Strike / Wound Poison / Aimed Shot / Furious Attacks
+        case SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK:                                           // Wrath of Air Totem / Mind-Numbing Poison and many more
+        case SPELL_AURA_MOD_STAT:                                                              // various stat buffs
             return (spellProto->SpellFamilyName == SPELLFAMILY_GENERIC);
-        case SPELL_AURA_MOD_DAMAGE_PERCENT_DONE:                        // Ferocious Inspiration / Sanctified Retribution
-        case SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE:      // Heart of the Crusader / Totem of Wrath
-            if (spellProto->SpellFamilyName == SPELLFAMILY_PALADIN &&
-                spellProto->SpellFamilyFlags & UI64LIT(0x0000000020000008)) // Sanctified Retribution / HoC
+        case SPELL_AURA_MOD_DAMAGE_PERCENT_DONE:                                               // Ferocious Inspiration / Sanctified Retribution
+        case SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE:                             // Heart of the Crusader / Totem of Wrath
+            if (spellProto->IsFitToFamily(SPELLFAMILY_PALADIN, UI64LIT(0x0000000020000008)))   // Sanctified Retribution / HoC
             {
                 return false;
             }
             break;
-        case SPELL_AURA_MOD_RESISTANCE_PCT:                                         // Sunder Armor / Sting
-        case SPELL_AURA_HASTE_SPELLS:                                               // Mind-Numbing Poison
-        case SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN:                                   // Ebon Plague (spell not implemented) / Earth and Moon
-            if (spellProto->SpellFamilyName == SPELLFAMILY_WARRIOR &&               // Sunder Armor
-                spellProto->SpellFamilyFlags & UI64LIT(0x0000000000004000) ||       // (only spell triggering this aura has the flag)
-                spellProto->SpellFamilyName == SPELLFAMILY_HUNTER &&                // Sting (Hunter Pet)
-                spellProto->SpellFamilyFlags & UI64LIT(0x1000000000000000) ||
-                spellProto->SpellFamilyName == SPELLFAMILY_DRUID &&                 // Earth and Moon
+        case SPELL_AURA_MOD_RESISTANCE_PCT:                                                    // Sunder Armor / Sting
+        case SPELL_AURA_HASTE_SPELLS:                                                          // Mind-Numbing Poison
+        case SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN:                                              // Ebon Plague (spell not implemented) / Earth and Moon
+            if (spellProto->IsFitToFamily(SPELLFAMILY_WARRIOR, UI64LIT(0x0000000000004000)) || // Sunder Armor (only spell triggering this aura has the flag)
+                spellProto->IsFitToFamily(SPELLFAMILY_HUNTER,  UI64LIT(0x1000000000000000)) || // Sting (Hunter Pet)
+                spellProto->SpellFamilyName == SPELLFAMILY_DRUID &&                            // Earth and Moon
                 spellProto->SpellIconID == 2991 ||
-                spellProto->SpellFamilyName == SPELLFAMILY_ROGUE &&                 // Mind-Numbing Poison
-                spellProto->SpellFamilyFlags & UI64LIT(0x0000000000008000) ||
-                spellProto->SpellFamilyName == SPELLFAMILY_PRIEST &&                 // Inspiration
-                spellProto->SpellFamilyFlags & UI64LIT(0x0000100000000000))
+                spellProto->IsFitToFamily(SPELLFAMILY_ROGUE,  UI64LIT(0x0000000000008000)) ||  // Mind-Numbing Poison
+                spellProto->IsFitToFamily(SPELLFAMILY_PRIEST, UI64LIT(0x0000100000000000)))    // Inspiration
             {
                 return false;
             }
             break;
-        case SPELL_AURA_MOD_CRIT_PERCENT:                                           // Rampage
+        case SPELL_AURA_MOD_CRIT_PERCENT:                                                      // Rampage
             if (spellProto->SpellFamilyName == SPELLFAMILY_WARRIOR && spellProto->SpellIconID == 2006)
                 return false;
             break;
-        case SPELL_AURA_MOD_ATTACKER_SPELL_CRIT_CHANCE:                 // Winter's Chill / Improved Scorch
+        case SPELL_AURA_MOD_ATTACKER_SPELL_CRIT_CHANCE:                                        // Winter's Chill / Improved Scorch
             if (spellProto->SpellFamilyName == SPELLFAMILY_MAGE)
                 return false;
             break;
-        case SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT:                     // Mangle / Trauma
-            if (spellProto->SpellFamilyName == SPELLFAMILY_DRUID &&            // Mangle
-                spellProto->SpellFamilyFlags & UI64LIT(0x0000044000000000) ||
-                spellProto->Id == 46856 || spellProto->Id == 46857)            // Trauma has SPELLFAMILY_GENERIC and no flags
+        case SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT:                                     // Mangle / Trauma
+            if (spellProto->IsFitToFamily(SPELLFAMILY_DRUID, UI64LIT(0x0000044000000000)) ||   // Mangle
+                spellProto->Id == 46856 || spellProto->Id == 46857)                            // Trauma has SPELLFAMILY_GENERIC and no flags
             {
                 return false;
             }
