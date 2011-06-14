@@ -9634,6 +9634,14 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
     {
         case SPELLFAMILY_GENERIC:
         {
+            // Bandages
+            if (GetSpellProto()->Mechanic == MECHANIC_BANDAGE && !apply)
+            {
+                cast_at_remove = true;
+                spellId1 = 11196;                     // Recently Bandaged
+                break;
+            }
+
             switch(GetId())
             {
                 case 50720:                                 // Vigilance (warrior spell but not have warrior family)
