@@ -9822,19 +9822,31 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
             if(!apply)
             {
                 // Remove Blood Frenzy only if target no longer has any Deep Wound or Rend (applying is handled by procs)
-                if (GetSpellProto()->Mechanic != MECHANIC_BLEED)
+                if (GetSpellProto()->Mechanic == MECHANIC_BLEED)
+                {
+
+                    // If target still has one of Warrior's bleeds, do nothing
+                    Unit::AuraList const& PeriodicDamage = m_target->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
+                    for(Unit::AuraList::const_iterator i = PeriodicDamage.begin(); i != PeriodicDamage.end(); ++i)
+                        if( (*i)->GetCasterGuid() == GetCasterGuid() &&
+                            (*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_WARRIOR &&
+                            (*i)->GetSpellProto()->Mechanic == MECHANIC_BLEED)
+                            return;
+
+                    spellId1 = 30069;                           // Blood Frenzy (Rank 1)
+                    spellId2 = 30070;                           // Blood Frenzy (Rank 2)
+                    break;
+                }
+                else if (GetId() == 44521 && m_target && m_target->GetTypeId() == TYPEID_PLAYER)
+                {
+                    Player* plr = (Player*)m_target;
+                    plr->SetPower(POWER_MANA, plr->GetMaxPower(POWER_MANA));
+                    plr->SetPower(POWER_RAGE, 0);
+                    plr->SetPower(POWER_ENERGY, plr->GetMaxPower(POWER_ENERGY));
+                    plr->SetPower(POWER_RUNIC_POWER, 0);
                     return;
-
-                // If target still has one of Warrior's bleeds, do nothing
-                Unit::AuraList const& PeriodicDamage = m_target->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
-                for(Unit::AuraList::const_iterator i = PeriodicDamage.begin(); i != PeriodicDamage.end(); ++i)
-                    if( (*i)->GetCasterGuid() == GetCasterGuid() &&
-                        (*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_WARRIOR &&
-                        (*i)->GetSpellProto()->Mechanic == MECHANIC_BLEED)
-                        return;
-
-                spellId1 = 30069;                           // Blood Frenzy (Rank 1)
-                spellId2 = 30070;                           // Blood Frenzy (Rank 2)
+                }
+                return;
             }
             break;
         }
