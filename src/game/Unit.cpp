@@ -5215,11 +5215,11 @@ Aura* Unit::GetAura(uint32 spellId, SpellEffectIndex effindex)
     return NULL;
 }
 
-Aura* Unit::GetAura(AuraType type, SpellFamily family, uint64 familyFlag, uint32 familyFlag2, ObjectGuid casterGuid)
+Aura* Unit::GetAura(AuraType type, SpellFamily family, ClassFamilyMask const& classMask, ObjectGuid casterGuid)
 {
     AuraList const& auras = GetAurasByType(type);
     for(AuraList::const_iterator i = auras.begin();i != auras.end(); ++i)
-        if ((*i)->GetSpellProto()->IsFitToFamily(family, familyFlag, familyFlag2) &&
+        if ((*i)->GetSpellProto()->IsFitToFamily(family, classMask) &&
             (!casterGuid || (*i)->GetCasterGuid() == casterGuid))
             return *i;
 

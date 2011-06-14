@@ -1358,7 +1358,8 @@ void SpellMgr::LoadSpellProcEvents()
         for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)
         {
             spe.spellFamilyMask[i] = ClassFamilyMask(
-                (uint64)fields[i+3].GetUInt32() | ((uint64)fields[i+6].GetUInt32()<<32),
+                fields[i+3].GetUInt32(),
+                fields[i+6].GetUInt32(),
                 fields[i+9].GetUInt32());
         }
         spe.procFlags       = fields[12].GetUInt32();
@@ -4170,8 +4171,7 @@ void SpellMgr::CheckUsedSpells(char const* table)
 
         uint32 spell       = fields[0].GetUInt32();
         int32  family      = fields[1].GetInt32();
-        uint64 familyMaskA = fields[2].GetUInt64();
-        uint32 familyMaskB = fields[3].GetUInt32();
+        ClassFamilyMask familyMask = ClassFamilyMask(fields[2].GetUInt64(), fields[3].GetUInt32());
         int32  spellIcon   = fields[4].GetInt32();
         int32  spellVisual = fields[5].GetInt32();
         int32  category    = fields[6].GetInt32();
@@ -4247,23 +4247,24 @@ void SpellMgr::CheckUsedSpells(char const* table)
                 continue;
             }
 
-            if(familyMaskA != UI64LIT(0xFFFFFFFFFFFFFFFF) || familyMaskB != 0xFFFFFFFF)
+            if (familyMask != ~ClassFamilyMask())
             {
-                if(familyMaskA == UI64LIT(0x0000000000000000) && familyMaskB == 0x00000000)
+                if (familyMask == ClassFamilyMask())
                 {
                     if (spellEntry->SpellFamilyFlags)
                     {
                         sLog.outError("Spell %u '%s' not fit to (" I64FMT "," I32FMT ") but used in %s.",
-                            spell, name.c_str(), familyMaskA, familyMaskB, code.c_str());
+                            spell, name.c_str(), familyMask.Flags, familyMask.Flags2, code.c_str());
                         continue;
                     }
 
                 }
                 else
                 {
-                    if (!spellEntry->IsFitToFamilyMask(familyMaskA, familyMaskB))
+                    if (!spellEntry->IsFitToFamilyMask(familyMask))
                     {
-                        sLog.outError("Spell %u '%s' not fit to (" I64FMT "," I32FMT ") but used in %s.",spell,name.c_str(),familyMaskA,familyMaskB,code.c_str());
+                        sLog.outError("Spell %u '%s' not fit to (" I64FMT "," I32FMT ") but used in %s.",
+                            spell, name.c_str(), familyMask.Flags, familyMask.Flags2, code.c_str());
                         continue;
                     }
 
@@ -4332,16 +4333,16 @@ void SpellMgr::CheckUsedSpells(char const* table)
                 if (family >=0 && spellEntry->SpellFamilyName != uint32(family))
                     continue;
 
-                if (familyMaskA != UI64LIT(0xFFFFFFFFFFFFFFFF) || familyMaskB != 0xFFFFFFFF)
+                if (familyMask != ~ClassFamilyMask())
                 {
-                    if(familyMaskA == UI64LIT(0x0000000000000000) && familyMaskB == 0x00000000)
+                    if (familyMask == ClassFamilyMask())
                     {
                         if (spellEntry->SpellFamilyFlags)
                             continue;
                     }
                     else
                     {
-                        if (!spellEntry->IsFitToFamilyMask(familyMaskA, familyMaskB))
+                        if (!spellEntry->IsFitToFamilyMask(familyMask))
                             continue;
                     }
                 }
@@ -4380,10 +4381,10 @@ void SpellMgr::CheckUsedSpells(char const* table)
             {
                 if (effectIdx >= 0)
                     sLog.outError("Spells '%s' not found for family %i (" I64FMT "," I32FMT ") icon(%i) visual(%i) category(%i) effect%d(%i) aura%d(%i) but used in %s",
-                        name.c_str(),family,familyMaskA,familyMaskB,spellIcon,spellVisual,category,effectIdx+1,effectType,effectIdx+1,auraType,code.c_str());
+                        name.c_str(),family,familyMask.Flags,familyMask.Flags2,spellIcon,spellVisual,category,effectIdx+1,effectType,effectIdx+1,auraType,code.c_str());
                 else
                     sLog.outError("Spells '%s' not found for family %i (" I64FMT "," I32FMT ") icon(%i) visual(%i) category(%i) effect(%i) aura(%i) but used in %s",
-                        name.c_str(),family,familyMaskA,familyMaskB,spellIcon,spellVisual,category,effectType,auraType,code.c_str());
+                        name.c_str(),family,familyMask.Flags,familyMask.Flags2,spellIcon,spellVisual,category,effectType,auraType,code.c_str());
                 continue;
             }
         }
