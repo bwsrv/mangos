@@ -241,7 +241,7 @@ struct CreatureModelRace
 
 struct CreatureSpellEntry
 {
-    CreatureSpellEntry() : spell(0), activeState(0), disabled(0), flags(0) {};
+    CreatureSpellEntry() : spell(0), activeState(0), flags(0), disabled(0) {};
 
     uint32 spell;
     uint8  activeState;

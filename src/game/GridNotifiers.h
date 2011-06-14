@@ -704,7 +704,7 @@ namespace MaNGOS
     {
         public:
             NearestGameObjectEntryInPosRangeCheck(WorldObject const& obj, uint32 entry, float x, float y, float z, float range)
-                : i_obj(obj), i_x(x), i_y(y), i_z(z), i_entry(entry), i_range(range) {}
+                : i_obj(obj), i_entry(entry), i_x(x), i_y(y), i_z(z), i_range(range) {}
 
             WorldObject const& GetFocusObject() const { return i_obj; }
 
@@ -737,7 +737,7 @@ namespace MaNGOS
     {
         public:
             GameObjectEntryInPosRangeCheck(WorldObject const& obj, uint32 entry, float x, float y, float z, float range)
-                : i_obj(obj), i_x(x), i_y(y), i_z(z), i_entry(entry), i_range(range) {}
+                : i_obj(obj), i_entry(entry), i_x(x), i_y(y), i_z(z), i_range(range) {}
 
             WorldObject const& GetFocusObject() const { return i_obj; }
 
@@ -1130,7 +1130,7 @@ namespace MaNGOS
             WorldObject const& GetFocusObject() const { return i_obj; }
             bool operator()(Creature* u)
             {
-                if (u->GetEntry() == i_entry && u->GetObjectGuid() != i_obj.GetObjectGuid() &&(i_alive && u->isAlive() || !i_alive && u->IsCorpse()) && i_obj.IsWithinDistInMap(u, i_range))
+                if (u->GetEntry() == i_entry && u->GetObjectGuid() != i_obj.GetObjectGuid() && ((i_alive && u->isAlive()) || (!i_alive && u->IsCorpse())) && i_obj.IsWithinDistInMap(u, i_range))
                 {
                     i_range = i_obj.GetDistance(u);         // use found unit range as new range limit for next check
                     return true;
