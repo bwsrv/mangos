@@ -549,6 +549,7 @@ void Aura::SetModifier(AuraType t, int32 a, uint32 pt, int32 miscValue)
     m_modifier.m_amount = a;
     m_modifier.m_miscvalue = miscValue;
     m_modifier.periodictime = pt;
+    m_modifier.m_baseamount = a;
 }
 
 void Aura::Update(uint32 diff)
@@ -7369,6 +7370,7 @@ void Aura::HandleSchoolAbsorb(bool apply, bool Real)
             DoneActualBenefit *= caster->CalculateLevelPenalty(GetSpellProto());
 
             m_modifier.m_amount += (int32)DoneActualBenefit;
+            m_modifier.m_baseamount += (int32)DoneActualBenefit;
         }
     }
     else
@@ -9913,22 +9915,6 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                 else
                     return;
             }
-            // Power Word: Shield
-            else if (apply && m_spellProto->SpellFamilyFlags.test<CF_PRIEST_POWER_WORD_SHIELD>() && m_spellProto->Mechanic == MECHANIC_SHIELD)
-            {
-                Unit* caster = GetCaster();
-               if(!caster)
-                    return;
-
-                // Glyph of Power Word: Shield
-                if (Aura* glyph = caster->GetAura(55672, EFFECT_INDEX_0))
-                {
-                    Aura *shield = GetAuraByEffectIndex(EFFECT_INDEX_0);
-                    int32 heal = (glyph->GetModifier()->m_amount * shield->GetModifier()->m_amount)/100;
-                    caster->CastCustomSpell(m_target, 56160, &heal, NULL, NULL, true, 0, shield);
-                }
-                return;
-            }
 
             switch(GetId())
             {
@@ -10435,6 +10421,45 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
     }
 
     SetInUse(false);
+}
+
+void SpellAuraHolder::HandleSpellSpecificBoostsForward(bool apply)
+{
+    switch(GetSpellProto()->SpellFamilyName)
+    {
+        case SPELLFAMILY_PRIEST:
+        {
+            // Power Word: Shield
+            if (GetSpellProto()->SpellFamilyFlags.test<CF_PRIEST_POWER_WORD_SHIELD>() && GetSpellProto()->Mechanic == MECHANIC_SHIELD)
+            {
+                Unit* caster = GetCaster();
+
+                if (caster && !apply)
+                {
+                    // Glyph of Power Word: Shield
+                    if (Aura* glyph = caster->GetAura(55672, EFFECT_INDEX_0))
+                    {
+                        int32 remainingDamage = 0;
+                        if (Aura* shield = GetAuraByEffectIndex(EFFECT_INDEX_0))
+                        {
+                            int32 remainingDamage = shield->GetModifier()->m_baseamount;
+                            if (shield->GetModifier()->m_amount > 0)
+                                remainingDamage -= shield->GetModifier()->m_amount;
+
+                            int32 heal = (glyph->GetModifier()->m_amount * remainingDamage)/100;
+                            if (heal > 0)
+                                caster->CastCustomSpell(m_target, 56160, &heal, NULL, NULL, true, 0, shield);
+                        }
+                    }
+                }
+                return;
+            }
+            break;
+        }
+        default:
+            return;
+    }
+
 }
 
 SpellAuraHolder::~SpellAuraHolder()

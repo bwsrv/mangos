@@ -28,6 +28,7 @@ struct Modifier
     int32 m_amount;
     int32 m_miscvalue;
     uint32 periodictime;
+    int32 m_baseamount;
 };
 
 class Unit;
@@ -55,6 +56,7 @@ class MANGOS_DLL_SPEC SpellAuraHolder
         void BuildUpdatePacket(WorldPacket& data) const;
         void SendAuraUpdate(bool remove) const;
         void HandleSpellSpecificBoosts(bool apply);
+        void HandleSpellSpecificBoostsForward(bool apply);
         void CleanupTriggeredSpells();
 
         void setDiminishGroup(DiminishingGroup group) { m_AuraDRGroup = group; }
