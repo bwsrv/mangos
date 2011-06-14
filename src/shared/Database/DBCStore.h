@@ -26,17 +26,18 @@
 
 struct SqlDbc
 {
-    const std::string * formatString;
-    const std::string * indexName;
+    std::string const* formatString;
+    std::string const* indexName;
     std::string sqlTableName;
     int32 indexPos;
     int32 sqlIndexPos;
-    SqlDbc(const std::string * _filename, const std::string * _format, const std::string * _idname, const char * fmt)
-        :formatString(_format),sqlIndexPos(0), indexName (_idname)
+
+    SqlDbc(std::string const* _filename, std::string const* _format, std::string const* _idname, char const* fmt):
+        formatString(_format), indexName(_idname), indexPos(0), sqlIndexPos(0)
     {
         // Convert dbc file name to sql table name
         sqlTableName = *_filename;
-        for (uint32 i = 0; i< sqlTableName.size(); ++i)
+        for (uint32 i = 0; i < sqlTableName.size(); ++i)
         {
             if (isalpha(sqlTableName[i]))
                 sqlTableName[i] = tolower(sqlTableName[i]);
@@ -46,14 +47,14 @@ struct SqlDbc
 
         // Get sql index position
         DBCFileLoader::GetFormatRecordSize(fmt, &indexPos);
-        if (indexPos>=0)
+        if (indexPos >= 0)
         {
-            for (uint32 x=0; x < formatString->size(); x++)
+            for (uint32 x = 0; x < formatString->size(); ++x)
             {
                 // Count only fields present in sql
                 if ((*formatString)[x] == FT_SQL_PRESENT)
                 {
-                    if (x == indexPos)
+                    if (x == (uint32)indexPos)
                         break;
                     ++sqlIndexPos;
                 }

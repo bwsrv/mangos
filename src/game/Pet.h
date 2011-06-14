@@ -277,8 +277,6 @@ class MANGOS_DLL_SPEC Pet : public Creature
         void SetFreeTalentPoints(uint8 points) { SetByteValue(UNIT_FIELD_BYTES_1, 1, points); }
         void UpdateFreeTalentPoints(bool resetIfNeed = true);
 
-        uint32  m_resetTalentsCost;
-        time_t  m_resetTalentsTime;
         uint32  m_usedTalentCount;
 
         const uint64& GetAuraUpdateMask() const { return m_auraUpdateMask; }

@@ -46,7 +46,7 @@ void PlayerbotMgr::HandleMasterIncomingPacket(const WorldPacket& packet)
         {
             WorldPacket p(packet);
             p.rpos(0); // reset reader
-            uint64 guid;
+            ObjectGuid guid;
             p >> guid;
             Player* const bot = GetPlayerBot(guid);
             if (bot) bot->GetPlayerbotAI()->SendNotEquipList(*bot);
@@ -158,7 +158,7 @@ void PlayerbotMgr::HandleMasterIncomingPacket(const WorldPacket& packet)
                 // emote to stay
                 case TEXTEMOTE_STAND:
                 {
-                    Player* const bot = GetPlayerBot(m_master->GetSelectionGuid().GetRawValue());
+                    Player* const bot = GetPlayerBot(m_master->GetSelectionGuid());
                     if (bot)
                         bot->GetPlayerbotAI()->SetMovementOrder(PlayerbotAI::MOVEMENT_STAY);
                     else
@@ -175,7 +175,7 @@ void PlayerbotMgr::HandleMasterIncomingPacket(const WorldPacket& packet)
                 case 324:
                 case TEXTEMOTE_WAVE:
                 {
-                    Player* const bot = GetPlayerBot(m_master->GetSelectionGuid().GetRawValue());
+                    Player* const bot = GetPlayerBot(m_master->GetSelectionGuid());
                     if (bot)
                         bot->GetPlayerbotAI()->SetMovementOrder(PlayerbotAI::MOVEMENT_FOLLOW, m_master);
                     else
@@ -195,7 +195,7 @@ void PlayerbotMgr::HandleMasterIncomingPacket(const WorldPacket& packet)
         {
             WorldPacket p(packet);
             p.rpos(0);     // reset reader
-            uint64 objGUID;
+            ObjectGuid objGUID;
             p >> objGUID;
 
             GameObject *obj = m_master->GetMap()->GetGameObject(objGUID);
@@ -220,7 +220,7 @@ void PlayerbotMgr::HandleMasterIncomingPacket(const WorldPacket& packet)
         {
             WorldPacket p(packet);
             p.rpos(0);    // reset reader
-            uint64 npcGUID;
+            ObjectGuid npcGUID;
             p >> npcGUID;
 
             WorldObject* pNpc = m_master->GetMap()->GetWorldObject(npcGUID);
@@ -242,7 +242,7 @@ void PlayerbotMgr::HandleMasterIncomingPacket(const WorldPacket& packet)
         {
             WorldPacket p(packet);
             p.rpos(0);    // reset reader
-            uint64 guid;
+            ObjectGuid guid;
             uint32 quest;
             p >> guid >> quest;
             Quest const* qInfo = sObjectMgr.GetQuestTemplate(quest);
@@ -278,7 +278,7 @@ void PlayerbotMgr::HandleMasterIncomingPacket(const WorldPacket& packet)
         {
 
             WorldPacket p(packet);    //WorldPacket packet for CMSG_LOOT_ROLL, (8+4+1)
-            uint64 Guid;
+            ObjectGuid Guid;
             uint32 NumberOfPlayers;
             uint8 rollType;
             p.rpos(0);    //reset packet pointer
@@ -390,7 +390,7 @@ void PlayerbotMgr::HandleMasterIncomingPacket(const WorldPacket& packet)
                 Player* const bot = itr->second;
                 Group *grp = bot->GetGroup();
                 if (grp)
-                    grp->RemoveMember(bot->GetGUID(), 1);
+                    grp->RemoveMember(bot->GetObjectGuid(), 1);
             }
             return;
         }
@@ -508,17 +508,17 @@ void PlayerbotMgr::OnBotLogin(Player * const bot)
     bot->SetPlayerbotAI(ai);
 
     // tell the world session that they now manage this new bot
-    m_playerBots[bot->GetGUID()] = bot;
+    m_playerBots[bot->GetObjectGuid()] = bot;
 
     // if bot is in a group and master is not in group then
     // have bot leave their group
     if (bot->GetGroup() &&
         (m_master->GetGroup() == NULL ||
-         m_master->GetGroup()->IsMember(bot->GetGUID()) == false))
+         m_master->GetGroup()->IsMember(bot->GetObjectGuid()) == false))
         bot->RemoveFromGroup();
 
     // sometimes master can lose leadership, pass leadership to master check
-    const uint64 masterGuid = m_master->GetGUID();
+    ObjectGuid masterGuid = m_master->GetObjectGuid();
     if (m_master->GetGroup() &&
         !m_master->GetGroup()->IsLeader(masterGuid))
         m_master->GetGroup()->ChangeLeader(masterGuid);
@@ -530,7 +530,7 @@ void PlayerbotMgr::RemoveAllBotsFromGroup()
     {
         Player* const bot = it->second;
         if (bot->IsInSameGroupWith(m_master))
-            m_master->GetGroup()->RemoveMember(bot->GetGUID(), 0);
+            m_master->GetGroup()->RemoveMember(bot->GetObjectGuid(), 0);
     }
 }
 

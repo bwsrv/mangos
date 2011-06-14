@@ -273,6 +273,7 @@ class LFGMgr
         // Group operations
         void AddMemberToLFDGroup(ObjectGuid guid);
         void RemoveMemberFromLFDGroup(Group* group, ObjectGuid guid);
+        void LoadLFDGroupPropertiesForPlayer(Player* player);
 
         // Dungeon expand operations
         LFGDungeonSet ExpandRandomDungeonsForGroup(LFGDungeonEntry const* randomDungeon, LFGQueueSet playerGuids);

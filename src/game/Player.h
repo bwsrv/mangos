@@ -126,7 +126,11 @@ struct SpellModifier
     SpellModifier() : charges(0), lastAffected(NULL) {}
 
     SpellModifier(SpellModOp _op, SpellModType _type, int32 _value, uint32 _spellId, uint64 _mask, uint32 _mask2 = 0, int16 _charges = 0)
-        : op(_op), type(_type), charges(_charges), value(_value), mask(_mask), mask2(_mask2), spellId(_spellId), lastAffected(NULL)
+        : op(_op), type(_type), charges(_charges), value(_value), mask(_mask, _mask2), spellId(_spellId), lastAffected(NULL)
+    {}
+
+    SpellModifier(SpellModOp _op, SpellModType _type, int32 _value, uint32 _spellId, ClassFamilyMask _mask, int16 _charges = 0)
+        : op(_op), type(_type), charges(_charges), value(_value), mask(_mask), spellId(_spellId), lastAffected(NULL)
     {}
 
     SpellModifier(SpellModOp _op, SpellModType _type, int32 _value, SpellEntry const* spellEntry, SpellEffectIndex eff, int16 _charges = 0);
@@ -139,8 +143,7 @@ struct SpellModifier
     SpellModType type : 8;
     int16 charges     : 16;
     int32 value;
-    uint64 mask;
-    uint32 mask2;
+    ClassFamilyMask mask;
     uint32 spellId;
     Spell const* lastAffected;
 };
@@ -720,7 +723,7 @@ enum EquipmentSetUpdateState
 
 struct EquipmentSet
 {
-    EquipmentSet() : Guid(0), state(EQUIPMENT_SET_NEW)
+    EquipmentSet() : Guid(0), IgnoreMask(0), state(EQUIPMENT_SET_NEW)
     {
         for(int i = 0; i < EQUIPMENT_SLOT_END; ++i)
             Items[i] = 0;
@@ -729,6 +732,7 @@ struct EquipmentSet
     uint64 Guid;
     std::string Name;
     std::string IconName;
+    uint32 IgnoreMask;
     uint32 Items[EQUIPMENT_SLOT_END];
     EquipmentSetUpdateState state;
 };

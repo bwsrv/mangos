@@ -257,37 +257,40 @@ void WorldSession::HandlePetSetAction(WorldPacket& recv_data)
         DETAIL_LOG( "Player %s has changed pet spell action. Position: %u, Spell: %u, State: 0x%X", _player->GetName(), position[i], spell_id, uint32(act_state));
 
         // if it's act for spell (en/disable/cast) and there is a spell given (0 = remove spell) which pet doesn't know, don't add
-        if (!((act_state == ACT_ENABLED || act_state == ACT_DISABLED || act_state == ACT_PASSIVE) && spell_id && !pet->HasSpell(spell_id)))
+        if ((act_state == ACT_ENABLED || act_state == ACT_DISABLED || act_state == ACT_PASSIVE) && spell_id && ((Pet*)pet)->HasSpell(spell_id))
         {
-            GroupPetList m_groupPets = _player->GetPets();
-            //sign for autocast
-            bool _action = false;
-            if (act_state == ACT_ENABLED)
-                _action = true;
-            //sign for no/turn off autocast
-            else if (act_state == ACT_DISABLED)
-                _action = false;
-
-            if (spell_id)
+            GroupPetList const* m_groupPets = &_player->GetPets();
+            // sign for autocast
+            if (act_state == ACT_ENABLED && spell_id)
             {
                 if (pet->isCharmed())
-                    charmInfo->ToggleCreatureAutocast(spell_id, _action);
-                else
-                    if (!m_groupPets.empty())
-                    {
-                        for (GroupPetList::const_iterator itr = m_groupPets.begin(); itr != m_groupPets.end(); ++itr)
-                            if (Pet* _pet = _player->GetMap()->GetPet(*itr))
-                                if ( _pet->IsInWorld())
-                                    _pet->ToggleAutocast(spell_id, _action);
-                    }
+                    charmInfo->ToggleCreatureAutocast(spell_id, true);
+                else if (!m_groupPets->empty())
+                {
+                    for (GroupPetList::const_iterator itr = m_groupPets->begin(); itr != m_groupPets->end(); ++itr)
+                        if (Pet* _pet = ObjectAccessor::FindPet(*itr))
+                            if ( _pet->IsInWorld())
+                            {
+                                _pet->ToggleAutocast(spell_id, true);
+                            }
+                }
             }
-
-            if (!m_groupPets.empty())
+            // sign for no/turn off autocast
+            else if (act_state == ACT_DISABLED && spell_id)
             {
-                for (GroupPetList::const_iterator itr = m_groupPets.begin(); itr != m_groupPets.end(); ++itr)
-                    if (Pet* _pet = _player->GetMap()->GetPet(*itr))
-                        _pet->GetCharmInfo()->SetActionBar(position[i],spell_id,ActiveStates(act_state));
+                if (pet->isCharmed())
+                    charmInfo->ToggleCreatureAutocast(spell_id, false);
+                else if (!m_groupPets->empty())
+                {
+                    for (GroupPetList::const_iterator itr = m_groupPets->begin(); itr != m_groupPets->end(); ++itr)
+                        if (Pet* _pet = ObjectAccessor::FindPet(*itr))
+                            if ( _pet->IsInWorld())
+                            {
+                                _pet->ToggleAutocast(spell_id, false);
+                            }
+                }
             }
+            charmInfo->SetActionBar(position[i], spell_id, ActiveStates(act_state));
         }
     }
 }

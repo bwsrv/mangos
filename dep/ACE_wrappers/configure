@@ -10697,7 +10697,6 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
            CXXFLAGS="$CXXFLAGS"
            ACE_CXXFLAGS="$ACE_CXXFLAGS"
            DCXXFLAGS="$DCXXFLAGS"
-           OCXXFLAGS="-O3"
          fi
          ;;
      esac

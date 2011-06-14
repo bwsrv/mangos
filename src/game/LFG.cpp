@@ -145,6 +145,14 @@ void LFGGroupState::Clear()
     SetRandomPlayersCount(0);
 }
 
+LFGType LFGGroupState::GetType()
+{
+    if (m_DungeonsList.empty())
+        return LFG_TYPE_NONE;
+    else
+        return LFGType((*m_DungeonsList.begin())->type);
+};
+
 uint8 LFGGroupState::GetVotesNeeded() const
 {
     return m_votesNeeded;
