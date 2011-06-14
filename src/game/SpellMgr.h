@@ -170,7 +170,9 @@ bool IsNoStackAuraDueToAura(uint32 spellId_1, uint32 spellId_2);
 inline bool IsSealSpell(SpellEntry const *spellInfo)
 {
     //Collection of all the seal family flags. No other paladin spell has any of those.
-    return spellInfo->IsFitToFamily(SPELLFAMILY_PALADIN, UI64LIT(0x26000C000A000000)) &&
+    return spellInfo->SpellFamilyName == SPELLFAMILY_PALADIN &&
+        spellInfo->SpellFamilyFlags.test<CF_PALADIN_SEAL_OF_COMMAND, CF_PALADIN_SEAL_OF_JUST_RIGHT, CF_PALADIN_SEAL_OF_BLOOD_MARTYR,
+            CF_PALADIN_SEAL_OF_CORRUPT_VENGE, CF_PALADIN_SEAL_OF_LIGHT, CF_PALADIN_SEAL_OF_WISDOM, CF_PALADIN_SEAL_OF_RIGHTEOUSNESS>() &&
         // avoid counting target triggered effect as seal for avoid remove it or seal by it.
         spellInfo->EffectImplicitTargetA[EFFECT_INDEX_0] == TARGET_SELF;
 }
@@ -178,7 +180,8 @@ inline bool IsSealSpell(SpellEntry const *spellInfo)
 inline bool IsElementalShield(SpellEntry const *spellInfo)
 {
     // family flags 10 (Lightning), 42 (Earth), 37 (Water), proc shield from T2 8 pieces bonus
-    return (spellInfo->SpellFamilyFlags & UI64LIT(0x42000000400)) || spellInfo->Id == 23552;
+    return spellInfo->SpellFamilyName == SPELLFAMILY_SHAMAN &&
+        (spellInfo->SpellFamilyFlags.test<CF_SHAMAN_LIGHTNING_SHIELD, CF_SHAMAN_WATER_SHIELD, CF_SHAMAN_EARTH_SHIELD>() || spellInfo->Id == 23552);
 }
 
 inline bool IsExplicitDiscoverySpell(SpellEntry const *spellInfo)
