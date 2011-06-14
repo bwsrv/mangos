@@ -6966,21 +6966,6 @@ uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, u
                         DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f) / 100.0f;
                     }
                 }
-
-                // Icy Touch
-                /*if (spellProto->SpellFamilyFlags.test<CF_DEATHKNIGHT_ICY_TOUCH_TALONS>())
-                {
-                    // Improved Icy Touch
-                    Unit::AuraList const& dummyAuras = GetAurasByType(SPELL_AURA_DUMMY);
-                    for(Unit::AuraList::const_iterator i = dummyAuras.begin(); i != dummyAuras.end(); ++i)
-                    {
-                        if ((*i)->GetSpellProto()->SpellIconID == 2721)
-                        {
-                            DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f) / 100.0f;
-                            break;
-                        }
-                    }
-                }*/
             }
             // Death Coil (bonus from Item - Death Knight T8 DPS Relic)
             else if (spellProto->SpellFamilyFlags.test<CF_DEATHKNIGHT_DEATH_COIL>())
