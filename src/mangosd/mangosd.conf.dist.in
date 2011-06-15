@@ -1835,11 +1835,17 @@ SOAP.Port = 7878
 #        Only accounts that are below this gm-level or exact at the same, are reported for cheating.
 #        Default: Only normal Players - 0
 #
+#    Anticheat.Warden
+#        Enable Warden from TOM_RUS checks
+#        Default: 0 - off
+#                 1 - on
+#
 ###################################################################################################################
 
 Anticheat.Enable = 1
 Anticheat.DelayAfterAction = 30
 Anticheat.GmLevel = 0
+Anticheat.Warden  = 0
 
 ###################################################################################################################
 #    CharDelete.Method

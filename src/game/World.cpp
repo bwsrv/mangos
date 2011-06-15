@@ -65,6 +65,7 @@
 #include "CharacterDatabaseCleaner.h"
 #include "AuctionHouseBot.h"
 #include "LFGMgr.h"
+#include "WardenDataStorage.h"
 
 INSTANTIATE_SINGLETON_1( World );
 
@@ -521,10 +522,11 @@ void World::LoadConfigSettings(bool reload)
 
     ///- Read other configuration items from the config file
 
-    // movement anticheat
+    // Anticheat
     setConfig(CONFIG_BOOL_ANTICHEAT_ENABLE,              "Anticheat.Enable", false);
     setConfigPos(CONFIG_UINT32_ANTICHEAT_ACTION_DELAY,   "Anticheat.DelayAfterAction",30);
     setConfigPos(CONFIG_UINT32_ANTICHEAT_GMLEVEL,        "Anticheat.GmLevel",0);
+    setConfig(CONFIG_BOOL_ANTICHEAT_WARDEN,              "Anticheat.Warden", false);
 
     setConfigMinMax(CONFIG_UINT32_COMPRESSION, "Compression", 1, 1, 9);
     setConfig(CONFIG_BOOL_ADDON_CHANNEL, "AddonChannel", true);
@@ -1428,8 +1430,8 @@ void World::SetInitialWorldSettings()
     uint32 nextGameEvent = sGameEventMgr.Initialize();
     m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);    //depend on next event
 
-    sLog.outString("Loading Warden Modules..." );
-    WardenModuleStorage.Init();
+    sLog.outString("Loading Warden Data..." );
+    WardenDataStorage.Init();
 
     // Delete all characters which have been deleted X days before
     Player::DeleteOldCharacters();
