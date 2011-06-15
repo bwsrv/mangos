@@ -8766,10 +8766,6 @@ bool Unit::isVisibleForOrDetect(Unit const* u, WorldObject const* viewPoint, boo
         if (Player * p_target = ((Unit*)u)->GetCharmerOrOwnerPlayerOrPlayerItself())
             return ((Player*)this)->GetBGTeam() == p_target->GetBGTeam();
 
-    // phased visibility (both must phased in same way)
-    if(!InSamePhase(u))
-        return false;
-
     // raw invisibility
     bool invisible = (m_invisibilityMask != 0 || u->m_invisibilityMask !=0);
 
@@ -8784,10 +8780,6 @@ bool Unit::isVisibleForOrDetect(Unit const* u, WorldObject const* viewPoint, boo
     {
         invisible = false;
     }
-
-    // Arena preparation
-    if (HasAura(SPELL_ARENA_PREPARATION) && IsHostileTo(u))
-        invisible = true;
 
     // special cases for always overwrite invisibility/stealth
     if(invisible || m_Visibility == VISIBILITY_GROUP_STEALTH)
