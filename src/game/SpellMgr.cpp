@@ -4438,7 +4438,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
         case SPELLFAMILY_WARLOCK:
         {
             // Curses/etc
-            if (spellproto->SpellFamilyFlags.test<CF_WARLOCK_MISC_DEBUFFS>())
+            if (spellproto->SpellFamilyFlags.test<CF_WARLOCK_MISC_DEBUFFS, CF_WARLOCK_CURSE_OF_THE_ELEMENTS>())
                 return DIMINISHING_LIMITONLY;
             break;
         }
@@ -4518,6 +4518,13 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellEntry cons
     // Explicit diminishing duration
     switch(spellproto->SpellFamilyName)
     {
+        case SPELLFAMILY_WARLOCK:
+        {
+            // Curse of the Elements - limit to 2 minutes in PvP
+            if (spellproto->SpellFamilyFlags.test<CF_WARLOCK_CURSE_OF_THE_ELEMENTS>())
+                return 120000;
+            break;
+        }
         case SPELLFAMILY_HUNTER:
         {
             // Wyvern Sting
