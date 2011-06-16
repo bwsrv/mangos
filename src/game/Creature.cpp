@@ -2504,7 +2504,7 @@ bool Creature::HasStaticDBSpawnData() const
 
 uint32 Creature::GetSpell(uint8 index, uint8 activeState)
 {
-    if (index > GetSpellMaxIndex())
+    if (index > GetSpellMaxIndex(activeState))
         return 0;
 
     CreatureSpellsList const* spellList = sObjectMgr.GetCreatureSpells(GetEntry(), activeState);
