@@ -4435,6 +4435,13 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
                 return DIMINISHING_DISORIENT;
             break;
         }
+        case SPELLFAMILY_PALADIN:
+        {
+            // Judgement of Justice - limit to 10 seconds in PvP
+            if (spellproto->SpellFamilyFlags.test<CF_PALADIN_JUDGEMENT_OF_JUSTICE>())
+                return DIMINISHING_LIMITONLY;
+            break;
+        }
         case SPELLFAMILY_WARLOCK:
         {
             // Curses/etc
