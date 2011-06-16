@@ -12211,5 +12211,24 @@ uint32 Unit::CalculateSpellDurationWithHaste(SpellEntry const* spellProto, uint3
 
 bool Unit::IsVisibleTargetForAoEDamage(WorldObject const* caster, SpellEntry const* spellInfo) const
 {
-    return caster->IsWithinLOSInMap(this);
+    bool no_stealth = false;
+    switch (spellInfo->SpellFamilyName)
+    {
+        case SPELLFAMILY_DRUID:
+        {
+            // Starfall (AoE dummy)
+            if (spellInfo->SpellFamilyFlags.test<CF_DRUID_STARFALL2>())
+                no_stealth = true;
+            break;
+        }
+        default:
+            break;
+    }
+
+    // spell can't hit stealth/invisible targets (LoS check included)
+    if (no_stealth && caster->isType(TYPEMASK_UNIT))
+        return isVisibleForOrDetect(static_cast<Unit const*>(caster), caster, false);
+    // spell can hit stealth/invisible targets, just check for LoS
+    else
+        return caster->IsWithinLOSInMap(this);
 }
