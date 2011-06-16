@@ -4490,6 +4490,10 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
             break;
     }
 
+    // Taunt dimishing returns
+    if (IsSpellHaveAura(spellproto, SPELL_AURA_MOD_TAUNT))
+        return DIMINISHING_TAUNT;
+
     // Get by mechanic
     uint32 mechanic = GetAllSpellMechanicMask(spellproto);
     if (!mechanic)
@@ -4589,6 +4593,7 @@ DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group)
         case DIMINISHING_CYCLONE:
         case DIMINISHING_TRIGGER_STUN:
         case DIMINISHING_CONTROL_STUN:
+        case DIMINISHING_TAUNT:
             return DRTYPE_ALL;
         case DIMINISHING_CONTROL_ROOT:
         case DIMINISHING_TRIGGER_ROOT:
