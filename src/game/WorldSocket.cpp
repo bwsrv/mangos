@@ -789,8 +789,8 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
                                 "a.expansion, "               //7
                                 "a.mutetime, "                //8
                                 "a.locale, "                  //9
-                                "a.os, "                      //10
-                                "a.premium, "                 //11
+                                "a.premium, "                 //10
+                                "a.os, "                      //11
                                 "a_fp.accountid, "            //12
                                 "a_fp.realmID, "              //13
                                 "a_fp.security "              //14
@@ -869,10 +869,10 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     if (locale >= MAX_LOCALE)
         locale = LOCALE_enUS;
 
-    std::string os = fields[10].GetString();
-
     // Premium Accounts System
-    uint32 premium = fields[11].GetInt32();
+    uint32 premium = fields[10].GetInt32();
+
+    std::string os = fields[11].GetString();
 
     delete result;
 
