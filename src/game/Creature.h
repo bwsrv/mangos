@@ -241,13 +241,14 @@ struct CreatureModelRace
 
 struct CreatureSpellEntry
 {
-    CreatureSpellEntry() : spell(0), activeState(0), flags(0), disabled(0) {};
+    CreatureSpellEntry() : spell(0), flags(0), disabled(0) {};
 
     uint32 spell;
-    uint8  activeState;
     int32  flags;
     bool   disabled;
 };
+
+#define MAX_CREATURE_SPELL_LISTS 8
 
 typedef std::map<uint8 /* index */,     CreatureSpellEntry> CreatureSpellsList;
 typedef std::map<uint32 /*creature_id*/,CreatureSpellsList> CreatureSpellStorage;
@@ -628,8 +629,8 @@ class MANGOS_DLL_SPEC Creature : public Unit
         SpellEntry const *ReachWithSpellAttack(Unit *pVictim);
         SpellEntry const *ReachWithSpellCure(Unit *pVictim);
 
-        uint32 GetSpell(uint8 index);
-        uint8  GetSpellMaxIndex();
+        uint32 GetSpell(uint8 index, uint8 activeState = 0);
+        uint8  GetSpellMaxIndex(uint8 activeState = 0);
 
         CreatureSpellCooldowns m_CreatureSpellCooldowns;
         CreatureSpellCooldowns m_CreatureCategoryCooldowns;

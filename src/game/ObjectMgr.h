@@ -574,7 +574,7 @@ class ObjectMgr
         CreatureModelInfo const *GetCreatureModelInfo( uint32 modelid );
         CreatureModelInfo const* GetCreatureModelRandomGender(uint32 display_id);
         uint32 GetCreatureModelAlternativeModel(uint32 modelId);
-        CreatureSpellsList const* GetCreatureSpells( uint32 id );
+        CreatureSpellsList const* GetCreatureSpells( uint32 id, uint8 activeState = 0);
 
         EquipmentInfo const *GetEquipmentInfo( uint32 entry );
         static CreatureDataAddon const *GetCreatureAddon( uint32 lowguid )
@@ -1271,7 +1271,7 @@ class ObjectMgr
         typedef std::map<uint32, AntiCheatConfig> AntiCheatConfigMap;
         AntiCheatConfigMap m_AntiCheatConfig;               // [check_type]
 
-        CreatureSpellStorage   m_creatureSpellStorage;
+        CreatureSpellStorage   m_creatureSpellStorage[MAX_CREATURE_SPELL_LISTS];
 
         PlayerClassInfo playerClassInfo[MAX_CLASSES];
 
