@@ -59,6 +59,7 @@ enum AntiCheatCheck
     CHECK_WARDEN_MEMORY         = 100 * CHECK_WARDEN + 1,
     CHECK_WARDEN_KEY            = 100 * CHECK_WARDEN + 2,
     CHECK_WARDEN_CHECKSUM       = 100 * CHECK_WARDEN + 3,
+    CHECK_WARDEN_TIMEOUT        = 100 * CHECK_WARDEN + 4,
     // End of list
     CHECK_MAX
 };
@@ -127,6 +128,15 @@ class AntiCheat
             {
                 m_wardenCheck = wardenType;
                 m_wardenCheckResult = result;
+                m_wardenCheckNum = 0;
+                return _DoAntiCheatCheck(checkType);
+            }
+
+        bool DoAntiCheatCheck(AntiCheatCheck checkType, uint8 wardenType, uint32 checkNum)
+            {
+                m_wardenCheck = wardenType;
+                m_wardenCheckNum = checkNum;
+                m_wardenCheckResult = true;
                 return _DoAntiCheatCheck(checkType);
             }
 
@@ -174,6 +184,7 @@ class AntiCheat
         bool CheckWardenKey();
         bool CheckWardenCheckSum();
         bool CheckWardenMemory();
+        bool CheckWardenTimeOut();
 
     private:
 
@@ -216,6 +227,7 @@ class AntiCheat
         Item*                      m_testitem;
         uint8                      m_wardenCheck;
         bool                       m_wardenCheckResult;
+        uint32                     m_wardenCheckNum;
 
 };
 

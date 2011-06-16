@@ -1,7 +1,7 @@
 ==============================================================================================
 English translations, big thx to Faq
 
-AntiCheat v4.0 for mangos, (c) 2010-2011 /dev/rsa for mangosR2 branch
+AntiCheat v4.1 for mangos, (c) 2010-2011 /dev/rsa for mangosR2 branch
 http://github.com/mangosR2
 
 I express gratitude to authors of previous anticheat versions, on what base is made this code
@@ -55,8 +55,6 @@ Check ons WPE cheating with item duplicate.
 
     CHECK_WARDEN   = 7,
 Warden checks from zhenya && TOM_RUS as part of anticheat
-
-DON'T FORGET put /warden subdirectory from sources to your server DataDir!
 
 2. Subchecks
 additional checks:
@@ -211,8 +209,6 @@ Anticheat.GmLevel = 0 (уровень, выше которого не прове
 
     CHECK_WARDEN   = 7,
 Проверки встроенного анитичита WOW Warden как часть античита
-
-НЕ ЗАБУДЬТЕ скопировать каталог /warden из исходнков в DataDir вашего сервера!
 
 2. Субпроверки
 дополнительные проверки:

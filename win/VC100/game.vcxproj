@@ -522,7 +522,10 @@
     <ClCompile Include="..\..\src\game\Vehicle.cpp" />
     <ClCompile Include="..\..\src\game\VehicleHandler.cpp" />
     <ClCompile Include="..\..\src\game\VoiceChatHandler.cpp" />
-    <ClCompile Include="..\..\src\game\WardenHandler.cpp" />
+    <ClCompile Include="..\..\src\game\WardenBase.cpp" />
+    <ClCompile Include="..\..\src\game\WardenDataStorage.cpp" />
+    <ClCompile Include="..\..\src\game\WardenMac.cpp" />
+    <ClCompile Include="..\..\src\game\WardenWin.cpp" />
     <ClCompile Include="..\..\src\game\WaypointManager.cpp" />
     <ClCompile Include="..\..\src\game\WaypointMovementGenerator.cpp" />
     <ClCompile Include="..\..\src\game\Weather.cpp" />
@@ -686,7 +689,12 @@
     <ClInclude Include="..\..\src\game\UpdateFields.h" />
     <ClInclude Include="..\..\src\game\UpdateMask.h" />
     <ClInclude Include="..\..\src\game\Vehicle.h" />
-    <ClInclude Include="..\..\src\game\WardenHandler.h" />
+    <ClInclude Include="..\..\src\game\WardenBase.h" />
+    <ClInclude Include="..\..\src\game\WardenDataStorage.h" />
+    <ClInclude Include="..\..\src\game\WardenMac.h" />
+    <ClInclude Include="..\..\src\game\WardenModuleMac.h" />
+    <ClInclude Include="..\..\src\game\WardenWin.h" />
+    <ClInclude Include="..\..\src\game\WardenModuleWin.h" />
     <ClInclude Include="..\..\src\game\WaypointManager.h" />
     <ClInclude Include="..\..\src\game\WaypointMovementGenerator.h" />
     <ClInclude Include="..\..\src\game\Weather.h" />

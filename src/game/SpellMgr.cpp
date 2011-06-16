@@ -4527,10 +4527,17 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
                 return DIMINISHING_DISORIENT;
             break;
         }
+        case SPELLFAMILY_PALADIN:
+        {
+            // Judgement of Justice - limit to 10 seconds in PvP
+            if (spellproto->SpellFamilyFlags.test<CF_PALADIN_JUDGEMENT_OF_JUSTICE>())
+                return DIMINISHING_LIMITONLY;
+            break;
+        }
         case SPELLFAMILY_WARLOCK:
         {
             // Curses/etc
-            if (spellproto->SpellFamilyFlags.test<CF_WARLOCK_MISC_DEBUFFS>())
+            if (spellproto->SpellFamilyFlags.test<CF_WARLOCK_MISC_DEBUFFS, CF_WARLOCK_CURSE_OF_THE_ELEMENTS>())
                 return DIMINISHING_LIMITONLY;
             break;
         }
@@ -4575,6 +4582,10 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
             break;
     }
 
+    // Taunt dimishing returns
+    if (IsSpellHaveAura(spellproto, SPELL_AURA_MOD_TAUNT))
+        return DIMINISHING_TAUNT;
+
     // Get by mechanic
     uint32 mechanic = GetAllSpellMechanicMask(spellproto);
     if (!mechanic)
@@ -4610,6 +4621,13 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellEntry cons
     // Explicit diminishing duration
     switch(spellproto->SpellFamilyName)
     {
+        case SPELLFAMILY_WARLOCK:
+        {
+            // Curse of the Elements - limit to 2 minutes in PvP
+            if (spellproto->SpellFamilyFlags.test<CF_WARLOCK_CURSE_OF_THE_ELEMENTS>())
+                return 120000;
+            break;
+        }
         case SPELLFAMILY_HUNTER:
         {
             // Wyvern Sting
@@ -4676,6 +4694,7 @@ DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group)
         case DIMINISHING_TRIGGER_STUN:
         case DIMINISHING_CONTROL_STUN:
         case DIMINISHING_CHARGE:
+        case DIMINISHING_TAUNT:
             return DRTYPE_ALL;
         case DIMINISHING_CONTROL_ROOT:
         case DIMINISHING_TRIGGER_ROOT:

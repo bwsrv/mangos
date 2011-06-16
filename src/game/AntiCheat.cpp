@@ -22,6 +22,8 @@
 #include "Player.h"
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
+#include "WardenWin.h"
+#include "WardenMac.h"
 #include "World.h"
 
 #define ANTICHEAT_DEFAULT_DELTA 2000
@@ -57,6 +59,7 @@ static AntiCheatCheckEntry AntiCheatCheckList[] =
     { true,  CHECK_WARDEN_KEY,              &AntiCheat::CheckWardenKey     },
     { true,  CHECK_WARDEN_CHECKSUM,         &AntiCheat::CheckWardenCheckSum},
     { true,  CHECK_WARDEN_MEMORY,           &AntiCheat::CheckWardenMemory  },
+    { true,  CHECK_WARDEN_TIMEOUT,          &AntiCheat::CheckWardenTimeOut },
     // Finish for search
     { false, CHECK_MAX,                     NULL }
 };
@@ -395,9 +398,12 @@ bool AntiCheat::CheckNeeded(AntiCheatCheck checktype)
             if (!isActiveMover())
                 return false;
             break;
+        case CHECK_WARDEN:
+            if (!sWorld.getConfig(CONFIG_BOOL_ANTICHEAT_WARDEN))
+                return false;
+            break;
         case CHECK_DAMAGE:
         case CHECK_ITEM:
-        case CHECK_WARDEN:
             break;
         default:
             return false;
@@ -1005,13 +1011,29 @@ bool AntiCheat::CheckWardenMemory()
         case MODULE_CHECK:
             mode = "module check";
             break;
+        case FAKE_CHECK:
+            mode = "MAC fake check";
+            return true;
         default:
             mode = "unknown check";
             break;
     }
 
     char buffer[255];
-    sprintf(buffer," Warden report that %s is fail. Client use cheat software!", mode.c_str());
+    sprintf(buffer," Warden report that %s is fail. Last check is %u.", mode.c_str(), m_wardenCheckNum);
+
+    m_currentCheckResult.clear();
+    m_currentCheckResult.append(buffer);
+    return false;
+}
+
+bool AntiCheat::CheckWardenTimeOut()
+{
+    if (!m_wardenCheckResult)
+        return true;
+
+    char buffer[255];
+    sprintf(buffer," Warden report, that client is not fit to timeout sending request. Client possible use cheat software!");
 
     m_currentCheckResult.clear();
     m_currentCheckResult.append(buffer);
