@@ -805,6 +805,9 @@ namespace MaNGOS
                             if (!i_originalCaster->IsHostileTo( itr->getSource() ))
                                 continue;
                         }
+
+                        if (!itr->getSource()->IsVisibleTargetForAoEDamage(i_originalCaster, i_spell.m_spellInfo))
+                            continue;
                     }
                     break;
                     case SPELL_TARGETS_ALL:

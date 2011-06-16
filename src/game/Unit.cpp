@@ -12208,3 +12208,8 @@ uint32 Unit::CalculateSpellDurationWithHaste(SpellEntry const* spellProto, uint3
 
     return duration;
 }
+
+bool Unit::IsVisibleTargetForAoEDamage(WorldObject const* caster, SpellEntry const* spellInfo) const
+{
+    return caster->IsWithinLOSInMap(this);
+}
