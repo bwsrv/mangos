@@ -10112,14 +10112,14 @@ void CharmInfo::InitPossessCreateSpells()
     }
 }
 
-void CharmInfo::InitVehicleCreateSpells()
+void CharmInfo::InitVehicleCreateSpells(uint8 seatId)
 {
     for (uint32 x = ACTION_BAR_INDEX_START; x < ACTION_BAR_INDEX_END; ++x)
         SetActionBar(x, 0, ActiveStates(0x8 + x));
 
-    for (uint32 x = 0; x <= ((Creature*)m_unit)->GetSpellMaxIndex(); ++x)
+    for (uint32 x = 0; x <= ((Creature*)m_unit)->GetSpellMaxIndex(seatId); ++x)
     {
-        uint32 spellId = ((Creature*)m_unit)->GetSpell(x);
+        uint32 spellId = ((Creature*)m_unit)->GetSpell(x,seatId);
 
         if (!spellId)
             continue;

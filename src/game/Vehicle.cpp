@@ -207,7 +207,7 @@ bool VehicleKit::AddPassenger(Unit *passenger, int8 seatId)
 
             if (CharmInfo* charmInfo = m_pBase->InitCharmInfo(m_pBase))
             {
-                charmInfo->InitVehicleCreateSpells();
+                charmInfo->InitVehicleCreateSpells(seat->first);
                 charmInfo->SetReactState(REACT_PASSIVE);
             }
 

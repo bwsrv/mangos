@@ -2502,12 +2502,12 @@ bool Creature::HasStaticDBSpawnData() const
     return sObjectMgr.GetCreatureData(GetGUIDLow()) != NULL;
 }
 
-uint32 Creature::GetSpell(uint8 index)
+uint32 Creature::GetSpell(uint8 index, uint8 activeState)
 {
     if (index > GetSpellMaxIndex())
         return 0;
 
-    CreatureSpellsList const* spellList = sObjectMgr.GetCreatureSpells(GetEntry());
+    CreatureSpellsList const* spellList = sObjectMgr.GetCreatureSpells(GetEntry(), activeState);
     if (!spellList)
         return 0;
 
@@ -2529,9 +2529,9 @@ uint32 Creature::GetSpell(uint8 index)
     return spellEntry->spell;
 }
 
-uint8 Creature::GetSpellMaxIndex()
+uint8 Creature::GetSpellMaxIndex(uint8 activeState)
 {
-    CreatureSpellsList const* spellList = sObjectMgr.GetCreatureSpells(GetEntry());
+    CreatureSpellsList const* spellList = sObjectMgr.GetCreatureSpells(GetEntry(),activeState);
     if (!spellList)
         return 0;
 
