@@ -122,16 +122,7 @@ namespace MaNGOS
             if(u->GetTypeId()==TYPEID_UNIT && ((Creature*)u)->IsElite())
                 xp_gain *= 2;
 
-            switch(pl->GetSession()->IsPremium())
-            {
-                case 0:    return (uint32)(xp_gain*sWorld.getConfig(CONFIG_FLOAT_RATE_XP_KILL));
-                case 1:    return (uint32)(xp_gain*2);
-                case 2:    return (uint32)(xp_gain*3);
-                case 3:    return (uint32)(xp_gain*4);
-                case 4:    return (uint32)(xp_gain*5);
-                case 5:    return (uint32)(xp_gain*6);
-                default:   return (uint32)(xp_gain*sWorld.getConfig(CONFIG_FLOAT_RATE_XP_KILL));
-            }
+            return (uint32)(xp_gain*sWorld.getConfig(CONFIG_FLOAT_RATE_XP_KILL)*(pl->GetSession()->IsPremium()+1));
         }
 
         inline float xp_in_group_rate(uint32 count, bool isRaid)

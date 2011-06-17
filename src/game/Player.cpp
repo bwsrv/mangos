@@ -6516,6 +6516,7 @@ void Player::CheckAreaExploreAndOutdoor()
                     XP = uint32(sObjectMgr.GetBaseXP(p->area_level)*sWorld.getConfig(CONFIG_FLOAT_RATE_XP_EXPLORE));
                 }
 
+                XP = uint32(XP * (GetSession()->IsPremium() + 1));
                 GiveXP( XP, NULL );
                 SendExplorationExperience(area,XP);
             }
@@ -14521,31 +14522,7 @@ void Player::RewardQuest(Quest const *pQuest, uint32 reward, Object* questGiver,
     QuestStatusData& q_status = mQuestStatus[quest_id];
 
     // Not give XP in case already completed once repeatable quest
-    switch(GetSession()->IsPremium())
-    {
-        case 0:
-            uint32 XP = q_status.m_rewarded ? 0 : uint32(pQuest->XPValue(this)*sWorld.getConfig(CONFIG_FLOAT_RATE_XP_QUEST));
-            break;
-        case 1:
-            uint32 XP = q_status.m_rewarded ? 0 : uint32(pQuest->XPValue(this)*2);
-            break;
-        case 2:
-            uint32 XP = q_status.m_rewarded ? 0 : uint32(pQuest->XPValue(this)*3);
-            break;
-        case 3:
-            uint32 XP = q_status.m_rewarded ? 0 : uint32(pQuest->XPValue(this)*4);
-            break;
-        case 4:
-            uint32 XP = q_status.m_rewarded ? 0 : uint32(pQuest->XPValue(this)*5);
-            break;
-        case 5:
-            uint32 XP = q_status.m_rewarded ? 0 : uint32(pQuest->XPValue(this)*6);
-            break;
-
-        default:
-            uint32 XP = q_status.m_rewarded ? 0 : uint32(pQuest->XPValue(this)*sWorld.getConfig(CONFIG_FLOAT_RATE_XP_QUEST));
-            break;
-    }
+    uint32 XP = q_status.m_rewarded ? 0 : uint32(pQuest->XPValue(this)*sWorld.getConfig(CONFIG_FLOAT_RATE_XP_QUEST)*(GetSession()->IsPremium()+1));
 
     if (getLevel() < sWorld.getConfig(CONFIG_UINT32_MAX_PLAYER_LEVEL))
         GiveXP(XP , NULL);
