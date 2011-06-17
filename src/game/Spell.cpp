@@ -2787,7 +2787,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 }
 
                 float _target_x, _target_y, _target_z;
-                pTarget->GetClosePoint(_target_x, _target_y, _target_z, pTarget->GetObjectBoundingRadius(), dist, angle);
+                pTarget->GetClosePoint(_target_x, _target_y, _target_z, pTarget->GetObjectBoundingRadius(), dist, angle, m_caster);
                 if(pTarget->IsWithinLOS(_target_x, _target_y, _target_z))
                 {
                     targetUnitMap.push_back(m_caster);
@@ -3999,7 +3999,7 @@ void Spell::SendSpellStart()
     if (m_spellInfo->runeCostID)
         castFlags |= CAST_FLAG_UNKNOWN19;
 
-    Unit *caster = (m_originalCaster && m_IsTriggeredSpell) ? m_originalCaster : m_caster;
+    Unit *caster = m_triggeredByAuraSpell && IsChanneledSpell(m_triggeredByAuraSpell) ? GetAffectiveCaster() : m_caster;
 
     WorldPacket data(SMSG_SPELL_START, (8+8+4+4+2));
     if (m_CastItem)
@@ -4064,7 +4064,7 @@ void Spell::SendSpellGo()
         castFlags |= CAST_FLAG_PREDICTED_RUNES;             // rune cooldowns list
     }
 
-    Unit *caster = (m_originalCaster && m_IsTriggeredSpell) ? m_originalCaster : m_caster;
+    Unit *caster = m_triggeredByAuraSpell && IsChanneledSpell(m_triggeredByAuraSpell) ? GetAffectiveCaster() : m_caster;
 
     WorldPacket data(SMSG_SPELL_GO, 50);                    // guess size
 
@@ -6364,6 +6364,10 @@ SpellCastResult Spell::CheckRange(bool strict)
                 if (target == m_caster)
                     return SPELL_CAST_OK;
 
+                if (m_caster->GetTypeId() == TYPEID_PLAYER &&
+                    (m_spellInfo->FacingCasterFlags & SPELL_FACING_FLAG_INFRONT) && !m_caster->HasInArc(M_PI_F, target))
+                    return SPELL_FAILED_UNIT_NOT_INFRONT;
+
                 float range_mod = strict ? 0.0f : 5.0f;
                 float base = ATTACK_DISTANCE;
                 if (Player* modOwner = m_caster->GetSpellModOwner())
@@ -7136,6 +7140,10 @@ bool Spell::CheckTargetCreatureType(Unit* target) const
     // Dismiss Pet and Taming Lesson skipped
     if(m_spellInfo->Id == 2641 || m_spellInfo->Id == 23356)
         spellCreatureTargetMask =  0;
+
+    // skip creature type check for Grounding Totem
+    if (target->GetUInt32Value(UNIT_CREATED_BY_SPELL) == 8177)
+        return true;
 
     if (spellCreatureTargetMask)
     {

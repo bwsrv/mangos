@@ -34,6 +34,16 @@ void WorldSession::HandleJoinChannelOpcode(WorldPacket& recvPacket)
         return;
 
     recvPacket >> pass;
+    // don't allow creating channels starting with a number (triggers a client-side bug)
+    if (isdigit(channelname[0]))
+    {
+        WorldPacket data(SMSG_CHANNEL_NOTIFY, 1+channelname.size()+1);
+        data << uint8(CHAT_INVALID_NAME_NOTICE);
+        data << channelname;
+        SendPacket(&data);
+        return;
+    }
+
     if(ChannelMgr* cMgr = channelMgr(_player->GetTeam()))
         if(Channel *chn = cMgr->GetJoinChannel(channelname, channel_id))
             chn->Join(_player->GetObjectGuid(), pass.c_str());
