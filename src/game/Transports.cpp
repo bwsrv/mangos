@@ -62,16 +62,6 @@ void MapManager::LoadTransports()
 
         const GameObjectInfo *goinfo = ObjectMgr::GetGameObjectInfo(entry);
 
-        // InstanceData is called after adding to map, so fetch the script using map
-        /*if (GetMap()->IsDungeon())
-        {
-            if (InstanceData* instance = GetInstanceData())
-                entry = instance->GetGameObjectEntry(entry);
-
-            if (!entry)
-                return NULL;
-        }*/
-
         if (!goinfo)
         {
             sLog.outErrorDb("Transport ID:%u, Name: %s, will not be loaded, gameobject_template missing", entry, name.c_str());
@@ -159,45 +149,45 @@ void MapManager::LoadTransports()
     }
 }
 
-void MapManager::LoadTransportNPCs()
+void MapManager::LoadTransportCreatures()
 {
-    //                                                      0          1                2             3             4             5          6
-    QueryResult *result = WorldDatabase.PQuery("SELECT npc_entry, transport_entry, TransOffsetX, TransOffsetY, TransOffsetZ, TransOffsetO, emote FROM creature_transport");
-
+    QueryResult *result = WorldDatabase.PQuery("SELECT guid, transActive FROM creature");
     if (!result)
     {
-        sLog.outString(">> Loaded 0 transport NPCs. DB table `creature_transport` is empty!");
+        sLog.outString(">> Loaded 0 transport creatures. DB table `creature` is empty!");
         sLog.outString();
         return;
     }
 
     uint32 count = 0;
-
     do
     {
         Field *fields = result->Fetch();
-        uint32 entry = fields[0].GetUInt32();
-        uint32 transportEntry = fields[1].GetUInt32();
-        float tX = fields[2].GetFloat();
-        float tY = fields[3].GetFloat();
-        float tZ = fields[4].GetFloat();
-        float tO = fields[5].GetFloat();
-        uint32 anim = fields[6].GetUInt32();
 
+        uint32 guid = fields[0].GetUInt32();
+        uint32 transportUse = fields[1].GetUInt32(); // this is hack
         for (MapManager::TransportSet::iterator itr = m_Transports.begin(); itr != m_Transports.end(); ++itr)
         {
-            if ((*itr)->GetEntry() == transportEntry)
-            {
-                (*itr)->AddNPCPassenger(entry, tX, tY, tZ, tO, anim);
-                break;
-            }
-        }
+            Transport* trans = *itr;
+            CreatureData const* data = sObjectMgr.GetCreatureData(guid);
 
+            CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(data->id);
+            if (!cInfo)
+            {
+                sLog.outErrorDb("Table `creature` has creature (GUID: %u) with non existing creature entry %u, skipped.", guid, data->id);
+                continue;
+            }
+
+            if (transportUse == 1)
+                trans->AddNPCPassenger(data->id, data->posX, data->posY, data->posZ, data->orientation, TEAM_NONE, data);
+
+            break;
+        }
         ++count;
     }
     while (result->NextRow());
 
-    sLog.outString(">> Loaded %u transport npcs", count);
+    sLog.outString(">> Loaded %u transport creatures", count);
     sLog.outString();
 }
 
@@ -679,47 +669,44 @@ void Transport::Update(uint32 update_diff, uint32 /*p_time*/)
     }
 }
 
-bool Transport::AddNPCPassenger(uint32 entry, float x, float y, float z, float o, uint32 anim)
+Creature* Transport::AddNPCPassenger(uint32 entry, float x, float y, float z, float o, Team team /*= TEAM_NONE*/, const CreatureData *data /*= NULL*/)
 {
     CreatureInfo const *cinfo = ObjectMgr::GetCreatureTemplate(entry);
     if (!cinfo)
-        return false;
+        return NULL;
 
     Map* map = GetMap();
     Creature* pCreature = new Creature;
 
     CreatureCreatePos pos(map, x, y, z, o, GetPhaseMask());
 
-    if (!pCreature->Create(map->GenerateLocalLowGuid(HIGHGUID_UNIT), pos, cinfo))
+    if (!pCreature->Create(map->GenerateLocalLowGuid(HIGHGUID_UNIT), pos, cinfo, team, data))
     {
         delete pCreature;
-        return false;
+        return NULL;
     }
 
     pCreature->SetTransport(this);
     pCreature->m_movementInfo.AddMovementFlag(MOVEFLAG_ONTRANSPORT);
     pCreature->m_movementInfo.SetTransportData(ObjectGuid(HIGHGUID_MO_TRANSPORT, GetObjectGuid().GetCounter()), x, y, z, o, 0, -1);
 
-    if (anim)
-        pCreature->SetUInt32Value(UNIT_NPC_EMOTESTATE, anim);
-
     AddPassenger(pCreature);
-
-    pCreature->Relocate(
-        GetPositionX() + (x * cos(GetOrientation()) + y * sin(GetOrientation() + float(M_PI))),
-        GetPositionY() + (y * cos(GetOrientation()) + x * sin(GetOrientation())),
-        z + GetPositionZ() ,
-        o + GetOrientation());
+    float rX = GetPositionX() + (x * cos(GetOrientation()) + y * sin(GetOrientation() + M_PI));
+    float rY = GetPositionY() + (y * cos(GetOrientation()) + x * sin(GetOrientation()));
+    float rZ = GetPositionZ() + z;
+    float rO = GetOrientation() + o;
+    MapManager::NormalizeOrientation(rO);
+    pCreature->Relocate(rX, rY, rZ, rO);
 
     if (!pCreature->IsPositionValid())
     {
         sLog.outError("Creature (guidlow %d, entry %d) not created. Suggested coordinates isn't valid (X: %f Y: %f)", pCreature->GetGUIDLow(), pCreature->GetEntry(), pCreature->GetPositionX(), pCreature->GetPositionY());
         delete pCreature;
-        return false;
+        return NULL;
     }
 
     map->Add(pCreature);
-    return true;
+    return pCreature;
 }
 
 void Transport::UpdateUnitPositions()
@@ -731,6 +718,7 @@ void Transport::UpdateUnitPositions()
         float tY = GetPositionY() + (UnitOnTransport->GetTransOffsetY()*cos(GetOrientation()) + UnitOnTransport->GetTransOffsetX()*sin(GetOrientation()));
         float tZ = GetPositionZ() + UnitOnTransport->GetTransOffsetZ();
         float tO = GetOrientation() + UnitOnTransport->GetTransOffsetO();
+        MapManager::NormalizeOrientation(tO);
 
         if (UnitOnTransport->GetTypeId() == TYPEID_UNIT)
         {
@@ -746,10 +734,10 @@ void Transport::UpdateUnitPositions()
 void Transport::UpdateForMap(Map const* targetMap)
 {
     Map::PlayerList const& pl = targetMap->GetPlayers();
-    if(pl.isEmpty())
+    if (pl.isEmpty())
         return;
 
-    if(GetMapId() == targetMap->GetId())
+    if (GetMapId() == targetMap->GetId())
     {
         for (Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
         {
@@ -771,8 +759,10 @@ void Transport::UpdateForMap(Map const* targetMap)
         transData.BuildPacket(&out_packet);
 
         for (Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
+        {
             if (this != itr->getSource()->GetTransport())
                 itr->getSource()->SendDirectMessage(&out_packet);
+        }
     }
 }
 

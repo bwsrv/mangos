@@ -1602,8 +1602,8 @@ bool ChatHandler::HandleNpcAddCommand(char* args)
 
     if (chr->GetTransport())
     {
-        if (chr->GetTransport()->AddNPCPassenger(id, tX, tY, tZ, tO))
-            WorldDatabase.PQuery("INSERT INTO creature_transport (npc_entry, transport_entry,  TransOffsetX, TransOffsetY, TransOffsetZ, TransOffsetO) values (%u, %u, %f, %f, %f, %f)", id, chr->GetTransport()->GetEntry(), tX, tY, tZ, tO);
+        if (Creature* pTransCreature = chr->GetTransport()->AddNPCPassenger(id, tX, tY, tZ, tO))
+            pTransCreature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMaskForSpawn());
 
         return true;
     }

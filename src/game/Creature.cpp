@@ -1048,6 +1048,7 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     CreatureData& data = sObjectMgr.NewOrExistCreatureData(GetGUIDLow());
 
     uint32 displayId = GetNativeDisplayId();
+    uint32 transportUse = (GetTransport()) ? 1 : 0;
 
     // check if it's a custom model and if not, use 0 for displayId
     CreatureInfo const *cinfo = GetCreatureInfo();
@@ -1066,16 +1067,26 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
             displayId = 0;
     }
 
+    bool IsTransport;
+    if (GetTransport())
+    {
+        IsTransport = true;
+        //mapid = GetTransport()->GetGOInfo()->moTransport.mapID;... will be used in future
+    }
+    else
+        IsTransport = false;
+
     // data->guid = guid don't must be update at save
     data.id = GetEntry();
     data.mapid = mapid;
     data.phaseMask = phaseMask;
     data.modelid_override = displayId;
     data.equipmentId = GetEquipmentId();
-    data.posX = GetPositionX();
-    data.posY = GetPositionY();
-    data.posZ = GetPositionZ();
-    data.orientation = GetOrientation();
+    data.posX = IsTransport ? GetTransOffsetX() : GetPositionX();
+    data.posY = IsTransport ? GetTransOffsetY() : GetPositionY();
+    data.posZ = IsTransport ? GetTransOffsetZ() : GetPositionZ();
+    data.orientation = IsTransport ? GetTransOffsetO() : GetOrientation();
+    data.transActive = transportUse;
     data.spawntimesecs = m_respawnDelay;
     // prevent add data integrity problems
     data.spawndist = GetDefaultMovementType()==IDLE_MOTION_TYPE ? 0 : m_respawnradius;
@@ -1102,10 +1113,11 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
         << uint16(GetPhaseMask()) << ","                    // prevent out of range error
         << displayId <<","
         << GetEquipmentId() <<","
-        << GetPositionX() << ","
-        << GetPositionY() << ","
-        << GetPositionZ() << ","
-        << GetOrientation() << ","
+        << (IsTransport ? GetTransOffsetX() : GetPositionX()) << ","
+        << (IsTransport ? GetTransOffsetY() : GetPositionY()) << ","
+        << (IsTransport ? GetTransOffsetZ() : GetPositionZ()) << ","
+        << (IsTransport ? GetTransOffsetO() : GetOrientation()) << ","
+        << transportUse << ","
         << m_respawnDelay << ","                            //respawn time
         << (float) m_respawnradius << ","                   //spawn distance (float)
         << (uint32) (0) << ","                              //currentwaypoint
