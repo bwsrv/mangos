@@ -8276,6 +8276,15 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         unitTarget->CastSpell(unitTarget, 66334, true);
                     return;
                 }
+                case 69057:                                 // Bone Spike Graveyard (Icecrown Citadel, ->
+                case 70826:                                 // -> Lord Marrowgar encounter, all difficulties)
+                case 72088:                                 // ----- // -----
+                case 72089:                                 // ----- // -----
+                {
+                    if (unitTarget)
+                        unitTarget->CastSpell(unitTarget, 69062, true);
+                    return;
+                }
                 case 70117:                                 // Ice grip (Sindragosa pull effect)
                 {
                     if (!unitTarget)
