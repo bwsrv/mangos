@@ -6297,6 +6297,10 @@ SpellCastResult Spell::CheckRange(bool strict)
                 if (target == m_caster)
                     return SPELL_CAST_OK;
 
+                if (m_caster->GetTypeId() == TYPEID_PLAYER &&
+                    (m_spellInfo->FacingCasterFlags & SPELL_FACING_FLAG_INFRONT) && !m_caster->HasInArc(M_PI_F, target))
+                    return SPELL_FAILED_UNIT_NOT_INFRONT;
+
                 float range_mod = strict ? 0.0f : 5.0f;
                 float base = ATTACK_DISTANCE;
                 if (Player* modOwner = m_caster->GetSpellModOwner())
