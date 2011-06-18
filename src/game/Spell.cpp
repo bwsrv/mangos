@@ -1683,33 +1683,6 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 25991:                                 // Poison Bolt Volley (Pincess Huhuran)
                     unMaxTargets = 15;
                     break;
-                case 69075:                                 // Bone Storm
-                case 70834:                                 // Bone Storm
-                case 70835:                                 // Bone Storm
-                case 70836:                                 // Bone Storm
-                case 71518:                                 // Unholy infusion credit
-                case 72289:                                 // Frost infusion credit
-                case 72706:                                 // Valithria event credit
-                case 72934:                                 // Blood infusion credit
-                    radius = DEFAULT_VISIBILITY_INSTANCE;
-                    break;
-                case 69845:                                 // Sindragosa Frost bomb (hack!)
-                case 71053:
-                case 71054:
-                case 71055:
-                    radius = 50;
-                    break;
-                case 72350:                                 // Fury of Frostmourne
-                case 72351:                                 // Fury of Frostmourne 
-                    radius = 300;
-                    break;
-                case 72754:                                 // Defile. Radius depended from scale.
-                case 73708:                                 // Defile 25
-                case 73709:                                 // Defile 10H
-                case 73710:                                 // Defile 25H
-                    if (Unit* realCaster = GetAffectiveCaster())
-                        radius = realCaster->GetFloatValue(OBJECT_FIELD_SCALE_X) * 6;
-                    break;
                 default:
                     break;
             }
@@ -1746,6 +1719,53 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                         EffectChainTarget = 0;              // no chain targets
             }
             break;
+        default:
+            break;
+    }
+
+    // custom radius cases
+    switch(m_spellInfo->SpellFamilyName)
+    {
+        case SPELLFAMILY_GENERIC:
+        {
+            switch(m_spellInfo->Id)
+            {
+                case 69057:                                 // Bone Spike Graveyard (Icecrown Citadel, Lord Marrowgar encounter, 10N)
+                case 70826:                                 // Bone Spike Graveyard (Icecrown Citadel, Lord Marrowgar encounter, 25N)
+                case 72088:                                 // Bone Spike Graveyard (Icecrown Citadel, Lord Marrowgar encounter, 10H)
+                case 72089:                                 // Bone Spike Graveyard (Icecrown Citadel, Lord Marrowgar encounter, 25H)
+                case 69075:                                 // Bone Storm
+                case 70834:                                 // Bone Storm
+                case 70835:                                 // Bone Storm
+                case 70836:                                 // Bone Storm
+                case 71518:                                 // Unholy infusion credit
+                case 72289:                                 // Frost infusion credit
+                case 72706:                                 // Valithria event credit
+                case 72934:                                 // Blood infusion credit
+                    radius = DEFAULT_VISIBILITY_INSTANCE;
+                    break;
+                case 69845:                                 // Sindragosa Frost bomb (hack!)
+                case 71053:
+                case 71054:
+                case 71055:
+                    radius = 50;
+                    break;
+                case 72350:                                 // Fury of Frostmourne
+                case 72351:                                 // Fury of Frostmourne 
+                    radius = 300;
+                    break;
+                case 72754:                                 // Defile. Radius depended from scale.
+                case 73708:                                 // Defile 25
+                case 73709:                                 // Defile 10H
+                case 73710:                                 // Defile 25H
+                    if (Unit* realCaster = GetAffectiveCaster())
+                        radius = realCaster->GetFloatValue(OBJECT_FIELD_SCALE_X) * 6;
+                    break;
+                default:
+                    break;
+            }
+            break;
+        }
         default:
             break;
     }
