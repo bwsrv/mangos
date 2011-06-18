@@ -8965,6 +8965,7 @@ void Aura::HandleAuraSafeFall( bool Apply, bool Real )
 bool Aura::IsCritFromAbilityAura(Unit* caster, uint32& damage)
 {
     if (!GetSpellProto()->IsFitToFamily<SPELLFAMILY_ROGUE, CF_ROGUE_RUPTURE>() && // Rupture
+        !GetSpellProto()->IsFitToFamily<SPELLFAMILY_ROGUE, CF_ROGUE_DEADLY_POISON>() &&
         !caster->HasAffectedAura(SPELL_AURA_ABILITY_PERIODIC_CRIT, GetSpellProto()))
         return false;
 
