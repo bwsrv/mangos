@@ -9955,14 +9955,19 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
             {
                 // search poison
                 bool found = false;
-                Unit::SpellAuraHolderMap const& auras = m_target->GetSpellAuraHolderMap();
-                for (Unit::SpellAuraHolderMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+                if (m_target->HasAuraState(AURA_STATE_DEADLY_POISON))
+                    found = true;
+                else
                 {
-                    uint32 flags1 = m_target->HasAuraState(AURA_STATE_DEADLY_POISON);
-                    if (itr->second->GetSpellProto()->SpellFamilyName == SPELLFAMILY_ROGUE && (flags1 & (0x80000)))
+                    Unit::SpellAuraHolderMap const& auras = m_target->GetSpellAuraHolderMap();
+                    for (Unit::SpellAuraHolderMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
                     {
-                        found = true;
-                        break;
+                        if (itr->second->GetSpellProto()->SpellFamilyName == SPELLFAMILY_ROGUE &&
+                            itr->second->GetSpellProto()->Dispel == DISPEL_POISON)
+                        {
+                            found = true;
+                            break;
+                        }
                     }
                 }
 
