@@ -3473,12 +3473,7 @@ void Aura::HandleAuraModShapeshift(bool apply, bool Real)
     if (apply)
     {
         // remove other shapeshift before applying a new one
-        if (target->HasAuraType(SPELL_AURA_MOD_SHAPESHIFT))
-        {
-            target->RemoveSpellsCausingAura(SPELL_AURA_MOD_SHAPESHIFT, GetHolder());
-            // need send to client not form active state, or at re-apply form client go crazy
-            target->AddToClientUpdateList();
-        }
+        target->RemoveSpellsCausingAura(SPELL_AURA_MOD_SHAPESHIFT, GetHolder());
 
         if (modelid > 0)
             target->SetDisplayId(modelid);
