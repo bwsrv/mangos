@@ -9591,7 +9591,7 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                     spellId1 = 68066;                       // Damage Reduction
                     break;
                 }
-                case 55001:
+                case 55001:                                 // Parachute
                 {
                     if (apply)
                     {
@@ -9644,7 +9644,7 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                         return;
                     break;
                 }
-                case 69674:
+                case 69674:                                 // Mutated Infection
                 {
                     if (!apply)
                     {
@@ -9656,7 +9656,7 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                     }
                     break;
                 }
-                case 73034:
+                case 73034:                                 // Blighted Spores
                 case 73033:
                 case 71222:
                 case 69290:
@@ -9928,8 +9928,22 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
             // Barkskin
             else if (GetId()==22812 && m_target->HasAura(63057)) // Glyph of Barkskin
                 spellId1 = 63058;                           // Glyph - Barkskin 01
-            else if (!apply && GetId() == 5229)             // Enrage (Druid Bear)
-                spellId1 = 51185;                           // King of the Jungle (Enrage damage aura)
+            // Enrage (Druid Bear)
+            else if (GetId() == 5229)
+            {
+                if (apply)
+                {
+                    if (m_target->HasAura(70726))           // Druid T10 Feral 4P Bonus
+                        spellId1 = 70725;                   // Enraged Defense
+                    else
+                        return;
+                }
+                else
+                {
+                    spellId1 = 70725;
+                    spellId2 = 51185;                       // King of the Jungle (Enrage damage aura)
+                }
+            }
             else
                 return;
             break;
