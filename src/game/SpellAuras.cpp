@@ -3481,8 +3481,6 @@ void Aura::HandleAuraModShapeshift(bool apply, bool Real)
         // now only powertype must be set
         switch (form)
         {
-            case FORM_SHADOW_DANCE:
-                target->SetByteValue(UNIT_FIELD_BYTES_2, 3, uint8(FORM_STEALTH));
             case FORM_CAT:
                 PowerType = POWER_ENERGY;
                 break;
@@ -3569,6 +3567,10 @@ void Aura::HandleAuraModShapeshift(bool apply, bool Real)
                     break;
             }
         }
+
+        // send FORM_STEALTH to client so it uses correct stealth action bar
+        if (form == FORM_SHADOW_DANCE)
+            form = FORM_STEALTH;
 
         target->SetShapeshiftForm(form);
 
