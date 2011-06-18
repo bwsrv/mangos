@@ -4088,6 +4088,16 @@ SpellCastResult SpellMgr::GetSpellAllowedInLocationError(SpellEntry const *spell
         case 69152:                                         // Gazeous blight - first aura
         case 72293:                                         // Mark of the Fallen Champion
             return map_id == 631 ? SPELL_CAST_OK : SPELL_FAILED_INCORRECT_AREA;
+        case 74410:                                         // Arena - Dampening
+            return player && player->InArena() ? SPELL_CAST_OK : SPELL_FAILED_ONLY_IN_ARENA;
+        case 74411:                                         // Battleground - Dampening
+        {
+            if (!player)
+                return SPELL_FAILED_ONLY_BATTLEGROUNDS;
+
+            BattleGround* bg = player->GetBattleGround();
+            return bg && !bg->isArena() ? SPELL_CAST_OK : SPELL_FAILED_ONLY_BATTLEGROUNDS;
+        }
     }
 
     return SPELL_CAST_OK;
