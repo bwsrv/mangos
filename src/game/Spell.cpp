@@ -1759,7 +1759,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 73709:                                 // Defile 10H
                 case 73710:                                 // Defile 25H
                     if (Unit* realCaster = GetAffectiveCaster())
-                        radius = realCaster->GetFloatValue(OBJECT_FIELD_SCALE_X) * 6;
+                        radius = realCaster->GetObjectScale() * 6;
                     break;
                 default:
                     break;
