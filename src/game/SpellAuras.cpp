@@ -8967,7 +8967,7 @@ void Aura::HandleAuraSafeFall( bool Apply, bool Real )
 
 bool Aura::IsCritFromAbilityAura(Unit* caster, uint32& damage)
 {
-    if (!GetSpellProto()->IsFitToFamily(SPELLFAMILY_ROGUE, UI64LIT(0x100000)) && // Rupture
+    if (!GetSpellProto()->IsFitToFamily<SPELLFAMILY_ROGUE, CF_ROGUE_RUPTURE>() && // Rupture
         !caster->HasAffectedAura(SPELL_AURA_ABILITY_PERIODIC_CRIT, GetSpellProto()))
         return false;
 
@@ -8975,16 +8975,6 @@ bool Aura::IsCritFromAbilityAura(Unit* caster, uint32& damage)
     {
         damage = caster->SpellCriticalDamageBonus(GetSpellProto(), damage, GetTarget());
         return true;
-    }
-
-    // Special exception for Rupture spell, damage can crit after patch 3.3.3
-    if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_ROGUE && GetSpellProto()->SpellFamilyFlags.test<CF_ROGUE_RUPTURE>())
-    {
-        if(caster->IsSpellCrit(GetTarget(), GetSpellProto(), GetSpellSchoolMask(GetSpellProto())))
-        {
-            damage = caster->SpellCriticalDamageBonus(GetSpellProto(), damage, GetTarget());
-            return true;
-        }
     }
 
     return false;
