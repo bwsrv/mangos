@@ -12221,3 +12221,18 @@ bool Unit::IsVisibleTargetForAoEDamage(WorldObject const* caster, SpellEntry con
     else
         return spellInfo->AttributesEx2 & SPELL_ATTR_EX2_IGNORE_LOS ? true : caster->IsWithinLOSInMap(this);
 }
+
+uint32 Unit::GetModelForForm(SpellShapeshiftFormEntry const* ssEntry) const
+{
+    // i will asume that creatures will always take the defined model from the dbc
+    // since no field in creature_templates describes wether an alliance or
+    // horde modelid should be used at shapeshifting
+    return ssEntry->modelID_A;
+}
+
+uint32 Unit::GetModelForForm() const
+{
+    ShapeshiftForm form = GetShapeshiftForm();
+    SpellShapeshiftFormEntry const* ssEntry = sSpellShapeshiftFormStore.LookupEntry(form);
+    return ssEntry ? GetModelForForm(ssEntry) : 0;
+}
