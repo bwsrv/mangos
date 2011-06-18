@@ -1709,6 +1709,9 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
                 form != FORM_SHADOW;
         }
 
+        virtual uint32 GetModelForForm(SpellShapeshiftFormEntry const* ssEntry) const;
+        uint32 GetModelForForm() const;     // for current form
+
         float m_modMeleeHitChance;
         float m_modRangedHitChance;
         float m_modSpellHitChance;

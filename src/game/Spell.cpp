@@ -1662,6 +1662,8 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 69140:                                 // Coldflame (Icecrown Citadel, Lord Marrowgar encounter)
                 case 73058:                                 // Blood Nova
                 case 72378:                                 // Blood Nova
+                case 69057:                                 // Bone Spike Graveyard (Icecrown Citadel, Lord Marrowgar encounter, 10N)
+                case 72088:                                 // Bone Spike Graveyard (Icecrown Citadel, Lord Marrowgar encounter, 10H)
                     unMaxTargets = 1;
                     break;
                 case 28542:                                 // Life Drain
@@ -1680,6 +1682,8 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 39992:                                 // Needle Spine Targeting (Warlord Najentus)
                 case 51904:                                 // Limiting the count of Summoned Ghouls
                 case 54522:
+                case 70826:                                 // Bone Spike Graveyard (Icecrown Citadel, Lord Marrowgar encounter, 25N)
+                case 72089:                                 // Bone Spike Graveyard (Icecrown Citadel, Lord Marrowgar encounter, 25H)
                     unMaxTargets = 3;
                     break;
                 case 67756:                                 // Nerubian Burrower (Trial of the Crusader, ->

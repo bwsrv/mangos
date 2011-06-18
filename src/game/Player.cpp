@@ -24170,3 +24170,88 @@ bool Player::HasOrphan()
     }
     return false;
 }
+
+uint32 Player::GetModelForForm(SpellShapeshiftFormEntry const* ssEntry) const
+{
+    ShapeshiftForm form = ShapeshiftForm(ssEntry->ID);
+    Team team = TeamForRace(getRace());
+    uint32 modelid = 0;
+    // The following are the different shapeshifting models for cat/bear forms according
+    // to hair color for druids and skin tone for tauren introduced in patch 3.2
+    if (form == FORM_CAT || form == FORM_BEAR || form == FORM_DIREBEAR)
+    {
+        if (team == ALLIANCE)
+        {
+            uint8 hairColour = GetByteValue(PLAYER_BYTES, 3);
+            if (form == FORM_CAT)
+            {
+                if (hairColour >= 0 && hairColour <= 2) modelid = 29407;
+                else if (hairColour == 3 || hairColour == 5) modelid = 29405;
+                else if (hairColour == 6) modelid = 892;
+                else if (hairColour == 7) modelid = 29406;
+                else if (hairColour == 4) modelid = 29408;
+            }
+            else // form == FORM_BEAR || form == FORM_DIREBEAR
+            {
+                if (hairColour >= 0 && hairColour <= 2) modelid = 29413;
+                else if (hairColour == 3 || hairColour == 5) modelid = 29415;
+                else if (hairColour == 6) modelid = 29414;
+                else if (hairColour == 7) modelid = 29417;
+                else if (hairColour == 4) modelid = 29416;
+            }
+        }
+        else if (team == HORDE)
+        {
+            uint8 skinColour = GetByteValue(PLAYER_BYTES, 0);
+            if (getGender() == GENDER_MALE)
+            {
+                if (form == FORM_CAT)
+                {
+                    if (skinColour >= 0 && skinColour <= 5) modelid = 29412;
+                    else if (skinColour >= 6 && skinColour <= 8) modelid = 29411;
+                    else if (skinColour >= 9 && skinColour <= 11) modelid = 29410;
+                    else if (skinColour >= 12 && skinColour <= 14 || skinColour == 18) modelid = 29409;
+                    else if (skinColour >= 15 && skinColour <= 17) modelid = 8571;
+                }
+                else // form == FORM_BEAR || form == FORM_DIREBEAR
+                {
+                    if (skinColour >= 0 && skinColour <= 2) modelid = 29418;
+                    else if (skinColour >= 3 && skinColour <= 5 || skinColour >= 12 && skinColour <= 14) modelid = 29419;
+                    else if (skinColour >= 9 && skinColour <= 11 || skinColour >= 15 && skinColour <= 17) modelid = 29420;
+                    else if (skinColour >= 6 && skinColour <= 8) modelid = 2289;
+                    else if (skinColour == 18) modelid = 29421;
+                }
+            }
+            else // getGender() == GENDER_FEMALE
+            {
+                if (form == FORM_CAT)
+                {
+                    if (skinColour >= 0 && skinColour <= 3) modelid = 29412;
+                    else if (skinColour == 4 || skinColour == 5) modelid = 29411;
+                    else if (skinColour == 6 || skinColour == 7) modelid = 29410;
+                    else if (skinColour == 8 || skinColour == 9) modelid = 8571;
+                    else if (skinColour == 10) modelid = 29409;
+                }
+                else // form == FORM_BEAR || form == FORM_DIREBEAR
+                {
+                    if (skinColour == 0 || skinColour == 1) modelid = 29418;
+                    else if (skinColour == 2 || skinColour == 3) modelid = 29419;
+                    else if (skinColour == 4 || skinColour == 5) modelid = 2289;
+                    else if (skinColour >= 6 && skinColour <= 9) modelid = 29420;
+                    else if (skinColour == 10) modelid = 29421;
+                }
+            }
+        }
+    }
+    else if (team == HORDE)
+    {
+        if (ssEntry->modelID_H)
+            modelid = ssEntry->modelID_H;           // 3.2.3 only the moonkin form has this information
+        else                                        // get model for race
+            modelid = sObjectMgr.GetModelForRace(ssEntry->modelID_A, getRaceMask());
+    }
+    // nothing found in above, so use default
+    if (!modelid)
+        modelid = ssEntry->modelID_A;
+    return modelid;
+}

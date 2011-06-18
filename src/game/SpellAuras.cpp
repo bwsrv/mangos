@@ -3580,95 +3580,7 @@ void Aura::HandleAuraModShapeshift(bool apply, bool Real)
     }
 
     if (ssEntry->modelID_A)
-    {
-        // i will asume that creatures will always take the defined model from the dbc
-        // since no field in creature_templates describes wether an alliance or
-        // horde modelid should be used at shapeshifting
-        if (target->GetTypeId() != TYPEID_PLAYER)
-            modelid = ssEntry->modelID_A;
-        else
-        {
-            // The following are the different shapeshifting models for cat/bear forms according
-            // to hair color for druids and skin tone for tauren introduced in patch 3.2
-            if (form == FORM_CAT || form == FORM_BEAR || form == FORM_DIREBEAR)
-            {
-                if (Player::TeamForRace(target->getRace()) == ALLIANCE)
-                {
-                    uint8 hairColour = target->GetByteValue(PLAYER_BYTES, 3);
-                    if (form == FORM_CAT)
-                    {
-                        if (hairColour >= 0 && hairColour <= 2) modelid = 29407;
-                        else if (hairColour == 3 || hairColour == 5) modelid = 29405;
-                        else if (hairColour == 6) modelid = 892;
-                        else if (hairColour == 7) modelid = 29406;
-                        else if (hairColour == 4) modelid = 29408;
-                    }
-                    else
-                    {
-                        if (hairColour >= 0 && hairColour <= 2) modelid = 29413;
-                        else if (hairColour == 3 || hairColour == 5) modelid = 29415;
-                        else if (hairColour == 6) modelid = 29414;
-                        else if (hairColour == 7) modelid = 29417;
-                        else if (hairColour == 4) modelid = 29416;
-                    }
-                } 
-                else if (Player::TeamForRace(target->getRace()) == HORDE)
-                {
-                    uint8 skinColour = target->GetByteValue(PLAYER_BYTES, 0);
-                    if (target->getGender() == GENDER_MALE)
-                    {
-                        if (form == FORM_CAT)
-                        {
-                            if (skinColour >= 0 && skinColour <= 5) modelid = 29412;
-                            else if (skinColour >= 6 && skinColour <= 8) modelid = 29411;
-                            else if (skinColour >= 9 && skinColour <= 11) modelid = 29410;
-                            else if (skinColour >= 12 && skinColour <= 14 || skinColour == 18) modelid = 29409;
-                            else if (skinColour >= 15 && skinColour <= 17) modelid = 8571;
-                        }
-                        else
-                        {
-                            if (skinColour >= 0 && skinColour <= 2) modelid = 29418;
-                            else if (skinColour >= 3 && skinColour <= 5 || skinColour >= 12 && skinColour <= 14) modelid = 29419;
-                            else if (skinColour >= 9 && skinColour <= 11 || skinColour >= 15 && skinColour <= 17) modelid = 29420;
-                            else if (skinColour >= 6 && skinColour <= 8) modelid = 2289;
-                            else if (skinColour == 18) modelid = 29421;
-                        }
-                    }
-                    else
-                    {
-                        if (form == FORM_CAT)
-                        {
-                            if (skinColour >= 0 && skinColour <= 3) modelid = 29412;
-                            else if (skinColour == 4 || skinColour == 5) modelid = 29411;
-                            else if (skinColour == 6 || skinColour == 7) modelid = 29410;
-                            else if (skinColour == 8 || skinColour == 9) modelid = 8571;
-                            else if (skinColour == 10) modelid = 29409;
-                        }
-                        else
-                        {
-                            if (skinColour == 0 || skinColour == 1) modelid = 29418;
-                            else if (skinColour == 2 || skinColour == 3) modelid = 29419;
-                            else if (skinColour == 4 || skinColour == 5) modelid = 2289;
-                            else if (skinColour >= 6 && skinColour <= 9) modelid = 29420;
-                            else if (skinColour == 10) modelid = 29421;
-                        }
-                    }
-                }
-            }
-            else
-            if (!modelid && Player::TeamForRace(target->getRace()) == HORDE)
-            {
-                if (ssEntry->modelID_H)
-                    modelid = ssEntry->modelID_H;           // 3.2.3 only the moonkin form has this information
-                else                                        // get model for race
-                    modelid = sObjectMgr.GetModelForRace(ssEntry->modelID_A, target->getRaceMask());
-            }
-
-            // nothing found in above, so use default
-            if (!modelid)
-                modelid = ssEntry->modelID_A;
-        }
-    }
+        modelid = target->GetModelForForm(ssEntry);
 
     // remove polymorph before changing display id to keep new display id
     switch (form)
@@ -3693,7 +3605,10 @@ void Aura::HandleAuraModShapeshift(bool apply, bool Real)
                 uint32 aurMechMask = GetAllSpellMechanicMask(aurSpellInfo);
 
                 // If spell that caused this aura has Croud Control or Daze effect
-                if ((aurMechMask & MECHANIC_NOT_REMOVED_BY_SHAPESHIFT) ||
+                if ((aurMechMask & MECHANIC_NOT_REMOVED_BY_SHAPESHIFT &&
+                    // some non-Daze spells that have MECHANIC_DAZE
+                    aurSpellInfo->Id != 18118 &&    // Aftermath
+                    !aurSpellInfo->IsFitToFamily<SPELLFAMILY_PALADIN, CF_PALADIN_AVENGERS_SHIELD>()) ||
                     // some Daze spells have these parameters instead of MECHANIC_DAZE (skip snare spells)
                     (aurSpellInfo->SpellIconID == 15 && aurSpellInfo->Dispel == 0 &&
                     (aurMechMask & (1 << (MECHANIC_SNARE-1))) == 0))
@@ -3840,6 +3755,24 @@ void Aura::HandleAuraModShapeshift(bool apply, bool Real)
             target->setPowerType(POWER_MANA);
         target->SetShapeshiftForm(FORM_NONE);
 
+        // re-apply transform display with preference negative cases
+        Unit::AuraList const& otherTransforms = target->GetAurasByType(SPELL_AURA_TRANSFORM);
+        if (!otherTransforms.empty())
+        {
+            // look for other transform auras
+            Aura* handledAura = *otherTransforms.begin();
+            for (Unit::AuraList::const_iterator i = otherTransforms.begin(); i != otherTransforms.end(); ++i)
+            {
+                // negative auras are preferred
+                if (!IsPositiveSpell((*i)->GetSpellProto()->Id))
+                {
+                    handledAura = *i;
+                    break;
+                }
+            }
+            handledAura->ApplyModifier(true);
+        }
+
         switch(form)
         {
             // Nordrassil Harness - bonus
@@ -3886,6 +3819,12 @@ void Aura::HandleAuraTransform(bool apply, bool Real)
     Unit *target = GetTarget();
     if (apply)
     {
+        do { // (to avoid lots of indentation changes)
+
+        // update active transform spell only when transform or shapeshift not set or not overwriting negative by positive case
+        if (target->GetModelForForm() && IsPositiveSpell(GetId()))
+            break;
+
         // special case (spell specific functionality)
         if (m_modifier.m_miscvalue == 0)
         {
@@ -4134,6 +4073,8 @@ void Aura::HandleAuraTransform(bool apply, bool Real)
                 target->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID,16314);
         }
 
+        } while (0);
+
         // update active transform spell only not set or not overwriting negative by positive case
         if (!target->getTransForm() || !IsPositiveSpell(GetId()) || IsPositiveSpell(target->getTransForm()))
             target->setTransForm(GetId());
@@ -4177,6 +4118,12 @@ void Aura::HandleAuraTransform(bool apply, bool Real)
                 }
             }
             handledAura->ApplyModifier(true);
+        }
+        // re-apply shapeshift display if no transform auras remaining
+        else if (target->GetShapeshiftForm())
+        {
+            if (uint32 modelid = target->GetModelForForm())
+                target->SetDisplayId(modelid);
         }
 
         // Dragonmaw Illusion (restore mount model)
@@ -5171,6 +5118,9 @@ void Aura::HandleAuraModRoot(bool apply, bool Real)
                 target->SendMessageToSet(&data, true);
             }
         }
+
+        if (GetSpellProto()->Id == 70980)                   // Web Wrap (Icecrown Citadel, trash mob Nerub'ar Broodkeeper)
+            target->CastSpell(target, 71010, true);
     }
 }
 
