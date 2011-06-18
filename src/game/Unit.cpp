@@ -4232,37 +4232,30 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
                 break;
             }
 
-            // Judgements and scrolls are always single 
-            if (GetSpellSpecific(holder->GetId()) == SPELL_JUDGEMENT ||
-                GetSpellSpecific(holder->GetId()) == SPELL_SCROLL)
-            {
-                RemoveSpellAuraHolder(foundHolder,AURA_REMOVE_BY_STACK);
-                break;
-            }
+            bool bRemove = true;
 
-            bool bStop = false;
-
-            for (int32 i = 0; i < MAX_EFFECT_INDEX && !bStop; ++i)
+            for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)
             {
                 // no need to check non stacking auras that weren't/won't be applied on this target
                 if (!foundHolder->m_auras[i] || !holder->m_auras[i])
                     continue;
 
-                // m_auraname can be modified to SPELL_AURA_NONE for area auras, use original
+                // one holder removes another if it has no DoT/HoT effect
                 AuraType aurNameReal = AuraType(aurSpellInfo->EffectApplyAuraName[i]);
 
-                // problem with stacking comes for negative auras, so let's check positive auras exceptions for speedup
-                if (foundHolder->IsPositive() && aurNameReal != SPELL_AURA_PERIODIC_HEAL)
+                if (aurNameReal == SPELL_AURA_PERIODIC_HEAL || aurNameReal == SPELL_AURA_PERIODIC_DAMAGE)
                 {
-                    // can be only single (this check done at _each_ aura add
-                    RemoveSpellAuraHolder(foundHolder,AURA_REMOVE_BY_STACK);
-                    bStop = true;
+                    bRemove = false;
                     break;
                 }
             }
 
-            if (bStop)
+            if (bRemove)
+            {
+                // can be only single (this check done at _each_ aura add
+                RemoveSpellAuraHolder(foundHolder,AURA_REMOVE_BY_STACK);
                 break;
+            }
         }
     }
 
