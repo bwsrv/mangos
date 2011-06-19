@@ -7381,13 +7381,10 @@ uint32 Unit::SpellCriticalDamageBonus(SpellEntry const *spellProto, uint32 damag
             break;
     }
 
-    // adds additional damage to crit_bonus (from talents)
-    if(Player* modOwner = GetSpellModOwner())
-        modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, crit_bonus);
-
     if(!pVictim)
-        return damage += crit_bonus;
+        return damage + crit_bonus;
 
+    // increased critical damage (auras, and some talents)
     int32 critPctDamageMod = 0;
     if(spellProto->DmgClass >= SPELL_DAMAGE_CLASS_MELEE)
     {
@@ -7402,13 +7399,22 @@ uint32 Unit::SpellCriticalDamageBonus(SpellEntry const *spellProto, uint32 damag
     critPctDamageMod += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, GetSpellSchoolMask(spellProto));
 
     uint32 creatureTypeMask = pVictim->GetCreatureTypeMask();
-    critPctDamageMod += GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CRIT_PERCENT_VERSUS, creatureTypeMask);
+    critPctDamageMod += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_PERCENT_VERSUS, creatureTypeMask);
+
+    uint32 base_dmg = damage;
+    damage += crit_bonus;
 
     if(critPctDamageMod!=0)
-        crit_bonus = int32(crit_bonus * float((100.0f + critPctDamageMod)/100.0f));
+        damage += int32(damage) * critPctDamageMod / 100;
 
-    if(crit_bonus > 0)
-        damage += crit_bonus;
+    // increased critical damage bonus (from talents)
+    if (damage > base_dmg)
+        if (Player* modOwner = GetSpellModOwner())
+        {
+            damage -= base_dmg;
+            modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, damage);
+            damage += base_dmg;
+        }
 
     return damage;
 }
