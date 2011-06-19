@@ -630,10 +630,15 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                     // found Immolate or Shadowflame
                     if (aura)
                     {
-                        int32 damagetick = aura->GetModifier()->m_amount;
-                        // Save value of further damage
-                        m_currentBasePoints[1] = damagetick * 2 / 3;
-                        damage += damagetick * 3;
+                        int32 duration = GetSpellDuration(aura->GetSpellProto());
+                        int32 per_time = aura->GetSpellProto()->EffectAmplitude[aura->GetEffIndex()];
+                        int32 num_ticks = duration > 0 && per_time > 0 ? duration / per_time : 0;
+                        int32 basepoints = num_ticks * aura->GetModifier()->m_amount;
+
+                        // 60% of the dot aura damage is direct damage, value stored in basepoints of effect 1
+                        damage += basepoints * m_currentBasePoints[EFFECT_INDEX_1] / 100;
+                        // 40% of the dot aura damage is dot damage, value stored in basepoints of effect 2
+                        m_currentBasePoints[EFFECT_INDEX_1] = basepoints * m_currentBasePoints[EFFECT_INDEX_2] / (100 * GetSpellAuraMaxTicks(m_spellInfo));
 
                         // Glyph of Conflagrate
                         if (!m_caster->HasAura(56235))
