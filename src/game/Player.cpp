@@ -590,6 +590,8 @@ Player::Player (WorldSession *session): Unit(), m_mover(this), m_camera(this), m
 
     SetPendingBind(NULL, 0);
     m_LFGState = new LFGPlayerState(this);
+
+    m_cachedGS = 0;
 }
 
 Player::~Player ()
