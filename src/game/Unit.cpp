@@ -10728,7 +10728,10 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
                     continue;
             }
 
+            triggeredByAura->SetInUse(true);
             SpellAuraProcResult procResult = (*this.*AuraProcHandler[auraModifier->m_auraname])(pTarget, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown);
+            triggeredByAura->SetInUse(false);
+
             switch (procResult)
             {
                 case SPELL_AURA_PROC_CANT_TRIGGER:
