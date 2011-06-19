@@ -5029,7 +5029,8 @@ SpellCastResult Spell::CheckCast(bool strict)
         {
             if(m_spellInfo->EffectImplicitTargetA[j] == TARGET_PET)
             {
-                if(!m_caster->GetPet())
+                Pet *pet = m_caster->GetPet();
+                if (!pet || !pet->isAlive())
                 {
                     if(m_triggeredByAuraSpell)              // not report pet not existence for triggered spells
                         return SPELL_FAILED_DONT_REPORT;
