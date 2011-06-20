@@ -5572,15 +5572,27 @@ void Aura::HandleAuraPeriodicDummy(bool apply, bool Real)
         }
         case SPELLFAMILY_ROGUE:
         {
-            if(!apply)
+            switch (spell->Id)
             {
-                switch(spell->Id)
+                // Master of Subtlety
+                case 31666:
                 {
-                    // Master of Subtlety
-                    case 31666: target->RemoveAurasDueToSpell(31665); break;
+                    if (apply)
+                    {
+                        // for make duration visible
+                        if (SpellAuraHolder* holder = target->GetSpellAuraHolder(31665))
+                        {
+                            holder->SetAuraMaxDuration(GetHolder()->GetAuraDuration());
+                            holder->RefreshHolder();
+                        }
+                    }
+                    else
+                        target->RemoveAurasDueToSpell(31665);
+                    break;
                 }
+                default:
+                    break;
             }
-            break;
         }
         case SPELLFAMILY_WARLOCK:
         {
@@ -8306,7 +8318,6 @@ void Aura::PeriodicDummyTick()
                         case 2: target->CastSpell(target, 55739, true); break;
                     }
                     return;
-
                 case 54798: // FLAMING Arrow Triggered Effect
                 {
                     Unit * caster = GetCaster();
@@ -8346,7 +8357,14 @@ void Aura::PeriodicDummyTick()
 
                     break;
                 }
-
+                case 62566:                                 // Healthy Spore Summon Periodic
+                {
+                    target->CastSpell(target, 62582, true);
+                    target->CastSpell(target, 62591, true);
+                    target->CastSpell(target, 62592, true);
+                    target->CastSpell(target, 62593, true);
+                    return;
+                }
                 case 62717:                                 // Slag Pot (periodic dmg)
                 case 63477:
                 {
@@ -9093,6 +9111,7 @@ m_permanent(false), m_isRemovedOnShapeLost(true), m_deleted(false), m_in_use(0)
         case 34027:                                         // Kill Command
         case 55166:                                         // Tidal Force
         case 58914:                                         // Kill Command (pet part)
+        case 62519:                                         // Attuned to Nature
         case 64455:                                         // Feral Essence
         case 71564:                                         // Deadly Precision
         case 74396:                                         // Fingers of Frost

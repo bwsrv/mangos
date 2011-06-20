@@ -1694,6 +1694,14 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 unMaxTargets = 1;
             break;
         }
+        case SPELLFAMILY_WARRIOR:
+        {
+            // Sunder Armor
+            if (m_spellInfo->IsFitToFamilyMask(UI64LIT(0x0000000000004000), 0x00000000))
+                if (m_caster->HasAura(58387))               // Glyph of Sunder Armor
+                    EffectChainTarget = 2;
+            break;
+        }
         case SPELLFAMILY_DRUID:
         {
             // Starfall
@@ -1793,6 +1801,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             targetUnitMap.push_back(m_caster);
             break;
         }
+        case TARGET_91:
         case TARGET_RANDOM_NEARBY_DEST:
         {
             radius *= sqrtf(rand_norm_f()); // Get a random point in circle. Use sqrt(rand) to correct distribution when converting polar to Cartesian coordinates.
@@ -1803,7 +1812,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             m_caster->UpdateGroundPositionZ(dest_x, dest_y, dest_z);
             m_targets.setDestination(dest_x, dest_y, dest_z);
 
-            if (radius > 0.0f)
+            if (targetMode == TARGET_RANDOM_NEARBY_DEST && radius > 0.0f)
             {
                 // caster included here?
                 FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_ALL);
