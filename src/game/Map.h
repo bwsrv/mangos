@@ -259,6 +259,9 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
         void MonsterYellToMap(CreatureInfo const* cinfo, int32 textId, uint32 language, Unit* target, uint32 senderLowGuid = 0);
         void PlayDirectSoundToMap(uint32 soundId);
 
+        // Loading Transport
+        Transport* LoadTransportInMap(uint32 transportEntry, uint32 transportPeriod = 0, bool IsStoped = false);
+
     private:
         void LoadMapAndVMap(int gx, int gy);
 

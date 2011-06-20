@@ -3267,3 +3267,39 @@ void Map::PlayDirectSoundToMap(uint32 soundId)
     for (PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
         itr->getSource()->SendDirectMessage(&data);
 }
+
+Transport* Map::LoadTransportInMap(uint32 transportEntry, uint32 transportPeriod /*= 0*/, bool IsStoped /* = false*/)
+{
+    Transport* trans = new Transport;
+    const GameObjectInfo *goinfo = ObjectMgr::GetGameObjectInfo(transportEntry);
+    if (!goinfo)
+        return NULL;
+
+    std::set<uint32> mapsUse;
+    trans->m_period = transportPeriod;
+    if (!trans->GenerateWaypoints(goinfo->moTransport.taxiPathId, mapsUse))
+    {
+        delete trans;
+        return NULL;
+    }
+
+    uint32 mapid = trans->m_WayPoints[0].mapid;
+    float x = trans->m_WayPoints[0].x;
+    float y = trans->m_WayPoints[0].y;
+    float z = trans->m_WayPoints[0].z;
+    float o = 1.0f;
+
+    if (!trans->Create(transportEntry, mapid, x, y, z, o, GO_ANIMPROGRESS_DEFAULT, 0))
+    {
+        delete trans;
+        return NULL;
+    }
+
+    trans->SetMap(this);
+    if (!IsStoped)
+        trans->BuildMovementPacket(this, true);
+    else
+        trans->BuildMovementPacket(this);
+
+    return trans;
+}
