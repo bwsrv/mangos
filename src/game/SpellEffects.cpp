@@ -7728,7 +7728,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                 {
                     if(!unitTarget)
                         return;
-                    unitTarget->CastSpell(unitTarget, m_spellInfo->EffectBasePoints[eff_idx]+1, true);
+                    unitTarget->CastSpell(unitTarget, m_spellInfo->CalculateSimpleValue(eff_idx), true);
                     break;
                 }
                 case 52479:                                 // The Gift That Keeps On Giving
@@ -7736,7 +7736,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     if (!m_caster || !unitTarget)
                         return;
 
-                    m_caster->CastSpell(m_caster, roll_chance_i(75) ? 52505 : m_spellInfo->EffectBasePoints[eff_idx]+1, true);
+                    m_caster->CastSpell(m_caster, roll_chance_i(75) ? 52505 : m_spellInfo->CalculateSimpleValue(eff_idx), true);
                     ((Creature*)unitTarget)->ForcedDespawn();
                     break;
                 }
@@ -8281,6 +8281,17 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         unitTarget->CastSpell(unitTarget, 69062, true);
                     return;
                 }
+                case 69140:                                 // Coldflame (Lord Marrowgar - Icecrown Citadel)
+                {
+                    if (unitTarget)
+                        unitTarget->CastSpell(m_caster, m_spellInfo->CalculateSimpleValue(eff_idx), true);
+                    return;
+                }
+                case 69147:                                 // Coldflame (circle, Lord Marrowgar - Icecrown Citadel)
+                {
+                    m_caster->CastSpell(m_caster, m_spellInfo->CalculateSimpleValue(eff_idx), true);
+                    return;
+                }
                 case 70117:                                 // Ice grip (Sindragosa pull effect)
                 {
                     if (!unitTarget)
@@ -8413,6 +8424,14 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, 72231, true);
 
                     break;
+                }
+                case 72705:                                 // Coldflame (in bone storm, Lord Marrowgar - Icecrown Citadel)
+                {
+                    m_caster->CastSpell(m_caster, 72701, true);
+                    m_caster->CastSpell(m_caster, 72702, true);
+                    m_caster->CastSpell(m_caster, 72703, true);
+                    m_caster->CastSpell(m_caster, 72704, true);
+                    return;
                 }
                 case 72864:                                 // Death plague
                 {
