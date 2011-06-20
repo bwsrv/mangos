@@ -262,7 +262,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
         void PlayDirectSoundToMap(uint32 soundId);
 
         // Loading Transport
-        Transport* LoadTransportInMap(uint32 transportEntry, uint32 transportPeriod = 0, bool IsStoped = false);
+        Transport* LoadTransportInMap(uint32 transportEntry, uint32 transportPosition = 0, uint32 transportPeriod = 0, bool IsStoped = false);
 
     private:
         void LoadMapAndVMap(int gx, int gy);
