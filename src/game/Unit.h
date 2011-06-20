@@ -1435,6 +1435,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         }
 
         bool HasAuraType(AuraType auraType) const;
+        bool HasAffectedAura(AuraType auraType, SpellEntry const* spellProto) const;
         bool HasAura(uint32 spellId, SpellEffectIndex effIndex) const;
         bool HasAura(uint32 spellId) const
         {
@@ -1694,7 +1695,13 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         uint32 m_invisibilityMask;
 
         ShapeshiftForm GetShapeshiftForm() const { return ShapeshiftForm(GetByteValue(UNIT_FIELD_BYTES_2, 3)); }
-        void  SetShapeshiftForm(ShapeshiftForm form) { SetByteValue(UNIT_FIELD_BYTES_2, 3, form); }
+        void  SetShapeshiftForm(ShapeshiftForm form)
+        {
+            SetByteValue(UNIT_FIELD_BYTES_2, 3, form);
+            // always update this field to prevent problems with shapeshifting
+            if (GetTypeId() == TYPEID_PLAYER)
+                ForceValuesUpdateAtIndex(UNIT_FIELD_BYTES_2);
+        }
 
         bool IsInFeralForm() const
         {

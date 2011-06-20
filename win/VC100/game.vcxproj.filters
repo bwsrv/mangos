@@ -27,6 +27,7 @@
     </Filter>
     <Filter Include="playerbot">
       <UniqueIdentifier>{98239dcb-baf2-4c5b-b0da-5e6864c86bb8}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Warden">
       <UniqueIdentifier>{dc755940-baa7-4ef4-b4ee-7c21ac97a8d8}</UniqueIdentifier>
     </Filter>
@@ -551,6 +552,7 @@
     </ClCompile>
     <ClCompile Include="..\..\src\game\WardenHandler.cpp">
       <Filter>World/Handlers</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\game\WardenBase.cpp">
       <Filter>Warden</Filter>
     </ClCompile>
@@ -1057,6 +1059,7 @@
     </ClInclude>
     <ClInclude Include="..\..\src\game\WardenHandler.h">
       <Filter>World/Handlers</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\src\game\WardenBase.h">
       <Filter>Warden</Filter>
     </ClInclude>

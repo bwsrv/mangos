@@ -185,7 +185,8 @@ typedef std::pair<QuestRelationsMap::const_iterator, QuestRelationsMap::const_it
 
 struct PetLevelInfo
 {
-    PetLevelInfo() : health(0), mana(0) { for(int i=0; i < MAX_STATS; ++i ) stats[i] = 0; }
+    PetLevelInfo(): health(0), mana(0), armor(0), mindmg(0), maxdmg(0), attackpower(0)
+        { for (int i = 0; i < MAX_STATS; ++i) stats[i] = 0; }
 
     uint16 stats[MAX_STATS];
     uint16 health;
@@ -760,8 +761,9 @@ class ObjectMgr
         void LoadEquipmentTemplates();
         void LoadGameObjectLocales();
         void LoadGameobjects();
-        void LoadItemConverts();
         void LoadItemPrototypes();
+        void LoadItemConverts();
+        void LoadItemExpireConverts();
         void LoadItemRequiredTarget();
         void LoadItemLocales();
         void LoadQuestLocales();
@@ -1117,10 +1119,16 @@ class ObjectMgr
         {
             ItemConvertMap::const_iterator iter = m_ItemConvert.find(itemEntry);
             if (iter == m_ItemConvert.end())
-                return itemEntry;
+                return 0;
 
             ItemPrototype const* proto = GetItemPrototype(iter->second);
-            return (proto && proto->AllowableRace & raceMask) ? iter->second : itemEntry;
+            return (proto && proto->AllowableRace & raceMask) ? iter->second : 0;
+        }
+
+        uint32 GetItemExpireConvert(uint32 itemEntry) const
+        {
+            ItemConvertMap::const_iterator iter = m_ItemExpireConvert.find(itemEntry);
+            return iter != m_ItemExpireConvert.end() ? iter->second : 0;
         }
 
         ItemRequiredTargetMapBounds GetItemRequiredTargetMapBounds(uint32 uiItemEntry) const
@@ -1236,6 +1244,7 @@ class ObjectMgr
         SpellClickInfoMap   mSpellClickInfoMap;
 
         ItemConvertMap        m_ItemConvert;
+        ItemConvertMap        m_ItemExpireConvert;
         ItemRequiredTargetMap m_ItemRequiredTarget;
 
         VehicleAccessoryMap m_VehicleAccessoryMap;
