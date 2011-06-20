@@ -1841,6 +1841,31 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
         case TARGET_TOTEM_WATER:
         case TARGET_TOTEM_AIR:
         case TARGET_TOTEM_FIRE:
+        {
+            float angle = m_caster->GetOrientation();
+            switch(targetMode)
+            {
+                case TARGET_TOTEM_EARTH:                       break;
+                case TARGET_TOTEM_WATER: angle += M_PI_F;      break;
+                case TARGET_TOTEM_AIR:   angle += M_PI_F / 2;  break;
+                case TARGET_TOTEM_FIRE:  angle -= M_PI_F / 2;  break;
+            }
+            float dest_x, dest_y;
+            m_caster->GetNearPoint2D(dest_x, dest_y, radius, angle);
+            m_targets.setDestination(dest_x, dest_y, m_caster->GetPositionZ());
+
+            if (radius > 0.0f)
+            {
+                // caster included here?
+                FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_ALL);
+            }
+            else if (IsPositiveSpell(m_spellInfo->Id))
+                    targetUnitMap.push_back(m_caster);
+
+            if (m_spellInfo->Effect[effIndex] == SPELL_EFFECT_SUMMON || m_spellInfo->Effect[effIndex] == SPELL_EFFECT_SUMMON_OBJECT_WILD)
+                unMaxTargets = m_spellInfo->CalculateSimpleValue(effIndex);
+            break;
+        }
         case TARGET_SELF:
         case TARGET_SELF2:
             targetUnitMap.push_back(m_caster);
