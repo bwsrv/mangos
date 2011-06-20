@@ -2663,6 +2663,11 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     ((Player*)m_caster)->RemoveSpellCooldown(53385, true);
                     return;
                 }
+                case 70961:                                 // Shattered Bones (Icecrown Citadel, trash mob The Damned)
+                {
+                    m_caster->CastSpell(m_caster, m_spellInfo->CalculateSimpleValue(eff_idx), true);
+                    break;
+                }
                 case 71336:                                 // Pact of the Darkfallen
                 {
                     if (!unitTarget)
