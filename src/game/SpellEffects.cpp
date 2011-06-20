@@ -3773,6 +3773,13 @@ void Spell::EffectTriggerSpell(SpellEffectIndex effIndex)
             }
             return;
         }
+        // Coldflame (Lord Marrowgar - Icecrown Citadel) - have casting time 0.2s, must be casted with triggered=false
+        case 69147:
+        {
+            m_caster->CastSpell(m_caster, triggered_spell_id, false);
+            return;
+        }
+
     }
 
     // normal case
