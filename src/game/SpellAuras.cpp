@@ -1291,8 +1291,11 @@ void Aura::TriggerSpell()
 //                    case 28114: break;
 //                    // Communique Timer, camp
 //                    case 28346: break;
-//                    // Icebolt
-//                    case 28522: break;
+                    case 28522:                             // Icebolt (Sapphiron - Naxxramas)
+                        // dunno if triggered spell id is correct
+                        if (!target->HasAura(45776))
+                            trigger_spell_id = 45776;
+                        break;
 //                    // Silithyst
 //                    case 29519: break;
                     case 29528:                             // Inoculate Nestlewood Owlkin
@@ -5404,6 +5407,12 @@ void Aura::HandlePeriodicTriggerSpell(bool apply, bool /*Real*/)
                 if (m_removeMode == AURA_REMOVE_BY_EXPIRE)
                     target->CastSpell(target, 32612, true, NULL, this);
 
+                return;
+            case 28522:                                     // Icebolt (Naxxramas: Sapphiron)
+                if (target->HasAura(45776))                 // Should trigger/remove some kind of iceblock
+                    // not sure about ice block spell id
+                    target->RemoveAurasDueToSpell(45776); 
+                
                 return;
             case 42783:                                     // Wrath of the Astrom...
                 if (m_removeMode == AURA_REMOVE_BY_EXPIRE && GetEffIndex() + 1 < MAX_EFFECT_INDEX)
