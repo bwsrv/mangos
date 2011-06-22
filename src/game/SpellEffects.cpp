@@ -1399,6 +1399,22 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 
                     return;
                 }
+                case 29969:                                 // Activate Blizzard (Naxxramas: Sapphiron)
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->CastSpell(unitTarget, 29952, true);
+                    return;
+                }
+                case 29970:                                 // Deactivate Blizzard (Naxxramas: Sapphiron)
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->RemoveAurasDueToSpell(29952);
+                    return;
+                }
                 case 30458:                                 // Nigh Invulnerability
                 {
                     if (!m_CastItem)
