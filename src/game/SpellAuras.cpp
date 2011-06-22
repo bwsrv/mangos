@@ -522,6 +522,13 @@ SingleEnemyTargetAura::~SingleEnemyTargetAura()
 
 Unit* SingleEnemyTargetAura::GetTriggerTarget() const
 {
+    // search for linked dummy aura with the correct target
+    for (int i = 0; i < MAX_EFFECT_INDEX; ++i)
+        if (i != GetEffIndex())
+            if (Aura *aur = GetHolder()->GetAuraByEffectIndex(SpellEffectIndex(i)))
+                if (aur->GetSpellProto()->EffectApplyAuraName[i] == SPELL_AURA_DUMMY)
+                    return aur->GetTarget();
+
     return ObjectAccessor::GetUnit(*(m_spellAuraHolder->GetTarget()), m_castersTargetGuid);
 }
 
