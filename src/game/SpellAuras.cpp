@@ -522,6 +522,13 @@ SingleEnemyTargetAura::~SingleEnemyTargetAura()
 
 Unit* SingleEnemyTargetAura::GetTriggerTarget() const
 {
+    // search for linked dummy aura with the correct target
+    for (int i = 0; i < MAX_EFFECT_INDEX; ++i)
+        if (i != GetEffIndex())
+            if (Aura *aur = GetHolder()->GetAuraByEffectIndex(SpellEffectIndex(i)))
+                if (aur->GetSpellProto()->EffectApplyAuraName[i] == SPELL_AURA_DUMMY)
+                    return aur->GetTarget();
+
     return ObjectAccessor::GetUnit(*(m_spellAuraHolder->GetTarget()), m_castersTargetGuid);
 }
 
@@ -1342,8 +1349,7 @@ void Aura::TriggerSpell()
                         triggerTarget->CastCustomSpell(triggerTarget, 29879, &bpDamage, NULL, NULL, true, NULL, this, casterGUID);
                         return;
                     }
-                    // Detonate Mana
-                    case 27819:
+                    case 27819:                             // Detonate Mana (Naxxramas: Kel'Thuzad)
                     {
                         if (!target->GetMaxPower(POWER_MANA))
                             return;
@@ -1368,9 +1374,9 @@ void Aura::TriggerSpell()
 //                    case 28114: break;
 //                    // Communique Timer, camp
 //                    case 28346: break;
-                    // Icebolt (Sapphiron - Naxxramas)
-                    case 28522:                      // should apply some kind of iceblock visual aura
-                        if (!target->HasAura(45776)) // dunno if triggered spell id is correct
+                    case 28522:                             // Icebolt (Sapphiron - Naxxramas)
+                        // dunno if triggered spell id is correct
+                        if (!target->HasAura(45776))
                             trigger_spell_id = 45776;
                         break;
 //                    // Silithyst
@@ -5588,7 +5594,9 @@ void Aura::HandlePeriodicTriggerSpell(bool apply, bool /*Real*/)
                 return;
             case 28522:                                     // Icebolt (Naxxramas: Sapphiron)
                 if (target->HasAura(45776))                 // Should trigger/remove some kind of iceblock
-                    target->RemoveAurasDueToSpell(45776);   // not sure about ice block spell id
+                    // not sure about ice block spell id
+                    target->RemoveAurasDueToSpell(45776); 
+                
                 return;
             case 42783:                                     // Wrath of the Astrom...
                 if (m_removeMode == AURA_REMOVE_BY_EXPIRE && GetEffIndex() + 1 < MAX_EFFECT_INDEX)
@@ -5660,7 +5668,7 @@ void Aura::HandlePeriodicTriggerSpell(bool apply, bool /*Real*/)
                 }
 
                 return;
-            case 71441:                                     // Unstable Ooze Explosion Suicide Trigger
+            case 71441:                                     // Unstable Ooze Explosion (Icecrown Citadel encounter)
                 if (m_removeMode == AURA_REMOVE_BY_EXPIRE)
                     target->CastSpell(target, 67375, true, NULL, this);
 
