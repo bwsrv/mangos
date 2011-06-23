@@ -2805,6 +2805,22 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     ((Creature*)unitTarget)->ForcedDespawn(1000);
                     return;
                 }
+                case 62653:                                 // Tidal Wave
+                { 
+                     if (!unitTarget) 
+                        return; 
+
+                     m_caster->CastSpell(unitTarget, 62654, true); 
+                     return; 
+                } 
+                case 62935:                                 // Tidal Wave (H)
+                { 
+                   if (!unitTarget) 
+                      return; 
+
+                   m_caster->CastSpell(unitTarget, 62936, true); 
+                   return; 
+                }
                 case 67019:                                 // Flask of the North
                 {
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
