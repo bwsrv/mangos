@@ -7238,7 +7238,7 @@ uint32 Unit::SpellDamageBonusTaken(Unit *pCaster, SpellEntry const *spellProto, 
             case 25899:                                     // Greater Blessing of Sanctuary
                 // don't stack with Vigilance dmg reduction effect (calculated above)
                 if (!HasAura(68066))
-                    TakenTotalMod *= ((*i)->GetModifier()->m_amount + 100.0f) / 100.0f;
+                    TakenTotalMod *= ((*itr)->GetModifier()->m_amount + 100.0f) / 100.0f;
                 break;
         }
     }
