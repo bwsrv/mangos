@@ -1048,7 +1048,8 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     CreatureData& data = sObjectMgr.NewOrExistCreatureData(GetGUIDLow());
 
     uint32 displayId = GetNativeDisplayId();
-    uint32 transportUse = (GetTransport()) ? 1 : 0;
+    uint32 transportUse;
+    bool IsTransport;
 
     // check if it's a custom model and if not, use 0 for displayId
     CreatureInfo const *cinfo = GetCreatureInfo();
@@ -1067,14 +1068,16 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
             displayId = 0;
     }
 
-    bool IsTransport;
     if (GetTransport())
     {
         IsTransport = true;
-        //mapid = GetTransport()->GetGOInfo()->moTransport.mapID;... will be used in future
+        transportUse = 1;
     }
     else
+    {
         IsTransport = false;
+        transportUse = 0;
+    }
 
     // data->guid = guid don't must be update at save
     data.id = GetEntry();

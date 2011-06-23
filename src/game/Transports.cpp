@@ -96,7 +96,7 @@ void MapManager::LoadTransports()
 
         float x, y, z, o;
         uint32 mapid;
-        x = t->m_WayPoints[0].x; y = t->m_WayPoints[0].y; z = t->m_WayPoints[0].z; mapid = t->m_WayPoints[0].mapid; o = 1;
+        x = t->m_WayPoints[0].x; y = t->m_WayPoints[0].y; z = t->m_WayPoints[0].z; mapid = t->m_WayPoints[0].mapid; o = 1.0f;
 
         //current code does not support transports in dungeon!
         const MapEntry* pMapInfo = sMapStore.LookupEntry(mapid);
@@ -151,7 +151,7 @@ void MapManager::LoadTransports()
 
 void MapManager::LoadTransportCreatures()
 {
-    QueryResult *result = WorldDatabase.PQuery("SELECT guid, transActive FROM creature");
+    QueryResult *result = WorldDatabase.PQuery("SELECT guid FROM creature WHERE transActive = 1");
     if (!result)
     {
         sLog.outString(">> Loaded 0 transport creatures. DB table `creature` is empty!");
@@ -165,23 +165,16 @@ void MapManager::LoadTransportCreatures()
         Field *fields = result->Fetch();
 
         uint32 guid = fields[0].GetUInt32();
-        uint32 transportUse = fields[1].GetUInt32(); // this is hack
+        CreatureData const* data = sObjectMgr.GetCreatureData(guid);
+
         for (MapManager::TransportSet::iterator itr = m_Transports.begin(); itr != m_Transports.end(); ++itr)
         {
             Transport* trans = *itr;
-            CreatureData const* data = sObjectMgr.GetCreatureData(guid);
-
-            CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(data->id);
-            if (!cInfo)
+            if (trans->GetGOInfo()->moTransport.mapID == data->mapid)
             {
-                sLog.outErrorDb("Table `creature` has creature (GUID: %u) with non existing creature entry %u, skipped.", guid, data->id);
-                continue;
-            }
-
-            if (transportUse == 1)
                 trans->AddNPCPassenger(data->id, data->posX, data->posY, data->posZ, data->orientation, TEAM_NONE);
-
-            break;
+                break;
+            }
         }
         ++count;
     }
@@ -508,26 +501,6 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
     Map const* oldMap = GetMap();
     Relocate(x, y, z);
 
-    for (UnitSet::iterator itr = _passengers.begin(); itr != _passengers.end();)
-    {
-        Unit* UnitOnTransport = *itr;
-        ++itr;
-
-        if (!UnitOnTransport)
-        {
-            _passengers.erase(itr);
-            continue;
-        }
-
-        if(UnitOnTransport->GetTypeId() == TYPEID_UNIT)
-            continue;
-
-        Player* PlayerOnTransport = (Player*)UnitOnTransport;
-        if (PlayerOnTransport->isDead() && !PlayerOnTransport->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
-            PlayerOnTransport->ResurrectPlayer(1.0f);
-        PlayerOnTransport->TeleportTo(newMapid, x, y, z, GetOrientation(), TELE_TO_NOT_LEAVE_TRANSPORT);
-    }
-
     //we need to create and save new Map object with 'newMapid' because if not done -> lead to invalid Map object reference...
     //player far teleport would try to create same instance, but we need it NOW for transport...
     //correct me if I'm wrong O.o
@@ -545,34 +518,26 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
         UpdateForMap(newMap);
     }
 
-    for (UnitSet::iterator itr = _passengers.begin(); itr != _passengers.end();)
+    for (UnitSet::iterator itr = _passengers.begin(); itr != _passengers.end(); itr++)
     {
-        Unit* UnitOnTransport = *itr;
-        ++itr;
-
-        if (!UnitOnTransport)
+        if (!(*itr))
         {
             _passengers.erase(itr);
             continue;
         }
 
-        if (UnitOnTransport->GetTypeId() == TYPEID_PLAYER)
-            continue;
-
-        Creature* npc = (Creature*)UnitOnTransport;
-        npc->InterruptNonMeleeSpells(true);
-        npc->CombatStop();
-        npc->ClearComboPointHolders();
-        npc->DeleteThreatList();
-        npc->GetMotionMaster()->Clear(false);
-        //npc->DestroyForNearbyPlayers();
-
-        npc->RemoveFromWorld();
-        npc->ResetMap();
-        npc->SetMap(newMap);
-        npc->AddToWorld();
-
-        npc->SetPosition(x, y, z, GetOrientation());
+        if ((*itr)->GetTypeId() == TYPEID_PLAYER)
+        {
+            Player* pPlayer = ((Player*)(*itr));
+            if (pPlayer->isDead() && !pPlayer->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+                pPlayer->ResurrectPlayer(1.0f);
+            pPlayer->TeleportTo(newMapid, x, y, z, GetOrientation(), TELE_TO_NOT_LEAVE_TRANSPORT);
+        }
+        else
+        {
+            Creature* pCreature = ((Creature*)(*itr));
+            UpdateCreaturePositions(pCreature, newMap, x, y, z, GetOrientation(), true);
+        }
     }
 }
 
@@ -657,7 +622,14 @@ void Transport::Update(uint32 update_diff, uint32 /*p_time*/)
         else
         {
             Relocate(m_curr->second.x, m_curr->second.y, m_curr->second.z);
-            UpdateUnitPositions();
+            for (UnitSet::const_iterator itr = _passengers.begin(); itr != _passengers.end(); itr++)
+            {
+                if ((*itr)->GetTypeId() == TYPEID_PLAYER)
+                    continue;
+
+                Creature* npc = ((Creature*)(*itr));
+                UpdateCreaturePositions(npc, GetMap(), m_curr->second.x, m_curr->second.y, m_curr->second.z, GetOrientation());
+            }
         }
 
         m_nextNodeTime = m_curr->first;
@@ -691,12 +663,7 @@ Creature* Transport::AddNPCPassenger(uint32 entry, float x, float y, float z, fl
     pCreature->m_movementInfo.SetTransportData(ObjectGuid(HIGHGUID_MO_TRANSPORT, GetObjectGuid().GetCounter()), x, y, z, o, 0, -1);
 
     AddPassenger(pCreature);
-    float rX = GetPositionX() + (x * cos(GetOrientation()) + y * sin(GetOrientation() + M_PI));
-    float rY = GetPositionY() + (y * cos(GetOrientation()) + x * sin(GetOrientation()));
-    float rZ = GetPositionZ() + z;
-    float rO = GetOrientation() + o;
-    MapManager::NormalizeOrientation(rO);
-    pCreature->Relocate(rX, rY, rZ, rO);
+    UpdateCreaturePositions(pCreature, map, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
 
     if (!pCreature->IsPositionValid())
     {
@@ -709,25 +676,28 @@ Creature* Transport::AddNPCPassenger(uint32 entry, float x, float y, float z, fl
     return pCreature;
 }
 
-void Transport::UpdateUnitPositions()
+void Transport::UpdateCreaturePositions(Creature* npc, Map* map, float second_x, float second_y, float second_z, float second_o, bool teleport)
 {
-    for (UnitSet::const_iterator itr = _passengers.begin(); itr != _passengers.end(); itr++)
+    MapManager::NormalizeOrientation(second_o);
+    if (!map)
+        return;
+
+    if (!teleport)
     {
-        Unit* UnitOnTransport = ((Unit*)(*itr));
-        float tX = GetPositionX() + (UnitOnTransport->GetTransOffsetX()*cos(GetOrientation()) + UnitOnTransport->GetTransOffsetY()*sin(GetOrientation() + M_PI));
-        float tY = GetPositionY() + (UnitOnTransport->GetTransOffsetY()*cos(GetOrientation()) + UnitOnTransport->GetTransOffsetX()*sin(GetOrientation()));
-        float tZ = GetPositionZ() + UnitOnTransport->GetTransOffsetZ();
-        float tO = GetOrientation() + UnitOnTransport->GetTransOffsetO();
-        MapManager::NormalizeOrientation(tO);
+        float tX = (npc->GetTransOffsetX()*cos(second_o) + npc->GetTransOffsetY()*sin(second_o + M_PI));
+        float tY = (npc->GetTransOffsetY()*cos(second_o) + npc->GetTransOffsetX()*sin(second_o));
+        npc->SetPosition(second_x + tX, second_y + tY, second_z + npc->GetTransOffsetZ(), second_o + npc->GetTransOffsetO());
+    }
+    else
+    {
+        npc->CombatStop(true);
+        npc->ClearComboPointHolders();
+        npc->DeleteThreatList();
+        npc->GetMap()->Remove(npc, false);
 
-        if (UnitOnTransport->GetTypeId() == TYPEID_UNIT)
-        {
-            Creature* NpcOnTransport = (Creature*)UnitOnTransport;
-            GetMap()->CreatureRelocation(NpcOnTransport, tX, tY, tZ, tO);
-        }
-
-        if (UnitOnTransport->GetVehicle())
-            UnitOnTransport->GetVehicleKit()->RelocatePassengers(tX, tY, tZ, tO);
+        npc->SetMap(map);
+        map->Add(npc);
+        npc->SetPosition(second_x, second_y, second_z, second_o, true);
     }
 }
 

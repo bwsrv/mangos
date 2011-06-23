@@ -1084,7 +1084,7 @@ GridMap * TerrainInfo::LoadMapAndVMap( const uint32 x, const uint32 y )
             const MapEntry * i_mapEntry = sMapStore.LookupEntry(m_mapId);
             const char* mapName = i_mapEntry ? i_mapEntry->name[sWorld.GetDefaultDbcLocale()] : "UNNAMEDMAP\x0";
 
-            int vmapLoadResult = i_mapEntry->IsTransport() ? VMAP::VMAP_LOAD_RESULT_IGNORED : VMAP::VMapFactory::createOrGetVMapManager()->loadMap((sWorld.GetDataPath()+ "vmaps").c_str(),  m_mapId, x, y);
+            int vmapLoadResult = VMAP::VMapFactory::createOrGetVMapManager()->loadMap((sWorld.GetDataPath()+ "vmaps").c_str(),  m_mapId, x, y);
             switch(vmapLoadResult)
             {
             case VMAP::VMAP_LOAD_RESULT_OK:

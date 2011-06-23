@@ -34,7 +34,6 @@ class MANGOS_DLL_SPEC Transport : public GameObject
         bool Create(uint32 guidlow, uint32 mapid, float x, float y, float z, float ang, uint8 animprogress, uint16 dynamicHighValue);
         bool GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids);
         void Update(uint32 update_diff, uint32 p_time) override;
-        void UpdateUnitPositions();
         bool AddPassenger(Unit* passenger);
         bool RemovePassenger(Unit* passenger);
 
@@ -42,6 +41,7 @@ class MANGOS_DLL_SPEC Transport : public GameObject
         UnitSet const& GetUnitPassengers() const { return _passengers; }
 
         Creature* AddNPCPassenger(uint32 entry, float x, float y, float z, float o, Team team = TEAM_NONE);
+        void UpdateCreaturePositions(Creature* npc, Map* map, float second_x, float second_y, float second_z, float second_o, bool teleport = false);
 
         void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target);
         void BuildMovementPacket(Map const* targetMap, bool isMoving = false);
