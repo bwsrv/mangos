@@ -3305,6 +3305,11 @@ Transport* Map::LoadTransportInMap(uint32 transportEntry, uint32 transportPositi
         return NULL;
     }
 
+    sMapMgr.m_Transports.insert(trans);
+
+    for (std::set<uint32>::const_iterator i = mapsUse.begin(); i != mapsUse.end(); ++i)
+        sMapMgr.m_TransportsByMap[*i].insert(trans);
+
     trans->SetMap(this);
     if (!IsStoped)
         trans->BuildMovementPacket(this, true);

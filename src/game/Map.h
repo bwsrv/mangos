@@ -39,6 +39,7 @@
 #include "Transports.h"
 
 #include <bitset>
+#include <set>
 #include <list>
 
 struct CreatureInfo;
