@@ -8329,6 +8329,10 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                 case 70826:                                 // -> Lord Marrowgar encounter, all difficulties)
                 case 72088:                                 // ----- // -----
                 case 72089:                                 // ----- // -----
+                case 73142:                                 // Bone Spike Graveyard (during Bone Storm) ->
+                case 73143:                                 // (Icecrown Citadel, -> Lord Marrowgar encounter, ->
+                case 73144:                                 // all difficulties)
+                case 73145:                                 // ----- // -----
                 {
                     if (unitTarget)
                         unitTarget->CastSpell(unitTarget, 69062, true);
