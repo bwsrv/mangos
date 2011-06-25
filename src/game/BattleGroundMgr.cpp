@@ -1509,36 +1509,11 @@ BattleGround * BattleGroundMgr::CreateNewBattleGround(BattleGroundTypeId bgTypeI
 
     bool isRandom = false;
 
-    if (bgTypeId == BATTLEGROUND_RB)
+    if(bgTypeId==BATTLEGROUND_RB)
     {
-        int count = 100;
-        World::SessionMap sessions = sWorld.GetSessions();
-        if (!sessions.empty() && !sBattleGroundMgr.isTesting())
-        {
-            for (World::SessionMap::const_iterator itr = sessions.begin(); itr != sessions.end(); ++itr)
-            {
-                if (!itr->second || !itr->second->GetPlayer())
-                    continue;
-
-                if (!itr->second->GetPlayer()->isGameMaster() && itr->second->GetPlayer()->getLevel() == 80)
-                    ++count;
-            }
-        }
-
-        bgTypeId = BATTLEGROUND_AB; // Default initialization
-        if (count >= 100 || sBattleGroundMgr.isTesting())
-        {
-            BattleGroundTypeId random_bgs[] = {BATTLEGROUND_AV, BATTLEGROUND_WS, BATTLEGROUND_AB, BATTLEGROUND_EY, BATTLEGROUND_SA};
-            uint32 bg_num = urand(0, 4);
-            bgTypeId = random_bgs[bg_num];
-        }
-        else
-        {
-            BattleGroundTypeId random_bgs[] = {BATTLEGROUND_WS, BATTLEGROUND_AB, BATTLEGROUND_EY, BATTLEGROUND_SA};
-            uint32 bg_num = urand(0, 3);
-            bgTypeId = random_bgs[bg_num];
-        }
-
+        BattleGroundTypeId random_bgs[] = {BATTLEGROUND_AV, BATTLEGROUND_WS, BATTLEGROUND_AB, BATTLEGROUND_EY/*, BATTLEGROUND_SA, BATTLEGROUND_IC*/};
+        uint32 bg_num = urand(0, sizeof(random_bgs)/sizeof(BattleGroundTypeId)-1);
+        bgTypeId = random_bgs[bg_num];
         bg_template = GetBattleGroundTemplate(bgTypeId);
         if (!bg_template)
         {
