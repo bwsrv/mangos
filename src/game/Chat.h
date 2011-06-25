@@ -98,6 +98,10 @@ class MANGOS_DLL_SPEC ChatHandler
         void PSendSysMessage(         const char *format, ...) ATTR_PRINTF(2,3);
         void PSendSysMessage(         int32     entry, ...  );
 
+        void SendGlobalSysMessage(const char *str);
+        void PSendGlobalSysMessage(const char *format, ...) ATTR_PRINTF(2,3);
+        void PSendGlobalSysMessage(int32 entry, ...  );
+
         bool ParseCommands(const char* text);
         ChatCommand const* FindCommand(char const* text);
 
@@ -119,8 +123,6 @@ class MANGOS_DLL_SPEC ChatHandler
 
         bool HasLowerSecurity(Player* target, ObjectGuid guid = ObjectGuid(), bool strong = false);
         bool HasLowerSecurityAccount(WorldSession* target, uint32 account, bool strong = false);
-
-        void SendGlobalSysMessage(const char *str);
 
         bool SetDataForCommandInTable(ChatCommand *table, const char* text, uint32 security, std::string const& help);
         void ExecuteCommand(const char* text);

@@ -97,6 +97,17 @@ bool ChatHandler::HandleMuteCommand(char* args)
     std::string nameLink = playerLink(target_name);
 
     PSendSysMessage(LANG_YOU_DISABLE_CHAT, nameLink.c_str(), notspeaktime);
+
+    if (sWorld.getConfig(CONFIG_BOOL_GM_ANNOUNCE_BAN))
+    {
+        std::string GMnameLink;
+        if (m_session)
+            GMnameLink = playerLink(m_session->GetPlayerName());
+        else
+            GMnameLink = "";
+        PSendGlobalSysMessage(LANG_MUTE_ANNOUNCE, GMnameLink.c_str(), nameLink.c_str(), notspeaktime);
+    }
+
     return true;
 }
 
