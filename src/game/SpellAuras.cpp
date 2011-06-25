@@ -5692,7 +5692,7 @@ void Aura::HandlePeriodicHeal(bool apply, bool /*Real*/)
         m_modifier.m_amount = caster->SpellHealingBonusDone(target, GetSpellProto(), m_modifier.m_amount, DOT, GetStackAmount());
 
         // Rejuvenation
-        if (GetSpellProto()->IsFitToFamily(SPELLFAMILY_DRUID, UI64LIT(0x0000000000000010)))
+        if (GetSpellProto()->IsFitToFamily<SPELLFAMILY_DRUID, CF_DRUID_REJUVENATION>())
             if (caster->HasAura(64760))                     // Item - Druid T8 Restoration 4P Bonus
                 caster->CastCustomSpell(target, 64801, &m_modifier.m_amount, NULL, NULL, true, NULL);
     }
