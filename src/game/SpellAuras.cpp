@@ -5690,6 +5690,11 @@ void Aura::HandlePeriodicHeal(bool apply, bool /*Real*/)
         }
 
         m_modifier.m_amount = caster->SpellHealingBonusDone(target, GetSpellProto(), m_modifier.m_amount, DOT, GetStackAmount());
+
+        // Rejuvenation
+        if (GetSpellProto()->IsFitToFamily(SPELLFAMILY_DRUID, UI64LIT(0x0000000000000010)))
+            if (caster->HasAura(64760))                     // Item - Druid T8 Restoration 4P Bonus
+                caster->CastCustomSpell(target, 64801, &m_modifier.m_amount, NULL, NULL, true, NULL);
     }
 }
 
@@ -9285,19 +9290,22 @@ void SpellAuraHolder::_AddSpellAuraHolder()
 
 void SpellAuraHolder::_RemoveSpellAuraHolder()
 {
- // Remove all triggered by aura spells vs unlimited duration
+    // Remove all triggered by aura spells vs unlimited duration
     // except same aura replace case
     if(m_removeMode!=AURA_REMOVE_BY_STACK)
         CleanupTriggeredSpells();
 
     Unit* caster = GetCaster();
 
-    if(caster && IsPersistent())
-    {
-        DynamicObject *dynObj = caster->GetDynObject(GetId());
-        if (dynObj)
+    if (caster && IsPersistent())
+        if (DynamicObject *dynObj = caster->GetDynObject(GetId()))
             dynObj->RemoveAffected(m_target);
-    }
+
+    // remove at-store spell cast items (for all remove modes?)
+    if (caster && caster->GetTypeId() == TYPEID_PLAYER && m_removeMode != AURA_REMOVE_BY_DEFAULT && m_removeMode != AURA_REMOVE_BY_DELETE)
+        if (ObjectGuid castItemGuid = GetCastItemGuid())
+            if (Item* castItem = ((Player*)m_target)->GetItemByGuid(castItemGuid))
+                ((Player*)caster)->DestroyItemWithOnStoreSpell(castItem);
 
     //passive auras do not get put in slots - said who? ;)
     // Note: but totem can be not accessible for aura target in time remove (to far for find in grid)
