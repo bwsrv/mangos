@@ -473,7 +473,7 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                     case 70836:
                     {
                         float distance = unitTarget->GetDistance2d(m_caster); 
-                        damage *= exp(-distance/(10.0f));
+                        damage *= exp(-distance/(27.5f));
                         break;
                     }
                     case 74607:
@@ -8772,6 +8772,10 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                 case 70826:                                 // -> Lord Marrowgar encounter, all difficulties)
                 case 72088:                                 // ----- // -----
                 case 72089:                                 // ----- // -----
+                case 73142:                                 // Bone Spike Graveyard (during Bone Storm) ->
+                case 73143:                                 // (Icecrown Citadel, -> Lord Marrowgar encounter, ->
+                case 73144:                                 // all difficulties)
+                case 73145:                                 // ----- // -----
                 {
                     if (unitTarget)
                         unitTarget->CastSpell(unitTarget, 69062, true);
