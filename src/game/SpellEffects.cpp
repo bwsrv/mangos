@@ -465,7 +465,7 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                     case 70836:
                     {
                         float distance = unitTarget->GetDistance2d(m_caster); 
-                        damage *= exp(-distance/(10.0f));
+                        damage *= exp(-distance/(27.5f));
                         break;
                     }
                     case 74607:
