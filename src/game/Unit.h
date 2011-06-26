@@ -1817,6 +1817,12 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         {
             return GetAura(type, family, ClassFamilyMask(familyFlag, familyFlag2), casterGuid);
         }
+        template <AuraType type, SpellFamily family, CFM_ARGS_1>
+        Aura* GetAura(ObjectGuid casterGuid = ObjectGuid())
+        {
+            return GetAura(type, family, ClassFamilyMask::create<CFM_VALUES_1>(), casterGuid);
+        }
+
         SpellAuraHolder* GetSpellAuraHolder (uint32 spellid) const;
         SpellAuraHolder* GetSpellAuraHolder (uint32 spellid, ObjectGuid casterGUID) const;
 

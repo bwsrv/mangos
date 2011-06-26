@@ -955,6 +955,13 @@ enum MangosStrings
     // Use for custom patches             11000-11999
     LANG_COMMAND_FRIEND                 = 11133,
     LANG_COMMAND_FRIEND_ERROR           = 11134,
+    LANG_BAN_ACCOUNT_ANNOUNCE           = 17890,
+    LANG_PERMBAN_ACCOUNT_ANNOUNCE       = 17891,
+    LANG_BAN_CHARACTER_ANNOUNCE         = 17892,
+    LANG_PERMBAN_CHARACTER_ANNOUNCE     = 17893,
+    LANG_BAN_IP_ANNOUNCE                = 17894,
+    LANG_PERMBAN_IP_ANNOUNCE            = 17895,
+    LANG_MUTE_ANNOUNCE                  = 17896,
     LANG_ARENA_STARTED_ANNOUNCE_WORLD   = 17898,
 
     // NOT RESERVED IDS                   12000-1999999999
