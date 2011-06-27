@@ -996,6 +996,17 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                     // Cauterizing Heal or Searing Flame
                     triggered_spell_id = (procFlag & PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL) ? 69733 : 69729;
                     break;
+                // Vampiric Might (Cult Fanatic, Icecrown Citadel, Lady Deathwhisper encounter)
+                case 70674:
+                {
+                    basepoints[0] = 3 * damage;
+                    if (basepoints[0] < 0)
+                        return SPELL_AURA_PROC_FAILED;
+
+                    triggered_spell_id = 70677;
+                    target = this;
+                    break;
+                }
                 case 70871:
                     // Soul of Blood qween
                     triggered_spell_id = 70872;
