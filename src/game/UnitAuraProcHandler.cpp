@@ -996,6 +996,17 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                     // Cauterizing Heal or Searing Flame
                     triggered_spell_id = (procFlag & PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL) ? 69733 : 69729;
                     break;
+                // Vampiric Might (Cult Fanatic, Icecrown Citadel, Lady Deathwhisper encounter)
+                case 70674:
+                {
+                    basepoints[0] = 3 * damage;
+                    if (basepoints[0] < 0)
+                        return SPELL_AURA_PROC_FAILED;
+
+                    triggered_spell_id = 70677;
+                    target = this;
+                    break;
+                }
                 case 70871:
                     // Soul of Blood qween
                     triggered_spell_id = 70872;
@@ -1779,7 +1790,7 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 // Priest T10 Healer 2P Bonus
                 case 70770:
                 {
-                    basepoints[0] = triggerAmount*damage/100/3;
+                    basepoints[0] = int32(triggerAmount * damage / 100);
                     triggered_spell_id = 70772;
                     break;
                 }
@@ -2512,6 +2523,13 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 {
                     // triggered_spell_id in spell data
                     target = this;
+                    break;
+                }
+                // Item - Paladin T8 Holy 2P Bonus
+                case 64890:
+                {
+                    basepoints[0] = int32(triggerAmount * damage / 100);
+                    triggered_spell_id = 64891;             // Holy Mending
                     break;
                 }
                 // Item - Paladin T10 Holy 2P Bonus

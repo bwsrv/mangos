@@ -2098,10 +2098,50 @@ Unit* Creature::SelectAttackingTarget(AttackingTarget target, uint32 position) c
             advance(r, position);
             return GetMap()->GetUnit((*r)->getUnitGuid());
         }
-        // TODO: implement these
-        //case ATTACKING_TARGET_RANDOM_PLAYER:
-        //case ATTACKING_TARGET_TOPAGGRO_PLAYER:
-        //case ATTACKING_TARGET_BOTTOMAGGRO_PLAYER:
+        case ATTACKING_TARGET_RANDOM_PLAYER:
+        {
+            std::vector<Unit*> threatPlayers;
+            threatPlayers.reserve(threatlist.size());
+            for (; i != threatlist.end(); ++i)
+            {
+                Unit *target = GetMap()->GetUnit((*i)->getUnitGuid());
+                if (target && target->GetTypeId() == TYPEID_PLAYER)
+                    threatPlayers.push_back(target);
+            }
+            if (threatPlayers.empty() || position >= threatPlayers.size())
+                return NULL;
+            return threatPlayers[urand(position, threatPlayers.size()-1)];
+        }
+        case ATTACKING_TARGET_TOPAGGRO_PLAYER:
+        {
+            for (; i != threatlist.end(); ++i)
+            {
+                Unit *target = GetMap()->GetUnit((*i)->getUnitGuid());
+                if (target && target->GetTypeId() == TYPEID_PLAYER)
+                {
+                    if (!position)
+                        return target;
+                    else
+                        --position;
+                }
+            }
+            return NULL;
+        }
+        case ATTACKING_TARGET_BOTTOMAGGRO_PLAYER:
+        {
+            for (; r != threatlist.rend(); ++r)
+            {
+                Unit *target = GetMap()->GetUnit((*r)->getUnitGuid());
+                if (target && target->GetTypeId() == TYPEID_PLAYER)
+                {
+                    if (!position)
+                        return target;
+                    else
+                        --position;
+                }
+            }
+            return NULL;
+        }
     }
 
     return NULL;

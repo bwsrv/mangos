@@ -2364,8 +2364,8 @@ bool LFGMgr::TryAddMembersToGroup(Group* group, LFGQueueSet* players)
 
         if (LFGProposal* pProposal = group->GetLFGState()->GetProposal())
         {
-            if (pProposal->IsDecliner(player->GetObjectGuid()))
-               return false;
+//            if (pProposal->IsDecliner(player->GetObjectGuid()))
+//               return false;
         }
 
         if (!CheckRoles(group, player))

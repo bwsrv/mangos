@@ -2894,6 +2894,37 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(m_caster, m_spellInfo->CalculateSimpleValue(eff_idx), true);
                     break;
                 }
+                case 70895:                                 // Dark Transformation (Icecrown Citadel, Lady Deathwhisper encounter)
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->CastSpell(unitTarget, 70900, true);
+                    break;
+                }
+                case 70896:                                 // Dark Empowerment (Icecrown Citadel, Lady Deathwhisper encounter)
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->CastSpell(unitTarget, 70901, true);
+                    break;
+                }
+                case 70897:                                 // Dark Martyrdom (Icecrown Citadel, Lady Deathwhisper encounter)
+                {
+                    if (!unitTarget)
+                        return;
+
+                    switch (unitTarget->GetEntry())
+                    {
+                        case 37949:                         // Cult Adherent
+                            unitTarget->CastSpell(unitTarget, 70903, true);
+                            break;
+                        case 37890:                         // Cult Fanatic
+                            unitTarget->CastSpell(unitTarget, 71236, true);
+                            break;
+                    }
+                }
                 case 71336:                                 // Pact of the Darkfallen
                 {
                     if (!unitTarget)

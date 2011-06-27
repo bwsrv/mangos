@@ -3356,7 +3356,11 @@ void Spell::cast(bool skipCheck)
         if(const SpellEntry* spellInfo = sSpellStore.LookupEntry(m_spellInfo->Id))
             const_cast<SpellEntry*>(spellInfo)->AuraInterruptFlags = 0;
 
-    // different triggred (for caster) and precast (casted before apply effect to target) cases
+    if (m_spellInfo->Id == 32592)                           // Mass Dispel - immunity bypass hack
+        if(const SpellEntry* spellInfo = sSpellStore.LookupEntry(m_spellInfo->Id))
+            const_cast<SpellEntry*>(spellInfo)->Attributes |= SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY;
+
+    // different triggered (for caster and main target after main cast) and pre-cast (casted before apply effect to each target) cases
     switch(m_spellInfo->SpellFamilyName)
     {
         case SPELLFAMILY_GENERIC:
@@ -3381,9 +3385,9 @@ void Spell::cast(bool skipCheck)
             // Icy Veins
             else if (m_spellInfo->Id == 12472)
             {
-                // Glyph of Icy Veins
-                if (m_caster->HasAura(56374))
+                if (m_caster->HasAura(56374))               // Glyph of Icy Veins
                 {
+                    // not exist spell do it so apply directly
                     m_caster->RemoveSpellsCausingAura(SPELL_AURA_MOD_DECREASE_SPEED);
                     m_caster->RemoveSpellsCausingAura(SPELL_AURA_HASTE_SPELLS);
                 }
@@ -3489,8 +3493,14 @@ void Spell::cast(bool skipCheck)
         }
         case SPELLFAMILY_PALADIN:
         {
+            // Divine Illumination
+            if (m_spellInfo->Id == 31842)
+            {
+                if (m_caster->HasAura(70755))               // Item - Paladin T10 Holy 2P Bonus
+                    AddPrecastSpell(71166);                 // Divine Illumination
+            }
             // Hand of Reckoning
-            if (m_spellInfo->Id == 62124)
+            else if (m_spellInfo->Id == 62124)
             {
                 if (m_targets.getUnitTarget() && m_targets.getUnitTarget()->getVictim() != m_caster)
                     AddPrecastSpell(67485);                 // Hand of Rekoning (no typos in name ;) )
