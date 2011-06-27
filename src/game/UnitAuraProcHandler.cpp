@@ -1753,7 +1753,7 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 // Priest T10 Healer 2P Bonus
                 case 70770:
                 {
-                    basepoints[0] = triggerAmount*damage/100/3;
+                    basepoints[0] = int32(triggerAmount * damage / 100);
                     triggered_spell_id = 70772;
                     break;
                 }
