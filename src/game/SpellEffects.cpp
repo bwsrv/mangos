@@ -2739,6 +2739,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                             unitTarget->CastSpell(unitTarget, 71236, true);
                             break;
                     }
+                    break;
                 }
                 case 71336:                                 // Pact of the Darkfallen
                 {
