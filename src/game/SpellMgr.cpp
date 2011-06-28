@@ -2060,8 +2060,9 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     (spellInfo_2->Id == 21992 && spellInfo_1->Id == 27648))
                     return false;
 
-                // Unstable sphere (passive and timer)
-                if (spellInfo_1->SpellIconID == 143 && spellInfo_2->SpellIconID == 143)
+                // Unstable Sphere Timer and Unstable Sphere Passive
+                if ((spellInfo_1->Id == 50758 && spellInfo_2->Id == 50756) ||
+                    (spellInfo_2->Id == 50758 && spellInfo_1->Id == 50756))
                     return false;
 
                 // Fury of Frostmourne
