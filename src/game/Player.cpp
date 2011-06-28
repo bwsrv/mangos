@@ -14625,7 +14625,7 @@ void Player::RewardQuest(Quest const *pQuest, uint32 reward, Object* questGiver,
     // Not give XP (and money replacement) in case already completed once repeatable quest (not daily/weekly cases)
     if (!q_status.m_rewarded || pQuest->IsDailyOrWeekly())
     {
-        xp = uint32(pQuest->XPValue(this)*sWorld.getConfig(CONFIG_FLOAT_RATE_XP_QUEST));
+        xp = uint32(pQuest->XPValue(this)*sWorld.getConfig(CONFIG_FLOAT_RATE_XP_QUEST)*(GetSession()->IsPremium()+1));
 
         if (getLevel() < sWorld.getConfig(CONFIG_UINT32_MAX_PLAYER_LEVEL))
             GiveXP(xp , NULL);
