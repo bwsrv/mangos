@@ -996,6 +996,17 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                     // Cauterizing Heal or Searing Flame
                     triggered_spell_id = (procFlag & PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL) ? 69733 : 69729;
                     break;
+                // Vampiric Might (Cult Fanatic, Icecrown Citadel, Lady Deathwhisper encounter)
+                case 70674:
+                {
+                    if (damage <= 0)
+                        return SPELL_AURA_PROC_FAILED;
+
+                    basepoints[0] = 3 * damage;
+                    triggered_spell_id = 70677;
+                    target = this;
+                    break;
+                }
                 case 70871:
                     // Soul of Blood qween
                     triggered_spell_id = 70872;
@@ -1658,7 +1669,7 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                         return SPELL_AURA_PROC_FAILED;
 
                     // Renew
-                    Aura* healingAura = pVictim->GetAura(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_PRIEST, ClassFamilyMask::create<CF_PRIEST_RENEW>(), GetObjectGuid());
+                    Aura* healingAura = pVictim->GetAura<SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_PRIEST, CF_PRIEST_RENEW>(GetObjectGuid());
                     if (!healingAura)
                         return SPELL_AURA_PROC_FAILED;
 
@@ -1674,7 +1685,7 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                     if (!procSpell)
                         return SPELL_AURA_PROC_FAILED;
 
-                    Aura* leachAura = pVictim->GetAura(SPELL_AURA_PERIODIC_LEECH, SPELLFAMILY_PRIEST, ClassFamilyMask::create<CF_PRIEST_DEVOURING_PLAGUE>(), GetObjectGuid());
+                    Aura* leachAura = pVictim->GetAura<SPELL_AURA_PERIODIC_LEECH, SPELLFAMILY_PRIEST, CF_PRIEST_DEVOURING_PLAGUE>(GetObjectGuid());
                     if (!leachAura)
                         return SPELL_AURA_PROC_FAILED;
 
@@ -1695,9 +1706,9 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                         return SPELL_AURA_PROC_FAILED;
 
                     // Heal amount - Self/Team
-                    int32 team = triggerAmount*damage/500;
-                    int32 self = triggerAmount*damage/100 - team;
-                    CastCustomSpell(this,15290,&team,&self,NULL,true,castItem,triggeredByAura);
+                    int32 team = triggerAmount * damage / 500;
+                    int32 self = triggerAmount * damage / 100 - team;
+                    CastCustomSpell(this, 15290, &team, &self, NULL, true, castItem, triggeredByAura);
                     return SPELL_AURA_PROC_OK;                                // no hidden cooldown
                 }
                 // Priest Tier 6 Trinket (Ashtongue Talisman of Acumen)
@@ -1773,14 +1784,14 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 case 55680:
                 {
                     basepoints[0] = int32(damage * triggerAmount  / 200);   // 10% each tick
-                    triggered_spell_id = 56161;
+                    triggered_spell_id = 56161;             // Glyph of Prayer of Healing
                     break;
                 }
                 // Priest T10 Healer 2P Bonus
                 case 70770:
                 {
-                    basepoints[0] = triggerAmount*damage/100/3;
-                    triggered_spell_id = 70772;
+                    triggered_spell_id = 70772;             // Blessed Healing
+                    basepoints[0] = int32(triggerAmount * damage / 100) / GetSpellAuraMaxTicks(triggered_spell_id);
                     break;
                 }
             }
@@ -1939,9 +1950,8 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 // Item - Druid T10 Balance 4P Bonus
                 case 70723:
                 {
-                    basepoints[0] = int32(triggerAmount * damage / 100);
-                    basepoints[0] = int32(basepoints[0] / 2);   // 2 ticks
-                    triggered_spell_id = 71023;
+                    triggered_spell_id = 71023;             // Languish
+                    basepoints[0] = int32(triggerAmount * damage / 100) / GetSpellAuraMaxTicks(triggered_spell_id);
                     break;
                 } 
             }
@@ -2233,17 +2243,15 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
             // Righteous Vengeance
             if (dummySpell->SpellIconID == 3025)
             {
-                // 4 damage tick
-                basepoints[0] = triggerAmount*damage/400;
                 triggered_spell_id = 61840;
+                basepoints[0] = triggerAmount * damage / 100 / GetSpellAuraMaxTicks(triggered_spell_id);
                 break;
             }
             // Sheath of Light
             if (dummySpell->SpellIconID == 3030)
             {
-                // 4 healing tick
-                basepoints[0] = triggerAmount*damage/400;
                 triggered_spell_id = 54203;
+                basepoints[0] = triggerAmount * damage / 100 / GetSpellAuraMaxTicks(triggered_spell_id);
                 break;
             }
             switch(dummySpell->Id)
@@ -2346,10 +2354,7 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                     uint32 diff = GetMaxHealth()-GetHealth();
                     if (!diff)
                         return SPELL_AURA_PROC_FAILED;
-                    if (damage > diff)
-                        basepoints[0] = triggerAmount*diff/100;
-                    else
-                        basepoints[0] = triggerAmount*damage/100;
+                    basepoints[0] = triggerAmount * (damage > diff ? diff : damage) / 100;
                     target = this;
                     triggered_spell_id = 31786;
                     break;
@@ -2481,29 +2486,22 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                         }
                     }
                     if (stacks >= 5)
-                        CastSpell(target,53739,true,NULL,triggeredByAura);
+                        CastSpell(target, 53739, true, NULL, triggeredByAura);
                     break;
                 }
                 // Glyph of Holy Light
                 case 54937:
                 {
                     triggered_spell_id = 54968;
-                    basepoints[0] = triggerAmount*damage/100;
+                    basepoints[0] = triggerAmount * damage / 100;
                     break;
                 }
                 // Sacred Shield (buff)
                 case 58597:
                 {
                     triggered_spell_id = 66922;
-                    SpellEntry const* triggeredEntry = sSpellStore.LookupEntry(triggered_spell_id);
-                    if (!triggeredEntry)
-                        return SPELL_AURA_PROC_FAILED;
 
-                    if(pVictim)
-                        if(!pVictim->HasAura(53569, EFFECT_INDEX_0) && !pVictim->HasAura(53576, EFFECT_INDEX_0))
-                            return SPELL_AURA_PROC_FAILED;
-
-                    basepoints[0] = int32(damage / (GetSpellDuration(triggeredEntry) / triggeredEntry->EffectAmplitude[EFFECT_INDEX_0]));
+                    basepoints[0] = int32(damage / GetSpellAuraMaxTicks(triggered_spell_id));
                     target = this;
                     break;
                 }
@@ -2512,6 +2510,13 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 {
                     // triggered_spell_id in spell data
                     target = this;
+                    break;
+                }
+                // Item - Paladin T8 Holy 2P Bonus
+                case 64890:
+                {
+                    triggered_spell_id = 64891;             // Holy Mending
+                    basepoints[0] = int32(triggerAmount * damage / 100) / GetSpellAuraMaxTicks(triggered_spell_id);
                     break;
                 }
                 // Item - Paladin T10 Holy 2P Bonus
@@ -2798,32 +2803,31 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                     target = this;
                     break;
                 }
-                // Shaman T8 Elemental 4P Bonus
+                // Item - Shaman T8 Elemental 4P Bonus
                 case 64928:
                 {
-                    basepoints[0] = int32(  basepoints[0] / 2); // basepoints is for 1 tick, not all DoT amount
                     triggered_spell_id = 64930;            // Electrified
+                    basepoints[0] = int32(triggerAmount * damage / 100) / GetSpellAuraMaxTicks(triggered_spell_id);
                     break;
                 }
-                // Shaman T9 Elemental 4P Bonus
+                // Item - Shaman T9 Elemental 4P Bonus (Lava Burst)
                 case 67228:
                 {
-                    basepoints[0] = int32(  basepoints[0] / 3); // basepoints is for 1 tick, not all DoT amount
-                    triggered_spell_id = 71824;
+                    triggered_spell_id = 71824;             // Lava Burst
+                    basepoints[0] = int32(triggerAmount * damage / 100) / GetSpellAuraMaxTicks(triggered_spell_id);
                     break;
                 }
                 // Item - Shaman T10 Restoration 4P Bonus
                 case 70808:
                 {
-                    basepoints[0] = int32( triggerAmount * damage / 100 );
-                    basepoints[0] = int32( basepoints[0] / 3); // basepoints is for 1 tick, not all DoT amount
-                    triggered_spell_id = 70809;
+                    triggered_spell_id = 70809;             // Chained Heal
+                    basepoints[0] = int32(triggerAmount * damage / 100) / GetSpellAuraMaxTicks(triggered_spell_id);
                     break;
                 }
                 // Item - Shaman T10 Elemental 4P Bonus
                 case 70817:
                 {
-                    if (Aura *aur = pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_SHAMAN, ClassFamilyMask::create<CF_SHAMAN_FLAME_SHOCK>(), GetObjectGuid()))
+                    if (Aura *aur = pVictim->GetAura<SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_SHAMAN, CF_SHAMAN_FLAME_SHOCK>(GetObjectGuid()))
                     {
                         if (aur->GetHolder())
                         {

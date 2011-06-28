@@ -263,6 +263,18 @@ uint16 GetSpellAuraMaxTicks(SpellEntry const* spellInfo)
     return 6;
 }
 
+uint16 GetSpellAuraMaxTicks(uint32 spellId)
+{
+    SpellEntry const* spellInfo = sSpellStore.LookupEntry(spellId);
+    if (!spellInfo)
+    {
+        sLog.outError("GetSpellAuraMaxTicks: Spell %u not exist!", spellId);
+        return 1;
+    }
+
+    return GetSpellAuraMaxTicks(spellInfo);
+}
+
 float CalculateDefaultCoefficient(SpellEntry const *spellProto, DamageEffectType const damagetype)
 {
     // Damage over Time spells bonus calculation
@@ -2048,6 +2060,10 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     (spellInfo_2->Id == 21992 && spellInfo_1->Id == 27648))
                     return false;
 
+                // Unstable sphere (passive and timer)
+                if (spellInfo_1->SpellIconID == 143 && spellInfo_2->SpellIconID == 143)
+                    return false;
+
                 // Fury of Frostmourne
                 if (spellInfo_1->SpellIconID == 2702 && spellInfo_2->SpellIconID == 2702 || 
                     spellInfo_2->SpellIconID == 2702 && spellInfo_1->SpellIconID == 2702 )
@@ -2441,6 +2457,10 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
 
                 // Bestial Wrath
                 if (spellInfo_1->SpellIconID == 1680 && spellInfo_2->SpellIconID == 1680)
+                    return false;
+
+                // Aspect of the Viper & Vicious Viper
+                if (spellInfo_1->SpellIconID == 2227 && spellInfo_2->SpellIconID == 2227)
                     return false;
             }
 
@@ -4789,7 +4809,7 @@ SpellEntry const* GetSpellEntryByDifficulty(uint32 id, Difficulty difficulty, bo
     for (Difficulty diff = difficulty; diff >= REGULAR_DIFFICULTY; diff = GetPrevDifficulty(diff, isRaid))
     {
         if (spellDiff->spellId[diff])
-            return sSpellStore.LookupEntry(spellDiff->spellId[difficulty]);
+            return sSpellStore.LookupEntry(spellDiff->spellId[diff]);
     }
 
     return NULL;
