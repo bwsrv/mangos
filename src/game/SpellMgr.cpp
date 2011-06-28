@@ -2013,8 +2013,9 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     if (spellInfo_1->SpellIconID == 2834 && spellInfo_2->SpellIconID == 2834)
                         return false;
 
-                    // Unstable sphere (passive and timer)
-                    if (spellInfo_1->SpellIconID == 143 && spellInfo_2->SpellIconID == 143)
+                    // Unstable Sphere Timer and Unstable Sphere Passive
+                    if ((spellInfo_1->Id == 50758 && spellInfo_2->Id == 50756) ||
+                        (spellInfo_2->Id == 50758 && spellInfo_1->Id == 50756))
                         return false;
 
                     break;
