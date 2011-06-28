@@ -7138,14 +7138,6 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         DoCreateItem(eff_idx,item);
                     break;
                 }
-                case 28560:                                 // Summon Blizzard
-                {
-                    if (!unitTarget)
-                        return;
-
-                    m_caster->SummonCreature(16474, unitTarget->GetPositionX(), unitTarget->GetPositionY(), unitTarget->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 30000);
-                    return;
-                }
                 case 29830:                                 // Mirren's Drinking Hat
                 {
                     uint32 item = 0;
