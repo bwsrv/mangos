@@ -10068,15 +10068,6 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
         {
             switch (GetId())
             {
-                case 34455:          // Ferocious inspiration and ranks
-                    spellId1 = 75593;
-                    break;
-                case 34459:
-                    spellId1 = 75446;
-                    break;
-                case 34460:
-                    spellId1 = 75447;
-                    break;
                 case 19574:                                 // Bestial Wrath - immunity
                 case 34471:                                 // The Beast Within - immunity
                 {
@@ -10107,6 +10098,23 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                     }
                     break;
                 }
+                case 34074:                                 // Aspect of the Viper
+                {
+                    if (!apply || m_target->HasAura(60144)) // Viper Attack Speed
+                        spellId1 = 61609;                   // Vicious Viper
+                    else
+                        return;
+                    break;
+                }
+                case 34455:          // Ferocious inspiration and ranks
+                    spellId1 = 75593;
+                    break;
+                case 34459:
+                    spellId1 = 75446;
+                    break;
+                case 34460:
+                    spellId1 = 75447;
+                    break;
                 case 35029:                                 // Focused Fire, rank 1
                 {
                     if (apply && !m_target->HasAura(34027)) // Kill Command, owner casting aura
