@@ -3738,7 +3738,7 @@ void Spell::EffectForceCast(SpellEffectIndex eff_idx)
         return;
     }
 
-    unitTarget->CastSpell(unitTarget, spellInfo, true, NULL, NULL, m_originalCasterGUID, m_spellInfo);
+    unitTarget->CastSpell(unitTarget, spellInfo, true, NULL, NULL, m_originalCasterGUID);
 }
 
 void Spell::EffectTriggerSpell(SpellEffectIndex effIndex)
