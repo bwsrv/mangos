@@ -2727,7 +2727,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 }
                 case 70897:                                 // Dark Martyrdom (Icecrown Citadel, Lady Deathwhisper encounter)
                 {
-                    if (!unitTarget)
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
                         return;
 
                     switch (unitTarget->GetEntry())

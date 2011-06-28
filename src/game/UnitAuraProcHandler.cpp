@@ -999,10 +999,10 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 // Vampiric Might (Cult Fanatic, Icecrown Citadel, Lady Deathwhisper encounter)
                 case 70674:
                 {
-                    basepoints[0] = 3 * damage;
-                    if (basepoints[0] < 0)
+                    if (damage <= 0)
                         return SPELL_AURA_PROC_FAILED;
 
+                    basepoints[0] = 3 * damage;
                     triggered_spell_id = 70677;
                     target = this;
                     break;
