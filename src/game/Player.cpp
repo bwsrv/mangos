@@ -7873,7 +7873,7 @@ void Player::DestroyItemWithOnStoreSpell(Item* item)
         if (spellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_STORE)
             continue;
 
-        DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
+//        DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
         break;
     }
 }
