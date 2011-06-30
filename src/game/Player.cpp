@@ -11480,14 +11480,12 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
     for(ItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end(); ++itr)
         count += itr->count;
 
-    Item *pItem = Item::CreateItem( item, count, this );
-    if( pItem )
+    Item *pItem = Item::CreateItem(item, count, this, randomPropertyId);
+    if (pItem)
     {
         ResetEquipGearScore();
         ItemAddedQuestCheck( item, count );
         GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM, item, count);
-        if(randomPropertyId)
-            pItem->SetItemRandomProperties(randomPropertyId);
         pItem = StoreItem( dest, pItem, update );
 
         if (allowedLooters && pItem->GetProto()->GetMaxStackSize() == 1 && pItem->IsSoulBound())
@@ -11646,7 +11644,7 @@ Item* Player::_StoreItem( uint16 pos, Item *pItem, uint32 count, bool clone, boo
 
 Item* Player::EquipNewItem( uint16 pos, uint32 item, bool update )
 {
-    if (Item *pItem = Item::CreateItem( item, 1, this ))
+    if (Item *pItem = Item::CreateItem(item, 1, this))
     {
         ResetEquipGearScore();
         ItemAddedQuestCheck( item, 1 );
