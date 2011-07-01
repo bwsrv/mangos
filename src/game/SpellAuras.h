@@ -426,7 +426,6 @@ class MANGOS_DLL_SPEC Aura
         bool IsAreaAura() const { return m_isAreaAura; }
         bool IsPeriodic() const { return m_isPeriodic; }
         bool IsInUse() const { return m_in_use; }
-        bool IsStacking() const { return m_stacking;}
 
         void SetInUse(bool state)
         {
@@ -476,8 +475,6 @@ class MANGOS_DLL_SPEC Aura
         bool IsCritFromAbilityAura(Unit* caster, uint32& damage);
         void ReapplyAffectedPassiveAuras();
 
-        bool IsEffectStacking();
-
         Modifier m_modifier;
         SpellModifier *m_spellmod;
 
@@ -495,7 +492,6 @@ class MANGOS_DLL_SPEC Aura
         bool m_isPeriodic:1;
         bool m_isAreaAura:1;
         bool m_isPersistent:1;
-        bool m_stacking:1;                                  // Aura is not overwritten, but effects are not cumulative with similar effects
 
         uint32 m_in_use;                                    // > 0 while in Aura::ApplyModifier call/Aura::Update/etc
 
