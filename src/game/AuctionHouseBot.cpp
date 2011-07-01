@@ -422,14 +422,10 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
         }
 
         item->SetCount(stackCount);
-        item->SaveToDB();
 
         time_t expireTime = (time_t) (urand(config->GetMinTime(), config->GetMaxTime()) * 60 * 60 + time(NULL));
 
         AuctionEntry* AH = auctionHouse->AddAuction(ahEntry, item, expireTime, bidPrice * buyBondingK, buyoutPrice * buyBondingK, 0, AHBplayer);
-
-        item->RemoveFromUpdateQueueOf(AHBplayer);
-        AHBplayer->SaveInventoryAndGoldToDB();
 
     }
 }
