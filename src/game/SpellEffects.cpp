@@ -11173,7 +11173,7 @@ void Spell::EffectSuspendGravity(SpellEffectIndex eff_idx)
         float time = sqrtf(dh/(0.124976 * verticalSpeed));
         if (SpellAuraHolder* holder = unitTarget->GetSpellAuraHolder(68721))
         {
-            holder->SetAuraMaxDuration(uint32(time+0.25f)*IN_MILLISECONDS);
+            holder->SetAuraMaxDuration(uint32(time+0.5f)*IN_MILLISECONDS);
             holder->RefreshHolder();
         }
         unitTarget->MonsterJump(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, unitTarget->GetAngle(m_targets.m_destX, m_targets.m_destY), uint32(time * 1000.0f), verticalSpeed);
