@@ -9440,6 +9440,7 @@ bool Unit::SelectHostileTarget()
         return false;
 
     Unit* target = NULL;
+    Unit* oldTarget = getVictim();
 
     // First checking if we have some taunt on us
     const AuraList& tauntAuras = GetAurasByType(SPELL_AURA_MOD_TAUNT);
@@ -9447,26 +9448,17 @@ bool Unit::SelectHostileTarget()
     {
         Unit* caster;
 
-        // The last taunt aura caster is alive an we are happy to attack him
-        if ((caster = tauntAuras.back()->GetCaster()) && caster->isAlive())
-            return true;
-        else if (tauntAuras.size() > 1)
+        // Find first available taunter target
+        // Auras are pushed_back, last caster will be on the end
+        for (AuraList::const_reverse_iterator aura = tauntAuras.rbegin(); aura != tauntAuras.rend(); ++aura)
         {
-            // We do not have last taunt aura caster but we have more taunt auras,
-            // so find first available target
-
-            // Auras are pushed_back, last caster will be on the end
-            AuraList::const_iterator aura = --tauntAuras.end();
-            do
+            if ((caster = (*aura)->GetCaster()) && caster->IsInMap(this) &&
+                caster->isTargetableForAttack() && caster->isInAccessablePlaceFor((Creature*)this) &&
+                (!IsCombatStationary() || CanReachWithMeleeAttack(caster)))
             {
-                --aura;
-                if ((caster = (*aura)->GetCaster()) && caster->IsInMap(this) &&
-                    caster->isTargetableForAttack() && caster->isInAccessablePlaceFor((Creature*)this))
-                {
-                    target = caster;
-                    break;
-                }
-            }while (aura != tauntAuras.begin());
+                target = caster;
+                break;
+            }
         }
     }
 
@@ -9479,7 +9471,8 @@ bool Unit::SelectHostileTarget()
         if (!hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_DIED))
         {
             SetInFront(target);
-            ((Creature*)this)->AI()->AttackStart(target);
+            if (oldTarget != target)
+                ((Creature*)this)->AI()->AttackStart(target);
         }
         return true;
     }
@@ -9697,9 +9690,9 @@ void Unit::IncrDiminishing(DiminishingGroup group)
     m_Diminishing.push_back(DiminishingReturn(group,WorldTimer::getMSTime(),DIMINISHING_LEVEL_2));
 }
 
-void Unit::ApplyDiminishingToDuration(DiminishingGroup group, int32 &duration,Unit* caster,DiminishingLevels Level, int32 limitduration)
+void Unit::ApplyDiminishingToDuration(DiminishingGroup group, int32 &duration,Unit* caster,DiminishingLevels Level, int32 limitduration, bool isReflected)
 {
-    if(duration == -1 || group == DIMINISHING_NONE)
+    if(duration == -1 || group == DIMINISHING_NONE || (!isReflected && caster->IsFriendlyTo(this)) )
         return;
 
     // Duration of crowd control abilities on pvp target is limited by 10 sec. (2.2.0)
@@ -12449,4 +12442,9 @@ uint32 Unit::GetModelForForm() const
     ShapeshiftForm form = GetShapeshiftForm();
     SpellShapeshiftFormEntry const* ssEntry = sSpellShapeshiftFormStore.LookupEntry(form);
     return ssEntry ? GetModelForForm(ssEntry) : 0;
+}
+
+bool Unit::IsCombatStationary()
+{
+    return GetMotionMaster()->GetCurrentMovementGeneratorType() != CHASE_MOTION_TYPE || isInRoots();
 }

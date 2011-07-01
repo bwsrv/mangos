@@ -263,6 +263,18 @@ uint16 GetSpellAuraMaxTicks(SpellEntry const* spellInfo)
     return 6;
 }
 
+uint16 GetSpellAuraMaxTicks(uint32 spellId)
+{
+    SpellEntry const* spellInfo = sSpellStore.LookupEntry(spellId);
+    if (!spellInfo)
+    {
+        sLog.outError("GetSpellAuraMaxTicks: Spell %u not exist!", spellId);
+        return 1;
+    }
+
+    return GetSpellAuraMaxTicks(spellInfo);
+}
+
 float CalculateDefaultCoefficient(SpellEntry const *spellProto, DamageEffectType const damagetype)
 {
     // Damage over Time spells bonus calculation
@@ -4153,7 +4165,7 @@ SpellEntry const* GetSpellEntryByDifficulty(uint32 id, Difficulty difficulty, bo
     for (Difficulty diff = difficulty; diff >= REGULAR_DIFFICULTY; diff = GetPrevDifficulty(diff, isRaid))
     {
         if (spellDiff->spellId[diff])
-            return sSpellStore.LookupEntry(spellDiff->spellId[difficulty]);
+            return sSpellStore.LookupEntry(spellDiff->spellId[diff]);
     }
 
     return NULL;

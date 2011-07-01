@@ -276,77 +276,118 @@ void ThreatContainer::update()
 }
 
 //============================================================
+// Check if a target is a second choice target for the attacker
+// if (bCheckThreatArea) consider IsOutOfThreatArea - expected to be only set for pCurrentVictim
+//     This prevents dropping valid targets due to 1.1 or 1.3 threat rule vs invalid current target
+// if (bCheckMeleeRange) consider CanReachWithMeleeAttack
+//     This is important for mobs that are stationary in combat
+
+// TODO - should such a independend function be made static?
+bool ThreatContainer::IsSecondChoiceTarget(Creature* pAttacker, Unit* pTarget, bool bCheckThreatArea, bool bCheckMeleeRange)
+{
+    // This function must only be called for valid pAttacker and valid pTarget
+    return
+        pTarget->IsImmunedToDamage(pAttacker->GetMeleeDamageSchoolMask()) ||
+        pTarget->hasNegativeAuraWithInterruptFlag(AURA_INTERRUPT_FLAG_DAMAGE) ||
+        bCheckThreatArea && pAttacker->IsOutOfThreatArea(pTarget) ||
+        bCheckMeleeRange && !pAttacker->CanReachWithMeleeAttack(pTarget);
+}
+
+//============================================================
 // return the next best victim
 // could be the current victim
 
 HostileReference* ThreatContainer::selectNextVictim(Creature* pAttacker, HostileReference* pCurrentVictim)
 {
-    HostileReference* currentRef = NULL;
-    bool found = false;
-    bool noPriorityTargetFound = false;
+    HostileReference* pCurrentRef = NULL;
+    bool bFound = false;
+    bool bNoPriorityTargetFound = false;
+    bool bCheckedCurrentVictim = false;
+    bool bIsAttackerStationary = pAttacker->IsCombatStationary();
 
     ThreatList::const_iterator lastRef = iThreatList.end();
     lastRef--;
 
-    for(ThreatList::const_iterator iter = iThreatList.begin(); iter != iThreatList.end() && !found;)
+    for(ThreatList::const_iterator iter = iThreatList.begin(); iter != iThreatList.end() && !bFound;)
     {
-        currentRef = (*iter);
+        pCurrentRef = (*iter);
 
-        Unit* target = currentRef->getTarget();
-        MANGOS_ASSERT(target);                              // if the ref has status online the target must be there !
+        Unit* pTarget = pCurrentRef->getTarget();
+        MANGOS_ASSERT(pTarget);                             // if the ref has status online the target must be there!
 
         // some units are prefered in comparison to others
-        if(!noPriorityTargetFound && (target->IsImmunedToDamage(pAttacker->GetMeleeDamageSchoolMask()) || target->hasNegativeAuraWithInterruptFlag(AURA_INTERRUPT_FLAG_DAMAGE)) )
+        if (!bNoPriorityTargetFound && IsSecondChoiceTarget(pAttacker, pTarget, pCurrentRef == pCurrentVictim, bIsAttackerStationary))
         {
-            if(iter != lastRef)
-            {
-                // current victim is a second choice target, so don't compare threat with it below
-                if(currentRef == pCurrentVictim)
-                    pCurrentVictim = NULL;
+            if (iter != lastRef)
                 ++iter;
-                continue;
-            }
             else
             {
                 // if we reached to this point, everyone in the threatlist is a second choice target. In such a situation the target with the highest threat should be attacked.
-                noPriorityTargetFound = true;
+                bNoPriorityTargetFound = true;
                 iter = iThreatList.begin();
-                continue;
             }
+
+            // current victim is a second choice target, so don't compare threat with it below
+            if (pCurrentRef == pCurrentVictim)
+                pCurrentVictim = NULL;
+
+            // second choice targets are only handled threat dependend if we have only have second choice targets
+            continue;
         }
 
-        if (!pAttacker->IsOutOfThreatArea(target))          // skip non attackable currently targets
+        if (!pAttacker->IsOutOfThreatArea(pTarget))         // skip non attackable currently targets
         {
             if (pCurrentVictim)                             // select 1.3/1.1 better target in comparison current target
             {
-                // list sorted and and we check current target, then this is best case
-                if(pCurrentVictim == currentRef || currentRef->getThreat() <= 1.1f * pCurrentVictim->getThreat() )
+                // normal case: pCurrentRef is still valid and most hated
+                if (pCurrentVictim == pCurrentRef)
                 {
-                    currentRef = pCurrentVictim;            // for second case
-                    found = true;
+                    bFound = true;
                     break;
                 }
 
-                if (currentRef->getThreat() > 1.3f * pCurrentVictim->getThreat() ||
-                     (currentRef->getThreat() > 1.1f * pCurrentVictim->getThreat() &&
-                     pAttacker->CanReachWithMeleeAttack(target)) )
-                {                                           //implement 110% threat rule for targets in melee range
-                    found = true;                           //and 130% rule for targets in ranged distances
-                    break;                                  //for selecting alive targets
+                // we found a valid target, but only compare its threat if the currect victim is also a valid target
+                // Additional check to prevent unneeded comparision in case of valid current victim
+                if (!bCheckedCurrentVictim)
+                {
+                    Unit* pCurrentTarget = pCurrentVictim->getTarget();
+                    MANGOS_ASSERT(pCurrentTarget);
+                    if (IsSecondChoiceTarget(pAttacker, pCurrentTarget, true, bIsAttackerStationary))
+                    {
+                        // CurrentVictim is invalid, so return CurrentRef
+                        bFound = true;
+                        break;
+                    }
+                    bCheckedCurrentVictim = true;
+                }
+
+                // list sorted and and we check current target, then this is best case
+                if (pCurrentRef->getThreat() <= 1.1f * pCurrentVictim->getThreat())
+                {
+                    pCurrentRef = pCurrentVictim;
+                    bFound = true;
+                    break;
+                }
+
+                if (pCurrentRef->getThreat() > 1.3f * pCurrentVictim->getThreat() ||
+                    (pCurrentRef->getThreat() > 1.1f * pCurrentVictim->getThreat() && pAttacker->CanReachWithMeleeAttack(pTarget)))
+                {                                           // implement 110% threat rule for targets in melee range
+                    bFound = true;                          // and 130% rule for targets in ranged distances
+                    break;                                  // for selecting alive targets
                 }
             }
             else                                            // select any
             {
-                found = true;
+                bFound = true;
                 break;
             }
         }
         ++iter;
     }
-    if(!found)
-        currentRef = NULL;
+    if (!bFound)
+        pCurrentRef = NULL;
 
-    return currentRef;
+    return pCurrentRef;
 }
 
 //============================================================

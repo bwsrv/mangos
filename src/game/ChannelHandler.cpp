@@ -35,7 +35,7 @@ void WorldSession::HandleJoinChannelOpcode(WorldPacket& recvPacket)
 
     recvPacket >> pass;
     // don't allow creating channels starting with a number (triggers a client-side bug)
-    if (isdigit(channelname[0]))
+    if (isdigit((unsigned char)channelname[0]))
     {
         WorldPacket data(SMSG_CHANNEL_NOTIFY, 1+channelname.size()+1);
         data << uint8(CHAT_INVALID_NAME_NOTICE);

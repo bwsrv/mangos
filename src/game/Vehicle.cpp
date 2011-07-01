@@ -176,7 +176,17 @@ bool VehicleKit::AddPassenger(Unit *passenger, int8 seatId)
 
     if (seat->second.seatInfo->m_flags & SEAT_FLAG_UNATTACKABLE || seat->second.seatInfo->m_flags & SEAT_FLAG_CAN_CONTROL)
     {
-        passenger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        switch (m_pBase->GetEntry())
+        {
+            case 33118:                                     // Ignis (Ulduar)
+            case 32934:                                     // Kologarn Right Arm (Ulduar)
+            case 30234:                                     // Nexus Lord's Hover Disk (Eye of Eternity, Malygos Encounter)
+            case 30248:                                     // Scion's of Eternity Hover Disk (Eye of Eternity, Malygos Encounter)
+                break;
+            default:
+                passenger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                break;
+        }
         passenger->RemoveSpellsCausingAura(SPELL_AURA_MOD_SHAPESHIFT);
     }
 

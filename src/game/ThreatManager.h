@@ -158,6 +158,8 @@ class MANGOS_DLL_SPEC ThreatContainer
 
         void modifyThreatPercent(Unit *pVictim, int32 percent);
 
+        bool IsSecondChoiceTarget(Creature* pAttacker, Unit* pTarget, bool bCheckThreatArea, bool bCheckMeleeRange);
+
         HostileReference* selectNextVictim(Creature* pAttacker, HostileReference* pCurrentVictim);
 
         void setDirty(bool pDirty) { iDirty = pDirty; }
