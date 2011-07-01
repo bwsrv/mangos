@@ -11164,12 +11164,29 @@ void Spell::EffectSuspendGravity(SpellEffectIndex eff_idx)
     if (!unitTarget)
         return;
 
-    float fTargetX, fTargetY, fTargetZ;
-    unitTarget->GetPosition(fTargetX, fTargetY, fTargetZ);
-    float mapZ = unitTarget->GetTerrain()->GetHeight(fTargetX, fTargetY, fTargetZ);
-    float radius = m_spellInfo->EffectMiscValue[eff_idx]/10;
-    if (fTargetZ < mapZ + 0.5)
-        unitTarget->KnockBackFrom(m_caster, -radius, radius);
+    if (m_spellInfo->Id == 68645)                           // Rocket Pack (Icecrown Citadel, Gunship Battle)
+    {
+        unitTarget->CastSpell(unitTarget, 68721, true);
+        float dist = unitTarget->GetDistance2d(m_targets.m_destX, m_targets.m_destY);
+        float verticalSpeed = (m_spellInfo->EffectMiscValue[eff_idx]/5);
+        float dh = verticalSpeed*verticalSpeed / (2*19.23f);
+        float time = sqrtf(dh/(0.124976 * verticalSpeed));
+        if (SpellAuraHolder* holder = unitTarget->GetSpellAuraHolder(68721))
+        {
+            holder->SetAuraMaxDuration(uint32(time+0.25f)*IN_MILLISECONDS);
+            holder->RefreshHolder();
+        }
+        unitTarget->MonsterJump(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, unitTarget->GetAngle(m_targets.m_destX, m_targets.m_destY), uint32(time * 1000.0f), verticalSpeed);
+    }
+    else
+    {
+        float fTargetX, fTargetY, fTargetZ;
+        unitTarget->GetPosition(fTargetX, fTargetY, fTargetZ);
+        float mapZ = unitTarget->GetTerrain()->GetHeight(fTargetX, fTargetY, fTargetZ);
+        float radius = m_spellInfo->EffectMiscValue[eff_idx]/10;
+        if (fTargetZ < mapZ + 0.5)
+            unitTarget->KnockBackFrom(m_caster, -radius, radius);
+    }
 }
 
 void Spell::EffectServerSide(SpellEffectIndex eff_idx)
