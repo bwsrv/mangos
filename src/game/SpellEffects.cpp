@@ -1977,6 +1977,14 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 
                     return;
                 }
+                case 51336:                                 // Magic Pull
+                {
+                    if (!unitTarget)
+                        return;
+
+                    m_caster->CastSpell(unitTarget, 50770, true);
+                    return;
+                }
                 case 51420:                                 // Digging for Treasure Ping
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
@@ -3294,21 +3302,21 @@ void Spell::EffectClearQuest(SpellEffectIndex eff_idx)
 
 void Spell::EffectForceCast(SpellEffectIndex eff_idx)
 {
-    if( !unitTarget )
+    if (!unitTarget)
         return;
 
     uint32 triggered_spell_id = m_spellInfo->EffectTriggerSpell[eff_idx];
 
     // normal case
-    SpellEntry const *spellInfo = sSpellStore.LookupEntry( triggered_spell_id );
+    SpellEntry const *spellInfo = sSpellStore.LookupEntry(triggered_spell_id);
 
-    if(!spellInfo)
+    if (!spellInfo)
     {
-        sLog.outError("EffectForceCast of spell %u: triggering unknown spell id %i", m_spellInfo->Id,triggered_spell_id);
+        sLog.outError("EffectForceCast of spell %u: triggering unknown spell id %i", m_spellInfo->Id, triggered_spell_id);
         return;
     }
 
-    unitTarget->CastSpell(unitTarget, spellInfo, true, NULL, NULL, m_originalCasterGUID);
+    unitTarget->CastSpell(unitTarget, spellInfo, true, NULL, NULL, m_originalCasterGUID, m_spellInfo);
 }
 
 void Spell::EffectTriggerSpell(SpellEffectIndex effIndex)
@@ -5651,14 +5659,15 @@ void Spell::EffectSummonPet(SpellEffectIndex eff_idx)
     NewSummon->InitLevelupSpellsForLevel();
     NewSummon->InitTalentForLevel();
 
-    if(NewSummon->getPetType() == SUMMON_PET)
+    if (m_caster->GetTypeId() == TYPEID_PLAYER && NewSummon->getPetType() == SUMMON_PET)
     {
         // generate new name for summon pet
         std::string new_name = sObjectMgr.GeneratePetName(petentry);
-        if(!new_name.empty())
+        if (!new_name.empty())
             NewSummon->SetName(new_name);
     }
-    else if(NewSummon->getPetType() == HUNTER_PET)
+
+    if (NewSummon->getPetType() == HUNTER_PET)
     {
         NewSummon->RemoveByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED);
         NewSummon->SetByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_ABANDONED);
@@ -6454,6 +6463,14 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     else
                         unitTarget->CastSpell(unitTarget, 26655, false);
 
+                    return;
+                }
+                case 28560:                                 // Summon Blizzard
+                {
+                    if (!unitTarget)
+                        return;
+
+                    m_caster->SummonCreature(16474, unitTarget->GetPositionX(), unitTarget->GetPositionY(), unitTarget->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 30000);
                     return;
                 }
                 case 29830:                                 // Mirren's Drinking Hat
