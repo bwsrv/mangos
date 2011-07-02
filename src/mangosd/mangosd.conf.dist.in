@@ -376,20 +376,83 @@ GmLogPerAccount = 0
 RaLogFile = ""
 LogColors = ""
 
-# Chat log parameters
+###################################################################################################################
+#   LEXICS CUTTER SYSTEM
+#
+#    Chat log parameters
+#        ChatLogEnable = 0
+#
+#    If this is enabled, all $d in file names are replaced with current date
+#    This does include innormative lexics log
+#        ChatLogDateSplit = 1
+#    If this is enabled, UTF8 header is written into new files
+#        ChatLogUTFHeader = 1
+#    If this is enabled, chat log will ignore messages with unprintable chars
+#        ChatLogIgnoreUnprintable = 1
+#
+#    Chat log files
+#        ChatLogChatFile = main_chat-$d.log
+#        ChatLogPartyFile = party_chat-$d.log
+#        ChatLogGuildFile = guild_chat-$d.log
+#        ChatLogWhisperFile = whisper_chat-$d.log
+#        ChatLogChannelFile = channel_chat-$d.log
+#        ChatLogRaidFile = raid_chat-$d.log
+#        ChatLogBattleGroundFile = bg_chat-$d.log
+#
+#    Chat log screen logging
+#        ChatLogChatScreen = 0
+#        ChatLogPartyScreen = 0
+#        ChatLogGuildScreen = 0
+#        ChatLogWhisperScreen = 0
+#        ChatLogChannelScreen = 0
+#        ChatLogRaidScreen = 0
+#        ChatLogBattleGroundScreen = 0
+#
+#    Lexics cutter parameters
+#        LexicsCutterEnable = 1
+#        LexicsCutterInnormativeCut = 1
+#        LexicsCutterCutReplacement = &!@^%!^&*!!!
+#        LexicsCutterLogFile = innormative-$d.log
+#        LexicsCutterScreenLog = 0
+#        LexicsCutterAnalogsFile = letter_analogs.txt
+#        LexicsCutterWordsFile = innormative_words.txt
+#
+#    Where to cut lexics
+#        LexicsCutInChat = 1
+#        LexicsCutInParty = 1
+#        LexicsCutInGuild = 1
+#        LexicsCutInWhisper = 1
+#        LexicsCutInChannel = 1
+#        LexicsCutInRaid = 1
+#        LexicsCutInBattleGround = 1
+#
+#    Ignore word spaces like: W O R D
+#        LexicsCutterIgnoreSpaces = 1
+#
+#    Ignore repeats like: WWOOOORRRRRD
+#        LexicsCutterIgnoreRepeats = 1
+#
+#    Action:
+#    ---   0: log only
+#    ---   1: sheep
+#    ---   2: stun
+#    ---   3: kill
+#    ---   4: leave 5 health
+#    ---   5: disable chat
+#    ---   6: stuck (works as stun + 50% health)
+#    ---   7: resurrection sickness
+#    ---   8: shear
+#        LexicsCutterAction = 0
+#        LexicsCutterActionDuration = 60000
+#
+#     Do not perform action on GM if this is enabled
+#        LexicsCutterNoActionOnGM = 1
+###################################################################################################################
+
 ChatLogEnable = 0
-
-# If this is enabled, all $d in file names are replaced with current date
-# This does include innormative lexics log
 ChatLogDateSplit = 1
-
-# If this is enabled, UTF8 header is written into new files
 ChatLogUTFHeader = 1
-
-# If this is enabled, chat log will ignore messages with unprintable chars
 ChatLogIgnoreUnprintable = 1
-
-# Chat log files
 ChatLogChatFile = main_chat-$d.log
 ChatLogPartyFile = party_chat-$d.log
 ChatLogGuildFile = guild_chat-$d.log
@@ -397,8 +460,6 @@ ChatLogWhisperFile = whisper_chat-$d.log
 ChatLogChannelFile = channel_chat-$d.log
 ChatLogRaidFile = raid_chat-$d.log
 ChatLogBattleGroundFile = bg_chat-$d.log
-
-# Chat log screen logging
 ChatLogChatScreen = 0
 ChatLogPartyScreen = 0
 ChatLogGuildScreen = 0
@@ -406,18 +467,13 @@ ChatLogWhisperScreen = 0
 ChatLogChannelScreen = 0
 ChatLogRaidScreen = 0
 ChatLogBattleGroundScreen = 0
-
-# Lexics cutter parameters
 LexicsCutterEnable = 1
-
 LexicsCutterInnormativeCut = 1
 LexicsCutterCutReplacement = &!@^%!^&*!!!
 LexicsCutterLogFile = innormative-$d.log
 LexicsCutterScreenLog = 0
 LexicsCutterAnalogsFile = letter_analogs.txt
 LexicsCutterWordsFile = innormative_words.txt
-
-# Where to cut lexics
 LexicsCutInChat = 1
 LexicsCutInParty = 1
 LexicsCutInGuild = 1
@@ -425,27 +481,10 @@ LexicsCutInWhisper = 1
 LexicsCutInChannel = 1
 LexicsCutInRaid = 1
 LexicsCutInBattleGround = 1
-
-# Ignore word spaces like: W O R D
 LexicsCutterIgnoreSpaces = 1
-
-# Ignore repeats like: WWOOOORRRRRD
 LexicsCutterIgnoreRepeats = 1
-
-# --- Action:
-# ---   0: log only
-# ---   1: sheep
-# ---   2: stun
-# ---   3: kill
-# ---   4: leave 5 health
-# ---   5: disable chat
-# ---   6: stuck (works as stun + 50% health)
-# ---   7: resurrection sickness
-# ---   8: shear
 LexicsCutterAction = 0
 LexicsCutterActionDuration = 60000
-
-# Do not perform action on GM if this is enabled
 LexicsCutterNoActionOnGM = 1
 
 ###################################################################################################################
@@ -1705,11 +1744,6 @@ Network.KickOnBadPacket = 0
 #        Enable/Disable the part of AHBot that buys items from players
 #    Default 0 (disabled)
 #
-#    Auction House Bot character data
-#        AuctionHouseBot.Account is the account number (in realmd->account table) of the player you want to run as the auction bot.
-#       AuctionHouseBot.GUID is the GUID (in characters->characters table) of the player you want to run as the auction bot.
-#    Default: NONE (must be setted anywhere on true account and character!)
-#
 #    AuctionHouseBot.VendorItems
 #        Include items that can be bought from vendors.
 #    Default 0
@@ -1761,8 +1795,6 @@ Network.KickOnBadPacket = 0
 
 AuctionHouseBot.EnableSeller = 0
 AuctionHouseBot.EnableBuyer = 0
-AuctionHouseBot.Account = (ACCOUNT NUMBER)
-AuctionHouseBot.GUID = (GUID)
 AuctionHouseBot.VendorItems = 0
 AuctionHouseBot.LootItems = 1
 AuctionHouseBot.OtherItems = 0

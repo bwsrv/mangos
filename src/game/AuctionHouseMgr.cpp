@@ -160,7 +160,6 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry *auction)
         RemoveAItem(auction->itemGuidLow);                  // we have to remove the item, before we delete it !!
         auction->itemGuidLow = 0;                           // pending list will not use guid data
 
-
         // will delete item or place to receiver mail list
         MailDraft(msgAuctionWonSubject.str(), msgAuctionWonBody.str())
             .AddItem(pItem)

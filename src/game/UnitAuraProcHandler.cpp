@@ -4875,6 +4875,11 @@ SpellAuraProcResult Unit::HandleDropChargeByDamageProc(Unit* pVictim, uint32 dam
         if (holder->DropAuraCharge())
             RemoveSpellAuraHolder(holder);
         triggeredByAura->SetInUse(false);
+        if (!damage && pVictim && GetTypeId() == TYPEID_UNIT)
+        {
+            if (((Creature*)this)->IsTotem())
+                pVictim->DealDamage(this, GetHealth(), 0, SPELL_DIRECT_DAMAGE, GetSpellSchoolMask(procSpell), procSpell, true);
+        }
     }
     else
         return SPELL_AURA_PROC_FAILED;

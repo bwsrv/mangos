@@ -15769,43 +15769,6 @@ void Player::SendQuestUpdateAddCreatureOrGo( Quest const* pQuest, ObjectGuid gui
 /***                   LOAD SYSTEM                     ***/
 /*********************************************************/
 
-bool Player::MinimalLoadFromDB(uint64 lowguid)
-{
-    if (!lowguid) return false;
-
-     //                                                     0     1     2           3           4           5    6          7          8          9    10     11    12
-    QueryResult* result = CharacterDatabase.PQuery("SELECT guid, name, position_x, position_y, position_z, map, totaltime, leveltime, at_login, zone, level, race, class FROM characters WHERE guid = '%u'",lowguid);
-
-    if (!result)
-        return false;
-
-    Field *fields = result->Fetch();
-
-    Object::_Create(ObjectGuid(HIGHGUID_PLAYER, uint32(lowguid)));
-
-    sLog.outDebug("Player #%d minimal data loaded",lowguid);
-
-    m_name = fields[1].GetCppString();
-    Relocate(fields[2].GetFloat(),fields[3].GetFloat(),fields[4].GetFloat());
-    SetLocationMapId(fields[5].GetUInt32());
-    m_Played_time[PLAYED_TIME_TOTAL] = fields[6].GetUInt32();
-    m_Played_time[PLAYED_TIME_LEVEL] = fields[7].GetUInt32();
-    m_atLoginFlags = fields[8].GetUInt32();
-    uint8 m_race  = fields[11].GetUInt8();
-    uint8 m_class = fields[12].GetUInt8();
-
-    for (int i = 0; i < PLAYER_SLOTS_COUNT; ++i)
-        m_items[i] = NULL;
-
-    if (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
-        m_deathState = DEAD;
-
-    // all fields read
-    delete result;
-
-    return true;
-}
-
 void Player::_LoadDeclinedNames(QueryResult* result)
 {
     if(!result)
