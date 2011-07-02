@@ -2567,6 +2567,27 @@ void Player::RemoveFromGroup(Group* group, ObjectGuid guid)
 {
     if (group)
     {
+        // remove all auras affecting only group members
+        if (Player *pLeaver = sObjectMgr.GetPlayer(guid))
+        {
+            for(GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+            {
+                if (Player *pGroupGuy = itr->getSource())
+                {
+                    // dont remove my auras from myself
+                    if (pGroupGuy->GetObjectGuid() == guid)
+                        continue;
+
+                    // remove all buffs cast by me from group members before leaving
+                    pGroupGuy->RemoveAllGroupBuffsFromCaster(guid);
+
+                    // remove from me all buffs cast by group members
+                    pLeaver->RemoveAllGroupBuffsFromCaster(pGroupGuy->GetObjectGuid());
+                }
+            }
+        }
+
+        // remove member from group
         if (group->RemoveMember(guid, 0) <= 1)
         {
             // group->Disband(); already disbanded in RemoveMember
@@ -23415,7 +23436,43 @@ void Player::ActivateSpec(uint8 specNum)
 
             for(int r = 0; r < MAX_TALENT_RANK; ++r)
                 if (talentInfo->RankID[r])
+                {
                     removeSpell(talentInfo->RankID[r],!IsPassiveSpell(talentInfo->RankID[r]),false);
+
+                    // if spell is a buff, remove it from group members
+                    // TODO: this should affect all players, not only group members?
+                    if (SpellEntry const *spellInfo = sSpellStore.LookupEntry(talentInfo->RankID[r]))
+                    {
+                        bool bRemoveAura = false;
+                        for (int i = 0; i < MAX_EFFECT_INDEX; ++i)
+                        {
+                            if ((spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA ||
+                                spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AREA_AURA_RAID) &&
+                                IsPositiveEffect(spellInfo, SpellEffectIndex(i)))
+                            {
+                                bRemoveAura = true;
+                                break;
+                            }
+                        }
+
+                        Group *group = GetGroup();
+
+                        if (bRemoveAura && group)
+                        {
+                            for(GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+                            {
+                                if (Player *pGroupGuy = itr->getSource())
+                                {
+                                    if (pGroupGuy->GetObjectGuid() == GetObjectGuid())
+                                        continue;
+
+                                    if (SpellAuraHolder *holder = pGroupGuy->GetSpellAuraHolder(talentInfo->RankID[r], GetObjectGuid()))
+                                        pGroupGuy->RemoveSpellAuraHolder(holder);
+                                }
+                            }
+                        }
+                    }
+                }
 
             specIter = m_talents[m_activeSpec].begin();
         }
