@@ -937,8 +937,6 @@ private:
     bool BuyMethod;
     bool SellMethod;
 
-    uint32 AHBplayerAccount;
-    ObjectGuid AHBplayerGUID;
     uint32 ItemsPerCycle;
 
     bool debug_Out;
@@ -964,8 +962,8 @@ private:
     time_t _lastrun_n;
 
     inline uint32 minValue(uint32 a, uint32 b) { return a <= b ? a : b; };
-    void addNewAuctions(Player *AHBplayer, AHBConfig *config);
-    void addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *config, WorldSession *session);
+    void addNewAuctions(AHBConfig *config);
+    void addNewAuctionBuyerBotBid(AHBConfig *config);
 
 public:
     AuctionHouseBot();
@@ -973,7 +971,6 @@ public:
     void Update();
     void Initialize();
     void LoadValues(AHBConfig*);
-    ObjectGuid GetAHBplayerGUID() { return AHBplayerGUID; };
 };
 
 #define auctionbot MaNGOS::Singleton<AuctionHouseBot>::Instance()
