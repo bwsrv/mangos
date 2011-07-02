@@ -4235,23 +4235,29 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
                 if (!foundHolder->m_auras[i] || !holder->m_auras[i])
                     continue;
 
-                // m_auraname can be modified to SPELL_AURA_NONE for area auras, use original
-                AuraType aurNameReal = AuraType(aurSpellInfo->EffectApplyAuraName[i]);
+                if (aurSpellInfo->AttributesEx3 & SPELL_ATTR_EX3_STACK_FOR_DIFF_CASTERS)
+                    bRemove = false;
 
-                switch(aurNameReal)
+                // some more (custom) checks. e.g. Insect Swarm doesn't have the attribute
+                if (bRemove)
                 {
-                    // DoT/HoT/etc
-                    case SPELL_AURA_DUMMY:                  // allow stack
-                    case SPELL_AURA_PERIODIC_DAMAGE:
-                    case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
-                    case SPELL_AURA_PERIODIC_LEECH:
-                    case SPELL_AURA_PERIODIC_HEAL:
-                    case SPELL_AURA_OBS_MOD_HEALTH:
-                    case SPELL_AURA_PERIODIC_MANA_LEECH:
-                    case SPELL_AURA_OBS_MOD_MANA:
-                    case SPELL_AURA_POWER_BURN_MANA:
-                        bRemove = false;
-                        break;
+                    // m_auraname can be modified to SPELL_AURA_NONE for area auras, use original
+                    AuraType aurNameReal = AuraType(aurSpellInfo->EffectApplyAuraName[i]);
+                    switch(aurNameReal)
+                    {
+                        // DoT/HoT/etc
+                        case SPELL_AURA_DUMMY:                  // allow stack
+                        case SPELL_AURA_PERIODIC_DAMAGE:
+                        case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
+                        case SPELL_AURA_PERIODIC_LEECH:
+                        case SPELL_AURA_PERIODIC_HEAL:
+                        case SPELL_AURA_OBS_MOD_HEALTH:
+                        case SPELL_AURA_PERIODIC_MANA_LEECH:
+                        case SPELL_AURA_OBS_MOD_MANA:
+                        case SPELL_AURA_POWER_BURN_MANA:
+                            bRemove = false;
+                            break;
+                    }
                 }
             }
 
