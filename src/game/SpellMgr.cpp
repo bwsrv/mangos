@@ -2026,6 +2026,44 @@ bool SpellMgr::IsSkillBonusSpell(uint32 spellId) const
     return false;
 }
 
+bool SpellMgr::IsGroupBuff(SpellEntry const *spellInfo)
+{
+    for (int i = 0; i < MAX_EFFECT_INDEX; ++i)
+    {
+        switch(spellInfo->EffectImplicitTargetA[i])
+        {
+            case TARGET_SINGLE_PARTY:
+            case TARGET_ALL_PARTY_AROUND_CASTER:
+            case TARGET_ALL_PARTY:
+            case TARGET_ALL_PARTY_AROUND_CASTER_2:
+            case TARGET_AREAEFFECT_PARTY:
+            case TARGET_ALL_RAID_AROUND_CASTER:
+            case TARGET_AREAEFFECT_PARTY_AND_CLASS:
+                if (IsPositiveEffect(spellInfo, SpellEffectIndex(i)) &&
+                    (spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA ||
+                     spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AREA_AURA_PARTY ||
+                     spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AREA_AURA_RAID)
+                    )
+                {
+                    return true;
+                }
+            default:
+                break;
+        }
+    }
+
+    // some custom cases
+    switch (spellInfo->Id)
+    {
+        case 72590:                             // Fortitude (triggered by AoE spell with ScriptEffect)
+            return true;
+        default:
+            break;
+    }
+
+    return false;
+}
+
 SpellEntry const* SpellMgr::SelectAuraRankForLevel(SpellEntry const* spellInfo, uint32 level) const
 {
     // fast case

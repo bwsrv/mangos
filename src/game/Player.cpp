@@ -2475,6 +2475,27 @@ void Player::RemoveFromGroup(Group* group, ObjectGuid guid)
 {
     if (group)
     {
+        // remove all auras affecting only group members
+        if (Player *pLeaver = sObjectMgr.GetPlayer(guid))
+        {
+            for(GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+            {
+                if (Player *pGroupGuy = itr->getSource())
+                {
+                    // dont remove my auras from myself
+                    if (pGroupGuy->GetObjectGuid() == guid)
+                        continue;
+
+                    // remove all buffs cast by me from group members before leaving
+                    pGroupGuy->RemoveAllGroupBuffsFromCaster(guid);
+
+                    // remove from me all buffs cast by group members
+                    pLeaver->RemoveAllGroupBuffsFromCaster(pGroupGuy->GetObjectGuid());
+                }
+            }
+        }
+
+        // remove member from group
         if (group->RemoveMember(guid, 0) <= 1)
         {
             // group->Disband(); already disbanded in RemoveMember
