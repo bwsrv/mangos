@@ -1289,7 +1289,7 @@ enum Targets
     TARGET_110                         = 110,
 };
 
-#define MAX_SPELL_TARGET               110
+#define MAX_SPELL_TARGET               111
 
 enum SpellMissInfo
 {
