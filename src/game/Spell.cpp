@@ -1622,6 +1622,13 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 804:                                   // Explode Bug
                 case 23138:                                 // Gate of Shazzrah
                 case 28560:                                 // Summon Blizzard
+                case 62488:                                 // Activate Construct (Ulduar - Ignis encounter)
+                case 63545:                                 // Icicle Hodir(trigger spell from 62227)
+                case 68950:                                 // Fear (ICC: Forge of Souls)
+                case 48278:                                 // Paralyze (Utgarde Pinnacle)
+                case 63018:                                 // Searing Light nonhero
+                case 65121:                                 // Searing Light hero
+                case 62016:                                 // Charge Orb (Thorim)
                 case 31347:                                 // Doom TODO: exclude top threat target from target selection
                 case 33711:                                 // Murmur's Touch
                 case 38794:                                 // Murmur's Touch (h)
@@ -1645,7 +1652,6 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 67296:
                 case 67297:
                 case 67298:
-                case 68950:                                 // Fear
                 case 69140:                                 // Coldflame (Icecrown Citadel, Lord Marrowgar encounter)
                 case 73058:                                 // Blood Nova
                 case 72378:                                 // Blood Nova
@@ -1667,7 +1673,9 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 29213:                                 // Curse of the Plaguebringer
                 case 31298:                                 // Sleep
                 case 39992:                                 // Needle Spine Targeting (Warlord Najentus)
-                case 51904:                                 // Limiting the count of Summoned Ghouls
+                case 62477:                                 // Icicle (Hodir 25man)
+                case 61693:                                 // Arcane Storm (Malygos) (N)
+                case 60936:                                 // Surge of Power (h) (Malygos)
                 case 54522:
                 case 69055:                                 // Bone Slice (Icecrown Citadel, Lord Marrowgar, normal)
                 case 70814:                                 // Bone Slice (Icecrown Citadel, Lord Marrowgar, heroic)
@@ -1677,18 +1685,27 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 73145:                                 // Bone Spike Graveyard (during Bone Storm) (Icecrown Citadel, Lord Marrowgar encounter, 25H)
                     unMaxTargets = 3;
                     break;
+                case 51904:                                 // Limiting the count of Summoned Ghouls
                 case 71221:                                 // Gas spore - 25
                     unMaxTargets = 4;
                     break;
                 case 30843:                                 // Enfeeble TODO: exclude top threat target from target selection
                 case 42005:                                 // Bloodboil TODO: need to be 5 targets(players) furthest away from caster
                 case 55665:                                 // Life Drain (h)
+                case 64604:                                 // Nature Bomb Freya
                 case 58917:                                 // Consume Minions
                 case 67076:                                 // Mistress' Kiss (Trial of the Crusader, ->
                 case 67078:                                 // -> Lord Jaraxxus encounter, 25 and 25 heroic)
                 case 67700:                                 // Penetrating Cold (25 man)
                 case 68510:                                 // Penetrating Cold (25 man, heroic)
                     unMaxTargets = 5;
+                    break;
+                case 61694:                                 // Arcane Storm(H) (25 man) (Malygos)
+                    unMaxTargets = 7;
+                    break;
+                case 72441:                                 // Boiling Blood (25N)
+                case 72443:                                 // Boiling Blood (25H)
+                    unMaxTargets = 6;
                     break;
                 case 54098:                                 // Poison Bolt Volley (h)
                 case 54835:                                 // Curse of the Plaguebringer (h)
@@ -1697,6 +1714,14 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 25991:                                 // Poison Bolt Volley (Pincess Huhuran)
                     unMaxTargets = 15;
                     break;
+                case 62240:                                 // Solar Flare
+                case 62920:                                 // Solar Flare (h)
+                {
+                    if(Aura *pAura = m_caster->GetAura(62251, EFFECT_INDEX_0))
+                    unMaxTargets = pAura->GetStackAmount();
+                    else unMaxTargets = 1;
+                    break;
+                }
                 default:
                     break;
             }

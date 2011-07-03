@@ -2610,6 +2610,14 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                         unitTarget->DealDamage(unitTarget, unitTarget->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                     return;
                 }
+                case 62907:                                 // Freyas Wall
+                {
+                    if (!unitTarget)
+                        return;
+                    for (int i= 0; i < 3;++i)
+                        unitTarget->CastSpell(unitTarget, 62947, true);
+                    return;
+                }
                 case 64385:                                 // Spinning (from Unusual Compass)
                 {
                     m_caster->SetFacingTo(frand(0, M_PI_F*2), true);
@@ -8152,6 +8160,15 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     return;
                 }
+                case 62705:                                 // Auto-repair
+                {
+                    if (!unitTarget)
+                        return;
+                    unitTarget->SetHealth(unitTarget->GetMaxHealth());
+                    if (VehicleKit* vehicle = unitTarget->GetVehicleKit())
+                        if (Unit* seat = vehicle->GetPassenger(1))
+                            seat->ModifyPower(POWER_ENERGY,50);
+                }
                 case 69200:                                 // Raging Spirit
                 {
                     if (!unitTarget)
@@ -8330,6 +8347,14 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     unitTarget->RemoveAurasDueToSpell(m_spellInfo->EffectBasePoints[eff_idx]);
                     return;
+                }
+                case 65044:                                 // Flames Ulduar
+                {
+                    if (!unitTarget)
+                        return;
+                    if (unitTarget->HasAura(62297))
+                        unitTarget->RemoveAurasDueToSpell(62297);   // Remove Hodir's Fury
+                    break;
                 }
                 case 65917:                                 // Magic Rooster 
                 { 
