@@ -300,6 +300,7 @@ Unit::~Unit()
 
     delete m_charmInfo;
     delete m_vehicleInfo;
+    CleanupDeletedAuras();
 
     // those should be already removed at "RemoveFromWorld()" call
     MANGOS_ASSERT(m_gameObj.size() == 0);
