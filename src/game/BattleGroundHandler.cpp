@@ -744,15 +744,12 @@ void WorldSession::HandleBattlemasterJoinArena( WorldPacket & recv_data )
             if (!at_member)                                 // group member joining to arena must be in leader arena team
                 return;
 
-            // calc avg personal rating
-            avg_pers_rating += at_member->personal_rating;
+            avg_pers_rating += at_member->matchmaker_rating;
         }
 
         avg_pers_rating /= grp->GetMembersCount();
 
-        // if avg personal rating is more than 150 points below the teams rating, the team will be queued against an opponent matching or similar to the average personal rating
-        if (avg_pers_rating + 150 < arenaRating)
-            arenaRating = avg_pers_rating;
+        arenaRating = avg_pers_rating;
     }
 
     BattleGroundQueue &bgQueue = sBattleGroundMgr.m_BattleGroundQueues[bgQueueTypeId];

@@ -97,8 +97,10 @@ struct ArenaTeamMember
     uint32 games_season;
     uint32 wins_season;
     uint32 personal_rating;
+    uint32 matchmaker_rating;
 
     void ModifyPersonalRating(Player* plr, int32 mod, uint32 slot);
+    void ModifyMatchmakerRating(Player* plr, int32 mod, ArenaType type);
 };
 
 struct ArenaTeamStats
@@ -206,6 +208,8 @@ class ArenaTeam
 
         void FinishWeek();
         void FinishGame(int32 mod);
+
+        uint32 GetAverageMMR(Group *group) const;
 
     protected:
 
