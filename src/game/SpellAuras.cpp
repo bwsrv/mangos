@@ -7515,16 +7515,6 @@ void Aura::HandleSchoolAbsorb(bool apply, bool Real)
                 plr->SendDirectMessage(&data);
             }
         }
-        // Shield of Runes (normal) (Runemaster Molgeim, Assembly of Iron encounter in Ulduar)
-        else if (target && spellProto->Id == 62274 && m_removeMode == AURA_REMOVE_BY_SHIELD_BREAK)
-        {
-            target->CastSpell(target, 62277, true);
-        }
-        // Shield of Runes (heroic) (Runemaster Molgeim, Assembly of Iron encounter in Ulduar)
-        else if (caster && spellProto->Id == 63489 && m_removeMode == AURA_REMOVE_BY_SHIELD_BREAK)
-        {
-            target->CastSpell(target, 63967, true);
-        }
     }
 }
 
@@ -9748,6 +9738,28 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                     {
                         cast_at_remove = true;
                         spellId1 = 55601;
+                    }
+                    else
+                        return;
+                    break;
+                }
+                case 62274:                                 // Shield of Runes (normal) (Runemaster Molgeim, Assembly of Iron encounter in Ulduar)
+                {
+                    if (!apply && m_removeMode == AURA_REMOVE_BY_SHIELD_BREAK)
+                    {
+                        cast_at_remove = true;
+                        spellId1 = 62277;
+                    }
+                    else
+                        return;
+                    break;
+                }
+                case 63489:                                 // Shield of Runes (heroic) (Runemaster Molgeim, Assembly of Iron encounter in Ulduar)
+                {
+                    if (!apply && m_removeMode == AURA_REMOVE_BY_SHIELD_BREAK)
+                    {
+                        cast_at_remove = true;
+                        spellId1 = 63967;
                     }
                     else
                         return;
