@@ -9,3 +9,7 @@ CREATE TABLE IF NOT EXISTS `creature_spell` (
     `flags`     int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell custom flags',
      PRIMARY KEY (`guid`,`index`,`active`)
 ) DEFAULT CHARSET=utf8 PACK_KEYS=0 COMMENT='Creature spells storage';
+
+ALTER TABLE `creature_spell`
+    DROP PRIMARY KEY,
+    ADD PRIMARY KEY (`guid`,`index`,`active`);

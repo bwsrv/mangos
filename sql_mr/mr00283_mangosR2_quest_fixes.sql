@@ -1,5 +1,15 @@
 -- For YTDB DBs
 
+-- Console/conflict fixes from recent checks added by mangos for EventAI
+DELETE FROM `creature_ai_scripts` WHERE (`id`='2531612') OR (`id`='2531601') OR (`id`='2531603') OR (`id`='2531609') OR (`id`='2531611') OR (`id`='2531608') OR (`id`='2531607') OR (`id`='2531610') OR (`id`='2531604') OR (`id`='2531606') OR (`id`='2531602') OR (`id`='2531605') OR (`id`='2531651');
+DELETE FROM `creature_ai_scripts` WHERE (`id`='2612702') OR (`id`='2612701');
+DELETE FROM `creature_ai_scripts` WHERE (`id`='2748307') OR (`id`='2748302') OR (`id`='2748305') OR (`id`='2748303') OR (`id`='2748308') OR (`id`='2748301') OR (`id`='2748306') OR (`id`='2748304');
+DELETE FROM `creature_ai_scripts` WHERE (`id`='2760001') OR (`id`='2760006') OR (`id`='2760007') OR (`id`='2760004') OR (`id`='2760010') OR (`id`='2760009') OR (`id`='2760002') OR (`id`='2760011') OR (`id`='2760005') OR (`id`='2760008') OR (`id`='2760003');
+DELETE FROM `creature_ai_scripts` WHERE (`id`='2920404') OR (`id`='2920403') OR (`id`='2920402') OR (`id`='2920401') OR (`id`='2920003') OR (`id`='2920001') OR (`id`='2920002') OR (`id`='2919902') OR (`id`='2919901') OR (`id`='2919903');
+
+DELETE FROM `creature_ai_texts` WHERE (`entry`='-1120') OR (`entry`='-1121') OR (`entry`='-1122') OR (`entry`='-1123') OR (`entry`='-1124') OR (`entry`='-1125') OR (`entry`='-1126') OR (`entry`='-1127') OR (`entry`='-1128');
+DELETE FROM `creature_ai_texts` WHERE (`entry`='-696') OR (`entry`='-697');
+
 -- Gamel the Cruel
 UPDATE creature SET spawntimesecs = 30 WHERE id = 26449;
 
@@ -15,11 +25,11 @@ DELETE FROM item_required_target WHERE entry = 34691;
 INSERT INTO item_required_target VALUES
 (34691,1,25316);
 
--- fixes for Quest Kickin'Nass and Takin manes (12630)  -- This doesnt fix quest
+-- fixes for Quest Kickin'Nass and Takin manes (12630)
 UPDATE `creature_template` SET `flags_extra` = 128 WHERE `entry` = 28523;
--- DELETE FROM creature WHERE id=28523;  -- deletes  nass kc bunny credit needs to be summoned not already spawn
+DELETE FROM creature WHERE id=28523;  -- deletes  nass kc bunny credit needs to be summoned not already spawn
 
--- Quest Fixes to Hard_to_sallow 
+-- Quest Fixes to Hard_to_sallow
 UPDATE `creature_template` SET `AIName` = 'EventAI', `ScriptName` = '' WHERE `entry` = '26293';
 DELETE FROM `creature_ai_scripts` WHERE (`id`='2629302');
 INSERT INTO `creature_ai_scripts` VALUES ('2629302', '26293', '2', '0', '100', '0', '70', '50', '0', '0', '1', '-262930', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', 'Hulking Jormungar - emote between 70% and 50% ');
@@ -63,9 +73,9 @@ INSERT INTO creature_ai_scripts VALUES
 
 -- yell
 (2723701,27237,4,0,100,6,0,0,0,0,1,-272371,0,0,0,0,0,0,0,0,0,0,'Commander Jordan - Yell on Aggro'),
--- Avenging Wrath (50837) +
-(2723702,27237,0,0,100,1,1000,3000,25000,30000,11,50837,0,0,0,0,0,0,0,0,0,0,'Commander Jordan - Cast Avenging Wrath'), 
--- Consecration (32773) +
+-- Avenging Wrath (50837)
+(2723702,27237,0,0,100,1,1000,3000,25000,30000,11,50837,0,0,0,0,0,0,0,0,0,0,'Commander Jordan - Cast Avenging Wrath'),
+-- Consecration (32773)
 (2723703,27237,9,0,100,1,0,10,18000,23000,11,32773,0,1,0,0,0,0,0,0,0,0,'Commander Jordan - Cast Consecration'),
 -- Kill credit (48723/48724)
 (2723704,27237,8,0,100,0,48712,-1,0,0,22,1,0,0,0,0,0,0,0,0,0,0,'Commander Jordan - Set Phase 2 after spell hit'),
@@ -76,19 +86,19 @@ INSERT INTO creature_ai_scripts VALUES
 
 -- yell
 (2723501,27235,4,0,100,6,0,0,0,0,1,-272351,0,0,0,0,0,0,0,0,0,0,'Lead Cannoneer Zierhut - Yell on Aggro'),
--- Torch Toss (50832)+
-(2723502,27235,0,0,100,1,3000,7000,12000,15000,11,50832,4,0,0,0,0,0,0,0,0,0,'Lead Cannoneer Zierhut - Cast Torch Toss'), 
+-- Torch Toss (50832)
+(2723502,27235,0,0,100,1,3000,7000,12000,15000,11,50832,4,0,0,0,0,0,0,0,0,0,'Lead Cannoneer Zierhut - Cast Torch Toss'),
 -- Kill Credit (48725/48726)
-(2723503,27235,8,0,100,0,48712,-1,0,0,22,1,0,0,0,0,0,0,0,0,0,0,'Lead Cannoneer Zierhut - Set Phase 2 after spell hit'), 
-(2723504,27235,6,1,100,0,0,0,0,0,33,27427,6,3,0,0,0,0,0,0,0,0,'Lead Cannoneer Zierhut - Kill Credit on Death (Phase 2)'), 
+(2723503,27235,8,0,100,0,48712,-1,0,0,22,1,0,0,0,0,0,0,0,0,0,0,'Lead Cannoneer Zierhut - Set Phase 2 after spell hit'),
+(2723504,27235,6,1,100,0,0,0,0,0,33,27427,6,3,0,0,0,0,0,0,0,0,'Lead Cannoneer Zierhut - Kill Credit on Death (Phase 2)'),
 
 -- Blacksmith Goodman (27234)
 
 -- yell
 (2723401,27234,4,0,100,6,0,0,0,0,1,-272341,0,0,0,0,0,0,0,0,0,0,'Blacksmith Goodman - Yell on Aggro'),
--- Crush Armor (33661) +
+-- Crush Armor (33661)
 (2723402,27234,0,0,100,1,2000,5000,5000,7000,11,33661,1,0,0,0,0,0,0,0,0,0,'Blacksmith Goodman - Cast Crush Armor'),
--- Skull Crack (15621) +
+-- Skull Crack (15621)
 (2723403,27234,0,0,100,1,6000,9000,10000,14000,11,15621,1,1,0,0,0,0,0,0,0,0,'Blacksmith Goodman - Cast Skull Crack'),
 -- Kill credit (48727/48728)
 (2723404,27234,8,0,100,0,48712,-1,0,0,22,1,0,0,0,0,0,0,0,0,0,0,'Blacksmith Goodman - Set Phase 2 after spell hit'),
@@ -104,6 +114,11 @@ INSERT INTO creature_ai_scripts VALUES
 (2723603,27236,8,0,100,0,48712,-1,0,0,22,1,0,0,0,0,0,0,0,0,0,0,'Stable Master Mercer - Set Phase 2 after spell hit'),
 (2723604,27236,6,1,100,0,0,0,0,0,33,27429,6,3,0,0,0,0,0,0,0,0,'Stable Master Mercer - Kill Credit on Death (Phase 2)');
 
+UPDATE `creature_template` SET `AIName` = 'EventAI', `ScriptName` = '' WHERE `entry` = 27236;
+UPDATE `creature_template` SET `AIName` = 'EventAI', `ScriptName` = '' WHERE `entry` = 27234;
+UPDATE `creature_template` SET `AIName` = 'EventAI', `ScriptName` = '' WHERE `entry` = 27235;
+UPDATE `creature_template` SET `AIName` = 'EventAI', `ScriptName` = '' WHERE `entry` = 27237;
+
 -- Support for quest Defiling Uther's Tomb (9444)
 DELETE FROM creature_ai_scripts WHERE creature_id=27002;
 INSERT INTO creature_ai_scripts VALUES
@@ -118,10 +133,10 @@ INSERT INTO creature_ai_texts (entry, content_default, type, comment) VALUES
 (-270022,'You\'re no magnataur! Where... did you... find... such strength?',1,'Grom\'thar the Thunderbringer yell2');
 
 -- Support for quest A Necessary Distraction (10637)
-UPDATE `creature_template` SET `modelid_2` = 17287 WHERE `entry` = 21506;
 
 -- Azaloth (21506)
-UPDATE creature_template SET AIName='EventAI' WHERE entry=21506;
+-- UPDATE `creature_template` SET `AIName` = 'EventAI', `ScriptName` = '' WHERE `entry` = 21506;
+-- UPDATE `creature_template` SET `modelid_2` = 17287 WHERE `entry` = 21506; -- this isnt correct display yet
 
 --DELETE FROM creature_ai_scripts WHERE creature_id=21506;
 --INSERT INTO creature_ai_scripts VALUES

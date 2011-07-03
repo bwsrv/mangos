@@ -41,6 +41,49 @@ CREATE TABLE IF NOT EXISTS `anticheat_log` (
     KEY idx_Player (`guid`)
 ) DEFAULT CHARSET=utf8 COMMENT='Anticheat log table';
 
+-- Anticheat
+-- Config
+
+-- Main checks
+REPLACE INTO `anticheat_config`
+    (`checktype`, `description`, `check_period`, `alarmscount`, `disableoperation`, `messagenum`, `intparam1`, `intparam2`, `floatparam1`, `floatparam2`, `action1`, `actionparam1`, `action2`, `actionparam2`)
+VALUES
+    -- Main checks
+    (0, "Null check",         0, 1, 0, 11000, 0, 0,    0, 0, 1, 0, 0, 0),
+    (1, "Movement cheat",     0, 1, 0, 11000, 0, 0,    0, 0, 2, 1, 0, 0),
+    (2, "Spell cheat",        0, 1, 0, 11000, 0, 0,    0, 0, 2, 1, 0, 0),
+    (3, "Quest cheat",        0, 1, 0, 11000, 0, 0,    0, 0, 2, 1, 0, 0),
+    (4, "Transport cheat",    0, 3, 0, 11000, 0, 0, 60.0, 0, 2, 1, 0, 0),
+    (5, "Damage cheat",       0, 1, 0, 11000, 0, 0,    0, 0, 2, 1, 0, 0),
+    (6, "Item cheat",         0, 1, 0, 11000, 0, 0,    0, 0, 2, 1, 0, 0),
+    (7, "Warden check",       0, 1, 0, 11000, 0, 0,    0, 0, 2, 1, 0, 0);
+
+-- Subchecks
+REPLACE INTO `anticheat_config`
+    (`checktype`, `description`, `check_period`, `alarmscount`, `disableoperation`, `messagenum`, `intparam1`, `intparam2`, `floatparam1`, `floatparam2`, `action1`, `actionparam1`, `action2`, `actionparam2`)
+VALUES
+    (101, "Speed hack",              500, 5, 0, 11000,    10000, 0, 0.0012,    0, 2, 1, 6, 20000),
+    (102, "Fly hack",                500, 5, 0, 11000,    20000, 0,   10.0,    0, 2, 1, 0, 0),
+    (103, "Wall climb hack",         500, 2, 0, 11000,    10000, 0, 0.0015, 2.37, 2, 1, 0, 0),
+    (104, "Waterwalking hack",      1000, 3, 0, 11000,    20000, 0,      0,    0, 2, 1, 0, 0),
+    (105, "Teleport to plane hack",  500, 1, 0, 11000,        0, 0, 0.0001,  0.1, 2, 1, 0, 0),
+    (106, "AirJump hack" ,           500, 3, 0, 11000,    30000, 0,   10.0, 25.0, 2, 1, 0, 0),
+    (107, "Teleport hack" ,            0, 1, 0, 11000,        0, 0,   50.0,    0, 2, 1, 0, 0),
+    (108, "Fall hack" ,                0, 3, 0, 11000,    10000, 0,      0,    0, 2, 1, 0, 0),
+    (109, "Z Axis hack" ,              0, 1, 0, 11000,        0, 0,0.00001, 10.0, 2, 1, 0, 0),
+    (201, "Spell invalid",             0, 1, 0, 11000,        0, 0,      0,    0, 2, 1, 0, 0),
+    (202, "Spellcast in dead state",   0, 1, 0, 11000,        0, 0,      0,    0, 2, 1, 0, 0),
+    (203, "Spell not valid for player",0, 1, 0, 11000,        0, 0,      0,    0, 2, 1, 0, 0),
+    (204, "Spell not in player book",  0, 1, 0, 11000,        0, 0,      0,    0, 2, 1, 0, 0),
+    (501, "Spell damage hack",         0, 1, 0, 11000,        0, 50000,  0,    0, 2, 1, 0, 0),
+    (502, "Melee damage hack",         0, 1, 0, 11000,        0, 50000,  0,    0, 2, 1, 0, 0),
+    (601, "Item dupe hack",            0, 1, 0, 11000,        0,     0,  0,    0, 2, 1, 0, 0),
+    (701, "Warden memory check",       0, 1, 0, 11000,        0,     0,  0,    0, 2, 1, 0, 0),
+    (702, "Warden key check",          0, 1, 0, 11000,        0,     0,  0,    0, 2, 1, 0, 0),
+    (703, "Warden checksum check",     0, 1, 0, 11000,        0,     0,  0,    0, 2, 1, 0, 0),
+    (704, "Warden timeout check",      0, 1, 0, 11000,        0,     0,  0,    0, 2, 1, 0, 0);
+
+
 -- Auctionhouse Bot
 -- Commit 7c97114488b36b4427ed
 
@@ -112,6 +155,14 @@ CREATE TABLE `auctionhousebot` (
     `buyerbidsperinterval` int(11) default '1' COMMENT 'number of bids to put in per bidding interval',
     PRIMARY KEY  (`auctionhouse`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DELETE FROM `auctionhousebot` WHERE (`auctionhouse`='2') OR (`auctionhouse`='6') OR (`auctionhouse`='7');
+INSERT INTO `auctionhousebot`
+    (`auctionhouse`,`name`,`minitems`,`maxitems`,`mintime`,`maxtime`,`percentgreytradegoods`,`percentwhitetradegoods`,`percentgreentradegoods`,`percentbluetradegoods`,`percentpurpletradegoods`,`percentorangetradegoods`,`percentyellowtradegoods`,`percentgreyitems`,`percentwhiteitems`,`percentgreenitems`,`percentblueitems`,`percentpurpleitems`,`percentorangeitems`,`percentyellowitems`,`minpricegrey`,`maxpricegrey`,`minpricewhite`,`maxpricewhite`,`minpricegreen`,`maxpricegreen`,`minpriceblue`,`maxpriceblue`,`minpricepurple`,`maxpricepurple`,`minpriceorange`,`maxpriceorange`,`minpriceyellow`,`maxpriceyellow`,`minbidpricegrey`,`maxbidpricegrey`,`minbidpricewhite`,`maxbidpricewhite`,`minbidpricegreen`,`maxbidpricegreen`,`minbidpriceblue`,`maxbidpriceblue`,`minbidpricepurple`,`maxbidpricepurple`,`minbidpriceorange`,`maxbidpriceorange`,`minbidpriceyellow`,`maxbidpriceyellow`,`maxstackgrey`,`maxstackwhite`,`maxstackgreen`,`maxstackblue`,`maxstackpurple`,`maxstackorange`,`maxstackyellow`,`buyerpricegrey`,`buyerpricewhite`,`buyerpricegreen`,`buyerpriceblue`,`buyerpricepurple`,`buyerpriceorange`,`buyerpriceyellow`,`buyerbiddinginterval`,`buyerbidsperinterval`)
+VALUES
+    (2,'Alliance',0,0,8,24,0,27,12,10,1,0,0,0,10,30,8,2,0,0,100,150,150,250,800,1400,1250,1750,2250,4550,3250,5550,5250,6550,70,100,70,100,80,100,75,100,80,100,80,100,80,100,0,0,3,2,1,1,1,1,1,5,12,15,20,22,1,1),
+    (6,'Horde',0,0,8,24,0,27,12,10,1,0,0,0,10,30,8,2,0,0,100,150,150,250,800,1400,1250,1750,2250,4550,3250,5550,5250,6550,70,100,70,100,80,100,75,100,80,100,80,100,80,100,0,0,3,2,1,1,1,1,1,5,12,15,20,22,1,1),
+    (7,'Neutral',0,0,8,24,0,27,12,10,1,0,0,0,10,30,8,2,0,0,100,150,150,250,800,1400,1250,1750,2250,4550,3250,5550,5250,6550,70,100,70,100,80,100,75,100,80,100,80,100,80,100,0,0,3,2,1,1,1,1,1,5,12,15,20,22,1,1);
 
 -- Autobroadcast
 -- Commit 72d1f7a22d13399135d0
@@ -215,3 +266,8 @@ ALTER TABLE `pet_spell`
     ADD COLUMN `spec` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0' AFTER `active`,
     DROP PRIMARY KEY,
     ADD PRIMARY KEY (`guid`, `spell`, `spec`);
+	
+-- Pet table cleanup
+ALTER TABLE `character_pet`
+  DROP `resettalents_cost`,
+  DROP `resettalents_time`;
