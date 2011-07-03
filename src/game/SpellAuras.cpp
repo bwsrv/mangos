@@ -2185,7 +2185,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                             Caster->CombatStop(true);
                         }
                         return;
-                    }
+                    } 
                     case 47977:                             // Magic Broom
                         Spell::SelectMountByAreaAndSkill(target, GetSpellProto(), 42680, 42683, 42667, 42668, 0);
                         return;
@@ -2252,7 +2252,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                             int32 damage = 50 << GetStackAmount();
                             target->CastCustomSpell(target, 63338, &damage, 0, 0, true, 0, 0, caster->GetObjectGuid()); // damage spell
                             damage = damage >> 1;
-                            target->CastCustomSpell(target, 63337, &damage, 0, 0, true); // manareg spell
+                            target->CastCustomSpell(target, 63337, &damage, 0, 0, true, 0, 0, caster->GetObjectGuid()); // manareg spell
                         }
                         return;
                     case 63624:                             // Learn a Second Talent Specialization
@@ -4599,7 +4599,7 @@ void Aura::HandleAuraModStun(bool apply, bool Real)
             Unit* caster = GetCaster();
             if(!caster)
                 return;
-            caster->CastSpell(target, 71757, true);
+            caster->CastSpell(target, 71757, true); 
         }
 
         // Summon the Naj'entus Spine GameObject on target if spell is Impaling Spine
@@ -4616,23 +4616,6 @@ void Aura::HandleAuraModStun(bool apply, bool Real)
             }
             else
                 delete pObj;
-        }
-        // Pound 
-        if (GetSpellProto()->SpellIconID == 66) 
-        { 
-            Unit* caster = GetCaster(); 
-            if(!caster) 
-               return; 
-            uint32 spell_id = 0; 
-            switch(GetSpellProto()->Id) 
-            { 
-                case 53472: spell_id = 53509; break; 
-                case 59433: spell_id = 59432; break; 
-                default: break; 
-            } 
-            if (spell_id) 
-                caster->CastSpell(target, spell_id, true, NULL, NULL); 
-                return; 
         }
     }
     else
@@ -4684,7 +4667,7 @@ void Aura::HandleAuraModStun(bool apply, bool Real)
             Unit* pCaster = GetCaster();
             if(!pCaster)
                 return;
-
+            
             pCaster->InterruptSpell(CURRENT_CHANNELED_SPELL,false);
             return;
         }
@@ -5096,11 +5079,11 @@ void Aura::HandleAuraModIncreaseSpeed(bool apply, bool Real)
     // all applied/removed only at real aura add/remove
     if(!Real)
         return;
-
+        
     Unit *target = GetTarget();
 
     GetTarget()->UpdateSpeed(MOVE_RUN, true);
-
+    
     if (apply && GetSpellProto()->Id == 58875)
         target->CastSpell(target, 58876, true);
 }
@@ -5461,8 +5444,8 @@ void Aura::HandlePeriodicTriggerSpell(bool apply, bool /*Real*/)
             case 28522:                                     // Icebolt (Naxxramas: Sapphiron)
                 if (target->HasAura(45776))                 // Should trigger/remove some kind of iceblock
                     // not sure about ice block spell id
-                    target->RemoveAurasDueToSpell(45776);
-
+                    target->RemoveAurasDueToSpell(45776); 
+                
                 return;
             case 42783:                                     // Wrath of the Astrom...
                 if (m_removeMode == AURA_REMOVE_BY_EXPIRE && GetEffIndex() + 1 < MAX_EFFECT_INDEX)
@@ -7495,7 +7478,7 @@ void Aura::HandleSchoolAbsorb(bool apply, bool Real)
                 }
             }
         }
-        else if (caster && caster->GetTypeId() == TYPEID_PLAYER && spellProto->Id == 47788 &&
+        else if (caster && caster->GetTypeId() == TYPEID_PLAYER && spellProto->Id == 47788 && 
             m_removeMode == AURA_REMOVE_BY_EXPIRE)
         {
             Player* plr = (Player*)caster;
@@ -7535,14 +7518,11 @@ void Aura::PeriodicTick()
         case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
         {
             // don't damage target if not alive, possible death persistent effects
-            if (!target->IsInWorld() ||  !target->isAlive())
+            if (!target->isAlive())
                 return;
 
             Unit *pCaster = GetCaster();
             if(!pCaster)
-                return;
-
-            if(!pCaster->IsInWorld() || !pCaster->isAlive())
                 return;
 
             if( spellProto->Effect[GetEffIndex()] == SPELL_EFFECT_PERSISTENT_AREA_AURA &&
@@ -7560,7 +7540,7 @@ void Aura::PeriodicTick()
                 {
                     case 43093: case 31956: case 38801:
                     case 35321: case 38363: case 39215:
-                    case 48920: case 70292:
+                    case 48920:
                     {
                         if(target->GetHealth() == target->GetMaxHealth() )
                         {
@@ -7686,9 +7666,6 @@ void Aura::PeriodicTick()
             // FIXME: need use SpellDamageBonus instead?
             if (pCaster->GetTypeId() == TYPEID_PLAYER)
                 pdamage -= target->GetSpellDamageReduction(pdamage);
-
-            if (GetSpellProto()->Id == 50344) // Dream Funnel Oculus drake spell
-                pdamage = uint32(pCaster->GetMaxHealth()*0.05f);
 
             target->CalculateDamageAbsorbAndResist(pCaster, GetSpellSchoolMask(spellProto), DOT, pdamage, &absorb, &resist, !(GetSpellProto()->AttributesEx & SPELL_ATTR_EX_CANT_REFLECTED));
             cleanDamage.absorb += absorb;
@@ -9864,30 +9841,6 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                         }
                     }
                     break;
-                }
-                case 44614:                                 // Frostfire Bolt
-                case 47610:
-                {
-                    if (apply)
-                    {
-                        Unit* caster = GetCaster();
-                        if(!caster)
-                            return;
-                        Unit::AuraList const& auras = caster->GetAurasByType(SPELL_AURA_ADD_FLAT_MODIFIER);
-                        for(Unit::AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
-                        {
-                            // Permafrost
-                            if ((*itr)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_MAGE
-                                && (*itr)->GetSpellProto()->SpellIconID == 143)
-                            {
-                                // custom cast code
-                                int32 basepoints0 = (*itr)->GetSpellProto()->CalculateSimpleValue(EFFECT_INDEX_2);
-                                caster->CastCustomSpell(m_target, 68391, &basepoints0, NULL, NULL, true, NULL);
-                                return;
-                            }
-                        }
-                    }
-                    return;
                 }
                 default:
                     return;

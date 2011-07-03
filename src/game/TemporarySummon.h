@@ -22,7 +22,7 @@
 #include "Creature.h"
 #include "ObjectAccessor.h"
 
-class MANGOS_DLL_SPEC TemporarySummon : public Creature
+class TemporarySummon : public Creature
 {
     public:
         explicit TemporarySummon(ObjectGuid summoner = ObjectGuid());
@@ -30,10 +30,10 @@ class MANGOS_DLL_SPEC TemporarySummon : public Creature
 
         void Update(uint32 update_diff, uint32 time) override;
         void Summon(TempSummonType type, uint32 lifetime);
-        void UnSummon();
+        void MANGOS_DLL_SPEC UnSummon();
         void SaveToDB();
         ObjectGuid const& GetSummonerGuid() const { return m_summoner ; }
-        Unit* GetSummoner() const;
+        Unit* GetSummoner() const { return ObjectAccessor::GetUnit(*this, m_summoner); }
     private:
         void SaveToDB(uint32, uint8, uint32)                // overwrited of Creature::SaveToDB     - don't must be called
         {

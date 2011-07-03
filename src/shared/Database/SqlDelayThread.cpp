@@ -71,7 +71,6 @@ void SqlDelayThread::ProcessRequests()
     SqlOperation* s = NULL;
     while (m_sqlQueue.next(s))
     {
-        if (!s) continue;  // seems to fix the crash needs futher testing
         s->Execute(m_dbConnection);
         delete s;
     }
