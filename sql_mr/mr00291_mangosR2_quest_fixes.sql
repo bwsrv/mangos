@@ -132,6 +132,25 @@ INSERT INTO creature_ai_texts (entry, content_default, type, comment) VALUES
 (-270021,'I\'ll consume your flesh and pick my teeth with your bones!',1,'Grom\'thar the Thunderbringer yell1'),
 (-270022,'You\'re no magnataur! Where... did you... find... such strength?',1,'Grom\'thar the Thunderbringer yell2');
 
+-- aldaron the reckless loc fix Blood elf starting area fix
+DELETE FROM `creature` WHERE `id`=16294;
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`DeathState`,`MovementType`) VALUES
+(67521, 16294, 530, 1, 1, 0, 0, 8747.7, -6116.85, 68.5645, 5.28401, 300, 0, 0, 148, 825, 0, 0);
+
+-- Quest Fix Noth Special Brew  (dk starting area quest fix 12716/12717
+UPDATE `quest_template` SET `SpecialFlags` = 0 WHERE `entry` = 12717;
+
+DELETE FROM `creature_questrelation` WHERE `quest` = 12716; 
+DELETE FROM `gameobject_questrelation` WHERE `quest` = 12716; 
+UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 12716; 
+INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (28919, 12716); 
+UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 28919; 
+DELETE FROM `creature_involvedrelation` WHERE `quest` = 12716; 
+DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 12716; 
+INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (28919, 12716); 
+UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=28919; 
+UPDATE `quest_template` SET `ExclusiveGroup` = 12716 WHERE `entry` = 12716; 
+
 -- Support for quest A Necessary Distraction (10637)
 
 -- Azaloth (21506)
