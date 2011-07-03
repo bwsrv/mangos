@@ -2774,6 +2774,15 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, 72195, true);
                     break;
                 }
+                case 51858: // Siphon of Acherus
+                {
+                    if (!unitTarget)
+                    return;
+
+                    m_caster->RemoveAurasDueToSpell(52006);   // Remove Stealth from Eye of Acherus upon cast
+                    ((Creature*)unitTarget)->ForcedDespawn();
+                    return;
+                }
                 default:                                   // DBC encounters main check
                 {
                     if (unitTarget && unitTarget->GetTypeId() == TYPEID_PLAYER)
