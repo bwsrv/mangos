@@ -8263,6 +8263,52 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     }
                     return;
                 }
+                case 63122:                                 // Clear Insane (Ulduar - Yogg Saron)
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->RemoveAurasDueToSpell(63050);
+                    unitTarget->RemoveAurasDueToSpell(63120);
+                    return;
+                }
+                case 64123:                                 // Lunge (Ulduar - Yogg Saron)
+                {
+                    if (!unitTarget)
+                        return;
+
+                    uint32 spellid = 0;
+                    unitTarget->GetMap()->IsRegularDifficulty() ? spellid = 64125 : spellid = 64126;
+                    unitTarget->CastSpell(unitTarget, spellid, true);
+                    break;
+                }
+                case 64466:                                 // Empowering Shadows (Ulduar - Yogg Saron)
+                {
+                    if (!unitTarget)
+                        return;
+
+                    // effect back to caster (Immortal Guardian)
+                    unitTarget->CastSpell(m_caster, 64467, true);
+                    break;
+                }
+                case 64467:                                 // Empowering Shadows (Ulduar - Yogg Saron)
+                {
+                    if (!unitTarget)
+                        return;
+
+                    uint32 spellid = 0;
+                    unitTarget->GetMap()->IsRegularDifficulty() ? spellid = 64468 : spellid = 64469;
+                    unitTarget->CastSpell(unitTarget, spellid, true);
+                    break;
+                }
+                case 65238:                                 // Shattered Illusion (Ulduar - Yogg Saron)
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->RemoveAurasDueToSpell(m_spellInfo->EffectBasePoints[eff_idx]);
+                    return;
+                }
                 case 65917:                                 // Magic Rooster 
                 { 
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER) 
