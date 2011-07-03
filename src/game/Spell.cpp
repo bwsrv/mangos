@@ -1633,6 +1633,8 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 61916:                                 // Lightning Whirl (10 man)
                 case 63482:                                 // Lightning Whirl (25 man)
                 case 64218:                                 // Overcharge
+                case 65301:                                 // Psychosis (Yogg-Saron)
+                case 63795:                                 // Psychosis (Yogg-Saron)
                 case 66336:                                 // Mistress' Kiss (Trial of the Crusader, ->
                 case 67077:                                 // -> Lord Jaraxxus encounter, 10 and 10 heroic)
                 case 66001:                                 // Touch of Darkness
@@ -2409,11 +2411,15 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
         case TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER:
             switch (m_spellInfo->Id)
             {
-                case 54171:                                     // Divine Storm
+                case 54171:                                 // Divine Storm
                     FillRaidOrPartyHealthPriorityTargets(targetUnitMap, m_caster, m_caster, radius, 3, true, false, true);
                     break;
                 case 56153:                                 // Guardian Aura - Ahn'Kahet
                     FillAreaTargets(targetUnitMap, radius, PUSH_SELF_CENTER, SPELL_TARGETS_FRIENDLY);
+                    targetUnitMap.remove(m_caster);
+                    break;
+                case 63881:                                 // Malady of the Mind   Ulduar Yogg Saron
+                    FillAreaTargets(targetUnitMap, radius, PUSH_SELF_CENTER, SPELL_TARGETS_FRIENDLY, GetCastingObject());
                     targetUnitMap.remove(m_caster);
                     break;
                 case 64844:                                 // Divine Hymn

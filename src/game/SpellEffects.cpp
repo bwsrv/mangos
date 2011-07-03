@@ -8214,6 +8214,55 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(unitTarget, (m_spellInfo->Id == 62707) ? 62717 : 63477, true); // DoT/Immunity
                     break;
                 }
+                case 63795:                                 // Psychosis normal (Ulduar - Yogg Saron)
+                case 65301:                                 // Psychosis heroic (Ulduar - Yogg Saron)
+                case 64164:                                 // Lunatic Gaze spell from Yogg Saron
+                case 64168:                                 // Lunatic Gaze spell from Laughing Skull
+                case 64059:                                 // Induce Madness
+                case 63830:                                 // Malady of the Mind
+                case 63881:
+                case 63803:                                 // Brain Link
+                {
+                    if (!unitTarget)
+                        return;
+
+                    if (SpellAuraHolder* holder = unitTarget->GetSpellAuraHolder(63050))
+                    {
+                        int32 stacks = 0;
+                        switch (m_spellInfo->Id)
+                        {
+                            case 63795: stacks = -9; 
+                                break;                      // Psychosis; remove!?, more script Effect basepoints 63988
+                            case 65301: stacks = -12; 
+                                break;                      // Psychosis; remove!?, more script Effect basepoints 63988
+                            case 64164: stacks = -4; 
+                                break;                      // Lunatic Gaze
+                            case 64168:
+                            case 63803: stacks = -2; 
+                                break;                      // Brain Link
+                            case 63830:                     // Induce Madness; 65201 (Crush) as basepoints !?
+                            case 63881: stacks = -3; 
+                                break;
+                            case 64059:                     // remove!?, more script Effect basepoints 63988
+                            {
+                                if (unitTarget->GetPositionZ() > 245.0f)
+                                    return;
+                                stacks = -100; break;
+                            }
+                        }
+                        int32 stackAmount = holder->GetStackAmount() + stacks;
+
+                        if (stackAmount > 100)
+                            stackAmount = 100;
+
+                        else if (stackAmount <=0)           // Last aura from stack removed
+                        {
+                            stackAmount = 0;
+                        }
+                        holder->SetStackAmount(stackAmount);
+                    }
+                    return;
+                }
                 case 65917:                                 // Magic Rooster 
                 { 
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER) 

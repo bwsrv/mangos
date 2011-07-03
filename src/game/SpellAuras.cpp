@@ -9742,6 +9742,21 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                         return;
                     break;
                 }
+                case 63120:                                 // Insane
+                {
+                    spellId1 = 64464;
+                    break;
+                }
+                case 63830:                                 // Malady of the Mind
+                case 63881:
+                {
+                    if (!apply)
+                    {
+                        spellId1 = 63881;
+                        cast_at_remove = true;
+                    }
+                    break;
+                }
                 case 69674:                                 // Mutated Infection
                 {
                     if (!apply)
