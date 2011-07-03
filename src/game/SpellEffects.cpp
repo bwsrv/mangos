@@ -7142,6 +7142,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     }
                     if (item)
                         DoCreateItem(eff_idx,item);
+                    return;
                 }
                 case 28560:                                 // Summon Blizzard
                 {
