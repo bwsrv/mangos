@@ -2610,14 +2610,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                         unitTarget->DealDamage(unitTarget, unitTarget->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                     return;
                 }
-                case 62907:                                 // Freyas Wall
-                {
-                    if (!unitTarget)
-                        return;
-                    for (int i= 0; i < 3;++i)
-                        unitTarget->CastSpell(unitTarget, 62947, true);
-                    return;
-                }
                 case 64385:                                 // Spinning (from Unusual Compass)
                 {
                     m_caster->SetFacingTo(frand(0, M_PI_F*2), true);
@@ -3961,10 +3953,6 @@ void Spell::EffectTriggerMissileSpell(SpellEffectIndex effect_idx)
     if (m_CastItem)
         DEBUG_FILTER_LOG(LOG_FILTER_SPELL_CAST, "WORLD: cast Item spellId - %i", spellInfo->Id);
 
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        ((Player*)m_caster)->RemoveSpellCooldown(triggered_spell_id);
-
-    // Fix Freezing Arrow
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
         ((Player*)m_caster)->RemoveSpellCooldown(triggered_spell_id);
 
@@ -8163,15 +8151,6 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         ((Player*)m_caster)->learnSpell(discoveredSpell, false);
 
                     return;
-                }
-                case 62705:                                 // Auto-repair
-                {
-                    if (!unitTarget)
-                        return;
-                    unitTarget->SetHealth(unitTarget->GetMaxHealth());
-                    if (VehicleKit* vehicle = unitTarget->GetVehicleKit())
-                        if (Unit* seat = vehicle->GetPassenger(1))
-                            seat->ModifyPower(POWER_ENERGY,50);
                 }
                 case 69200:                                 // Raging Spirit
                 {
