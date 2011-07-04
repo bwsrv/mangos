@@ -19882,6 +19882,29 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs )
     GetSession()->SendPacket(&data);
 }
 
+void Player::SendModifyCooldown( uint32 spell_id, uint32 delta)
+{
+    SpellEntry const* spellInfo = sSpellStore.LookupEntry(spell_id);
+    if (!spellInfo)
+        return;
+
+    uint32 cooldown = GetSpellCooldownDelay(spell_id);
+    if (cooldown == 0 && delta < 0)
+        return;
+
+    int32 result = cooldown + delta;
+    if (result < 0)
+        result = 0;
+
+    AddSpellCooldown(spell_id, 0, uint32(time(NULL) + result));
+
+    WorldPacket data(SMSG_MODIFY_COOLDOWN, 4 + 8 + 4);
+    data << uint32(spell_id);
+    data << GetObjectGuid();
+    data << int32(result > 0 ? delta : result - cooldown);
+    GetSession()->SendPacket(&data);
+}
+
 void Player::InitDataForForm(bool reapplyMods)
 {
     ShapeshiftForm form = GetShapeshiftForm();
