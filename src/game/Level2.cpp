@@ -2639,7 +2639,7 @@ bool ChatHandler::HandlePInfoCommand(char* args)
 
     PSendSysMessage(LANG_PINFO_ACCOUNT, (target?"":GetMangosString(LANG_OFFLINE)), nameLink.c_str(), target_guid.GetCounter(), username.c_str(), accId, email.c_str(), security, last_ip.c_str(), last_login.c_str(), latency);
 
-    std::string race_s, Class_s;
+    std::string race_s = "", Class_s = "";
     switch (race)
     {
         case RACE_HUMAN:            race_s = "Human";       break;
