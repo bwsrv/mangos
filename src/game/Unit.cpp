@@ -406,9 +406,9 @@ void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, SplineTy
 
     float moveTime = (float)Time;
 
-    WorldPacket data( (m_transport) ? SMSG_MONSTER_MOVE_TRANSPORT : SMSG_MONSTER_MOVE, (41 + GetPackGUID().size()) );
+    WorldPacket data( (m_transport && !(flags & SPLINEFLAG_TRAJECTORY))  ? SMSG_MONSTER_MOVE_TRANSPORT : SMSG_MONSTER_MOVE, (41 + GetPackGUID().size()) );
     data << GetPackGUID();
-    if (m_transport)
+    if (m_transport && !(flags & SPLINEFLAG_TRAJECTORY))
     {
         data.appendPackGUID(m_transport->GetGUID());
         data << uint8(0);
@@ -449,7 +449,7 @@ void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, SplineTy
         data << uint32(0);                                  // walk time after jump
     }
     data << uint32(1);                                      // 1 single waypoint
-    if (m_transport)
+    if (m_transport && !(flags & SPLINEFLAG_TRAJECTORY))
     {
         data << m_movementInfo.GetTransportPos()->x << m_movementInfo.GetTransportPos()->y << m_movementInfo.GetTransportPos()->z;
     }
