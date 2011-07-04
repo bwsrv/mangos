@@ -18675,7 +18675,7 @@ void Player::_SaveStats()
 
     stmt = CharacterDatabase.CreateStatement(insertStats, "INSERT INTO character_stats (guid, maxhealth, maxpower1, maxpower2, maxpower3, maxpower4, maxpower5, maxpower6, maxpower7, "
         "strength, agility, stamina, intellect, spirit, armor, resHoly, resFire, resNature, resFrost, resShadow, resArcane, "
-        "blockPct, dodgePct, parryPct, critPct, rangedCritPct, spellCritPct, attackPower, rangedAttackPower, spellPower "
+        "blockPct, dodgePct, parryPct, critPct, rangedCritPct, spellCritPct, attackPower, rangedAttackPower, spellPower, "
         "apmelee, ranged, blockrating, defrating, dodgerating, parryrating, resilience, manaregen, "
         "melee_hitrating, melee_critrating, melee_hasterating, melee_mainmindmg, melee_mainmaxdmg, "
         "melee_offmindmg, melee_offmaxdmg, melee_maintime, melee_offtime, ranged_critrating, ranged_hasterating, "
@@ -18731,7 +18731,7 @@ void Player::_SaveStats()
     stmt.addUInt32(GetUInt32Value(MANGOSR2_SPELL_BONUSHEAL));
     stmt.addFloat(GetFloatValue(MANGOSR2_SPELL_CRITPROC));
     stmt.addUInt32(GetSession()->GetAccountId());
-    stmt.addUInt32(getName());
+    stmt.addString(m_name); // duh
     stmt.addUInt32((uint32)getRace());
     stmt.addUInt32((uint32)getClass());
     stmt.addUInt32((uint32)getGender());
@@ -18744,6 +18744,7 @@ void Player::_SaveStats()
     stmt.addUInt32(GetHonorPoints());
     stmt.addUInt32(GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORBALE_KILLS));
 
+    std::ostringstream ss; // duh
     for(uint32 i = 0; i < EQUIPMENT_SLOT_END * 2; ++i )             // EquipmentCache string
     {
         ss << GetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + i) << " ";
@@ -18753,6 +18754,7 @@ void Player::_SaveStats()
     stmt.addUInt32(uint32(m_specsCount));
     stmt.addUInt32(uint32(m_activeSpec));
 
+    std::ostringstream ps; // duh
     for(uint16 i = 0; i < m_valuesCount; ++i )  //data string
     {
         ps << GetUInt32Value(i) << " ";
