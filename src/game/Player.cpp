@@ -19882,7 +19882,7 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs )
     GetSession()->SendPacket(&data);
 }
 
-void Player::SendModifyCooldown( uint32 spell_id, uint32 delta)
+void Player::SendModifyCooldown( uint32 spell_id, int32 delta)
 {
     SpellEntry const* spellInfo = sSpellStore.LookupEntry(spell_id);
     if (!spellInfo)

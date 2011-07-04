@@ -1715,7 +1715,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         void RemoveSpellCooldown(uint32 spell_id, bool update = false);
         void RemoveSpellCategoryCooldown(uint32 cat, bool update = false);
         void SendClearCooldown( uint32 spell_id, Unit* target );
-        void SendModifyCooldown( uint32 spell_id, uint32 delta);
+        void SendModifyCooldown( uint32 spell_id, int32 delta);
 
         GlobalCooldownMgr& GetGlobalCooldownMgr() { return m_GlobalCooldownMgr; }
 
