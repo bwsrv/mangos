@@ -5471,8 +5471,8 @@ void Aura::HandlePeriodicTriggerSpell(bool apply, bool /*Real*/)
 
                 return;
 
-            case 63018: // Searing Light (Ulduar: XT-002)
-            case 65121: // Searing Light (h) (Ulduar: XT-002)
+            case 63018:                                     // Searing Light (Ulduar: XT-002)
+            case 65121:                                     // Searing Light (h) (Ulduar: XT-002)
                 if (Unit *pCaster = pCaster = GetCaster())
                 {
                     if (pCaster->HasAura(GetModifier()->m_amount))
@@ -5480,13 +5480,21 @@ void Aura::HandlePeriodicTriggerSpell(bool apply, bool /*Real*/)
                 }
 
                 return;
-            case 63024: // Gravity Bomb (Ulduar: XT-002)
-            case 64234: // Gravity Bomb (h) (Ulduar: XT-002)
+            case 63024:                                     // Gravity Bomb (Ulduar: XT-002)
+            case 64234:                                     // Gravity Bomb (h) (Ulduar: XT-002)
                 if (Unit *pCaster = pCaster = GetCaster())
                 {
                     uint32 spellId = GetId() == 63024 ? 64203 : 64235;
                     if (pCaster->HasAura(GetModifier()->m_amount))
                         pCaster->CastSpell(target, spellId, true);
+                }
+
+                return;
+            case 66083:                                     // Lightning Arrows (Trial of the Champion encounter)
+                if (m_removeMode == AURA_REMOVE_BY_EXPIRE)
+                {
+                    if (Unit* pCaster = GetCaster())
+                        pCaster->CastSpell(pCaster, 66085, true, NULL, this);
                 }
 
                 return;
