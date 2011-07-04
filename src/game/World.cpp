@@ -607,19 +607,21 @@ void World::LoadConfigSettings(bool reload)
     setConfig(CONFIG_FLOAT_PLAYERBOT_MINDISTANCE, "PlayerbotAI.FollowDistanceMin", 0.5f);
     setConfig(CONFIG_FLOAT_PLAYERBOT_MAXDISTANCE, "PlayerbotAI.FollowDistanceMax", 1.0f);
 
-    setConfig(CONFIG_BOOL_LFG_ENABLE, "LFG.Enable",false);
-    setConfig(CONFIG_BOOL_LFR_ENABLE, "LFR.Enable",false);
-    setConfig(CONFIG_BOOL_LFG_DEBUG_ENABLE, "LFG.Debug",false);
-    setConfig(CONFIG_BOOL_LFR_EXTEND, "LFR.Extend",false);
+    setConfig(CONFIG_BOOL_LFG_ENABLE, "LFG.Enable", false);
+    setConfig(CONFIG_BOOL_LFR_ENABLE, "LFR.Enable", false);
+    setConfig(CONFIG_BOOL_LFG_DEBUG_ENABLE, "LFG.Debug", false);
+    setConfig(CONFIG_BOOL_LFR_EXTEND, "LFR.Extend", false);
     setConfigMinMax(CONFIG_UINT32_LFG_MAXKICKS, "LFG.MaxKicks", 5, 1, 10);
 
-    setConfig(CONFIG_BOOL_CHECK_GO_IN_PATH, "CheckGOInPath",false);
+    setConfig(CONFIG_BOOL_CHECK_GO_IN_PATH, "CheckGOInPath", false);
 
     setConfigMinMax(CONFIG_UINT32_START_PLAYER_MONEY, "StartPlayerMoney", 0, 0, MAX_MONEY_AMOUNT);
 
     setConfigPos(CONFIG_UINT32_MAX_HONOR_POINTS, "MaxHonorPoints", 75000);
 
     setConfigMinMax(CONFIG_UINT32_START_HONOR_POINTS, "StartHonorPoints", 0, 0, getConfig(CONFIG_UINT32_MAX_HONOR_POINTS));
+
+    setConfig(CONFIG_BOOL_ALLOW_HONOR_KILLS_TITLES, "AllowHonorKillsTitles", false);
 
     setConfigPos(CONFIG_UINT32_MAX_ARENA_POINTS, "MaxArenaPoints", 5000);
 
