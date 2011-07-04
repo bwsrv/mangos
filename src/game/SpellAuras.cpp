@@ -5589,6 +5589,30 @@ void Aura::HandleAuraPeriodicDummy(bool apply, bool Real)
         {
             switch(spell->Id)
             {
+                    case 49555:                             // Corpse Explode (Trollgore - Drak'Tharon Keep Normal)
+                        if (!apply)
+                        {
+                            if (target)
+                            {
+                                target->CastSpell(target, 49618, true);
+                                target->CastSpell(target, 51270, true);
+                                target->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);
+                                target->SetDeathState(JUST_DIED);
+                            }
+                        }
+                        break;
+                    case 59807:                             // Corpse Explode (Trollgore - Drak'Tharon Keep Hero)
+                        if (!apply)
+                        {
+                            if (target)
+                            {
+                                target->CastSpell(target, 59809, true);
+                                target->CastSpell(target, 51270, true);
+                                target->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);
+                                target->SetDeathState(JUST_DIED);
+                            }
+                        }
+                        break;
                 case 55093:                                   // Grip of Slad'ran
                 case 61474:                                   // Grip of Slad'ran (h)
                 {
@@ -8373,7 +8397,10 @@ void Aura::PeriodicDummyTick()
 //              case 49313: break; // Proximity Mine Area Aura
 //              // Mole Machine Portal Schedule
 //              case 49466: break;
-//              case 49555: break; // Corpse Explode
+                case 49555:                                 // Corpse Explode (Trollgore, Drak'Tharon Keep)
+                case 59807:
+                    target->SetFloatValue(OBJECT_FIELD_SCALE_X, target->GetFloatValue(OBJECT_FIELD_SCALE_X)*1.2f);
+                    break;
 //              case 49592: break; // Temporal Rift
 //              case 49957: break; // Cutting Laser
 //              case 50085: break; // Slow Fall
