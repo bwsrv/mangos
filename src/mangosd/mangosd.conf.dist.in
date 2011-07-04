@@ -649,14 +649,14 @@ LexicsCutterNoActionOnGM = 1
 #        Amount of honor that new players will start with
 #        Default: 0
 #
-#    StartHonorPoints
-#        Amount of honor that new players will start with
-#        Default: 0
-#
 #    AllowHonorKillsTitles
 #        Allow characters to get titles, depending of honor kills amount (something like old 1.xx honor system)
 #        Default: 0 - disallow
 #                 1 - allow
+#
+#    MaxArenaPoints
+#        Max arena points that player can have.
+#        Default: 5000
 #
 #    StartArenaPoints
 #        Amount of arena points that new players will start with
