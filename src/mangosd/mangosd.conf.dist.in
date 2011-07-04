@@ -649,9 +649,14 @@ LexicsCutterNoActionOnGM = 1
 #        Amount of honor that new players will start with
 #        Default: 0
 #
-#    MaxArenaPoints
-#        Max arena points that player can have.
-#        Default: 5000
+#    StartHonorPoints
+#        Amount of honor that new players will start with
+#        Default: 0
+#
+#    AllowHonorKillsTitles
+#        Allow characters to get titles, depending of honor kills amount (something like old 1.xx honor system)
+#        Default: 0 - disallow
+#                 1 - allow
 #
 #    StartArenaPoints
 #        Amount of arena points that new players will start with
@@ -908,6 +913,7 @@ StartHeroicPlayerLevel = 55
 StartPlayerMoney = 0
 MaxHonorPoints = 75000
 StartHonorPoints = 0
+AllowHonorKillsTitles = 0
 MaxArenaPoints = 5000
 StartArenaPoints = 0
 InstantLogout = 1
