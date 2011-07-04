@@ -18670,8 +18670,13 @@ void Player::_SaveStats()
 
     stmt = CharacterDatabase.CreateStatement(insertStats, "INSERT INTO character_stats (guid, maxhealth, maxpower1, maxpower2, maxpower3, maxpower4, maxpower5, maxpower6, maxpower7, "
         "strength, agility, stamina, intellect, spirit, armor, resHoly, resFire, resNature, resFrost, resShadow, resArcane, "
-        "blockPct, dodgePct, parryPct, critPct, rangedCritPct, spellCritPct, attackPower, rangedAttackPower, spellPower) "
-        "VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        "blockPct, dodgePct, parryPct, critPct, rangedCritPct, spellCritPct, attackPower, rangedAttackPower, spellPower "
+        "apmelee, ranged, blockrating, defrating, dodgerating, parryrating, resilience, manaregen, "
+        "melee_hitrating, melee_critrating, melee_hasterating, melee_mainmindmg, melee_mainmaxdmg, "
+        "melee_offmindmg, melee_offmaxdmg, melee_maintime, melee_offtime, ranged_critrating, ranged_hasterating, "
+        "ranged_hitrating, ranged_mindmg, ranged_maxdmg, ranged_attacktime, "
+        "spell_hitrating, spell_critrating, spell_hasterating, spell_bonusdmg, spell_bonusheal, spell_critproc, account, name, race, class, gender, level, map, money, totaltime, online, arenaPoints, totalHonorPoints, totalKills, equipmentCache, specCount, activeSpec, data) "
+        "VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
     stmt.addUInt32(GetGUIDLow());
     stmt.addUInt32(GetMaxHealth());
@@ -18691,6 +18696,63 @@ void Player::_SaveStats()
     stmt.addUInt32(GetUInt32Value(UNIT_FIELD_ATTACK_POWER));
     stmt.addUInt32(GetUInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER));
     stmt.addUInt32(GetBaseSpellPowerBonus());
+    stmt.addUInt32(GetUInt32Value(MANGOSR2_AP_MELEE_1)+GetUInt32Value(MANGOSR2_AP_MELEE_2));
+    stmt.addUInt32(GetUInt32Value(MANGOSR2_AP_RANGED_1)+GetUInt32Value(MANGOSR2_AP_RANGED_2));
+    stmt.addUInt32(GetUInt32Value(MANGOSR2_BLOCKRATING));
+    stmt.addUInt32(GetUInt32Value(MANGOSR2_DEFRATING));
+    stmt.addUInt32(GetUInt32Value(MANGOSR2_DODGERATING));
+    stmt.addUInt32(GetUInt32Value(MANGOSR2_PARRYRATING));
+    stmt.addUInt32(GetUInt32Value(MANGOSR2_RESILIENCE));
+    stmt.addFloat(GetFloatValue(MANGOSR2_MANAREGEN));
+    stmt.addUInt32(GetUInt32Value(MANGOSR2_MELEE_HITRATING));
+    stmt.addUInt32(GetUInt32Value(MANGOSR2_MELEE_CRITRATING));
+    stmt.addUInt32(GetUInt32Value(MANGOSR2_MELEE_HASTERATING));
+    stmt.addFloat(GetFloatValue(MANGOSR2_MELEE_MAINMINDMG));
+    stmt.addFloat(GetFloatValue(MANGOSR2_MELEE_MAINMAXDMG));
+    stmt.addFloat(GetFloatValue(MANGOSR2_MELEE_OFFMINDMG));
+    stmt.addFloat(GetFloatValue(MANGOSR2_MELEE_OFFMAXDMG));
+    stmt.addFloat(GetFloatValue(MANGOSR2_MELLE_MAINTIME));
+    stmt.addFloat(GetFloatValue(MANGOSR2_MELLE_OFFTIME));
+    stmt.addUInt32(GetUInt32Value(MANGOSR2_RANGED_CRITRATING));
+    stmt.addUInt32(GetUInt32Value(MANGOSR2_RANGED_HASTERATING));
+    stmt.addUInt32(GetUInt32Value(MANGOSR2_RANGED_HITRATING));
+    stmt.addFloat(GetFloatValue(MANGOSR2_RANGED_MINDMG));
+    stmt.addFloat(GetFloatValue(MANGOSR2_RANGED_MAXDMG));
+    stmt.addFloat(GetFloatValue(MANGOSR2_RANGED_ATTACKTIME));
+    stmt.addUInt32(GetUInt32Value(MANGOSR2_SPELL_HITRATING));
+    stmt.addUInt32(GetUInt32Value(MANGOSR2_SPELL_CRITRATING));
+    stmt.addUInt32(GetUInt32Value(MANGOSR2_SPELL_HASTERATING));
+    stmt.addUInt32(GetUInt32Value(MANGOSR2_SPELL_BONUSDMG));
+    stmt.addUInt32(GetUInt32Value(MANGOSR2_SPELL_BONUSHEAL));
+    stmt.addFloat(GetFloatValue(MANGOSR2_SPELL_CRITPROC));
+    stmt.addUInt32(GetSession()->GetAccountId());
+    stmt.addUInt32(getName());
+    stmt.addUInt32((uint32)getRace());
+    stmt.addUInt32((uint32)getClass());
+    stmt.addUInt32((uint32)getGender());
+    stmt.addUInt32(getLevel());
+    stmt.addUInt32(GetMapId());
+    stmt.addUInt32(GetMoney());
+    stmt.addUInt32(m_Played_time[PLAYED_TIME_TOTAL]);
+    stmt.addUInt32(IsInWorld() ? 1 : 0);
+    stmt.addUInt32(GetArenaPoints());
+    stmt.addUInt32(GetHonorPoints());
+    stmt.addUInt32(GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORBALE_KILLS));
+
+    for(uint32 i = 0; i < EQUIPMENT_SLOT_END * 2; ++i )             // EquipmentCache string
+    {
+        ss << GetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + i) << " ";
+    }
+    stmt.addString(ss);     // equipment cache string
+
+    stmt.addUInt32(uint32(m_specsCount));
+    stmt.addUInt32(uint32(m_activeSpec));
+
+    for(uint16 i = 0; i < m_valuesCount; ++i )  //data string
+    {
+        ps << GetUInt32Value(i) << " ";
+    }
+    stmt.addString(ps);   //data string
 
     stmt.Execute();
 }
