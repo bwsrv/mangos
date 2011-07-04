@@ -335,14 +335,14 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                         damage /= count;                    // divide to all targets
                         break;
                     }
-                    // AoE spells, which damage is reduced with distance from the initial hit point 
-                    case 62598: case 62937:     // Detonate 
-                    case 65279:                 // Lightning Nova 
-                    case 62311: case 64596:     // Cosmic Smash 
-                    { 
-                        float distance = unitTarget->GetDistance2d(m_targets.m_destX, m_targets.m_destY); 
-                        damage *= exp(-distance/15.0f); 
-                        break; 
+                    // AoE spells, which damage is reduced with distance from the initial hit point
+                    case 62598: case 62937:     // Detonate
+                    case 65279:                 // Lightning Nova
+                    case 62311: case 64596:     // Cosmic Smash
+                    {
+                        float distance = unitTarget->GetDistance2d(m_targets.m_destX, m_targets.m_destY);
+                        damage *= exp(-distance/15.0f);
+                        break;
                     }
                     // percent from health with min
                     case 25599:                             // Thundercrash
@@ -364,7 +364,7 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                     {
                         if (unitTarget == m_caster)
                             damage = 0;
-                        else                                
+                        else
                             damage = m_caster->GetMaxPower(POWER_MANA);
                         break;
                     }
@@ -454,7 +454,7 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                     case 72868:
                     case 72869:
                     {
-                        float distance = unitTarget->GetDistance2d(m_caster); 
+                        float distance = unitTarget->GetDistance2d(m_caster);
                         damage *= exp(-distance/(5.0f*m_caster->GetObjectScale()));
                         break;
                     }
@@ -464,7 +464,7 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                     case 70835:
                     case 70836:
                     {
-                        float distance = unitTarget->GetDistance2d(m_caster); 
+                        float distance = unitTarget->GetDistance2d(m_caster);
                         damage *= exp(-distance/(27.5f));
                         break;
                     }
@@ -487,7 +487,7 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                     case 77845:
                     case 77846:
                     {
-                        float distance = unitTarget->GetDistance2d(m_caster); 
+                        float distance = unitTarget->GetDistance2d(m_caster);
                         damage *= exp(-distance/(10.0f));
                         break;
                     }
@@ -1597,7 +1597,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     unitTarget->GetClosePoint(x, y, z, unitTarget->GetObjectBoundingRadius(), 10.0f, unitTarget->GetOrientation());
                     unitTarget->SendMonsterMove(x, y, z, SPLINETYPE_NORMAL, SPLINEFLAG_WALKMODE, 2000);
                     return;
-                } 
+                }
                 case 43036:                                 // Dismembering Corpse
                 {
                     if (!unitTarget || m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -2658,20 +2658,20 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     return;
                 }
                 case 62653:                                 // Tidal Wave
-                { 
-                     if (!unitTarget) 
-                        return; 
+                {
+                     if (!unitTarget)
+                        return;
 
-                     m_caster->CastSpell(unitTarget, 62654, true); 
-                     return; 
-                } 
+                     m_caster->CastSpell(unitTarget, 62654, true);
+                     return;
+                }
                 case 62935:                                 // Tidal Wave (H)
-                { 
-                   if (!unitTarget) 
-                      return; 
+                {
+                   if (!unitTarget)
+                      return;
 
-                   m_caster->CastSpell(unitTarget, 62936, true); 
-                   return; 
+                   m_caster->CastSpell(unitTarget, 62936, true);
+                   return;
                 }
                 case 67019:                                 // Flask of the North
                 {
@@ -3247,7 +3247,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     {
                         SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
 
-                        if (spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && 
+                        if (spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER &&
                             spellInfo->Id != 23989 &&
                             spellInfo->SpellIconID != 1680 &&
                             GetSpellRecoveryTime(spellInfo) > 0 )
@@ -3961,6 +3961,10 @@ void Spell::EffectTriggerMissileSpell(SpellEffectIndex effect_idx)
     if (m_CastItem)
         DEBUG_FILTER_LOG(LOG_FILTER_SPELL_CAST, "WORLD: cast Item spellId - %i", spellInfo->Id);
 
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+        ((Player*)m_caster)->RemoveSpellCooldown(triggered_spell_id);
+
+    // Fix Freezing Arrow
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
         ((Player*)m_caster)->RemoveSpellCooldown(triggered_spell_id);
 
@@ -5836,7 +5840,7 @@ void Spell::DoSummonVehicle(SpellEffectIndex eff_idx, uint32 forceFaction)
     {
         if (m_spellInfo->Attributes & SPELL_ATTR_UNK7)
             m_caster->RemoveSpellsCausingAura(SPELL_AURA_CONTROL_VEHICLE);
-        else 
+        else
             return;
     }
     uint32 vehicle_entry = m_spellInfo->EffectMiscValue[eff_idx];
@@ -7176,7 +7180,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                             item = 21821; break;
                         case 6:
                             item = 21822; break;
-                        case 7: 
+                        case 7:
                             item = 21823; break;
                     }
                     if (item)
@@ -7296,7 +7300,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     return;
                 }
                 case 43375:
-                case 43972:                                // Mixing Blood for Quest 11306 
+                case 43972:                                // Mixing Blood for Quest 11306
                 {
                     switch(urand(0, 3))
                     {
@@ -8184,7 +8188,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     uint32 spellID;
                     uint32 entry  = m_caster->GetEntry();
- 
+
                     switch(entry)
                     {
                         case 31897: spellID = 7001; break;   // Lightwell Renew	Rank 1
@@ -8270,17 +8274,17 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         int32 stacks = 0;
                         switch (m_spellInfo->Id)
                         {
-                            case 63795: stacks = -9; 
+                            case 63795: stacks = -9;
                                 break;                      // Psychosis; remove!?, more script Effect basepoints 63988
-                            case 65301: stacks = -12; 
+                            case 65301: stacks = -12;
                                 break;                      // Psychosis; remove!?, more script Effect basepoints 63988
-                            case 64164: stacks = -4; 
+                            case 64164: stacks = -4;
                                 break;                      // Lunatic Gaze
                             case 64168:
-                            case 63803: stacks = -2; 
+                            case 63803: stacks = -2;
                                 break;                      // Brain Link
                             case 63830:                     // Induce Madness; 65201 (Crush) as basepoints !?
-                            case 63881: stacks = -3; 
+                            case 63881: stacks = -3;
                                 break;
                             case 64059:                     // remove!?, more script Effect basepoints 63988
                             {
@@ -8356,27 +8360,27 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         unitTarget->RemoveAurasDueToSpell(62297);   // Remove Hodir's Fury
                     break;
                 }
-                case 65917:                                 // Magic Rooster 
-                { 
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER) 
-                        return; 
- 
-                    // Prevent stacking of mounts 
-                    unitTarget->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED); 
- 
-                    uint32 spellId = 66122; // common case 
- 
-                    if (((Player*)unitTarget)->getGender() == GENDER_MALE) 
-                    { 
-                        switch (((Player*)unitTarget)->getRace()) 
-                        { 
-                            case RACE_TAUREN: spellId = 66124; break; 
-                            case RACE_DRAENEI: spellId = 66123; break; 
-                        } 
-                    } 
- 
-                    unitTarget->CastSpell(unitTarget, spellId, true); 
-                    return; 
+                case 65917:                                 // Magic Rooster
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    // Prevent stacking of mounts
+                    unitTarget->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
+
+                    uint32 spellId = 66122; // common case
+
+                    if (((Player*)unitTarget)->getGender() == GENDER_MALE)
+                    {
+                        switch (((Player*)unitTarget)->getRace())
+                        {
+                            case RACE_TAUREN: spellId = 66124; break;
+                            case RACE_DRAENEI: spellId = 66123; break;
+                        }
+                    }
+
+                    unitTarget->CastSpell(unitTarget, spellId, true);
+                    return;
                 }
                 case 64104:                                 // Quest Credit - Trigger - Dummy - 01
                 case 64107:                                 // Quest Credit - Trigger - Dummy - 02
@@ -8919,7 +8923,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     if (spellId && m_caster->GetTypeId() == TYPEID_PLAYER && !((Player*)m_caster)->HasSpellCooldown(spellId))
                     {
                         m_caster->CastCustomSpell(target, spellId, &basePoint, 0, 0, true);
- 
+
                         if (spellId == 53359) // Disarm from Chimera Shot should have 1 min cooldown
                             ((Player*)m_caster)->AddSpellCooldown(spellId, 0, uint32(time(NULL) + MINUTE));
                     }
@@ -9749,8 +9753,8 @@ void Spell::EffectLeapForward(SpellEffectIndex eff_idx)
         fx = unitTarget->GetPositionX() + distance * cos(unitTarget->GetOrientation());
         fy = unitTarget->GetPositionY() + distance * sin(unitTarget->GetOrientation());
 
-        MaNGOS::NormalizeMapCoord(fx); 
-        MaNGOS::NormalizeMapCoord(fy); 
+        MaNGOS::NormalizeMapCoord(fx);
+        MaNGOS::NormalizeMapCoord(fy);
 
         if (terrain->CheckPathAccurate(ox,oy,oz,fx,fy,fz, sWorld.getConfig(CONFIG_BOOL_CHECK_GO_IN_PATH) ? unitTarget : NULL ))
             DEBUG_LOG("Spell::EffectLeapForward unit %u forwarded on %f",unitTarget->GetObjectGuid().GetCounter(), unitTarget->GetDistance(fx,fy,fz));
