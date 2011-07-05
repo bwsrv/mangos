@@ -481,15 +481,9 @@ LexicsCutInWhisper = 1
 LexicsCutInChannel = 1
 LexicsCutInRaid = 1
 LexicsCutInBattleGround = 1
-<<<<<<< HEAD
-
 # Ignore word spaces like: W O R D
 LexicsCutterIgnoreSpaces = 0
-
 # Ignore repeats like: WWOOOORRRRRD
-=======
-LexicsCutterIgnoreSpaces = 1
->>>>>>> bd3b831c3e9e3fbb669f965edde1ad9a4f5b6642
 LexicsCutterIgnoreRepeats = 1
 LexicsCutterAction = 0
 LexicsCutterActionDuration = 60000
