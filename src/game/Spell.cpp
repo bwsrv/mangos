@@ -8050,6 +8050,13 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
             break;
         }
+        case 65919: case 67858: case 67859: case 67860: // Anub'arak Cast Check Ice Spell (Trial of the Crusader - Anub'arak)
+        {
+            m_caster->CastSpell(m_caster, 66181, true);
+            m_targets.setDestination(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ());
+            SetTargetMap(SpellEffectIndex(i), m_spellInfo->EffectImplicitTargetB[i], targetUnitMap);
+            break;
+        }
         case 68921: case 69049: // Soulstorm (Forge of Souls - Bronjahm)
         {
             UnitList tmpUnitMap;
