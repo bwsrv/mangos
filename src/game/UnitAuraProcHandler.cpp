@@ -2753,7 +2753,8 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 {
                     if (GetTypeId() != TYPEID_PLAYER)
                         return SPELL_AURA_PROC_FAILED;
-                    if (procSpell->SpellFamilyFlags.test<CF_SHAMAN_CHAIN_LIGHTNING>()
+
+                    if (procSpell->SpellFamilyFlags.test<CF_SHAMAN_LIGHTNING_BOLT>()
                         || procSpell->SpellFamilyFlags.test<CF_SHAMAN_CHAIN_LIGHTNING>())
                     {
                         ((Player*)this)->SendModifyCooldown(16166,-triggerAmount);
