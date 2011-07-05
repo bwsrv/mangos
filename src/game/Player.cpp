@@ -19892,16 +19892,16 @@ void Player::SendModifyCooldown( uint32 spell_id, int32 delta)
     if (cooldown == 0 && delta < 0)
         return;
 
-    int32 result = cooldown + delta;
+    int32 result = int32(cooldown * IN_MILLISECONDS + delta);
     if (result < 0)
         result = 0;
 
-    AddSpellCooldown(spell_id, 0, uint32(time(NULL) + result));
+    AddSpellCooldown(spell_id, 0, uint32(time(NULL) + int32(result / IN_MILLISECONDS)));
 
     WorldPacket data(SMSG_MODIFY_COOLDOWN, 4 + 8 + 4);
     data << uint32(spell_id);
     data << GetObjectGuid();
-    data << int32(result > 0 ? delta : result - cooldown);
+    data << int32(result > 0 ? delta : result - cooldown * IN_MILLISECONDS);
     GetSession()->SendPacket(&data);
 }
 
