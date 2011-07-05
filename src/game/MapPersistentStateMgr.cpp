@@ -457,13 +457,13 @@ void DungeonResetScheduler::LoadResetTimes()
             Difficulty difficulty = Difficulty(fields[1].GetUInt32());
             uint64 _oldresettime = fields[2].GetUInt64();
 
-            if (_oldresettime > (time(NULL) + INSTANCE_MAX_RESET_OFFSET))
+            if (_oldresettime > uint64(time(NULL) + INSTANCE_MAX_RESET_OFFSET))
             {
                 MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mapid,Difficulty(difficulty));
                 oldresettime = DungeonResetScheduler::CalculateNextResetTime(mapDiff, time(NULL));
                 sLog.outErrorDb("Wrong reset time in group_instance corrected to: %d", oldresettime);
             }
-            else 
+            else
                 oldresettime = time_t(_oldresettime);
 
             MapEntry const* mapEntry = sMapStore.LookupEntry(mapid);
