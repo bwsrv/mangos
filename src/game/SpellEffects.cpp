@@ -379,11 +379,6 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                     }
                     // Cataclysmic Bolt
                     case 38441:
-                    // Spinning Pain Spike (Trial Of Crusader, Lord Jaraxxus encounter, all difficult)
-                    case 66316:
-                    case 67100:
-                    case 67101:
-                    case 67102:
                     {
                         damage = unitTarget->GetMaxHealth() / 2;
                         break;
@@ -2705,15 +2700,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(m_caster, spell_id, true);
                     return;
                 }
-                case 68576:                                 // Eject All Passengers
-                {
-                    if (!unitTarget)
-                        return;
-
-                    if (VehicleKit* vehicle = unitTarget->GetVehicleKit())
-                        vehicle->RemoveAllPassengers();
-                    return;
-                }
                 case 67400:                                 // Zergling Attack (on Grunty companion)
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT || !((Creature*)unitTarget)->IsPet())
@@ -3789,12 +3775,6 @@ void Spell::EffectForceCast(SpellEffectIndex eff_idx)
         return;
     }
 
-    if (m_spellInfo->Id == 66285)                           // Spinning Pain Spike (Trial Of Crusader, Lord Jaraxxus encounter)
-    {
-        unitTarget->CastSpell(m_caster, spellInfo, true);
-        return;
-    }
-
     unitTarget->CastSpell(unitTarget, spellInfo, true, NULL, NULL, m_originalCasterGUID, m_spellInfo);
 }
 
@@ -3975,12 +3955,6 @@ void Spell::EffectTriggerMissileSpell(SpellEffectIndex effect_idx)
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
         ((Player*)m_caster)->RemoveSpellCooldown(triggered_spell_id);
-
-    if (m_spellInfo->Id == 66283)                           // Spinning Pain Spike (Trial Of Crusader, Lord Jaraxxus encounter)
-    {
-        m_caster->CastSpell(unitTarget, triggered_spell_id, true);
-        return;
-    }
 
     m_caster->CastSpell(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, spellInfo, true, m_CastItem, 0, m_originalCasterGUID);
 }
