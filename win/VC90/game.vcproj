@@ -1007,6 +1007,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\game\SpellClassMask.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\game\SpellAuraDefines.h"
 				>
 			</File>

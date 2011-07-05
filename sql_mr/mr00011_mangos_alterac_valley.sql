@@ -36,7 +36,7 @@ UPDATE creature_template SET KillCredit1 = 13359, minlevel = 75, rangeattacktime
 UPDATE creature_template SET difficulty_entry_3 = 37297, rangeattacktime = 2000 WHERE entry = 13359;
 UPDATE creature_template SET KillCredit1 = 13359, minlevel = 80, maxlevel = 80, minhealth = 17969, maxhealth = 17969, armor = 9730, faction_A = 1214, faction_H = 1214, mindmg = 420, maxdmg = 630, attackpower = 157, baseattacktime = 2000, rangeattacktime = 2000, unit_class = 1, unit_flags = 4608, minrangedmg = 336, maxrangedmg = 504, rangedattackpower = 126, lootid = 13359, pickpocketloot = 13359, spell1 = 22121, mingold = 576, maxgold = 576, equipment_id = 954 WHERE entry = 37297;
 UPDATE creature_template SET KillCredit1 = 14762, minlevel = 75, rangeattacktime = 1500, spell1 = 13736, spell2 = 15589, spell3 = 22911, spell4 = 23511 WHERE entry = 31966;
-UPDATE creature_template SET difficulty_entry_3 = 37285, rangeattacktime = 1500, spell1 = 13736, spell2 = 15589, spell3 = 2911, spell4 = 23511 WHERE entry = 14762;
+UPDATE creature_template SET difficulty_entry_3 = 37285, rangeattacktime = 1500, spell1 = 13736, spell2 = 15589, spell3 = 22911, spell4 = 23511 WHERE entry = 14762;
 UPDATE creature_template SET KillCredit1 = 14762, minlevel = 81, maxlevel = 81, minhealth = 511875, maxhealth = 511875, armor = 10029, faction_A = 1534, faction_H = 1534, mindmg = 218, maxdmg = 327, attackpower = 82, dmg_multiplier = 13.8, baseattacktime = 2000, rangeattacktime = 1500, unit_class = 1, unit_flags = 32768, minrangedmg = 174, maxrangedmg = 262, rangedattackpower = 66, spell1 = 13736, spell2 = 15589, spell3 = 22911, spell4 = 23511, equipment_id = 2178, mechanic_immune_mask = 1 WHERE entry = 37285;
 UPDATE creature_template SET KillCredit1 = 14763, minlevel = 75, rangeattacktime = 1500, lootid = 14763, spell1 = 13736, spell2 = 15589, spell3 = 22911, spell4 = 23511, mechanic_immune_mask = 1 WHERE entry = 31968;
 UPDATE creature_template SET difficulty_entry_3 = 37287, rangeattacktime = 1500, spell1 = 13736, spell2 = 15589, spell3 = 22911, spell4 = 23511, mechanic_immune_mask = 1 WHERE entry = 14763;
@@ -492,3 +492,5 @@ INSERT INTO creature_movement VALUES
 (150129, 11, 305.275, -382.779, 0.168686, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3.00874, 0, 0),
 (150129, 12, 371.606, -393.877, -0.495769, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2.80847, 0, 0),
 (150129, 13, 394.327, -394.871, -1.03191, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3.23258, 0, 0);
+
+UPDATE `creature_template` SET `minhealth` = 4100 WHERE `entry` = 14284;

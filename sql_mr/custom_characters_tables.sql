@@ -41,6 +41,49 @@ CREATE TABLE IF NOT EXISTS `anticheat_log` (
     KEY idx_Player (`guid`)
 ) DEFAULT CHARSET=utf8 COMMENT='Anticheat log table';
 
+-- Anticheat
+-- Config
+
+-- Main checks
+REPLACE INTO `anticheat_config`
+    (`checktype`, `description`, `check_period`, `alarmscount`, `disableoperation`, `messagenum`, `intparam1`, `intparam2`, `floatparam1`, `floatparam2`, `action1`, `actionparam1`, `action2`, `actionparam2`)
+VALUES
+    -- Main checks
+    (0, "Null check",         0, 1, 0, 11000, 0, 0,    0, 0, 1, 0, 0, 0),
+    (1, "Movement cheat",     0, 1, 0, 11000, 0, 0,    0, 0, 2, 1, 0, 0),
+    (2, "Spell cheat",        0, 1, 0, 11000, 0, 0,    0, 0, 2, 1, 0, 0),
+    (3, "Quest cheat",        0, 1, 0, 11000, 0, 0,    0, 0, 2, 1, 0, 0),
+    (4, "Transport cheat",    0, 3, 0, 11000, 0, 0, 60.0, 0, 2, 1, 0, 0),
+    (5, "Damage cheat",       0, 1, 0, 11000, 0, 0,    0, 0, 2, 1, 0, 0),
+    (6, "Item cheat",         0, 1, 0, 11000, 0, 0,    0, 0, 2, 1, 0, 0),
+    (7, "Warden check",       0, 1, 0, 11000, 0, 0,    0, 0, 2, 1, 0, 0);
+
+-- Subchecks
+REPLACE INTO `anticheat_config`
+    (`checktype`, `description`, `check_period`, `alarmscount`, `disableoperation`, `messagenum`, `intparam1`, `intparam2`, `floatparam1`, `floatparam2`, `action1`, `actionparam1`, `action2`, `actionparam2`)
+VALUES
+    (101, "Speed hack",              500, 5, 0, 11000,    10000, 0, 0.0012,    0, 2, 1, 6, 20000),
+    (102, "Fly hack",                500, 5, 0, 11000,    20000, 0,   10.0,    0, 2, 1, 0, 0),
+    (103, "Wall climb hack",         500, 2, 0, 11000,    10000, 0, 0.0015, 2.37, 2, 1, 0, 0),
+    (104, "Waterwalking hack",      1000, 3, 0, 11000,    20000, 0,      0,    0, 2, 1, 0, 0),
+    (105, "Teleport to plane hack",  500, 1, 0, 11000,        0, 0, 0.0001,  0.1, 2, 1, 0, 0),
+    (106, "AirJump hack" ,           500, 3, 0, 11000,    30000, 0,   10.0, 25.0, 2, 1, 0, 0),
+    (107, "Teleport hack" ,            0, 1, 0, 11000,        0, 0,   50.0,    0, 2, 1, 0, 0),
+    (108, "Fall hack" ,                0, 3, 0, 11000,    10000, 0,      0,    0, 2, 1, 0, 0),
+    (109, "Z Axis hack" ,              0, 1, 0, 11000,        0, 0,0.00001, 10.0, 2, 1, 0, 0),
+    (201, "Spell invalid",             0, 1, 0, 11000,        0, 0,      0,    0, 2, 1, 0, 0),
+    (202, "Spellcast in dead state",   0, 1, 0, 11000,        0, 0,      0,    0, 2, 1, 0, 0),
+    (203, "Spell not valid for player",0, 1, 0, 11000,        0, 0,      0,    0, 2, 1, 0, 0),
+    (204, "Spell not in player book",  0, 1, 0, 11000,        0, 0,      0,    0, 2, 1, 0, 0),
+    (501, "Spell damage hack",         0, 1, 0, 11000,        0, 50000,  0,    0, 2, 1, 0, 0),
+    (502, "Melee damage hack",         0, 1, 0, 11000,        0, 50000,  0,    0, 2, 1, 0, 0),
+    (601, "Item dupe hack",            0, 1, 0, 11000,        0,     0,  0,    0, 2, 1, 0, 0),
+    (701, "Warden memory check",       0, 1, 0, 11000,        0,     0,  0,    0, 2, 1, 0, 0),
+    (702, "Warden key check",          0, 1, 0, 11000,        0,     0,  0,    0, 2, 1, 0, 0),
+    (703, "Warden checksum check",     0, 1, 0, 11000,        0,     0,  0,    0, 2, 1, 0, 0),
+    (704, "Warden timeout check",      0, 1, 0, 11000,        0,     0,  0,    0, 2, 1, 0, 0);
+
+
 -- Auctionhouse Bot
 -- Commit 7c97114488b36b4427ed
 
@@ -112,6 +155,14 @@ CREATE TABLE `auctionhousebot` (
     `buyerbidsperinterval` int(11) default '1' COMMENT 'number of bids to put in per bidding interval',
     PRIMARY KEY  (`auctionhouse`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DELETE FROM `auctionhousebot` WHERE (`auctionhouse`='2') OR (`auctionhouse`='6') OR (`auctionhouse`='7');
+INSERT INTO `auctionhousebot`
+    (`auctionhouse`,`name`,`minitems`,`maxitems`,`mintime`,`maxtime`,`percentgreytradegoods`,`percentwhitetradegoods`,`percentgreentradegoods`,`percentbluetradegoods`,`percentpurpletradegoods`,`percentorangetradegoods`,`percentyellowtradegoods`,`percentgreyitems`,`percentwhiteitems`,`percentgreenitems`,`percentblueitems`,`percentpurpleitems`,`percentorangeitems`,`percentyellowitems`,`minpricegrey`,`maxpricegrey`,`minpricewhite`,`maxpricewhite`,`minpricegreen`,`maxpricegreen`,`minpriceblue`,`maxpriceblue`,`minpricepurple`,`maxpricepurple`,`minpriceorange`,`maxpriceorange`,`minpriceyellow`,`maxpriceyellow`,`minbidpricegrey`,`maxbidpricegrey`,`minbidpricewhite`,`maxbidpricewhite`,`minbidpricegreen`,`maxbidpricegreen`,`minbidpriceblue`,`maxbidpriceblue`,`minbidpricepurple`,`maxbidpricepurple`,`minbidpriceorange`,`maxbidpriceorange`,`minbidpriceyellow`,`maxbidpriceyellow`,`maxstackgrey`,`maxstackwhite`,`maxstackgreen`,`maxstackblue`,`maxstackpurple`,`maxstackorange`,`maxstackyellow`,`buyerpricegrey`,`buyerpricewhite`,`buyerpricegreen`,`buyerpriceblue`,`buyerpricepurple`,`buyerpriceorange`,`buyerpriceyellow`,`buyerbiddinginterval`,`buyerbidsperinterval`)
+VALUES
+    (2,'Alliance',0,0,8,24,0,27,12,10,1,0,0,0,10,30,8,2,0,0,100,150,150,250,800,1400,1250,1750,2250,4550,3250,5550,5250,6550,70,100,70,100,80,100,75,100,80,100,80,100,80,100,0,0,3,2,1,1,1,1,1,5,12,15,20,22,1,1),
+    (6,'Horde',0,0,8,24,0,27,12,10,1,0,0,0,10,30,8,2,0,0,100,150,150,250,800,1400,1250,1750,2250,4550,3250,5550,5250,6550,70,100,70,100,80,100,75,100,80,100,80,100,80,100,0,0,3,2,1,1,1,1,1,5,12,15,20,22,1,1),
+    (7,'Neutral',0,0,8,24,0,27,12,10,1,0,0,0,10,30,8,2,0,0,100,150,150,250,800,1400,1250,1750,2250,4550,3250,5550,5250,6550,70,100,70,100,80,100,75,100,80,100,80,100,80,100,0,0,3,2,1,1,1,1,1,5,12,15,20,22,1,1);
 
 -- Autobroadcast
 -- Commit 72d1f7a22d13399135d0
@@ -215,3 +266,105 @@ ALTER TABLE `pet_spell`
     ADD COLUMN `spec` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0' AFTER `active`,
     DROP PRIMARY KEY,
     ADD PRIMARY KEY (`guid`, `spell`, `spec`);
+	
+-- Pet table cleanup
+ALTER TABLE `character_pet`
+  DROP `resettalents_cost`,
+  DROP `resettalents_time`;
+
+DROP TABLE IF EXISTS hidden_rating;
+CREATE TABLE IF NOT EXISTS hidden_rating (
+    guid INT(11) UNSIGNED NOT NULL,
+    rating2 INT(10) UNSIGNED NOT NULL,
+    rating3 INT(10) UNSIGNED NOT NULL,
+    rating5 INT(10) UNSIGNED NOT NULL,
+    PRIMARY KEY  (guid)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+
+-- ADVANCE CHARACTERS TABLE
+
+SET FOREIGN_KEY_CHECKS=0;
+-- ----------------------------
+-- Table structure for `character_stats`
+-- ----------------------------
+DROP TABLE IF EXISTS `character_stats`;
+CREATE TABLE `character_stats` (
+  `guid` int(11) unsigned NOT NULL default '0' COMMENT 'Global Unique Identifier, Low part',
+  `maxhealth` int(10) unsigned NOT NULL default '0',
+  `maxpower1` int(10) unsigned NOT NULL default '0',
+  `maxpower2` int(10) unsigned NOT NULL default '0',
+  `maxpower3` int(10) unsigned NOT NULL default '0',
+  `maxpower4` int(10) unsigned NOT NULL default '0',
+  `maxpower5` int(10) unsigned NOT NULL default '0',
+  `maxpower6` int(10) unsigned NOT NULL default '0',
+  `maxpower7` int(10) unsigned NOT NULL default '0',
+  `strength` int(10) unsigned NOT NULL default '0',
+  `agility` int(10) unsigned NOT NULL default '0',
+  `stamina` int(10) unsigned NOT NULL default '0',
+  `intellect` int(10) unsigned NOT NULL default '0',
+  `spirit` int(10) unsigned NOT NULL default '0',
+  `armor` int(10) unsigned NOT NULL default '0',
+  `resHoly` int(10) unsigned NOT NULL default '0',
+  `resFire` int(10) unsigned NOT NULL default '0',
+  `resNature` int(10) unsigned NOT NULL default '0',
+  `resFrost` int(10) unsigned NOT NULL default '0',
+  `resShadow` int(10) unsigned NOT NULL default '0',
+  `resArcane` int(10) unsigned NOT NULL default '0',
+  `blockPct` float unsigned NOT NULL default '0',
+  `dodgePct` float unsigned NOT NULL default '0',
+  `parryPct` float unsigned NOT NULL default '0',
+  `critPct` float unsigned NOT NULL default '0',
+  `rangedCritPct` float unsigned NOT NULL default '0',
+  `spellCritPct` float unsigned NOT NULL default '0',
+  `attackPower` int(10) unsigned NOT NULL default '0',
+  `rangedAttackPower` int(10) unsigned NOT NULL default '0',
+  `spellPower` int(10) unsigned NOT NULL default '0',
+  `apmelee` int(11) NOT NULL,
+  `ranged` int(11) NOT NULL,
+  `blockrating` int(11) NOT NULL,
+  `defrating` int(11) NOT NULL,
+  `dodgerating` int(11) NOT NULL,
+  `parryrating` int(11) NOT NULL,
+  `resilience` int(11) NOT NULL,
+  `manaregen` float NOT NULL,
+  `melee_hitrating` int(11) NOT NULL,
+  `melee_critrating` int(11) NOT NULL,
+  `melee_hasterating` int(11) NOT NULL,
+  `melee_mainmindmg` float NOT NULL,
+  `melee_mainmaxdmg` float NOT NULL,
+  `melee_offmindmg` float NOT NULL,
+  `melee_offmaxdmg` float NOT NULL,
+  `melee_maintime` float NOT NULL,
+  `melee_offtime` float NOT NULL,
+  `ranged_critrating` int(11) NOT NULL,
+  `ranged_hasterating` int(11) NOT NULL,
+  `ranged_hitrating` int(11) NOT NULL,
+  `ranged_mindmg` float NOT NULL,
+  `ranged_maxdmg` float NOT NULL,
+  `ranged_attacktime` float NOT NULL,
+  `spell_hitrating` int(11) NOT NULL,
+  `spell_critrating` int(11) NOT NULL,
+  `spell_hasterating` int(11) NOT NULL,
+  `spell_bonusdmg` int(11) NOT NULL,
+  `spell_bonusheal` int(11) NOT NULL,
+  `spell_critproc` float NOT NULL,
+  `account` int(11) unsigned NOT NULL default '0',
+  `name` varchar(12) NOT NULL default '',
+  `race` tinyint(3) unsigned NOT NULL default '0',
+  `class` tinyint(3) unsigned NOT NULL default '0',
+  `gender` tinyint(3) unsigned NOT NULL default '0',
+  `level` tinyint(3) unsigned NOT NULL default '0',
+  `map` int(11) unsigned NOT NULL default '0',
+  `money` int(10) unsigned NOT NULL default '0',
+  `totaltime` int(11) unsigned NOT NULL default '0',
+  `online` int(10) unsigned NOT NULL default '0',
+  `arenaPoints` int(10) unsigned NOT NULL default '0',
+  `totalHonorPoints` int(10) unsigned NOT NULL default '0',
+  `totalKills` int(10) unsigned NOT NULL default '0',
+  `equipmentCache` longtext NOT NULL,
+  `specCount` tinyint(3) unsigned NOT NULL default '1',
+  `activeSpec` tinyint(3) unsigned NOT NULL default '0',
+  `data` longtext NOT NULL,
+  PRIMARY KEY  (`guid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+

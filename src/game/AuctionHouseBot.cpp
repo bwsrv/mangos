@@ -34,7 +34,7 @@ AuctionHouseBot::~AuctionHouseBot()
 
 }
 
-void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
+void AuctionHouseBot::addNewAuctions(AHBConfig *config)
 {
     if (!AHBSeller)
         return;
@@ -295,18 +295,13 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
             continue;
         }
 
-        Item* item = Item::CreateItem(itemID, 1, AHBplayer);
+        Item* item = Item::CreateItem(itemID, 1);
 
         if (!item)
         {
             sLog.outString("AuctionHouseBot: Item::CreateItem() returned NULL");
             break;
         }
-        item->AddToUpdateQueueOf(AHBplayer);
-
-        uint32 randomPropertyId = Item::GenerateItemRandomPropertyId(itemID);
-        if (randomPropertyId != 0)
-            item->SetItemRandomProperties(randomPropertyId);
 
         uint32 buyoutPrice;
         uint32 bidPrice = 0;
@@ -425,12 +420,12 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
 
         time_t expireTime = (time_t) (urand(config->GetMinTime(), config->GetMaxTime()) * 60 * 60 + time(NULL));
 
-        AuctionEntry* AH = auctionHouse->AddAuction(ahEntry, item, expireTime, bidPrice * buyBondingK, buyoutPrice * buyBondingK, 0, AHBplayer);
-
+        AuctionEntry* AH = auctionHouse->AddAuction(ahEntry, item, expireTime, bidPrice * buyBondingK, buyoutPrice * buyBondingK, 0);
+        DEBUG_LOG("AHBot: new item sended to auction, item %u, expire %u, bidprice %u",itemID, expireTime, bidPrice * buyBondingK);
     }
 }
 
-void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *config, WorldSession *session)
+void AuctionHouseBot::addNewAuctionBuyerBotBid(AHBConfig *config)
 {
     if (!AHBBuyer)
         return;
@@ -444,12 +439,12 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
     {
         // Check if the auction is ours
         // if it is, we skip this iteration.
-        if (ObjectGuid(HIGHGUID_PLAYER,itr->second->owner) == AHBplayerGUID)
+        if (!itr->second->owner)
         {
             continue;
         }
         // Check that we haven't bidded in this auction already.
-        if (ObjectGuid(HIGHGUID_PLAYER,itr->second->bidder) != AHBplayerGUID)
+        if (itr->second->bidder)
         {
             uint32 tmpdata = itr->second->Id;
             possibleBids.push_back(tmpdata);
@@ -716,60 +711,8 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
                 sLog.outError("bidprice(>): %u", bidprice);
             }
         }
-
-        // Check wether we do normal bid, or buyout
-        if ((bidprice < auction->buyout) || (auction->buyout == 0))
-        {
-
-            if (auction->bidder > 0)
-            {
-                if (auction->bidder == AHBplayer->GetGUIDLow())
-                {
-                    //pl->ModifyMoney(-int32(price - auction->bid));
-                }
-                else
-                {
-                    // mail to last bidder and return money
-                    session->SendAuctionOutbiddedMail(auction);
-                    //pl->ModifyMoney(-int32(price));
-                }
-            }
-
-            auction->bidder = AHBplayer->GetGUIDLow();
-            auction->bid = bidprice;
-
-            // Saving auction into database
-            CharacterDatabase.PExecute("UPDATE `auction` SET buyguid = '%u',lastbid = '%u' WHERE id = '%u'", auction->bidder, auction->bid, auction->Id);
-        }
-        else
-        {
-            //buyout
-            if (AHBplayer->GetGUIDLow() == auction->bidder)
-            {
-                //pl->ModifyMoney(-int32(auction->buyout - auction->bid));
-            }
-            else
-            {
-                //pl->ModifyMoney(-int32(auction->buyout));
-                if (auction->bidder)
-                {
-                    session->SendAuctionOutbiddedMail(auction);
-                }
-            }
-            auction->bidder = AHBplayer->GetGUIDLow();
-            auction->bid = auction->buyout;
-
-            // Send mails to buyer & seller
-            sAuctionMgr.SendAuctionSuccessfulMail(auction);
-            sAuctionMgr.SendAuctionWonMail(auction);
-
-            // Remove item from auctionhouse
-            sAuctionMgr.RemoveAItem(auction->itemGuidLow);
-            // Remove auction
-            auctionHouse->RemoveAuction(auction->Id);
-            // Remove from database
-            auction->DeleteFromDB();
-        }
+        // make new bid (buyout included)
+        auction->UpdateBid(bidprice);
     }
 }
 
@@ -779,44 +722,36 @@ void AuctionHouseBot::Update()
     if ((!AHBSeller) && (!AHBBuyer))
         return;
 
-    WorldSession _session(AHBplayerAccount, NULL, SEC_PLAYER, true, 0, LOCALE_enUS);
-    Player _AHBplayer(&_session);
-    _AHBplayer.MinimalLoadFromDB(AHBplayerGUID.GetCounter());
-    ObjectAccessor::Instance().AddObject(&_AHBplayer);
-
     // Add New Bids
     if (!sWorld.getConfig(CONFIG_BOOL_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
     {
-        addNewAuctions(&_AHBplayer, &AllianceConfig);
+        addNewAuctions(&AllianceConfig);
         if (((_newrun - _lastrun_a) > (AllianceConfig.GetBiddingInterval() * 60)) && (AllianceConfig.GetBidsPerInterval() > 0))
         {
-            addNewAuctionBuyerBotBid(&_AHBplayer, &AllianceConfig, &_session);
+            addNewAuctionBuyerBotBid(&AllianceConfig);
             _lastrun_a = _newrun;
         }
 
-        addNewAuctions(&_AHBplayer, &HordeConfig);
+        addNewAuctions(&HordeConfig);
         if (((_newrun - _lastrun_h) > (HordeConfig.GetBiddingInterval() *60)) && (HordeConfig.GetBidsPerInterval() > 0))
         {
-            addNewAuctionBuyerBotBid(&_AHBplayer, &HordeConfig, &_session);
+            addNewAuctionBuyerBotBid(&HordeConfig);
             _lastrun_h = _newrun;
         }
     }
-    addNewAuctions(&_AHBplayer, &NeutralConfig);
+    addNewAuctions(&NeutralConfig);
     if (((_newrun - _lastrun_n) > (NeutralConfig.GetBiddingInterval() * 60)) && (NeutralConfig.GetBidsPerInterval() > 0))
     {
-        addNewAuctionBuyerBotBid(&_AHBplayer, &NeutralConfig, &_session);
+        addNewAuctionBuyerBotBid(&NeutralConfig);
         _lastrun_n = _newrun;
     }
 
-    ObjectAccessor::Instance().RemoveObject(&_AHBplayer);
 }
 
 void AuctionHouseBot::Initialize()
 {
     AHBSeller = sConfig.GetBoolDefault("AuctionHouseBot.EnableSeller", 0);
     AHBBuyer = sConfig.GetBoolDefault("AuctionHouseBot.EnableBuyer", 0);
-    AHBplayerAccount = sConfig.GetIntDefault("AuctionHouseBot.Account", 0);
-    AHBplayerGUID = ObjectGuid(HIGHGUID_PLAYER,uint32(sConfig.GetIntDefault("AuctionHouseBot.GUID", 0)));
     debug_Out = sConfig.GetIntDefault("AuctionHouseBot.DEBUG", 0);
     No_Bind = sConfig.GetIntDefault("AuctionHouseBot.No_Bind", 1);
     Bind_When_Picked_Up = sConfig.GetIntDefault("AuctionHouseBot.Bind_When_Picked_Up", 0);
@@ -1076,7 +1011,7 @@ void AuctionHouseBot::Initialize()
         sLog.outString("loaded %d orange items", orangeItemsBin.size());
         sLog.outString("loaded %d yellow items", yellowItemsBin.size());
     }
-    sLog.outString("AHBot-AHBuyer modified by /dev/rsa is now loaded");
+    sLog.outString("AHBot-AHBuyer by Xeross modified by /dev/rsa is loaded");
 }
 
 void AuctionHouseBot::LoadValues(AHBConfig *config)

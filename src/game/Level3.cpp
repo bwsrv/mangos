@@ -4117,6 +4117,7 @@ bool ChatHandler::HandleNpcInfoCommand(char* /*args*/)
     uint32 npcflags = target->GetUInt32Value(UNIT_NPC_FLAGS);
     uint32 displayid = target->GetDisplayId();
     uint32 nativeid = target->GetNativeDisplayId();
+    uint32 phaseMask = target->GetPhaseMask();
     uint32 Entry = target->GetEntry();
     CreatureInfo const* cInfo = target->GetCreatureInfo();
     uint32 VehicleId = cInfo ? cInfo->vehicleId : 0;
@@ -4154,6 +4155,13 @@ bool ChatHandler::HandleNpcInfoCommand(char* /*args*/)
     PSendSysMessage(LANG_NPCINFO_LOOT,  cInfo->lootid,cInfo->pickpocketLootId,cInfo->SkinLootId);
     PSendSysMessage(LANG_NPCINFO_DUNGEON_ID, target->GetInstanceId());
     PSendSysMessage(LANG_NPCINFO_POSITION,float(target->GetPositionX()), float(target->GetPositionY()), float(target->GetPositionZ()));
+
+    if (target->SD2AIName())
+    PSendSysMessage("ScriptName: %s", target->GetScriptName().c_str());
+    if (target->HasAIName())
+    PSendSysMessage("Event_AI: %s", target->GetAIName().c_str());
+
+    PSendSysMessage("phaseMask: %u", phaseMask);
 
     if ((npcflags & UNIT_NPC_FLAG_VENDOR) )
     {
