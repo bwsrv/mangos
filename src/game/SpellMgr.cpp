@@ -4603,6 +4603,9 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellEntry cons
             // Curse of the Elements - limit to 2 minutes in PvP
             if (spellproto->SpellFamilyFlags.test<CF_WARLOCK_CURSE_OF_THE_ELEMENTS>())
                 return 120000;
+            // Banish - limit to 6 seconds in PvP (3.1)
+            else if (spellproto->SpellFamilyFlags.test<CF_WARLOCK_BANISH>())
+                return 6000;
             break;
         }
         case SPELLFAMILY_HUNTER:
