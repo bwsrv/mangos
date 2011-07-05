@@ -8529,6 +8529,18 @@ void Aura::PeriodicDummyTick()
                     target->CastSpell(target, triggerSpells[GetAuraTicks() % 8], true);
                     return;
                 }
+                case 67574:                                // Trial Of Crusader (Spike Aggro Aura - Anub'arak)
+                {
+                    if (!target->GetMap()->Instanceable())
+                        return;
+
+                    if (InstanceData* data = target->GetInstanceData())
+                    {
+                        if (Creature* pSpike = target->GetMap()->GetCreature(data->GetData64(34660)))
+                            pSpike->AddThreat(target, 1000000.0f);
+                    }
+                    return;
+                }
                 case 66118:                                 // Leeching Swarm 10 man
                 case 68646:
                 {
