@@ -2062,7 +2062,7 @@ bool LFGMgr::CheckRoles(LFGRolesMap* rolesMap)
 //    if (sWorld.getConfig(CONFIG_BOOL_LFG_DEBUG_ENABLE))
 //        return true;
 
-    if ((healers + tanks + dps) > (MAX_GROUP_SIZE - rolesMap->size()))
+    if ((healers + tanks + dps) > uint8(MAX_GROUP_SIZE - rolesMap->size()))
         return false;
 
     return true;

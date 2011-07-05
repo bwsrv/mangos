@@ -2631,6 +2631,7 @@ bool ChatHandler::HandlePInfoCommand(char* args)
     std::string last_login = GetMangosString(LANG_ERROR);
 
     QueryResult* result = LoginDatabase.PQuery("SELECT a.username, a.gmlevel, a.last_ip, a.last_login, a.email, a_fp.accountid, a_fp.security, a_fp.realmid FROM account AS a LEFT JOIN account_forcepermission AS a_fp on a.id = a_fp.accountid WHERE a.id = '%u' ORDER BY FIELD(a_fp.realmid,'%u') DESC", accId, realmID);
+
     if (result)
     {
         Field* fields = result->Fetch();
@@ -2665,14 +2666,14 @@ bool ChatHandler::HandlePInfoCommand(char* args)
 
     PSendSysMessage(LANG_PINFO_ACCOUNT, (target?"":GetMangosString(LANG_OFFLINE)), nameLink.c_str(), target_guid.GetCounter(), username.c_str(), accId, email.c_str(), security, last_ip.c_str(), last_login.c_str(), latency);
 
-    std::string race_s, Class_s;
+    std::string race_s = "", Class_s = "";
     switch (race)
     {
         case RACE_HUMAN:            race_s = "Human";       break;
         case RACE_ORC:              race_s = "Orc";         break;
         case RACE_DWARF:            race_s = "Dwarf";       break;
         case RACE_NIGHTELF:         race_s = "Night Elf";   break;
-        case RACE_UNDEAD:    race_s = "Undead";      break;
+        case RACE_UNDEAD:           race_s = "Undead";      break;
         case RACE_TAUREN:           race_s = "Tauren";      break;
         case RACE_GNOME:            race_s = "Gnome";       break;
         case RACE_TROLL:            race_s = "Troll";       break;

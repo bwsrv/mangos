@@ -447,7 +447,7 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
         }
         case SPELLFAMILY_WARRIOR:
         {
-            if (spellInfo->SpellFamilyFlags.test<CF_WARRIOR_BATTLE_SHOUT, CF_WARRIOR_COMMANDING_SHOUT>()) 
+            if (spellInfo->SpellFamilyFlags.test<CF_WARRIOR_BATTLE_SHOUT, CF_WARRIOR_COMMANDING_SHOUT>())
                 return SPELL_POSITIVE_SHOUT;
 
             break;
@@ -682,6 +682,9 @@ bool IsPositiveEffect(SpellEntry const *spellproto, SpellEffectIndex effIndex)
 
     switch(spellproto->Id)
     {
+        case 62470:                                         // Deafening Thunder
+        case 63138:                                         // Sara's Fervor (Ulduar - Yogg Saron encounter)
+        case 63134:                                         // Sara's Blessing (Ulduar - Yogg Saron encounter)
         case 71010:                                         // Web Wrap (Icecrown Citadel, trash mob Nerub'ar Broodkeeper)
         case 72219:                                         // Gastric Bloat 10 N
         case 72551:                                         // Gastric Bloat 10 H
@@ -692,24 +695,22 @@ bool IsPositiveEffect(SpellEntry const *spellproto, SpellEffectIndex effIndex)
         case 42786:                                         // Echo Of Ymiron
         case 63355:                                         // Crunch Armor
             return false;
-        case 36032:                                         // Arcane Blast
-        case 47540:                                         // Penance start dummy aura
-          case 53005:                                         
-          case 53006:                                         
-          case 53007:                                         
-        case 47757:                                         // Penance heal effect trigger
-          case 52986:                                         
-          case 52987:                                         
-          case 52988:                                         
-        case 642:                                           // Divine Shield
-        case 64843:                                         // Divine Hymn
-          case 64844:                                       
-        case 64901:                                         // Hymn of Hope
-          case 64904:                                       
         case 552:                                           // Abolish Disease
+        case 12042:                                         // Arcane Power
+        case 36032:                                         // Arcane Blast
         case 59286:                                         // Opening
+        case 47540:                                         // Penance start dummy aura - Rank 1
+        case 53005:                                         // Penance start dummy aura - Rank 2
+        case 53006:                                         // Penance start dummy aura - Rank 3
+        case 53007:                                         // Penance start dummy aura - Rank 4
+        case 47757:                                         // Penance heal effect trigger - Rank 1
+        case 52986:                                         // Penance heal effect trigger - Rank 2
+        case 52987:                                         // Penance heal effect trigger - Rank 3
+        case 52988:                                         // Penance heal effect trigger - Rank 4
+        case 64844:                                         // Divine Hymn
+        case 64904:                                         // Hymn of Hope
         case 64343:                                         // Impact
-            return true;
+        return true;
         default:
             break;
     }
@@ -722,6 +723,8 @@ bool IsPositiveEffect(SpellEntry const *spellproto, SpellEffectIndex effIndex)
             {
                 case 28441:                                 // AB Effect 000
                     return false;
+                case 48021:                                 // support for quest 12173
+                    return true;
                 case 49634:                                 // Sergeant's Flare
                 case 54530:                                 // Opening
                 case 62105:                                 // To'kini's Blowgun
@@ -2105,6 +2108,44 @@ bool SpellMgr::IsSkillBonusSpell(uint32 spellId) const
     return false;
 }
 
+bool SpellMgr::IsGroupBuff(SpellEntry const *spellInfo)
+{
+    for (int i = 0; i < MAX_EFFECT_INDEX; ++i)
+    {
+        switch(spellInfo->EffectImplicitTargetA[i])
+        {
+            case TARGET_SINGLE_PARTY:
+            case TARGET_ALL_PARTY_AROUND_CASTER:
+            case TARGET_ALL_PARTY:
+            case TARGET_ALL_PARTY_AROUND_CASTER_2:
+            case TARGET_AREAEFFECT_PARTY:
+            case TARGET_ALL_RAID_AROUND_CASTER:
+            case TARGET_AREAEFFECT_PARTY_AND_CLASS:
+                if (IsPositiveEffect(spellInfo, SpellEffectIndex(i)) &&
+                    (spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA ||
+                     spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AREA_AURA_PARTY ||
+                     spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AREA_AURA_RAID)
+                    )
+                {
+                    return true;
+                }
+            default:
+                break;
+        }
+    }
+
+    // some custom cases
+    switch (spellInfo->Id)
+    {
+        case 72590:                             // Fortitude (triggered by AoE spell with ScriptEffect)
+            return true;
+        default:
+            break;
+    }
+
+    return false;
+}
+
 SpellEntry const* SpellMgr::SelectAuraRankForLevel(SpellEntry const* spellInfo, uint32 level) const
 {
     // fast case
@@ -3448,6 +3489,29 @@ void SpellMgr::LoadSpellAreas()
 
 SpellCastResult SpellMgr::GetSpellAllowedInLocationError(SpellEntry const *spellInfo, uint32 map_id, uint32 zone_id, uint32 area_id, Player const* player)
 {
+    /*  Flying Everywhere   */
+    if (sWorld.getConfig(CONFIG_BOOL_ALLOW_FLYING_MOUNTS_EVERYWHERE))
+    {
+        if(player && (player->isFlyingSpell(spellInfo) || player->isFlyingFormSpell(spellInfo)))
+        {
+            uint32 v_map = GetVirtualMapForMapAndZone(map_id, zone_id);
+            MapEntry const* mapEntry = sMapStore.LookupEntry(v_map);
+            if(!mapEntry)
+                return SPELL_FAILED_NOT_HERE;
+            /*else if(mapEntry->Instanceable())
+                return SPELL_FAILED_NOT_HERE;*/
+            else if(mapEntry->IsDungeon())
+                return SPELL_FAILED_NOT_HERE;
+            else if(mapEntry->IsRaid())
+                return SPELL_FAILED_NOT_HERE;
+            else if(mapEntry->IsBattleArena())
+                return SPELL_FAILED_NOT_HERE;
+            else if(mapEntry->IsBattleGround())
+                return SPELL_FAILED_NOT_HERE;
+            else
+                return SPELL_CAST_OK;
+        }
+    }
     // normal case
     int32 areaGroupId = spellInfo->AreaGroupId;
     if (areaGroupId > 0)
@@ -4182,7 +4246,7 @@ SpellEntry const* GetSpellEntryByDifficulty(uint32 id, Difficulty difficulty, bo
     if (!spellDiff)
         return NULL;
 
-    DEBUG_LOG("Searching spell %u in SpellDifficulty.dbc: Result is: %u/%u/%u/%u ",id, 
+    DEBUG_LOG("Searching spell %u in SpellDifficulty.dbc: Result is: %u/%u/%u/%u ",id,
     spellDiff->spellId[RAID_DIFFICULTY_10MAN_NORMAL],
     spellDiff->spellId[RAID_DIFFICULTY_25MAN_NORMAL],
     spellDiff->spellId[RAID_DIFFICULTY_10MAN_HEROIC],

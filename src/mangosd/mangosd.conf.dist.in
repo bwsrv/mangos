@@ -376,20 +376,83 @@ GmLogPerAccount = 0
 RaLogFile = ""
 LogColors = ""
 
-# Chat log parameters
+###################################################################################################################
+#   LEXICS CUTTER SYSTEM
+#
+#    Chat log parameters
+#        ChatLogEnable = 0
+#
+#    If this is enabled, all $d in file names are replaced with current date
+#    This does include innormative lexics log
+#        ChatLogDateSplit = 1
+#    If this is enabled, UTF8 header is written into new files
+#        ChatLogUTFHeader = 1
+#    If this is enabled, chat log will ignore messages with unprintable chars
+#        ChatLogIgnoreUnprintable = 1
+#
+#    Chat log files
+#        ChatLogChatFile = main_chat-$d.log
+#        ChatLogPartyFile = party_chat-$d.log
+#        ChatLogGuildFile = guild_chat-$d.log
+#        ChatLogWhisperFile = whisper_chat-$d.log
+#        ChatLogChannelFile = channel_chat-$d.log
+#        ChatLogRaidFile = raid_chat-$d.log
+#        ChatLogBattleGroundFile = bg_chat-$d.log
+#
+#    Chat log screen logging
+#        ChatLogChatScreen = 0
+#        ChatLogPartyScreen = 0
+#        ChatLogGuildScreen = 0
+#        ChatLogWhisperScreen = 0
+#        ChatLogChannelScreen = 0
+#        ChatLogRaidScreen = 0
+#        ChatLogBattleGroundScreen = 0
+#
+#    Lexics cutter parameters
+#        LexicsCutterEnable = 1
+#        LexicsCutterInnormativeCut = 1
+#        LexicsCutterCutReplacement = &!@^%!^&*!!!
+#        LexicsCutterLogFile = innormative-$d.log
+#        LexicsCutterScreenLog = 0
+#        LexicsCutterAnalogsFile = letter_analogs.txt
+#        LexicsCutterWordsFile = innormative_words.txt
+#
+#    Where to cut lexics
+#        LexicsCutInChat = 1
+#        LexicsCutInParty = 1
+#        LexicsCutInGuild = 1
+#        LexicsCutInWhisper = 1
+#        LexicsCutInChannel = 1
+#        LexicsCutInRaid = 1
+#        LexicsCutInBattleGround = 1
+#
+#    Ignore word spaces like: W O R D
+#        LexicsCutterIgnoreSpaces = 1
+#
+#    Ignore repeats like: WWOOOORRRRRD
+#        LexicsCutterIgnoreRepeats = 1
+#
+#    Action:
+#    ---   0: log only
+#    ---   1: sheep
+#    ---   2: stun
+#    ---   3: kill
+#    ---   4: leave 5 health
+#    ---   5: disable chat
+#    ---   6: stuck (works as stun + 50% health)
+#    ---   7: resurrection sickness
+#    ---   8: shear
+#        LexicsCutterAction = 0
+#        LexicsCutterActionDuration = 60000
+#
+#     Do not perform action on GM if this is enabled
+#        LexicsCutterNoActionOnGM = 1
+###################################################################################################################
+
 ChatLogEnable = 0
-
-# If this is enabled, all $d in file names are replaced with current date
-# This does include innormative lexics log
 ChatLogDateSplit = 1
-
-# If this is enabled, UTF8 header is written into new files
 ChatLogUTFHeader = 1
-
-# If this is enabled, chat log will ignore messages with unprintable chars
 ChatLogIgnoreUnprintable = 1
-
-# Chat log files
 ChatLogChatFile = main_chat-$d.log
 ChatLogPartyFile = party_chat-$d.log
 ChatLogGuildFile = guild_chat-$d.log
@@ -397,8 +460,6 @@ ChatLogWhisperFile = whisper_chat-$d.log
 ChatLogChannelFile = channel_chat-$d.log
 ChatLogRaidFile = raid_chat-$d.log
 ChatLogBattleGroundFile = bg_chat-$d.log
-
-# Chat log screen logging
 ChatLogChatScreen = 0
 ChatLogPartyScreen = 0
 ChatLogGuildScreen = 0
@@ -406,18 +467,13 @@ ChatLogWhisperScreen = 0
 ChatLogChannelScreen = 0
 ChatLogRaidScreen = 0
 ChatLogBattleGroundScreen = 0
-
-# Lexics cutter parameters
 LexicsCutterEnable = 1
-
 LexicsCutterInnormativeCut = 1
 LexicsCutterCutReplacement = &!@^%!^&*!!!
 LexicsCutterLogFile = innormative-$d.log
 LexicsCutterScreenLog = 0
 LexicsCutterAnalogsFile = letter_analogs.txt
 LexicsCutterWordsFile = innormative_words.txt
-
-# Where to cut lexics
 LexicsCutInChat = 1
 LexicsCutInParty = 1
 LexicsCutInGuild = 1
@@ -425,27 +481,18 @@ LexicsCutInWhisper = 1
 LexicsCutInChannel = 1
 LexicsCutInRaid = 1
 LexicsCutInBattleGround = 1
+<<<<<<< HEAD
 
 # Ignore word spaces like: W O R D
 LexicsCutterIgnoreSpaces = 0
 
 # Ignore repeats like: WWOOOORRRRRD
+=======
+LexicsCutterIgnoreSpaces = 1
+>>>>>>> bd3b831c3e9e3fbb669f965edde1ad9a4f5b6642
 LexicsCutterIgnoreRepeats = 1
-
-# --- Action:
-# ---   0: log only
-# ---   1: sheep
-# ---   2: stun
-# ---   3: kill
-# ---   4: leave 5 health
-# ---   5: disable chat
-# ---   6: stuck (works as stun + 50% health)
-# ---   7: resurrection sickness
-# ---   8: shear
 LexicsCutterAction = 0
 LexicsCutterActionDuration = 60000
-
-# Do not perform action on GM if this is enabled
 LexicsCutterNoActionOnGM = 1
 
 ###################################################################################################################
@@ -609,6 +656,11 @@ LexicsCutterNoActionOnGM = 1
 #    StartHonorPoints
 #        Amount of honor that new players will start with
 #        Default: 0
+#
+#    AllowHonorKillsTitles
+#        Allow characters to get titles, depending of honor kills amount (something like old 1.xx honor system)
+#        Default: 0 - disallow
+#                 1 - allow
 #
 #    MaxArenaPoints
 #        Max arena points that player can have.
@@ -869,6 +921,7 @@ StartHeroicPlayerLevel = 55
 StartPlayerMoney = 0
 MaxHonorPoints = 75000
 StartHonorPoints = 0
+AllowHonorKillsTitles = 0
 MaxArenaPoints = 5000
 StartArenaPoints = 0
 InstantLogout = 1
@@ -1717,11 +1770,6 @@ Network.KickOnBadPacket = 0
 #        Enable/Disable the part of AHBot that buys items from players
 #    Default 0 (disabled)
 #
-#    Auction House Bot character data
-#        AuctionHouseBot.Account is the account number (in realmd->account table) of the player you want to run as the auction bot.
-#       AuctionHouseBot.GUID is the GUID (in characters->characters table) of the player you want to run as the auction bot.
-#    Default: NONE (must be setted anywhere on true account and character!)
-#
 #    AuctionHouseBot.VendorItems
 #        Include items that can be bought from vendors.
 #    Default 0
@@ -1773,8 +1821,6 @@ Network.KickOnBadPacket = 0
 
 AuctionHouseBot.EnableSeller = 0
 AuctionHouseBot.EnableBuyer = 0
-AuctionHouseBot.Account = (ACCOUNT NUMBER)
-AuctionHouseBot.GUID = (GUID)
 AuctionHouseBot.VendorItems = 0
 AuctionHouseBot.LootItems = 1
 AuctionHouseBot.OtherItems = 0
@@ -1941,6 +1987,84 @@ LFG.Enable              = 0
 LFG.Debug               = 0
 LFR.Extend              = 0
 LFG.MaxKicks            = 5
+
+###################################################################################################################
+#    PvP Token System
+#
+#    PvPToken.Enable
+#        Enable/disable PvP Token system.
+#        Default: 1 (enabled)
+#        0 (disabled)
+#
+#    PvPToken.ItemID
+#        The item ID of the token that players will receive after killing an enemy.
+#        Default: 29434 (Badge of Justice)
+#
+#    PvPToken.ItemCount
+#        The count amount of the ItemID
+#        Default: 1
+#
+#    PvPToken.Gold
+#        The amount of gold that players will receive after killing an enemy.
+#        Default: 100000
+#    PvPToken.Honor  
+#        The amount of honor points that players will receive after killing an enemy.  
+#        Default: 75000  
+#  
+#    PvPToken.Arena  
+#        The amount of arena points that players will receive after killing an enemy.  
+#        Default: 5000 
+#
+#
+#    PvPToken.MapRestriction
+#        The type of maps where players can receive the token
+#        Default: 4 - all maps
+#                 3 - battlegrounds only
+#                 2 - FFA areas only (both instanced and world arenas)
+#                 1 - battlegrounds and FFA areas only
+#
+###################################################################################################################
+
+PvPToken.Enable = 1
+PvPToken.ItemID = 29434
+PvPToken.ItemCount = 1
+PvPToken.Gold = 100000
+PvPToken.Honor = 75000  
+PvPToken.Arena = 5000
+PvPToken.MapRestriction = 4
+
+###################################################################################################################
+#    PvP Announcer System
+#
+#    PvPAnnouncer.Enable
+#       Enable/disable PvP Announcer system.
+#       Default: 1 - enabled
+#                0 - disabled
+###################################################################################################################
+
+PvPAnnouncer.Enable = 1
+PvPAnnouncer.ColorKiller = |CFFFFFF01
+PvPAnnouncer.ColorKilled = |CFFFFFF01
+PvPAnnouncer.ColorArea = |CFFFE8A0E
+
+###################################################################################################################
+#    Flying mounts Everywhere
+#
+#    Allows you to fly through Azeroth
+#
+#    Custom.AllowFlyingMountsEverywhere
+#       Enable/disable Flying mounts Everywhere.
+#       Default: 1 - enabled
+#                0 - disabled
+#
+#    AllowFlightOnOldMaps
+#      Enable/disable Helper for old maps for flyingmounts everywhere
+#      Default: 0 - disabled
+#               1 - enabled
+###################################################################################################################
+
+Custom.AllowFlyingMountsEverywhere = 0
+AllowFlightOnOldMaps = 0
 
 ###################################################################################################################
 # PLAYERBOTAI CONFIGURATION

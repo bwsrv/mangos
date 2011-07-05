@@ -1502,8 +1502,14 @@ void WorldSession::HandleCancelMountAuraOpcode( WorldPacket & /*recv_data*/ )
         return;
     }
 
-    _player->Unmount(_player->HasAuraType(SPELL_AURA_MOUNTED));
-    _player->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
+    /*  Flying Everywhere   */
+    if (sWorld.getConfig(CONFIG_BOOL_ALLOW_FLYING_MOUNTS_EVERYWHERE) && _player->HasAuraTypeFlyingSpell())
+        _player->SetFlyingMountTimer();
+    else
+    {
+        _player->Unmount(_player->HasAuraType(SPELL_AURA_MOUNTED));
+        _player->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
+    }
 }
 
 void WorldSession::HandleMoveSetCanFlyAckOpcode( WorldPacket & recv_data )

@@ -1381,6 +1381,7 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
 
                     pVictim->RemoveSpellsCausingAura(SPELL_AURA_PERIODIC_DAMAGE);
                     pVictim->RemoveSpellsCausingAura(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+                    pVictim->RemoveSpellsCausingAura(SPELL_AURA_PERIODIC_LEECH);
                     return SPELL_AURA_PROC_OK;
                 }
                 // Blessing of Ancient Kings
@@ -3833,18 +3834,16 @@ SpellAuraProcResult Unit::HandleProcTriggerSpellAuraProc(Unit *pVictim, uint32 d
                 if (pVictim != this)
                     return SPELL_AURA_PROC_FAILED;
             }
-            // Item - Rogue T10 4P Bonus
-            else if (auraSpellInfo->Id == 70803)
-            {
-                if (!procSpell)
-                    return SPELL_AURA_PROC_FAILED;
-
-                // only allow melee finishing move to proc
-                if (!(procSpell->AttributesEx & SPELL_ATTR_EX_REQ_TARGET_COMBO_POINTS) || procSpell->Id == 26679)
-                    return SPELL_AURA_PROC_FAILED;
-
-                trigger_spell_id = 70802;
-                target = this;
+            // Item - Rogue T10 4P Bonus 
+            else if (auraSpellInfo->Id == 70803) 
+            { 
+                if (!procSpell) 
+                    return SPELL_AURA_PROC_FAILED; 
+                // only allow melee finishing move to proc 
+                if (!(procSpell->AttributesEx & SPELL_ATTR_EX_REQ_TARGET_COMBO_POINTS) || procSpell->Id == 26679) 
+                    return SPELL_AURA_PROC_FAILED; 
+                trigger_spell_id = 70802; 
+                target = this; 
             }
             break;
         }
@@ -4060,26 +4059,24 @@ SpellAuraProcResult Unit::HandleProcTriggerSpellAuraProc(Unit *pVictim, uint32 d
                 trigger_spell_id = 31616;
                 target = this;
             }
-            // Item - Shaman T10 Restoration 2P Bonus
-            else if (auraSpellInfo->Id == 70807)
-            {
-                if (!procSpell)
-                    return SPELL_AURA_PROC_FAILED;
-
-                // only allow Riptide to proc
-                switch(procSpell->Id)
-                {
-                    case 61295: // Rank 1
-                    case 61299: // Rank 2
-                    case 61300: // Rank 3
-                    case 61301: // Rank 4
-                        break;
-                    default:
-                        return SPELL_AURA_PROC_FAILED;
-                }
-
-                trigger_spell_id = 70806;
-                target = this;
+            // Item - Shaman T10 Restoration 2P Bonus 
+            else if (auraSpellInfo->Id == 70807) 
+            { 
+                if (!procSpell) 
+                    return SPELL_AURA_PROC_FAILED; 
+                // only allow Riptide to proc 
+                switch(procSpell->Id) 
+                { 
+                    case 61295: // Rank 1 
+                    case 61299: // Rank 2 
+                    case 61300: // Rank 3 
+                    case 61301: // Rank 4 
+                        break; 
+                    default: 
+                        return SPELL_AURA_PROC_FAILED; 
+                } 
+                trigger_spell_id = 70806; 
+                target = this; 
             }
             break;
         }
@@ -4110,14 +4107,23 @@ SpellAuraProcResult Unit::HandleProcTriggerSpellAuraProc(Unit *pVictim, uint32 d
                 if (procSpell->Id != 47633)
                     return SPELL_AURA_PROC_FAILED;
             }
-           // Item - Death Knight T10 Melee 4P Bonus
+
+            // Glyph of Death Grip 
+            if (auraSpellInfo->Id == 62259) 
+            { 
+                // remove cooldown of Death Grip 
+                if (GetTypeId()==TYPEID_PLAYER) 
+                    ((Player*)this)->RemoveSpellCooldown(49576, true); 
+                return SPELL_AURA_PROC_OK; 
+            }
+            // Item - Death Knight T10 Melee 4P Bonus
             else if (auraSpellInfo->Id == 70656)
             {
-                if (GetTypeId() != TYPEID_PLAYER || getClass() != CLASS_DEATH_KNIGHT)
-                    return SPELL_AURA_PROC_FAILED;
+                if (GetTypeId() != TYPEID_PLAYER || getClass() != CLASS_DEATH_KNIGHT)                    
+                    return SPELL_AURA_PROC_FAILED;                
 
-                for(uint32 i = 0; i < MAX_RUNES; ++i)
-                    if (((Player*)this)->GetRuneCooldown(i) == 0)
+                for(uint32 i = 0; i < MAX_RUNES; ++i)                    
+                    if (((Player*)this)->GetRuneCooldown(i) == 0)                        
                         return SPELL_AURA_PROC_FAILED;
             }
             // Blade Barrier
