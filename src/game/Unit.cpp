@@ -4526,7 +4526,7 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
                         case SPELL_AURA_PERIODIC_HEAL:
                         case SPELL_AURA_OBS_MOD_HEALTH:
                         case SPELL_AURA_PERIODIC_MANA_LEECH:
-                        case SPELL_AURA_OBS_MOD_MANA:
+                        case SPELL_AURA_OBS_MOD_ENERGY:
                         case SPELL_AURA_POWER_BURN_MANA:
                             bRemove = false;
                             break;
