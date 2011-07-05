@@ -1646,6 +1646,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 63795:                                 // Psychosis (Yogg-Saron)
                 case 66152:                                 // Bullet Foced Cast (Trial of the Crusader, ->
                 case 66153: 
+                case 66339:                                 // Summon Scarab (Trial of the Crusader, Anub'arak encounter)
                 case 66336:                                 // Mistress' Kiss (Trial of the Crusader, ->
                 case 67077:                                 // -> Lord Jaraxxus encounter, 10 and 10 heroic)
                 case 66001:                                 // Touch of Darkness
