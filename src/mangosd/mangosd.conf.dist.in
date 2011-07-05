@@ -2039,8 +2039,6 @@ PvPAnnouncer.ColorKiller = |CFFFFFF01
 PvPAnnouncer.ColorKilled = |CFFFFFF01
 PvPAnnouncer.ColorArea = |CFFFE8A0E
 
-############### PVP ANNOUNCER IS DISABLE ALL CODE FOR IT IS COMMENTED OUT IN CORE TIL WE FIX ######################
-
 ###################################################################################################################
 #    Flying mounts Everywhere
 #
