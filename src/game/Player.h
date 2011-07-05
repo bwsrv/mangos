@@ -23,7 +23,7 @@
 #include "ItemPrototype.h"
 #include "Unit.h"
 #include "Item.h"
-#include "SpellMgr.h"
+
 #include "Database/DatabaseEnv.h"
 #include "NPCHandler.h"
 #include "QuestDef.h"
@@ -1287,101 +1287,6 @@ class MANGOS_DLL_SPEC Player : public Unit
         void AutoStoreLoot(uint32 loot_id, LootStore const& store, bool broadcast = false, uint8 bag = NULL_BAG, uint8 slot = NULL_SLOT);
         void AutoStoreLoot(Loot& loot, bool broadcast = false, uint8 bag = NULL_BAG, uint8 slot = NULL_SLOT);
 
-        /// Flying Everywhere
-        void FlyingMountsSpellsToItems();
-        bool CanUseFlyingMounts(SpellEntry const* spellInfo);
-        // helper functions
-        bool isFlyingSpell(SpellEntry const* spellInfo) const
-        {
-            return spellInfo->EffectApplyAuraName[0]==SPELL_AURA_MOUNTED &&
-            IsSpellHaveAura(spellInfo, SPELL_AURA_MOD_FLIGHT_SPEED_MOUNTED);
-            //IsSpellHaveAura(spellInfo, SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED);
-            //spellInfo->EffectApplyAuraName[1]==SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED &&
-            //spellInfo->EffectApplyAuraName[2]==SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED;
-        }
-
-        bool isRunningSpell(SpellEntry const* spellInfo) const
-        {
-            return spellInfo->EffectApplyAuraName[0]==SPELL_AURA_MOUNTED &&
-            spellInfo->EffectApplyAuraName[1]==SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED;
-        }
-
-        bool isFlyingFormSpell(SpellEntry const* spellInfo) const
-        {
-            return spellInfo->EffectApplyAuraName[0]==SPELL_AURA_MOD_SHAPESHIFT &&
-            spellInfo->EffectApplyAuraName[1]==SPELL_AURA_MECHANIC_IMMUNITY &&
-            spellInfo->EffectApplyAuraName[2]==SPELL_AURA_FLY;
-        }
-
-        bool isRunningFormSpell(SpellEntry const* spellInfo) const
-        {
-            return spellInfo->EffectApplyAuraName[0]==SPELL_AURA_MOD_SHAPESHIFT &&
-            spellInfo->EffectApplyAuraName[1]==SPELL_AURA_MECHANIC_IMMUNITY &&
-            spellInfo->EffectApplyAuraName[2]!=SPELL_AURA_FLY;
-        }
-
-        void RemoveFlyingSpells()
-        {
-            Unmount();
-            RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
-            RemoveSpellsCausingAura(SPELL_AURA_MOD_FLIGHT_SPEED_MOUNTED); //BM added
-            //RemoveSpellsCausingAura(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED); //BM removed
-            //RemoveSpellsCausingAura(SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED); //BM removed
-        }
-
-        void RemoveFlyingFormSpells()
-        {
-            RemoveSpellsCausingAura(SPELL_AURA_MOD_SHAPESHIFT);
-            RemoveSpellsCausingAura(SPELL_AURA_MECHANIC_IMMUNITY);
-            RemoveSpellsCausingAura(SPELL_AURA_FLY);
-        }
-
-        void RemoveRunningFormSpells()
-        {
-            RemoveSpellsCausingAura(SPELL_AURA_MOD_SHAPESHIFT);
-            RemoveSpellsCausingAura(SPELL_AURA_MECHANIC_IMMUNITY);
-        }
-
-        void RemoveAllFlyingSpells()
-        {
-            RemoveFlyingSpells();
-            RemoveFlyingFormSpells();
-        }
-
-        bool HasAuraTypeFlyingSpell()
-        {
-            return HasAuraType(SPELL_AURA_MOUNTED) &&
-            HasAuraType(SPELL_AURA_MOD_FLIGHT_SPEED_MOUNTED);       //BM added
-            //HasAuraType(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED) &&  //BM removed
-            //HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED);   //BM removed
-        }
-
-        bool HasAuraTypeFlyingFormSpell()
-        {
-            return HasAuraType(SPELL_AURA_MOD_SHAPESHIFT) &&
-            HasAuraType(SPELL_AURA_MECHANIC_IMMUNITY) &&
-            HasAuraType(SPELL_AURA_FLY);
-        }
- 
-        bool HasAuraTypeRunningFormSpell()
-        {
-            return HasAuraType(SPELL_AURA_MOD_SHAPESHIFT) &&
-            HasAuraType(SPELL_AURA_MECHANIC_IMMUNITY) &&
-           !HasAuraType(SPELL_AURA_FLY);
-        }
-
-        bool GetFlyingMountTimer()
-        {
-            return m_flytimer < time(NULL);
-        }
-
-        void SetFlyingMountTimer()
-        {
-            m_flytimer = time(NULL) + 0.5;
-        }
-        //end of helpers.
-        ///end of Flying Everywhere
-
         Item* ConvertItem(Item* item, uint32 newItemId);
 
         InventoryResult _CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, uint32* no_space_count = NULL) const;
@@ -2152,9 +2057,6 @@ class MANGOS_DLL_SPEC Player : public Unit
         void _ApplyWeaponDependentAuraCritMod(Item *item, WeaponAttackType attackType, Aura* aura, bool apply);
         void _ApplyWeaponDependentAuraDamageMod(Item *item, WeaponAttackType attackType, Aura* aura, bool apply);
 
-        ///PVP Token
-        void ReceiveToken();
-
         void _ApplyItemMods(Item *item,uint8 slot,bool apply);
         void _RemoveAllItemMods();
         void _ApplyAllItemMods();
@@ -2739,9 +2641,6 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         uint32 m_deathTimer;
         time_t m_deathExpireTime;
-
-        /// Flying mount everywhere
-        time_t m_flytimer;
 
         uint32 m_restTime;
 

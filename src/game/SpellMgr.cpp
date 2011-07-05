@@ -443,7 +443,7 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
         }
         case SPELLFAMILY_WARRIOR:
         {
-            if (spellInfo->SpellFamilyFlags.test<CF_WARRIOR_BATTLE_SHOUT, CF_WARRIOR_COMMANDING_SHOUT>())
+            if (spellInfo->SpellFamilyFlags.test<CF_WARRIOR_BATTLE_SHOUT, CF_WARRIOR_COMMANDING_SHOUT>()) 
                 return SPELL_POSITIVE_SHOUT;
 
             break;
@@ -719,7 +719,7 @@ bool IsPositiveEffect(SpellEntry const *spellproto, SpellEffectIndex effIndex)
             {
                 case 28441:                                 // AB Effect 000
                     return false;
-                case 48021:                                 // support for quest 12173
+                case 48021:                                 // support for quest 12173  
                     return true;
                 case 49634:                                 // Sergeant's Flare
                 case 54530:                                 // Opening
@@ -2332,7 +2332,7 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     (spellInfo_2->Category == 44 && spellInfo_1->Category == 0)))
                     return false;
             }
-            else if ( spellInfo_2->SpellFamilyName == SPELLFAMILY_GENERIC )
+            else if ( spellInfo_2->SpellFamilyName == SPELLFAMILY_GENERIC ) 
             {
                 // Honor Among Thieves dummy auras (multi-family check)
                 if (spellId_1 == 52916 && spellId_2 == 51699)
@@ -3996,29 +3996,6 @@ void SpellMgr::LoadSpellAreas()
 
 SpellCastResult SpellMgr::GetSpellAllowedInLocationError(SpellEntry const *spellInfo, uint32 map_id, uint32 zone_id, uint32 area_id, Player const* player)
 {
-    /*  Flying Everywhere   */
-    if (sWorld.getConfig(CONFIG_BOOL_ALLOW_FLYING_MOUNTS_EVERYWHERE))
-    {
-        if(player && (player->isFlyingSpell(spellInfo) || player->isFlyingFormSpell(spellInfo)))
-        {
-            uint32 v_map = GetVirtualMapForMapAndZone(map_id, zone_id);
-            MapEntry const* mapEntry = sMapStore.LookupEntry(v_map);
-            if(!mapEntry)
-                return SPELL_FAILED_NOT_HERE;
-            /*else if(mapEntry->Instanceable())
-                return SPELL_FAILED_NOT_HERE;*/
-            else if(mapEntry->IsDungeon())
-                return SPELL_FAILED_NOT_HERE;
-            else if(mapEntry->IsRaid())
-                return SPELL_FAILED_NOT_HERE;
-            else if(mapEntry->IsBattleArena())
-                return SPELL_FAILED_NOT_HERE;
-            else if(mapEntry->IsBattleGround())
-                return SPELL_FAILED_NOT_HERE;
-            else
-                return SPELL_CAST_OK;
-        }
-    }
     // normal case
     int32 areaGroupId = spellInfo->AreaGroupId;
     if (areaGroupId > 0)
@@ -4745,7 +4722,7 @@ SpellEntry const* GetSpellEntryByDifficulty(uint32 id, Difficulty difficulty, bo
     if (!spellDiff)
         return NULL;
 
-    DEBUG_LOG("Searching spell %u in SpellDifficulty.dbc: Result is: %u/%u/%u/%u ",id,
+    DEBUG_LOG("Searching spell %u in SpellDifficulty.dbc: Result is: %u/%u/%u/%u ",id, 
     spellDiff->spellId[RAID_DIFFICULTY_10MAN_NORMAL],
     spellDiff->spellId[RAID_DIFFICULTY_25MAN_NORMAL],
     spellDiff->spellId[RAID_DIFFICULTY_10MAN_HEROIC],
