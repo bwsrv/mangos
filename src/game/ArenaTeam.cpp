@@ -200,7 +200,7 @@ bool ArenaTeam::AddMember(ObjectGuid playerGuid)
         else
         {
             newmember.matchmaker_rating = (*result)[0].GetUInt32();
-	        delete result;
+            delete result;
         }
     }
     if (GetType() == ARENA_TYPE_3v3)
@@ -215,7 +215,7 @@ bool ArenaTeam::AddMember(ObjectGuid playerGuid)
         else
         {
             newmember.matchmaker_rating = (*result)[0].GetUInt32();
-	        delete result;
+            delete result;
         }
     }
     if (GetType() == ARENA_TYPE_5v5)
@@ -230,7 +230,7 @@ bool ArenaTeam::AddMember(ObjectGuid playerGuid)
         else
         {
             newmember.matchmaker_rating = (*result)[0].GetUInt32();
-	        delete result;
+            delete result;
         }
     }
 
@@ -348,8 +348,8 @@ bool ArenaTeam::LoadMembersFromDB(QueryResult *arenaTeamMembersResult)
             else
             {
                 newmember.matchmaker_rating = (*result)[0].GetUInt32();
-  	            delete result;
-	        }
+                delete result;
+            }
         }
         if (GetType() == ARENA_TYPE_3v3)
         {
@@ -359,12 +359,12 @@ bool ArenaTeam::LoadMembersFromDB(QueryResult *arenaTeamMembersResult)
             {
                 CharacterDatabase.PExecute("INSERT INTO hidden_rating (guid, rating2, rating3, rating5) VALUES""('%u', '%u', '%u', '%u')", fields[1].GetUInt32(), 1500, 1500, 1500);
                 newmember.matchmaker_rating = 1500;
-            }  
+            }
             else
             {
                 newmember.matchmaker_rating = (*result)[0].GetUInt32();
-  	            delete result;
-	        }
+                delete result;
+            }
         }
         if (GetType() == ARENA_TYPE_5v5)
         {
@@ -374,12 +374,12 @@ bool ArenaTeam::LoadMembersFromDB(QueryResult *arenaTeamMembersResult)
             {
                 CharacterDatabase.PExecute("INSERT INTO hidden_rating (guid, rating2, rating3, rating5) VALUES""('%u', '%u', '%u', '%u')", fields[1].GetUInt32(), 1500, 1500, 1500);
                 newmember.matchmaker_rating = 1500;
-            }  
+            }
             else
             {
                 newmember.matchmaker_rating = (*result)[0].GetUInt32();
-  	            delete result;
-	        }
+                delete result;
+            }
         }
 
         //check if member exists in characters table

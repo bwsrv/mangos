@@ -17872,7 +17872,7 @@ void Player::SaveToDB()
     // first save/honor gain after midnight will also update the player's honor fields
     UpdateHonorFields();
 
-    DEBUG_FILTER_LOG(	LOG_FILTER_PLAYER_STATS, "The value of player %s at save: ", m_name.c_str());
+    DEBUG_FILTER_LOG(LOG_FILTER_PLAYER_STATS, "The value of player %s at save: ", m_name.c_str());
     outDebugStatsValues();
 
     /** World of Warcraft Armory **/
@@ -24042,12 +24042,12 @@ void Player::WriteWowArmoryDatabaseLog(uint32 type, uint32 data)
     */
     uint32 pGuid = GetGUIDLow();
     sLog.outDetail("WoWArmory: write feed log (guid: %u, type: %u, data: %u", pGuid, type, data);
-    if (type <= 0 || type > 3)	// Unknown type
+    if (type <= 0 || type > 3)    // Unknown type
     {
         sLog.outError("WoWArmory: unknown type id: %d, ignore.", type);
         return;
     }
-    if (type == 3)	// Do not write same bosses many times - just update counter.
+    if (type == 3)    // Do not write same bosses many times - just update counter.
     {
         uint8 Difficulty = GetMap()->GetDifficulty();
         QueryResult *result = CharacterDatabase.PQuery("SELECT counter FROM armory_character_feed_log WHERE guid='%u' AND type=3 AND data='%u' AND difficulty='%u' LIMIT 1", pGuid, data, Difficulty);
