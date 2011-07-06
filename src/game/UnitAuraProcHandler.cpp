@@ -1075,7 +1075,7 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 {
                     if(GetTypeId() != TYPEID_PLAYER)
                         return SPELL_AURA_PROC_FAILED;
-                    
+
                     if(HasAura(71491) || HasAura(71484) || HasAura(71492) || HasAura(71486) || HasAura(71485))
                         return SPELL_AURA_PROC_FAILED;
 
@@ -1088,26 +1088,26 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                             triggered_spell_id = RandomSpell[ irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
                             break;
                         }
-                        case CLASS_DRUID:                   
+                        case CLASS_DRUID:
                         {
                             uint32 RandomSpell[]={71492,71485,71484};
                             triggered_spell_id = RandomSpell[ irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
                             break;
                         }
-                        case CLASS_ROGUE:    
+                        case CLASS_ROGUE:
                         {
                             uint32 RandomSpell[]={71492,71485,71486};
                             triggered_spell_id = RandomSpell[ irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
                             break;
                         }
-                        case CLASS_WARRIOR:                 
+                        case CLASS_WARRIOR:
                         {
                             uint32 RandomSpell[]={71492,71484,71491};
                             triggered_spell_id = RandomSpell[ irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
                             break;
                         }
                         case CLASS_SHAMAN:
-						{
+                        {
                             uint32 RandomSpell[]={71485,71486,71492};
                             triggered_spell_id = RandomSpell[ irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
                             break;
@@ -1159,13 +1159,13 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                             triggered_spell_id = RandomSpell[ irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
                             break;
                         }
-                        case CLASS_ROGUE:    
+                        case CLASS_ROGUE:
                         {
                             uint32 RandomSpell[]={71560,71556,71558,};
                             triggered_spell_id = RandomSpell[ irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
                             break;
                         }
-                        case CLASS_WARRIOR:                 
+                        case CLASS_WARRIOR:
                         {
                             uint32 RandomSpell[]={71560,71561,71559,};
                             triggered_spell_id = RandomSpell[ irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
@@ -4017,11 +4017,11 @@ SpellAuraProcResult Unit::HandleProcTriggerSpellAuraProc(Unit *pVictim, uint32 d
             // Item - Death Knight T10 Melee 4P Bonus
             else if (auraSpellInfo->Id == 70656)
             {
-                if (GetTypeId() != TYPEID_PLAYER || getClass() != CLASS_DEATH_KNIGHT)                    
-                    return SPELL_AURA_PROC_FAILED;                
+                if (GetTypeId() != TYPEID_PLAYER || getClass() != CLASS_DEATH_KNIGHT)
+                    return SPELL_AURA_PROC_FAILED;
 
-                for(uint32 i = 0; i < MAX_RUNES; ++i)                    
-                    if (((Player*)this)->GetRuneCooldown(i) == 0)                        
+                for(uint32 i = 0; i < MAX_RUNES; ++i)
+                    if (((Player*)this)->GetRuneCooldown(i) == 0)
                         return SPELL_AURA_PROC_FAILED;
             }
             // Blade Barrier
