@@ -42,6 +42,8 @@ BattleGroundEY::BattleGroundEY()
     m_StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_EY_START_ONE_MINUTE;
     m_StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_EY_START_HALF_MINUTE;
     m_StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_EY_HAS_BEGUN;
+
+    m_IllegalPositionTimer = ILLEGAL_POSITION_TIMER;
 }
 
 BattleGroundEY::~BattleGroundEY()
@@ -91,6 +93,44 @@ void BattleGroundEY::Update(uint32 diff)
             UpdatePointStatuses();
             m_TowerCapCheckTimer = BG_EY_FPOINTS_TICK_TIME;
         }
+		
+        // areatrigger for Fel Reaver was removed? so:
+        if (m_FlagState)
+            if(Player* plr = sObjectMgr.GetPlayer(GetFlagPickerGuid()))
+                if(plr->GetDistance2d(2043.99f, 1729.91f) < 2)
+                    if(m_PointState[BG_EY_NODE_FEL_REAVER] == EY_POINT_UNDER_CONTROL && m_PointOwnedByTeam[BG_EY_NODE_FEL_REAVER] == plr->GetTeam())
+                        EventPlayerCapturedFlag(plr, BG_EY_NODE_FEL_REAVER);
+    }
+    else if (GetStatus() == STATUS_WAIT_JOIN)
+    {
+        if (m_IllegalPositionTimer <= 0)
+        {
+            for(BattleGroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+            {
+                Player *plr = sObjectMgr.GetPlayer(itr->first);
+                if (!plr)
+                    continue;
+
+                if (plr->GetPositionZ() < MINIMUM_HEIGHT_AT_START)
+                {
+                    switch(plr->GetTeam())
+                    {
+                        case ALLIANCE:
+                            plr->TeleportTo(GetMapId(), BG_EY_TeleportingLocs[0][0], BG_EY_TeleportingLocs[0][1], BG_EY_TeleportingLocs[0][2], BG_EY_TeleportingLocs[0][3]);
+                            break;
+                        case HORDE:
+                            plr->TeleportTo(GetMapId(), BG_EY_TeleportingLocs[1][0], BG_EY_TeleportingLocs[1][1], BG_EY_TeleportingLocs[1][2], BG_EY_TeleportingLocs[1][3]);
+                            break;
+                        default:
+                            sLog.outError("BattleGroundEY: Unexpected team for player %s (cheater?)", plr->GetName());
+                            break;
+                    }
+                }
+            }
+            m_IllegalPositionTimer = ILLEGAL_POSITION_TIMER;
+        }
+        else
+            m_IllegalPositionTimer -= diff;
     }
 }
 
