@@ -709,23 +709,10 @@ bool IsPositiveEffect(SpellEntry const *spellproto, SpellEffectIndex effIndex)
         case 52988:                                         // Penance heal effect trigger - Rank 4
         case 64844:                                         // Divine Hymn
         case 64904:                                         // Hymn of Hope
-<<<<<<< HEAD
         case 64343:                                         // Impact
-        return true;
-=======
-        case 1008:                                          // Amplify Magic - Rank 1
-        case 8455:                                          // Amplify Magic - Rank 2
-        case 10169:                                         // Amplify Magic - Rank 3
-        case 10170:                                         // Amplify Magic - Rank 4
-        case 27130:                                         // Amplify Magic - Rank 5
-        case 33946:                                         // Amplify Magic - Rank 6
-        case 43017:                                         // Amplify Magic - Rank 7
-        case 61716:                                         // Rabbit Costume
-        case 61734:                                         // Noblegarden Bunny
         case 67398:                                         // Zergling Periodic Effect
         case 67369:                                         // Grunty Focus
-            return true;
->>>>>>> 95654ff... [IOV315] Some more fixes and hacks for companions
+        return true;
         default:
             break;
     }

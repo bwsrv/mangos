@@ -439,223 +439,6 @@ WorldObject* Spell::FindCorpseUsing()
     return result;
 }
 
-<<<<<<< HEAD
-=======
-bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
-{
-    float radius;
-
-    if (m_spellInfo->EffectRadiusIndex[i])
-        radius = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
-    else
-        radius = GetSpellMaxRange(sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex));
-
-    //Corpse Explosion
-    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && m_spellInfo->SpellIconID == 1737)
-    {
-        Unit* unitTarget = NULL;
-
-        targetUnitMap.remove(m_caster);
-        unitTarget = m_targets.getUnitTarget();
-
-        if (unitTarget)
-        {
-            // Cast on corpses...
-            if ((unitTarget->getDeathState() == CORPSE && !unitTarget->IsTaxiFlying() &&
-                (unitTarget->GetDisplayId() == unitTarget->GetNativeDisplayId()) && m_caster->IsWithinDistInMap(unitTarget, radius) &&
-                (unitTarget->GetCreatureTypeMask() & CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL) == 0) ||
-                // ...or own Risen Ghoul pet - self explode effect
-                (unitTarget->GetEntry() == 26125 && unitTarget->GetCreatorGuid() == m_caster->GetObjectGuid()) )
-            {
-                targetUnitMap.push_back(unitTarget);
-                return true;
-            }
-        }
-
-        WorldObject* result = FindCorpseUsing <MaNGOS::RaiseDeadObjectCheck>  ();
-        if (result)
-        {
-            switch(result->GetTypeId())
-            {
-                case TYPEID_UNIT:
-                case TYPEID_PLAYER:
-                    targetUnitMap.push_back((Unit*)result);
-                    break;
-                case TYPEID_CORPSE:
-                    m_targets.setCorpseTarget((Corpse*)result);
-                    if (Player* owner = ObjectAccessor::FindPlayer(((Corpse*)result)->GetOwnerGuid()))
-                        targetUnitMap.push_back(owner);
-                    break;
-                default:
-                    targetUnitMap.push_back((Unit*)m_caster);
-                    break;
-            };
-        }
-
-        if (targetUnitMap.empty())
-        {
-            // no valid targets, clear cooldown at fail
-            if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                ((Player*)m_caster)->RemoveSpellCooldown(m_spellInfo->Id, true);
-            SendCastResult(SPELL_FAILED_NO_VALID_TARGETS);
-            finish(false);
-            return false;
-        }
-
-        // OK, we have all possible targets, let's sort them by distance from m_caster and keep the closest one
-//        targetUnitMap.sort(TargetDistanceOrder(m_caster));
-        targetUnitMap.resize(1);
-        return true;
-    }
-
-    // Resulting effect depends on spell that we want to cast
-    switch (m_spellInfo->Id)
-    {
-        case 46584: // Raise Dead
-        {
-            WorldObject* result = FindCorpseUsing <MaNGOS::RaiseDeadObjectCheck>  ();
-            if (result)
-            {
-                switch(result->GetTypeId())
-                {
-                    case TYPEID_UNIT:
-                    case TYPEID_PLAYER:
-                        targetUnitMap.push_back((Unit*)result);
-                        break;
-                    case TYPEID_CORPSE:
-                        m_targets.setCorpseTarget((Corpse*)result);
-                        if (Player* owner = ObjectAccessor::FindPlayer(((Corpse*)result)->GetOwnerGuid()))
-                            targetUnitMap.push_back(owner);
-                        break;
-                    default:
-                        targetUnitMap.push_back((Unit*)m_caster);
-                        break;
-                };
-            }
-            else
-                targetUnitMap.push_back((Unit*)m_caster);
-            break;
-        }
-        case 47496: // Ghoul's explode
-        {
-            FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
-            break;
-        }
-        case 58912: // Deathstorm
-        {
-            if (!m_caster->GetObjectGuid().IsVehicle())
-                return false;
-
-            SetTargetMap(SpellEffectIndex(i), TARGET_RANDOM_ENEMY_CHAIN_IN_AREA, targetUnitMap);
-            return true;
-        }
-        case 61999: // Raise ally
-        {
-            WorldObject* result = FindCorpseUsing <MaNGOS::RaiseAllyObjectCheck>  ();
-            if (result)
-                targetUnitMap.push_back((Unit*)result);
-            else
-                targetUnitMap.push_back((Unit*)m_caster);
-            break;
-        }
-        case 65045: // Flame of demolisher
-        {
-            FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
-            break;
-        }
-        case 66862: case 67681: // Radiance (Trial of the Champion - Eadric the Pure)
-        {
-            UnitList tmpUnitMap;
-            FillAreaTargets(tmpUnitMap, radius, PUSH_DEST_CENTER,SPELL_TARGETS_AOE_DAMAGE);
-            if (!tmpUnitMap.empty())
-            {
-                for (UnitList::const_iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end(); ++itr)
-                {
-                    if (*itr && (*itr)->isInFrontInMap(m_caster, DEFAULT_VISIBILITY_DISTANCE) && (*itr)->IsWithinLOSInMap(m_caster))
-                        targetUnitMap.push_back(*itr);
-                }
-            }
-            break;
-        }
-        case 72378: // Blood Nova
-        case 73058:
-        {
-            UnitList tempTargetUnitMap;
-            FillAreaTargets(tempTargetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
-            if (!tempTargetUnitMap.empty())
-            {
-                for (UnitList::const_iterator iter = tempTargetUnitMap.begin(); iter != tempTargetUnitMap.end(); ++iter)
-                {
-                    if (!(*iter)->GetObjectGuid().IsPlayerOrPet())
-                        continue;
-
-                    if (m_caster->GetDistance(*iter) < 8.0f)
-                        continue;
-
-                    targetUnitMap.push_back((*iter));
-                }
-
-                if (!targetUnitMap.empty())
-                    return true;
-            }
-        }
-        case 71336:                                     // Pact of the Darkfallen
-        {
-            UnitList tempTargetUnitMap;
-            FillAreaTargets(tempTargetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
-            if (!tempTargetUnitMap.empty())
-            {
-                for (UnitList::const_iterator iter = tempTargetUnitMap.begin(); iter != tempTargetUnitMap.end(); ++iter)
-                {
-                    if (!(*iter)->GetObjectGuid().IsPlayer())
-                        continue;
-                    targetUnitMap.push_back((*iter));
-                }
-
-                if (!targetUnitMap.empty())
-                    return true;
-            }
-        }
-        case 71341:
-        case 71390:                                     // Pact of the Darkfallen
-        {
-            UnitList tempTargetUnitMap;
-            FillAreaTargets(tempTargetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_FRIENDLY);
-            if (!tempTargetUnitMap.empty())
-            {
-                for (UnitList::const_iterator iter = tempTargetUnitMap.begin(); iter != tempTargetUnitMap.end(); ++iter)
-                {
-                    if (!(*iter)->GetObjectGuid().IsPlayer())
-                        continue;
-
-                    if (!(*iter)->HasAura(71340))
-                        continue;
-
-                    targetUnitMap.push_back((*iter));
-                }
-            }
-            return true;
-        }
-        case 74960:                                     // Infrigidate
-        {
-            UnitList tempTargetUnitMap;
-            FillAreaTargets(tempTargetUnitMap, 20.0f, PUSH_SELF_CENTER, SPELL_TARGETS_FRIENDLY);
-            tempTargetUnitMap.remove(m_caster);
-            if (!tempTargetUnitMap.empty())
-            {
-                UnitList::iterator i = tempTargetUnitMap.begin();
-                advance(i, rand()% tempTargetUnitMap.size());
-                targetUnitMap.push_back(*i);
-            }
-        }
-        default:
-            return false;
-        break;
-    }
-    return true;
-}
-
->>>>>>> 95654ff... [IOV315] Some more fixes and hacks for companions
 // explicitly instantiate for use in SpellEffects.cpp
 template WorldObject* Spell::FindCorpseUsing<MaNGOS::RaiseDeadObjectCheck>();
 
@@ -8455,6 +8238,18 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
                 }
             }
             break;
+        }
+        case 74960: // Infrigidate
+        {
+            UnitList tempTargetUnitMap;
+            FillAreaTargets(tempTargetUnitMap, 20.0f, PUSH_SELF_CENTER, SPELL_TARGETS_FRIENDLY);
+            tempTargetUnitMap.remove(m_caster);
+            if (!tempTargetUnitMap.empty())
+            {
+                UnitList::iterator i = tempTargetUnitMap.begin();
+                advance(i, rand()% tempTargetUnitMap.size());
+                targetUnitMap.push_back(*i);
+            }
         }
         default:
             return false;
