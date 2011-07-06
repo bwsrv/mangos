@@ -1974,6 +1974,7 @@ void Aura::TriggerSpell()
             case 48094:                                      // Intense Cold
                 triggerTarget->CastSpell(triggerTarget, trigger_spell_id, true, NULL, this);
                 return;
+            case 38280:                                     // Static Charge (Lady Vashj in Serpentshrine Cavern)
             case 53563:                                     // Beacon of Light
             case 52658:                                     // Static Overload (normal&heroic) (Ionar in Halls of Lightning)
             case 59795:
