@@ -7696,6 +7696,15 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(m_caster,49381,true);
                     return;
                 }
+                case 49405:                                 // Taunt Invider Trigger (Trollgore - Drak'Tharon Keep)
+                {
+                    if (!unitTarget)
+                        return;
+
+                    //cast back Trollgore -> Taunt Invider 
+                    unitTarget->CastSpell(m_caster, 49406, true);
+                    return;
+                }
                 case 50217:                                 // The Cleansing: Script Effect Player Cast Mirror Image
                 {
                     // Summon Your Inner Turmoil
@@ -7899,6 +7908,14 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         m_caster->CastSpell(m_caster, spellId, true);
 
                     break;
+                }
+                case 53242:                                 // Clear Gift of Tharonja
+                {
+                    if (!unitTarget || !unitTarget->HasAura(52509))
+                        return;
+
+                    unitTarget->RemoveAurasDueToSpell(52509);
+                    return;
                 }
                 case 54182:                                 // An End to the Suffering: Quest Completion Script
                 {
