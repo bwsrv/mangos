@@ -1631,6 +1631,40 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
 
                 if (!data->Meets(GetPlayer(),unit))
                     continue;
+                
+                switch(achievementCriteria->referredAchievement)
+                {
+                    case 207:
+                    {
+                        BattleGround* bg = GetPlayer()->GetBattleGround();
+                        if (!bg)
+                            continue;
+    
+                        if (bg->GetTypeID(true) != BATTLEGROUND_WS)
+                            continue;
+                        switch(GetPlayer()->GetTeam())
+                        {
+                            case ALLIANCE:
+                                if (!(((BattleGroundWS*)bg)->GetFlagState(HORDE) == BG_WS_FLAG_STATE_ON_BASE))
+                                    continue;
+                                break;
+                            case HORDE:
+                                if (!(((BattleGroundWS*)bg)->GetFlagState(ALLIANCE) == BG_WS_FLAG_STATE_ON_BASE))
+                                    continue;
+                                break;
+                        }            
+                    }
+                    case 2190:
+                    {
+                        if(!(unit->GetTypeId() == TYPEID_PLAYER))
+                            continue;
+
+                        if(!((Player*)unit)->HasItemCount(39213,1))
+                            continue;
+
+                        break;
+                    }
+                }
 
                 change = 1;
                 progressType = PROGRESS_ACCUMULATE;
