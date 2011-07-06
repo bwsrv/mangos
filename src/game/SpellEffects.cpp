@@ -7726,7 +7726,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     if (!unitTarget)
                         return;
 
-                    //cast back Trollgore -> Taunt Invider 
+                    //cast back Trollgore -> Taunt Invider
                     unitTarget->CastSpell(m_caster, 49406, true);
                     return;
                 }
@@ -7900,6 +7900,12 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     m_caster->CastSpell(m_caster, roll_chance_i(75) ? 52505 : m_spellInfo->CalculateSimpleValue(eff_idx), true);
                     ((Creature*)unitTarget)->ForcedDespawn();
+                    break;
+                }
+                case 52124:                                 // Sky Darkener Assault
+                {
+                    if (unitTarget && unitTarget != m_caster)
+                        m_caster->CastSpell(unitTarget, 52125, false);
                     break;
                 }
                 case 52694:                                 // Recall Eye of Acherus
