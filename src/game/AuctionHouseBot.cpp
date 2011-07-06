@@ -61,6 +61,8 @@ void AuctionHouseBot::addNewAuctions(AHBConfig *config)
             break;
     }
 
+    DEBUG_LOG("AHBot: found %u auctions",auctions);
+
     if (auctions >= minItems)
         return;
 
@@ -418,10 +420,10 @@ void AuctionHouseBot::addNewAuctions(AHBConfig *config)
 
         item->SetCount(stackCount);
 
-        time_t expireTime = (time_t) (urand(config->GetMinTime(), config->GetMaxTime()) * 60 * 60 + time(NULL));
+        time_t expireTime = (time_t) (urand(config->GetMinTime(), config->GetMaxTime()) * 60 * 60);
 
         AuctionEntry* AH = auctionHouse->AddAuction(ahEntry, item, expireTime, bidPrice * buyBondingK, buyoutPrice * buyBondingK, 0);
-        DEBUG_LOG("AHBot: new item sended to auction, item %u, expire %u, bidprice %u",itemID, expireTime, bidPrice * buyBondingK);
+        DEBUG_LOG("AHBot: new item sended to auction, item %u, expire over %u hour, bidprice %u",itemID, expireTime/60/60, bidPrice * buyBondingK);
     }
 }
 
@@ -450,6 +452,7 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(AHBConfig *config)
             possibleBids.push_back(tmpdata);
         }
     }
+    DEBUG_LOG("AHBot:Ahbyer found %u possible bids",possibleBids.size());
 
     for (uint32 count = 0;count < config->GetBidsPerInterval();++count)
     {
@@ -730,6 +733,7 @@ void AuctionHouseBot::Update()
         {
             addNewAuctionBuyerBotBid(&AllianceConfig);
             _lastrun_a = _newrun;
+            DEBUG_LOG("AHBot: next alliance update time is %u",_lastrun_a + AllianceConfig.GetBiddingInterval() * 60);
         }
 
         addNewAuctions(&HordeConfig);
@@ -737,6 +741,7 @@ void AuctionHouseBot::Update()
         {
             addNewAuctionBuyerBotBid(&HordeConfig);
             _lastrun_h = _newrun;
+            DEBUG_LOG("AHBot: next horde update time is %u",_lastrun_h + HordeConfig.GetBiddingInterval() * 60);
         }
     }
     addNewAuctions(&NeutralConfig);
@@ -744,6 +749,7 @@ void AuctionHouseBot::Update()
     {
         addNewAuctionBuyerBotBid(&NeutralConfig);
         _lastrun_n = _newrun;
+        DEBUG_LOG("AHBot: next neytral update time is %u",_lastrun_n + NeutralConfig.GetBiddingInterval() * 60);
     }
 
 }
