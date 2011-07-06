@@ -3804,6 +3804,16 @@ void Player::RemoveArenaSpellCooldowns()
             RemoveSpellCooldown(itr->first, true);
         }
     }
+
+    if (Pet *pet = GetPet())
+    {
+        // notify player
+        for (CreatureSpellCooldowns::const_iterator itr = pet->m_CreatureSpellCooldowns.begin(); itr != pet->m_CreatureSpellCooldowns.end(); ++itr)
+            SendClearCooldown(itr->first, pet);
+
+        // actually clear cooldowns
+        pet->m_CreatureSpellCooldowns.clear();
+    }
 }
 
 void Player::RemoveAllSpellCooldown()
