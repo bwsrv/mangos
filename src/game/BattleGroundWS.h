@@ -166,6 +166,7 @@ class BattleGroundWS : public BattleGround
         uint32 m_EndTimer;
 
         Team   m_LastCapturedFlagTeam;
+        Team   m_FirstCapturedFlagTeam;
 
         uint32 m_FocusedAssault;
         bool   m_FocusedAssaultExtra;
