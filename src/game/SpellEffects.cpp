@@ -7273,6 +7273,14 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, 41131, true);
                     break;
                 }
+                case 42281:                                 // Sprout (Headless Horsemann spell)
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->CastSpell(unitTarget, 42285, true);
+                    return;
+                }
                 case 43365:                                 // The Cleansing: Shrine Cast
                 {
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -7515,6 +7523,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     else
                         break;
                 }
+
                 case 46203:                                 // Goblin Weather Machine
                 {
                     if (!unitTarget)
@@ -7537,6 +7546,14 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         return;
 
                     ((Player*)unitTarget)->ModifyMoney(50000000);
+                    break;
+                }
+                case 45625:                                 // Arcane Chains: Character Force Cast
+                {
+                    if(!unitTarget)
+                        return;
+
+                    unitTarget->CastSpell(m_caster, 45626, true);
                     break;
                 }
                 case 47097:                                 // Surge Needle Teleporter
