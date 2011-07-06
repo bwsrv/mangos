@@ -9843,9 +9843,14 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                             caster->RemoveAurasDueToSpell(34027);
                     return;
                 }
-                case 62692:                                 // Aura of Despair
+                case 62692:                                 // Aura of Despair (General Vezax - Ulduar)
                 {
                     spellId1 = 64848;
+                    break;
+                }
+                case 63277:                                 // Shadow Crash (General Vezax - Ulduar)
+                {   
+                    spellId1 = 65269;
                     break;
                 }
                 case 70867:                                 // Soul of Blood Qween
