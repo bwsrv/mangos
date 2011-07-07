@@ -51,6 +51,5 @@ class BattleGroundRV : public BattleGround
         bool HandlePlayerUnderMap(Player * plr);
     private:
         uint32 m_uiTeleport;
-        uint32 m_uiPillarSwitch;
 };
 #endif
