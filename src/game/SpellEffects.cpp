@@ -7693,6 +7693,15 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->RemoveAurasDueToSpell(47636);
                     return;
                 }
+                case 47958:                                 // Crystal Spikes 
+                { 
+                    // Summon Crystal Spike 
+                    m_caster->CastSpell(m_caster, 47954, true); 
+                    m_caster->CastSpell(m_caster, 47955, true); 
+                    m_caster->CastSpell(m_caster, 47956, true); 
+                    m_caster->CastSpell(m_caster, 47957, true); 
+                    return; 
+                }
                 case 48603:                                 // High Executor's Branding Iron
                     // Torture the Torturer: High Executor's Branding Iron Impact
                     unitTarget->CastSpell(unitTarget, 48614, true);
