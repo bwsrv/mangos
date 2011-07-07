@@ -39,16 +39,6 @@ BattleGroundRV::BattleGroundRV()
 
 BattleGroundRV::~BattleGroundRV()
 {
-
-<<<<<<< HEAD
-void BattleGroundRV::Reset()
-{
-    //call parent's class reset
-    BattleGround::Reset();
-    m_uiTeleport = 22000;
-    m_uiPillarSwitch = 45000 + urand(0, 30000);
-=======
->>>>>>> parent of c765ded... [IOV349] Ring of Valor improvements, including pillars collision
 }
 
 void BattleGroundRV::Update(uint32 diff)
@@ -71,35 +61,6 @@ void BattleGroundRV::Update(uint32 diff)
         }
         else
             m_uiTeleport -= diff;
-<<<<<<< HEAD
-
-        if (m_uiPillarSwitch < diff)
-        {
-            for(BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-            {
-                Player * plr = sObjectMgr.GetPlayer(itr->first);
-                if(!plr)
-                    continue;
-
-                const int m_uiObjects[8] = {192393, 192394, 194583, 194584, 194585, 194587, 192389, 192390};
-
-                for(int i = 0; i < 8; ++i)
-                {
-                    if(GameObject * pPillar = plr->GetClosestGameObjectWithEntry(plr, m_uiObjects[i], 100))
-                    {
-                        pPillar->SetLootState(GO_READY);
-                        pPillar->UseDoorOrButton(RESPAWN_ONE_DAY);
-                    }
-                }
-                break; // End on 1 succesful iteration
-            }
-
-            m_uiPillarSwitch = 30000;
-        }
-        else
-            m_uiPillarSwitch -= diff;
-=======
->>>>>>> parent of c765ded... [IOV349] Ring of Valor improvements, including pillars collision
     }
 }
 

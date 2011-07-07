@@ -2248,14 +2248,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(unitTarget, 50770, true);
                     return;
                 }
-                case 51369:                                 // Tickbird Signal to Fall
-                {
-                    if (!unitTarget)
-                        return;
-
-                    unitTarget->DealDamage(unitTarget, unitTarget->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                    return;
-                }
                 case 51420:                                 // Digging for Treasure Ping
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
@@ -7833,14 +7825,6 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     ((Player*)unitTarget)->ModifyMoney(50000000);
                     break;
                 }
-                case 45625:                                 // Arcane Chains: Character Force Cast
-                {
-                    if(!unitTarget)
-                        return;
-
-                    unitTarget->CastSpell(m_caster, 45626, true);
-                    break;
-                }
                 case 47097:                                 // Surge Needle Teleporter
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
@@ -7992,15 +7976,6 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     // Corpse Explode (prepare corpse to explode)
                     m_caster->CastSpell(m_caster, 49555, false);
 
-                    return;
-                }
-                case 49405:                                 // Taunt Invider Trigger (Trollgore - Drak'Tharon Keep)
-                {
-                    if (!unitTarget)
-                        return;
-
-                    //cast back Trollgore -> Taunt Invider 
-                    unitTarget->CastSpell(m_caster, 49406, true);
                     return;
                 }
                 case 48810:                                 // Death's Door
@@ -8256,12 +8231,6 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     m_caster->CastSpell(m_caster, roll_chance_i(75) ? 52505 : m_spellInfo->CalculateSimpleValue(eff_idx), true);
                     ((Creature*)unitTarget)->ForcedDespawn();
-                    break;
-                }
-                case 52124:                                 // Sky Darkener Assault
-                {
-                    if (unitTarget && unitTarget != m_caster)
-                        m_caster->CastSpell(unitTarget, 52125, false);
                     break;
                 }
                 case 52694:                                 // Recall Eye of Acherus
