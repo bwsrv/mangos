@@ -2530,6 +2530,37 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(m_caster, 54851, true);
                     return;
                 }
+                case 54517:                                 // Magnetic Pull
+                {
+                    // Feugen casts on Stalagg
+                    if (m_caster->GetTypeId() != TYPEID_UNIT || unitTarget->GetTypeId() != TYPEID_UNIT)
+                        return;
+
+                    if (m_caster->GetEntry() == 15930 && unitTarget->GetEntry() == 15929)
+                    {
+                        Unit *pFeugenVictim = m_caster->getVictim();
+                        Unit *pStalaggVictim = unitTarget->getVictim();
+
+                        if (pFeugenVictim && pStalaggVictim)
+                        {
+                            pStalaggVictim->CastSpell(m_caster, 54485, true);
+                            pFeugenVictim->CastSpell(unitTarget, 54485, true);
+
+                            // threat swap
+                            m_caster->AddThreat(pStalaggVictim, m_caster->getThreatManager().getThreat(pFeugenVictim));
+                            unitTarget->AddThreat(pFeugenVictim, m_caster->getThreatManager().getThreat(pStalaggVictim));
+                            m_caster->getThreatManager().modifyThreatPercent(pFeugenVictim, -101);
+                            unitTarget->getThreatManager().modifyThreatPercent(pStalaggVictim, -101);
+
+                            // stop moving for a moment
+                            m_caster->GetMotionMaster()->Clear();
+                            m_caster->GetMotionMaster()->MoveIdle();
+                            unitTarget->GetMotionMaster()->Clear();
+                            unitTarget->GetMotionMaster()->MoveIdle();
+                        }
+                    }
+                    return;
+                }
                 case 55004:                                 // Nitro Boosts
                 {
                     if (!m_CastItem)
