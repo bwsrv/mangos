@@ -368,6 +368,25 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                             damage = m_caster->GetMaxPower(POWER_MANA);
                         break;
                     }
+                    // Polarity Shift Charges
+                    case 28062:                             // Positive Charge (Thaddius)
+                    case 28085:                             // Negative Charge (Thaddius)
+                    case 39090:                             // Positive Charge (Capacitus)
+                    case 39093:                             // Negative Charge (Capacitus)
+                    {
+                        uint32 uiAuraId = 0;
+                        switch (m_spellInfo->Id)
+                        {
+                            case 28062: uiAuraId = 28059; break;
+                            case 28085: uiAuraId = 28084; break;
+                            case 39090: uiAuraId = 39088; break;
+                            case 39093: uiAuraId = 39091; break;
+                        }
+                        // Do not damage non-players or players with same aura
+                        if (unitTarget->GetTypeId() != TYPEID_PLAYER || unitTarget->HasAura(uiAuraId))
+                            damage = 0;
+                        break;
+                    }
                     // percent max target health
                     case 29142:                             // Eyesore Blaster
                     case 35139:                             // Throw Boom's Doom
@@ -1334,6 +1353,59 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(m_caster, 23782, true);
                     m_caster->CastSpell(m_caster, 23783, true);
                     return;
+                case 28089:                                 // Polarity Shift (Thaddius)
+                case 39096:                                 // Polarity Shift (Mechano-Lord Capacitus)
+                {
+                    uint32 uiPositiveDummyAura = 0;
+                    uint32 uiNegativeDummyAura = 0;
+                    // First, we remove auras from previous casts, reapplying new auras on last-target
+                    if (m_spellInfo->Id == 28089)
+                    {
+                        unitTarget->RemoveAurasDueToSpell(28059);
+                        unitTarget->RemoveAurasDueToSpell(29659);
+                        unitTarget->RemoveAurasDueToSpell(28084);
+                        unitTarget->RemoveAurasDueToSpell(29660);
+                        uiPositiveDummyAura = 28059;
+                        uiNegativeDummyAura = 28084;
+                    }
+                    else if (m_spellInfo->Id == 39096)
+                    {
+                        unitTarget->RemoveAurasDueToSpell(39088);
+                        unitTarget->RemoveAurasDueToSpell(39089);
+                        unitTarget->RemoveAurasDueToSpell(39091);
+                        unitTarget->RemoveAurasDueToSpell(39092);
+                        uiPositiveDummyAura = 39088;
+                        uiNegativeDummyAura = 39091;
+                    }
+                    if (m_UniqueTargetInfo.rbegin()->targetGUID != unitTarget->GetObjectGuid())
+                        return;
+                    // Keep Track of positive Charges
+                    uint32 maxPositiveTargets = m_UniqueTargetInfo.size() / 2;
+                    uint32 positiveChargedTargets = 0;
+                    uint32 negativeChargedTargets = 0;
+                    for (std::list<TargetInfo>::const_iterator itr = m_UniqueTargetInfo.begin(); itr != m_UniqueTargetInfo.end(); itr++)
+                    {
+                        // Skip Non-Players
+                        if (!itr->targetGUID.IsPlayer())
+                            continue;
+                        // The order of the targets is not entirely random, hence add some randomness with urand(0, 1)
+                        // apply positive, by random or if we have enough negative already
+                        if (Unit* pTarget = m_caster->GetMap()->GetUnit(itr->targetGUID))
+                        {
+                            if (positiveChargedTargets < maxPositiveTargets && (urand(0, 1) || negativeChargedTargets >= maxPositiveTargets))
+                            {
+                                pTarget->CastSpell(pTarget, uiPositiveDummyAura, true);
+                                positiveChargedTargets++;
+                            }
+                            else                            // apply negative
+                            {
+                                pTarget->CastSpell(pTarget, uiNegativeDummyAura, true);
+                                negativeChargedTargets++;
+                            }
+                        }
+                    }
+                    return;
+                }
                 case 24930:                                 // Hallow's End Treat
                 {
                     uint32 spell_id = 0;
@@ -7621,6 +7693,15 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->RemoveAurasDueToSpell(47636);
                     return;
                 }
+                case 47958:                                 // Crystal Spikes 
+                { 
+                    // Summon Crystal Spike 
+                    m_caster->CastSpell(m_caster, 47954, true); 
+                    m_caster->CastSpell(m_caster, 47955, true); 
+                    m_caster->CastSpell(m_caster, 47956, true); 
+                    m_caster->CastSpell(m_caster, 47957, true); 
+                    return; 
+                }
                 case 48603:                                 // High Executor's Branding Iron
                     // Torture the Torturer: High Executor's Branding Iron Impact
                     unitTarget->CastSpell(unitTarget, 48614, true);
@@ -10041,6 +10122,14 @@ void Spell::DoSummonCritter(SpellEffectIndex eff_idx, uint32 forceFaction)
 void Spell::EffectKnockBack(SpellEffectIndex eff_idx)
 {
     if(!unitTarget)
+        return;
+
+    // Can't knockback unit underwater
+    if (unitTarget->IsInWater())
+        return;
+
+    // Can't knockback rooted target
+    if (unitTarget->hasUnitState(UNIT_STAT_ROOT))
         return;
 
     unitTarget->KnockBackFrom(m_caster,float(m_spellInfo->EffectMiscValue[eff_idx])/10,float(damage)/10);
