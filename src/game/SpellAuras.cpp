@@ -1999,13 +1999,13 @@ void Aura::TriggerSpell()
             case 28084:                                     // Negative Charge
             {
                 if (triggerTarget->HasAura(29660))
-                    triggerTarget->RemoveAura(29660, EFFECT_INDEX_0);
+                    triggerTarget->RemoveAurasDueToSpell(29660);
                 break;
             }
             case 28059:                                     // Positive Charge
             {
                 if (triggerTarget->HasAura(29659))
-                    triggerTarget->RemoveAura(29659, EFFECT_INDEX_0);
+                    triggerTarget->RemoveAurasDueToSpell(29659);
                 break;
             }
             case 33525:                                     // Ground Slam
@@ -2642,13 +2642,13 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
             }
             case 28059:                                     // Positive Charge (Thaddius)
             {
-                if (target->HasAura(29659, EFFECT_INDEX_0))
+                if (target->HasAura(29659))
                     target->RemoveAurasDueToSpell(29659);
                 return;
             }
             case 28084:                                     // Negative Charge (Thaddius)
             {
-                if (target->HasAura(29660, EFFECT_INDEX_0))
+                if (target->HasAura(29660))
                     target->RemoveAurasDueToSpell(29660);
                 return;
             }

@@ -382,7 +382,7 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                     case 28062:
                     {
                         // If target is not (+) charged, then just deal dmg
-                        if (!unitTarget->HasAura(28059, EFFECT_INDEX_0))
+                        if (!unitTarget->HasAura(28059))
                             break;
 
                         if (m_caster != unitTarget)
@@ -395,7 +395,7 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                     case 28085:
                     {
                         // If target is not (-) charged, then just deal dmg
-                        if (!unitTarget->HasAura(28084, EFFECT_INDEX_0))
+                        if (!unitTarget->HasAura(28084))
                             break;
 
                         if (m_caster != unitTarget)
@@ -1422,10 +1422,10 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                         return;
 
                     // neutralize the target
-                    if (unitTarget->HasAura(28059, EFFECT_INDEX_0) ) unitTarget->RemoveAurasDueToSpell(28059);
-                    if (unitTarget->HasAura(29659, EFFECT_INDEX_0) ) unitTarget->RemoveAurasDueToSpell(29659);
-                    if (unitTarget->HasAura(28084, EFFECT_INDEX_0) ) unitTarget->RemoveAurasDueToSpell(28084);
-                    if (unitTarget->HasAura(29660, EFFECT_INDEX_0) ) unitTarget->RemoveAurasDueToSpell(29660);
+                    if (unitTarget->HasAura(28059)) unitTarget->RemoveAurasDueToSpell(28059);
+                    if (unitTarget->HasAura(29659)) unitTarget->RemoveAurasDueToSpell(29659);
+                    if (unitTarget->HasAura(28084)) unitTarget->RemoveAurasDueToSpell(28084);
+                    if (unitTarget->HasAura(29660)) unitTarget->RemoveAurasDueToSpell(29660);
 
                     unitTarget->CastSpell(unitTarget, roll_chance_i(50) ? 28059 : 28084, true);
                     break;
