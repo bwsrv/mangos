@@ -10124,11 +10124,6 @@ void Spell::EffectKnockBack(SpellEffectIndex eff_idx)
     if(!unitTarget)
         return;
 
-    // Can't knockback world bosses (don't know any exceptions)
-    if (unitTarget->GetTypeId() != TYPEID_PLAYER)
-        if (((Creature*)unitTarget)->IsWorldBoss())
-        return;
-
     // Can't knockback unit underwater
     if (unitTarget->IsInWater())
         return;
