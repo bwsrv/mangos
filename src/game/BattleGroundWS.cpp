@@ -122,7 +122,7 @@ void BattleGroundWS::Update(uint32 diff)
             else
             {
                 // if 0 => tie
-                EndBattleGround(m_LastCapturedFlagTeam);
+                EndBattleGround(m_FirstCapturedFlagTeam);
             }
         }
         else
@@ -214,6 +214,9 @@ void BattleGroundWS::EventPlayerCapturedFlag(Player *Source)
         return;
 
     m_LastCapturedFlagTeam = Source->GetTeam();
+
+    if(m_FirstCapturedFlagTeam == TEAM_NONE)
+        m_FirstCapturedFlagTeam = Source->GetTeam();
 
     Team winner = TEAM_NONE;
 
@@ -581,6 +584,7 @@ void BattleGroundWS::Reset()
 
     m_EndTimer = BG_WS_TIME_LIMIT;
     m_LastCapturedFlagTeam = TEAM_NONE;
+    m_FirstCapturedFlagTeam = TEAM_NONE;
 }
 
 void BattleGroundWS::EndBattleGround(Team winner)

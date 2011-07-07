@@ -379,11 +379,6 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                     }
                     // Cataclysmic Bolt
                     case 38441:
-                    // Spinning Pain Spike (Trial Of Crusader, Lord Jaraxxus encounter, all difficult)
-                    case 66316:
-                    case 67100:
-                    case 67101:
-                    case 67102:
                     {
                         damage = unitTarget->GetMaxHealth() / 2;
                         break;
@@ -2195,6 +2190,14 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(unitTarget, 50770, true);
                     return;
                 }
+                case 51369:                                 // Tickbird Signal to Fall
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->DealDamage(unitTarget, unitTarget->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    return;
+                }
                 case 51420:                                 // Digging for Treasure Ping
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
@@ -2703,15 +2706,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                             break;
                     }
                     m_caster->CastSpell(m_caster, spell_id, true);
-                    return;
-                }
-                case 68576:                                 // Eject All Passengers
-                {
-                    if (!unitTarget)
-                        return;
-
-                    if (VehicleKit* vehicle = unitTarget->GetVehicleKit())
-                        vehicle->RemoveAllPassengers();
                     return;
                 }
                 case 67400:                                 // Zergling Attack (on Grunty companion)
@@ -3789,12 +3783,6 @@ void Spell::EffectForceCast(SpellEffectIndex eff_idx)
         return;
     }
 
-    if (m_spellInfo->Id == 66285)                           // Spinning Pain Spike (Trial Of Crusader, Lord Jaraxxus encounter)
-    {
-        unitTarget->CastSpell(m_caster, spellInfo, true);
-        return;
-    }
-
     unitTarget->CastSpell(unitTarget, spellInfo, true, NULL, NULL, m_originalCasterGUID, m_spellInfo);
 }
 
@@ -3975,12 +3963,6 @@ void Spell::EffectTriggerMissileSpell(SpellEffectIndex effect_idx)
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
         ((Player*)m_caster)->RemoveSpellCooldown(triggered_spell_id);
-
-    if (m_spellInfo->Id == 66283)                           // Spinning Pain Spike (Trial Of Crusader, Lord Jaraxxus encounter)
-    {
-        m_caster->CastSpell(unitTarget, triggered_spell_id, true);
-        return;
-    }
 
     m_caster->CastSpell(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, spellInfo, true, m_CastItem, 0, m_originalCasterGUID);
 }
@@ -5412,23 +5394,7 @@ void Spell::EffectLearnSpell(SpellEffectIndex eff_idx)
 
     Player *player = (Player*)unitTarget;
 
-    /*  Flying Everywhere   */
-   //uint32 spellToLearn = ((m_spellInfo->Id==SPELL_ID_GENERIC_LEARN) || (m_spellInfo->Id==SPELL_ID_GENERIC_LEARN_PET)) ? damage : m_spellInfo->EffectTriggerSpell[eff_idx];
-    uint32 spellToLearn = ((m_spellInfo->Id==SPELL_ID_GENERIC_LEARN) || (m_spellInfo->Id==SPELL_ID_GENERIC_LEARN_PET)) ? damage : m_spellInfo->EffectTriggerSpell[0];
-    if ((sWorld.getConfig(CONFIG_BOOL_ALLOW_FLYING_MOUNTS_EVERYWHERE) == 1) && (m_spellInfo->Id==55884))
-    {
-        SpellEntry const *sEntry = sSpellStore.LookupEntry(spellToLearn);
-        if(sEntry)
-        {
-            if(player->isFlyingSpell(sEntry) || player->isFlyingFormSpell(sEntry))
-            {
-                player->RemoveSpellCooldown(55884, true);
-                return;
-            }
-        }
-        else
-            return;
-    }
+    uint32 spellToLearn = ((m_spellInfo->Id==SPELL_ID_GENERIC_LEARN) || (m_spellInfo->Id==SPELL_ID_GENERIC_LEARN_PET)) ? damage : m_spellInfo->EffectTriggerSpell[eff_idx];
     player->learnSpell(spellToLearn, false);
 
     DEBUG_LOG( "Spell: Player %u has learned spell %u from NpcGUID=%u", player->GetGUIDLow(), spellToLearn, m_caster->GetGUIDLow() );
@@ -7315,6 +7281,14 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, 41131, true);
                     break;
                 }
+                case 42281:                                 // Sprout (Headless Horsemann spell)
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->CastSpell(unitTarget, 42285, true);
+                    return;
+                }
                 case 43365:                                 // The Cleansing: Shrine Cast
                 {
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -7557,6 +7531,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     else
                         break;
                 }
+
                 case 46203:                                 // Goblin Weather Machine
                 {
                     if (!unitTarget)
@@ -7579,6 +7554,14 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         return;
 
                     ((Player*)unitTarget)->ModifyMoney(50000000);
+                    break;
+                }
+                case 45625:                                 // Arcane Chains: Character Force Cast
+                {
+                    if(!unitTarget)
+                        return;
+
+                    unitTarget->CastSpell(m_caster, 45626, true);
                     break;
                 }
                 case 47097:                                 // Surge Needle Teleporter
@@ -7736,6 +7719,15 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                 case 49380:                                 // Consume: Spell of Trollgore nonhero
                 {
                     m_caster->CastSpell(m_caster,49381,true);
+                    return;
+                }
+                case 49405:                                 // Taunt Invider Trigger (Trollgore - Drak'Tharon Keep)
+                {
+                    if (!unitTarget)
+                        return;
+
+                    //cast back Trollgore -> Taunt Invider
+                    unitTarget->CastSpell(m_caster, 49406, true);
                     return;
                 }
                 case 50217:                                 // The Cleansing: Script Effect Player Cast Mirror Image
@@ -7910,6 +7902,12 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     ((Creature*)unitTarget)->ForcedDespawn();
                     break;
                 }
+                case 52124:                                 // Sky Darkener Assault
+                {
+                    if (unitTarget && unitTarget != m_caster)
+                        m_caster->CastSpell(unitTarget, 52125, false);
+                    break;
+                }
                 case 52694:                                 // Recall Eye of Acherus
                 {
                     if (!m_caster || m_caster->GetTypeId() != TYPEID_UNIT)
@@ -7941,6 +7939,14 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         m_caster->CastSpell(m_caster, spellId, true);
 
                     break;
+                }
+                case 53242:                                 // Clear Gift of Tharonja
+                {
+                    if (!unitTarget || !unitTarget->HasAura(52509))
+                        return;
+
+                    unitTarget->RemoveAurasDueToSpell(52509);
+                    return;
                 }
                 case 54182:                                 // An End to the Suffering: Quest Completion Script
                 {

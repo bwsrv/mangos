@@ -1866,7 +1866,7 @@ void BattleGround::HandleKillPlayer( Player *player, Player *killer )
         {
             Player *plr = sObjectMgr.GetPlayer(itr->first);
 
-            if (!plr || plr == killer)
+            if (!plr || plr == killer || !plr->isAlive())
                 continue;
 
             if (plr->GetTeam() == killer->GetTeam() && plr->IsAtGroupRewardDistance(player))

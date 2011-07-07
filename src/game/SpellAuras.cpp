@@ -2066,6 +2066,7 @@ void Aura::TriggerSpell()
             case 48094:                                      // Intense Cold
                 triggerTarget->CastSpell(triggerTarget, trigger_spell_id, true, NULL, this);
                 return;
+            case 38280:                                     // Static Charge (Lady Vashj in Serpentshrine Cavern)
             case 53563:                                     // Beacon of Light
             case 52658:                                     // Static Overload (normal&heroic) (Ionar in Halls of Lightning)
             case 59795:
@@ -7339,7 +7340,7 @@ void Aura::HandleShapeshiftBoosts(bool apply)
                     if ((*i)->GetSpellProto()->SpellIconID == 240 && (*i)->GetModifier()->m_miscvalue == 3)
                     {
                         int32 HotWMod = (*i)->GetModifier()->m_amount;
-                        if(GetModifier()->m_miscvalue == FORM_CAT)
+                        if(GetModifier()->m_miscvalue == FORM_CAT  || GetModifier()->m_miscvalue == FORM_BEAR || GetModifier()->m_miscvalue == FORM_DIREBEAR)
                             HotWMod /= 2;
 
                         target->CastCustomSpell(target, HotWSpellId, &HotWMod, NULL, NULL, true, NULL, this);
@@ -7727,21 +7728,9 @@ void Aura::HandleSchoolAbsorb(bool apply, bool Real)
         else if (caster && caster->GetTypeId() == TYPEID_PLAYER && spellProto->Id == 47788 && 
             m_removeMode == AURA_REMOVE_BY_EXPIRE)
         {
-            Player* plr = (Player*)caster;
-            if (Aura *aur = plr->GetAura(63231, EFFECT_INDEX_0))
+            if (Aura *aur = caster->GetAura(63231, EFFECT_INDEX_0))
             {
-                int32 base_time = aur->GetSpellProto()->CalculateSimpleValue(EFFECT_INDEX_0);
-                int32 end_time = -(plr->GetSpellCooldownDelay(spellProto->Id) - base_time);
-
-                // start new cooldown at server side
-                plr->AddSpellCooldown(spellProto->Id, 0, time_t(NULL) + time_t(base_time));
-
-                // Send activate cooldown timer (possible 0) at client side
-                WorldPacket data(SMSG_MODIFY_COOLDOWN, (4+8+4));
-                data << spellProto->Id;
-                data << plr->GetObjectGuid();
-                data << end_time*IN_MILLISECONDS;
-                plr->SendDirectMessage(&data);
+                ((Player*)caster)->SendModifyCooldown(spellProto->Id,-aur->GetSpellProto()->CalculateSimpleValue(EFFECT_INDEX_0)*IN_MILLISECONDS);
             }
         }
     }
@@ -10055,9 +10044,14 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                             caster->RemoveAurasDueToSpell(34027);
                     return;
                 }
-                case 62692:                                 // Aura of Despair
+                case 62692:                                 // Aura of Despair (General Vezax - Ulduar)
                 {
                     spellId1 = 64848;
+                    break;
+                }
+                case 63277:                                 // Shadow Crash (General Vezax - Ulduar)
+                {   
+                    spellId1 = 65269;
                     break;
                 }
                 case 70867:                                 // Soul of Blood Qween
