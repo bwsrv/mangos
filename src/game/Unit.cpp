@@ -923,18 +923,6 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
         {
             player_tap->ProcDamageAndSpell(pVictim, PROC_FLAG_KILL, PROC_FLAG_KILLED, PROC_EX_NONE, 0);
 
-            /// PvP Token
-            int8 leveldiff = player_tap->getLevel() - pVictim->getLevel();
-            if((pVictim->GetTypeId() == TYPEID_PLAYER) && leveldiff < 1)
-                player_tap->ReceiveToken();
-				
-            /// PvP Announcer
-            if (sWorld.getConfig(CONFIG_BOOL_PVP_ANNOUNCER))
-            {
-                if (pVictim->GetTypeId() == TYPEID_PLAYER)
-                    sWorld.SendPvPAnnounce(player_tap, ((Player*)pVictim));
-            }
-
             WorldPacket data(SMSG_PARTYKILLLOG, (8+8));     //send event PARTY_KILL
             data << player_tap->GetObjectGuid();            //player with killing blow
             data << pVictim->GetObjectGuid();              //victim
@@ -1357,6 +1345,12 @@ void Unit::CastSpell(Unit* Victim, SpellEntry const *spellInfo, bool triggered, 
             sLog.outError("CastSpell: unknown spell by caster: %s triggered by aura %u (eff %u)", GetGuidStr().c_str(), triggeredByAura->GetId(), triggeredByAura->GetEffIndex());
         else
             sLog.outError("CastSpell: unknown spell by caster: %s", GetGuidStr().c_str());
+        return;
+    }
+
+    if(!Victim)
+    {
+        sLog.outError("CastSpell: cast spell %u by caster %s failed - victim is NULL", spellInfo->Id, GetGuidStr().c_str());
         return;
     }
 

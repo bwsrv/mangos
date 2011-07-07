@@ -83,10 +83,10 @@ LFGRoleMask LFGPlayerState::GetRoles()
 
 LFGType LFGPlayerState::GetDungeonType()
 {
-    if (!GetDungeons() || GetDungeons()->empty())
+    if (update)
         return LFG_TYPE_NONE;
 
-    return LFGType((*GetDungeons()->begin())->type);
+    return GetType();
 };
 
 void LFGPlayerState::SetJoined()
