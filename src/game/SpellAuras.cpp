@@ -2149,34 +2149,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         if (Unit* caster = GetCaster())
                             caster->CastSpell(caster, 13138, true, NULL, this);
                         return;
-                    case 28059:                             // Positive Charge (Thaddius)
-                    case 28084:                             // Negative Charge (Thaddius)
-                    case 39088:                             // Positive Charge (Capacitus)
-                    case 39091:                             // Negative Charge (Capacitus)
-                    {
-                        uint32 uiBuffSpell = 0;
-                        switch (GetId())
-                        {
-                            case 28059: uiBuffSpell = 29659; break;
-                            case 28084: uiBuffSpell = 29660; break;
-                            case 39088: uiBuffSpell = 39089; break;
-                            case 39091: uiBuffSpell = 39092; break;
-                        }
-                        // Apply to each nearby friend with same aura +1 of the stacking aura - TODO range= gueswork
-                        std::list<Unit*> friendsInRange;
-                        MaNGOS::AnyFriendlyUnitInObjectRangeCheck u_check(target, 13.0f);
-                        MaNGOS::UnitListSearcher<MaNGOS::AnyFriendlyUnitInObjectRangeCheck> searcher(friendsInRange, u_check);
-                        Cell::VisitAllObjects(target, searcher, 13.0f);
-                        for (std::list<Unit*>::const_iterator itr = friendsInRange.begin(); itr != friendsInRange.end(); itr++)
-                        {
-                            if  ((*itr)->HasAura(GetId()) && (*itr) != target)
-                            {
-                                (*itr)->CastSpell(*itr, uiBuffSpell, true);
-                                target->CastSpell(target, uiBuffSpell, true, NULL, this);
-                            }
-                        }
-                        return;
-                    }
                     case 31606:                             // Stormcrow Amulet
                     {
                         CreatureInfo const * cInfo = ObjectMgr::GetCreatureTemplate(17970);
@@ -2655,22 +2627,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     caster->CastSpell(caster, 12816, true);
 
                 return;
-            }
-            case 28059:                                     // Positive Charge (Thaddius)
-            case 28084:                                     // Negative Charge (Thaddius)
-            case 39088:                                     // Positive Charge (Capacitus)
-            case 39091:                                     // Negative Charge (Capacitus)
-            {
-                uint32 uiBuffAura = 0;
-                switch (GetId())
-                {
-                    case 28059: uiBuffAura = 29659; break;
-                    case 28084: uiBuffAura = 29660; break;
-                    case 39088: uiBuffAura = 39089; break;
-                    case 39091: uiBuffAura = 39092; break;
-                }
-                target->RemoveAurasDueToSpell(uiBuffAura);
-                break;
             }
             case 28169:                                     // Mutating Injection
             {
