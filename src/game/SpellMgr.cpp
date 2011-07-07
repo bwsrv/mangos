@@ -443,7 +443,7 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
         }
         case SPELLFAMILY_WARRIOR:
         {
-            if (spellInfo->SpellFamilyFlags.test<CF_WARRIOR_BATTLE_SHOUT, CF_WARRIOR_COMMANDING_SHOUT>()) 
+            if (spellInfo->SpellFamilyFlags.test<CF_WARRIOR_BATTLE_SHOUT, CF_WARRIOR_COMMANDING_SHOUT>())
                 return SPELL_POSITIVE_SHOUT;
 
             break;
@@ -719,7 +719,7 @@ bool IsPositiveEffect(SpellEntry const *spellproto, SpellEffectIndex effIndex)
             {
                 case 28441:                                 // AB Effect 000
                     return false;
-                case 48021:                                 // support for quest 12173  
+                case 48021:                                 // support for quest 12173
                     return true;
                 case 49634:                                 // Sergeant's Flare
                 case 54530:                                 // Opening
@@ -2332,7 +2332,7 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     (spellInfo_2->Category == 44 && spellInfo_1->Category == 0)))
                     return false;
             }
-            else if ( spellInfo_2->SpellFamilyName == SPELLFAMILY_GENERIC ) 
+            else if ( spellInfo_2->SpellFamilyName == SPELLFAMILY_GENERIC )
             {
                 // Honor Among Thieves dummy auras (multi-family check)
                 if (spellId_1 == 52916 && spellId_2 == 51699)
@@ -2516,6 +2516,8 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
     // more generic checks
     if (spellInfo_1->SpellIconID == spellInfo_2->SpellIconID &&
         spellInfo_1->SpellIconID != 0 && spellInfo_2->SpellIconID != 0)
+        // exclude a few icons from this generic check
+        && spellInfo_1->SpellIconID != 1885 && spellInfo_1->SpellIconID != 1886)        // Thaddius Encounter, pos/neg Charge
     {
         bool isModifier = false;
         for (int i = 0; i < MAX_EFFECT_INDEX; ++i)
@@ -4722,7 +4724,7 @@ SpellEntry const* GetSpellEntryByDifficulty(uint32 id, Difficulty difficulty, bo
     if (!spellDiff)
         return NULL;
 
-    DEBUG_LOG("Searching spell %u in SpellDifficulty.dbc: Result is: %u/%u/%u/%u ",id, 
+    DEBUG_LOG("Searching spell %u in SpellDifficulty.dbc: Result is: %u/%u/%u/%u ",id,
     spellDiff->spellId[RAID_DIFFICULTY_10MAN_NORMAL],
     spellDiff->spellId[RAID_DIFFICULTY_25MAN_NORMAL],
     spellDiff->spellId[RAID_DIFFICULTY_10MAN_HEROIC],

@@ -2115,6 +2115,34 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         if (Unit* caster = GetCaster())
                             caster->CastSpell(caster, 13138, true, NULL, this);
                         return;
+                    case 28059:                             // Positive Charge (Thaddius)
+                    case 28084:                             // Negative Charge (Thaddius)
+                    case 39088:                             // Positive Charge (Capacitus)
+                    case 39091:                             // Negative Charge (Capacitus)
+                    {
+                        uint32 uiBuffSpell = 0;
+                        switch (GetId())
+                        {
+                            case 28059: uiBuffSpell = 29659; break;
+                            case 28084: uiBuffSpell = 29660; break;
+                            case 39088: uiBuffSpell = 39089; break;
+                            case 39091: uiBuffSpell = 39092; break;
+                        }
+                        // Apply to each nearby friend with same aura +1 of the stacking aura - TODO range= gueswork
+                        std::list<Unit*> friendsInRange;
+                        MaNGOS::AnyFriendlyUnitInObjectRangeCheck u_check(target, 13.0f);
+                        MaNGOS::UnitListSearcher<MaNGOS::AnyFriendlyUnitInObjectRangeCheck> searcher(friendsInRange, u_check);
+                        Cell::VisitAllObjects(target, searcher, 13.0f);
+                        for (std::list<Unit*>::const_iterator itr = friendsInRange.begin(); itr != friendsInRange.end(); itr++)
+                        {
+                            if  ((*itr)->HasAura(GetId()) && (*itr) != target)
+                            {
+                                (*itr)->CastSpell(*itr, uiBuffSpell, true);
+                                target->CastSpell(target, uiBuffSpell, true, NULL, this);
+                            }
+                        }
+                        return;
+                    }
                     case 31606:                             // Stormcrow Amulet
                     {
                         CreatureInfo const * cInfo = ObjectMgr::GetCreatureTemplate(17970);
@@ -2186,7 +2214,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                             Caster->CombatStop(true);
                         }
                         return;
-                    } 
+                    }
                     case 47977:                             // Magic Broom
                         Spell::SelectMountByAreaAndSkill(target, GetSpellProto(), 42680, 42683, 42667, 42668, 0);
                         return;
@@ -2593,6 +2621,22 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     caster->CastSpell(caster, 12816, true);
 
                 return;
+            }
+            case 28059:                                     // Positive Charge (Thaddius)
+            case 28084:                                     // Negative Charge (Thaddius)
+            case 39088:                                     // Positive Charge (Capacitus)
+            case 39091:                                     // Negative Charge (Capacitus)
+            {
+                uint32 uiBuffAura = 0;
+                switch (GetId())
+                {
+                    case 28059: uiBuffAura = 29659; break;
+                    case 28084: uiBuffAura = 29660; break;
+                    case 39088: uiBuffAura = 39089; break;
+                    case 39091: uiBuffAura = 39092; break;
+                }
+                target->RemoveAurasDueToSpell(uiBuffAura);
+                break;
             }
             case 28169:                                     // Mutating Injection
             {
@@ -4600,7 +4644,7 @@ void Aura::HandleAuraModStun(bool apply, bool Real)
             Unit* caster = GetCaster();
             if(!caster)
                 return;
-            caster->CastSpell(target, 71757, true); 
+            caster->CastSpell(target, 71757, true);
         }
 
         // Summon the Naj'entus Spine GameObject on target if spell is Impaling Spine
@@ -4668,7 +4712,7 @@ void Aura::HandleAuraModStun(bool apply, bool Real)
             Unit* pCaster = GetCaster();
             if(!pCaster)
                 return;
-            
+
             pCaster->InterruptSpell(CURRENT_CHANNELED_SPELL,false);
             return;
         }
@@ -5080,11 +5124,11 @@ void Aura::HandleAuraModIncreaseSpeed(bool apply, bool Real)
     // all applied/removed only at real aura add/remove
     if(!Real)
         return;
-        
+
     Unit *target = GetTarget();
 
     GetTarget()->UpdateSpeed(MOVE_RUN, true);
-    
+
     if (apply && GetSpellProto()->Id == 58875)
         target->CastSpell(target, 58876, true);
 }
@@ -5445,8 +5489,8 @@ void Aura::HandlePeriodicTriggerSpell(bool apply, bool /*Real*/)
             case 28522:                                     // Icebolt (Naxxramas: Sapphiron)
                 if (target->HasAura(45776))                 // Should trigger/remove some kind of iceblock
                     // not sure about ice block spell id
-                    target->RemoveAurasDueToSpell(45776); 
-                
+                    target->RemoveAurasDueToSpell(45776);
+
                 return;
             case 42783:                                     // Wrath of the Astrom...
                 if (m_removeMode == AURA_REMOVE_BY_EXPIRE && GetEffIndex() + 1 < MAX_EFFECT_INDEX)
@@ -7513,7 +7557,7 @@ void Aura::HandleSchoolAbsorb(bool apply, bool Real)
                 }
             }
         }
-        else if (caster && caster->GetTypeId() == TYPEID_PLAYER && spellProto->Id == 47788 && 
+        else if (caster && caster->GetTypeId() == TYPEID_PLAYER && spellProto->Id == 47788 &&
             m_removeMode == AURA_REMOVE_BY_EXPIRE)
         {
             if (Aura *aur = caster->GetAura(63231, EFFECT_INDEX_0))
@@ -9838,7 +9882,7 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                     break;
                 }
                 case 63277:                                 // Shadow Crash (General Vezax - Ulduar)
-                {   
+                {
                     spellId1 = 65269;
                     break;
                 }
