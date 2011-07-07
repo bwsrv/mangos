@@ -10043,6 +10043,19 @@ void Spell::EffectKnockBack(SpellEffectIndex eff_idx)
     if(!unitTarget)
         return;
 
+    // Can't knockback world bosses (don't know any exceptions)
+    if (unitTarget->GetTypeId() != TYPEID_PLAYER)
+        if (((Creature*)unitTarget)->IsWorldBoss())
+        return;
+
+    // Can't knockback unit underwater
+    if (unitTarget->IsInWater())
+        return;
+
+	// Can't knockback rooted target
+	if (unitTarget->hasUnitState(UNIT_STAT_ROOT))
+        return;
+
     unitTarget->KnockBackFrom(m_caster,float(m_spellInfo->EffectMiscValue[eff_idx])/10,float(damage)/10);
 }
 

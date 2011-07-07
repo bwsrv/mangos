@@ -1,3 +1,16 @@
+DELETE FROM `spell_proc_event` where entry = 36032; 
+-- not needed
+-- 2011-07-06 03:39:28 Spell 36032 listed in `spell_proc_event` has same class mask as in Spell.dbc (EffectIndex 0) and doesn't have any other data
+-- 2011-07-06 03:39:28 Spell 36032 listed in `spell_proc_event` has same class mask as in Spell.dbc (EffectIndex 1) and doesn't have any other data
+-- 2011-07-06 03:39:28 Spell 36032 listed in `spell_proc_event` has same class mask as in Spell.dbc (EffectIndex 2) and doesn't have any other data
+
+DELETE FROM `spell_proc_event` where entry = 53527;
+-- not needed
+-- 2011-07-06 03:39:28 Spell 53527 listed in `spell_proc_event` has same class mask as in Spell.dbc (EffectIndex 0) and doesn't have any other data
+
+DELETE FROM `spell_proc_event` where entry = 71397;
+-- 2011-07-06 03:39:28 Spell 71397 listed in `spell_proc_event` doesn't have any useful data
+
 -- Death Knight
 -- (49004) Scent of Blood 
 DELETE FROM spell_proc_event WHERE entry = 49004;
