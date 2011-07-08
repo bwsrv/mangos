@@ -445,36 +445,6 @@ INSERT INTO npc_spellclick_spells VALUES
 (28607, 52263, 12680, 1, 12680, 1);
 INSERT IGNORE INTO spell_script_target VALUES (52264, 1, 28653);
 
--- From jahangames
--- Massacre at Light's point quest
-UPDATE creature_template SET
-spell1 = 52435,
-spell2 = 52576,
-spell3 = 0,
-spell4 = 0,
-spell5 = 52588,
-spell6 = 0,
-vehicle_id = 79
-WHERE entry IN (28833);
-
-UPDATE creature_template SET
-spell1 = 52435,
-spell2 = 52576,
-spell3 = 0,
-spell4 = 0,
-spell5 = 52588,
-spell6 = 0,
-vehicle_id = 68
-WHERE entry IN (28887);
-
-INSERT INTO npc_spellclick_spells VALUES ('28833', '52447', '12701', '1', '12701', '1');
-INSERT INTO npc_spellclick_spells VALUES ('28887', '52447', '12701', '1', '12701', '1');
-UPDATE creature_template SET minhealth = 26140, maxhealth = 26140, dynamicflags = 0, minmana = 2117, maxmana = 2117, unit_flags = 772, minlevel = 55, maxlevel = 55, unk16 = 10, unk17 = 1, InhabitType = 3, scale = 1, mindmg = 685, maxdmg = 715, armor = 3232, attackpower = 214, unit_class = 2, TYPE = 10 WHERE entry = 28833;
-UPDATE creature_template SET minhealth = 26140, maxhealth = 26140, dynamicflags = 0, minmana = 0, maxmana = 0, unit_flags = 772, minlevel = 55, maxlevel = 55, unk16 = 10, unk17 = 1, InhabitType = 3, scale = 1, mindmg = 685, maxdmg = 715, armor = 3232, attackpower = 214, unit_class = 2, TYPE = 10 WHERE entry = 28887;
-INSERT IGNORE INTO spell_script_target VALUES (52576, 1, 28834);
-INSERT IGNORE INTO spell_script_target VALUES (52576, 1, 28886);
-INSERT IGNORE INTO spell_script_target VALUES (52576, 1, 28850);
-
 -- From Lanc
 -- quest 12953
 UPDATE creature_template SET
@@ -584,17 +554,6 @@ INSERT INTO npc_spellclick_spells VALUES
 
 -- INSERT IGNORE INTO spell_script_target VALUES (54897, 1, 29358); --listed for TargetEntry 29358 does not have any implicit target TARGET_SCRIPT(38) or TARGET_SCRIPT_COORDINATES (46) or TARGET_FOCUS_OR_SCRIPTED_GAMEOBJECT (40).
 
-/* Scourge Gryphon */
-UPDATE creature_template SET
-    spell1 = 0,
-    spell2 = 0,
-    spell3 = 0,
-    spell4 = 0,
-    spell5 = 0,
-    spell6 = 0,
-    vehicle_id = 146
-WHERE entry IN (28864);
-
 /* Frostbrood Vanquisher */
 UPDATE creature_template SET
     spell1 = 53114,
@@ -610,48 +569,6 @@ UPDATE creature_template SET maxhealth = 133525, minhealth = 133525, maxmana = 5
 
 REPLACE INTO creature_template_addon (entry, mount, bytes1, b2_0_sheath, emote, moveflags, auras) VALUES
 (28670, 0, 50331648, 1, 0, 1024, '53112');
-
--- from me
--- into realm of shadows
-UPDATE creature_template SET IconName = 'vehichleCursor',
-unit_flags = 0,
-spell1 = 52362
-WHERE entry =28782;
-
-UPDATE quest_template SET 
-SrcSpell = 52359,
-SpecialFlags = 2,
-ReqCreatureOrGOId1 = 28768,
-ReqCreatureOrGOCount1 = 1,
-ReqSpellCast1 = 0,
-RewItemId1 = 39208,
-RewItemCount1 = 1 WHERE entry = 12687;
-
-DELETE FROM creature_involvedrelation WHERE quest IN (12687);
-INSERT INTO creature_involvedrelation (id, quest) VALUES (28788, 12687);
-UPDATE creature_template SET npcflag = 2 WHERE entry = 28788;
-
-DELETE FROM spell_script_target WHERE entry = 52349;
-
-UPDATE creature_ai_scripts SET 
-action1_type   = '11',
-action1_param1 = '52361',
-action1_param2 = '6',
-action1_param3 = '16',
-action2_type   = '11',
-action2_param1 = '52357',
-action2_param2 = '6',
-action2_param3 = '16',
-action3_type   = '0'
-WHERE id = 2876806;
-
-DELETE FROM creature WHERE id = 28782;
-
-DELETE FROM creature_template_addon WHERE entry = 28782;
-
-DELETE FROM npc_spellclick_spells WHERE npc_entry IN (28782);
-INSERT INTO npc_spellclick_spells VALUES
-(28782, 46598, 0, 0, 0, 1);
 
 -- from lanc
 -- Infected Kodo fix quest (11690)
