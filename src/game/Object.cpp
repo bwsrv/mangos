@@ -1795,51 +1795,6 @@ void WorldObject::AddObjectToRemoveList()
     GetMap()->AddObjectToRemoveList(this);
 }
 
-Creature* WorldObject::SummonCreatureOnTransport(uint32 entry, uint32 transportEntry, float tX, float tY, float tZ, float tO, TempSummonType spwtype, uint32 despwtime, bool asActiveObject)
-{
-    CreatureInfo const *cinfo = ObjectMgr::GetCreatureTemplate(entry);
-    if(!cinfo)
-    {
-        sLog.outErrorDb("WorldObject::SummonCreatureOnTransport: Creature (Entry: %u) not existed for summoner: %s. ", entry, GetGuidStr().c_str());
-        return NULL;
-    }
-
-    TemporarySummon* pCreature = new TemporarySummon(GetObjectGuid());
-    CreatureCreatePos pos(GetMap(), tX, tY, tZ, tO, GetPhaseMask());
-
-    if (tX == 0.0f && tY == 0.0f && tZ == 0.0f)
-        return NULL;
-    //    pos = GetClosePoint(tX, tY, tZ, GetObjectBoundingRadius(), CONTACT_DISTANCE, tO);
-
-    if (!pCreature->Create(GetMap()->GenerateLocalLowGuid(HIGHGUID_UNIT), pos, cinfo))
-    {
-        delete pCreature;
-        return NULL;
-    }
-
-    for (MapManager::TransportSet::const_iterator iter = sMapMgr.m_Transports.begin(); iter != sMapMgr.m_Transports.end(); ++iter)
-    {
-        Transport* trans = *iter;
-        if (trans->GetEntry() == transportEntry)
-        {
-            pCreature->SetTransport(trans);
-            pCreature->m_movementInfo.AddMovementFlag(MOVEFLAG_ONTRANSPORT);
-            pCreature->m_movementInfo.SetTransportData(ObjectGuid(HIGHGUID_MO_TRANSPORT, GetObjectGuid().GetCounter()), tX, tY, tZ, tO, 0, -1);
-            trans->AddPassenger(pCreature);
-            trans->UpdateCreaturePositions(pCreature, GetMap(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
-            break;
-        }
-    }
-
-    pCreature->SetActiveObjectState(asActiveObject);
-    pCreature->Summon(spwtype, despwtime);
-
-    if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->AI())
-        ((Creature*)this)->AI()->JustSummoned(pCreature);
-
-    return pCreature;
-}
-
 Creature* WorldObject::SummonCreature(uint32 id, float x, float y, float z, float ang,TempSummonType spwtype,uint32 despwtime, bool asActiveObject)
 {
     CreatureInfo const *cinfo = ObjectMgr::GetCreatureTemplate(id);

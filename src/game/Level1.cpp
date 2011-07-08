@@ -313,6 +313,12 @@ bool ChatHandler::HandleGPSCommand(char* args)
     }
     else PSendSysMessage("no VMAP available for area info");
 
+    Player *chr = m_session->GetPlayer();
+    float tX = chr->GetTransOffsetX();
+    float tY = chr->GetTransOffsetY();
+    float tZ = chr->GetTransOffsetZ();
+    float tO = chr->GetTransOffsetO();
+
     PSendSysMessage(LANG_MAP_POSITION,
         obj->GetMapId(), (mapEntry ? mapEntry->name[GetSessionDbcLocale()] : "<unknown>" ),
         zone_id, (zoneEntry ? zoneEntry->area_name[GetSessionDbcLocale()] : "<unknown>" ),
@@ -320,7 +326,7 @@ bool ChatHandler::HandleGPSCommand(char* args)
         obj->GetPhaseMask(),
         obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ(), obj->GetOrientation(),
         cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), obj->GetInstanceId(),
-        zone_x, zone_y, ground_z, floor_z, have_map, have_vmap );
+        zone_x, zone_y, ground_z, floor_z, have_map, have_vmap, tX, tY, tZ, tO );
 
     DEBUG_LOG("Player %s GPS call for %s '%s' (%s: %u):",
         m_session ? GetNameLink().c_str() : GetMangosString(LANG_CONSOLE_COMMAND),
@@ -334,7 +340,7 @@ bool ChatHandler::HandleGPSCommand(char* args)
         obj->GetPhaseMask(),
         obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ(), obj->GetOrientation(),
         cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), obj->GetInstanceId(),
-        zone_x, zone_y, ground_z, floor_z, have_map, have_vmap );
+        zone_x, zone_y, ground_z, floor_z, have_map, have_vmap, tX, tY, tZ, tO );
 
     GridMapLiquidData liquid_status;
     GridMapLiquidStatus res = map->getLiquidStatus(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ(), MAP_ALL_LIQUIDS, &liquid_status);

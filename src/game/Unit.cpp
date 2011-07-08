@@ -406,7 +406,7 @@ void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, SplineTy
 
     float moveTime = (float)Time;
 
-    WorldPacket data( (m_transport && !(flags & SPLINEFLAG_TRAJECTORY))  ? SMSG_MONSTER_MOVE_TRANSPORT : SMSG_MONSTER_MOVE, (41 + GetPackGUID().size()) );
+    WorldPacket data( (m_transport && !(flags & SPLINEFLAG_TRAJECTORY)) ? SMSG_MONSTER_MOVE_TRANSPORT : SMSG_MONSTER_MOVE, (41 + GetPackGUID().size()) );
     data << GetPackGUID();
     if (m_transport && !(flags & SPLINEFLAG_TRAJECTORY))
     {

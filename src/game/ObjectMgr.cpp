@@ -1196,7 +1196,7 @@ void ObjectMgr::LoadCreatures()
     //                                                0                       1   2    3
     QueryResult *result = WorldDatabase.Query("SELECT creature.guid, creature.id, map, modelid,"
      //   4             5           6           7           8            9            10             11         12
-         "equipment_id, position_x, position_y, position_z, orientation, transActive, spawntimesecs, spawndist, currentwaypoint,"
+         "equipment_id, position_x, position_y, position_z, orientation, transMap, spawntimesecs, spawndist, currentwaypoint,"
      //   13         14       15          16            17         18         19        
          "curhealth, curmana, DeathState, MovementType, spawnMask, phaseMask, event,"
      //   20                        21
@@ -1260,7 +1260,7 @@ void ObjectMgr::LoadCreatures()
         data.posY               = fields[ 6].GetFloat();
         data.posZ               = fields[ 7].GetFloat();
         data.orientation        = fields[ 8].GetFloat();
-        data.transActive        = fields[ 9].GetUInt32();
+        data.transMap           = fields[ 9].GetUInt32();
         data.spawntimesecs      = fields[10].GetUInt32();
         data.spawndist          = fields[11].GetFloat();
         data.currentwaypoint    = fields[12].GetUInt32();
@@ -1274,7 +1274,7 @@ void ObjectMgr::LoadCreatures()
         int16 GuidPoolId        = fields[20].GetInt16();
         int16 EntryPoolId       = fields[21].GetInt16();
 
-        if (data.transActive)
+        if (data.transMap)
             continue;
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
