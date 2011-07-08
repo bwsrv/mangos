@@ -4535,11 +4535,16 @@ SpellAuraProcResult Unit::HandleAddFlatModifierAuraProc(Unit* /*pVictim*/, uint3
 {
     SpellEntry const *spellInfo = triggeredByAura->GetSpellProto();
 
-    if (spellInfo->Id == 55166)                             // Tidal Force
+    switch (spellInfo->Id)
     {
-        // Remove only single aura from stack
-        if (triggeredByAura->GetStackAmount() > 1 && !triggeredByAura->GetHolder()->ModStackAmount(-1))
-            return SPELL_AURA_PROC_CANT_TRIGGER;
+        case 53257:                             // Cobra strike
+        case 55166:                             // Tidal Force
+            // Remove only single aura from stack
+            if (triggeredByAura->GetStackAmount() > 1 && !triggeredByAura->GetHolder()->ModStackAmount(-1))
+                return SPELL_AURA_PROC_CANT_TRIGGER;
+            break;
+        default:
+            break;
     }
 
     return SPELL_AURA_PROC_OK;
