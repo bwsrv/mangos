@@ -8024,44 +8024,6 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             SetTargetMap(SpellEffectIndex(i), TARGET_RANDOM_ENEMY_CHAIN_IN_AREA, targetUnitMap);
             break;
         }
-        case 60430: // Molten Fury - Sartharion encounter - target Lava Blazes only
-        {
-            UnitList tempTargetUnitMap;
-            targetUnitMap.clear();
-            FillAreaTargets(tempTargetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_NOT_HOSTILE);
-            if (!tempTargetUnitMap.empty())
-            {
-                for (UnitList::const_iterator iter = tempTargetUnitMap.begin(); iter != tempTargetUnitMap.end(); ++iter)
-                {
-                    if ((*iter) && (*iter)->GetEntry() == 30643)
-                        targetUnitMap.push_back(*iter);
-                }
-            }
-            break;
-        }
-        case 61632: // Berserk - Sartharion encounter - target dragon bosses only
-        {
-            UnitList tempTargetUnitMap;
-            targetUnitMap.clear();
-            FillAreaTargets(tempTargetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_FRIENDLY);
-            if (!tempTargetUnitMap.empty())
-            {
-                for (UnitList::const_iterator iter = tempTargetUnitMap.begin(); iter != tempTargetUnitMap.end(); ++iter)
-                {
-                    switch ((*iter)->GetEntry())
-                    {
-                        case 28860: // Sartharion
-                        case 30452: // Tenebron
-                        case 30451: // Shadron
-                        case 30449: // Vesperon
-                            targetUnitMap.push_back(*iter);
-                        default:
-                            break;
-                    }
-                }
-            }
-            break;
-        }
         case 61999: // Raise ally
         {
             WorldObject* result = FindCorpseUsing <MaNGOS::RaiseAllyObjectCheck>  ();
