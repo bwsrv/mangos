@@ -2627,7 +2627,7 @@ void PlayerbotAI::SetInFront(const Unit* obj)
     z = m_bot->m_movementInfo.GetPos()->z;
     m_bot->m_movementInfo.ChangePosition(x, y, z, ori);
 
-    m_bot->SendHeartBeat(false);
+    m_bot->SendHeartBeat();
 }
 
 // some possible things to use in AI
@@ -2652,7 +2652,7 @@ void PlayerbotAI::UpdateAI(const uint32 p_time)
         m_bot->GetMotionMaster()->GetDestination(x, y, z);
         if (x != m_destX || y != m_destY || z != m_destZ)
         {
-            m_bot->SendMonsterMoveWithSpeed(x, y, z);
+            m_bot->MonsterMoveWithSpeed(x, y, z, 28);
             m_destX = x;
             m_destY = y;
             m_destZ = z;

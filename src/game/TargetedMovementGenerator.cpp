@@ -20,10 +20,10 @@
 #include "TargetedMovementGenerator.h"
 #include "Errors.h"
 #include "Creature.h"
-#include "DestinationHolderImp.h"
+#include "Player.h"
 #include "World.h"
-
-#define SMALL_ALPHA 0.05f
+#include "movement/MoveSplineInit.h"
+#include "movement/MoveSpline.h"
 
 #include <cmath>
 
@@ -42,7 +42,7 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T &owner)
     // prevent redundant micro-movement for pets, other followers.
     if (i_offset && i_target->IsWithinDistInMap(&owner,2*i_offset))
     {
-        if (i_destinationHolder.HasDestination())
+        if (!owner.movespline->Finalized())
             return;
 
         owner.GetPosition(x, y, z);
@@ -74,14 +74,16 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T &owner)
         if( i_destinationHolder.HasDestination() && i_destinationHolder.GetDestinationDiff(x,y,z) < bothObjectSize )
             return;
     */
-    if (owner.GetTypeId() == TYPEID_UNIT && ((Creature*)&owner)->CanFly())
-        ((Creature&)owner).AddSplineFlag(SPLINEFLAG_FLYING);
 
+
+    D::_addUnitStateMove(owner);
     i_targetReached = false;
     i_recalculateTravel = false;
-    D::_addUnitStateMove(owner);
-    Traveller<T> traveller(owner);
-    i_destinationHolder.SetDestination(traveller, x, y, z);
+
+    Movement::MoveSplineInit init(owner);
+    init.MoveTo(x,y,z);
+    init.SetWalk(((D*)this)->EnableWalking());
+    init.Launch();
 }
 
 template<>
@@ -140,21 +142,19 @@ bool TargetedMovementGeneratorMedium<T,D>::Update(T &owner, const uint32 & time_
         return true;
     }
 
-    Traveller<T> traveller(owner);
-    if (i_destinationHolder.UpdateTraveller(traveller, time_diff, false))
+    i_recheckDistance.Update(time_diff);
+    if (i_recheckDistance.Passed())
     {
-        if (!IsActive(owner))                               // force stop processing (movement can move out active zone with cleanup movegens list)
-            return true;
-
-        i_destinationHolder.ResetUpdate(50);
         //More distance let have better performance, less distance let have more sensitive reaction at target move.
-        float dist = i_target->GetObjectBoundingRadius() + owner.GetObjectBoundingRadius()
+        float allowed_dist = i_target->GetObjectBoundingRadius() + owner.GetObjectBoundingRadius()
             + sWorld.getConfig(CONFIG_FLOAT_RATE_TARGET_POS_RECALCULATION_RANGE);
-        if (i_destinationHolder.GetDistance3dFromDestSq(*i_target.getTarget()) > dist * dist)
+        float dist = (owner.movespline->FinalDestination() -
+            G3D::Vector3(i_target->GetPositionX(),i_target->GetPositionY(),i_target->GetPositionZ())).squaredLength();
+        if (dist >= allowed_dist * allowed_dist)
             _setTargetLocation(owner);
     }
 
-    if (i_destinationHolder.HasArrived())
+    if (owner.movespline->Finalized())
     {
         if (i_angle == 0.f && !owner.HasInArc(0.01f, i_target.getTarget()))
             owner.SetInFront(i_target.getTarget());
@@ -191,12 +191,8 @@ void ChaseMovementGenerator<Player>::Initialize(Player &owner)
 template<>
 void ChaseMovementGenerator<Creature>::Initialize(Creature &owner)
 {
+    owner.SetWalk(false);
     owner.addUnitState(UNIT_STAT_CHASE|UNIT_STAT_CHASE_MOVE);
-    owner.RemoveSplineFlag(SPLINEFLAG_WALKMODE);
-
-    if (((Creature*)&owner)->CanFly())
-        owner.AddSplineFlag(SPLINEFLAG_FLYING);
-
     _setTargetLocation(owner);
 }
 
@@ -220,15 +216,15 @@ void ChaseMovementGenerator<T>::Reset(T &owner)
 
 //-----------------------------------------------//
 template<>
-void FollowMovementGenerator<Creature>::_updateWalkMode(Creature &u)
+bool FollowMovementGenerator<Creature>::EnableWalking() const
 {
-    if (i_target.isValid() && u.IsPet())
-        u.UpdateWalkMode(i_target.getTarget());
+    return i_target.isValid() && i_target->IsWalking();
 }
 
 template<>
-void FollowMovementGenerator<Player>::_updateWalkMode(Player &)
+bool FollowMovementGenerator<Player>::EnableWalking() const
 {
+    return false;
 }
 
 template<>
@@ -253,7 +249,6 @@ template<>
 void FollowMovementGenerator<Player>::Initialize(Player &owner)
 {
     owner.addUnitState(UNIT_STAT_FOLLOW|UNIT_STAT_FOLLOW_MOVE);
-    _updateWalkMode(owner);
     _updateSpeed(owner);
     _setTargetLocation(owner);
 }
@@ -262,12 +257,7 @@ template<>
 void FollowMovementGenerator<Creature>::Initialize(Creature &owner)
 {
     owner.addUnitState(UNIT_STAT_FOLLOW|UNIT_STAT_FOLLOW_MOVE);
-    _updateWalkMode(owner);
     _updateSpeed(owner);
-
-    if (((Creature*)&owner)->CanFly())
-        owner.AddSplineFlag(SPLINEFLAG_FLYING);
-
     _setTargetLocation(owner);
 }
 
@@ -275,7 +265,6 @@ template<class T>
 void FollowMovementGenerator<T>::Finalize(T &owner)
 {
     owner.clearUnitState(UNIT_STAT_FOLLOW|UNIT_STAT_FOLLOW_MOVE);
-    _updateWalkMode(owner);
     _updateSpeed(owner);
 }
 
@@ -283,7 +272,6 @@ template<class T>
 void FollowMovementGenerator<T>::Interrupt(T &owner)
 {
     owner.clearUnitState(UNIT_STAT_FOLLOW|UNIT_STAT_FOLLOW_MOVE);
-    _updateWalkMode(owner);
     _updateSpeed(owner);
 }
 
