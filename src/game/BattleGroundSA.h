@@ -1,33 +1,33 @@
 /*
-* Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
-*
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-*/
+ * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 #ifndef __BATTLEGROUNDSA_H
 #define __BATTLEGROUNDSA_H
 
 class BattleGround;
 
-#define BG_SA_GRY_MAX  3
+#define BG_SA_GRY_MAX 3
 #define BG_SA_GATE_MAX 6
-#define BG_SA_MAX_WS   3
+#define BG_SA_MAX_WS 3
 
 const uint32 BG_SA_GateStatus[6] = {3849, 3623, 3620, 3614, 3617, 3638};
-const uint32 BG_SA_WorldStatusA[3] = {3630, 3629, 3628};
-const uint32 BG_SA_WorldStatusH[3] = {3631, 3627, 3626};
+const uint32 BG_SA_WorldStatusA[3] = {3630, 3627, 3626};
+const uint32 BG_SA_WorldStatusH[3] = {3631, 3628, 3629};
 const uint32 BG_IC_TEAM[BG_TEAMS_COUNT] = {84,83};
 
 
@@ -111,7 +111,7 @@ enum BG_SA_Timers
 {
     BG_SA_FLAG_CAPTURING_TIME = 60000,
     BG_SA_ROUNDLENGTH = 600000,
-    BG_SA_BOAT_START = 60000
+    BG_SA_BOAT_START = 70000
 };
 
 enum BG_SA_GateStatus
@@ -156,6 +156,9 @@ enum BG_SA_Events
     SA_EVENT_ADD_GO = 8,
     SA_EVENT_ADD_VECH_E = 9,
     SA_EVENT_ADD_VECH_W = 10,
+    SA_EVENT_ADD_BOMB1 = 11,
+    SA_EVENT_ADD_BOMB2 = 12,
+    SA_EVENT_ADD_BOMB3 = 13,
     SA_EVENT_OP_DOOR = 254
 };
 
@@ -264,12 +267,14 @@ class BattleGroundSA : public BattleGround
         virtual void FillInitialWorldStates(WorldPacket& data, uint32& count);
         virtual void EventPlayerClickedOnFlag(Player *source, GameObject* target_obj);
         virtual void HandleKillUnit(Creature* unit, Player* killer);
+        virtual void HandleKillPlayer(Player* player, Player* killer);
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
         virtual void Reset();
 
         Team GetDefender() const { return defender; }
         uint8 GetGydController(uint8 gyd) const { return m_Gyd[gyd]; }
         uint32 GetVehicleFaction(uint8 vehicleType) const { return GetCorrectFactionSA(vehicleType); }
+        int32 GetGateStatus(int32 Type) const { return GateStatus[Type]; }
         void RemovePlayer(Player *plr, ObjectGuid guid);
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
         void EndBattleGround(Team winner);
@@ -301,7 +306,8 @@ class BattleGroundSA : public BattleGround
         uint32 GetCorrectFactionSA(uint8 vehicleType) const;
         /* This teleports player to correct loc in function of BG status and it resurects player if necesary */
         void TeleportPlayerToCorrectLoc(Player *player, bool resetBattle = false);
-
+        // for achievement - win with all walls
+        bool winSAwithAllWalls(Team team);
     private:
         uint8 m_Gyd[BG_SA_GRY_MAX];
         uint8 m_prevGyd[BG_SA_GRY_MAX]; // used for performant wordlstate-updating
@@ -317,5 +323,12 @@ class BattleGroundSA : public BattleGround
         void _GydOccupied(uint8 node,Team team);
         void ToggleTimer();
         void ResetWorldStates();
+        /* check to avoid to much messages */
+        bool GateRoomAncientShrineDamaged;
+        bool GateGreenEmeraldDamaged;
+        bool GateBlueSaphireDamaged;
+        bool GateMauveAmethystDamaged;
+        bool GateRedSunDamaged;
+        bool GateYellowMoonDamaged;
 };
 #endif

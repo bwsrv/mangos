@@ -1613,11 +1613,34 @@ bool ChatHandler::HandleNpcAddCommand(char* args)
 
     if (chr->GetTransport())
     {
-        if (Creature* TransNPC = chr->GetTransport()->AddNPCPassenger(id, tX, tY, tZ, tO))
+        float wX, wY;
+        wX = (tX*cos(chr->GetTransport()->GetOrientation()) + tY*sin(chr->GetTransport()->GetOrientation() + M_PI));
+        wY = (tY*cos(chr->GetTransport()->GetOrientation()) + tX*sin(chr->GetTransport()->GetOrientation()));
+        CreatureCreatePos pos(map, chr->GetTransport()->GetPositionX() + wX, chr->GetTransport()->GetPositionY() + wY, chr->GetTransport()->GetPositionZ() + tZ, chr->GetTransport()->GetOrientation() + tO, chr->GetTransport()->GetPhaseMask());
+
+        Creature* pCreature = new Creature;
+
+	  if (!pCreature->Create(map->GenerateLocalLowGuid(HIGHGUID_UNIT), pos, cinfo))
         {
-            TransNPC->SaveToDB(chr->GetTransport()->GetGOInfo()->moTransport.mapID, (1 << map->GetSpawnMode()), chr->GetPhaseMaskForSpawn());
-            sObjectMgr.AddCreatureToGrid(TransNPC->GetGUIDLow(), sObjectMgr.GetCreatureData(TransNPC->GetGUIDLow()));
+            delete pCreature;
+            return false;
         }
+
+        pCreature->Relocate(chr->GetTransport()->GetPositionX() + wX, wY + chr->GetTransport()->GetPositionY(), chr->GetTransport()->GetPositionZ() + tZ, chr->GetTransport()->GetOrientation() + tO);
+
+        if(!pCreature->IsPositionValid())
+        {
+            sLog.outError("Creature (guidlow %d, entry %d) not created. Suggested coordinates isn't valid (X: %f Y: %f)",pCreature->GetGUIDLow(),pCreature->GetEntry(),pCreature->GetPositionX(),pCreature->GetPositionY());
+            delete pCreature;
+            return false;
+        }
+
+	  pCreature->AIM_Initialize();
+
+        map->Add(pCreature);
+        chr->GetTransport()->EnterThisTransport(pCreature, tX, tY, tZ, tO);
+        pCreature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMaskForSpawn());
+        return true;
     }
     else
     {
@@ -1647,8 +1670,8 @@ bool ChatHandler::HandleNpcAddCommand(char* args)
 
         map->Add(pCreature);
         sObjectMgr.AddCreatureToGrid(db_guid, sObjectMgr.GetCreatureData(db_guid));
+        return true;
     }
-    return true;
 }
 
 //add item in vendorlist
@@ -1965,10 +1988,16 @@ bool ChatHandler::HandleNpcMoveCommand(char* args)
     else
         lowguid = pCreature->GetGUIDLow();
 
-    float x = m_session->GetPlayer()->GetPositionX();
-    float y = m_session->GetPlayer()->GetPositionY();
-    float z = m_session->GetPlayer()->GetPositionZ();
-    float o = m_session->GetPlayer()->GetOrientation();
+    Player* chr = m_session->GetPlayer();
+
+    uint32 TransMap = 0;
+    if (chr->GetTransport())
+        TransMap = chr->GetTransport()->GetGOInfo()->moTransport.mapID;
+
+    float x = chr->GetTransport() ? chr->GetTransOffsetX() : chr->GetPositionX();
+    float y = chr->GetTransport() ? chr->GetTransOffsetY() : chr->GetPositionY();
+    float z = chr->GetTransport() ? chr->GetTransOffsetZ() : chr->GetPositionZ();
+    float o = chr->GetTransport() ? chr->GetTransOffsetO() : chr->GetOrientation();
 
     if (pCreature)
     {
@@ -1979,7 +2008,16 @@ bool ChatHandler::HandleNpcMoveCommand(char* args)
             const_cast<CreatureData*>(data)->posZ = z;
             const_cast<CreatureData*>(data)->orientation = o;
         }
-        pCreature->GetMap()->CreatureRelocation(pCreature,x, y, z,o);
+        if (chr->GetTransport())
+        {
+            if (pCreature->GetTransport() && chr->GetTransport() != pCreature->GetTransport())
+                pCreature->GetTransport()->LeaveThisTransport(pCreature);
+
+            chr->GetTransport()->EnterThisTransport(pCreature, x, y, z, o);
+        }
+        else
+            pCreature->GetMap()->CreatureRelocation(pCreature,x, y, z,o);
+
         pCreature->GetMotionMaster()->Initialize();
         if (pCreature->isAlive())                            // dead creature will reset movement generator at respawn
         {
@@ -1988,7 +2026,7 @@ bool ChatHandler::HandleNpcMoveCommand(char* args)
         }
     }
 
-    WorldDatabase.PExecuteLog("UPDATE creature SET position_x = '%f', position_y = '%f', position_z = '%f', orientation = '%f' WHERE guid = '%u'", x, y, z, o, lowguid);
+    WorldDatabase.PExecuteLog("UPDATE creature SET position_x = '%f', position_y = '%f', position_z = '%f', orientation = '%f', transMap = '%u' WHERE guid = '%u'", x, y, z, o, TransMap, lowguid);
     PSendSysMessage(LANG_COMMAND_CREATUREMOVED);
     return true;
 }
@@ -2631,6 +2669,7 @@ bool ChatHandler::HandlePInfoCommand(char* args)
     std::string last_login = GetMangosString(LANG_ERROR);
 
     QueryResult* result = LoginDatabase.PQuery("SELECT a.username, a.gmlevel, a.last_ip, a.last_login, a.email, a_fp.accountid, a_fp.security, a_fp.realmid FROM account AS a LEFT JOIN account_forcepermission AS a_fp on a.id = a_fp.accountid WHERE a.id = '%u' ORDER BY FIELD(a_fp.realmid,'%u') DESC", accId, realmID);
+
     if (result)
     {
         Field* fields = result->Fetch();
@@ -2665,14 +2704,14 @@ bool ChatHandler::HandlePInfoCommand(char* args)
 
     PSendSysMessage(LANG_PINFO_ACCOUNT, (target?"":GetMangosString(LANG_OFFLINE)), nameLink.c_str(), target_guid.GetCounter(), username.c_str(), accId, email.c_str(), security, last_ip.c_str(), last_login.c_str(), latency);
 
-    std::string race_s, Class_s;
+    std::string race_s = "", Class_s = "";
     switch (race)
     {
         case RACE_HUMAN:            race_s = "Human";       break;
         case RACE_ORC:              race_s = "Orc";         break;
         case RACE_DWARF:            race_s = "Dwarf";       break;
         case RACE_NIGHTELF:         race_s = "Night Elf";   break;
-        case RACE_UNDEAD:    race_s = "Undead";      break;
+        case RACE_UNDEAD:           race_s = "Undead";      break;
         case RACE_TAUREN:           race_s = "Tauren";      break;
         case RACE_GNOME:            race_s = "Gnome";       break;
         case RACE_TROLL:            race_s = "Troll";       break;

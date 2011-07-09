@@ -195,7 +195,7 @@ struct CreatureData
     float posY;
     float posZ;
     float orientation;
-    uint32 transActive;
+    uint32 transMap;
     uint32 spawntimesecs;
     float spawndist;
     uint32 currentwaypoint;
@@ -602,6 +602,9 @@ class MANGOS_DLL_SPEC Creature : public Unit
         std::string GetAIName() const;
         std::string GetScriptName() const;
         uint32 GetScriptId() const;
+
+        bool SD2AIName() const { return !GetScriptName().empty(); }
+        bool HasAIName() const { return !GetAIName().empty(); }
 
         // overwrite WorldObject function for proper name localization
         const char* GetNameForLocaleIdx(int32 locale_idx) const;

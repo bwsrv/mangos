@@ -490,7 +490,7 @@ WHERE entry IN (30066);
 DELETE FROM npc_spellclick_spells WHERE npc_entry IN (30066);
 INSERT INTO npc_spellclick_spells VALUES
 (30066, 44002, 12953, 1, 12953, 1);
-INSERT IGNORE INTO spell_script_target VALUES (55812, 1, 30096);
+-- INSERT IGNORE INTO spell_script_target VALUES (55812, 1, 30096); -- listed for TargetEntry 30096 does not have any implicit target TARGET_SCRIPT(38) or TARGET_SCRIPT_COORDINATES (46) or TARGET_FOCUS_OR_SCRIPTED_GAMEOBJECT (40).
 
 -- From lanc
 /* 7th Legion Chain Gun */
@@ -582,7 +582,7 @@ DELETE FROM npc_spellclick_spells WHERE npc_entry IN (29598);
 INSERT INTO npc_spellclick_spells VALUES
 (29598, 54908, 12851, 1, 12851, 1);
 
-INSERT IGNORE INTO spell_script_target VALUES (54897, 1, 29358);
+-- INSERT IGNORE INTO spell_script_target VALUES (54897, 1, 29358); --listed for TargetEntry 29358 does not have any implicit target TARGET_SCRIPT(38) or TARGET_SCRIPT_COORDINATES (46) or TARGET_FOCUS_OR_SCRIPTED_GAMEOBJECT (40).
 
 /* Scourge Gryphon */
 UPDATE creature_template SET
@@ -682,7 +682,7 @@ DELETE FROM npc_spellclick_spells WHERE npc_entry IN (25334, 27107);
 INSERT INTO npc_spellclick_spells VALUES
 (25334, 47917, 11652, 1, 11652, 1);
 
-REPLACE INTO spell_script_target VALUES (47962, 1, 27107);
+-- REPLACE INTO spell_script_target VALUES (47962, 1, 27107); -- listed for TargetEntry 27107 does not have any implicit target TARGET_SCRIPT(38) or TARGET_SCRIPT_COORDINATES (46) or TARGET_FOCUS_OR_SCRIPTED_GAMEOBJECT (40).
 
 REPLACE INTO spell_area (spell, AREA, quest_start, quest_start_active, quest_end, aura_spell, racemask, gender, autocast) 
 VALUES ('47917','4027','11652','1','11652','0','0','2','0'), ('47917','4130','11652','1','11652','0','0','2','0');

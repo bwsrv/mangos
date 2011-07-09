@@ -830,7 +830,7 @@ LFGDungeonSet LFGMgr::GetRandomDungeonsForPlayer(Player* player)
     {
         if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(i))
         {
-            if (dungeon && 
+            if (dungeon &&
                 dungeon->type == LFG_TYPE_RANDOM_DUNGEON &&
                 GetPlayerLockStatus(player, dungeon) == LFG_LOCKSTATUS_OK)
                 list.insert(dungeon);
@@ -859,7 +859,7 @@ LFGDungeonSet LFGMgr::ExpandRandomDungeonsForGroup(LFGDungeonEntry const* random
 
                     if (!dungeonEx || GetPlayerLockStatus(player, dungeonEx) != LFG_LOCKSTATUS_OK)
                        checkPassed = false;
-                } 
+                }
                 if (checkPassed)
                     list.insert(dungeonEx);
             }
@@ -1753,7 +1753,7 @@ void LFGMgr::Teleport(Player* player, bool out, bool fromOpcode /*= false*/)
     float orientation = 0;
     Difficulty difficulty;
 
-    LFGDungeonEntry const* dungeon = NULL; 
+    LFGDungeonEntry const* dungeon = NULL;
 
     if (error == LFG_TELEPORTERROR_OK)
     {
@@ -1924,7 +1924,7 @@ void LFGMgr::UpdateRoleCheck(Group* group)
 
                 if (uint8(member->GetLFGState()->GetRoles()) < LFG_ROLE_MASK_TANK)
                     newstate = LFG_ROLECHECK_INITIALITING;
-                else 
+                else
                 {
                     newstate = LFG_ROLECHECK_FINISHED;
                     member->GetLFGState()->SetState(LFG_STATE_QUEUED);
@@ -2062,7 +2062,7 @@ bool LFGMgr::CheckRoles(LFGRolesMap* rolesMap)
 //    if (sWorld.getConfig(CONFIG_BOOL_LFG_DEBUG_ENABLE))
 //        return true;
 
-    if ((healers + tanks + dps) > (MAX_GROUP_SIZE - rolesMap->size()))
+    if ((healers + tanks + dps) > int8(MAX_GROUP_SIZE - rolesMap->size()))
         return false;
 
     return true;

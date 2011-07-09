@@ -237,6 +237,9 @@
     <ClCompile Include="..\..\src\game\Spell.cpp">
       <Filter>World/Handlers</Filter>
     </ClCompile>
+	<ClCompile Include="..\..\src\game\SpellClassMask.h">
+      <Filter>World/Handlers</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\game\SpellAuras.cpp">
       <Filter>World/Handlers</Filter>
     </ClCompile>
@@ -709,6 +712,9 @@
       <Filter>World/Handlers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\game\Spell.h">
+      <Filter>World/Handlers</Filter>
+    </ClInclude>
+	<ClInclude Include="..\..\src\game\SpellClassMask.h">
       <Filter>World/Handlers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\game\SpellAuraDefines.h">

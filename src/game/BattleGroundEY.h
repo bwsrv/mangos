@@ -25,6 +25,8 @@ class BattleGround;
 
 #define BG_EY_FLAG_RESPAWN_TIME         (10*IN_MILLISECONDS) //10 seconds
 #define BG_EY_FPOINTS_TICK_TIME         (2*IN_MILLISECONDS)  //2 seconds
+#define ILLEGAL_POSITION_TIMER          (5*IN_MILLISECONDS)  //5 seconds
+#define MINIMUM_HEIGHT_AT_START         1250.0f
 
 enum BG_EY_WorldStates
 {
@@ -132,6 +134,12 @@ const float BG_EY_NodePositions[BG_EY_NODES_MAX][3] = {
     {2050.493164f, 1372.235962f, 1194.563477f},             // BG_EY_NODE_BLOOD_ELF
     {2301.010498f, 1386.931641f, 1197.183472f},             // BG_EY_NODE_DRAENEI_RUINS
     {2282.121582f, 1760.006958f, 1189.707153f}              // BG_EY_NODE_MAGE_TOWER
+};
+
+const float BG_EY_TeleportingLocs[2][4] =
+{
+    {2522.573730f, 1596.592651f, 1268.835327f, 3.110087f}, // Alliance
+    {1810.632690f, 1539.422241f, 1266.304443f, 0.039179f}  // Horde
 };
 
 enum EYBattleGroundObjectTypes
@@ -322,5 +330,7 @@ class BattleGroundEY : public BattleGround
 
         int32 m_PointAddingTimer;
         uint32 m_HonorTics;
+
+        uint32 m_IllegalPositionTimer;
 };
 #endif

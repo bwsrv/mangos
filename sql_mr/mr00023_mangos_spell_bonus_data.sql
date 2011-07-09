@@ -9,7 +9,8 @@ INSERT INTO `spell_bonus_data`
     (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`)
 VALUES
     -- Arcane Blast
-    (30451, 0.714286, 0.122, 0, 0, 'Mage - Arcane Blast'),
+    -- (30451, 0.714286, 0.122, 0, 0, 'Mage - Arcane Blast'), 
+    -- 2011-07-06 03:40:18 `spell_bonus_data` entry for spell 30451 `direct_bonus` not needed (data from table: 0.714286, calculated 0.714286, difference of 0.000000) and `dot_bonus` also not used
     -- Gargoyle Strike
     (51963,0,0,0,0,'Gargoyle Strike'),
     -- Healing Stream Totem

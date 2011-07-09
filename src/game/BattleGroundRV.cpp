@@ -39,7 +39,6 @@ BattleGroundRV::BattleGroundRV()
 
 BattleGroundRV::~BattleGroundRV()
 {
-
 }
 
 void BattleGroundRV::Update(uint32 diff)
