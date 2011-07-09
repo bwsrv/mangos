@@ -453,6 +453,10 @@ INSERT INTO spell_proc_event VALUES (53234, 0x00, 0x09, 0x00020000, 0x00020000, 
 DELETE FROM spell_proc_event WHERE entry = 19184;
 INSERT INTO spell_proc_event VALUES (19184, 0x00, 0x09, 0x00000000, 0x00000000, 0x00000000, 0x00002000, 0x00002000, 0x00002000, 0x00040000, 0x00040000, 0x00040000, 0x00000000, 0x00000000, 0, 0, 0);
 
+-- (53257) Cobra Strikes
+DELETE FROM spell_proc_event WHERE entry = 53257;
+INSERT INTO spell_proc_event VALUES (53257, 0x00, 0x09, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00011010, 0x00000002, 0, 100, 0);
+
 -- Trinkets, rings, weapon procs, enchants etc.
 -- Information about procchance and procflag undertakes with DBC.
 -- (55640) Lightweave Embroidery
