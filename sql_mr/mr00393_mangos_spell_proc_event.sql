@@ -1,16 +1,3 @@
-DELETE FROM `spell_proc_event` where entry = 36032; 
--- not needed
--- 2011-07-06 03:39:28 Spell 36032 listed in `spell_proc_event` has same class mask as in Spell.dbc (EffectIndex 0) and doesn't have any other data
--- 2011-07-06 03:39:28 Spell 36032 listed in `spell_proc_event` has same class mask as in Spell.dbc (EffectIndex 1) and doesn't have any other data
--- 2011-07-06 03:39:28 Spell 36032 listed in `spell_proc_event` has same class mask as in Spell.dbc (EffectIndex 2) and doesn't have any other data
-
-DELETE FROM `spell_proc_event` where entry = 53527;
--- not needed
--- 2011-07-06 03:39:28 Spell 53527 listed in `spell_proc_event` has same class mask as in Spell.dbc (EffectIndex 0) and doesn't have any other data
-
-DELETE FROM `spell_proc_event` where entry = 71397;
--- 2011-07-06 03:39:28 Spell 71397 listed in `spell_proc_event` doesn't have any useful data
-
 -- Death Knight
 -- (49004) Scent of Blood 
 DELETE FROM spell_proc_event WHERE entry = 49004;
@@ -331,6 +318,9 @@ UPDATE spell_proc_event SET procFlags = 0x00100000 WHERE entry = 53601;
 DELETE FROM spell_proc_event WHERE entry IN (34753, 34859, 34860);
 INSERT INTO spell_proc_event VALUES (34753, 0x00, 0x06, 0x00001800, 0x00001800, 0x00001800, 0x00000004, 0x00000004, 0x00000004, 0x000001000, 0x00001000, 0x00001000, 0x00000000, 0x00000002, 0, 0, 0);
 
+-- (53527) Divine Guardian
+DELETE FROM spell_proc_event where entry = 53527;
+
 -- Mage
 -- (12654) Ignite
 DELETE FROM spell_proc_event WHERE entry = 12654;
@@ -339,6 +329,10 @@ INSERT INTO spell_proc_event VALUES (12654, 0x00, 0x03, 0x08000000, 0x08000000, 
 -- (31571) Arcane Potency
 DELETE FROM spell_proc_event WHERE entry = 31571;
 INSERT INTO spell_proc_event VALUES (31571, 0x00, 0x03, 0x00000000, 0x00000000, 0x00000000, 0x00000022, 0x00000022, 0x00000022, 0x00000000, 0x00000000, 0x00000000, 16384, 0x00000000, 0, 100, 0);
+
+--- (36032) Arcane Blast
+DELETE FROM spell_proc_event WHERE entry = 36032;
+INSERT INTO spell_proc_event VALUES (36032, 0x00, 0x03, 0x20000000, 0x20000000, 0x20000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0, 0, 0);
 
 -- (44404) Missile Barrage
 DELETE FROM spell_proc_event WHERE entry IN (44404, 54486, 54488, 54489, 54490);
@@ -610,6 +604,9 @@ INSERT INTO spell_proc_event VALUES (71519, 0x00, 0x00, 0x00000000, 0x00000000, 
 -- (71562) Item - Icecrown 25 Heroic Melee Trinket
 DELETE FROM spell_proc_event WHERE entry = 71562;
 INSERT INTO spell_proc_event VALUES (71562, 0x00, 0x00, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0, 0, 45);
+
+--- (71397) Item - Icecrown 25 Emblem Melee Trinket
+DELETE FROM spell_proc_event WHERE entry = 71397;
 
 -- (71404) Item - Icecrown Dungeon Melee Trinket
 DELETE FROM spell_proc_event WHERE entry = 71404;
