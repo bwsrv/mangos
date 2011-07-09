@@ -63,7 +63,6 @@
 #include "GMTicketMgr.h"
 #include "Util.h"
 #include "CharacterDatabaseCleaner.h"
-#include "AuctionHouseBot.h"
 #include "LFGMgr.h"
 #include "WardenDataStorage.h"
 
@@ -1445,9 +1444,6 @@ void World::SetInitialWorldSettings()
     // Delete all characters which have been deleted X days before
     Player::DeleteOldCharacters();
 
-    sLog.outString("Initialize AuctionHouseBot...");
-    auctionbot.Initialize();
-
     sLog.outString("Starting Autobroadcast system by Xeross..." );
 
     sLog.outString( "WORLD: World initialized" );
@@ -1550,8 +1546,6 @@ void World::Update(uint32 diff)
 
         ///- Handle expired auctions
         sAuctionMgr.Update();
-
-        auctionbot.Update();
     }
 
     /// <li> Handle session updates

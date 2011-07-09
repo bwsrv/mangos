@@ -490,9 +490,6 @@
     <ClCompile Include="..\..\src\game\VehicleHandler.cpp" >
       <Filter>Object</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\game\AuctionHouseBot.cpp">
-      <Filter>Object</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\game\vmap\BIH.cpp">
       <Filter>vmaps</Filter>
     </ClCompile>
@@ -992,9 +989,6 @@
       <Filter>Object</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\game\ChatLog.h" >
-      <Filter>Object</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\game\AuctionHouseBot.h">
       <Filter>Object</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\game\vmap\BIH.h">

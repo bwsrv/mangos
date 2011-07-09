@@ -29,7 +29,6 @@
 #include "Mail.h"
 #include "Util.h"
 #include "Chat.h"
-#include "AuctionHouseBot.h"
 
 // please DO NOT use iterator++, because it is slower than ++iterator!!!
 // post-incrementation is always slower than pre-incrementation !

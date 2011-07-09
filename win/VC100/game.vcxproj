@@ -360,7 +360,6 @@
     <ClCompile Include="..\..\src\game\AntiCheat.cpp" />
     <ClCompile Include="..\..\src\game\ArenaTeam.cpp" />
     <ClCompile Include="..\..\src\game\ArenaTeamHandler.cpp" />
-    <ClCompile Include="..\..\src\game\AuctionHouseBot.cpp" />
     <ClCompile Include="..\..\src\game\AuctionHouseHandler.cpp" />
     <ClCompile Include="..\..\src\game\AuctionHouseMgr.cpp" />
     <ClCompile Include="..\..\src\game\Bag.cpp" />
@@ -551,7 +550,6 @@
     <ClInclude Include="..\..\src\game\AggressorAI.h" />
     <ClInclude Include="..\..\src\game\AntiCheat.h" />
     <ClInclude Include="..\..\src\game\ArenaTeam.h" />
-    <ClInclude Include="..\..\src\game\AuctionHouseBot.h" />
     <ClInclude Include="..\..\src\game\AuctionHouseMgr.h" />
     <ClInclude Include="..\..\src\game\Bag.h" />
     <ClInclude Include="..\..\src\game\BattleGround.h" />
