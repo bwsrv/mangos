@@ -21,7 +21,6 @@
 
 #include "MovementGenerator.h"
 #include "FollowerReference.h"
-#include "Timer.h"
 #include "Creature.h"
 
 template<class T>

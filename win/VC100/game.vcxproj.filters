@@ -22,6 +22,9 @@
     <Filter Include="References">
       <UniqueIdentifier>{64bb42b8-e7ba-4247-b337-492f644daeeb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="AhBot">
+      <UniqueIdentifier>{481ad376-5cba-439d-af8c-2ef73de2ed8b}</UniqueIdentifier>
+    </Filter>
     <Filter Include="vmaps">
       <UniqueIdentifier>{948284d3-9d89-4609-8cdd-28a213edb53e}</UniqueIdentifier>
     </Filter>
@@ -481,6 +484,7 @@
     <ClCompile Include="..\..\src\game\UnitAuraProcHandler.cpp">
       <Filter>World/Handlers</Filter>
     </ClCompile>
+<<<<<<< HEAD
     <ClCompile Include="..\..\src\game\ChatLexicsCutter.cpp" >
       <Filter>Object</Filter>
     </ClCompile>
@@ -489,6 +493,10 @@
     </ClCompile>
     <ClCompile Include="..\..\src\game\VehicleHandler.cpp" >
       <Filter>Object</Filter>
+=======
+    <ClCompile Include="..\..\src\game\AuctionHouseBot\AuctionHouseBot.cpp">
+      <Filter>AhBot</Filter>
+>>>>>>> cee28237f73adfde3c8f0411ec0df98ee3f70d79
     </ClCompile>
     <ClCompile Include="..\..\src\game\vmap\BIH.cpp">
       <Filter>vmaps</Filter>
@@ -979,6 +987,7 @@
     <ClInclude Include="..\..\src\game\Camera.h">
       <Filter>Object</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="..\..\src\game\LFG.h">
       <Filter>World/Handlers</Filter>
     </ClInclude>
@@ -990,6 +999,10 @@
     </ClInclude>
     <ClInclude Include="..\..\src\game\ChatLog.h" >
       <Filter>Object</Filter>
+=======
+    <ClInclude Include="..\..\src\game\AuctionHouseBot\AuctionHouseBot.h">
+      <Filter>AhBot</Filter>
+>>>>>>> cee28237f73adfde3c8f0411ec0df98ee3f70d79
     </ClInclude>
     <ClInclude Include="..\..\src\game\vmap\BIH.h">
       <Filter>vmaps</Filter>
