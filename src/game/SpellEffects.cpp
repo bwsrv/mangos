@@ -10933,7 +10933,7 @@ void Spell::EffectServerSide(SpellEffectIndex eff_idx)
                 {
                     if (SpellAuraHolder* holder = unitTarget->GetSpellAuraHolder((triggerID == 67712 ? 67713 : 67759)))
                     {
-                        if ( holder->GetStackAmount() + 1 > triggerSpell->EffectBasePoints[EFFECT_INDEX_0] )
+                        if ( holder->GetStackAmount() + 1 > uint32(triggerSpell->EffectBasePoints[EFFECT_INDEX_0] ))
                         {
                             unitTarget->RemoveAurasDueToSpell(triggerID == 67712 ? 67713 : 67759);
                             if (unitTarget->getVictim())
