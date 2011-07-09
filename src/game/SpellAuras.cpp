@@ -10126,7 +10126,7 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                     return;
             }
             // Shadow embrace (healing reduction part)
-            else if (m_spellProto->SpellFamilyFlags.test<CF_WARLOCK_SHADOW_EMBRACE>())
+            else if (m_spellProto->SpellFamilyFlags.test<CF_WARLOCK_MISC_DEBUFFS>() && m_spellProto->SpellIconID == 2209)
             {
                 switch(GetId())
                 {

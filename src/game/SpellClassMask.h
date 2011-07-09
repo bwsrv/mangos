@@ -235,7 +235,6 @@ enum ClassFlag
     CF_WARLOCK_UNK73                        = 73,   // CM2 00000200
     CF_WARLOCK_DEVOUR_MAGIC                 = 74,   // CM2 00000400
     CF_WARLOCK_CURSE_OF_TONGUES             = 75,   // CM2 00000800
-    CF_WARLOCK_SHADOW_EMBRACE               = 95,   // CM2 80000000
 
     // -- Priest (6)
     CF_PRIEST_POWER_WORD_SHIELD             = 0,    // CM0 00000001
