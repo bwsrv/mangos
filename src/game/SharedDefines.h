@@ -501,7 +501,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX7_UNK25                      0x02000000            // 25
 #define SPELL_ATTR_EX7_UNK26                      0x04000000            // 26
 #define SPELL_ATTR_EX7_UNK27                      0x08000000            // 27
-#define SPELL_ATTR_EX7_UNK28                      0x10000000            // 28
+#define SPELL_ATTR_EX7_REPLACEABLE_AURA           0x10000000            // 28
 #define SPELL_ATTR_EX7_UNK29                      0x20000000            // 29
 #define SPELL_ATTR_EX7_UNK30                      0x40000000            // 30
 #define SPELL_ATTR_EX7_UNK31                      0x80000000            // 31
