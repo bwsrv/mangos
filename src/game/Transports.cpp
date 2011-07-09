@@ -453,6 +453,8 @@ bool Transport::GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids)
     m_curr = m_next;
     ++m_next;
 
+    m_pathTime = timer;
+
     m_nextNodeTime = m_curr->first;
 
     return true;
