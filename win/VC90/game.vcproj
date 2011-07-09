@@ -1812,7 +1812,6 @@
 			</File>
 		</Filter>
 		<Filter
-<<<<<<< HEAD
 			Name="PlayerBot"
 			>
 			<File
@@ -1917,7 +1916,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\game\playerbot\PlayerbotWarriorAI.h"
-=======
+               >
+			</File>
+		</Filter>
+		<Filter 
 			Name="Movement"
 			>
 			<File
@@ -1970,7 +1972,6 @@
 			</File>
 			<File
 				RelativePath="..\..\src\game\movement\util.cpp"
->>>>>>> 70fe2e925bb07d41678f24d23419ca2985b69997
 				>
 			</File>
 		</Filter>
