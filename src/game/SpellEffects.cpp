@@ -2561,6 +2561,19 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     }
                     return;
                 }
+                case 54092:                                 // Monster Slayer's Kit 
+                { 
+                    uint32 spell_id = 0; 
+                    switch(irand(1,4)) 
+                    { 
+                        case 1: spell_id = 51853; break; 
+                        case 2: spell_id = 54063; break; 
+                        case 3: spell_id = 54071; break; 
+                        case 4: spell_id = 54086; break; 
+                    } 
+                    m_caster->CastSpell(unitTarget,spell_id,true,NULL); 
+                    return; 
+                }
                 case 55004:                                 // Nitro Boosts
                 {
                     if (!m_CastItem)
