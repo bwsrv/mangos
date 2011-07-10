@@ -63,7 +63,6 @@ void MapManager::LoadTransports()
         t->m_period = fields[2].GetUInt32();
         t->m_onePeriod = false;
 
-        t->m_waypointTimer = 5000;
         t->m_microPointTimer = 5000;
         const GameObjectInfo *goinfo = ObjectMgr::GetGameObjectInfo(entry);
 
@@ -450,8 +449,8 @@ bool Transport::GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids)
 
     //Generate First Point
     m_next = m_WayPoints.begin();                           // will used in MoveToNextWayPoint for init m_curr
-    m_curr = m_next;
-    ++m_next;
+    MoveToNextWayPoint();
+    MoveToNextWayPoint();
 
     m_pathTime = timer;
 
@@ -470,17 +469,14 @@ void Transport::SetWayPoint(uint32 poindId)
     m_next = m_WayPoints.begin();
     for (uint8 i = 0; i < poindId+1; i++)
     {
-        m_curr = m_next;
-        m_next++;
+        MoveToNextWayPoint();
         if (m_curr == m_WayPoints.end())
         {
             m_next = m_WayPoints.begin();
-            m_curr = m_next;
-            m_next++;
+            MoveToNextWayPoint();
             break;
         }
     }
-    m_waypointTimer = GetTimerSpeedValue(GetDistance(m_next->second.x, m_next->second.y, m_next->second.z));
     m_microPointTimer = GetTimerSpeedValue(0.5f);
 }
 
@@ -614,17 +610,6 @@ void Transport::MoveToNextWayPoint()
         else
             m_next = m_WayPoints.begin();
     }
- 
-    const MapEntry* pMapInfo = sMapStore.LookupEntry(GetMapId());
-
-    if ((m_next->second.mapid != GetMapId() || m_next->second.teleport) && !pMapInfo->Instanceable())
-    {
-        TeleportTransport(m_next->second.mapid, m_next->second.x, m_next->second.y, m_next->second.z);
-        m_curr = m_next;
-        ++m_next;
-    }
-
-    m_waypointTimer = GetTimerSpeedValue(GetDistance(m_next->second.x, m_next->second.y, m_next->second.z));
 }
 
 void Transport::GenerateMicroPoint()
@@ -657,9 +642,19 @@ void Transport::Update(uint32 update_diff, uint32 /*p_time*/)
     m_timer = WorldTimer::getMSTime() % m_period;
     while (((m_timer - m_curr->first) % m_pathTime) > ((m_next->first - m_curr->first) % m_pathTime))
     {
+        const MapEntry* pMapInfo = sMapStore.LookupEntry(GetMapId());
+
+        if ((m_next->second.mapid != GetMapId() || m_next->second.teleport) && !pMapInfo->Instanceable())
+        {
+            m_microPointTimer = GetTimerSpeedValue(1.5f);
+            TeleportTransport(m_next->second.mapid, m_next->second.x, m_next->second.y, m_next->second.z);
+        }
+        else
+        {
+            Relocate(m_next->second.x, m_next->second.y, m_next->second.z);
+            CreatureUpdate();
+        }
         DoEventIfAny(*m_curr,true);
-        Relocate(m_next->second.x, m_next->second.y, m_next->second.z);
-        CreatureUpdate();
         MoveToNextWayPoint();
         DoEventIfAny(*m_curr,false);
         m_nextNodeTime = m_curr->first;
@@ -794,7 +789,6 @@ void Transport::LoadTransportAccessory()
 {
     uint32 mapId = GetGOInfo()->moTransport.mapID;
 
-    m_waypointTimer = GetTimerSpeedValue(GetDistance(m_next->second.x, m_next->second.y, m_next->second.z));
     m_microPointTimer = GetTimerSpeedValue(0.5f);
 
     QueryResult *result = WorldDatabase.PQuery("SELECT guid, id FROM creature WHERE transMap = %u AND transMap > 1", mapId);
