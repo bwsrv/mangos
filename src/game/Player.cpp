@@ -24137,7 +24137,7 @@ AreaLockStatus Player::GetAreaLockStatus(uint32 mapId, Difficulty difficulty)
 
 uint32 Player::GetEquipGearScore(bool withBags, bool withBank)
 {
-    if (m_cachedGS > 0)
+    if (withBags && withBank && m_cachedGS > 0)
         return m_cachedGS;
 
     GearScoreMap gearScore (MAX_INVTYPE);
@@ -24209,10 +24209,13 @@ uint32 Player::GetEquipGearScore(bool withBags, bool withBank)
     if (count)
     {
         DEBUG_LOG("Player: calculating gear score for %u. Result is %u",GetObjectGuid().GetCounter(), uint32( summ / count ));
-
-        m_cachedGS = uint32( summ / count );
-
-        return m_cachedGS;
+        if (withBags && withBank)
+        {
+            m_cachedGS = uint32( summ / count );
+            return m_cachedGS;
+        }
+        else
+            return uint32( summ / count );
     }
     else return 0;
 }
