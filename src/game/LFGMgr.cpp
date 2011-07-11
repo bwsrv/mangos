@@ -2970,13 +2970,23 @@ void LFGMgr::RemoveMemberFromLFDGroup(Group* group, ObjectGuid guid)
 {
     Player* player = sObjectMgr.GetPlayer(guid);
 
-    if (!player || !player->IsInWorld())
+    if (!player)
         return;
 
     if (player->HasAura(LFG_SPELL_DUNGEON_COOLDOWN) && !sWorld.getConfig(CONFIG_BOOL_LFG_DEBUG_ENABLE))
         player->CastSpell(player,LFG_SPELL_DUNGEON_DESERTER,true);
 
     player->RemoveAurasDueToSpell(LFG_SPELL_LUCK_OF_THE_DRAW);
+
+    if (!group)
+    {
+        Leave(player);
+        player->GetLFGState()->Clear();
+        return;
+    }
+
+    if (!player->IsInWorld())
+        return;
 
     if (player->GetLFGState()->GetState() > LFG_STATE_QUEUED)
         Teleport(player, true);
