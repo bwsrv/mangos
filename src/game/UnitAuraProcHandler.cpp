@@ -4531,7 +4531,7 @@ SpellAuraProcResult Unit::HandleModDamageFromCasterAuraProc(Unit* pVictim, uint3
     return triggeredByAura->GetCasterGuid() == pVictim->GetObjectGuid() ? SPELL_AURA_PROC_OK : SPELL_AURA_PROC_FAILED;
 }
 
-SpellAuraProcResult Unit::HandleAddFlatModifierAuraProc(Unit* /*pVictim*/, uint32 /*damage*/, Aura* triggeredByAura, SpellEntry const * /*procSpell*/, uint32 /*procFlag*/, uint32 /*procEx*/, uint32 /*cooldown*/)
+SpellAuraProcResult Unit::HandleAddFlatModifierAuraProc(Unit* pVictim, uint32 /*damage*/, Aura* triggeredByAura, SpellEntry const * procSpell, uint32 /*procFlag*/, uint32 /*procEx*/, uint32 /*cooldown*/)
 {
     SpellEntry const *spellInfo = triggeredByAura->GetSpellProto();
 
@@ -4543,6 +4543,18 @@ SpellAuraProcResult Unit::HandleAddFlatModifierAuraProc(Unit* /*pVictim*/, uint3
             if (triggeredByAura->GetStackAmount() > 1 && !triggeredByAura->GetHolder()->ModStackAmount(-1))
                 return SPELL_AURA_PROC_CANT_TRIGGER;
             break;
+        case 53695:
+        case 53696:                             // Judgements of the Just
+        {
+            if (!procSpell)
+                return SPELL_AURA_PROC_FAILED;
+
+            if (GetSpellSpecific(procSpell->Id) != SPELL_JUDGEMENT)
+                return SPELL_AURA_PROC_FAILED;
+
+            int bp = triggeredByAura->GetModifier()->m_amount;
+            CastCustomSpell(pVictim, 68055, &bp, NULL, NULL, true, NULL, triggeredByAura);
+        }
         default:
             break;
     }
