@@ -17,3 +17,9 @@ INSERT INTO spell_script_target VALUES
 (61632, 1, 30452),
 (61632, 1, 30451),
 (61632, 1, 30449);
+
+-- Devour humanoid ---- Quest and to all things (DK Area)
+DELETE FROM spell_script_target WHERE spell_script_target.entry = 53110;
+INSERT INTO spell_script_target VALUES
+(53110, 1, 29102),
+(53110, 1, 29103);
