@@ -8024,6 +8024,27 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     break;
                 }
+                case 53110:									// Devour Humanoid
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT || !m_caster)
+                        return;
+
+                    // check if it's only the npc Hearthglen Crusader or Tirisfal Crusader
+                    if(unitTarget->GetEntry() == 29102 || unitTarget->GetEntry() == 29103)
+                    {
+                        // check if the distance to the npc is only 15
+                        if(15.0f >= m_caster->GetDistance(unitTarget->GetPositionX(), unitTarget->GetPositionY(), unitTarget->GetPositionZ()))
+                        {
+                            // kill the npc
+                            m_caster->CastSpell(unitTarget, 5, false);
+                            // despawn the npc
+                            ((Creature*)unitTarget)->ForcedDespawn();
+                            // set the mana of the caster (i.e. Frostbrood Vanquisher) to 100%
+                            m_caster->SetPower(POWER_MANA, m_caster->GetMaxPower(POWER_MANA));
+                        }
+                    }
+                    return;
+                }
                 case 53242:                                 // Clear Gift of Tharonja
                 {
                     if (!unitTarget || !unitTarget->HasAura(52509))
