@@ -1022,6 +1022,7 @@ class SpellMgr
         }
 
         static bool IsGroupBuff(SpellEntry const *spellInfo);
+        static bool IsStackableSpellAuraHolder(SpellEntry const *spellInfo);
 
         SpellEntry const* SelectAuraRankForLevel(SpellEntry const* spellInfo, uint32 Level) const;
 

@@ -2064,6 +2064,34 @@ bool SpellMgr::IsGroupBuff(SpellEntry const *spellInfo)
     return false;
 }
 
+// is holder stackable from different casters
+bool SpellMgr::IsStackableSpellAuraHolder(SpellEntry const* spellInfo)
+{
+    if (spellInfo->AttributesEx3 & SPELL_ATTR_EX3_STACK_FOR_DIFF_CASTERS)
+        return true;
+
+    // some more (custom) checks. e.g. Insect Swarm doesn't have the attribute, we depend on aura types in holder
+    for (int i = 0; i < MAX_EFFECT_INDEX; ++i)
+    {
+        switch(spellInfo->EffectApplyAuraName[i])
+        {
+            // DoT/HoT and some more
+            case SPELL_AURA_DUMMY:
+            case SPELL_AURA_PERIODIC_DAMAGE:
+            case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
+            case SPELL_AURA_PERIODIC_LEECH:
+            case SPELL_AURA_PERIODIC_HEAL:
+            case SPELL_AURA_OBS_MOD_HEALTH:
+            case SPELL_AURA_PERIODIC_MANA_LEECH:
+            case SPELL_AURA_OBS_MOD_MANA:
+            case SPELL_AURA_POWER_BURN_MANA:
+                return true;
+        }
+    }
+
+    return false;
+}
+
 SpellEntry const* SpellMgr::SelectAuraRankForLevel(SpellEntry const* spellInfo, uint32 level) const
 {
     // fast case
