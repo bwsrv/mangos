@@ -8026,15 +8026,8 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                 }
                 case 53110:									// Devour Humanoid
                 {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT || !m_caster)
-                        return;
-
-
-                    // check if the distance to the npc is only 15
-                    if(15.0f >= m_caster->GetDistance(unitTarget->GetPositionX(), unitTarget->GetPositionY(), unitTarget->GetPositionZ()))
-                    {
-                            m_caster->SetPower(POWER_MANA, m_caster->GetMaxPower(POWER_MANA));
-                    }
+                    unitTarget->CastSpell(m_caster, m_spellInfo->CalculateSimpleValue(eff_idx),true, NULL, NULL, m_caster->GetObjectGuid());
+                    ((Creature*)unitTarget)->ForcedDespawn();  // needs to remove npc after spell 
                     return;
                 }
                 case 53242:                                 // Clear Gift of Tharonja
