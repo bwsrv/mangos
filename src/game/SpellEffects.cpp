@@ -8026,8 +8026,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                 }
                 case 53110:									// Devour Humanoid
                 {
-                    unitTarget->CastSpell(m_caster, m_spellInfo->CalculateSimpleValue(eff_idx),true, NULL, NULL, m_caster->GetObjectGuid());
-                    ((Creature*)unitTarget)->ForcedDespawn();  // needs to remove npc after spell 
+                    unitTarget->CastSpell(m_caster, m_spellInfo->CalculateSimpleValue(eff_idx),true, NULL, NULL, m_caster->GetObjectGuid()); 
                     return;
                 }
                 case 53242:                                 // Clear Gift of Tharonja
