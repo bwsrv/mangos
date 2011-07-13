@@ -25,6 +25,7 @@
 #include "Dynamic/ObjectRegistry.h"
 #include "Dynamic/FactoryHolder.h"
 #include "ObjectGuid.h"
+#include "Unit.h"
 
 class WorldObject;
 class GameObject;
@@ -163,6 +164,7 @@ class MANGOS_DLL_SPEC CreatureAI
         virtual bool canReachByRangeAttack(Unit*) { return false; }
 
         ///== Helper functions =============================
+        bool AttackByType(WeaponAttackType attType = BASE_ATTACK);
         bool DoMeleeAttackIfReady();
         CanCastResult DoCastSpellIfCan(Unit* pTarget, uint32 uiSpell, uint32 uiCastFlags = 0, ObjectGuid uiOriginalCasterGUID = ObjectGuid());
 
