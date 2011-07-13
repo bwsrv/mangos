@@ -4382,7 +4382,7 @@ bool Unit::RemoveNoStackAurasDueToAuraHolder(SpellAuraHolder *holder)
             if (holder->GetCasterGuid() != i->second->GetCasterGuid() && sSpellMgr.IsStackableSpellAuraHolder(spellProto))
                 continue;
 
-            RemoveAurasDueToSpell(i_spellId);
+            RemoveSpellAuraHolder(i->second, AURA_REMOVE_BY_STACK);
 
             if( m_spellAuraHolders.empty() )
                 break;
