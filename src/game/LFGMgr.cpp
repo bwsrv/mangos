@@ -2978,6 +2978,12 @@ void LFGMgr::RemoveMemberFromLFDGroup(Group* group, ObjectGuid guid)
 
     player->RemoveAurasDueToSpell(LFG_SPELL_LUCK_OF_THE_DRAW);
 
+    if (!group || !group->isLFDGroup())
+    {
+        player->GetLFGState()->Clear();
+        return;
+    }
+
     if (player->GetLFGState()->GetState() > LFG_STATE_QUEUED)
         Teleport(player, true);
     else if (group && group->GetLFGState()->GetState() > LFG_STATE_QUEUED)
