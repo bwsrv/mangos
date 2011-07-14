@@ -1005,7 +1005,7 @@ bool ChatHandler::HandleGameObjectMoveCommand(char* args)
         return false;
     }
 
-    if (!args)
+    if (!*args)
     {
         Player *chr = m_session->GetPlayer();
 
