@@ -9517,43 +9517,54 @@ void Unit::AddThreat(Unit* pVictim, float threat /*= 0.0f*/, bool crit /*= false
    {
     if (threatSpell && pVictim && pVictim->GetTypeId() == TYPEID_PLAYER)
     {
-       float bonus=1.0f;
+       float bonus = 1.0f;
+
        switch (threatSpell->SpellFamilyName)
        {
         case SPELLFAMILY_WARRIOR:
             {
                 // Heroic Throw
-                if (threatSpell->Id==57755)
-                    bonus=1.5f;
-                //Thunder Clap
-                if (threatSpell->SpellFamilyFlags & UI64LIT(0x80))
-                    bonus=1.85f;
+                if (threatSpell->Id == 57755)
+                    bonus = 1.5f;
+
+                // Thunder Clap
+                if (threatSpell->SpellFamilyFlags.test<CF_WARRIOR_THUNDER_CLAP>())
+                    bonus = 1.85f;
+
+                // Devastate
+                if (threatSpell->SpellFamilyFlags.test<CF_WARRIOR_DEVASTATE>())
+                    bonus = 5.0f;
             };
             break;
         case SPELLFAMILY_DEATHKNIGHT:
             {
-                //Rune Strike
-                if (threatSpell->SpellFamilyFlags & UI64LIT(0x2000000000000000))
-                    bonus=1.75f;
+                // Rune Strike
+                if (threatSpell->SpellFamilyFlags.test<CF_DEATHKNIGHT_RUNE_STRIKE>())
+                    bonus = 1.75f;
+
                 // Death and Decay
-                if (threatSpell->Id==52212)
-                    bonus=1.9f;
-                // Icy Touch in Frost Presense
-                if (pVictim->HasAura(48263) && threatSpell->SpellFamilyFlags & UI64LIT(0x2))
-                    bonus=7.0f;
+                if (threatSpell->Id == 52212)
+                    bonus = 1.9f;
+
+                // Icy Touch
+                if (pVictim->HasAura(48263) && threatSpell->SpellFamilyFlags.test<CF_DEATHKNIGHT_ICY_TOUCH_TALONS>())
+                    bonus = 7.0f;
             };
             break;
         case SPELLFAMILY_DRUID:
-            {
-                if (threatSpell->SpellFamilyFlags & UI64LIT(0x0010000000000000))
-                    bonus=1.5f;
+            {   
+                // Swipe (bear)
+                if (threatSpell->SpellFamilyFlags.test<CF_DRUID_SWIPE>())
+                    bonus = 1.5f;
             };
             break;
         };
         threat*=bonus;
     }
+
     m_ThreatManager.addThreat(pVictim, threat, crit, schoolMask, threatSpell);
-    }
+
+   }
 }
 
 //======================================================================

@@ -7051,6 +7051,10 @@ void Spell::EffectThreat(SpellEffectIndex /*eff_idx*/)
         if (m_spellInfo->SpellFamilyName==SPELLFAMILY_WARRIOR && m_spellInfo->SpellFamilyFlags.test<CF_WARRIOR_SUNDER_ARMOR>())
             bonus+=m_caster->GetTotalAttackPowerValue(BASE_ATTACK)/20; //Sunder Armor bonus threat
 
+    // Wind Shear
+    if (m_spellInfo->Id == 57994)
+        damage = -int32((30 * (m_caster->getLevel() - 10)));
+
    unitTarget->AddThreat(m_caster, float(damage+bonus), false, GetSpellSchoolMask(m_spellInfo), m_spellInfo);
 }
 
