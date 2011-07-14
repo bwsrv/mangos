@@ -1240,7 +1240,8 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 
                     return;
                 }
-                case 21147:                                 // Arcane Vacuum
+                case 21147:                                 // Arcane Vacuum (Azuregos) 
+                case 58694:                                 // Arcane Vacuum (Cyanigosa)
                 {
                     if (!unitTarget)
                         return;
@@ -2608,6 +2609,11 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     ClearCastItem();
                     break;
                 }
+                case 57930:                                 // Arcane Lightning 
+                { 
+                    m_caster->CastSpell(m_caster, 57912, true); 
+                    return; 
+                }
                 case 58418:                                 // Portal to Orgrimmar
                 case 58420:                                 // Portal to Stormwind
                     return;                                 // implemented in EffectScript[0]
@@ -2648,6 +2654,11 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 
                     m_caster->CastSpell(m_caster,spell_id,true,NULL);
                     return;
+                }
+                case 60038:                                 // Arcane Lightning 
+                { 
+                    m_caster->CastSpell(m_caster, 58152, true); 
+                    return; 
                 }
                 case 60932:                                 // Disengage (one from creature versions)
                 {
