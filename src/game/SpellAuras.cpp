@@ -8571,8 +8571,27 @@ void Aura::PeriodicDummyTick()
 //              case 46549: break;
 //              // Summon Ice Spear Knockback Delayer
 //              case 46878: break;
-//              // Burninate Effect
-//              case 47214: break;
+                case 47214: // Burninate Effect
+                {
+                    Unit * caster = GetCaster();
+                    if (!caster)
+                        return;
+
+                    if (target->GetEntry() == 26570)
+                    {
+                        if (target->HasAura(54683, EFFECT_INDEX_0))
+                            return;
+                        else
+                        {
+                            // Credit Scourge
+                            caster->CastSpell(caster, 47208, true);
+                            // set ablaze
+                            target->CastSpell(target, 54683, true);
+                            ((Creature*)target)->ForcedDespawn(4000);
+                        }
+                    }
+                    break;
+                }
 //              // Fizzcrank Practice Parachute
 //              case 47228: break;
 //              // Send Mug Control Aura
