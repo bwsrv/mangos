@@ -9526,7 +9526,6 @@ m_permanent(false), m_isRemovedOnShapeLost(true), m_deleted(false), m_in_use(0)
         case 62519:                                         // Attuned to Nature
         case 64455:                                         // Feral Essence
         case 71564:                                         // Deadly Precision
-        case 74396:                                         // Fingers of Frost
             m_stackAmount = m_spellProto->StackAmount;
             break;
     }
@@ -9879,6 +9878,25 @@ void SpellAuraHolder::SetStackAmount(uint32 stackAmount)
                     aur->ApplyModifier(false, true);
                     aur->GetModifier()->m_amount = amount;
                     aur->ApplyModifier(true, true);
+
+                    // change duration if aura refreshes
+                    if (refresh)
+                    {
+                        int32 maxduration = GetSpellMaxDuration(aur->GetSpellProto());
+                        int32 duration = GetSpellDuration(aur->GetSpellProto());
+
+                        // new duration based on combo points
+                        if (duration != maxduration)
+                        {
+                            if (Unit *caster = aur->GetCaster())
+                            {
+                                duration += int32((maxduration - duration) * caster->GetComboPoints() / 5);
+                                SetAuraMaxDuration(duration);
+                                SetAuraDuration(duration);
+                                refresh = false;
+                            }
+                        }
+                    }
                 }
             }
         }
