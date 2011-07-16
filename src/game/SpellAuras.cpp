@@ -9149,7 +9149,18 @@ void Aura::HandleAuraControlVehicle(bool apply, bool Real)
         if (caster->GetTypeId() == TYPEID_PLAYER)
             ((Player*)caster)->RemovePet(PET_SAVE_AS_CURRENT);
 
-        caster->EnterVehicle(target->GetVehicleKit());
+        // TODO: find a way to make this work properly
+        // some spells seem like store vehicle seat info in basepoints, but not true for all of them, so... ;/
+        // int8 seat = target->GetVehicleKit()->HasEmptySeat(GetModifier()->m_amount) ? GetModifier()->m_amount : -1;
+        // caster->EnterVehicle(target->GetVehicleKit(), seat);
+
+        int8 seat = -1;
+
+        // Slag Pot (2 seats: hand and the pot)
+        if (GetId() == 62708 || GetId() == 62711)
+            seat = GetModifier()->m_amount;
+
+        caster->EnterVehicle(target->GetVehicleKit(), seat);
     }
     else
     {
