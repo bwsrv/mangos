@@ -3530,6 +3530,25 @@ void Aura::HandleAuraFeatherFall(bool apply, bool Real)
     // start fall from current height
     if(!apply && target->GetTypeId() == TYPEID_PLAYER)
         ((Player*)target)->SetFallInformation(0, target->GetPositionZ());
+
+    // additional custom cases
+    if(!apply)
+    {
+        switch(GetId())
+        {
+            // Soaring - Test Flight chain
+            case 36812:
+            case 37910:
+            case 37940:
+            case 37962:
+            case 37968:
+            {
+                if(Unit* pCaster = GetCaster())
+                    pCaster->CastSpell(pCaster, 37108, true);
+                return;
+            }
+        }
+    }
 }
 
 void Aura::HandleAuraHover(bool apply, bool Real)
