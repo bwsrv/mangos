@@ -8708,6 +8708,41 @@ void Aura::PeriodicDummyTick()
 
                     break;
                 }
+                case 62038: // Biting Cold (Ulduar: Hodir)
+                {
+                    if (target->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    // aura stack increase every 3 (data in m_miscvalue) seconds and decrease every 1s
+                    SpellAuraHolder *holder = target->GetSpellAuraHolder(62039);
+                     // dmg dealing every second
+                    target->CastSpell(target, 62188, true);
+
+                    // Reset reapply counter at move and decrease stack amount by 1
+                    if (((Player*)target)->isMoving())
+                    {
+                        if (holder)
+                        {
+                            if (holder->ModStackAmount(-1))
+                                target->RemoveAurasDueToSpell(62039);
+                        }
+                        m_modifier.m_miscvalue = 3;
+                        return;
+                    }
+                    // We are standing at the moment, countdown
+                    if (m_modifier.m_miscvalue > 0)
+                    {
+                        --m_modifier.m_miscvalue;
+                        return;
+                    }
+
+                    target->CastSpell(target, 62039, true);
+                    target->CastSpell(target, 62188, true);
+
+                    // recast every ~3 seconds
+                    m_modifier.m_miscvalue = 3;
+                    return;
+                }
                 case 62566:                                 // Healthy Spore Summon Periodic
                 {
                     target->CastSpell(target, 62582, true);
