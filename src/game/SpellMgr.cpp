@@ -2076,14 +2076,15 @@ bool SpellMgr::IsStackableSpellAuraHolder(SpellEntry const* spellInfo)
         switch(spellInfo->EffectApplyAuraName[i])
         {
             // DoT/HoT and some more
-            case SPELL_AURA_DUMMY:
             case SPELL_AURA_PERIODIC_DAMAGE:
-            case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
-            case SPELL_AURA_PERIODIC_LEECH:
+            case SPELL_AURA_DUMMY:
             case SPELL_AURA_PERIODIC_HEAL:
             case SPELL_AURA_OBS_MOD_HEALTH:
-            case SPELL_AURA_PERIODIC_MANA_LEECH:
             case SPELL_AURA_OBS_MOD_MANA:
+            case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
+            case SPELL_AURA_PERIODIC_LEECH:
+            case SPELL_AURA_PERIODIC_MANA_LEECH:
+            case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
             case SPELL_AURA_POWER_BURN_MANA:
                 return true;
         }
