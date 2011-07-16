@@ -3402,6 +3402,8 @@ void Spell::cast(bool skipCheck)
                 AddTriggeredSpell(74610);                  // Fiery combustion
             else if (m_spellInfo->Id == 74799)
                 AddTriggeredSpell(74800);                  // Soul consumption
+            else if (m_spellInfo->Id == 61968)             // Flash Freeze (Hodir: Ulduar)
+                AddTriggeredSpell(62148);                  // visual effect
             break;
         }
         case SPELLFAMILY_MAGE:
@@ -5715,7 +5717,13 @@ SpellCastResult Spell::CheckCast(bool strict)
             case SPELL_EFFECT_CHARGE:
             {
                 if (m_caster->hasUnitState(UNIT_STAT_ROOT) && !(m_spellInfo->Id == 3411 && m_caster->HasAura(57499)))
-                    return SPELL_FAILED_ROOTED;
+                {
+                    // Intervene with Warbringer talent
+                    if (m_spellInfo->Id == 3411 && m_caster->HasAura(57499))
+                        m_caster->RemoveAurasAtMechanicImmunity(IMMUNE_TO_ROOT_AND_SNARE_MASK, 0);
+                    else
+                        return SPELL_FAILED_ROOTED;
+                }
 
                 break;
             }
@@ -6148,6 +6156,13 @@ SpellCastResult Spell::CheckCast(bool strict)
             my_trade->SetSpell(m_spellInfo->Id, m_CastItem);
             return SPELL_FAILED_DONT_REPORT;
         }
+    }
+
+    // check LOS for ground targeted spells
+    if (!m_targets.getUnitTarget() && !m_targets.getGOTarget() && !m_targets.getItemTarget())
+    {
+        if (m_targets.m_destX && m_targets.m_destY && m_targets.m_destZ && !m_caster->IsWithinLOS(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ))
+            return SPELL_FAILED_LINE_OF_SIGHT;
     }
 
     // all ok
@@ -7915,6 +7930,11 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
     // Resulting effect depends on spell that we want to cast
     switch (m_spellInfo->Id)
     {
+        case 28374: // Decimate - Gluth encounter
+        {
+            FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_ALL);
+            targetUnitMap.remove(m_caster);
+        }
         case 46584: // Raise Dead
         {
             Unit* pCorpseTarget = NULL;
@@ -8064,6 +8084,24 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             SetTargetMap(SpellEffectIndex(i), TARGET_RANDOM_ENEMY_CHAIN_IN_AREA, targetUnitMap);
             break;
         }
+        case 61920: // Supercharge (Iron Council: Ulduar)
+        {
+            UnitList tempTargetUnitMap;
+            FillAreaTargets(tempTargetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_NOT_HOSTILE);
+
+            for (UnitList::iterator itr = tempTargetUnitMap.begin(),next; itr != tempTargetUnitMap.end(); itr++)
+            {
+                if ((*itr) &&
+                    ((*itr)->GetEntry() == 32867 || // Steelbreaker
+                    (*itr)->GetEntry() == 32927 ||  // Runemaster Molgeim
+                    (*itr)->GetEntry() == 32857)    // Stormcaller Brundir
+                    )
+                {
+                    targetUnitMap.push_back(*itr);
+                }
+            }
+            break;
+        }
         case 61999: // Raise ally
         {
             WorldObject* result = FindCorpseUsing <MaNGOS::RaiseAllyObjectCheck>  ();
@@ -8071,6 +8109,35 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
                 targetUnitMap.push_back((Unit*)result);
             else
                 targetUnitMap.push_back((Unit*)m_caster);
+            break;
+        }
+        case 62343: // Heat (remove all except active iron constructs)
+        {
+            UnitList tempTargetUnitMap;
+            FillAreaTargets(tempTargetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_ALL);
+
+            for (UnitList::iterator itr = tempTargetUnitMap.begin(),next; itr != tempTargetUnitMap.end(); itr++)
+            {
+                if ((*itr) && (*itr)->GetEntry() == 33121 &&
+                    !(*itr)->HasAura(62468) && !(*itr)->HasAura(62373) &&
+                    !(*itr)->HasAura(62382) && !(*itr)->HasAura(67114)
+                    )
+                {
+                    targetUnitMap.push_back(*itr);
+                }
+            }
+            break;
+        }
+        case 62488: // Activate Constructs (remove all except inactive constructs)
+        {
+            UnitList tempTargetUnitMap;
+            FillAreaTargets(tempTargetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_NOT_HOSTILE);
+
+            for (UnitList::iterator itr = tempTargetUnitMap.begin(),next; itr != tempTargetUnitMap.end(); itr++)
+            {
+                if ((*itr) && (*itr)->GetEntry() == 33121 && (*itr)->HasAura(62468)) // check for stun aura
+                    targetUnitMap.push_back(*itr);
+            }
             break;
         }
         case 63025:  // Gravity Bomb (XT-002 in Ulduar) - exclude caster from pull and double damage
