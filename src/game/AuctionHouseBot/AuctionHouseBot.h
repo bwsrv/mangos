@@ -103,6 +103,16 @@ enum AuctionBotConfigBoolValues
     CONFIG_UINT32_AHBOT_BOOL_COUNT
 };
 
+enum AuctionBotConfigFloatValues
+{
+    CONFIG_FLOAT_AHBOT_BIND_NO_MULTIPLIER,
+    CONFIG_FLOAT_AHBOT_BIND_PICKUP_MULTIPLIER,
+    CONFIG_FLOAT_AHBOT_BIND_EQUIP_MULTIPLIER,
+    CONFIG_FLOAT_AHBOT_BIND_USE_MULTIPLIER,
+    CONFIG_FLOAT_AHBOT_BIND_QUEST_MULTIPLIER,
+    CONFIG_UINT32_AHBOT_FLOAT_COUNT
+};
+
 // All basic config data used by other AHBot classes for self-configure.
 class AuctionBotConfig
 {
@@ -117,6 +127,9 @@ class AuctionBotConfig
         bool        getConfig(AuctionBotConfigBoolValues index) const { return m_configBoolValues[index]; }
         void        setConfig(AuctionBotConfigBoolValues index, bool value) { m_configBoolValues[index]=value; }
         void        setConfig(AuctionBotConfigUInt32Values index, uint32 value) { m_configUint32Values[index]=value; }
+
+        void        setConfig(AuctionBotConfigFloatValues index, float value) { m_configFloatValues[index]=value; }
+        float       getConfig(AuctionBotConfigFloatValues index) const { return m_configFloatValues[index]; }
 
         uint32 getConfigItemAmountRatio(AuctionHouseType houseType) const;
         bool getConfigBuyerEnabled(AuctionHouseType houseType) const;
@@ -139,6 +152,7 @@ class AuctionBotConfig
 
         uint32 m_configUint32Values[CONFIG_UINT32_AHBOT_UINT32_COUNT];
         bool   m_configBoolValues[CONFIG_UINT32_AHBOT_BOOL_COUNT];
+        float  m_configFloatValues[CONFIG_UINT32_AHBOT_FLOAT_COUNT];
 
         void SetAHBotIncludes(const std::string& AHBotIncludes) { m_AHBotIncludes = AHBotIncludes; }
         void SetAHBotExcludes(const std::string& AHBotExcludes) { m_AHBotExcludes = AHBotExcludes; }
@@ -147,6 +161,7 @@ class AuctionBotConfig
         void setConfigMax(AuctionBotConfigUInt32Values index, char const* fieldname, uint32 defvalue, uint32 maxvalue);
         void setConfigMinMax(AuctionBotConfigUInt32Values index, char const* fieldname, uint32 defvalue, uint32 minvalue, uint32 maxvalue);
         void setConfig(AuctionBotConfigBoolValues index, char const* fieldname, bool defvalue);
+        void setConfig(AuctionBotConfigFloatValues index, char const* fieldname, float defvalue);
         void GetConfigFromFile();
 };
 

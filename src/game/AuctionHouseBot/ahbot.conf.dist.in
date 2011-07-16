@@ -226,6 +226,13 @@ AuctionHouseBot.Class.Container.ItemLevel.Max = 0
 AuctionHouseBot.forceIncludeItems = ""
 AuctionHouseBot.forceExcludeItems = ""
 
+// Additional parameters - for R2 branch use
+AuctionHouseBot.Bind.No.Multiplier = 1
+AuctionHouseBot.Bind.Pickup.Multiplier = 1
+AuctionHouseBot.Bind.Equip.Multiplier = 1
+AuctionHouseBot.Bind.Use.Multiplier = 1
+AuctionHouseBot.Bind.Quest.Multiplier = 1
+
 ###################################################################################################################
 # Buyer config
 #
