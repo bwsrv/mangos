@@ -8077,23 +8077,6 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
                 targetUnitMap.remove(unitTarget);
             return true;
         }
-        case 50286: // Starfall - exclude stealthed targets
-        case 53196: // rank 2
-        case 53197: // rank 3
-        case 53198: // rank 4
-        {
-            FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
-            for (UnitList::iterator itr = targetUnitMap.begin(), next; itr != targetUnitMap.end(); itr = next)
-            {
-                next = itr;
-                ++next;
-
-                if (!(*itr)->isVisibleForOrDetect(m_caster, m_caster, false, false, false))
-                    targetUnitMap.erase(itr);
-            }
-            if (!targetUnitMap.empty())
-                return true;
-        }
         case 57143: // Life Burst (Wyrmrest Skytalon) 
         {
             // hack - spell is AoE but implicitTargets dont match here :/
