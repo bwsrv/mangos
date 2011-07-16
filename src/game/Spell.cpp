@@ -1142,6 +1142,9 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         procEx = createProcExtendMask(&damageInfo, missInfo);
         procVictim |= PROC_FLAG_TAKEN_ANY_DAMAGE;
 
+        if (damageInfo.absorb)
+            procEx &= ~PROC_EX_DIRECT_DAMAGE;
+
         // Do triggers for unit (reflect triggers passed on hit phase for correct drop charge)
         if (m_canTrigger && missInfo != SPELL_MISS_REFLECT)
             caster->ProcDamageAndSpell(unitTarget, real_caster ? procAttacker : PROC_FLAG_NONE, procVictim, procEx, damageInfo.damage, m_attackType, m_spellInfo);

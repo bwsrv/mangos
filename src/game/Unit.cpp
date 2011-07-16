@@ -1798,6 +1798,7 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
     if(int32(damageInfo->damage) > 0)
     {
         damageInfo->procVictim |= PROC_FLAG_TAKEN_ANY_DAMAGE;
+        damageInfo->procEx |= PROC_EX_DIRECT_DAMAGE;
 
         // Calculate absorb & resists
         uint32 absorb_affected_damage = CalcNotIgnoreAbsorbDamage(damageInfo->damage,damageInfo->damageSchoolMask);
@@ -1811,6 +1812,8 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
         if (damageInfo->resist)
             damageInfo->HitInfo|=HITINFO_RESIST;
 
+        if (damageInfo->damage <= 0)
+            damageInfo->procEx &= ~PROC_EX_DIRECT_DAMAGE;
     }
     else // Umpossible get negative result but....
         damageInfo->damage = 0;
