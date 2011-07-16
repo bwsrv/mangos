@@ -7934,21 +7934,17 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
         {
             FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_ALL);
             targetUnitMap.remove(m_caster);
+            break;
         }
         case 43263: // Ghoul Taunt (Army of the Dead)
         {           // exclude Player and WorldBoss targets
             FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
             for (UnitList::iterator itr = targetUnitMap.begin(); itr != targetUnitMap.end();)
             {
-                Creature *pTmp = (Creature*)(*itr);
-                if ( ((*itr) && (*itr)->GetTypeId() == TYPEID_PLAYER) || (pTmp && pTmp->IsWorldBoss()) )
-                {
-                    targetUnitMap.erase(itr);
-                    targetUnitMap.sort();
-                    itr = targetUnitMap.begin();
-                    continue;
-                }
-                itr++;
+                if (!*itr || (*itr)->GetTypeId() == TYPEID_PLAYER || static_cast<Creature*>(*itr)->IsWorldBoss())
+                    itr = targetUnitMap.erase(itr);
+                else
+                    ++itr;
             }
             if (!targetUnitMap.empty())
                 return true;
@@ -7973,13 +7969,13 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
             break;
         }
-        case 48018:
-        case 60854:
+        case 48018: // Demonic Circle: Summon
+        case 60854: // Demonic Circle: Clear
         {
             targetUnitMap.push_back(m_caster);
             break;
         }
-        case 48743:
+        case 48743: // Death Pact
         {
             if (i != EFFECT_INDEX_1)
                 return false;
@@ -8115,7 +8111,7 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             UnitList tempTargetUnitMap;
             FillAreaTargets(tempTargetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_NOT_HOSTILE);
 
-            for (UnitList::iterator itr = tempTargetUnitMap.begin(),next; itr != tempTargetUnitMap.end(); itr++)
+            for (UnitList::iterator itr = tempTargetUnitMap.begin(),next; itr != tempTargetUnitMap.end(); ++itr)
             {
                 if ((*itr) &&
                     ((*itr)->GetEntry() == 32867 || // Steelbreaker
@@ -8130,7 +8126,7 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
         }
         case 61999: // Raise ally
         {
-            WorldObject* result = FindCorpseUsing <MaNGOS::RaiseAllyObjectCheck>  ();
+            WorldObject* result = FindCorpseUsing<MaNGOS::RaiseAllyObjectCheck>();
             if (result)
                 targetUnitMap.push_back((Unit*)result);
             else
@@ -8157,7 +8153,8 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
         case 62920:
         {
             FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
-            targetUnitMap.resize(m_caster->GetSpellAuraHolder(62239) ? m_caster->GetSpellAuraHolder(62239)->GetStackAmount() : 1);
+            SpellAuraHolder *aur = m_caster->GetSpellAuraHolder(62239);
+            targetUnitMap.resize(aur ? aur->GetStackAmount() : 1);
 
             if (!targetUnitMap.empty())
                 return true;
@@ -8167,7 +8164,7 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             UnitList tempTargetUnitMap;
             FillAreaTargets(tempTargetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_ALL);
 
-            for (UnitList::iterator itr = tempTargetUnitMap.begin(),next; itr != tempTargetUnitMap.end(); itr++)
+            for (UnitList::iterator itr = tempTargetUnitMap.begin(),next; itr != tempTargetUnitMap.end(); ++itr)
             {
                 if ((*itr) && (*itr)->GetEntry() == 33121 &&
                     !(*itr)->HasAura(62468) && !(*itr)->HasAura(62373) &&
@@ -8184,7 +8181,7 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             UnitList tempTargetUnitMap;
             FillAreaTargets(tempTargetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_NOT_HOSTILE);
 
-            for (UnitList::iterator itr = tempTargetUnitMap.begin(),next; itr != tempTargetUnitMap.end(); itr++)
+            for (UnitList::iterator itr = tempTargetUnitMap.begin(),next; itr != tempTargetUnitMap.end(); ++itr)
             {
                 if ((*itr) && (*itr)->GetEntry() == 33121 && (*itr)->HasAura(62468)) // check for stun aura
                     targetUnitMap.push_back(*itr);
@@ -8203,7 +8200,10 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
             break;
         }
-        case 65919: case 67858: case 67859: case 67860: // Anub'arak Cast Check Ice Spell (Trial of the Crusader - Anub'arak)
+        case 65919: // Anub'arak Cast Check Ice Spell (Trial of the Crusader - Anub'arak)
+        case 67858:
+        case 67859:
+        case 67860:
         {
             m_caster->CastSpell(m_caster, 66181, true);
             m_targets.setDestination(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ());
@@ -8234,12 +8234,15 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
                 if (!m_bOneTargetHaveAura && !targetUnitMap.empty())
                 {
                     uint32 t = 0;
-                    std::list<Unit*>::iterator iter = targetUnitMap.begin();
-                    while(iter!= targetUnitMap.end() && (*iter)->IsWithinDist(m_caster, radius))
-                        ++t, ++iter;
+                    UnitList::iterator iter = targetUnitMap.begin();
+                    while (iter != targetUnitMap.end() && (*iter)->IsWithinDist(m_caster, radius))
+                    {
+                        ++t;
+                        ++iter;
+                    }
 
                     iter = targetUnitMap.begin();
-                    std::advance(iter, rand() % t);
+                    std::advance(iter, urand(0, t-1));
                     if (*iter)
                         (*iter)->CastSpell((*iter), 67574, true);
                 }
@@ -8260,7 +8263,8 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             }
             break;
         }
-        case 66862: case 67681: // Radiance (Trial of the Champion - Eadric the Pure)
+        case 66862: // Radiance (Trial of the Champion - Eadric the Pure)
+        case 67681:
         {
             UnitList tmpUnitMap;
             FillAreaTargets(tmpUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
@@ -8310,9 +8314,11 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             break;
         }
         case 71341:
-        if (i != EFFECT_INDEX_1)
-            return false;
-        // no break
+        {
+            if (i != EFFECT_INDEX_1)
+                return false;
+            // no break
+        }
         case 71390:                                     // Pact of the Darkfallen
         {
             UnitList tempTargetUnitMap;
@@ -8349,7 +8355,7 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             if (!tempTargetUnitMap.empty())
             {
                 UnitList::iterator i = tempTargetUnitMap.begin();
-                advance(i, rand()% tempTargetUnitMap.size());
+                advance(i, urand(0, tempTargetUnitMap.size() - 1));
                 targetUnitMap.push_back(*i);
                 return true;
             }
