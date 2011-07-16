@@ -2292,6 +2292,9 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     case 52921:                             // Arc Lightning (Halls of Lighning: Loken)
                         target->CastSpell(target, 52924, false);
                         return;
+                    case 54852:                             // Cosmetic - Stun (Permanent)
+                        target->addUnitState(UNIT_STAT_STUNNED);
+                        return;
                     case 55328:                                 // Stoneclaw Totem I
                         target->CastSpell(target, 5728, true);
                         return;
@@ -2968,6 +2971,9 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 target->RemoveAurasDueToSpell(41106);
                 return;
             }
+            case 54852:                                     // Cosmetic - Stun (Permanent)
+                target->clearUnitState(UNIT_STAT_STUNNED);
+                return;
             case 56511:                                     // Towers of Certain Doom: Tower Bunny Smoke Flare Effect
             {
                 // Towers of Certain Doom: Skorn Cannonfire
