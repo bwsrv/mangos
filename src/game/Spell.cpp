@@ -3402,6 +3402,8 @@ void Spell::cast(bool skipCheck)
                 AddTriggeredSpell(74610);                  // Fiery combustion
             else if (m_spellInfo->Id == 74799)
                 AddTriggeredSpell(74800);                  // Soul consumption
+            else if (m_spellInfo->Id == 61968)             // Flash Freeze (Hodir: Ulduar)
+                AddTriggeredSpell(62148);                  // visual effect
             break;
         }
         case SPELLFAMILY_MAGE:
