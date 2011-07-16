@@ -7929,6 +7929,25 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_ALL);
             targetUnitMap.remove(m_caster);
         }
+        case 43263: // Ghoul Taunt (Army of the Dead)
+        {           // exclude Player and WorldBoss targets
+            FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+            for (UnitList::iterator itr = targetUnitMap.begin(); itr != targetUnitMap.end();)
+            {
+                Creature *pTmp = (Creature*)(*itr);
+                if ( ((*itr) && (*itr)->GetTypeId() == TYPEID_PLAYER) || (pTmp && pTmp->IsWorldBoss()) )
+                {
+                    targetUnitMap.erase(itr);
+                    targetUnitMap.sort();
+                    itr = targetUnitMap.begin();
+                    continue;
+                }
+                itr++;
+            }
+            if (!targetUnitMap.empty())
+                return true;
+            break;
+        }
         case 46584: // Raise Dead
         {
             Unit* pCorpseTarget = NULL;
@@ -8052,6 +8071,30 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
                 targetUnitMap.remove(unitTarget);
             return true;
         }
+        case 50286: // Starfall - exclude stealthed targets
+        case 53196: // rank 2
+        case 53197: // rank 3
+        case 53198: // rank 4
+        {
+            FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+            for (UnitList::iterator itr = targetUnitMap.begin(), next; itr != targetUnitMap.end(); itr = next)
+            {
+                next = itr;
+                ++next;
+
+                if (!(*itr)->isVisibleForOrDetect(m_caster, m_caster, false, false, false))
+                    targetUnitMap.erase(itr);
+            }
+            if (!targetUnitMap.empty())
+                return true;
+        }
+        case 57143: // Life Burst (Wyrmrest Skytalon) 
+        {
+            // hack - spell is AoE but implicitTargets dont match here :/
+            SetTargetMap(SpellEffectIndex(i), TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER, targetUnitMap);
+            targetUnitMap.push_back(m_caster);
+            break;
+        }
         case 57557: // Pyrobuffet (Sartharion encounter) - don't target Range Markered units
         {
             UnitList tempTargetUnitMap;
@@ -8104,6 +8147,31 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             else
                 targetUnitMap.push_back((Unit*)m_caster);
             break;
+        }
+        case 62166: // Stone Grip (Kologarn)
+        case 63342: // Focused Eyebeam Summon Trigger (Kologarn)
+        case 63981: // Stone Grip (Kologarn)
+        {
+            if (m_caster->getVictim())
+                targetUnitMap.push_back(m_caster->getVictim());
+            else
+            {
+                FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+                targetUnitMap.sort(TargetDistanceOrderNear(m_caster));
+                targetUnitMap.resize(1);
+            }
+            if (!targetUnitMap.empty())
+                return true;
+            break;
+        }
+        case 62240: // Solar Flare (Freya's elder)
+        case 62920:
+        {
+            FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+            targetUnitMap.resize(m_caster->GetSpellAuraHolder(62239) ? m_caster->GetSpellAuraHolder(62239)->GetStackAmount() : 1);
+
+            if (!targetUnitMap.empty())
+                return true;
         }
         case 62343: // Heat (remove all except active iron constructs)
         {
@@ -8283,6 +8351,20 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_FRIENDLY);
             targetUnitMap.remove(m_caster);
             break;
+        }
+        case 74960:                                     // Infrigidate
+        {
+            UnitList tempTargetUnitMap;
+            FillAreaTargets(tempTargetUnitMap, 20.0f, PUSH_SELF_CENTER, SPELL_TARGETS_FRIENDLY);
+            tempTargetUnitMap.remove(m_caster);
+            if (!tempTargetUnitMap.empty())
+            {
+                UnitList::iterator i = tempTargetUnitMap.begin();
+                advance(i, rand()% tempTargetUnitMap.size());
+                targetUnitMap.push_back(*i);
+                return true;
+            }
+            return false;
         }
         default:
             return false;
