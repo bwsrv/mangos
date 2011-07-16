@@ -7103,8 +7103,7 @@ void Aura::HandleShapeshiftBoosts(bool apply)
             MasterShaperSpellId = 48420;
             break;
         case FORM_TREE:
-            spellId1 = 5420;
-            spellId2 = 34123;
+            spellId1 = 34123;
             MasterShaperSpellId = 48422;
             break;
         case FORM_TRAVEL:
