@@ -4862,6 +4862,10 @@ void Spell::EffectEnergize(SpellEffectIndex eff_idx)
     if(!unitTarget->isAlive())
         return;
 
+    // don't energize isolated units (banished)
+    if (unitTarget->hasUnitState(UNIT_STAT_ISOLATED))
+        return;
+
     if(m_spellInfo->EffectMiscValue[eff_idx] < 0 || m_spellInfo->EffectMiscValue[eff_idx] >= MAX_POWERS)
         return;
 
