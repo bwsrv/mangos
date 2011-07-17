@@ -7115,7 +7115,7 @@ int32 Unit::SpellBaseDamageBonusTaken(SpellSchoolMask schoolMask)
 bool Unit::IsSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType)
 {
     // mobs can't crit with spells at all
-    if (GetObjectGuid().IsCreature())
+    if (GetObjectGuid().IsCreatureOrVehicle())
         return false;
 
     // not critting spell
