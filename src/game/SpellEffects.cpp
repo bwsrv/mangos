@@ -4506,7 +4506,7 @@ void Spell::EffectPowerBurn(SpellEffectIndex eff_idx)
     }
 }
 
-void Spell::EffectHeal(SpellEffectIndex /*eff_idx*/)
+void Spell::EffectHeal(SpellEffectIndex eff_idx)
 {
     if (unitTarget && unitTarget->isAlive() && damage >= 0)
     {
@@ -4606,13 +4606,15 @@ void Spell::EffectHeal(SpellEffectIndex /*eff_idx*/)
         }
 
         addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, HEAL);
+        if (m_applyMultiplierMask & (1 << eff_idx))
+            addhealth = int32(addhealth * m_damageMultipliers[eff_idx]);
         addhealth = unitTarget->SpellHealingBonusTaken(caster, m_spellInfo, addhealth, HEAL);
 
         m_healing += addhealth;
     }
 }
 
-void Spell::EffectHealPct(SpellEffectIndex /*eff_idx*/)
+void Spell::EffectHealPct(SpellEffectIndex eff_idx)
 {
     if (unitTarget && unitTarget->isAlive() && damage >= 0)
     {
@@ -4624,6 +4626,8 @@ void Spell::EffectHealPct(SpellEffectIndex /*eff_idx*/)
         uint32 addhealth = unitTarget->GetMaxHealth() * damage / 100;
 
         addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, HEAL);
+        if (m_applyMultiplierMask & (1 << eff_idx))
+            addhealth = int32(addhealth * m_damageMultipliers[eff_idx]);
         addhealth = unitTarget->SpellHealingBonusTaken(caster, m_spellInfo, addhealth, HEAL);
 
         uint32 absorb = 0;
@@ -4634,7 +4638,7 @@ void Spell::EffectHealPct(SpellEffectIndex /*eff_idx*/)
     }
 }
 
-void Spell::EffectHealMechanical(SpellEffectIndex /*eff_idx*/)
+void Spell::EffectHealMechanical(SpellEffectIndex eff_idx)
 {
     // Mechanic creature type should be correctly checked by targetCreatureType field
     if (unitTarget && unitTarget->isAlive() && damage >= 0)
@@ -4645,6 +4649,8 @@ void Spell::EffectHealMechanical(SpellEffectIndex /*eff_idx*/)
             return;
 
         uint32 addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, damage, HEAL);
+        if (m_applyMultiplierMask & (1 << eff_idx))
+            addhealth = int32(addhealth * m_damageMultipliers[eff_idx]);
         addhealth = unitTarget->SpellHealingBonusTaken(caster, m_spellInfo, addhealth, HEAL);
 
         uint32 absorb = 0;

@@ -434,7 +434,7 @@ class Spell
         void SendResurrectRequest(Player* target);
         void SendPlaySpellVisual(uint32 SpellID);
 
-        void HandleEffects(Unit *pUnitTarget,Item *pItemTarget,GameObject *pGOTarget,SpellEffectIndex i, float DamageMultiplier = 1.0);
+        void HandleEffects(Unit *pUnitTarget, Item *pItemTarget, GameObject *pGOTarget, SpellEffectIndex i);
         void HandleThreatSpells();
         //void HandleAddAura(Unit* Target);
 
@@ -549,7 +549,7 @@ class Spell
         bool m_executedCurrently;                           // mark as executed to prevent deleted and access by dead pointers
         bool m_needSpellLog;                                // need to send spell log?
         uint8 m_applyMultiplierMask;                        // by effect: damage multiplier needed?
-        float m_damageMultipliers[3];                       // by effect: damage multiplier
+        float m_damageMultipliers[MAX_EFFECT_INDEX];        // by effect: damage multiplier
 
         // Current targets, to be used in SpellEffects (MUST BE USED ONLY IN SPELL EFFECTS)
         Unit* unitTarget;
@@ -566,9 +566,10 @@ class Spell
         GameObject* focusObject;
 
         // Damage and healing in effects need just calculate
-        int32 m_damage;                                     // Damage   in effects count here
+        int32 m_damage;                                     // Total accumulated damage for all effects
         int32 m_healing;                                    // Healing in effects count here
         int32 m_healthLeech;                                // Health leech in effects for all targets count here
+        int8 m_damageIndex;                                 // Index of last effect that added to m_damage
 
         //******************************************
         // Spell trigger system
