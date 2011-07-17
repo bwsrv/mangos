@@ -2873,6 +2873,11 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 if(!procSpell || GetTypeId() != TYPEID_PLAYER || !pVictim )
                     return SPELL_AURA_PROC_FAILED;
 
+                // proc for main target only
+                if (Spell *currSpell = GetCurrentSpell(CURRENT_GENERIC_SPELL))
+                    if (currSpell->m_targets.getUnitTarget() != pVictim)
+                        return SPELL_AURA_PROC_FAILED;
+
                 // custom cooldown processing case
                 if( cooldown && GetTypeId()==TYPEID_PLAYER && ((Player*)this)->HasSpellCooldown(dummySpell->Id))
                     return SPELL_AURA_PROC_FAILED;
