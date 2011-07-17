@@ -341,6 +341,7 @@ class Spell
         void EffectQuestFail(SpellEffectIndex eff_idx);
         void EffectQuestStart(SpellEffectIndex eff_idx);
         void EffectActivateRune(SpellEffectIndex eff_idx);
+        void EffectSuspendGravity(SpellEffectIndex eff_idx);
 
         void EffectTeachTaxiNode(SpellEffectIndex eff_idx);
         void EffectWMODamage(SpellEffectIndex eff_idx);
