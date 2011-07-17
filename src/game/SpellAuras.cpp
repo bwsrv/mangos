@@ -2166,31 +2166,27 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         if (Unit* caster = GetCaster())
                             caster->CastSpell(caster, 13138, true, NULL, this);
                         return;
-                    case 28832: // Mark of Korth'azz
-                    case 28833: // Mark of Blaumeux
-                    case 28834: // Mark of Rivendare
-                    case 28835: // Mark of Zeliek
+                    case 28832:                             // Mark of Korth'azz
+                    case 28833:                             // Mark of Blaumeux
+                    case 28834:                             // Mark of Rivendare
+                    case 28835:                             // Mark of Zeliek
                     {
-                         uint8 stacks = GetStackAmount();
-                         int32 damage = 0;
+                        uint32 stacks = GetStackAmount();
+                        int32 damage = 0;
+                        switch (stacks)
+                        {
+                            case 0:
+                            case 1: return;
+                            case 2: damage = 500;   break;
+                            case 3: damage = 1500;  break;
+                            case 4: damage = 4000;  break;
+                            case 5: damage = 12500; break;
+                            default: damage = 20000 + (1000 * (stacks - 6)); break;
+                        }
 
-                         if (stacks == 2)
-                            damage = 500;
-                         else if (stacks == 3)
-                            damage = 1500;
-                         else if (stacks == 4)
-                            damage = 4000;
-                         else if (stacks == 5)
-                            damage = 12500;
-                         else if (stacks > 5)
-                            damage = 20000 + 1000 * (stacks - 6);
-
-                         Unit *unitTarget = GetTarget();
-                         Unit* caster = GetCaster();
-
-                         if (caster && unitTarget)
-                             unitTarget->CastCustomSpell(unitTarget, 28836, &damage, NULL, NULL, true, NULL, this, caster->GetObjectGuid());
-                         return;
+                        if (Unit* caster = GetCaster())
+                            caster->CastCustomSpell(target, 28836, &damage, NULL, NULL, true, NULL, this, caster->GetObjectGuid());
+                        return;
                     }
                     case 31606:                             // Stormcrow Amulet
                     {
