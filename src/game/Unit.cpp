@@ -9280,6 +9280,13 @@ int32 Unit::CalculateSpellDamage(Unit const* target, SpellEntry const* spellProt
 
     int32 value = basePoints;
 
+    // Life Burst (Malygos) hack
+    if (spellProto->Id == 57143)
+    {
+        value /= 2;
+        comboDamage = value;
+    }
+
     // random damage
     if (comboDamage != 0 && unitPlayer && target && (target->GetObjectGuid() == unitPlayer->GetComboTargetGuid() || IsAreaOfEffectSpell(spellProto)))
         value += (int32)(comboDamage * comboPoints);
