@@ -23,3 +23,9 @@ DELETE FROM spell_script_target WHERE spell_script_target.entry = 53110;
 INSERT INTO spell_script_target VALUES
 (53110, 1, 29102),
 (53110, 1, 29103);
+
+DELETE FROM spell_script_target WHERE spell_script_target.entry = 61920;
+INSERT INTO spell_script_target VALUES 
+(61920 ,1,32857),
+(61920 ,1,32927),
+(61920 ,1,32867);
