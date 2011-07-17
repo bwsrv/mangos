@@ -8680,18 +8680,24 @@ void Aura::PeriodicDummyTick()
                     if (target->GetTypeId() != TYPEID_PLAYER)
                         return;
 
-                    // aura stack increase every 3 (data in m_miscvalue) seconds and decrease every 1s
-                    SpellAuraHolder *holder = target->GetSpellAuraHolder(62039);
-                     // dmg dealing every second
-                    target->CastSpell(target, 62188, true);
+                    Unit * caster = GetCaster();
+                    if (!caster)
+                        return;
 
-                    // Reset reapply counter at move and decrease stack amount by 1
-                    if (((Player*)target)->isMoving())
+                    if (!target->HasAura(62821))     // Toasty Fire
                     {
-                        if (holder)
+                        // dmg dealing every second
+                        target->CastSpell(target, 62188, true, 0, 0, caster->GetObjectGuid());
+                    }
+
+                    // aura stack increase every 3 (data in m_miscvalue) seconds and decrease every 1s
+                    // Reset reapply counter at move and decrease stack amount by 1
+                    if (((Player*)target)->isMoving() || target->HasAura(62821))
+                    {
+                        if (SpellAuraHolder *holder = target->GetSpellAuraHolder(62039))
                         {
                             if (holder->ModStackAmount(-1))
-                                target->RemoveAurasDueToSpell(62039);
+                                target->RemoveSpellAuraHolder(holder);
                         }
                         m_modifier.m_miscvalue = 3;
                         return;
@@ -8704,7 +8710,6 @@ void Aura::PeriodicDummyTick()
                     }
 
                     target->CastSpell(target, 62039, true);
-                    target->CastSpell(target, 62188, true);
 
                     // recast every ~3 seconds
                     m_modifier.m_miscvalue = 3;
