@@ -7356,15 +7356,17 @@ void Aura::HandleAuraModPacify(bool apply, bool /*Real*/)
 
 void Aura::HandleAuraModPacifyAndSilence(bool apply, bool Real)
 {
-    HandleAuraModPacify(apply, Real);
-    HandleAuraModSilence(apply, Real);
+    Unit *unitTarget = GetTarget();
 
     // Conservator's Grip (Freya)
     if (GetId() == 62532)
     {
-        if (GetTarget()->HasAura(64321, EFFECT_INDEX_0) || GetTarget()->HasAura(62619, EFFECT_INDEX_0))
+        if (unitTarget->HasAura(64321) || unitTarget->HasAura(62619))
             return;
     }
+
+    HandleAuraModPacify(apply, Real);
+    HandleAuraModSilence(apply, Real);
 }
 
 void Aura::HandleAuraGhost(bool apply, bool /*Real*/)
