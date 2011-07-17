@@ -465,6 +465,17 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                         unitTarget->CastSpell(unitTarget, 60241, true);
                         break;
                     }
+                    // Biting Cold
+                    case 62188:
+                    {
+                        if (!unitTarget)
+                            return;
+
+                        // 200 * 2 ^ stack_amount
+                        SpellAuraHolder *holder = unitTarget->GetSpellAuraHolder(62039);
+                        damage = 200 * int32(pow(2.0f, (holder ? float(holder->GetStackAmount()) : 0)));
+                        break;
+                    }
                     // Tympanic Tantrum
                     case 62775:
                     {
