@@ -10077,6 +10077,14 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                             caster->RemoveAurasDueToSpell(34027);
                     return;
                 }
+                case 62619:                                 // Potent Pheromones (Freya encounter)
+                case 64321:                                 // Potent Pheromones (Freya encounter) heroic
+                {
+                    if (apply)
+                        if (Unit* target = GetTarget())
+                            target->RemoveAurasDueToSpell(62532);
+                    return;
+                }
                 case 62692:                                 // Aura of Despair (General Vezax - Ulduar)
                 {
                     spellId1 = 64848;
