@@ -972,6 +972,15 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                     if (triggeredByAura->GetStackAmount() > 1 && !triggeredByAura->GetHolder()->ModStackAmount(-1))
                         return SPELL_AURA_PROC_CANT_TRIGGER;
                 }
+                // Petrified Bark
+                case 62337:
+                 {
+                     triggered_spell_id = 62379;
+                     basepoints[0] = damage;
+                    // this == pVictim, why? :/ temp. workaround
+                    target = SelectRandomUnfriendlyTarget(getVictim());
+                    break;
+                 }
                 // Glyph of Life Tap
                 case 63320:
                     triggered_spell_id = 63321;
