@@ -3570,8 +3570,13 @@ SpellAuraProcResult Unit::HandleProcTriggerSpellAuraProc(Unit *pVictim, uint32 d
                     (((Creature*)pVictim)->GetCreatureInfo()->MechanicImmuneMask & (1 << (MECHANIC_STUN - 1))) == 0)
                     return SPELL_AURA_PROC_FAILED;
             }
+            // Missile Barrage
             else if (auraSpellInfo->SpellIconID == 3261)
             {
+                // proc chance for spells other than Arcane Blast is always 2 times lower, so we have to roll for 50% now
+                if(procSpell->SpellIconID != 2294 && !roll_chance_i(50))
+                    return SPELL_AURA_PROC_FAILED;
+
                 if (HasAura(44401) || HasAura(57761))
                     return SPELL_AURA_PROC_FAILED;
             }
