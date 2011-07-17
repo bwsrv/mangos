@@ -8702,6 +8702,21 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     }
                     return;
                 }
+                case 67369:                                 // Grunty Periodic usable only on Zergling companion
+                {
+                    if (!unitTarget)
+                        return;
+
+                                                            // Only usable on Grunty companion
+                    Unit* pZerg = unitTarget->GetMiniPet();
+                    if (pZerg && pZerg->isAlive() && pZerg->GetEntry() == 11327)
+                    {
+                        m_caster->CastSpell(unitTarget, m_spellInfo->CalculateSimpleValue(eff_idx), true);
+                        m_caster->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_ATTACK_UNARMED);
+                        return;
+                    }
+                    return;
+                }
                 case 68861:                                 // Consume Soul (ICC FoS: Bronjahm)
                     if (unitTarget)
                         unitTarget->CastSpell(unitTarget, m_spellInfo->CalculateSimpleValue(eff_idx), true);
