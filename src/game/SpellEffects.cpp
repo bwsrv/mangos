@@ -454,6 +454,17 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                         }
                         break;
                     }
+                    // Flame Tsunami (Sartharion encounter)
+                    case 57491:
+                    {
+                        // knock back only once
+                        if (unitTarget->HasAura(60241))
+                            return;
+
+                        unitTarget->SetOrientation(m_caster->GetOrientation()+M_PI_F);
+                        unitTarget->CastSpell(unitTarget, 60241, true);
+                        break;
+                    }
                     // Tympanic Tantrum
                     case 62775:
                     {
