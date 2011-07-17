@@ -2574,12 +2574,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, 54581, true, m_CastItem);
                     return;
                 }
-                case 54850:                                 // Emerge
-                {
-                    // Cast Emerge summon
-                    m_caster->CastSpell(m_caster, 54851, true);
-                    return;
-                }
                 case 54517:                                 // Magnetic Pull
                 {
                     // Feugen casts on Stalagg
@@ -2624,6 +2618,15 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     } 
                     m_caster->CastSpell(unitTarget,spell_id,true,NULL); 
                     return; 
+                }
+                case 54850:                                 // Emerge (Gundrak: Colossus)
+                {
+                    if (!unitTarget)
+                        return;
+                    // Emerge Summon and Cosmetic - Stun (Permanent) Colossus
+                    unitTarget->CastSpell(unitTarget, 54851, true);
+                    unitTarget->CastSpell(unitTarget, 54852, true);
+                    return;
                 }
                 case 55004:                                 // Nitro Boosts
                 {
