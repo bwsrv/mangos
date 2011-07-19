@@ -579,7 +579,7 @@ void Pet::Update(uint32 update_diff, uint32 diff)
                     return;
                 }
             }
-            else 
+            else
                 if (!IsWithinDistInMap(owner, GetMap()->GetVisibilityDistance()))
                 {
                     sLog.outError("Not controlled pet %d lost view from owner, removed. Owner = %d, distance = %d, pet GUID = ", GetObjectGuid().GetCounter(), owner->GetObjectGuid().GetCounter(), GetDistance2d(owner), owner->GetPetGuid().GetCounter());

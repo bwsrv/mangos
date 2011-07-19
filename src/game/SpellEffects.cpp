@@ -1282,7 +1282,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 
                     return;
                 }
-                case 21147:                                 // Arcane Vacuum (Azuregos) 
+                case 21147:                                 // Arcane Vacuum (Azuregos)
                 case 58694:                                 // Arcane Vacuum (Cyanigosa)
                 {
                     if (!unitTarget)
@@ -2598,19 +2598,19 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     }
                     return;
                 }
-                case 54092:                                 // Monster Slayer's Kit 
-                { 
-                    uint32 spell_id = 0; 
-                    switch(urand(0,3)) 
-                    { 
-                        case 0: spell_id = 51853; break; 
-                        case 1: spell_id = 54063; break; 
-                        case 2: spell_id = 54071; break; 
-                        case 3: spell_id = 54086; break; 
-                        default: return;                        
-                    } 
-                    m_caster->CastSpell(unitTarget,spell_id,true,NULL); 
-                    return; 
+                case 54092:                                 // Monster Slayer's Kit
+                {
+                    uint32 spell_id = 0;
+                    switch(urand(0,3))
+                    {
+                        case 0: spell_id = 51853; break;
+                        case 1: spell_id = 54063; break;
+                        case 2: spell_id = 54071; break;
+                        case 3: spell_id = 54086; break;
+                        default: return;
+                    }
+                    m_caster->CastSpell(unitTarget,spell_id,true,NULL);
+                    return;
                 }
                 case 54850:                                 // Emerge (Gundrak: Colossus)
                 {
@@ -2654,10 +2654,10 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     ClearCastItem();
                     break;
                 }
-                case 57930:                                 // Arcane Lightning 
-                { 
-                    m_caster->CastSpell(m_caster, 57912, true); 
-                    return; 
+                case 57930:                                 // Arcane Lightning
+                {
+                    m_caster->CastSpell(m_caster, 57912, true);
+                    return;
                 }
                 case 58418:                                 // Portal to Orgrimmar
                 case 58420:                                 // Portal to Stormwind
@@ -2700,10 +2700,10 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(m_caster,spell_id,true,NULL);
                     return;
                 }
-                case 60038:                                 // Arcane Lightning 
-                { 
-                    m_caster->CastSpell(m_caster, 58152, true); 
-                    return; 
+                case 60038:                                 // Arcane Lightning
+                {
+                    m_caster->CastSpell(m_caster, 58152, true);
+                    return;
                 }
                 case 60932:                                 // Disengage (one from creature versions)
                 {
@@ -7800,14 +7800,14 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->RemoveAurasDueToSpell(47636);
                     return;
                 }
-                case 47958:                                 // Crystal Spikes 
-                { 
-                    // Summon Crystal Spike 
-                    m_caster->CastSpell(m_caster, 47954, true); 
-                    m_caster->CastSpell(m_caster, 47955, true); 
-                    m_caster->CastSpell(m_caster, 47956, true); 
-                    m_caster->CastSpell(m_caster, 47957, true); 
-                    return; 
+                case 47958:                                 // Crystal Spikes
+                {
+                    // Summon Crystal Spike
+                    m_caster->CastSpell(m_caster, 47954, true);
+                    m_caster->CastSpell(m_caster, 47955, true);
+                    m_caster->CastSpell(m_caster, 47956, true);
+                    m_caster->CastSpell(m_caster, 47957, true);
+                    return;
                 }
                 case 48603:                                 // High Executor's Branding Iron
                     // Torture the Torturer: High Executor's Branding Iron Impact
@@ -8130,7 +8130,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                 }
                 case 53110:									// Devour Humanoid
                 {
-                    unitTarget->CastSpell(m_caster, m_spellInfo->CalculateSimpleValue(eff_idx),true, NULL, NULL, m_caster->GetObjectGuid()); 
+                    unitTarget->CastSpell(m_caster, m_spellInfo->CalculateSimpleValue(eff_idx),true, NULL, NULL, m_caster->GetObjectGuid());
                     return;
                 }
                 case 53242:                                 // Clear Gift of Tharonja
@@ -11171,7 +11171,7 @@ void Spell::EffectServerSide(SpellEffectIndex eff_idx)
 void Spell::EffectSuspendGravity(SpellEffectIndex eff_idx)
 {
     if (!unitTarget)
-        return;                
+        return;
 
     float fTargetX, fTargetY, fTargetZ;
     unitTarget->GetPosition(fTargetX, fTargetY, fTargetZ);

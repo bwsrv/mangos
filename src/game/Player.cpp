@@ -6665,13 +6665,13 @@ void Player::RewardReputation(Unit *pVictim, float rate)
     uint32 Repfaction1 = Rep->repfaction1;
     uint32 Repfaction2 = Rep->repfaction2;
     uint32 tabardFactionID = 0;
-    
+
     // Championning tabard reputation system
     if(HasAura(Rep->championingAura))
     {
         if( Item* pItem = GetItemByPos( INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_TABARD ) )
-        {                 
-            if ( tabardFactionID = pItem->GetProto()->RequiredReputationFaction ) 
+        {
+            if ( tabardFactionID = pItem->GetProto()->RequiredReputationFaction )
             {
                 Repfaction1 = tabardFactionID;
                 Repfaction2 = tabardFactionID;
@@ -7577,8 +7577,8 @@ void Player::_ApplyItemBonuses(ItemPrototype const *proto, uint8 slot, bool appl
             case ITEM_MOD_SPELL_POWER:
                 ApplySpellPowerBonus(int32(val), apply);
                 break;
-            case ITEM_MOD_HEALTH_REGEN:  
-                ApplyHealthRegenBonus(int32(val), apply);  
+            case ITEM_MOD_HEALTH_REGEN:
+                ApplyHealthRegenBonus(int32(val), apply);
                 break;
             case ITEM_MOD_SPELL_PENETRATION:
                 ApplyModInt32Value(PLAYER_FIELD_MOD_TARGET_RESISTANCE, -int32(val), apply);
@@ -14553,14 +14553,14 @@ void Player::RewardQuest(Quest const *pQuest, uint32 reward, Object* questGiver,
             DestroyItemCount(pQuest->ReqItemId[i], pQuest->ReqItemCount[i], true);
     }
 
-    // Destroy quest item  
-    uint32 srcitem = pQuest->GetSrcItemId();  
-    if (srcitem > 0)  
-    {  
-        uint32 count = pQuest->GetSrcItemCount();  
-        if (count <= 0)  
-            count = 1;  
-        DestroyItemCount(srcitem, count, true, true);  
+    // Destroy quest item
+    uint32 srcitem = pQuest->GetSrcItemId();
+    if (srcitem > 0)
+    {
+        uint32 count = pQuest->GetSrcItemCount();
+        if (count <= 0)
+            count = 1;
+        DestroyItemCount(srcitem, count, true, true);
     }
 
     RemoveTimedQuest(quest_id);
@@ -17725,7 +17725,7 @@ void Player::SendRaidInfo()
                 data << ObjectGuid(state->GetInstanceGuid());   // instance guid
                 data << uint8((state->GetResetTime() > now) ? 1 : 0 );   // expired = 0
                 data << uint8(itr->second.extend ? 1 : 0);      // extended = 1
-                data << uint32(state->GetResetTime() > now ? state->GetResetTime() - now 
+                data << uint32(state->GetResetTime() > now ? state->GetResetTime() - now
                     : DungeonResetScheduler::CalculateNextResetTime(GetMapDifficultyData(state->GetMapId(), state->GetDifficulty()), now));    // reset time
                 ++counter;
             }
@@ -23975,7 +23975,7 @@ ReferAFriendError Player::GetReferFriendError(Player * target, bool summon)
     return ERR_REFER_A_FRIEND_NONE;
 }
 
-void Player::ChangeGrantableLevels(uint8 increase) 
+void Player::ChangeGrantableLevels(uint8 increase)
 {
     if (increase)
     {
@@ -23984,10 +23984,10 @@ void Player::ChangeGrantableLevels(uint8 increase)
     }
     else
     {
-        m_GrantableLevelsCount -= 1; 
+        m_GrantableLevelsCount -= 1;
 
-        if (m_GrantableLevelsCount < 0) 
-            m_GrantableLevelsCount = 0; 
+        if (m_GrantableLevelsCount < 0)
+            m_GrantableLevelsCount = 0;
     }
 
     // set/unset flag - granted levels
@@ -24188,7 +24188,7 @@ AreaLockStatus Player::GetAreaTriggerLockStatus(AreaTrigger const* at, Difficult
     return AREA_LOCKSTATUS_OK;
 };
 
-AreaLockStatus Player::GetAreaLockStatus(uint32 mapId, Difficulty difficulty) 
+AreaLockStatus Player::GetAreaLockStatus(uint32 mapId, Difficulty difficulty)
 {
     return GetAreaTriggerLockStatus(sObjectMgr.GetMapEntranceTrigger(mapId), difficulty);
 };

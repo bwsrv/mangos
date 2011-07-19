@@ -606,7 +606,7 @@ void Spell::FillTargetMap()
                     case TARGET_EFFECT_SELECT:
                         SetTargetMap(SpellEffectIndex(i), m_spellInfo->EffectImplicitTargetA[i], tmpUnitMap);
                         break;
-                    case TARGET_RANDOM_NEARBY_DEST: 
+                    case TARGET_RANDOM_NEARBY_DEST:
                         SetTargetMap(SpellEffectIndex(i), m_spellInfo->EffectImplicitTargetA[i], tmpUnitMap);
                     break;
                     // most A/B target pairs is self->negative and not expect adding caster to target list
@@ -1021,7 +1021,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     }
 
     // recheck for visibility of target
-    if ((m_spellInfo->speed > 0.0f || 
+    if ((m_spellInfo->speed > 0.0f ||
         (m_spellInfo->EffectImplicitTargetA[0] == TARGET_CHAIN_DAMAGE && GetSpellCastTime(m_spellInfo, this) > 0)) &&
         (!unit->isVisibleForOrDetect(m_caster, m_caster, false) && !m_IsTriggeredSpell))
     {
@@ -1280,7 +1280,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, uint32 effectMask, bool isReflected)
                 if (!unit->IsStandState() && !unit->hasUnitState(UNIT_STAT_STUNNED))
                     unit->SetStandState(UNIT_STAND_STATE_STAND);
 
-                if (!(m_spellInfo->AttributesEx & SPELL_ATTR_EX_NO_THREAT) && 
+                if (!(m_spellInfo->AttributesEx & SPELL_ATTR_EX_NO_THREAT) &&
                     !unit->isInCombat() && unit->GetTypeId() != TYPEID_PLAYER && ((Creature*)unit)->AI())
                     unit->AttackedBy(realCaster);
 
@@ -1669,7 +1669,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 65950:                                 // Touch of Light
                 case 66001:                                 // Touch of Darkness
                 case 66152:                                 // Bullet Foced Cast (Trial of the Crusader, ->
-                case 66153: 
+                case 66153:
                 case 66336:                                 // Mistress' Kiss (Trial of the Crusader, ->
                 case 66339:                                 // Summon Scarab (Trial of the Crusader, Anub'arak encounter)
                 case 67077:                                 // -> Lord Jaraxxus encounter, 10 and 10 heroic)
@@ -1829,7 +1829,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     radius = 50;
                     break;
                 case 72350:                                 // Fury of Frostmourne
-                case 72351:                                 // Fury of Frostmourne 
+                case 72351:                                 // Fury of Frostmourne
                     radius = 300;
                     break;
                 case 72754:                                 // Defile. Radius depended from scale.
@@ -5315,7 +5315,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
 
     // not let players cast spells at mount (and let do it to creatures)
-    if ((m_caster->IsMounted() || (m_caster->GetVehicle() && !castOnVehicleAllowed)) && m_caster->GetTypeId() == TYPEID_PLAYER && !m_IsTriggeredSpell && 
+    if ((m_caster->IsMounted() || (m_caster->GetVehicle() && !castOnVehicleAllowed)) && m_caster->GetTypeId() == TYPEID_PLAYER && !m_IsTriggeredSpell &&
         !IsPassiveSpell(m_spellInfo) && !(m_spellInfo->Attributes & SPELL_ATTR_CASTABLE_WHILE_MOUNTED))
     {
         if (m_caster->IsTaxiFlying())
@@ -5927,8 +5927,8 @@ SpellCastResult Spell::CheckCast(bool strict)
             case SPELL_EFFECT_LEAP_BACK:
             {
                 if(m_spellInfo->Id == 781)
-                    if(!m_caster->isInCombat()) 
-                        return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW; 
+                    if(!m_caster->isInCombat())
+                        return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
             }
             // no break here!
             case SPELL_EFFECT_LEAP:
@@ -8038,10 +8038,10 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
 
             // Cast on corpses...
             if (unitTarget &&
-                unitTarget->getDeathState() == CORPSE && 
+                unitTarget->getDeathState() == CORPSE &&
                 (unitTarget->GetCreatureTypeMask() & CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL) == 0 ||
                     // ...or own Risen Ghoul pet - self explode effect
-                (unitTarget && unitTarget->GetEntry() == 26125 && 
+                (unitTarget && unitTarget->GetEntry() == 26125 &&
                 unitTarget->GetCreatorGuid() == m_caster->GetObjectGuid()) )
             {
                 targetUnitMap.push_back(unitTarget);
@@ -8076,7 +8076,7 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
                 targetUnitMap.remove(unitTarget);
             return true;
         }
-        case 57143: // Life Burst (Wyrmrest Skytalon) 
+        case 57143: // Life Burst (Wyrmrest Skytalon)
         {
             // hack - spell is AoE but implicitTargets dont match here :/
             SetTargetMap(SpellEffectIndex(i), TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER, targetUnitMap);

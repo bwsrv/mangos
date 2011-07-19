@@ -29,9 +29,9 @@ void LFGPlayerState::Clear()
     rolesMask = LFG_ROLE_MASK_NONE;
     update = true;
     m_state = LFG_STATE_NONE;
-    AddFlags( LFG_MEMBER_FLAG_NONE | 
+    AddFlags( LFG_MEMBER_FLAG_NONE |
               LFG_MEMBER_FLAG_CHARINFO |
-              LFG_MEMBER_FLAG_COMMENT | 
+              LFG_MEMBER_FLAG_COMMENT |
               LFG_MEMBER_FLAG_GROUPLEADER |
               LFG_MEMBER_FLAG_GROUPGUID |
               LFG_MEMBER_FLAG_AREA  |

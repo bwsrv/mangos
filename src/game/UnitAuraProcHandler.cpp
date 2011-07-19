@@ -1350,7 +1350,7 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                                         return SPELL_AURA_PROC_FAILED;
                                 }
                             }
-                        } 
+                        }
                     }
                     return SPELL_AURA_PROC_FAILED;
                 }
@@ -1922,7 +1922,7 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                     triggered_spell_id = 71023;             // Languish
                     basepoints[0] = int32(triggerAmount * damage / 100) / GetSpellAuraMaxTicks(triggered_spell_id);
                     break;
-                } 
+                }
             }
             // King of the Jungle
             if (dummySpell->SpellIconID == 2850)
@@ -3751,16 +3751,16 @@ SpellAuraProcResult Unit::HandleProcTriggerSpellAuraProc(Unit *pVictim, uint32 d
                 if (pVictim != this)
                     return SPELL_AURA_PROC_FAILED;
             }
-            // Item - Rogue T10 4P Bonus 
-            else if (auraSpellInfo->Id == 70803) 
-            { 
-                if (!procSpell) 
-                    return SPELL_AURA_PROC_FAILED; 
-                // only allow melee finishing move to proc 
-                if (!(procSpell->AttributesEx & SPELL_ATTR_EX_REQ_TARGET_COMBO_POINTS) || procSpell->Id == 26679) 
-                    return SPELL_AURA_PROC_FAILED; 
-                trigger_spell_id = 70802; 
-                target = this; 
+            // Item - Rogue T10 4P Bonus
+            else if (auraSpellInfo->Id == 70803)
+            {
+                if (!procSpell)
+                    return SPELL_AURA_PROC_FAILED;
+                // only allow melee finishing move to proc
+                if (!(procSpell->AttributesEx & SPELL_ATTR_EX_REQ_TARGET_COMBO_POINTS) || procSpell->Id == 26679)
+                    return SPELL_AURA_PROC_FAILED;
+                trigger_spell_id = 70802;
+                target = this;
             }
             break;
         }
@@ -3976,24 +3976,24 @@ SpellAuraProcResult Unit::HandleProcTriggerSpellAuraProc(Unit *pVictim, uint32 d
                 trigger_spell_id = 31616;
                 target = this;
             }
-            // Item - Shaman T10 Restoration 2P Bonus 
-            else if (auraSpellInfo->Id == 70807) 
-            { 
-                if (!procSpell) 
-                    return SPELL_AURA_PROC_FAILED; 
-                // only allow Riptide to proc 
-                switch(procSpell->Id) 
-                { 
-                    case 61295: // Rank 1 
-                    case 61299: // Rank 2 
-                    case 61300: // Rank 3 
-                    case 61301: // Rank 4 
-                        break; 
-                    default: 
-                        return SPELL_AURA_PROC_FAILED; 
-                } 
-                trigger_spell_id = 70806; 
-                target = this; 
+            // Item - Shaman T10 Restoration 2P Bonus
+            else if (auraSpellInfo->Id == 70807)
+            {
+                if (!procSpell)
+                    return SPELL_AURA_PROC_FAILED;
+                // only allow Riptide to proc
+                switch(procSpell->Id)
+                {
+                    case 61295: // Rank 1
+                    case 61299: // Rank 2
+                    case 61300: // Rank 3
+                    case 61301: // Rank 4
+                        break;
+                    default:
+                        return SPELL_AURA_PROC_FAILED;
+                }
+                trigger_spell_id = 70806;
+                target = this;
             }
             break;
         }
@@ -4024,13 +4024,13 @@ SpellAuraProcResult Unit::HandleProcTriggerSpellAuraProc(Unit *pVictim, uint32 d
                 if (procSpell->Id != 47633)
                     return SPELL_AURA_PROC_FAILED;
             }
-            // Glyph of Death Grip 
-            if (auraSpellInfo->Id == 62259) 
-            { 
-                // remove cooldown of Death Grip 
-                if (GetTypeId()==TYPEID_PLAYER) 
-                    ((Player*)this)->RemoveSpellCooldown(49576, true); 
-                return SPELL_AURA_PROC_OK; 
+            // Glyph of Death Grip
+            if (auraSpellInfo->Id == 62259)
+            {
+                // remove cooldown of Death Grip
+                if (GetTypeId()==TYPEID_PLAYER)
+                    ((Player*)this)->RemoveSpellCooldown(49576, true);
+                return SPELL_AURA_PROC_OK;
             }
             // Item - Death Knight T10 Melee 4P Bonus
             else if (auraSpellInfo->Id == 70656)
@@ -4172,7 +4172,7 @@ SpellAuraProcResult Unit::HandleProcTriggerSpellAuraProc(Unit *pVictim, uint32 d
             if (Aura * dummy = GetDummyAura(70832))
             {
               if (SpellAuraHolder *aurHolder = GetSpellAuraHolder(53817))
-                if ((aurHolder->GetStackAmount() == aurHolder->GetSpellProto()->StackAmount) && roll_chance_i(dummy->GetBasePoints()))               
+                if ((aurHolder->GetStackAmount() == aurHolder->GetSpellProto()->StackAmount) && roll_chance_i(dummy->GetBasePoints()))
                     CastSpell(this,70831,true,castItem,triggeredByAura);
             }
 
@@ -4725,7 +4725,7 @@ SpellAuraProcResult Unit::HandlePeriodicDummyAuraProc(Unit* /*pVictim*/, uint32 
                             for(uint32 j = 0; j < MAX_RUNES; ++j)
                             {
                                 // convert only valid runes
-                                if (RuneType(i) != plr->GetCurrentRune(j) && 
+                                if (RuneType(i) != plr->GetCurrentRune(j) &&
                                     RuneType(i) != plr->GetBaseRune(j))
                                     continue;
 
