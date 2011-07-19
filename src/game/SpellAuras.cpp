@@ -2225,10 +2225,21 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         target->CastSpell(target, spellId, true, NULL, this);
                         return;
                     }
+                    case 39238:                             // Fumping
+                    {
+                        if (!target)
+                            return;
+
+                        if (Unit* caster = GetCaster())
+                            caster->SummonCreature(urand(0,1) ? 22482 : 22483, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000 );
+                        return;
+                    }
                     case 39850:                             // Rocket Blast
+                    {
                         if (roll_chance_i(20))              // backfire stun
                             target->CastSpell(target, 51581, true, NULL, this);
                         return;
+                    }
                     case 43873:                             // Headless Horseman Laugh
                         target->PlayDistanceSound(11965);
                         return;
@@ -2237,7 +2248,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         // Escorting Alliance Deserter
                         if (target->GetMiniPet())
                             target->CastSpell(target, 45957, true);
-
                         return;
                     }
                     case 46699:                             // Requires No Ammo
@@ -2322,10 +2332,12 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         Spell::SelectMountByAreaAndSkill(target, GetSpellProto(), 0, 0, 54726, 54727, 0);
                         return;
                     case 62061:                             // Festive Holiday Mount
+                    {
                         if (target->HasAuraType(SPELL_AURA_MOUNTED))
                             // Reindeer Transformation
                             target->CastSpell(target, 25860, true, NULL, this);
                         return;
+                    }
                     case 62109:                             // Tails Up: Aura
                         target->setFaction(1990);           // Ambient (hostile)
                         target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);

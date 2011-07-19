@@ -8443,28 +8443,15 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                             sLog.outError("Unknown Lightwell spell caster %u", m_caster->GetEntry());
                             return;
                     }
-
-                    if (SpellAuraHolder* chargesholder = m_caster->GetSpellAuraHolder(59907))
+                    Aura* chargesaura = m_caster->GetAura(59907, EFFECT_INDEX_0);
+                    if(chargesaura && chargesaura->GetHolder() && chargesaura->GetHolder()->GetAuraCharges() >= 1)
                     {
-                        if (Unit *owner = m_caster->GetOwner())
-                        {
-                            if (const SpellEntry *pSpell = sSpellStore.LookupEntry(spellID))
-                            {
-                                damage = owner->SpellHealingBonusDone(unitTarget, pSpell, pSpell->EffectBasePoints[EFFECT_INDEX_0], DOT);
-                                damage = unitTarget->SpellHealingBonusTaken(owner, pSpell, damage, DOT);
-
-                                if (Aura *dummy = owner->GetDummyAura(55673))
-                                    damage += damage * dummy->GetModifier()->m_amount /100.0f;
-                            }
-                        }
-
-                        uint8 charges = chargesholder->GetAuraCharges();
-
-                        if (charges >= 1)
-                            m_caster->CastCustomSpell(unitTarget, spellID, &damage, NULL, NULL, true, NULL, NULL, m_originalCasterGUID);
-                        if (charges <= 1)
-                            ((TemporarySummon*)m_caster)->UnSummon();
+                        chargesaura->GetHolder()->SetAuraCharges(chargesaura->GetHolder()->GetAuraCharges() - 1);
+                        m_caster->CastSpell(unitTarget, spellID, false, NULL, NULL);
                     }
+                    else
+                        ((TemporarySummon*)m_caster)->UnSummon();
+
                     return;
                 }
                 case 62217:                                 // Unstable Energy (Ulduar: Freya's elder)
