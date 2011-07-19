@@ -5304,7 +5304,7 @@ void Spell::EffectSummonType(SpellEffectIndex eff_idx)
                             if (!cInfo)
                                 return;
 
-                            // FIXME: not all totems and similar cases seelcted by this check...
+                            // FIXME: not all totems and similar cases selected by this check...
                             if (cInfo->type == CREATURE_TYPE_TOTEM)
                                 DoSummonTotem(eff_idx);
                             else
