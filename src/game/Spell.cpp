@@ -1699,6 +1699,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 69278:                                 // Gas spore - 10
                 case 71336:                                 // Pact of the Darkfallen
                 case 71390:                                 // Pact of the Darkfallen
+                case 63476:                                 // Icicle (Hodir - 10)
                     unMaxTargets = 2;
                     break;
                 case 28796:                                 // Poison Bolt Volley
