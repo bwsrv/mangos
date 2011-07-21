@@ -52,6 +52,13 @@ ConfusedMovementGenerator<T>::Initialize(T &unit)
         MaNGOS::NormalizeMapCoord(i_waypoints[idx][0]);
         MaNGOS::NormalizeMapCoord(i_waypoints[idx][1]);
 
+        // check LOS
+        if(!unit.IsWithinLOS(i_waypoints[idx][0], i_waypoints[idx][1], z))
+        {
+            i_waypoints[idx][0] = idx > 0 ? i_waypoints[idx-1][0] : x;
+            i_waypoints[idx][1] = idx > 0 ? i_waypoints[idx-1][1] : y;
+        }
+
         bool is_water = map->IsInWater(i_waypoints[idx][0],i_waypoints[idx][1],z);
         // if generated wrong path just ignore
         if ((is_water && !is_water_ok) || (!is_water && !is_land_ok))
