@@ -972,6 +972,21 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                     if (triggeredByAura->GetStackAmount() > 1 && !triggeredByAura->GetHolder()->ModStackAmount(-1))
                         return SPELL_AURA_PROC_CANT_TRIGGER;
                 }
+                // Swift Hand of Justice
+                case 59906:
+                {
+                    triggered_spell_id = 59913;
+                    basepoints[0] = GetMaxHealth()/50;
+                    break;
+                }
+                // Discerning Eye of the Beast
+                case 59915:
+                {
+                    if (getPowerType() != POWER_MANA)
+                        return SPELL_AURA_PROC_FAILED;
+                    triggered_spell_id = 59914;
+                    break;
+                }
                 // Petrified Bark
                 case 62337:
                  {
