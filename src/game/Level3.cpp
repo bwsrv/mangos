@@ -4039,7 +4039,7 @@ bool ChatHandler::HandleReviveCommand(char* args)
 
     if (target)
     {
-        target->ResurrectPlayer(0.5f);
+        target->ResurrectPlayer(1.0f);
         target->SpawnCorpseBones();
     }
     else
