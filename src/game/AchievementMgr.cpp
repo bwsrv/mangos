@@ -90,6 +90,7 @@ bool AchievementCriteriaRequirement::IsValid(AchievementCriteriaEntry const* cri
         case ACHIEVEMENT_CRITERIA_TYPE_FALL_WITHOUT_DYING:
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:      // only hardcoded list
         case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL:
+        case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA:
         case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA:
         case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM:
         case ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE:
@@ -1304,6 +1305,16 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 change = GetPlayer()->GetItemCount(achievementCriteria->own_item.itemID, true);
                 progressType = PROGRESS_HIGHEST;
                 break;
+            case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA:
+                if(!miscvalue1)
+                    continue;
+
+                if(achievementCriteria->win_arena.mapID != GetPlayer()->GetMapId())
+                    continue;
+
+                change = 1;
+                progressType = PROGRESS_ACCUMULATE;
+                break;
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA:
                 // miscvalue1 contains the personal rating
                 if (!miscvalue1)                            // no update at login
@@ -1697,7 +1708,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_RAID:
             case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
             case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
-            case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA:
             case ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA:
             case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL:
             case ACHIEVEMENT_CRITERIA_TYPE_OWN_RANK:
@@ -1748,6 +1758,8 @@ uint32 AchievementMgr::GetCriteriaProgressMaxCounter(AchievementCriteriaEntry co
             return 1;
         case ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM:
             return achievementCriteria->own_item.itemCount;
+        case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA:
+            return achievementCriteria->win_arena.count;
         case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA:
             return achievementCriteria->win_rated_arena.count;
         case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL:
@@ -2392,6 +2404,8 @@ void AchievementGlobalMgr::LoadAchievementCriteriaRequirements()
             case ACHIEVEMENT_CRITERIA_TYPE_FALL_WITHOUT_DYING:
                 break;                                      // any cases
             case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL:      // any cases
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA:
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA: // need skip generic cases
                 if(criteria->win_rated_arena.flag!=ACHIEVEMENT_CRITERIA_CONDITION_NO_LOOSE)
