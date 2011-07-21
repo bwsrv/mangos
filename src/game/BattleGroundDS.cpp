@@ -48,22 +48,22 @@ void BattleGroundDS::Update(uint32 diff)
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
         // push people from the tubes
-        if(pushbackCheck)
+        if (pushbackCheck)
+
         // knockback
-        if(m_uiKnockback < diff)
+        if (m_uiKnockback < diff)
         {
-            for(BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+            for (BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
             {
-                if(Player *plr = sObjectMgr.GetPlayer(itr->first))
+                if (Player *plr = sObjectMgr.GetPlayer(itr->first))
                     {
-                        // Remove Demonic Circle
-                        if(GameObject* obj = plr->GetGameObject(48018))
+                        if (GameObject* obj = plr->GetGameObject(48018))                         // Remove Demonic Circle
                             obj->Delete();
 
-                        if(plr->GetPositionZ() < 11.0f)
+                        if (plr->GetPositionZ() < 11.0f)
                             continue;
 
-                        float angle = (plr->GetBGTeam() == ALLIANCE /* gold */) ? plr->GetAngle(1259.58f, 764.43f) : plr->GetAngle(1325.84f, 817.304f);
+                        float angle = (plr->GetBGTeam() == ALLIANCE /*gold*/) ? plr->GetAngle(1259.58f, 764.43f) : plr->GetAngle(1325.84f, 817.304f);
 
                         WorldPacket data(SMSG_MOVE_KNOCK_BACK, 8+4+4+4+4+4);
                         data << plr->GetPackGUID();
@@ -74,9 +74,11 @@ void BattleGroundDS::Update(uint32 diff)
                         data << float(-7);                                  // Z Movement speed (vertical)
                         plr->GetSession()->SendPacket(&data);
                     }
+
                 Player * plr = sObjectMgr.GetPlayer(itr->first);
                 if (plr && plr->IsWithinLOS(1214,765,14) && plr->GetDistance2d(1214,765) <= 50)
                     plr->KnockBackPlayerWithAngle(6.40f,55,7);
+
                 if (plr && plr->IsWithinLOS(1369,817,14) && plr->GetDistance2d(1369,817) <= 50)
                     plr->KnockBackPlayerWithAngle(3.03f,55,7);
             }
@@ -85,15 +87,16 @@ void BattleGroundDS::Update(uint32 diff)
         }
         else
             m_uiKnockback -= diff;
+
         // in case pushback failed
-        if(teleportCheck)
-            if(m_uiTeleport < diff)
+        if (teleportCheck)
+            if (m_uiTeleport < diff)
             {
-                for(BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+                for (BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
                 {
-                    if(Player *plr = sObjectMgr.GetPlayer(itr->first))
+                    if (Player *plr = sObjectMgr.GetPlayer(itr->first))
                     {
-                        if(plr->GetPositionZ() < 11.0f)
+                        if (plr->GetPositionZ() < 11.0f)
                             continue;
 
                         float x, y;
@@ -107,7 +110,6 @@ void BattleGroundDS::Update(uint32 diff)
                             x = 1325.84f;
                             y = 817.304f;
                         }
-
                         plr->TeleportTo(GetMapId(), x + urand(0,2), y + urand(0,2), 3.15f, plr->GetOrientation());
                     }
                 }
