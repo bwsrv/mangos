@@ -1140,9 +1140,34 @@ bool WorldObject::_IsWithinDist(WorldObject const* obj, float dist2compare, bool
 
 bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
 {
-    if (!IsInMap(obj)) return false;
+    if (!IsInMap(obj)) 
+        return false;
+
     float ox,oy,oz;
     obj->GetPosition(ox,oy,oz);
+
+    if (GetMapId() == 617) // Waterfall DA BattleGround
+    {
+        if (GameObject * pWaterfall = ((WorldObject*)this)->GetClosestGameObjectWithEntry(this, 194395, 60))
+        {
+            if (pWaterfall->isSpawned())
+                if (pWaterfall->IsInBetween(this, obj, pWaterfall->GetObjectBoundingRadius()))
+                    return false;
+        }
+    }
+
+    if(GetMapId() == 618) // Pillars RV BattleGround
+    {
+        for (int i = 0; i < 4; ++i)
+        {
+            const int pillars[4] = {194583, 194584, 194585, 194587};
+            if (GameObject * pPillar = ((WorldObject*)this)->GetClosestGameObjectWithEntry(this, pillars[i], 35))
+                if (pPillar->GetGoState() == GO_STATE_ACTIVE)
+                    if (pPillar->IsInBetween(this, obj, pPillar->GetObjectBoundingRadius()))
+                        return false;
+        }
+    }
+
     return(IsWithinLOS(ox, oy, oz ));
 }
 
@@ -1241,6 +1266,21 @@ bool WorldObject::IsInRange3d(float x, float y, float z, float minRange, float m
 
     float maxdist = maxRange + sizefactor;
     return distsq < maxdist * maxdist;
+}
+
+bool WorldObject::IsInBetween(const WorldObject *obj1, const WorldObject *obj2, float size) const
+{
+    if (GetPositionX() > std::max(obj1->GetPositionX(), obj2->GetPositionX())
+        || GetPositionX() < std::min(obj1->GetPositionX(), obj2->GetPositionX())
+        || GetPositionY() > std::max(obj1->GetPositionY(), obj2->GetPositionY())
+        || GetPositionY() < std::min(obj1->GetPositionY(), obj2->GetPositionY()))
+        return false;
+
+    if (!size)
+        size = GetObjectBoundingRadius() / 2;
+
+    float angle = obj1->GetAngle(this) - obj1->GetAngle(obj2);
+    return abs(sin(angle)) * GetExactDist2d(obj1->GetPositionX(), obj1->GetPositionY()) < size;
 }
 
 float WorldObject::GetAngle(const WorldObject* obj) const
@@ -1877,6 +1917,38 @@ void WorldObject::PlayDirectSound( uint32 sound_id, Player* target /*= NULL*/ )
         target->SendDirectMessage( &data );
     else
         SendMessageToSet( &data, true );
+}
+
+GameObject* WorldObject::GetClosestGameObjectWithEntry(const WorldObject* pSource, uint32 uiEntry, float fMaxSearchRange)
+{
+    //return closest gameobject in grid, with range from pSource
+    GameObject* pGameObject = NULL;
+
+    CellPair p(MaNGOS::ComputeCellPair(pSource->GetPositionX(), pSource->GetPositionY()));
+    Cell cell(p);
+    cell.SetNoCreate();
+
+    MaNGOS::NearestGameObjectEntryInObjectRangeCheck gobject_check(*pSource, uiEntry, fMaxSearchRange);
+    MaNGOS::GameObjectLastSearcher<MaNGOS::NearestGameObjectEntryInObjectRangeCheck> searcher(pGameObject, gobject_check);
+
+    TypeContainerVisitor<MaNGOS::GameObjectLastSearcher<MaNGOS::NearestGameObjectEntryInObjectRangeCheck>, GridTypeMapContainer> grid_gobject_searcher(searcher);
+
+    cell.Visit(p, grid_gobject_searcher,*(pSource->GetMap()), *this, fMaxSearchRange);
+
+    return pGameObject;
+}
+
+void WorldObject::GetGameObjectListWithEntryInGrid(std::list<GameObject*>& lList, uint32 uiEntry, float fMaxSearchRange)
+{
+    CellPair pair(MaNGOS::ComputeCellPair(this->GetPositionX(), this->GetPositionY()));
+    Cell cell(pair);
+    cell.SetNoCreate();
+
+    MaNGOS::AllGameObjectsWithEntryInRange check(this, uiEntry, fMaxSearchRange);
+    MaNGOS::GameObjectListSearcher<MaNGOS::AllGameObjectsWithEntryInRange> searcher(lList, check);
+    TypeContainerVisitor<MaNGOS::GameObjectListSearcher<MaNGOS::AllGameObjectsWithEntryInRange>, GridTypeMapContainer> visitor(searcher);
+
+    GetMap()->Visit(cell, visitor);
 }
 
 void WorldObject::UpdateVisibilityAndView()

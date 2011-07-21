@@ -1207,6 +1207,24 @@ namespace MaNGOS
             GameObjectInRangeCheck(GameObjectInRangeCheck const&);
     };
 
+    class AllGameObjectsWithEntryInRange
+    {
+        public:
+            AllGameObjectsWithEntryInRange(const WorldObject* pObject, uint32 uiEntry, float fMaxRange) : m_pObject(pObject), m_uiEntry(uiEntry), m_fRange(fMaxRange) {}
+            WorldObject const& GetFocusObject() const { return *m_pObject; }
+            bool operator() (GameObject* pGo)
+            {
+                if (pGo->GetEntry() == m_uiEntry && m_pObject->IsWithinDist(pGo,m_fRange,false))
+                    return true;
+
+                return false;
+            }
+        private:
+            const WorldObject* m_pObject;
+            uint32 m_uiEntry;
+            float m_fRange;
+    };
+
     // Player checks and do
 
     class AnyPlayerInObjectRangeCheck
