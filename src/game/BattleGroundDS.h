@@ -27,7 +27,6 @@ class BattleGroundDSScore : public BattleGroundScore
     public:
         BattleGroundDSScore() {};
         virtual ~BattleGroundDSScore() {};
-        //TODO fix me
 };
 
 class BattleGroundDS : public BattleGround

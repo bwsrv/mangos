@@ -48,9 +48,9 @@ void BattleGroundRV::Update(uint32 diff)
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
         // teleport buggers
-        if(m_uiTeleport < diff)
+        if (m_uiTeleport < diff)
         {
-            for(BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+            for (BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
             {
                 Player * plr = sObjectMgr.GetPlayer(itr->first);
                 if (plr && plr->GetPositionZ() < 27)
@@ -65,17 +65,17 @@ void BattleGroundRV::Update(uint32 diff)
 
         if (m_uiPillarSwitch < diff)
         {
-            for(BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+            for (BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
             {
                 Player * plr = sObjectMgr.GetPlayer(itr->first);
-                if(!plr)
+                if (!plr)
                     continue;
 
                 const int m_uiObjects[8] = {192393, 192394, 194583, 194584, 194585, 194587, 192389, 192390};
 
-                for(int i = 0; i < 8; ++i)
+                for (int i = 0; i < 8; ++i)
                 {
-                    if(GameObject * pPillar = plr->GetClosestGameObjectWithEntry(plr, m_uiObjects[i], 100))
+                    if (GameObject * pPillar = plr->GetClosestGameObjectWithEntry(plr, m_uiObjects[i], 100))
                     {
                         pPillar->SetLootState(GO_READY);
                         pPillar->UseDoorOrButton(RESPAWN_ONE_DAY);
@@ -83,8 +83,8 @@ void BattleGroundRV::Update(uint32 diff)
                 }
                 break; // End on 1 succesful iteration
             }
-
-            m_uiPillarSwitch = 120000;// + urand(0, 30000);
+            // + urand(0, 30000);
+            m_uiPillarSwitch = 120000;
         }
         else
             m_uiPillarSwitch -= diff;

@@ -196,12 +196,6 @@ enum VehicleFactions
     VEHICLE_FACTION_HORDE = 6
 };
 
-/* Ships:
-* 193182 - ally
-* 193183 - horde
-* 193184 - horde
-* 193185 - ally
-*/
 enum BG_SA_Boat
 {
     BG_SA_BOAT_ONE_A = 193182,
@@ -218,14 +212,14 @@ enum VehicleTypes
 };
 
 static float BG_SA_START_LOCATIONS[7][4] = {
-    {1804.10f, -168.46f, 60.55f, 2.65f}, // Pillar 1 - don't used now
-    {1803.71f, 118.61f, 59.83f, 3.56f}, // Pillar 2 - don't used now
-    {1597.64f, -106.35f, 8.89f, 4.13f}, // Dock 1
-    {1606.61f, 50.13f, 7.58f, 2.39f}, // Dock 2
-    {1209.70f, -65.16f, 70.10f, 0.00f}, // Defenders start loc
+    {1804.10f, -168.46f, 60.55f, 2.65f},                    // Pillar 1 - don't used now
+    {1803.71f, 118.61f, 59.83f, 3.56f},                     // Pillar 2 - don't used now
+    {1597.64f, -106.35f, 8.89f, 4.13f},                     // Dock 1
+    {1606.61f, 50.13f, 7.58f, 2.39f},                       // Dock 2
+    {1209.70f, -65.16f, 70.10f, 0.00f},                     // Defenders start loc
     //Ships
-    { 2679.696777f, -826.891235f, 3.712860f, 5.78367f}, //rot2 1 rot3 0.0002f
-    { 2574.003662f, 981.261475f, 2.603424f, 0.807696f}
+    {2679.696777f, -826.891235f, 3.712860f, 5.78367f},     //rot2 1 rot3 0.0002f
+    {2574.003662f, 981.261475f, 2.603424f, 0.807696f}
 };
 
 enum BG_SA_Phase
