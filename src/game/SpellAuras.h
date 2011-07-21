@@ -445,6 +445,8 @@ class MANGOS_DLL_SPEC Aura
 
         virtual Unit* GetTriggerTarget() const { return m_spellAuraHolder->GetTarget(); }
 
+        int32 CalculateCrowdControlAuraAmount(Unit * caster);
+
         // add/remove SPELL_AURA_MOD_SHAPESHIFT (36) linked auras
         void HandleShapeshiftBoosts(bool apply);
 
