@@ -114,8 +114,13 @@ INSERT INTO creature_battleground VALUES
 
 DELETE FROM battleground_events WHERE map = 607;
 INSERT INTO battleground_events (map, event1, event2, description) VALUES
+-- ('607', '11', '0', 'LEFT Bomb ALLIANCE'),
+-- ('607', '11', '1', 'LEFT Bomb HORDE'),
+-- ('607', '12', '0', 'RIGHT Bomb ALLIANCE'),
+-- ('607', '12', '1', 'RIGHT Bomb HORDE'),
 ('607', '13', '0', 'MID Bomb ALLIANCE'),
 ('607', '13', '1', 'MID Bomb HORDE'),
+-- ('607', '254', '0', 'Door'),
 ('607', '6', '0', 'Bomb ALLIANCE'),
 ('607', '6', '1', 'Bomb HORDE'),
 ('607', '5', '3', 'Spirit for controll ALLIANCE'),
@@ -337,6 +342,10 @@ INSERT INTO gameobject_battleground VALUES
 (200082, 6, 1),
 (200083, 6, 1);
 
+-- (200084, 254, 0),
+-- (200085, 254, 0),
+-- (200086, 254, 0);
+
 -- Defender's Portal
 DELETE FROM gameobject WHERE guid IN (200029, 200030, 200031, 200032, 200033, 200034, 200035);
 INSERT INTO gameobject VALUES
@@ -426,3 +435,9 @@ INSERT INTO gameobject_battleground (guid ,event1 ,event2) VALUES
 (200094, 13, 1);
 
 UPDATE gameobject SET rotation0=0, rotation1=0, rotation2=SIN(orientation*0.5), rotation3=COS(orientation*0.5) WHERE guid BETWEEN 200001 AND 200083;
+
+-- DELETE FROM `gameobject` WHERE `guid` in (200084,200085,200086);
+-- INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
+--( 200084, 300000, 607, 3, 1, 1803.93, -168.457, 60.549, 2.74522, 0, 0, 0.980426, 0.196889, 250000, 0, 1),
+-- (200085, 300000, 607, 3, 1, 1803.71, 118.601, 59.8234, 3.56313, 0, 0, 0.97787, -0.209212, 250000, 0, 1),
+-- (200086, 184719, 607, 1, 1, 1200.67, -67.87, 70.08, 6.28297, 0, 0, 0.000106724, -1, 250000, 0, 1);
