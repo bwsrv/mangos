@@ -1853,6 +1853,9 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                             radius = 0.5*(60-(pAura->GetAuraDuration()/IN_MILLISECONDS));
                     }
                     break;
+                case 67732:                                 // Destroy all Frost Patches (Trial of the Crusader, Anub'arak)
+                    radius = 9.0f;
+                    break;
                 default:
                     break;
             }
