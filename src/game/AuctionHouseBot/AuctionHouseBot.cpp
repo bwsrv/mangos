@@ -326,7 +326,7 @@ void AuctionBotConfig::GetConfigFromFile()
 
     setConfig(CONFIG_BOOL_AHBOT_BUYPRICE_SELLER              , "AuctionHouseBot.BuyPrice.Seller"             , true);
 
-    setConfig(CONFIG_UINT32_AHBOT_ITEMS_PER_CYCLE_BOOST      , "AuctionHouseBot.ItemsPerCycle.Boost"         , 1000);
+    setConfig(CONFIG_UINT32_AHBOT_ITEMS_PER_CYCLE_BOOST      , "AuctionHouseBot.ItemsPerCycle.Boost"         , 75);
     setConfig(CONFIG_UINT32_AHBOT_ITEMS_PER_CYCLE_NORMAL     , "AuctionHouseBot.ItemsPerCycle.Normal"        , 20);
 
     setConfig(CONFIG_UINT32_AHBOT_ITEM_MIN_ITEM_LEVEL        , "AuctionHouseBot.Items.ItemLevel.Min"         , 0);
@@ -376,7 +376,7 @@ void AuctionBotConfig::GetConfigFromFile()
     setConfig(CONFIG_BOOL_AHBOT_DEBUG_BUYER                  , "AuctionHouseBot.DEBUG.Buyer"                , false);
     setConfig(CONFIG_BOOL_AHBOT_SELLER_ENABLED               , "AuctionHouseBot.Seller.Enabled"             , false);
     setConfig(CONFIG_BOOL_AHBOT_BUYER_ENABLED                , "AuctionHouseBot.Buyer.Enabled"              , false);
-    setConfig(CONFIG_BOOL_AHBOT_BUYPRICE_BUYER               , "AuctionHouseBot.Buyer.Buyprice"             , true);
+    setConfig(CONFIG_BOOL_AHBOT_BUYPRICE_BUYER               , "AuctionHouseBot.Buyer.BuyPrice"             , false);
 
     setConfig(CONFIG_UINT32_AHBOT_CLASS_MISC_MOUNT_MIN_REQ_LEVEL   , "AuctionHouseBot.Class.Misc.Mount.ReqLevel.Min" , 0);
     setConfig(CONFIG_UINT32_AHBOT_CLASS_MISC_MOUNT_MAX_REQ_LEVEL   , "AuctionHouseBot.Class.Misc.Mount.ReqLevel.Max" , 0);
@@ -923,21 +923,27 @@ bool AuctionBotSeller::Initialize()
 
     sLog.outString("Loading loot items for filter..");
     if (QueryResult* result = WorldDatabase.PQuery(
-        "SELECT `item` FROM `creature_loot_template` UNION "
-        "SELECT `item` FROM `disenchant_loot_template` UNION "
-        "SELECT `item` FROM `fishing_loot_template` UNION "
-        "SELECT `item` FROM `gameobject_loot_template` UNION "
-        "SELECT `item` FROM `item_loot_template` UNION "
-        "SELECT `item` FROM `milling_loot_template` UNION "
-        "SELECT `item` FROM `pickpocketing_loot_template` UNION "
-        "SELECT `item` FROM `prospecting_loot_template` UNION "
-        "SELECT `item` FROM `skinning_loot_template`"))
+        "SELECT item FROM creature_loot_template UNION "
+        "SELECT item FROM disenchant_loot_template UNION "
+        "SELECT item FROM fishing_loot_template UNION "
+        "SELECT item FROM gameobject_loot_template UNION "
+        "SELECT item FROM item_loot_template UNION "
+        "SELECT item FROM milling_loot_template UNION "
+        "SELECT item FROM pickpocketing_loot_template UNION "
+        "SELECT item FROM prospecting_loot_template UNION "
+        "SELECT item FROM skinning_loot_template UNION "
+        "SELECT item FROM spell_loot_template"))
     {
         BarGoLink bar(result->GetRowCount());
         do
         {
             bar.step();
             Field* fields = result->Fetch();
+
+            uint32 entry = fields[0].GetUInt32();
+            if (!entry)
+                continue;
+
             lootItems.push_back(fields[0].GetUInt32());
         } while (result->NextRow());
         delete result;
