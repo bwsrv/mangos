@@ -1,8 +1,6 @@
 ﻿-- Strand of the Ancients 
 DELETE FROM battleground_template WHERE id = 9;
 INSERT INTO battleground_template (id, MinPlayersPerTeam, MaxPlayersPerTeam, AllianceStartLoc, AllianceStartO, HordeStartLoc, HordeStartO) VALUES (9, 8, 15, 1367, 0, 1368, 0);
--- REPLACE INTO `gameobject_template` (`entry`, `type`, `displayId`, `name`, `IconName`, `castBarCaption`, `unk1`, `faction`, `flags`, `size`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `data8`, `data9`, `data10`, `data11`, `data12`, `data13`, `data14`, `data15`, `data16`, `data17`, `data18`, `data19`, `data20`, `data21`, `data22`, `data23`, `ScriptName`) VALUES
--- (300000, 0, 7203, 'Forcefield 000', '', '', '', 1375, 32, 0.05, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '');
 -- Rigger Sparklight
 UPDATE creature_template SET npcflag = 1, ScriptName = 'npc_sa_vendor' WHERE entry IN (29260, 29262);
 -- Seaforium source
@@ -28,7 +26,7 @@ UPDATE locales_gameobject SET name_loc3 = 'Zephyriumbombe' WHERE entry = 194086;
 -- Vehicles support
 -- Battleground Demolisher
 UPDATE creature_template SET npcflag = 1, minlevel = 70, maxlevel = 70, minhealth = 80000, maxhealth = 80000, spell1 = 52338, spell2 = 60206, ScriptName = 'npc_sa_demolisher', RegenHealth = 0 WHERE entry = 28781;
-UPDATE creature_template SET npcflag = 1, minlevel = 80, maxlevel = 80, minhealth = 80000, maxhealth = 80000, spell1 = 52338, spell2 = 60206, RegenHealth = 0 WHERE entry = 32796;
+UPDATE creature_template SET npcflag = 1, minlevel = 80, maxlevel = 80, minhealth = 80000, maxhealth = 80000, spell1 = 52338, spell2 = 60206, RegenHealth = 0, ScriptName = '' WHERE entry = 32796;
 DELETE FROM npc_spellclick_spells WHERE npc_entry IN (28781, 32796);
 INSERT INTO npc_spellclick_spells VALUES
 (28781, 60968, 0, 0, 0, 0),
@@ -37,7 +35,7 @@ INSERT INTO npc_spellclick_spells VALUES
 -- Antipersonnel Cannon
 UPDATE creature_template SET npcflag = 1, minlevel = 70, maxlevel = 70, unit_flags=4, minhealth = 44910, maxhealth = 44910, faction_A = 35, faction_H = 35, spell1 = 49872, RegenHealth=0, ScriptName = 'npc_sa_cannon' WHERE entry = 27894;
 DELETE FROM npc_spellclick_spells WHERE npc_entry IN (27894, 32795);
-UPDATE creature_template SET npcflag = 1, minlevel = 80, maxlevel = 80, unit_flags=4, minhealth = 63000, maxhealth = 63000, faction_A = 35, faction_H = 35, spell1 = 49872, RegenHealth=0  WHERE entry = 32795;
+UPDATE creature_template SET npcflag = 1, minlevel = 80, maxlevel = 80, unit_flags=4, minhealth = 63000, maxhealth = 63000, faction_A = 35, faction_H = 35, spell1 = 49872, RegenHealth=0, ScriptName = '' WHERE entry = 32795;
 INSERT INTO npc_spellclick_spells VALUES
 (27894, 60968, 0, 0, 0, 0),
 (32795, 60968, 0, 0, 0, 0);
@@ -435,9 +433,3 @@ INSERT INTO gameobject_battleground (guid ,event1 ,event2) VALUES
 (200094, 13, 1);
 
 UPDATE gameobject SET rotation0=0, rotation1=0, rotation2=SIN(orientation*0.5), rotation3=COS(orientation*0.5) WHERE guid BETWEEN 200001 AND 200083;
-
--- DELETE FROM `gameobject` WHERE `guid` in (200084,200085,200086);
--- INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
---( 200084, 300000, 607, 3, 1, 1803.93, -168.457, 60.549, 2.74522, 0, 0, 0.980426, 0.196889, 250000, 0, 1),
--- (200085, 300000, 607, 3, 1, 1803.71, 118.601, 59.8234, 3.56313, 0, 0, 0.97787, -0.209212, 250000, 0, 1),
--- (200086, 184719, 607, 1, 1, 1200.67, -67.87, 70.08, 6.28297, 0, 0, 0.000106724, -1, 250000, 0, 1);
