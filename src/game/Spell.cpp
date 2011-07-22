@@ -4650,9 +4650,35 @@ void Spell::TakePower()
     if(m_CastItem || m_triggeredByAuraSpell)
         return;
 
-    // FG: not sure if m_isTriggeredSpell == true is enough to skip spell costs
+    bool hit = true;
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+    {
+        if (m_spellInfo->powerType == POWER_RAGE || m_spellInfo->powerType == POWER_ENERGY || m_spellInfo->powerType == POWER_RUNE)
+        {
+            ObjectGuid targetGUID = m_targets.getUnitTargetGuid();
+            if (!targetGUID.IsEmpty())
+            {
+                for(TargetList::const_iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
+                    if (ihit->targetGUID == targetGUID)
+                    {
+                        if (ihit->missCondition != SPELL_MISS_NONE && ihit->missCondition != SPELL_MISS_MISS)
+                            hit = false;
+
+                        if (ihit->missCondition != SPELL_MISS_NONE)
+                        {
+                            //lower spell cost on fail (by talent aura)
+                            if (Player *modOwner = ((Player*)m_caster)->GetSpellModOwner())
+                                modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_SPELL_COST_REFUND_ON_FAIL, m_powerCost);
+                        }
+                        break;
+                    }
+            }
+        }
+    }
+
+    // TODO: not sure if m_isTriggeredSpell == true is enough to skip spell costs
     // so for now, added exception list until i'm sure how it should be done
-    switch(m_spellInfo->Id)
+    switch (m_spellInfo->Id)
     {
         case 50782: // Slam, triggered
             return;
@@ -4673,7 +4699,7 @@ void Spell::TakePower()
 
     Powers powerType = Powers(m_spellInfo->powerType);
 
-    if(powerType == POWER_RUNE)
+    if(hit && powerType == POWER_RUNE)
     {
         CheckOrTakeRunePower(true);
         return;

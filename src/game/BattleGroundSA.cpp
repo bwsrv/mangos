@@ -488,43 +488,30 @@ bool BattleGroundSA::SetupBattleGround()
 
 bool BattleGroundSA::SetupShips()
 {
-    for (uint8 i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; ++i)
-    {
+    for (int i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
         for (BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-        {
-            if (Player* plr = sObjectMgr.GetPlayer(itr->first))
+            if (Player *plr = sObjectMgr.GetPlayer(itr->first))
                 SendTransportsRemove(plr);
-        }
-    }
-
-    for (uint8 i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; ++i)
+    for (uint8 i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
     {
         uint32 boatid=0;
         switch (i)
         {
             case BG_SA_BOAT_ONE:
                 boatid = GetDefender() == ALLIANCE ? BG_SA_BOAT_ONE_H : BG_SA_BOAT_ONE_A;
-                if (!(AddObject(i, boatid, BG_SA_START_LOCATIONS[i + 5][0], BG_SA_START_LOCATIONS[i + 5][1], BG_SA_START_LOCATIONS[i + 5][2]+ (GetDefender() == ALLIANCE ? -3.750f: 0) , BG_SA_START_LOCATIONS[i + 5][3], 0.0f, 0.0f, 0.0f, 0.0f, RESPAWN_ONE_DAY)))
+                if (!(AddObject(i, boatid, BG_SA_START_LOCATIONS[i + 5][0], BG_SA_START_LOCATIONS[i + 5][1], BG_SA_START_LOCATIONS[i + 5][2]+ (GetDefender() == ALLIANCE ? -3.750f: 0) , BG_SA_START_LOCATIONS[i + 5][3], 0, 0, 1.0f, 0.0002f, RESPAWN_ONE_DAY)))
                 {
                     sLog.outError("SA_ERROR: Can't spawn ships!");
                     return false;
                 }
-                
-                if (GameObject* boat = GetBGObject(i))
-                    boat->SetTransportPathRotation(0.0f, 0.0f, 1.0f, 0.0002f);
-
                 break;
             case BG_SA_BOAT_TWO:
                 boatid = GetDefender() == ALLIANCE ? BG_SA_BOAT_TWO_H : BG_SA_BOAT_TWO_A;
-                if (!(AddObject(i, boatid, BG_SA_START_LOCATIONS[i + 5][0], BG_SA_START_LOCATIONS[i + 5][1], BG_SA_START_LOCATIONS[i + 5][2]+ (GetDefender() == ALLIANCE ? -3.750f: 0) , BG_SA_START_LOCATIONS[i + 5][3], 0.0f, 0.0f, 0.0f, 0.0f, RESPAWN_ONE_DAY)))
+                if (!(AddObject(i, boatid, BG_SA_START_LOCATIONS[i + 5][0], BG_SA_START_LOCATIONS[i + 5][1], BG_SA_START_LOCATIONS[i + 5][2]+ (GetDefender() == ALLIANCE ? -3.750f: 0) , BG_SA_START_LOCATIONS[i + 5][3], 0, 0, 1.0f, 0.00001f, RESPAWN_ONE_DAY)))
                 {
                     sLog.outError("SA_ERROR: Can't spawn ships!");
                     return false;
                 }
-                
-                if (GameObject* boat = GetBGObject(i))
-                    boat->SetTransportPathRotation(0, 0, 1.0f, 0.00001f);
-
                 break;
         }
     }
@@ -532,15 +519,10 @@ bool BattleGroundSA::SetupShips()
     SpawnBGObject(m_BgObjects[BG_SA_BOAT_ONE], RESPAWN_IMMEDIATELY);
     SpawnBGObject(m_BgObjects[BG_SA_BOAT_TWO], RESPAWN_IMMEDIATELY);
 
-    for (uint8 i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; ++i)
-    {
+    for (int i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
         for (BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-        {
-            if (Player* plr = sObjectMgr.GetPlayer(itr->first))
+            if (Player *plr = sObjectMgr.GetPlayer(itr->first))
                 SendTransportInit(plr);
-        }
-    }
-
     return true;
 }
 
