@@ -1,6 +1,8 @@
 ﻿-- Strand of the Ancients 
 DELETE FROM battleground_template WHERE id = 9;
 INSERT INTO battleground_template (id, MinPlayersPerTeam, MaxPlayersPerTeam, AllianceStartLoc, AllianceStartO, HordeStartLoc, HordeStartO) VALUES (9, 8, 15, 1367, 0, 1368, 0);
+-- REPLACE INTO `gameobject_template` (`entry`, `type`, `displayId`, `name`, `IconName`, `castBarCaption`, `unk1`, `faction`, `flags`, `size`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `data8`, `data9`, `data10`, `data11`, `data12`, `data13`, `data14`, `data15`, `data16`, `data17`, `data18`, `data19`, `data20`, `data21`, `data22`, `data23`, `ScriptName`) VALUES
+-- (300000, 0, 7203, 'Forcefield 000', '', '', '', 1375, 32, 0.05, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '');
 -- Rigger Sparklight
 UPDATE creature_template SET npcflag = 1, ScriptName = 'npc_sa_vendor' WHERE entry IN (29260, 29262);
 -- Seaforium source
@@ -139,6 +141,7 @@ INSERT INTO battleground_events (map, event1, event2, description) VALUES
 ('607', '2', '2', 'H ocup'),
 ('607', '2', '3', 'A seizes'),
 ('607', '2', '4', 'H seizes');
+
 
 -- Horde and Alliance Spirit Guide
 DELETE FROM creature WHERE guid in (200017, 200018, 200019, 200020, 200021, 200022, 200023, 200024, 200025, 200026);
