@@ -192,9 +192,12 @@ bool VehicleKit::AddPassenger(Unit *passenger, int8 seatId)
 
     if (seatInfo->m_flags & SEAT_FLAG_CAN_CONTROL)
     {
-        m_pBase->StopMoving();
-        m_pBase->GetMotionMaster()->Clear();
-        m_pBase->CombatStop(true);
+        if (!(m_pBase->GetVehicleInfo()->GetEntry()->m_flags & (VEHICLE_FLAG_ACCESSORY)))
+        {
+            m_pBase->StopMoving();
+            m_pBase->GetMotionMaster()->Clear();
+            m_pBase->CombatStop(true);
+        }
         m_pBase->DeleteThreatList();
         m_pBase->getHostileRefManager().deleteReferences();
         m_pBase->SetCharmerGuid(passenger->GetObjectGuid());
@@ -352,10 +355,11 @@ void VehicleKit::InstallAccessory( uint32 entry, int8 seatId, bool minion)
         passenger->ExitVehicle();
     }
 
-    if (Creature *accessory = m_pBase->SummonCreature(entry, m_pBase->GetPositionX(), m_pBase->GetPositionY(), m_pBase->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000))
+    if (Creature* accessory = m_pBase->SummonCreature(entry, m_pBase->GetPositionX(), m_pBase->GetPositionY(), m_pBase->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000))
     {
         accessory->SetCreatorGuid(ObjectGuid());
         accessory->EnterVehicle(this, seatId);
+        accessory->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
         accessory->SendHeartBeat();
     }
 }
