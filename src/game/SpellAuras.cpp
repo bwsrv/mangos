@@ -7554,7 +7554,8 @@ void Aura::HandleSchoolAbsorb(bool apply, bool Real)
                     if (spellProto->SpellFamilyFlags.test<CF_PRIEST_POWER_WORD_SHIELD>())
                     {
                         //+80.68% from +spell bonus
-                        DoneActualBenefit = caster->SpellBaseHealingBonusDone(GetSpellSchoolMask(spellProto)) * 0.8068f;
+                        int32 spellPower = caster->SpellBaseHealingBonusDone(GetSpellSchoolMask(spellProto));
+                        float SpellBonus = spellPower * 0.8068f;
                         //Borrowed Time
                         Unit::AuraList const& borrowedTime = caster->GetAurasByType(SPELL_AURA_DUMMY);
                         for(Unit::AuraList::const_iterator itr = borrowedTime.begin(); itr != borrowedTime.end(); ++itr)
@@ -7562,10 +7563,48 @@ void Aura::HandleSchoolAbsorb(bool apply, bool Real)
                             SpellEntry const* i_spell = (*itr)->GetSpellProto();
                             if(i_spell->SpellFamilyName==SPELLFAMILY_PRIEST && i_spell->SpellIconID == 2899 && i_spell->EffectMiscValue[(*itr)->GetEffIndex()] == 24)
                             {
-                                DoneActualBenefit += DoneActualBenefit * (*itr)->GetModifier()->m_amount / 100;
+                                SpellBonus += spellPower * (*itr)->GetModifier()->m_amount / 100;
                                 break;
                             }
                         }
+                        // extra absorb from talents
+                        int32 BaseBonus = 0, PctAddMod = 0;
+                        Unit::AuraList const& pctModAuras = caster->GetAurasByType(SPELL_AURA_ADD_PCT_MODIFIER);
+                        for (Unit::AuraList::const_iterator itr = pctModAuras.begin(); itr != pctModAuras.end(); ++itr)
+                        {
+                            SpellEntry const* i_spell = (*itr)->GetSpellProto();
+                            if (i_spell->SpellFamilyName != SPELLFAMILY_PRIEST || (*itr)->GetEffIndex() != EFFECT_INDEX_0)
+                                continue;
+                            // Twin Disciplines / Spiritual Healing
+                            if (i_spell->SpellIconID == 2292 || i_spell->SpellIconID == 46)
+                                PctAddMod += (*itr)->GetModifier()->m_amount;
+                            // Improved Power Word: Shield
+                            else if (i_spell->SpellIconID == 566)
+                                SpellBonus *= (100.0f + (*itr)->GetModifier()->m_amount) / 100.0f;
+                            // Item - Priest T10 Healer 4P Bonus
+                            else if (i_spell->Id == 70798)
+                            {
+                                BaseBonus -= m_modifier.m_amount * (*itr)->GetModifier()->m_amount / 100;   // base bonus already added as SPELLMOD_ALL_EFFECTS
+                                PctAddMod += (*itr)->GetModifier()->m_amount;
+                            }
+                        }
+                        Unit::AuraList const& healingPctAuras = caster->GetAurasByType(SPELL_AURA_MOD_HEALING_DONE_PERCENT);
+                        for (Unit::AuraList::const_iterator itr = healingPctAuras.begin(); itr != healingPctAuras.end(); ++itr)
+                        {
+                            SpellEntry const* i_spell = (*itr)->GetSpellProto();
+                            // Focused Power
+                            if (i_spell->SpellFamilyName == SPELLFAMILY_PRIEST && i_spell->SpellIconID == 2210)
+                            {
+                                PctAddMod += (*itr)->GetModifier()->m_amount;
+                                break;
+                            }
+                        }
+                        if (PctAddMod)
+                        {
+                            BaseBonus += m_modifier.m_amount * PctAddMod / 100;
+                            SpellBonus *= (100.0f + PctAddMod) / 100.0f;
+                        }
+                        DoneActualBenefit = BaseBonus + SpellBonus;
                     }
 
                     break;
