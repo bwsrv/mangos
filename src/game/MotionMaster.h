@@ -129,4 +129,9 @@ class MANGOS_DLL_SPEC MotionMaster : private std::stack<MovementGenerator *>
         ExpireList *m_expList;
         uint8       m_cleanFlag;
 };
+
+#define DEFAULT_WALK_SPEED 24.0f
+#define DEFAULT_JUMP_SPEED 60.0f
+#define DEFAULT_JUMP_HEIGHT 2.0f
+
 #endif

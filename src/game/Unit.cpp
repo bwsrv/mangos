@@ -385,41 +385,6 @@ bool Unit::haveOffhandWeapon() const
         return false;
 }
 
-void Unit::SendMonsterMoveJump(float NewPosX, float NewPosY, float NewPosZ, float vert_speed, uint32 flags, uint32 Time, Player* player)
-{
-    float moveTime = Time;
-    flags |= SPLINEFLAG_TRAJECTORY;
-
-    WorldPacket data( SMSG_MONSTER_MOVE, (49 + GetPackGUID().size()) );
-    data << GetPackGUID();
-    data << uint8(0);                                       // new in 3.1
-    data << GetPositionX() << GetPositionY() << GetPositionZ();
-    data << uint32(WorldTimer::getMSTime());
-
-    data << uint8(0);                                    // unknown
-
-    data << uint32(flags);
-
-    if(flags & SPLINEFLAG_WALKMODE)
-        moveTime *= 1.05f;
-
-    data << uint32(moveTime);                               // Time in between points
-
-    if(flags & SPLINEFLAG_TRAJECTORY)
-    {
-        data << float(vert_speed);
-        data << uint32(0);
-    }
-
-    data << uint32(1);                                      // 1 single waypoint
-    data << NewPosX << NewPosY << NewPosZ;                  // the single waypoint Point B
-
-    if(player)
-        player->GetSession()->SendPacket(&data);
-    else
-        SendMessageToSet( &data, true );
-}
-
 bool Unit::SetPosition(float x, float y, float z, float orientation, bool teleport)
 {
     // prevent crash when a bad coord is sent by the client
@@ -11495,31 +11460,21 @@ void Unit::MonsterMoveWithSpeed(float x, float y, float z, float speed)
     init.Launch();
 }
 
-void Unit::MonsterJump(float x, float y, float z, float o, uint32 transitTime, uint32 verticalSpeed)
+void Unit::MonsterMoveJump(float x, float y, float z, float o, float speed, float height, bool isKnockBack)
 {
-//    SendMonsterMove(x, y, z, SPLINETYPE_NORMAL, SplineFlags(SPLINEFLAG_TRAJECTORY | SPLINEFLAG_WALKMODE), transitTime, NULL, double(verticalSpeed));
-    MonsterMoveWithSpeed(x, y, z, 28);
-/*
+
     if (GetTypeId() != TYPEID_PLAYER)
     {
         // Interrupt spells cause of movement
         InterruptNonMeleeSpells(false);
-
-        Creature* c = (Creature*)this;
-        // Creature relocation acts like instant movement generator, so current generator expects interrupt/reset calls to react properly
-        if (!c->GetMotionMaster()->empty())
-            if (MovementGenerator *movgen = c->GetMotionMaster()->top())
-                movgen->Interrupt(*c);
-
-        GetMap()->CreatureRelocation((Creature*)this, x, y, z, o);
-
-        // finished relocation, movegen can different from top before creature relocation,
-        // but apply Reset expected to be safe in any case
-        if (!c->GetMotionMaster()->empty())
-            if (MovementGenerator *movgen = c->GetMotionMaster()->top())
-                movgen->Reset(*c);
     }
-*/
+
+    Movement::MoveSplineInit init(*this);
+    init.MoveTo(x,y,z);
+    init.SetParabolic(height,0,isKnockBack);
+    init.SetVelocity(speed);
+    init.Launch();
+
 }
 
 struct SetPvPHelper
@@ -11674,14 +11629,7 @@ void Unit::KnockBackFrom(Unit* target, float horizontalSpeed, float verticalSpee
     // Effect properly implemented only for players
     if(GetTypeId()==TYPEID_PLAYER)
     {
-        WorldPacket data(SMSG_MOVE_KNOCK_BACK, 8+4+4+4+4+4);
-        data << GetPackGUID();
-        data << uint32(0);                                  // Sequence
-        data << float(vcos);                                // x direction
-        data << float(vsin);                                // y direction
-        data << float(horizontalSpeed);                     // Horizontal speed
-        data << float(-verticalSpeed);                      // Z Movement speed (vertical)
-        ((Player*)this)->GetSession()->SendPacket(&data);
+        KnockBackPlayerWithAngle(angle, horizontalSpeed, verticalSpeed);
     }
     else
     {
@@ -11707,8 +11655,7 @@ void Unit::KnockBackFrom(Unit* target, float horizontalSpeed, float verticalSpee
 
         UpdateAllowedPositionZ(fx, fy, fz);
 
-        GetMap()->CreatureRelocation((Creature*)this, fx, fy, fz, GetOrientation());//it's a hack, need motion master support
-        SendMonsterMoveJump(fx, fy, fz, verticalSpeed, SPLINEFLAG_WALKMODE, uint32(time * 1000.0f));
+        MonsterMoveJump(fx, fy, fz, GetOrientation(), verticalSpeed, dh, true);
     }
 }
 

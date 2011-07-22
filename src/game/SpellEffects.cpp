@@ -3795,7 +3795,9 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     return;
 
                 uint32 spellId = m_spellInfo->CalculateSimpleValue(EFFECT_INDEX_0);
-                unitTarget->CastSpell(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), spellId, true);
+                float dest_x, dest_y;
+                m_caster->GetNearPoint2D(dest_x, dest_y, m_caster->GetObjectBoundingRadius() + unitTarget->GetObjectBoundingRadius(), m_caster->GetOrientation());
+                unitTarget->CastSpell(dest_x, dest_y, m_caster->GetPositionZ()+0.5f, spellId, true,NULL,NULL,m_caster->GetObjectGuid(),m_spellInfo);
                 return;
             }
             // Corpse Explosion. Execute for Effect1 only
@@ -4174,14 +4176,16 @@ void Spell::EffectJump(SpellEffectIndex eff_idx)
         return;
     }
 
-    uint32 speed_z = m_spellInfo->EffectMiscValue[eff_idx];
-    if (!speed_z)
-        speed_z = 10;
-    uint32 time = m_spellInfo->EffectMiscValueB[eff_idx];
-    if (!time)
-        time = speed_z * 10;
+    float speed_z = DEFAULT_JUMP_SPEED;
+    float dh      = DEFAULT_JUMP_HEIGHT;
 
-    m_caster->MonsterJump(x, y, z, o, time, speed_z);
+    if (m_spellInfo->EffectMiscValue[eff_idx])
+        speed_z = float(m_spellInfo->EffectMiscValue[eff_idx]);
+
+    if (m_spellInfo->EffectMiscValueB[eff_idx])
+        dh = float(m_spellInfo->EffectMiscValueB[eff_idx]/speed_z);
+
+    m_caster->MonsterMoveJump(x, y, z, o, speed_z, dh);
 }
 
 void Spell::EffectTeleportUnits(SpellEffectIndex eff_idx)
