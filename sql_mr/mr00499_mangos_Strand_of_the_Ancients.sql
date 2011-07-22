@@ -35,7 +35,7 @@ INSERT INTO npc_spellclick_spells VALUES
 -- Antipersonnel Cannon
 UPDATE creature_template SET npcflag = 1, minlevel = 70, maxlevel = 70, unit_flags=4, minhealth = 44910, maxhealth = 44910, faction_A = 35, faction_H = 35, spell1 = 49872, RegenHealth=0, ScriptName = 'npc_sa_cannon' WHERE entry = 27894;
 DELETE FROM npc_spellclick_spells WHERE npc_entry IN (27894, 32795);
-UPDATE creature_template SET npcflag = 1, minlevel = 80, maxlevel = 80, unit_flags=4, minhealth = 63000, maxhealth = 63000, faction_A = 35, faction_H = 35, spell1 = 49872, RegenHealth=0, ScriptName = 'npc_sa_cannon' WHERE entry = 32795;
+UPDATE creature_template SET npcflag = 1, minlevel = 80, maxlevel = 80, unit_flags=4, minhealth = 63000, maxhealth = 63000, faction_A = 35, faction_H = 35, spell1 = 49872, RegenHealth=0  WHERE entry = 32795;
 INSERT INTO npc_spellclick_spells VALUES
 (27894, 60968, 0, 0, 0, 0),
 (32795, 60968, 0, 0, 0, 0);
