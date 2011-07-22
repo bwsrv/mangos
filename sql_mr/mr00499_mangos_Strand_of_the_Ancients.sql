@@ -114,13 +114,8 @@ INSERT INTO creature_battleground VALUES
 
 DELETE FROM battleground_events WHERE map = 607;
 INSERT INTO battleground_events (map, event1, event2, description) VALUES
-('607', '11', '0', 'LEFT Bomb ALLIANCE'),
-('607', '11', '1', 'LEFT Bomb HORDE'),
-('607', '12', '0', 'RIGHT Bomb ALLIANCE'),
-('607', '12', '1', 'RIGHT Bomb HORDE'),
 ('607', '13', '0', 'MID Bomb ALLIANCE'),
 ('607', '13', '1', 'MID Bomb HORDE'),
-('607', '254', '0', 'Door'),
 ('607', '6', '0', 'Bomb ALLIANCE'),
 ('607', '6', '1', 'Bomb HORDE'),
 ('607', '5', '3', 'Spirit for controll ALLIANCE'),
