@@ -2577,7 +2577,10 @@ void PlayerbotAI::MovementReset()
             else if (!FollowCheckTeleport(*m_followTarget)) return;
         }
 
-        if (m_bot->isAlive() && (m_bot->GetMap() == m_followTarget->GetMap()))
+        if (m_bot->isAlive() && 
+            !m_bot->isInCombat() && 
+            (m_bot->GetMap() == m_followTarget->GetMap() && m_bot->IsWithinDistInMap(GetMaster(), m_bot->GetMap()->GetVisibilityDistance(), true)) && 
+            !m_bot->IsBeingTeleported() )
         {
             float angle = rand_float(0, M_PI_F);
             float dist = rand_float(m_mgr->m_confFollowDistance[0], m_mgr->m_confFollowDistance[1]);
@@ -3733,7 +3736,7 @@ bool PlayerbotAI::FollowCheckTeleport(WorldObject &obj)
 {
     // if bot has strayed too far from the master, teleport bot
 
-    if (!m_bot->IsWithinDistInMap(&obj, 50, true) && GetMaster()->isAlive() && !GetMaster()->IsTaxiFlying())
+    if (!m_bot->IsWithinDistInMap(&obj, m_bot->GetMap()->GetVisibilityDistance(), true) && GetMaster()->isAlive() && !GetMaster()->IsTaxiFlying())
     {
         m_bot->GetMotionMaster()->Clear();
         m_ignoreAIUpdatesUntilTime = time(0) + 6;
