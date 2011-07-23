@@ -1091,13 +1091,18 @@ void LFGMgr::SendLFGReward(Player* player, LFGDungeonEntry const* dungeon)
     uint8 index = 0;
 
     // if we can take the quest, means that we haven't done this kind of "run", IE: First Heroic Random of Day.
-    if (player->GetQuestRewardStatus(reward->reward[0].questId))
+    Quest const* pQuest = sObjectMgr.GetQuestTemplate(reward->reward[0].questId);
+
+    if (!player->CanTakeQuest(pQuest, false))
         index = 1;
 
     Quest const* qReward = sObjectMgr.GetQuestTemplate(reward->reward[index].questId);
 
     if (!qReward)
+    {
+        sLog.outError("LFGMgr::RewardDungeonDone quest %u is absent in DB.", reward->reward[index].questId);
         return;
+    }
 
     // we give reward without informing client (retail does this)
     player->RewardQuest(qReward,0,NULL,false);
