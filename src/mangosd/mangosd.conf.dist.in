@@ -1898,12 +1898,17 @@ Rate.RAF.LevelPerLevel  = 0.5
 #    LFR.Extend              = 0
 #        enabling Raid finder extended operations (not blizzlike!)
 #    LFG.MaxKicks            = 5
+#        max number of kick from group before group disband
+#    LFG.OnlyLastEncounterForCompleteDungeon = 0
+#        need complete only last encounter for dungeon complete (not blizzlike!)
+#
 ###################################################################################################################
 LFR.Enable              = 1
 LFG.Enable              = 0
 LFG.Debug               = 0
 LFR.Extend              = 0
 LFG.MaxKicks            = 5
+LFG.OnlyLastEncounterForCompleteDungeon = 0
 
 ###################################################################################################################
 # PLAYERBOTAI CONFIGURATION
