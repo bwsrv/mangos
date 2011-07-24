@@ -303,7 +303,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX_UNK25                       0x02000000            // 25
 #define SPELL_ATTR_EX_UNK26                       0x04000000            // 26
 #define SPELL_ATTR_EX_UNK27                       0x08000000            // 27
-#define SPELL_ATTR_EX_UNK28                       0x10000000            // 28
+#define SPELL_ATTR_EX_HIDDEN_AURA                 0x10000000            // 28 client doesn't display these spells in aura bar (special and server-side spells)
 #define SPELL_ATTR_EX_UNK29                       0x20000000            // 29
 #define SPELL_ATTR_EX_UNK30                       0x40000000            // 30 overpower
 #define SPELL_ATTR_EX_UNK31                       0x80000000            // 31
