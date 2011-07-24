@@ -1147,7 +1147,7 @@ class  VehicleKit;
 class MANGOS_DLL_SPEC Unit : public WorldObject
 {
     public:
-        typedef std::set<Unit*> AttackerSet;
+        typedef std::set<ObjectGuid> AttackerSet;
         typedef std::multimap< uint32, SpellAuraHolder*> SpellAuraHolderMap;
         typedef std::pair<SpellAuraHolderMap::iterator, SpellAuraHolderMap::iterator> SpellAuraHolderBounds;
         typedef std::pair<SpellAuraHolderMap::const_iterator, SpellAuraHolderMap::const_iterator> SpellAuraHolderConstBounds;
@@ -1203,26 +1203,23 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         bool CanReachWithMeleeAttack(Unit* pVictim, float flat_mod = 0.0f) const;
         uint32 m_extraAttacks;
 
-        void _addAttacker(Unit *pAttacker)                  // must be called only from Unit::Attack(Unit*)
+        void _addAttacker(Unit* pAttacker)                  // must be called only from Unit::Attack(Unit*)
         {
-            AttackerSet::const_iterator itr = m_attackers.find(pAttacker);
+            if (!pAttacker)
+                return;
+
+            AttackerSet::const_iterator itr = m_attackers.find(pAttacker->GetObjectGuid());
             if(itr == m_attackers.end())
-                m_attackers.insert(pAttacker);
+                m_attackers.insert(pAttacker->GetObjectGuid());
         }
-        void _removeAttacker(Unit *pAttacker)               // must be called only from Unit::AttackStop()
+        void _removeAttacker(Unit* pAttacker)               // must be called only from Unit::AttackStop()
         {
-            m_attackers.erase(pAttacker);
-        }
-        Unit * getAttackerForHelper()                       // If someone wants to help, who to give them
-        {
-            if (getVictim() != NULL)
-                return getVictim();
+            if (!pAttacker)
+                return;
 
-            if (!m_attackers.empty())
-                return *(m_attackers.begin());
-
-            return NULL;
+            m_attackers.erase(pAttacker->GetObjectGuid());
         }
+        Unit* getAttackerForHelper();                       // If someone wants to help, who to give them
         bool Attack(Unit *victim, bool meleeAttack);
         void AttackedBy(Unit *attacker);
         void CastStop(uint32 except_spellid = 0);

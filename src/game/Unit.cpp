@@ -5850,6 +5850,26 @@ bool Unit::IsNeutralToAll() const
     return my_faction->IsNeutralToAll();
 }
 
+Unit* Unit::getAttackerForHelper()
+{
+    if (getVictim())
+        return getVictim();
+
+    if (!m_attackers.empty())
+    {
+        for(AttackerSet::iterator i = m_attackers.begin(); i != m_attackers.end();)
+        {
+            ObjectGuid guid = *i;
+            Unit* attacker = GetMap()->GetUnit(guid);
+            if (!attacker || !attacker->isAlive())
+                m_attackers.erase(i);
+            else
+                return attacker;
+        }
+    }
+    return NULL;
+}
+
 bool Unit::Attack(Unit *victim, bool meleeAttack)
 {
     if(!victim || victim == this)
@@ -6036,7 +6056,8 @@ void Unit::RemoveAllAttackers()
     while (!m_attackers.empty())
     {
         AttackerSet::iterator iter = m_attackers.begin();
-        if(!(*iter)->AttackStop())
+        Unit* attacker = GetMap()->GetUnit(*iter);
+        if(!attacker || !attacker->AttackStop())
         {
             sLog.outError("WORLD: Unit has an attacker that isn't attacking it!");
             m_attackers.erase(iter);
@@ -9233,7 +9254,8 @@ bool Unit::SelectHostileTarget()
     {
         for(AttackerSet::const_iterator itr = m_attackers.begin(); itr != m_attackers.end(); ++itr)
         {
-            if ((*itr)->IsInMap(this) && (*itr)->isTargetableForAttack() && (*itr)->isInAccessablePlaceFor((Creature*)this))
+            Unit* attacker = GetMap()->GetUnit(*itr);
+            if (attacker && attacker->IsInMap(this) && attacker->isTargetableForAttack() && attacker->isInAccessablePlaceFor((Creature*)this))
                 return false;
         }
     }
@@ -11786,9 +11808,10 @@ void Unit::StopAttackFaction(uint32 faction_id)
     AttackerSet const& attackers = getAttackers();
     for(AttackerSet::const_iterator itr = attackers.begin(); itr != attackers.end();)
     {
-        if ((*itr)->getFactionTemplateEntry()->faction==faction_id)
+        Unit* attacker = GetMap()->GetUnit(*itr);
+        if (attacker && attacker->getFactionTemplateEntry()->faction==faction_id)
         {
-            (*itr)->AttackStop();
+            attacker->AttackStop();
             itr = attackers.begin();
         }
         else

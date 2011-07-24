@@ -413,15 +413,19 @@ void WorldSession::LogoutPlayer(bool Save)
             std::set<Player*> aset;
             for(Unit::AttackerSet::const_iterator itr = _player->getAttackers().begin(); itr != _player->getAttackers().end(); ++itr)
             {
-                Unit* owner = (*itr)->GetOwner();           // including player controlled case
+                Unit* attacker = _player->GetMap()->GetUnit(*itr);
+                   if (!attacker)
+                       continue;
+
+                Unit* owner = attacker->GetOwner();           // including player controlled case
                 if(owner)
                 {
-                    if(owner->GetTypeId()==TYPEID_PLAYER)
+                    if(owner->GetTypeId() == TYPEID_PLAYER)
                         aset.insert((Player*)owner);
                 }
                 else
-                if((*itr)->GetTypeId()==TYPEID_PLAYER)
-                    aset.insert((Player*)(*itr));
+                    if(attacker->GetTypeId() == TYPEID_PLAYER)
+                        aset.insert((Player*)(attacker));
             }
 
             _player->SetPvPDeath(!aset.empty());
