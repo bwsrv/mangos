@@ -1316,48 +1316,46 @@ void Aura::TriggerSpell()
                     }
 //                    // Controller Timer
 //                    case 28095: break;
-                    // Stalagg Chain
+                    // Stalagg Chain and Feugen Chain
                     case 28096:
-                        if (Unit* pCaster = GetCaster() )
-                        {
-                            if (pCaster->GetDistance(target) > 60.0f )
-                            {
-                                pCaster->RemoveAurasDueToSpell(28096);
-                                pCaster->InterruptNonMeleeSpells(false);
-                                if (!pCaster->HasAura(28097))
-                                    pCaster->CastSpell(pCaster, 28097, true, 0, this, target->GetGUID());
-                            }
-                        }
-                        return;
-                    // Stalagg Tesla Passive
-                    case 28097:
-                        if (Unit* pStalagg = GetCaster() )
-                        {
-                            if (!target->IsNonMeleeSpellCasted(true) && pStalagg->getVictim() && pStalagg->getStandState() != UNIT_STAND_STATE_DEAD)
-                                target->CastSpell(pStalagg->getVictim(), 28099, false, 0, this);
-                        }
-                        return;
-                    // Feugen Tesla Passive
-                    case 28109:
-                        if (Unit* pFeugen = GetCaster() )
-                        {
-                            if (!target->IsNonMeleeSpellCasted(true) && pFeugen->getVictim() && pFeugen->getStandState() != UNIT_STAND_STATE_DEAD)
-                                target->CastSpell(pFeugen->getVictim(), 28099, false, 0, this);
-                        }
-                        return;
-                    // Feugen Chain
                     case 28111:
-                        if (Unit* pCaster = GetCaster() )
+                    {
+                        // X-Chain is casted by Tesla to X, so: caster == Tesla, target = X
+                        Unit* pCaster = GetCaster();
+                        if (pCaster && pCaster->GetTypeId() == TYPEID_UNIT && !pCaster->IsWithinDistInMap(target, 60.0f))
                         {
-                            if (pCaster->GetDistance(target) > 60.0f )
+                            pCaster->InterruptNonMeleeSpells(true);
+                            ((Creature*)pCaster)->SetInCombatWithZone();
+                            // Stalagg Tesla Passive or Feugen Tesla Passive
+                            pCaster->CastSpell(pCaster, auraId == 28096 ? 28097 : 28109, true, NULL, NULL, target->GetObjectGuid());
+                        }
+                        return;
+                    }
+                    // Stalagg Tesla Passive and Feugen Tesla Passive
+                    case 28097:
+                    case 28109:
+                    {
+                        // X-Tesla-Passive is casted by Tesla on Tesla with original caster X, so: caster = X, target = Tesla
+                        Unit* pCaster = GetCaster();
+                        if (pCaster && pCaster->GetTypeId() == TYPEID_UNIT)
+                        {
+                            if (pCaster->getVictim() && !pCaster->IsWithinDistInMap(target, 60.0f))
                             {
-                                pCaster->RemoveAurasDueToSpell(28111);
-                                pCaster->InterruptNonMeleeSpells(false);
-                                if (!pCaster->HasAura(28109))
-                                    pCaster->CastSpell(pCaster, 28109, true, 0, this, target->GetGUID());
+                                if (Unit* pTarget = ((Creature*)pCaster)->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+                                    target->CastSpell(pTarget, 28099, false);// Shock
+                            }
+                            else
+                            {
+                                // "Evade"
+                                target->RemoveAurasDueToSpell(auraId);
+                                target->DeleteThreatList();
+                                target->CombatStop(true);
+                                // Recast chain (Stalagg Chain or Feugen Chain
+                                target->CastSpell(pCaster, auraId == 28097 ? 28096 : 28111, false);
                             }
                         }
                         return;
+                    }
 //                    // Mark of Didier
 //                    case 28114: break;
 //                    // Communique Timer, camp

@@ -117,8 +117,9 @@ enum AuctionBotConfigFloatValues
 class AuctionBotConfig
 {
     public:
-        AuctionBotConfig() {}
+        AuctionBotConfig();
 
+        void        SetConfigFileName(char const* filename) { m_configFileName = filename; }
         bool        Initialize();
         const char* GetAHBotIncludes() const { return m_AHBotIncludes.c_str(); }
         const char* GetAHBotExcludes() const { return m_AHBotExcludes.c_str(); }
@@ -144,6 +145,7 @@ class AuctionBotConfig
         static char const* GetHouseTypeName(AuctionHouseType houseType);
 
     private:
+        std::string m_configFileName;
         std::string m_AHBotIncludes;
         std::string m_AHBotExcludes;
         Config      m_AhBotCfg;
