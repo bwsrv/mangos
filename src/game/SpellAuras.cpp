@@ -2403,6 +2403,14 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     case 55278:                                 // Stoneclaw Totem VII
                         target->CastSpell(target, 25513, true);
                         return;
+                    case 56150:                                 // Jedoga Sacriface Beam
+                        if (Unit* caster = GetCaster())
+                        {
+                            int32 health = target->GetHealth();
+                            int32 mana = target->GetPower(POWER_MANA);
+                            caster->CastCustomSpell(target, 58919, &health, 1, &mana, true);
+                        }
+                        return;
                     case 58589:                                 // Stoneclaw Totem VIII
                         target->CastSpell(target, 58583, true);
                         return;
