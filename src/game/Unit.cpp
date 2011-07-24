@@ -10320,104 +10320,18 @@ void Unit::DoPetAction( Player* owner, uint8 flag, uint32 spellid, ObjectGuid pe
             }
             break;
         case ACT_DISABLED:                                  // 0x81    spell (disabled), ignore
+        case ACT_CASTABLE:                                  // 0x80    spell (disabled), toggle state
         case ACT_PASSIVE:                                   // 0x01
         case ACT_ENABLED:                                   // 0xC1    spell
+        case ACT_ACTIVE:                                    // 0xC0    spell
         {
             Unit* unit_target = NULL;
 
             if (!targetGuid.IsEmpty())
                 unit_target = owner->GetMap()->GetUnit(targetGuid);
 
-            // do not cast unknown spells
-            SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellid );
-            if(!spellInfo)
-            {
-                sLog.outError("WORLD: unknown PET spell id %i", spellid);
-                return;
-            }
+            DoPetCastSpell(unit_target, spellid);
 
-            if (GetCharmInfo() && GetCharmInfo()->GetGlobalCooldownMgr().HasGlobalCooldown(spellInfo))
-                return;
-
-            for(int i = 0; i < MAX_EFFECT_INDEX;++i)
-            {
-                if(spellInfo->EffectImplicitTargetA[i] == TARGET_ALL_ENEMY_IN_AREA || spellInfo->EffectImplicitTargetA[i] == TARGET_ALL_ENEMY_IN_AREA_INSTANT || spellInfo->EffectImplicitTargetA[i] == TARGET_ALL_ENEMY_IN_AREA_CHANNELED)
-                    return;
-            }
-
-            // do not cast not learned spells
-            if(!HasSpell(spellid) || IsPassiveSpell(spellid))
-                return;
-
-            clearUnitState(UNIT_STAT_MOVING);
-
-            Spell *spell = new Spell(this, spellInfo, false);
-
-            SpellCastResult result = spell->CheckPetCast(unit_target);
-
-            //auto turn to target unless possessed
-            if(result == SPELL_FAILED_UNIT_NOT_INFRONT && !HasAuraType(SPELL_AURA_MOD_POSSESS))
-            {
-                if(unit_target)
-                {
-                    SetInFront(unit_target);
-                    if (unit_target->GetTypeId() == TYPEID_PLAYER)
-                        SendCreateUpdateToPlayer( (Player*)unit_target );
-                }
-                else if(Unit *unit_target2 = spell->m_targets.getUnitTarget())
-                {
-                    SetInFront(unit_target2);
-                    if (unit_target2->GetTypeId() == TYPEID_PLAYER)
-                        SendCreateUpdateToPlayer( (Player*)unit_target2 );
-                }
-                if (Unit* powner = GetCharmerOrOwner())
-                    if(powner->GetTypeId() == TYPEID_PLAYER)
-                        SendCreateUpdateToPlayer((Player*)powner);
-                result = SPELL_CAST_OK;
-            }
-
-            if(result == SPELL_CAST_OK)
-            {
-                ((Creature*)this)->AddCreatureSpellCooldown(spellid);
-
-                unit_target = spell->m_targets.getUnitTarget();
-
-                //10% chance to play special pet attack talk, else growl
-                //actually this only seems to happen on special spells, fire shield for imp, torment for voidwalker, but it's stupid to check every spell
-                if(((Creature*)this)->IsPet() && (((Pet*)this)->getPetType() == SUMMON_PET) && (this != unit_target) && (urand(0, 100) < 10))
-                    SendPetTalk((uint32)PET_TALK_SPECIAL_SPELL);
-                else
-                    SendPetAIReaction();
-
-                if( unit_target && !owner->IsFriendlyTo(unit_target) && !HasAuraType(SPELL_AURA_MOD_POSSESS))
-                {
-                    // This is true if pet has no target or has target but targets differs.
-                    if (getVictim() != unit_target)
-                    {
-                        if (getVictim())
-                            AttackStop();
-                        GetMotionMaster()->Clear();
-                        if (((Creature*)this)->AI())
-                            ((Creature*)this)->AI()->AttackStart(unit_target);
-                    }
-                }
-
-                spell->prepare(&(spell->m_targets));
-            }
-            else
-            {
-                if(HasAuraType(SPELL_AURA_MOD_POSSESS))
-                    Spell::SendCastResult(owner,spellInfo,0,result);
-                else
-                    SendPetCastFail(spellid, result);
-
-                if (!((Creature*)this)->HasSpellCooldown(spellid))
-                    owner->SendClearCooldown(spellid, this);
-
-                spell->finish(false);
-                delete spell;
-            }
-            break;
         }
         default:
             sLog.outError("WORLD: unknown PET flag Action %i and spellid %i.", uint32(flag), spellid);
@@ -10425,17 +10339,87 @@ void Unit::DoPetAction( Player* owner, uint8 flag, uint32 spellid, ObjectGuid pe
 
 }
 
-void Unit::DoPetCastSpell( Player *owner, uint8 cast_count, SpellCastTargets* targets, SpellEntry const* spellInfo )
+void Unit::DoPetCastSpell(Unit* target, uint32 spellId)
 {
+    // do not cast unknown spells
+    SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
+    if(!spellInfo)
+    {
+        sLog.outError("WORLD: unknown PET spell id %i", spellInfo->Id);
+        return;
+    }
+
+    Unit*   owner  = GetObjectGuid().IsPet() ? ((Pet*)this)->GetOwner() : GetCharmerOrOwner();
+    Player* powner = (owner && owner->GetTypeId() == TYPEID_PLAYER) ? (Player*)owner : NULL;
+
+    SpellCastTargets targets;
+    targets.setUnitTarget(target);
+    uint8 cast_count = 1;
+
+    if (powner)
+        powner->CallForAllControlledUnits(DoPetCastWithHelper(powner, cast_count, &targets, spellInfo),CONTROLLED_PET|CONTROLLED_GUARDIANS|CONTROLLED_CHARM);
+    else
+        DoPetCastSpell(NULL, cast_count, &targets, spellInfo);
+
+}
+
+void Unit::DoPetCastSpell(Player *owner, uint8 cast_count, SpellCastTargets* targets, SpellEntry const* spellInfo )
+{
+    if (!spellInfo)
+        return;
+
+    if (GetCharmInfo() && GetCharmInfo()->GetGlobalCooldownMgr().HasGlobalCooldown(spellInfo))
+        return;
+
+    // do not cast not learned spells
+    if(IsPassiveSpell(spellInfo->Id))
+        return;
+    if((GetObjectGuid().IsPet() && !((Pet*)this)->HasSpell(spellInfo->Id)))
+        return;
+    else if ((GetObjectGuid().IsCreatureOrVehicle() && !((Creature*)this)->HasSpell(spellInfo->Id)))
+        return;
+
     Creature* pet = dynamic_cast<Creature*>(this);
+
+    Unit* unit_target = targets ? targets->getUnitTarget() : NULL;
+    if (!unit_target)
+    {
+        DEBUG_LOG("DoPetCastSpell: %s guid %u tryed to cast spell %u without target!.",GetObjectGuid().IsPet() ? "Pet" : "Creature",GetObjectGuid().GetCounter(), spellInfo->Id);
+    }
+
+    Spell* spell = new Spell(this, spellInfo, false);
+    spell->m_cast_count = cast_count;                       // probably pending spell cast
+
+    Unit* unit_target2 = spell->m_targets.getUnitTarget();
+
+    SpellCastResult result = spell->CheckPetCast(unit_target);
+
+    //auto turn to target unless possessed
+    if (result == SPELL_FAILED_UNIT_NOT_INFRONT && !HasAuraType(SPELL_AURA_MOD_POSSESS))
+    {
+        if (unit_target)
+        {
+            SetInFront(unit_target);
+            if (unit_target->GetTypeId() == TYPEID_PLAYER)
+                SendCreateUpdateToPlayer( (Player*)unit_target );
+        }
+        else if (unit_target2)
+        {
+            SetInFront(unit_target2);
+            if (unit_target2->GetTypeId() == TYPEID_PLAYER)
+                SendCreateUpdateToPlayer( (Player*)unit_target2 );
+        }
+
+        if (owner)
+            SendCreateUpdateToPlayer(owner);
+        result = SPELL_CAST_OK;
+    }
+
+    if (unit_target && targets)
+        spell->m_targets = *targets;
 
     clearUnitState(UNIT_STAT_MOVING);
 
-    Spell *spell = new Spell(pet, spellInfo, false);
-    spell->m_cast_count = cast_count;                       // probably pending spell cast
-    spell->m_targets = *targets;
-
-    SpellCastResult result = spell->CheckPetCast(NULL);
     if (result == SPELL_CAST_OK)
     {
         pet->AddCreatureSpellCooldown(spellInfo->Id);
@@ -10449,12 +10433,31 @@ void Unit::DoPetCastSpell( Player *owner, uint8 cast_count, SpellCastTargets* ta
                 pet->SendPetAIReaction();
         }
 
+        if( unit_target && !owner->IsFriendlyTo(unit_target) && !HasAuraType(SPELL_AURA_MOD_POSSESS))
+        {
+            // This is true if pet has no target or has target but targets differs.
+            if (getVictim() != unit_target)
+            {
+                if (getVictim())
+                    AttackStop();
+
+                GetMotionMaster()->Clear();
+
+                if (pet->AI())
+                    pet->AI()->AttackStart(unit_target);
+            }
+        }
+
         spell->prepare(&(spell->m_targets));
     }
     else
     {
-        pet->SendPetCastFail(spellInfo->Id, result);
-        if (!pet->HasSpellCooldown(spellInfo->Id))
+        if (owner && HasAuraType(SPELL_AURA_MOD_POSSESS))
+            Spell::SendCastResult(owner,spellInfo,0,result);
+        else
+            SendPetCastFail(spellInfo->Id, result);
+
+        if (owner && !((Creature*)this)->HasSpellCooldown(spellInfo->Id))
             owner->SendClearCooldown(spellInfo->Id, pet);
 
         spell->finish(false);
