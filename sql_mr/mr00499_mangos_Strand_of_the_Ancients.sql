@@ -6,6 +6,13 @@ UPDATE creature_template SET npcflag = 1, ScriptName = 'npc_sa_vendor' WHERE ent
 -- Seaforium source
 -- left this to remove old bad hack
 DELETE FROM creature_template WHERE entry = 50000;
+-- modify some "should not be changed" data in DB
+-- dummy radius for passing some check, only 1 charge and 10 seconds delay
+UPDATE gameobject_template SET data2 = 1, data4 = 1, data7 = 10 WHERE entry = 190752;
+-- set factions for 2 Massive Seaforium Bombs
+-- use these if needed in Your DB (maybe already have better factions?)
+-- UPDATE `gameobject_template` SET faction = 3 WHERE entry = 190753;
+-- UPDATE `gameobject_template` SET faction = 6 WHERE entry = 194086;
 
 -- Doors
 UPDATE gameobject_template SET faction = 14 WHERE entry IN (192549, 190727, 190726, 190723, 190724, 190722);
