@@ -42,7 +42,7 @@ ConfVersion=2010100901
 #	CharacterDatabaseConnections
 #		 Amount of connections to database which will be used for SELECT queries. Maximum 16 connections per database.
 #		 Please, note, for data consistency only one connection for each database is used for transactions and async SELECTs.
-#		 So formula to find out how many connections will be established: X = �_connections + 1
+#		 So formula to find out how many connections will be established: X = n_connections + 1
 #		 Default: 1 connection for SELECT statements
 #
 #    MaxPingTime
@@ -467,7 +467,7 @@ ChatLogWhisperScreen = 0
 ChatLogChannelScreen = 0
 ChatLogRaidScreen = 0
 ChatLogBattleGroundScreen = 0
-LexicsCutterEnable = 1
+LexicsCutterEnable = 0
 LexicsCutterInnormativeCut = 1
 LexicsCutterCutReplacement = &!@^%!^&*!!!
 LexicsCutterLogFile = innormative-$d.log
@@ -693,7 +693,7 @@ LexicsCutterNoActionOnGM = 1
 #        Default: 10
 #
 #   BirthdayTime
-#        Set to birthday (date in unix time), By default 28th August 2005, when MaNGOS got it�s name
+#        Set to birthday (date in unix time), By default 28th August 2005, when MaNGOS got it's name
 #        Default: 1125180000
 #
 #    Instance.IgnoreLevel
@@ -1838,7 +1838,7 @@ SOAP.Port = 7878
 #
 ###################################################################################################################
 
-Anticheat.Enable = 1
+Anticheat.Enable = 0
 Anticheat.DelayAfterAction = 30
 Anticheat.GmLevel = 0
 Anticheat.Warden  = 0
@@ -1904,7 +1904,7 @@ Rate.RAF.LevelPerLevel  = 0.5
 #
 ###################################################################################################################
 LFR.Enable              = 1
-LFG.Enable              = 0
+LFG.Enable              = 1
 LFG.Debug               = 0
 LFR.Extend              = 0
 LFG.MaxKicks            = 5
