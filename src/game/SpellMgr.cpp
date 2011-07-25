@@ -4616,6 +4616,9 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellEntry cons
             // Banish - limit to 6 seconds in PvP (3.1)
             else if (spellproto->SpellFamilyFlags.test<CF_WARLOCK_BANISH>())
                 return 6000;
+            // Curse of agony - limit to 24 seconds in PvP (?)
+            else if (spellproto->SpellFamilyFlags.test<CF_WARLOCK_CURSE_OF_AGONY>())
+                return 24000;
             break;
         }
         case SPELLFAMILY_HUNTER:
