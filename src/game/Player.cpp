@@ -19388,20 +19388,12 @@ void Player::AddSpellMod(Aura* aura, bool apply)
 
     for(int eff = 0; eff < 96; ++eff)
     {
-        uint64 _mask = 0;
-        uint32 _mask2= 0;
-
-        if (eff < 64)
-            _mask = uint64(1) << (eff - 0);
-        else
-            _mask2= uint32(1) << (eff - 64);
-
-        if (aura->GetAuraSpellClassMask().IsFitToFamilyMask(_mask, _mask2))
+        if (aura->GetAuraSpellClassMask().test(eff))
         {
             int32 val = 0;
             for (AuraList::const_iterator itr = m_spellMods[mod->m_miscvalue].begin(); itr != m_spellMods[mod->m_miscvalue].end(); ++itr)
             {
-                if ((*itr)->GetModifier()->m_auraname == mod->m_auraname && ((*itr)->GetSpellProto()->SpellFamilyFlags.test(eff)))
+                if ((*itr)->GetModifier()->m_auraname == mod->m_auraname && (*itr)->GetSpellProto()->SpellFamilyFlags.test(eff))
                     val += (*itr)->GetModifier()->m_amount;
             }
             val += apply ? mod->m_amount : -(mod->m_amount);
