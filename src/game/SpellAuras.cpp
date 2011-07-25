@@ -2328,7 +2328,8 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         {
                             int32 health = target->GetHealth();
                             int32 mana = target->GetPower(POWER_MANA);
-                            caster->CastCustomSpell(target, 58919, &health, 1, &mana, true);
+                            int32 instakill=1;
+                            caster->CastCustomSpell(target, 58919, &health, &instakill, &mana, true);
                         }
                         return;
                     case 61187:                                 // Twilight Shift
@@ -6084,8 +6085,8 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
             target->CastSpell(target, 74607, true, NULL, NULL, GetCasterGuid());
         else if (spellProto->Id == 74792) // SPELL_SOUL_CONSUMPTION - Ruby sanctum boss Halion
             target->CastSpell(target, 74799, true, NULL, NULL, GetCasterGuid());
-        // Void Shifted 
-        else if (spellProto->Id == 54361 || spellProto->Id == 59743) 
+        // Void Shifted
+        else if (spellProto->Id == 54361 || spellProto->Id == 59743)
             target->CastSpell(target, 54343, true, NULL, NULL, GetCaster()->GetObjectGuid());
     }
 }

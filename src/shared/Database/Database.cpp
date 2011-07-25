@@ -51,7 +51,7 @@ SqlPreparedStatement * SqlConnection::GetStmt( int nIndex )
         return NULL;
 
     //resize stmt container
-    if(m_holder.size() <= nIndex)
+    if((int)m_holder.size() <= (int)nIndex)
         m_holder.resize(nIndex + 1, NULL);
 
     SqlPreparedStatement * pStmt = NULL;

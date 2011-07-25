@@ -314,7 +314,7 @@ bool FlightPathMovementGenerator::Update(Player &player, const uint32 &diff)
 {
     int32 pointId = player.movespline->currentPathIdx();
     // currentPathIdx returns lastIdx + 1 at arrive
-    while (i_currentNode < pointId)
+    while (i_currentNode < (int)pointId)
     {
         DoEventIfAny(player,(*i_path)[i_currentNode],true);
         DoEventIfAny(player,(*i_path)[i_currentNode],false);
