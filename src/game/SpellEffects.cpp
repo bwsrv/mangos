@@ -2682,6 +2682,11 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 
                     return;
                 }
+                case 57496:                                 // Volazj - Insanity
+                {
+                    m_caster->CastSpell(m_caster, 57561, true);
+                    return;
+                }
                 case 57908:                                 // Stain Cloth
                 {
                     // nothing do more

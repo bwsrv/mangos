@@ -2408,7 +2408,8 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         {
                             int32 health = target->GetHealth();
                             int32 mana = target->GetPower(POWER_MANA);
-                            caster->CastCustomSpell(target, 58919, &health, 1, &mana, true);
+                            int32 instantkill = 1;
+                            caster->CastCustomSpell(target, 58919, &health, &instantkill, &mana, true);
                         }
                         return;
                     case 58589:                                 // Stoneclaw Totem VIII

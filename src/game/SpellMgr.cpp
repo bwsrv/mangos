@@ -694,6 +694,11 @@ bool IsPositiveEffect(SpellEntry const *spellproto, SpellEffectIndex effIndex)
         case 56266:                                         // Vortex
         case 42786:                                         // Echo Of Ymiron
         case 63355:                                         // Crunch Armor
+        case 57508:                                         // Volazj Insanity Phase 1
+        case 57509:                                         // Volazj Insanity Phase 2
+        case 57510:                                         // Volazj Insanity Phase 3
+        case 57511:                                         // Volazj Insanity Phase 4
+        case 57512:                                         // Volazj Insanity Phase 5
             return false;
         case 552:                                           // Abolish Disease
         case 12042:                                         // Arcane Power
