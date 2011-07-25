@@ -2905,10 +2905,10 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     switch (unitTarget->GetEntry())
                     {
                         case 37949:                         // Cult Adherent
-                            unitTarget->CastSpell(unitTarget, 70903, true);
+                            unitTarget->CastSpell(unitTarget, 70903, false);
                             break;
                         case 37890:                         // Cult Fanatic
-                            unitTarget->CastSpell(unitTarget, 71236, true);
+                            unitTarget->CastSpell(unitTarget, 71236, false);
                             break;
                     }
                     break;
