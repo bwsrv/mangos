@@ -4576,7 +4576,7 @@ void Spell::SendResurrectRequest(Player* target)
 
     WorldPacket data(SMSG_RESURRECT_REQUEST, (8+4+strlen(resurrectorName)+1+1+1+4));
     // resurrector guid
-    data << uint64(m_caster->GetGUID());
+    data << m_caster->GetObjectGuid();
     data << uint32(strlen(resurrectorName) + 1);
 
     data << resurrectorName;
