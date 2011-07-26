@@ -6,7 +6,7 @@
       <primary>Id</primary>
     </index>
     <field type="index" name="Id" method="read" />
-    <field type="uint" name="mcategory" method="skip" />
+    <field type="uint" name="Category" method="read" />
     <field type="uint" name="Dispel" method="read" />
     <field type="uint" name="Mechanic" method="read" />
     <field type="uint" name="Attributes" method="read" />
@@ -15,8 +15,8 @@
     <field type="uint" name="AttributesEx3" method="read" />
     <field type="uint" name="AttributesEx4" method="read" />
     <field type="uint" name="AttributesEx5" method="read" />
-    <field type="uint" name="mattributesExF" method="skip" />
-    <field type="uint" name="mattributesExG" method="skip" />
+    <field type="uint" name="AattributesEx6" method="read" />
+    <field type="uint" name="AattributesEx7" method="read" />
     <field type="ulong" name="Stances" method="read" />
     <field type="ulong" name="StancesNot" method="read" />
     <field type="uint" name="Targets" method="read" />
@@ -27,10 +27,10 @@
     <field type="uint" name="mtargetAuraState" method="skip" />
     <field type="uint" name="mexcludeCasterAuraState" method="skip" />
     <field type="uint" name="mexcludeTargetAuraState" method="skip" />
-    <field type="uint" name="mcasterAuraSpell" method="skip" />
-    <field type="uint" name="mtargetAuraSpell" method="skip" />
-    <field type="uint" name="mexcludeCasterAuraSpell" method="skip" />
-    <field type="uint" name="mexcludeTargetAuraSpell" method="skip" />
+    <field type="uint" name="CasterAuraSpell" method="read" />
+    <field type="uint" name="TargetAuraSpell" method="read" />
+    <field type="uint" name="ExcludeCasterAuraSpell" method="read" />
+    <field type="uint" name="ExcludeTargetAuraSpell" method="read" />
     <field type="uint" name="CastingTimeIndex" method="read" />
     <field type="uint" name="mrecoveryTime" method="skip" />
     <field type="uint" name="mcategoryRecoveryTime" method="skip" />
@@ -136,7 +136,7 @@
     <field type="uint" name="EffectSpellClassMaskC3" method="read" />
     <field type="uint" name="mspellVisualID1" method="skip" />
     <field type="uint" name="mspellVisualID2" method="skip" />
-    <field type="uint" name="mspellIconID" method="skip" />
+    <field type="uint" name="SpellIconID" method="read" />
     <field type="uint" name="mactiveIconID" method="skip" />
     <field type="uint" name="mspellPriority" method="skip" />
     <field type="string" name="Comment" method="skip" />
