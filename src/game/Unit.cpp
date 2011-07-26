@@ -4192,6 +4192,7 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
                 {
                     // can be created with >1 stack by some spell mods
                     foundHolder->ModStackAmount(holder->GetStackAmount());
+                    foundHolder->HandleSpellSpecificBoostsForward(true);
                     delete holder;
                     return false;
                 }

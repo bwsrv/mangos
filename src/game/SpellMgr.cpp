@@ -2214,6 +2214,10 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 // Nether Protection effects
                 if( spellInfo_2->SpellIconID == 1985 && spellInfo_1->SpellIconID == 1985 && spellInfo_1->SpellVisual[0] == 9750 )
                     return false;
+
+                // Shadow embrace triggered
+                if( spellInfo_1->SpellIconID == 2209 && spellInfo_2->SpellIconID == 2209)
+                    return false;
             }
 
             // Detect Invisibility and Mana Shield (multi-family check)
@@ -4619,6 +4623,9 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellEntry cons
             // Curse of agony - limit to 24 seconds in PvP (?)
             else if (spellproto->SpellFamilyFlags.test<CF_WARLOCK_CURSE_OF_AGONY>())
                 return 24000;
+            // Shadow embrace - limit to 12 seconds in PvP (?)
+            else if (spellproto->SpellFamilyFlags.test<CF_WARLOCK_MISC_DEBUFFS>() && spellproto->SpellIconID == 2209)
+                return 12000;
             break;
         }
         case SPELLFAMILY_HUNTER:
