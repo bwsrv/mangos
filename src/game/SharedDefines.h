@@ -476,7 +476,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX7_UNK0                       0x00000001            // 0
 #define SPELL_ATTR_EX7_UNK1                       0x00000002            // 1
 #define SPELL_ATTR_EX7_PALADIN_AURA               0x00000004            // 2
-#define SPELL_ATTR_EX7_UNK3                       0x00000008            // 3
+#define SPELL_ATTR_EX7_IS_CHEAT_SPELL             0x00000008            // 3 Cannot cast if caster doesn't have UnitFlag2 & UNIT_FLAG2_ALLOW_CHEAT_SPELLS
 #define SPELL_ATTR_EX7_UNK4                       0x00000010            // 4
 #define SPELL_ATTR_EX7_TOTEM_SPELL                0x00000020            // 5  shaman summon totem spells
 #define SPELL_ATTR_EX7_UNK6                       0x00000040            // 6
