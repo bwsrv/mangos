@@ -2403,15 +2403,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     case 55278:                                 // Stoneclaw Totem VII
                         target->CastSpell(target, 25513, true);
                         return;
-                    case 56150:                                 // Jedoga Sacriface Beam
-                        if (Unit* caster = GetCaster())
-                        {
-                            int32 health = target->GetHealth();
-                            int32 mana = target->GetPower(POWER_MANA);
-                            int32 instantkill = 1;
-                            caster->CastCustomSpell(target, 58919, &health, &instantkill, &mana, true);
-                        }
-                        return;
                     case 58589:                                 // Stoneclaw Totem VIII
                         target->CastSpell(target, 58583, true);
                         return;
@@ -3071,6 +3062,17 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
             {
                 // Battle Aura
                 target->RemoveAurasDueToSpell(41106);
+                return;
+            }
+            case 56150:                                     // Jedoga Sacriface Beam
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    int32 health = target->GetHealthPercent();
+                    int32 mana = target->GetPower(POWER_MANA)*100/target->GetMaxPower(POWER_MANA);
+                    int32 instantkill = 1;
+                    caster->CastCustomSpell(target, 58919, &health, &instantkill, &mana, true);
+                }
                 return;
             }
             case 56511:                                     // Towers of Certain Doom: Tower Bunny Smoke Flare Effect
