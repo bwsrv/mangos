@@ -2608,6 +2608,14 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(unitTarget,spell_id,true,NULL);
                     return;
                 }
+                case 54148:                                 // Svala - Ritual Of Sword
+                {
+                    unitTarget->CastSpell(unitTarget, 48267, true);    // Teleport Player
+                    unitTarget->CastSpell(unitTarget, 48271, true);    // Target Summon Banshee
+                    unitTarget->CastSpell(unitTarget, 48274, true);    // Target Summon Banshee
+                    unitTarget->CastSpell(unitTarget, 48275, true);    // Target Summon Banshee
+                    return;
+                }
                 case 54577:                                 // Throw U.D.E.D.
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)

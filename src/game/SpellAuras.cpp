@@ -2374,6 +2374,11 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         // See Death's Door
                         target->CastSpell(target, 48814, true, NULL, this);
                         return;
+                    case 48276:                             // Svala - Ritual Of Sword
+                        target->CastSpell(target, 54148, true);   //Cast Choose Target
+                        target->CastSpell(target, 48331, true);   //Cast Swirl Sword
+                        target->CastSpell(target, 54159, true);   //Cast Remove Equipment
+                        return;
                     case 51405:                             // Digging for Treasure
                         target->HandleEmote(EMOTE_STATE_WORK);
                         // Pet will be following owner, this makes him stop
