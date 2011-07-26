@@ -15,8 +15,8 @@
     <field type="uint" name="AttributesEx3" method="read" />
     <field type="uint" name="AttributesEx4" method="read" />
     <field type="uint" name="AttributesEx5" method="read" />
-    <field type="uint" name="AattributesEx6" method="read" />
-    <field type="uint" name="AattributesEx7" method="read" />
+    <field type="uint" name="AttributesEx6" method="read" />
+    <field type="uint" name="AttributesEx7" method="read" />
     <field type="ulong" name="Stances" method="read" />
     <field type="ulong" name="StancesNot" method="read" />
     <field type="uint" name="Targets" method="read" />
