@@ -7112,15 +7112,24 @@ bool Unit::IsSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
         return false;
 
     // not critting spell
-    if((spellProto->AttributesEx2 & SPELL_ATTR_EX2_CANT_CRIT))
+    if ((spellProto->AttributesEx2 & SPELL_ATTR_EX2_CANT_CRIT))
         return false;
 
     float crit_chance = 0.0f;
-    switch(spellProto->DmgClass)
+    switch (spellProto->DmgClass)
     {
         case SPELL_DAMAGE_CLASS_NONE:
-            if (spellProto->Id != 379 && spellProto->Id != 33778) // Earth Shield and Lifebloom heal should be able to crit
-                return false;
+            // Some heal should be able to crit
+            // We need more spells to find a general way (if there is any)
+            switch (spellProto->Id)
+            {
+                case 379:   // Earth Shield
+                case 33778: // Lifebloom Final Bloom
+                case 64844: // Divine Hymn
+                    break;
+                default:
+                    return false;
+            }
         case SPELL_DAMAGE_CLASS_MAGIC:
         {
             if (schoolMask & SPELL_SCHOOL_MASK_NORMAL)
