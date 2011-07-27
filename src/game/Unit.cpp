@@ -301,7 +301,6 @@ Unit::~Unit()
 
     delete m_charmInfo;
     delete m_vehicleInfo;
-    CleanupDeletedAuras();
 
     delete movespline;
 
