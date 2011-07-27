@@ -554,6 +554,18 @@ inline bool IsSpellReduceThreat(SpellEntry const* spellInfo)
     return false;
 }
 
+inline bool IsSpellHiddenStackable(SpellEntry const* spellInfo)
+{
+    if (!spellInfo || !(spellInfo->AttributesEx & SPELL_ATTR_EX_HIDDEN_AURA))
+        return false;
+
+    if (spellInfo->Attributes & SPELL_ATTR_CANT_CANCEL ||
+        spellInfo->AttributesEx3 & SPELL_ATTR_EX3_DEATH_PERSISTENT)
+        return false;
+
+    return true;
+}
+
 // Diminishing Returns interaction with spells
 DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto, bool triggered);
 bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group);
