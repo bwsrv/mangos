@@ -405,6 +405,11 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                         damage = unitTarget->GetMaxHealth() / 2;
                         break;
                     }
+                    case 48292:                              // Ymiron Dark Slash
+                    {
+                        damage = unitTarget->GetHealth() / 2;
+                        break;
+                    }
                     // Explode
                     case 47496:
                     {
@@ -2119,6 +2124,11 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 
                     // Iron Dwarf Snapshot Credit
                     m_caster->CastSpell(m_caster, 48047, true, m_CastItem, NULL, unitTarget->GetObjectGuid());
+                    return;
+                }
+                case 48386:                                 // Ymiron Summon Fountain
+                {
+                    m_caster->CastSpell(m_caster, 48385, true);
                     return;
                 }
                 case 48790:                                 // Neltharion's Flame
