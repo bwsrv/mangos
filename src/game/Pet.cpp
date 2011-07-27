@@ -1352,7 +1352,7 @@ void Pet::_LoadAuras(uint32 timediff)
             if (!holder->IsEmptyHolder())
                 AddSpellAuraHolder(holder);
             else
-                delete holder;
+                AddSpellAuraHolderToRemoveList(holder);
         }
         while( result->NextRow() );
 

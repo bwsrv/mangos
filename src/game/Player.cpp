@@ -16771,7 +16771,7 @@ void Player::_LoadAuras(QueryResult *result, uint32 timediff)
                 DETAIL_LOG("Added auras from spellid %u", spellproto->Id);
             }
             else
-                delete holder;
+                AddSpellAuraHolderToRemoveList(holder);
         }
         while( result->NextRow() );
         delete result;

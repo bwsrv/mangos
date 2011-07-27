@@ -1364,7 +1364,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, uint32 effectMask, bool isReflected)
                 // Fully diminished
                 if (duration == 0)
                 {
-                    delete m_spellAuraHolder;
+                    unit->AddSpellAuraHolderToRemoveList(m_spellAuraHolder);
                     return;
                 }
             }
@@ -1382,18 +1382,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, uint32 effectMask, bool isReflected)
         }
         else
         {
-            if (!m_spellAuraHolder || m_spellAuraHolder->IsDeleted())
-                return;
-
-            m_spellAuraHolder->SetInUse(false);
-
-            if (m_spellAuraHolder->IsInUse())
-            {
-                m_spellAuraHolder->SetDeleted();
-                unit->AddSpellAuraHolderToRemoveList(m_spellAuraHolder);
-            }
-            else
-                delete m_spellAuraHolder;
+            unit->AddSpellAuraHolderToRemoveList(m_spellAuraHolder);
         }
     }
 }

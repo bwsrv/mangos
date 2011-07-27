@@ -3656,6 +3656,7 @@ uint32 Unit::GetWeaponSkillValue (WeaponAttackType attType, Unit const* target) 
 
 void Unit::_UpdateSpells( uint32 time )
 {
+
     if(m_currentSpells[CURRENT_AUTOREPEAT_SPELL])
         _UpdateAutoRepeatSpell();
 
@@ -3671,12 +3672,16 @@ void Unit::_UpdateSpells( uint32 time )
 
     // update auras
     // m_AurasUpdateIterator can be updated in inderect called code at aura remove to skip next planned to update but removed auras
-    for (m_spellAuraHoldersUpdateIterator = m_spellAuraHolders.begin(); m_spellAuraHoldersUpdateIterator != m_spellAuraHolders.end();)
+    if (!m_spellAuraHolders.empty())
     {
-        SpellAuraHolder* i_holder = m_spellAuraHoldersUpdateIterator->second;
-        ++m_spellAuraHoldersUpdateIterator;                            // need shift to next for allow update if need into aura update
-        if (i_holder && !i_holder->IsDeleted() && !i_holder->IsEmptyHolder() && !i_holder->IsInUse())
-            i_holder->UpdateHolder(time);
+        World::WorldReadGuard Lock(sWorld.GetLock(WORLD_LOCK_AURAS));
+        for (m_spellAuraHoldersUpdateIterator = m_spellAuraHolders.begin(); m_spellAuraHoldersUpdateIterator != m_spellAuraHolders.end();)
+        {
+            SpellAuraHolder* i_holder = m_spellAuraHoldersUpdateIterator->second;
+            ++m_spellAuraHoldersUpdateIterator;                            // need shift to next for allow update if need into aura update
+            if (i_holder && !i_holder->IsDeleted() && !i_holder->IsEmptyHolder() && !i_holder->IsInUse())
+                i_holder->UpdateHolder(time);
+        }
     }
 
     // remove expired auras
@@ -3684,7 +3689,7 @@ void Unit::_UpdateSpells( uint32 time )
     {
         SpellAuraHolder *holder = iter->second;
 
-        if (!(holder->IsPermanent() || holder->IsPassive()) && holder->GetAuraDuration() == 0)
+        if (!holder->IsDeleted() && !(holder->IsPermanent() || holder->IsPassive()) && holder->GetAuraDuration() == 0)
         {
             RemoveSpellAuraHolder(holder, AURA_REMOVE_BY_EXPIRE);
             iter = m_spellAuraHolders.begin();
@@ -3715,6 +3720,8 @@ void Unit::_UpdateSpells( uint32 time )
 
 void Unit::_UpdateAutoRepeatSpell()
 {
+    World::WorldReadGuard Lock(sWorld.GetLock(WORLD_LOCK_AURAS));
+
     bool isAutoShot = m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo->Id == SPELL_ID_AUTOSHOT;
 
     //check movement
@@ -4163,7 +4170,7 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
         !IsDeathOnlySpell(aurSpellInfo) &&
         (GetTypeId()!=TYPEID_PLAYER || !((Player*)this)->GetSession()->PlayerLoading()) )
     {
-        delete holder;
+        AddSpellAuraHolderToRemoveList(holder);
         return false;
     }
 
@@ -4172,7 +4179,7 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
         sLog.outError("Holder (spell %u) add to spell aura holder list of %s (lowguid: %u) but spell aura holder target is %s (lowguid: %u)",
             holder->GetId(),(GetTypeId()==TYPEID_PLAYER?"player":"creature"),GetGUIDLow(),
             (holder->GetTarget()->GetTypeId()==TYPEID_PLAYER?"player":"creature"),holder->GetTarget()->GetGUIDLow());
-        delete holder;
+        AddSpellAuraHolderToRemoveList(holder);
         return false;
     }
 
@@ -4193,7 +4200,7 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
                     // can be created with >1 stack by some spell mods
                     foundHolder->ModStackAmount(holder->GetStackAmount());
                     foundHolder->HandleSpellSpecificBoostsForward(true);
-                    delete holder;
+                    AddSpellAuraHolderToRemoveList(holder);
                     return false;
                 }
 
@@ -4280,7 +4287,7 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
     {
         if (!RemoveNoStackAurasDueToAuraHolder(holder))
         {
-            delete holder;
+            AddSpellAuraHolderToRemoveList(holder);
             return false;                                   // couldn't remove conflicting aura with higher rank
         }
     }
@@ -4952,15 +4959,7 @@ void Unit::RemoveSpellAuraHolder(SpellAuraHolder *holder, AuraRemoveMode mode)
     if(statue)
         statue->UnSummon();
 
-    // If holder in use (removed from code that plan access to it data after return)
-    // store it in holder list with delayed deletion
-    if (holder->IsInUse())
-    {
-        holder->SetDeleted();
-        m_deletedHolders.push_back(holder);
-    }
-    else
-        delete holder;
+    AddSpellAuraHolderToRemoveList(holder);
 
     if (mode != AURA_REMOVE_BY_EXPIRE && IsChanneledSpell(AurSpellInfo) && !IsAreaOfEffectSpell(AurSpellInfo) &&
         caster && caster->GetObjectGuid() != GetObjectGuid())
@@ -4968,6 +4967,15 @@ void Unit::RemoveSpellAuraHolder(SpellAuraHolder *holder, AuraRemoveMode mode)
         caster->InterruptSpell(CURRENT_CHANNELED_SPELL);
     }
 }
+
+void Unit::AddSpellAuraHolderToRemoveList(SpellAuraHolder* holder)
+{
+    if (!holder || holder->IsDeleted() )
+        return;
+
+    holder->SetDeleted();
+    m_deletedHolders.push_back(holder);
+};
 
 void Unit::RemoveSingleAuraFromSpellAuraHolder(SpellAuraHolder *holder, SpellEffectIndex index, AuraRemoveMode mode)
 {
@@ -11830,6 +11838,8 @@ bool Unit::IsIgnoreUnitState(SpellEntry const *spell, IgnoreUnitState ignoreStat
 
 void Unit::CleanupDeletedAuras()
 {
+    World::WorldWriteGuard Lock(sWorld.GetLock(WORLD_LOCK_AURAS));
+
     for (SpellAuraHolderList::const_iterator iter = m_deletedHolders.begin(); iter != m_deletedHolders.end(); ++iter)
         delete *iter;
     m_deletedHolders.clear();
