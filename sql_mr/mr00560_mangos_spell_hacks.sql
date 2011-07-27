@@ -40,7 +40,6 @@ VALUES (46924, 0, 0, 0, 327696, 32784, 0, 1024, 0, 512, 0, 0, 0, 0, 0, 0, 0, 0, 
 
 UPDATE `spell_dbc` SET 
 `Category` = 891, 
--- default mangos IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK. require manual correct and test!
-`EffectMiscValue2` = 1234599334,
+`EffectMiscValue2` = 1838645235,
 `Comment` = 'Replacement for spell 46924 ("Вихрь клинков")' 
 WHERE `Id` = 46924;
