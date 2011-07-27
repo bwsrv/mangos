@@ -4660,6 +4660,16 @@ SpellAuraProcResult Unit::HandleAddPctModifierAuraProc(Unit* /*pVictim*/, uint32
             }
             break;
         }
+        case SPELLFAMILY_WARLOCK:
+        {
+            // Shadow trance
+            if (spellInfo->Id == 17941)
+            {
+                RemoveAurasDueToSpell(spellInfo->Id);
+                return SPELL_AURA_PROC_OK;
+            }
+            break;
+        }
         case SPELLFAMILY_PALADIN:
         {
             // Glyph of Divinity
@@ -4679,6 +4689,8 @@ SpellAuraProcResult Unit::HandleAddPctModifierAuraProc(Unit* /*pVictim*/, uint32
             }
             break;
         }
+        default:
+            break;
     }
     return SPELL_AURA_PROC_OK;
 }
