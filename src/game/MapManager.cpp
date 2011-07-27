@@ -210,6 +210,11 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
                 player->SendTransferAborted(mapid, TRANSFER_ABORT_ZONE_IN_COMBAT);
                 return false;
             }
+            if (instance_data && instance_data->NoSpecialCriteria(player))
+            {
+                DEBUG_LOG("MAP: Player '%s' can't enter instance '%s' becouse player not have special criteria.", player->GetName(), mapName);
+                return false;
+            }
         }
     }
 

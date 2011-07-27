@@ -2374,6 +2374,11 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         // See Death's Door
                         target->CastSpell(target, 48814, true, NULL, this);
                         return;
+                    case 48276:                             // Svala - Ritual Of Sword
+                        target->CastSpell(target, 54148, true);   //Cast Choose Target
+                        target->CastSpell(target, 48331, true);   //Cast Swirl Sword
+                        target->CastSpell(target, 54159, true);   //Cast Remove Equipment
+                        return;
                     case 51405:                             // Digging for Treasure
                         target->HandleEmote(EMOTE_STATE_WORK);
                         // Pet will be following owner, this makes him stop
@@ -3062,6 +3067,17 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
             {
                 // Battle Aura
                 target->RemoveAurasDueToSpell(41106);
+                return;
+            }
+            case 56150:                                     // Jedoga Sacriface Beam
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    int32 health = target->GetHealthPercent();
+                    int32 mana = target->GetPower(POWER_MANA)*100/target->GetMaxPower(POWER_MANA);
+                    int32 instantkill = 1;
+                    caster->CastCustomSpell(target, 58919, &health, &instantkill, &mana, true);
+                }
                 return;
             }
             case 56511:                                     // Towers of Certain Doom: Tower Bunny Smoke Flare Effect

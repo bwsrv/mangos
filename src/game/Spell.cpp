@@ -1641,6 +1641,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 31347:                                 // Doom TODO: exclude top threat target from target selection
                 case 33711:                                 // Murmur's Touch
                 case 38794:                                 // Murmur's Touch (h)
+                case 54148:                                 // Svala Get Random Target
                 case 55479:                                 // Forced Obedience (Naxxramas - Razovius encounter)
                 case 50988:                                 // Glare of the Tribunal (Halls of Stone)
                 case 59870:                                 // Glare of the Tribunal (h) (Halls of Stone)
@@ -8090,12 +8091,83 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
                 targetUnitMap.remove(unitTarget);
             return true;
         }
+        case 48278: //Svala - Banshee Paralize
+        {
+            UnitList tmpUnitMap;
+            FillAreaTargets(tmpUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+
+            if (tmpUnitMap.empty())
+                break;
+
+            for (UnitList::const_iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end(); ++itr)
+            {
+                 if ((*itr)->HasAura(48267))
+                 {
+                     m_targets.setDestination((*itr)->GetPositionX(), (*itr)->GetPositionY(), (*itr)->GetPositionZ()+1.0f);
+                     targetUnitMap.push_back(*itr);
+                 }
+            }
+            break;
+        }
+        case 54148: //Svala Choose Only Player
+        {
+            UnitList tmpUnitMap;
+            FillAreaTargets(tmpUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+
+            if (tmpUnitMap.empty())
+                break;
+
+            for (UnitList::const_iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end(); ++itr)
+            {
+                 if ((*itr)->GetTypeId() == TYPEID_PLAYER)
+                     targetUnitMap.push_back(*itr);
+            }
+
+            break;
+        }
         case 58912: // Deathstorm
         {
             if (!m_caster->GetObjectGuid().IsVehicle())
                 break;
 
             SetTargetMap(SpellEffectIndex(i), TARGET_RANDOM_ENEMY_CHAIN_IN_AREA, targetUnitMap);
+            break;
+        }
+        case 57496: // Volazj Insanity
+        {
+            UnitList PlayerList;
+            FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+
+            if (targetUnitMap.empty())
+                break;
+
+            for (UnitList::const_iterator itr = targetUnitMap.begin(); itr != targetUnitMap.end(); ++itr)
+            {
+                 if ((*itr)->GetTypeId() == TYPEID_PLAYER)
+                     PlayerList.push_back(*itr);
+            }
+
+            if (PlayerList.empty() || PlayerList.size() > 5 || PlayerList.size() < 2)
+                break;
+
+            uint32 uiPhaseIndex = 0;
+            uint32 uiSummonIndex;
+            for (UnitList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
+            {
+                Unit* pPlayer = (*itr);
+                pPlayer->CastSpell(pPlayer, 57508+uiPhaseIndex, true);
+                error_log("Player %s cast phase spell %u on self!", pPlayer->GetName(), 57508+uiPhaseIndex);
+
+                uiSummonIndex = 0;
+                for (UnitList::const_iterator iter = PlayerList.begin(); iter != PlayerList.end(); ++iter)
+                {
+                    if (pPlayer != (*iter))
+                        pPlayer->CastSpell(pPlayer, 57500+uiSummonIndex, true);
+                    error_log("Player %s cast summon spell %u on self!", pPlayer->GetName(), 57500+uiSummonIndex);
+                    uiSummonIndex++;
+                }
+                uiPhaseIndex++;
+            }
             break;
         }
         case 61999: // Raise ally

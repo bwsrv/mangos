@@ -410,6 +410,11 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                         damage = unitTarget->GetMaxHealth() / 2;
                         break;
                     }
+                    case 48292:                              // Ymiron Dark Slash
+                    {
+                        damage = unitTarget->GetHealth() / 2;
+                        break;
+                    }
                     // Explode
                     case 47496:
                     {
@@ -2126,6 +2131,11 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(m_caster, 48047, true, m_CastItem, NULL, unitTarget->GetObjectGuid());
                     return;
                 }
+                case 48386:                                 // Ymiron Summon Fountain
+                {
+                    m_caster->CastSpell(m_caster, 48385, true);
+                    return;
+                }
                 case 48790:                                 // Neltharion's Flame
                 {
                     if (!unitTarget)
@@ -2613,6 +2623,14 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(unitTarget,spell_id,true,NULL);
                     return;
                 }
+                case 54148:                                 // Svala - Ritual Of Sword
+                {
+                    unitTarget->CastSpell(unitTarget, 48267, true);    // Teleport Player
+                    unitTarget->CastSpell(unitTarget, 48271, true);    // Target Summon Banshee
+                    unitTarget->CastSpell(unitTarget, 48274, true);    // Target Summon Banshee
+                    unitTarget->CastSpell(unitTarget, 48275, true);    // Target Summon Banshee
+                    return;
+                }
                 case 54577:                                 // Throw U.D.E.D.
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
@@ -2685,6 +2703,11 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     for(uint32 i = 0; i < random; ++i)
                         m_caster->CastSpell(m_caster, 55528, true);
 
+                    return;
+                }
+                case 57496:                                 // Volazj - Insanity
+                {
+                    m_caster->CastSpell(m_caster, 57561, true);
                     return;
                 }
                 case 57908:                                 // Stain Cloth
@@ -3024,10 +3047,10 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     switch (unitTarget->GetEntry())
                     {
                         case 37949:                         // Cult Adherent
-                            unitTarget->CastSpell(unitTarget, 70903, true);
+                            unitTarget->CastSpell(unitTarget, 70903, false);
                             break;
                         case 37890:                         // Cult Fanatic
-                            unitTarget->CastSpell(unitTarget, 71236, true);
+                            unitTarget->CastSpell(unitTarget, 71236, false);
                             break;
                     }
                     break;
@@ -8202,6 +8225,15 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         }
                     }
 
+                    return;
+                }
+                case 50255:                                  // Skadi Poison Spear (N/H)
+                case 59331:
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->CastSpell(unitTarget, m_spellInfo->CalculateSimpleValue(eff_idx), true);
                     return;
                 }
                 case 50439:                                 // Script Cast Summon Image of Drakuru 05
