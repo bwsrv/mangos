@@ -2649,10 +2649,13 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, 54581, true, m_CastItem);
                     return;
                 }
-                case 54850:                                 // Emerge
+                case 54850:                                 // Drakkari Colossus, Summon Elemental
                 {
-                    // Cast Emerge summon
-                    m_caster->CastSpell(m_caster, 54851, true);
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->CastSpell(unitTarget, 54851, true);  // Summon Elemental
+                    unitTarget->CastSpell(unitTarget, 54852, true);  // Stun
                     return;
                 }
                 case 55004:                                 // Nitro Boosts
@@ -8468,6 +8471,15 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     // Summon Main Mammoth Meat
                     m_caster->CastSpell(m_caster, 57444, true);
+                    return;
+                }
+                case 54269:                                 // Drakkari Colossus, Elemental Despawn
+                {
+                    if (!unitTarget || m_caster->GetTypeId() != TYPEID_UNIT)
+                        return;
+
+                    ((Creature*)m_caster)->ForcedDespawn(3000);
+                    m_caster->CastSpell(unitTarget, 54878, true); // Set Scale 0.1 And Stun
                     return;
                 }
                 case 54436:                                 // Demonic Empowerment (succubus Vanish effect)
