@@ -8528,7 +8528,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                 }
                 case 55299:                                 // Galdarah Transform to Troll!
                 {
-                    m_creature->RemoveAurasDueToSpell(55297);
+                    m_caster->RemoveAurasDueToSpell(55297);
                     return;
                 }
                 case 55693:                                 // Remove Collapsing Cave Aura
