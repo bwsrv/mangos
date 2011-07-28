@@ -272,9 +272,9 @@ ObjectGridUnloader::Visit(GridRefManager<T> &m)
     for(typename GridRefManager<T>::iterator iter=m.begin(); iter != m.end(); ++iter)
         iter->getSource()->CleanupsBeforeDelete();
 
-    while(!m.isEmpty())
+    for (typename GridRefManager<T>::iterator iter=m.begin(); iter != m.end(); ++iter)
     {
-        T *obj = m.getFirst()->getSource();
+        T *obj = iter->getSource();
         // if option set then object already saved at this moment
         if(!sWorld.getConfig(CONFIG_BOOL_SAVE_RESPAWN_TIME_IMMEDIATELY))
             obj->SaveRespawnTime();
