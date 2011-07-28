@@ -8091,6 +8091,30 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
                 targetUnitMap.remove(unitTarget);
             return true;
         }
+        case 49356: //Tharonja - Decay Flesh
+        {
+            FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+
+            if (targetUnitMap.empty())
+                break;
+
+            for (UnitList::const_iterator itr = targetUnitMap.begin(); itr != targetUnitMap.end(); ++itr)
+                m_targets.setDestination((*itr)->GetPositionX(), (*itr)->GetPositionY(), (*itr)->GetPositionZ()+1.0f);
+
+            break;
+        }
+        case 53463: //Tharonja - Return Flesh
+        {
+            FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+
+            if (targetUnitMap.empty())
+                break;
+
+            for (UnitList::const_iterator itr = targetUnitMap.begin(); itr != targetUnitMap.end(); ++itr)
+                m_targets.setDestination((*itr)->GetPositionX(), (*itr)->GetPositionY(), (*itr)->GetPositionZ()+1.0f);
+
+            break;
+        }
         case 48278: //Svala - Banshee Paralize
         {
             UnitList tmpUnitMap;
