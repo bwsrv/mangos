@@ -1084,5 +1084,32 @@
     <ClInclude Include="..\..\src\game\WardenModuleWin.h">
       <Filter>Warden</Filter>
     </ClInclude>
+<<<<<<< HEAD
+=======
+    <ClInclude Include="..\..\src\game\movement\MoveSpline.h">
+      <Filter>Movement</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\movement\MoveSplineFlag.h">
+      <Filter>Movement</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\movement\MoveSplineInit.h">
+      <Filter>Movement</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\movement\MoveSplineInitArgs.h">
+      <Filter>Movement</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\movement\packet_builder.h">
+      <Filter>Movement</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\movement\spline.h">
+      <Filter>Movement</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\movement\spline.impl.h">
+      <Filter>Movement</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\movement\typedefs.h">
+      <Filter>Movement</Filter>
+    </ClInclude>
+>>>>>>> 5086537... [mr569] Fixed issues with creatures' targeted movement in combat (dependent on melee attack distance).
   </ItemGroup>
 </Project>
