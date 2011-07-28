@@ -175,7 +175,7 @@ m_creatureInfo(NULL)
 
 Creature::~Creature()
 {
-    CleanupsBeforeDelete();
+    // CleanupsBeforeDelete();
 
     m_vendorItemCounts.clear();
 

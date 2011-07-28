@@ -158,6 +158,9 @@ class MANGOS_DLL_SPEC Object
         uint8 GetTypeId() const { return m_objectTypeId; }
         bool isType(TypeMask mask) const { return (mask & m_objectType); }
 
+        bool IsDeleted() const { return m_deleted;}
+        void SetDeleted() { m_deleted = true; }
+
         virtual void BuildCreateUpdateBlockForPlayer( UpdateData *data, Player *target ) const;
         void SendCreateUpdateToPlayer(Player* player);
 
@@ -396,6 +399,8 @@ class MANGOS_DLL_SPEC Object
         uint16 m_valuesCount;
 
         bool m_objectUpdated;
+
+        bool m_deleted;
 
     private:
         bool m_inWorld;

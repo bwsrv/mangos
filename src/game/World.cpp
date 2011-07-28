@@ -1644,6 +1644,8 @@ void World::Update(uint32 diff)
     ///- Move all creatures with "delayed move" and remove and delete all objects with "delayed remove"
     sMapMgr.RemoveAllObjectsInRemoveList();
 
+    RemoveAllObjectsInRemoveList();
+
     // update the instance reset times
     sMapPersistentStateMgr.Update();
 
@@ -2550,4 +2552,24 @@ bool World::configNoReload(bool reload, eConfigBoolValues index, char const* fie
         sLog.outError("%s option can't be changed at mangosd.conf reload, using current value (%s).", fieldname, getConfig(index) ? "'true'" : "'false'");
 
     return false;
+}
+
+void World::AddObjectToRemoveList(WorldObject *obj)
+{
+    if (obj)
+        i_objectsToRemove.push(obj);
+}
+
+void World::RemoveAllObjectsInRemoveList()
+{
+    if(i_objectsToRemove.empty())
+        return;
+
+    while(!i_objectsToRemove.empty())
+    {
+        WorldObject* obj = i_objectsToRemove.front();
+        i_objectsToRemove.pop();
+        if (obj)
+            delete obj;
+    }
 }
