@@ -125,7 +125,7 @@ bool TargetedMovementGeneratorMedium<T,D>::Update(T &owner, const uint32 & time_
     if (!i_target.isValid() || !i_target->IsInWorld())
         return false;
 
-    if (!owner.isAlive())
+    if (!owner.isAlive() || !owner.IsInWorld())
         return true;
 
     if (owner.hasUnitState(UNIT_STAT_NOT_MOVE))
@@ -155,7 +155,7 @@ bool TargetedMovementGeneratorMedium<T,D>::Update(T &owner, const uint32 & time_
         i_recheckDistance.Reset(50);
         //More distance let have better performance, less distance let have more sensitive reaction at target move.
         float allowed_dist = 0.0f;
-        if (owner.getVictim()->GetObjectGuid() == i_target->GetObjectGuid())
+        if (owner.getVictim() && owner.getVictim()->GetObjectGuid() == i_target->GetObjectGuid())
             allowed_dist = owner.GetFloatValue(UNIT_FIELD_COMBATREACH) + i_target->GetFloatValue(UNIT_FIELD_COMBATREACH) + sWorld.getConfig(CONFIG_FLOAT_RATE_TARGET_POS_RECALCULATION_RANGE) - 1.0f;
         else
             allowed_dist = i_target->GetObjectBoundingRadius() + owner.GetObjectBoundingRadius() + sWorld.getConfig(CONFIG_FLOAT_RATE_TARGET_POS_RECALCULATION_RANGE);
