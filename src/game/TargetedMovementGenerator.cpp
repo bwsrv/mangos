@@ -51,7 +51,7 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T &owner)
     {
         // to nearest contact position
         float dist = 0.0f;
-        if (owner.getVictim()->GetObjectGuid() == i_target->GetObjectGuid())
+        if (owner.getVictim() && owner.getVictim()->GetObjectGuid() == i_target->GetObjectGuid())
             dist = owner.GetFloatValue(UNIT_FIELD_COMBATREACH) + i_target->GetFloatValue(UNIT_FIELD_COMBATREACH) - i_target->GetObjectBoundingRadius() - owner.GetObjectBoundingRadius() - 1.0f;
 
         if (dist < 0.5f)
