@@ -422,6 +422,12 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                         damage = unitTarget->GetMaxHealth() / 2;
                         break;
                     }
+                    // Ymiron Dark Slash
+                    case 48292:
+                    {
+                        damage = unitTarget->GetHealth() / 2;
+                        break;
+                    }
                     // Explode
                     case 47496:
                     {
@@ -1643,7 +1649,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                         m_caster->CastSpell(m_caster, 42289, true, m_CastItem);
                     else
                         m_caster->CastSpell(m_caster, 42288, true);
-
                     return;
                 }
                 case 42793:                                 // Burn Body
@@ -1779,7 +1784,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(m_caster, spellId, true);
                     //Arcane Prisoner Kill Credit
                     unitTarget->CastSpell(m_caster, 45456, true);
-
                     break;
                 }
                 case 45583:                                 // Throw Gnomish Grenade
@@ -1844,7 +1848,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                         if (unitTarget->GetTypeId() == TYPEID_UNIT)
                             ((Creature*)unitTarget)->ForcedDespawn();
                     }
-
                     return;
                 }
                 case 45685:                                 // Magnataur On Death 2
@@ -1866,7 +1869,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                         unitTarget->CastSpell(unitTarget, pSpell, true);
                         ((Creature*)unitTarget)->ForcedDespawn(GetSpellDuration(pSpell) + 1);
                     }
-
                     return;
                 }
                 case 46167:                                 // Planning for the Future: Create Snowfall Glade Pup Cover
@@ -1930,7 +1932,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                         pGo->SetRespawnTime(MINUTE/2);
                         pGo->Refresh();
                     }
-
                     return;
                 }
                 case 46485:                                 // Greatmother's Soulcatcher
@@ -1947,7 +1948,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 
                         ((Creature*)unitTarget)->ForcedDespawn();
                     }
-
                     return;
                 }
                 case 46606:                                 // Plague Canister Dummy
@@ -2077,6 +2077,11 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 
                     // Iron Dwarf Snapshot Credit
                     m_caster->CastSpell(m_caster, 48047, true, m_CastItem, NULL, unitTarget->GetObjectGuid());
+                    return;
+                }
+                case 48386:                                 // Ymiron Summon Fountain
+                {
+                    m_caster->CastSpell(m_caster, 48385, true);
                     return;
                 }
                 case 48790:                                 // Neltharion's Flame
