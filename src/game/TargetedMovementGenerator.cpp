@@ -50,7 +50,14 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T &owner)
     else if (!i_offset)
     {
         // to nearest contact position
-        i_target->GetContactPoint( &owner, x, y, z );
+        float dist = 0.0f;
+        if (owner.getVictim()->GetObjectGuid() == i_target->GetObjectGuid())
+            dist = owner.GetFloatValue(UNIT_FIELD_COMBATREACH) + i_target->GetFloatValue(UNIT_FIELD_COMBATREACH) - i_target->GetObjectBoundingRadius() - owner.GetObjectBoundingRadius() - 1.0f;
+
+        if (dist < 0.5f)
+            dist = 0.5f;
+
+        i_target->GetContactPoint(&owner, x, y, z, dist);
     }
     else
     {
@@ -148,9 +155,24 @@ bool TargetedMovementGeneratorMedium<T,D>::Update(T &owner, const uint32 & time_
 
         i_destinationHolder.ResetUpdate(50);
         //More distance let have better performance, less distance let have more sensitive reaction at target move.
+<<<<<<< HEAD
         float dist = i_target->GetObjectBoundingRadius() + owner.GetObjectBoundingRadius()
             + sWorld.getConfig(CONFIG_FLOAT_RATE_TARGET_POS_RECALCULATION_RANGE);
         if (i_destinationHolder.GetDistance3dFromDestSq(*i_target.getTarget()) > dist * dist)
+=======
+        float allowed_dist = 0.0f;
+        if (owner.getVictim()->GetObjectGuid() == i_target->GetObjectGuid())
+            allowed_dist = owner.GetFloatValue(UNIT_FIELD_COMBATREACH) + i_target->GetFloatValue(UNIT_FIELD_COMBATREACH) + sWorld.getConfig(CONFIG_FLOAT_RATE_TARGET_POS_RECALCULATION_RANGE) - 1.0f;
+        else
+            allowed_dist = i_target->GetObjectBoundingRadius() + owner.GetObjectBoundingRadius() + sWorld.getConfig(CONFIG_FLOAT_RATE_TARGET_POS_RECALCULATION_RANGE);
+
+        if (allowed_dist < 0.5f)
+            allowed_dist = 0.5f;
+
+        float dist = (owner.movespline->FinalDestination() -
+            G3D::Vector3(i_target->GetPositionX(),i_target->GetPositionY(),i_target->GetPositionZ())).squaredLength();
+        if (dist >= allowed_dist * allowed_dist)
+>>>>>>> 5086537... [mr569] Fixed issues with creatures' targeted movement in combat (dependent on melee attack distance).
             _setTargetLocation(owner);
     }
 
