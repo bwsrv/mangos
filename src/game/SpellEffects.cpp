@@ -7987,6 +7987,15 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     return;
                 }
+                case 50255:                                  // Skadi Poison Spear (N/H)
+                case 59331:
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->CastSpell(unitTarget, m_spellInfo->CalculateSimpleValue(eff_idx), true);
+                    return;
+                }
                 case 50439:                                 // Script Cast Summon Image of Drakuru 05
                 {
                     // TODO: check if summon already exist, if it does in this instance, return.
@@ -8083,7 +8092,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                 }
                 case 51904:                                 // Summon Ghouls Of Scarlet Crusade
                 {
-                    if(!unitTarget)
+                    if (!unitTarget)
                         return;
 
                     unitTarget->CastSpell(unitTarget, 54522, true);
@@ -8091,8 +8100,9 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                 }
                 case 52357:                                 // Into the realm of shadows
                 {
-                    if(!unitTarget)
+                    if (!unitTarget)
                         return;
+
                     unitTarget->CastSpell(unitTarget, m_spellInfo->CalculateSimpleValue(eff_idx), true);
                     break;
                 }
@@ -8140,7 +8150,6 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     if (spellId)
                         m_caster->CastSpell(m_caster, spellId, true);
-
                     break;
                 }
                 case 53110:									// Devour Humanoid
@@ -8232,12 +8241,13 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                 {
                     if (!unitTarget)    // Stoneclaw Totem owner
                         return;
+
                     // Absorb shield for totems
                     for(int itr = 0; itr < MAX_TOTEM_SLOT; ++itr)
                         if (Totem* totem = unitTarget->GetTotem(TotemSlot(itr)))
                             m_caster->CastCustomSpell(totem, 55277, &damage, NULL, NULL, true);
                     // Glyph of Stoneclaw Totem
-                    if(Aura* auraGlyph = unitTarget->GetAura(63298, EFFECT_INDEX_0))
+                    if (Aura* auraGlyph = unitTarget->GetAura(63298, EFFECT_INDEX_0))
                     {
                         int32 playerAbsorb = damage * auraGlyph->GetModifier()->m_amount;
                         m_caster->CastCustomSpell(unitTarget, 55277, &playerAbsorb, NULL, NULL, true);
@@ -8288,7 +8298,6 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     if (((Player*)unitTarget)->GetQuestStatus(questID) == QUEST_STATUS_COMPLETE && !((Player*)unitTarget)->GetQuestRewardStatus (questID))
                         unitTarget->CastSpell(unitTarget, spellID, true);
-
                     return;
                 }
                 case 58941:                                 // Rock Shards
@@ -8311,7 +8320,6 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     // teleport atop
                     else
                         unitTarget->CastSpell(unitTarget, 59314, true);
-
                     return;
                 }
                 case 58916:                                 // Gift of the Lich King
@@ -8325,7 +8333,6 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     if (Unit* master = m_caster->GetCharmerOrOwner())
                         master->CastSpell(master, 58987, true);
-
                     return;
                 }
                 case 58917:                                 // Consume minions
@@ -8394,7 +8401,6 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     for (uint32 i = 0; i < 10; ++i)
                         m_caster->CastSpell(m_caster, spellId, true);
-
                     return;
                 }
                 case 63845:                                 // Create lance
@@ -8425,7 +8431,6 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     // learn random explicit discovery recipe (if any)
                     if (uint32 discoveredSpell = GetExplicitDiscoverySpell(m_spellInfo->Id, (Player*)m_caster))
                         ((Player*)m_caster)->learnSpell(discoveredSpell, false);
-
                     return;
                 }
                 case 69200:                                 // Raging Spirit
@@ -8457,7 +8462,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                             return;
                     }
                     Aura* chargesaura = m_caster->GetAura(59907, EFFECT_INDEX_0);
-                    if(chargesaura && chargesaura->GetHolder() && chargesaura->GetHolder()->GetAuraCharges() >= 1)
+                    if (chargesaura && chargesaura->GetHolder() && chargesaura->GetHolder()->GetAuraCharges() >= 1)
                     {
                         chargesaura->GetHolder()->SetAuraCharges(chargesaura->GetHolder()->GetAuraCharges() - 1);
                         m_caster->CastSpell(unitTarget, spellID, false, NULL, NULL);
@@ -8612,6 +8617,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                 {
                     if (!unitTarget)
                         return;
+
                     if (unitTarget->HasAura(62297))
                         unitTarget->RemoveAurasDueToSpell(62297);   // Remove Hodir's Fury
                     break;
@@ -8646,7 +8652,6 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     if (Unit* charmer = unitTarget->GetCharmer())
                         charmer->CastSpell(charmer, damage, true);
-
                     return;
                 }
                 case 66477:                                 // Bountiful Feast
@@ -8716,9 +8721,8 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                 {
                     if (!unitTarget)
                         return;
-
-                                                            // Only usable on Grunty companion
-                    Unit* pZerg = unitTarget->GetMiniPet();
+                                                            
+                    Unit* pZerg = unitTarget->GetMiniPet(); // Only usable on Grunty companion
                     if (pZerg && pZerg->isAlive() && pZerg->GetEntry() == 11327)
                     {
                         m_caster->CastSpell(unitTarget, m_spellInfo->CalculateSimpleValue(eff_idx), true);
@@ -8728,9 +8732,11 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     return;
                 }
                 case 68861:                                 // Consume Soul (ICC FoS: Bronjahm)
+                {
                     if (unitTarget)
                         unitTarget->CastSpell(unitTarget, m_spellInfo->CalculateSimpleValue(eff_idx), true);
                     return;
+                }
                 case 69377:                                 // Fortitude
                 {
                     if (!unitTarget)
