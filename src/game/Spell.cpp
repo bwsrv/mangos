@@ -8107,6 +8107,43 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             SetTargetMap(SpellEffectIndex(i), TARGET_RANDOM_ENEMY_CHAIN_IN_AREA, targetUnitMap);
             break;
         }
+        case 57496: // Volazj Insanity
+        {
+            UnitList PlayerList;
+            FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+
+            if (targetUnitMap.empty())
+                break;
+
+            for (UnitList::const_iterator itr = targetUnitMap.begin(); itr != targetUnitMap.end(); ++itr)
+            {
+                 if ((*itr)->GetTypeId() == TYPEID_PLAYER)
+                     PlayerList.push_back(*itr);
+            }
+
+            if (PlayerList.empty() || PlayerList.size() > 5 || PlayerList.size() < 2)
+                break;
+
+            uint32 uiPhaseIndex = 0;
+            uint32 uiSummonIndex;
+            for (UnitList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
+            {
+                Unit* pPlayer = (*itr);
+                pPlayer->CastSpell(pPlayer, 57508+uiPhaseIndex, true);
+                error_log("Player %s cast phase spell %u on self!", pPlayer->GetName(), 57508+uiPhaseIndex);
+
+                uiSummonIndex = 0;
+                for (UnitList::const_iterator iter = PlayerList.begin(); iter != PlayerList.end(); ++iter)
+                {
+                    if (pPlayer != (*iter))
+                        pPlayer->CastSpell(pPlayer, 57500+uiSummonIndex, true);
+                    error_log("Player %s cast summon spell %u on self!", pPlayer->GetName(), 57500+uiSummonIndex);
+                    uiSummonIndex++;
+                }
+                uiPhaseIndex++;
+            }
+            break;
+        }
         case 61999: // Raise ally
         {
             WorldObject* result = FindCorpseUsing<MaNGOS::RaiseAllyObjectCheck>();

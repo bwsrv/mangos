@@ -690,6 +690,11 @@ bool IsPositiveEffect(SpellEntry const *spellproto, SpellEffectIndex effIndex)
         case 72551:                                         // Gastric Bloat 10 H
         case 72552:                                         // Gastric Bloat 25 N
         case 72553:                                         // Gastric Bloat 25 H
+        case 57508:                                         // Volazj Insanity Phase 1
+        case 57509:                                         // Volazj Insanity Phase 2
+        case 57510:                                         // Volazj Insanity Phase 3
+        case 57511:                                         // Volazj Insanity Phase 4
+        case 57512:                                         // Volazj Insanity Phase 5
             return false;
         case 552:                                           // Abolish Disease
         case 12042:                                         // Arcane Power

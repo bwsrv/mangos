@@ -2310,15 +2310,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     case 58591:                                 // Stoneclaw Totem X
                         target->CastSpell(target, 58585, true);
                         return;
-                    case 56150:                                 // Jedoga Sacriface Beam
-                        if (Unit* caster = GetCaster())
-                        {
-                            int32 health = target->GetHealth();
-                            int32 mana = target->GetPower(POWER_MANA);
-                            int32 instakill=1;
-                            caster->CastCustomSpell(target, 58919, &health, &instakill, &mana, true);
-                        }
-                        return;
                     case 61187:                                 // Twilight Shift
                         target->CastSpell(target, 61885, true);
                         if (target->HasAura(57620))
@@ -2614,7 +2605,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
             case SPELLFAMILY_DEATHKNIGHT:
             {
                 // Hungering Cold - disease apply
-                if(GetId() == 51209)
+                if (GetId() == 51209)
                 {
                     Unit *caster = GetCaster();
                     if(!caster)
@@ -2660,7 +2651,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
 
             if (finalSpellId)
                 caster->CastSpell(target, finalSpellId, true, NULL, this);
-
             return;
         }
 
@@ -2716,28 +2706,24 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
             {
                 if (m_removeMode == AURA_REMOVE_BY_EXPIRE)
                     target->CastSpell(target, 32054, true, NULL, this);
-
                 return;
             }
             case 32051:                                     // Soul Charge
             {
                 if (m_removeMode == AURA_REMOVE_BY_EXPIRE)
                     target->CastSpell(target, 32057, true, NULL, this);
-
                 return;
             }
             case 32052:                                     // Soul Charge
             {
                 if (m_removeMode == AURA_REMOVE_BY_EXPIRE)
                     target->CastSpell(target, 32053, true, NULL, this);
-
                 return;
             }
             case 32286:                                     // Focus Target Visual
             {
                 if (m_removeMode == AURA_REMOVE_BY_EXPIRE)
                     target->CastSpell(target, 32301, true, NULL, this);
-
                 return;
             }
             case 35079:                                     // Misdirection, triggered buff
@@ -2787,7 +2773,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     if (Player* pPlayer = pCaster->GetCharmerOrOwnerPlayerOrPlayerItself())
                         pPlayer->CastSpell(pPlayer, 42455, true);
                 }
-
                 return;
             }
             case 42517:                                     // Beam to Zelfrax
@@ -2799,7 +2784,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
 
                 if (pSummon && pCaster)
                     pSummon->GetMotionMaster()->MovePoint(0, pCaster->GetPositionX(), pCaster->GetPositionY(), pCaster->GetPositionZ());
-
                 return;
             }
             case 43681:                                     // Inactive
@@ -2809,7 +2793,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
 
                 if (target->GetMap()->IsBattleGround())
                     ((Player*)target)->LeaveBattleground();
-
                 return;
             }
             case 43969:                                     // Feathered Charm
@@ -2817,7 +2800,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 // Steelfeather Quest Credit, Are there any requirements for this, like area?
                 if (m_removeMode == AURA_REMOVE_BY_EXPIRE)
                     target->CastSpell(target, 43984, true);
-
                 return;
             }
             case 44191:                                     // Flame Strike
@@ -2910,7 +2892,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 // Blood Oath
                 if (m_removeMode == AURA_REMOVE_BY_EXPIRE)
                     target->CastSpell(target, 50001, true, NULL, this);
-
                 return;
             }
             case 51405:                                     // Digging for Treasure
@@ -2939,7 +2920,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     if (m_removeMode == AURA_REMOVE_BY_EXPIRE)
                         pCaster->CastSpell(target, 51872, true, NULL, this);
                 }
-
                 return;
             }
             case 34477: //Misdirection
@@ -2981,14 +2961,26 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 return;
             }
             case 54852:                                     // Cosmetic - Stun (Permanent)
+            {
                 target->clearUnitState(UNIT_STAT_STUNNED);
                 return;
+            }
+            case 56150:                                     // Jedoga Sacriface Beam
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    int32 health = target->GetHealthPercent();
+                    int32 mana = target->GetPower(POWER_MANA)*100/target->GetMaxPower(POWER_MANA);
+                    int32 instantkill = 1;
+                    caster->CastCustomSpell(target, 58919, &health, &instantkill, &mana, true);
+                }
+                return;
+            }
             case 56511:                                     // Towers of Certain Doom: Tower Bunny Smoke Flare Effect
             {
                 // Towers of Certain Doom: Skorn Cannonfire
                 if (m_removeMode == AURA_REMOVE_BY_DEFAULT)
                     target->CastSpell(target, 43069, true);
-
                 return;
             }
             case 58600:                                     // Restricted Flight Area
