@@ -1116,7 +1116,6 @@
     </ClInclude>
     <ClInclude Include="..\..\src\game\movement\typedefs.h">
       <Filter>Movement</Filter>
->>>>>>> 70fe2e925bb07d41678f24d23419ca2985b69997
     </ClInclude>
   </ItemGroup>
 </Project>
