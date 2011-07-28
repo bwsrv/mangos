@@ -1642,6 +1642,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 38794:                                 // Murmur's Touch (h)
                 case 48278:                                 // Paralyze (Utgarde Pinnacle)
                 case 50988:                                 // Glare of the Tribunal (Halls of Stone)
+                case 54148:                                 // Svala Get Random Target
                 case 55479:                                 // Forced Obedience (Naxxramas - Razovius encounter)
                 case 59870:                                 // Glare of the Tribunal (h) (Halls of Stone)
                 case 62016:                                 // Charge Orb (Thorim)
@@ -8096,6 +8097,40 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
 
             if (!targetUnitMap.empty())
                 return true;
+
+            break;
+        }
+        case 48278: //Svala - Banshee Paralize
+        {
+            UnitList tmpUnitMap;
+            FillAreaTargets(tmpUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+
+            if (tmpUnitMap.empty())
+                break;
+
+            for (UnitList::const_iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end(); ++itr)
+            {
+                 if ((*itr)->HasAura(48267))
+                 {
+                     m_targets.setDestination((*itr)->GetPositionX(), (*itr)->GetPositionY(), (*itr)->GetPositionZ()+1.0f);
+                     targetUnitMap.push_back(*itr);
+                 }
+            }
+            break;
+        }
+        case 54148: //Svala Choose Only Player
+        {
+            UnitList tmpUnitMap;
+            FillAreaTargets(tmpUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+
+            if (tmpUnitMap.empty())
+                break;
+
+            for (UnitList::const_iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end(); ++itr)
+            {
+                 if ((*itr)->GetTypeId() == TYPEID_PLAYER)
+                     targetUnitMap.push_back(*itr);
+            }
 
             break;
         }
