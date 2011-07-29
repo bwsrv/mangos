@@ -7868,7 +7868,7 @@ void Spell::DoSummonSnakes(SpellEffectIndex eff_idx)
         {
             sLog.outError("EffectSummonSnakes failed to summon snakes for Unit %s (GUID: %u) bacause of invalid position (x = %f, y = %f, z = %f map = %u)"
                 ,m_caster->GetName(), m_caster->GetObjectGuid().GetCounter(), position_x, position_y, position_z, m_caster->GetMap());
-            delete pSummon;
+            sWorld.AddObjectToRemoveList((WorldObject*)pSummon);
             continue;
         }
 

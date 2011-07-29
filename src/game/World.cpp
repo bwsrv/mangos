@@ -2557,7 +2557,14 @@ bool World::configNoReload(bool reload, eConfigBoolValues index, char const* fie
 void World::AddObjectToRemoveList(WorldObject *obj)
 {
     if (obj)
-        i_objectsToRemove.push(obj);
+    {
+        i_objectsToRemove.insert(obj);
+        if (!obj->IsDeleted())
+        {
+            DEBUG_LOG("World::AddObjectToRemoveList warning - not cleaned object type %u added to remove list!",obj->GetTypeId());
+            obj->SetDeleted();
+        }
+    }
 }
 
 void World::RemoveAllObjectsInRemoveList()
@@ -2567,8 +2574,8 @@ void World::RemoveAllObjectsInRemoveList()
 
     while(!i_objectsToRemove.empty())
     {
-        WorldObject* obj = i_objectsToRemove.front();
-        i_objectsToRemove.pop();
+        WorldObject* obj = *i_objectsToRemove.begin();
+        i_objectsToRemove.erase(obj);
         if (obj)
             delete obj;
     }

@@ -736,7 +736,7 @@ class World
         std::string m_CreatureEventAIVersion;
 
         WorldLock    i_worldLock[WORLD_LOCK_MAX];
-        std::queue<WorldObject*> i_objectsToRemove;
+        std::set<WorldObject*> i_objectsToRemove;
 
 };
 

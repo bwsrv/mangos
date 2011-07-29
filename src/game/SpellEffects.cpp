@@ -1262,7 +1262,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                         unitTarget->GetPositionX(), unitTarget->GetPositionY(), unitTarget->GetPositionZ(),
                         unitTarget->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, GO_ANIMPROGRESS_DEFAULT, GO_STATE_READY))
                     {
-                        delete pGameObj;
+                        sWorld.AddObjectToRemoveList((WorldObject*)pGameObj);
                         return;
                     }
 
@@ -1318,7 +1318,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                         creatureTarget->GetPositionX(), creatureTarget->GetPositionY(), creatureTarget->GetPositionZ(),
                         creatureTarget->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, GO_ANIMPROGRESS_DEFAULT, GO_STATE_READY) )
                     {
-                        delete pGameObj;
+                        sWorld.AddObjectToRemoveList((WorldObject*)pGameObj);
                         return;
                     }
 
@@ -4932,7 +4932,7 @@ void Spell::EffectPersistentAA(SpellEffectIndex eff_idx)
     if (!dynObj->Create(pCaster->GetMap()->GenerateLocalLowGuid(HIGHGUID_DYNAMICOBJECT), pCaster, m_spellInfo->Id,
         eff_idx, m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, m_duration, radius, DYNAMIC_OBJECT_AREA_SPELL))
     {
-        delete dynObj;
+        sWorld.AddObjectToRemoveList((WorldObject*)dynObj);
         return;
     }
 
@@ -5484,7 +5484,7 @@ void Spell::DoSummonGroupPets(SpellEffectIndex eff_idx)
                     {
                         DEBUG_LOG("Pet (guidlow %d, entry %d) found in database, but not loaded. Counter is %d ",
                                      pet->GetGUIDLow(), pet->GetEntry(), pet->GetPetCounter());
-                        delete pet;
+                        sWorld.AddObjectToRemoveList((WorldObject*)pet);
                     }
                 }
             }
@@ -5507,7 +5507,7 @@ void Spell::DoSummonGroupPets(SpellEffectIndex eff_idx)
         if (!pet->Create(0, pos, cInfo, 0, m_caster))
         {
             sLog.outErrorDb("Spell::EffectSummonGroupPets: not possible create creature entry %u",m_spellInfo->EffectMiscValue[eff_idx]);
-            delete pet;
+            sWorld.AddObjectToRemoveList((WorldObject*)pet);
             return;
         }
 
@@ -5515,7 +5515,7 @@ void Spell::DoSummonGroupPets(SpellEffectIndex eff_idx)
         {
             sLog.outError("Pet (guidlow %d, entry %d) not summoned by undefined reason. ",
                 pet->GetGUIDLow(), pet->GetEntry());
-            delete pet;
+            sWorld.AddObjectToRemoveList((WorldObject*)pet);
             return;
         }
         DEBUG_LOG("New Pet (guidlow %d, entry %d) summoned (default). Counter is %d ", pet->GetGUIDLow(), pet->GetEntry(), pet->GetPetCounter());
@@ -5807,7 +5807,7 @@ void Spell::EffectAddFarsight(SpellEffectIndex eff_idx)
     if(!dynObj->Create(m_caster->GetMap()->GenerateLocalLowGuid(HIGHGUID_DYNAMICOBJECT), m_caster,
         m_spellInfo->Id, eff_idx, m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, duration, 0, DYNAMIC_OBJECT_FARSIGHT_FOCUS))
     {
-        delete dynObj;
+        sWorld.AddObjectToRemoveList((WorldObject*)dynObj);
         return;
     }
 
@@ -5993,7 +5993,7 @@ void Spell::DoSummonGuardian(SpellEffectIndex eff_idx, uint32 forceFaction)
         if (!spawnCreature->Create(0, pos, cInfo, 0, m_caster))
         {
             sLog.outError("Spell::DoSummonGuardian: can't create creature entry %u for spell %u.", pet_entry, m_spellInfo->Id);
-            delete spawnCreature;
+            sWorld.AddObjectToRemoveList((WorldObject*)spawnCreature);
             return;
         }
         spawnCreature->setFaction(forceFaction ? forceFaction : m_caster->getFaction());
@@ -6003,7 +6003,7 @@ void Spell::DoSummonGuardian(SpellEffectIndex eff_idx, uint32 forceFaction)
         {
             sLog.outError("Guardian pet (guidlow %d, entry %d) not summoned by undefined reason. ",
                 spawnCreature->GetGUIDLow(), spawnCreature->GetEntry());
-            delete spawnCreature;
+            sWorld.AddObjectToRemoveList((WorldObject*)spawnCreature);
             return;
         }
 
@@ -6397,7 +6397,7 @@ void Spell::EffectTameCreature(SpellEffectIndex /*eff_idx*/)
 
     if(!pet->CreateBaseAtCreature(creatureTarget, (Unit*)plr))
     {
-        delete pet;
+        sWorld.AddObjectToRemoveList((WorldObject*)pet);
         return;
     }
 
@@ -6412,7 +6412,7 @@ void Spell::EffectTameCreature(SpellEffectIndex /*eff_idx*/)
     {
         sLog.outError("Pet (guidlow %d, entry %d) not summoned from tame effect by undefined reason. ",
             pet->GetGUIDLow(), pet->GetEntry());
-        delete pet;
+        sWorld.AddObjectToRemoveList((WorldObject*)pet);
         return;
     }
 
@@ -6482,7 +6482,7 @@ void Spell::EffectSummonPet(SpellEffectIndex eff_idx)
     // not error in case fail hunter call pet
     if (!petentry)
     {
-        delete NewSummon;
+        sWorld.AddObjectToRemoveList((WorldObject*)NewSummon);
         return;
     }
 
@@ -6493,7 +6493,7 @@ void Spell::EffectSummonPet(SpellEffectIndex eff_idx)
 
     if (!NewSummon->Create(0, pos, cInfo, 0, m_caster))
     {
-        delete NewSummon;
+        sWorld.AddObjectToRemoveList((WorldObject*)NewSummon);
         return;
     }
 
@@ -6501,7 +6501,7 @@ void Spell::EffectSummonPet(SpellEffectIndex eff_idx)
     {
         sLog.outError("Pet (guidlow %d, entry %d) not summoned by undefined reason. ",
             NewSummon->GetGUIDLow(), NewSummon->GetEntry());
-        delete NewSummon;
+        sWorld.AddObjectToRemoveList((WorldObject*)NewSummon);
         return;
     }
 
@@ -7004,7 +7004,7 @@ void Spell::EffectSummonObjectWild(SpellEffectIndex eff_idx)
     if(!pGameObj->Create(map->GenerateLocalLowGuid(HIGHGUID_GAMEOBJECT), gameobject_id, map,
         m_caster->GetPhaseMask(), x, y, z, target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, GO_ANIMPROGRESS_DEFAULT, GO_STATE_READY))
     {
-        delete pGameObj;
+        sWorld.AddObjectToRemoveList((WorldObject*)pGameObj);
         return;
     }
 
@@ -9553,7 +9553,7 @@ void Spell::EffectDuel(SpellEffectIndex eff_idx)
         m_caster->GetPositionZ(),
         m_caster->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, GO_ANIMPROGRESS_DEFAULT, GO_STATE_READY))
     {
-        delete pGameObj;
+        sWorld.AddObjectToRemoveList((WorldObject*)pGameObj);
         return;
     }
 
@@ -9716,7 +9716,7 @@ void Spell::DoSummonTotem(SpellEffectIndex eff_idx, uint8 slot_dbc)
 
     if (!pTotem->Create(m_caster->GetMap()->GenerateLocalLowGuid(HIGHGUID_UNIT), pos, cinfo, m_caster))
     {
-        delete pTotem;
+        sWorld.AddObjectToRemoveList((WorldObject*)pTotem);
         return;
     }
 
@@ -9929,7 +9929,7 @@ void Spell::EffectSummonObject(SpellEffectIndex eff_idx)
     if(!pGameObj->Create(map->GenerateLocalLowGuid(HIGHGUID_GAMEOBJECT), go_id, map,
         m_caster->GetPhaseMask(), x, y, z, m_caster->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, GO_ANIMPROGRESS_DEFAULT, GO_STATE_READY))
     {
-        delete pGameObj;
+        sWorld.AddObjectToRemoveList((WorldObject*)pGameObj);
         return;
     }
 
@@ -10270,7 +10270,7 @@ void Spell::DoSummonCritter(SpellEffectIndex eff_idx, uint32 forceFaction)
     {
         sLog.outError("Mini pet (guidlow %d, entry %d) not summoned",
             critter->GetGUIDLow(), critter->GetEntry());
-        delete critter;
+        sWorld.AddObjectToRemoveList((WorldObject*)critter);
         return;
     }
 
@@ -10280,7 +10280,7 @@ void Spell::DoSummonCritter(SpellEffectIndex eff_idx, uint32 forceFaction)
     {
         sLog.outError("Mini pet (guidlow %d, entry %d) not summoned by undefined reason. ",
             critter->GetGUIDLow(), critter->GetEntry());
-        delete critter;
+        sWorld.AddObjectToRemoveList((WorldObject*)critter);
         return;
     }
 
@@ -10575,7 +10575,7 @@ void Spell::EffectTransmitted(SpellEffectIndex eff_idx)
     if(!pGameObj->Create(cMap->GenerateLocalLowGuid(HIGHGUID_GAMEOBJECT), name_id, cMap,
         m_caster->GetPhaseMask(), fx, fy, fz, m_caster->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, GO_ANIMPROGRESS_DEFAULT, GO_STATE_READY))
     {
-        delete pGameObj;
+        sWorld.AddObjectToRemoveList((WorldObject*)pGameObj);
         return;
     }
 

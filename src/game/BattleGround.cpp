@@ -1602,7 +1602,7 @@ bool BattleGround::AddObject(uint32 type, uint32 entry, float x, float y, float 
     {
         sLog.outErrorDb("Gameobject template %u not found in database! BattleGround not created!", entry);
         sLog.outError("Cannot create gameobject template %u! BattleGround not created!", entry);
-        delete go;
+        sWorld.AddObjectToRemoveList((WorldObject*)go);
         return false;
     }
 /*

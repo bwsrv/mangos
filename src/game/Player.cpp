@@ -17168,7 +17168,7 @@ void Player::LoadPet()
     {
         Pet *pet = new Pet;
         if(!pet->LoadPetFromDB(this, 0, 0, true))
-            delete pet;
+            sWorld.AddObjectToRemoveList((WorldObject*)pet);
     }
 }
 
