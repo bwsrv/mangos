@@ -8091,30 +8091,6 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
                 targetUnitMap.remove(unitTarget);
             return true;
         }
-        case 49356: //Tharonja - Decay Flesh
-        {
-            FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
-
-            if (targetUnitMap.empty())
-                break;
-
-            for (UnitList::const_iterator itr = targetUnitMap.begin(); itr != targetUnitMap.end(); ++itr)
-                m_targets.setDestination((*itr)->GetPositionX(), (*itr)->GetPositionY(), (*itr)->GetPositionZ()+1.0f);
-
-            break;
-        }
-        case 53463: //Tharonja - Return Flesh
-        {
-            FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
-
-            if (targetUnitMap.empty())
-                break;
-
-            for (UnitList::const_iterator itr = targetUnitMap.begin(); itr != targetUnitMap.end(); ++itr)
-                m_targets.setDestination((*itr)->GetPositionX(), (*itr)->GetPositionY(), (*itr)->GetPositionZ()+1.0f);
-
-            break;
-        }
         case 48278: //Svala - Banshee Paralize
         {
             UnitList tmpUnitMap;
@@ -8125,11 +8101,10 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
 
             for (UnitList::const_iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end(); ++itr)
             {
+                 if (!*itr) continue;
+
                  if ((*itr)->HasAura(48267))
-                 {
-                     m_targets.setDestination((*itr)->GetPositionX(), (*itr)->GetPositionY(), (*itr)->GetPositionZ()+1.0f);
                      targetUnitMap.push_back(*itr);
-                 }
             }
             break;
         }
@@ -8143,6 +8118,8 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
 
             for (UnitList::const_iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end(); ++itr)
             {
+                 if (!*itr) continue;
+
                  if ((*itr)->GetTypeId() == TYPEID_PLAYER)
                      targetUnitMap.push_back(*itr);
             }
@@ -8167,6 +8144,8 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
 
             for (UnitList::const_iterator itr = targetUnitMap.begin(); itr != targetUnitMap.end(); ++itr)
             {
+                 if (!*itr) continue;
+
                  if ((*itr)->GetTypeId() == TYPEID_PLAYER)
                      PlayerList.push_back(*itr);
             }
@@ -8178,16 +8157,17 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             uint32 uiSummonIndex;
             for (UnitList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
             {
-                Unit* pPlayer = (*itr);
-                pPlayer->CastSpell(pPlayer, 57508+uiPhaseIndex, true);
-                error_log("Player %s cast phase spell %u on self!", pPlayer->GetName(), 57508+uiPhaseIndex);
+                if (!*itr) continue;
+
+                (*itr)->CastSpell((*itr), 57508+uiPhaseIndex, true);
 
                 uiSummonIndex = 0;
                 for (UnitList::const_iterator iter = PlayerList.begin(); iter != PlayerList.end(); ++iter)
                 {
-                    if (pPlayer != (*iter))
-                        pPlayer->CastSpell(pPlayer, 57500+uiSummonIndex, true);
-                    error_log("Player %s cast summon spell %u on self!", pPlayer->GetName(), 57500+uiSummonIndex);
+                    if (!*iter) continue;
+
+                    if ((*itr) != (*iter))
+                        (*itr)->CastSpell((*itr), 57500+uiSummonIndex, true);
                     uiSummonIndex++;
                 }
                 uiPhaseIndex++;
