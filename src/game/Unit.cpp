@@ -9969,7 +9969,7 @@ void Unit::AddToWorld()
     ScheduleAINotify(0);
 }
 
-void Unit::RemoveFromWorld()
+void Unit::RemoveFromWorld(bool remove)
 {
     // cleanup
     if (IsInWorld())
@@ -9981,7 +9981,10 @@ void Unit::RemoveFromWorld()
         UnsummonAllTotems();
         RemoveAllGameObjects();
         RemoveAllDynObjects();
-        CleanupDeletedAuras();
+        if (remove)
+            CleanupDeletedAuras();
+        else
+            RemoveAllAuras(AURA_REMOVE_BY_DELETE);
         GetViewPoint().Event_RemovedFromWorld();
     }
 

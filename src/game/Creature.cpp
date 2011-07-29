@@ -195,13 +195,13 @@ void Creature::AddToWorld()
         GetVehicleKit()->Reset();
 }
 
-void Creature::RemoveFromWorld()
+void Creature::RemoveFromWorld(bool remove)
 {
     ///- Remove the creature from the accessor
     if (IsInWorld() && GetObjectGuid().IsCreatureOrVehicle())
         GetMap()->GetObjectsStore().erase<Creature>(GetObjectGuid(), (Creature*)NULL);
 
-    Unit::RemoveFromWorld();
+    Unit::RemoveFromWorld(remove);
 }
 
 void Creature::RemoveCorpse()
