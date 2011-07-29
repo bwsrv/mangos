@@ -3606,6 +3606,10 @@ void Spell::cast(bool skipCheck)
 
     InitializeDamageMultipliers();
 
+    Unit *procTarget = m_targets.getUnitTarget();
+    if (!procTarget)
+        procTarget = m_caster;
+
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
     if (m_spellInfo->speed > 0.0f)
     {
@@ -3627,11 +3631,11 @@ void Spell::cast(bool skipCheck)
         // critical hit related part is currently done on hit so proc there, 
         // 0 damage since any damage based procs should be on hit
         // 0 victim proc since there is no victim proc dependent on successfull cast for caster
-        m_caster->ProcDamageAndSpell(m_caster, m_procAttacker, 0, PROC_EX_NORMAL_HIT, 0, m_attackType, m_spellInfo);
+        m_caster->ProcDamageAndSpell(procTarget, m_procAttacker, 0, PROC_EX_CAST_END, 0, m_attackType, m_spellInfo);
     }
     else
     {
-        m_caster->ProcDamageAndSpell(m_caster, m_procAttacker, 0, PROC_EX_NORMAL_HIT, 0, m_attackType, m_spellInfo);
+        m_caster->ProcDamageAndSpell(procTarget, m_procAttacker, 0, PROC_EX_CAST_END, 0, m_attackType, m_spellInfo);
 
         // Immediate spell, no big deal
         handle_immediate();
@@ -5098,6 +5102,15 @@ SpellCastResult Spell::CheckCast(bool strict)
             else if (target->HasAura(m_spellInfo->excludeTargetAuraSpell))
                 return SPELL_FAILED_CASTER_AURASTATE;
         }
+
+        // totem immunity for channeled spells(needs to be before spell cast)
+        // spell attribs for player channeled spells
+        // (from rsa - very strange attributes set...)
+        if ((m_spellInfo->AttributesEx & SPELL_ATTR_EX_CHANNEL_TRACKING_TARGET)
+            && (m_spellInfo->AttributesEx5 & SPELL_ATTR_EX5_AFFECTED_BY_HASTE)
+            && target->GetTypeId() == TYPEID_UNIT 
+            && ((Creature*)target)->IsTotem())
+            return SPELL_FAILED_IMMUNE;
 
         bool non_caster_target = target != m_caster && !IsSpellWithCasterSourceTargetsOnly(m_spellInfo);
 
