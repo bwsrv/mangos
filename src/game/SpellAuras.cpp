@@ -9043,7 +9043,6 @@ void Aura::PeriodicDummyTick()
 
                 return;
             }
-            break;
 //            if (spell->SpellIconID == 30412)
 //                return;
             // Hysteria
