@@ -9291,15 +9291,6 @@ void Aura::PeriodicDummyTick()
                 }
                 return;
             }
-            // Hysteria Health Decreasing
-            if (spell->Id == 49016 )
-            {
-                uint32 dam = GetTarget()->GetMaxHealth()*0.01;
-                GetTarget()->DealDamage(GetTarget(), dam, NULL, NODAMAGE, SPELL_SCHOOL_MASK_NORMAL, spell, false);
-                GetTarget()->SendSpellNonMeleeDamageLog(GetTarget(), spell->Id, dam, SPELL_SCHOOL_MASK_NORMAL, 0, 0, false, 0, false);
-                return;
-            }
-            break;
 //            if (spell->SpellIconID == 30412)
 //                return;
             // Hysteria
