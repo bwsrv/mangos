@@ -305,6 +305,9 @@ Unit::~Unit()
 
     delete movespline;
 
+    if (IsDeleted())
+        CleanupDeletedAuras();
+
     // those should be already removed at "RemoveFromWorld()" call
     MANGOS_ASSERT(m_gameObj.size() == 0);
     MANGOS_ASSERT(m_dynObjGUIDs.size() == 0);
@@ -11859,6 +11862,12 @@ bool Unit::IsIgnoreUnitState(SpellEntry const *spell, IgnoreUnitState ignoreStat
 
 void Unit::CleanupDeletedAuras()
 {
+    if (m_deletedHolders.empty() && m_deletedAuras.empty())
+        return;
+
+    if (IsDeleted())
+        sLog.outError("Unit::CleanupDeletedAuras ERROR: %s guid %u has not cleaned auralist at remove (holders %u, auras %u)", GetObjectGuid().GetTypeName(),GetObjectGuid().GetCounter(),m_deletedHolders.size(), m_deletedAuras.size());
+
     World::WorldWriteGuard Lock(sWorld.GetLock(WORLD_LOCK_AURAS));
 
     for (SpellAuraHolderList::const_iterator iter = m_deletedHolders.begin(); iter != m_deletedHolders.end(); ++iter)
