@@ -408,7 +408,7 @@ void WorldSession::HandleSetSelectionOpcode( WorldPacket & recv_data )
 
     // update reputation list if need
     Unit* unit = ObjectAccessor::GetUnit(*_player, guid );  // can select group members at diff maps
-    if (!unit || unit->IsInWorld() || unit->IsDeleted())
+    if (!unit || !unit->IsInWorld() || unit->IsDeleted())
         return;
 
     _player->SetSelectionGuid(guid);
