@@ -508,7 +508,7 @@ void WorldSession::HandleCharCreateOpcode( WorldPacket & recv_data )
     BASIC_LOG("Account: %d (IP: %s) Create Character:[%s] (guid: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), pNewChar->GetGUIDLow());
     sLog.outChar("Account: %d (IP: %s) Create Character:[%s] (guid: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), pNewChar->GetGUIDLow());
 
-    delete pNewChar;                                        // created only to call SaveToDB()
+    sWorld.AddObjectToRemoveList((WorldObject*)pNewChar);                                        // created only to call SaveToDB()
 }
 
 void WorldSession::HandleCharDeleteOpcode( WorldPacket & recv_data )
