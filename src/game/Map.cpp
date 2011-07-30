@@ -1027,7 +1027,10 @@ void Map::RemoveAllObjectsInRemoveList()
                 Remove((GameObject*)obj,true);
                 break;
             case TYPEID_UNIT:
-                Remove((Creature*)obj,true);
+                if (obj->GetObjectGuid().IsPet())
+                    Remove((Pet*)obj,true);
+                else
+                    Remove((Creature*)obj,true);
                 break;
             default:
                 sLog.outError("Non-grid object (TypeId: %u) in grid object removing list, ignored.",obj->GetTypeId());
