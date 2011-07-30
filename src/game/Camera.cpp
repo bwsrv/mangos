@@ -59,6 +59,9 @@ void Camera::SetView(WorldObject *obj, bool update_far_sight_field /*= true*/)
     if (m_source == obj)
         return;
 
+    if (!m_source || m_source->IsDeleted())
+        return;
+
     if (!m_owner.IsInMap(obj))
     {
         sLog.outError("Camera::SetView, viewpoint is not in map with camera's owner");
@@ -73,7 +76,7 @@ void Camera::SetView(WorldObject *obj, bool update_far_sight_field /*= true*/)
 
     // detach and deregister from active objects if there are no more reasons to be active
     m_source->GetViewPoint().Detach(this);
-    if (!m_source->isActiveObject())
+    if (!m_source->isActiveObject() && m_source->GetMap())
         m_source->GetMap()->RemoveFromActive(m_source);
 
     m_source = obj;

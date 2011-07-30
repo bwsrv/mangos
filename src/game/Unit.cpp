@@ -929,10 +929,10 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
                 TemporarySummon* pSummon = (TemporarySummon*)cVictim;
                 if (pSummon->GetSummonerGuid().IsCreatureOrVehicle())
                     if(Creature* pSummoner = cVictim->GetMap()->GetCreature(pSummon->GetSummonerGuid()))
-                        if (pSummoner->AI())
+                        if (pSummoner->IsInWorld() && !pSummoner->IsDeleted() && pSummoner->AI())
                             pSummoner->AI()->SummonedCreatureJustDied(cVictim);
             }
-            else if (pOwner && pOwner->GetTypeId() == TYPEID_UNIT)
+            else if (pOwner && pOwner->IsInWorld() && !pOwner->IsDeleted() && pOwner->GetTypeId() == TYPEID_UNIT)
             {
                 if (((Creature*)pOwner)->AI())
                     ((Creature*)pOwner)->AI()->SummonedCreatureJustDied(cVictim);
@@ -5165,7 +5165,8 @@ Aura* Unit::GetAura(AuraType type, SpellFamily family, ClassFamilyMask const& cl
 {
     AuraList const& auras = GetAurasByType(type);
     for(AuraList::const_iterator i = auras.begin();i != auras.end(); ++i)
-        if ((*i)->GetSpellProto()->IsFitToFamily(family, classMask) &&
+        if (!(*i)->GetHolder()->IsDeleted() &&
+            (*i)->GetSpellProto()->IsFitToFamily(family, classMask) &&
             (!casterGuid || (*i)->GetCasterGuid() == casterGuid))
             return *i;
 
@@ -5176,7 +5177,7 @@ bool Unit::HasAura(uint32 spellId, SpellEffectIndex effIndex) const
 {
     SpellAuraHolderConstBounds spair = GetSpellAuraHolderBounds(spellId);
     for(SpellAuraHolderMap::const_iterator i_holder = spair.first; i_holder != spair.second; ++i_holder)
-        if (i_holder->second->GetAuraByEffectIndex(effIndex))
+        if (i_holder->second && !i_holder->second->IsDeleted() && i_holder->second->GetAuraByEffectIndex(effIndex))
             return true;
 
     return false;
@@ -5373,6 +5374,9 @@ void Unit::RemoveAllGameObjects()
 
 void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage *log)
 {
+    if (!log->target || !log->target->IsInWorld() || log->target->IsDeleted())
+        return;
+
     uint32 targetHealth = log->target->GetHealth();
     uint32 overkill = log->damage > targetHealth ? log->damage - targetHealth : 0;
 
@@ -7730,7 +7734,7 @@ bool Unit::IsImmuneToSpell(SpellEntry const* spellInfo)
         AuraList const& immuneAuraApply = GetAurasByType(SPELL_AURA_MECHANIC_IMMUNITY_MASK);
         for(AuraList::const_iterator iter = immuneAuraApply.begin(); iter != immuneAuraApply.end(); ++iter)
         {
-            if ((*iter)->GetModifier()->m_miscvalue & (1 << (mechanic-1)))
+            if ((*iter) && (*iter)->GetModifier()->m_miscvalue & (1 << (mechanic-1)))
                 return true;
         }
 
@@ -7758,7 +7762,7 @@ bool Unit::IsImmuneToSpellEffect(SpellEntry const* spellInfo, SpellEffectIndex i
         AuraList const& immuneAuraApply = GetAurasByType(SPELL_AURA_MECHANIC_IMMUNITY_MASK);
         for(AuraList::const_iterator iter = immuneAuraApply.begin(); iter != immuneAuraApply.end(); ++iter)
         {
-            if ((*iter)->GetModifier()->m_miscvalue & (1 << (mechanic-1)))
+            if ((*iter) && (*iter)->GetModifier()->m_miscvalue & (1 << (mechanic-1)))
                 return true;
         }
     }
@@ -7780,7 +7784,7 @@ bool Unit::IsImmuneToSpellEffect(SpellEntry const* spellInfo, SpellEffectIndex i
             // Check school
             SpellSchoolMask schoolMask = GetSpellSchoolMask(spellInfo);
             for(AuraList::const_iterator iter = immuneAuraApply.begin(); iter != immuneAuraApply.end(); ++iter)
-                if ((*iter)->GetModifier()->m_miscvalue & schoolMask)
+                if ((*iter) && (*iter)->GetModifier()->m_miscvalue & schoolMask)
                     return true;
         }
 
@@ -8414,6 +8418,9 @@ void Unit::ClearInCombat()
 
 bool Unit::isTargetableForAttack(bool inverseAlive /*=false*/) const
 {
+    if (!IsInWorld() || IsDeleted())
+        return false;
+
     if (GetTypeId()==TYPEID_PLAYER && ((Player *)this)->isGameMaster())
         return false;
 

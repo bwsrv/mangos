@@ -275,9 +275,9 @@ ObjectGridUnloader::Visit(GridRefManager<T> &m)
     for(typename GridRefManager<T>::iterator iter=m.begin(); iter != m.end(); ++iter)
         iter->getSource()->CleanupsBeforeDelete();
 
-    for (typename GridRefManager<T>::iterator iter=m.begin(); iter != m.end(); ++iter)
+    while(!m.isEmpty())
     {
-        T *obj = iter->getSource();
+        T *obj = m.getFirst()->getSource();
         // if option set then object already saved at this moment
         if(!sWorld.getConfig(CONFIG_BOOL_SAVE_RESPAWN_TIME_IMMEDIATELY))
             obj->SaveRespawnTime();
@@ -285,6 +285,8 @@ ObjectGridUnloader::Visit(GridRefManager<T> &m)
         obj->RemoveFromWorld();
         ///- object will get delinked from the manager when deleted
         sWorld.AddObjectToRemoveList((WorldObject*)obj);
+        // objects deleted in World thread, and autounlink may not work properly.
+        m.getFirst()->unlink();
     }
 }
 
