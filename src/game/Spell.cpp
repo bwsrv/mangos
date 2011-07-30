@@ -1213,6 +1213,9 @@ void Spell::DoSpellHitOnUnit(Unit *unit, uint32 effectMask, bool isReflected)
 
     Unit* realCaster = GetAffectiveCaster();
 
+    if (unit->IsDeleted() || (realCaster && realCaster->IsDeleted()) || !m_spellInfo)
+        return;
+
     // Recheck immune (only for delayed spells)
     if (m_spellInfo->speed && (
         unit->IsImmunedToDamage(GetSpellSchoolMask(m_spellInfo)) ||
