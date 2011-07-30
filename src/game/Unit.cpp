@@ -6230,7 +6230,7 @@ Pet* Unit::GetPet() const
 
 Pet* Unit::_GetPet(ObjectGuid guid) const
 {
-    return ObjectAccessor::FindPet(guid);
+    return sObjectAccessor.FindPet(guid);
 }
 
 void Unit::RemoveMiniPet()

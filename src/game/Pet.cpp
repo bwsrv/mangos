@@ -83,10 +83,10 @@ void Pet::RemoveFromWorld(bool remove)
     if (((Creature*)this)->IsInWorld())
     {
         GetMap()->GetObjectsStore().erase<Pet>(GetObjectGuid(), (Pet*)NULL);
-        sObjectAccessor.RemoveObject(this);
     }
-
     ///- Don't call the function for Creature, normal mobs + totems go in a different storage
+    if (sObjectAccessor.FindPet(GetObjectGuid()))
+        sObjectAccessor.RemoveObject(this);
     Unit::RemoveFromWorld(remove);
 }
 
@@ -770,6 +770,7 @@ void Pet::Unsummon(PetSaveMode mode, Unit* owner /*= NULL*/)
             SavePetToDB(mode);
     }
 
+    sObjectAccessor.RemoveObject(this);
     AddObjectToRemoveList();
 
 }
