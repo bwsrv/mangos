@@ -11057,19 +11057,20 @@ void SpellAuraHolder::Update(uint32 diff)
         if (m_timeCla <= 0)
         {
             if (Unit* caster = GetCaster())
-            {
-                Powers powertype = Powers(GetSpellProto()->powerType);
-                int32 manaPerSecond = GetSpellProto()->manaPerSecond + GetSpellProto()->manaPerSecondPerLevel * caster->getLevel();
-                m_timeCla = 1*IN_MILLISECONDS;
-
-                if (manaPerSecond)
+                if (caster->IsInWorld() && !caster->IsDeleted())
                 {
-                    if (powertype == POWER_HEALTH)
-                        caster->ModifyHealth(-manaPerSecond);
-                    else
-                        caster->ModifyPower(powertype, -manaPerSecond);
+                    Powers powertype = Powers(GetSpellProto()->powerType);
+                    int32 manaPerSecond = GetSpellProto()->manaPerSecond + GetSpellProto()->manaPerSecondPerLevel * caster->getLevel();
+                    m_timeCla = 1*IN_MILLISECONDS;
+
+                    if (manaPerSecond)
+                    {
+                        if (powertype == POWER_HEALTH)
+                            caster->ModifyHealth(-manaPerSecond);
+                        else
+                            caster->ModifyPower(powertype, -manaPerSecond);
+                    }
                 }
-            }
         }
     }
 
@@ -11081,7 +11082,7 @@ void SpellAuraHolder::Update(uint32 diff)
     if(IsChanneledSpell(m_spellProto) && GetCasterGuid() != m_target->GetObjectGuid())
     {
         Unit* caster = GetCaster();
-        if(!caster)
+        if(!caster || caster->IsDeleted())
         {
             m_target->RemoveAurasByCasterSpell(GetId(), GetCasterGuid());
             return;
@@ -11094,7 +11095,8 @@ void SpellAuraHolder::Update(uint32 diff)
             float max_range = GetSpellMaxRange(sSpellRangeStore.LookupEntry(m_spellProto->rangeIndex));
 
             if(Player* modOwner = caster->GetSpellModOwner())
-                modOwner->ApplySpellMod(GetId(), SPELLMOD_RANGE, max_range, NULL);
+                if (caster->IsInWorld())
+                    modOwner->ApplySpellMod(GetId(), SPELLMOD_RANGE, max_range, NULL);
 
             if(!caster->IsWithinDistInMap(m_target, max_range))
             {
