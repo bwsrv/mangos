@@ -9233,12 +9233,15 @@ bool Unit::SelectHostileTarget()
         // Auras are pushed_back, last caster will be on the end
         for (AuraList::const_reverse_iterator aura = tauntAuras.rbegin(); aura != tauntAuras.rend(); ++aura)
         {
-            if ((caster = (*aura)->GetCaster()) && caster->IsInMap(this) &&
-                caster->isTargetableForAttack() && caster->isInAccessablePlaceFor((Creature*)this) &&
-                (!IsCombatStationary() || CanReachWithMeleeAttack(caster)))
+            if ((*aura)->GetHolder() && !(*aura)->GetHolder()->IsDeleted())
             {
-                target = caster;
-                break;
+                if ((caster = (*aura)->GetCaster()) && caster->IsInMap(this) &&
+                    caster->isTargetableForAttack() && caster->isInAccessablePlaceFor((Creature*)this) &&
+                    (!IsCombatStationary() || CanReachWithMeleeAttack(caster)))
+                {
+                    target = caster;
+                    break;
+                }
             }
         }
     }
