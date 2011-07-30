@@ -976,7 +976,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
 
     Unit* unit = m_caster->GetObjectGuid() == target->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, target->targetGUID);
 
-    if (!unit || !unit->IsInWorld() || unit->IsDeleted())
+    if (!unit || unit->IsDeleted())
         return;
 
     target->processed = true;                               // Target checked in apply effects procedure
