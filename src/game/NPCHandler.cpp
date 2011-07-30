@@ -719,8 +719,7 @@ void WorldSession::HandleUnstablePet( WorldPacket & recv_data )
     Pet *newpet = new Pet(HUNTER_PET);
     if(!newpet->LoadPetFromDB(_player,creature_id,petnumber))
     {
-        delete newpet;
-        newpet = NULL;
+        sWorld.AddObjectToRemoveList((WorldObject*)newpet);
         SendStableResult(STABLE_ERR_STABLE);
         return;
     }
@@ -832,7 +831,7 @@ void WorldSession::HandleStableSwapPet( WorldPacket & recv_data )
     Pet *newpet = new Pet;
     if(!newpet->LoadPetFromDB(_player,creature_id,pet_number))
     {
-        delete newpet;
+        sWorld.AddObjectToRemoveList((WorldObject*)newpet);
         SendStableResult(STABLE_ERR_STABLE);
     }
     else

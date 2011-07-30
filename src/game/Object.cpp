@@ -1656,7 +1656,7 @@ Creature* WorldObject::SummonCreature(uint32 id, float x, float y, float z, floa
 
     if (!pCreature->Create(GetMap()->GenerateLocalLowGuid(cinfo->GetHighGuid()), pos, cinfo, team))
     {
-        delete pCreature;
+        sWorld.AddObjectToRemoveList((WorldObject*)pCreature);
         return NULL;
     }
 

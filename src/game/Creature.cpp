@@ -2502,7 +2502,7 @@ struct SpawnCreatureInMapsWorker
             //DEBUG_LOG("Spawning creature %u",*itr);
             if (!pCreature->LoadFromDB(i_guid, map))
             {
-                delete pCreature;
+                sWorld.AddObjectToRemoveList((WorldObject*)pCreature);
             }
             else
             {

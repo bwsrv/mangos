@@ -481,7 +481,7 @@ void WorldSession::HandleCharCreateOpcode( WorldPacket & recv_data )
     if (!pNewChar->Create(sObjectMgr.GeneratePlayerLowGuid(), name, race_, class_, gender, skin, face, hairStyle, hairColor, facialHair, outfitId))
     {
         // Player not create (race/class problem?)
-        delete pNewChar;
+        sWorld.AddObjectToRemoveList((WorldObject*)pNewChar);
 
         data << (uint8)CHAR_CREATE_ERROR;
         SendPacket( &data );

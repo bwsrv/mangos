@@ -23099,7 +23099,7 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
     Pet* NewPet = new Pet;
     NewPet->SetPetCounter(0);
     if(!NewPet->LoadPetFromDB(this, 0, m_temporaryUnsummonedPetNumber, true))
-        delete NewPet;
+        sWorld.AddObjectToRemoveList((WorldObject*)NewPet);
 
     m_temporaryUnsummonedPetNumber = 0;
 }
