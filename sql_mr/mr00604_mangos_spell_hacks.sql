@@ -115,7 +115,7 @@ VALUES (63130, 0, 0, 16777216, 268435456, 4, 268435456, 1610612868, 40, 0, 0, 0,
 
 UPDATE `spell_dbc` SET 
 `Effect1` = 0,
--- Comment` = 'Replacement for spells 63132, 63131, 63130 ("Щит")' 
+Comment` = 'Replacement for spells 63132, 63131, 63130 ("Щит")' 
 WHERE `Id` IN (63132, 63131, 63130);
 
 -- Replace DBC values for spell 70842 - "Барьер маны" 
