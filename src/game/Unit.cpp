@@ -6034,7 +6034,7 @@ void Unit::CombatStop(bool includingCast)
     AttackStop();
     RemoveAllAttackers();
 
-    if( GetTypeId()==TYPEID_PLAYER )
+    if( GetTypeId()==TYPEID_PLAYER && IsInWorld() && !IsDeleted())
         ((Player*)this)->SendAttackSwingCancelAttack();     // melee and ranged forced attack cancel
     else if (GetTypeId() == TYPEID_UNIT)
     {
