@@ -6385,18 +6385,18 @@ void Player::SaveRecallPosition()
 
 void Player::SendMessageToSet(WorldPacket *data, bool self)
 {
-    if (IsInWorld())
+    if (IsInWorld() && !IsDeleted())
         GetMap()->MessageBroadcast(this, data, false);
 
     //if player is not in world and map in not created/already destroyed
     //no need to create one, just send packet for itself!
-    if (self)
+    if (self && !IsDeleted())
         GetSession()->SendPacket(data);
 }
 
 void Player::SendMessageToSetInRange(WorldPacket *data, float dist, bool self)
 {
-    if (IsInWorld())
+    if (IsInWorld() && !IsDeleted())
         GetMap()->MessageDistBroadcast(this, data, dist, false);
 
     if (self)
@@ -6405,16 +6405,17 @@ void Player::SendMessageToSetInRange(WorldPacket *data, float dist, bool self)
 
 void Player::SendMessageToSetInRange(WorldPacket *data, float dist, bool self, bool own_team_only)
 {
-    if (IsInWorld())
+    if (IsInWorld() && !IsDeleted())
         GetMap()->MessageDistBroadcast(this, data, dist, false, own_team_only);
 
-    if (self)
+    if (self && !IsDeleted())
         GetSession()->SendPacket(data);
 }
 
 void Player::SendDirectMessage(WorldPacket *data)
 {
-    GetSession()->SendPacket(data);
+    if (IsInWorld() && !IsDeleted())
+        GetSession()->SendPacket(data);
 }
 
 void Player::SendCinematicStart(uint32 CinematicSequenceId)

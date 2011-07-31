@@ -1604,21 +1604,21 @@ void WorldObject::BuildMonsterChat(WorldPacket *data, ObjectGuid senderGuid, uin
 void WorldObject::SendMessageToSet(WorldPacket *data, bool /*bToSelf*/)
 {
     //if object is in world, map for it already created!
-    if (IsInWorld())
+    if (IsInWorld() && !IsDeleted())
         GetMap()->MessageBroadcast(this, data);
 }
 
 void WorldObject::SendMessageToSetInRange(WorldPacket *data, float dist, bool /*bToSelf*/)
 {
     //if object is in world, map for it already created!
-    if (IsInWorld())
+    if (IsInWorld() && !IsDeleted())
         GetMap()->MessageDistBroadcast(this, data, dist);
 }
 
 void WorldObject::SendMessageToSetExcept(WorldPacket *data, Player const* skipped_receiver)
 {
     //if object is in world, map for it already created!
-    if (IsInWorld())
+    if (IsInWorld() && !IsDeleted())
     {
         MaNGOS::MessageDelivererExcept notifier(this, data, skipped_receiver);
         Cell::VisitWorldObjects(this, notifier, GetMap()->GetVisibilityDistance());
