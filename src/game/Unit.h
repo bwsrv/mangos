@@ -1209,7 +1209,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
                 return;
 
             AttackerSet::const_iterator itr = m_attackers.find(pAttacker->GetObjectGuid());
-            if(itr == m_attackers.end())
+            if (itr == m_attackers.end())
                 m_attackers.insert(pAttacker->GetObjectGuid());
         }
         void _removeAttacker(Unit* pAttacker)               // must be called only from Unit::AttackStop()
@@ -1299,7 +1299,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         bool IsNeutralToAll() const;
         bool IsContestedGuard() const
         {
-            if(FactionTemplateEntry const* entry = getFactionTemplateEntry())
+            if (FactionTemplateEntry const* entry = getFactionTemplateEntry())
                 return entry->IsContestedGuardFaction();
 
             return false;
@@ -1552,7 +1552,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         Unit* GetCharmerOrOwner() const { return GetCharmerGuid() ? GetCharmer() : GetOwner(); }
         Unit* GetCharmerOrOwnerOrSelf()
         {
-            if(Unit* u = GetCharmerOrOwner())
+            if (Unit* u = GetCharmerOrOwner())
                 return u;
 
             return this;
@@ -1785,13 +1785,13 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         uint32 GetVisibleAura(uint8 slot) const
         {
             VisibleAuraMap::const_iterator itr = m_visibleAuras.find(slot);
-            if(itr != m_visibleAuras.end())
+            if (itr != m_visibleAuras.end())
                 return itr->second;
             return 0;
         }
         void SetVisibleAura(uint8 slot, uint32 spellid)
         {
-            if(spellid == 0)
+            if (spellid == 0)
                 m_visibleAuras.erase(slot);
             else
                 m_visibleAuras[slot] = spellid;
@@ -2241,7 +2241,7 @@ bool Unit::CheckAllControlledUnits(Func const& func, uint32 controlledMask) cons
                    return true;
 
     if (controlledMask & CONTROLLED_MINIPET)
-        if(Unit const* mini = GetMiniPet())
+        if (Unit const* mini = GetMiniPet())
             if (func(mini))
                 return true;
 
