@@ -5754,6 +5754,20 @@ void Aura::HandlePeriodicTriggerSpell(bool apply, bool /*Real*/)
                 }
 
                 return;
+            case 52658:                                     // Ionar Static Overload Explode (N)
+                if (m_removeMode == AURA_REMOVE_BY_EXPIRE)
+                {
+                    if (Unit* caster = GetCaster())
+                        caster->CastSpell(caster, 53337, true);
+                }
+                return;
+            case 59795:                                     // Ionar Static Overload Explode (H)
+                if (m_removeMode == AURA_REMOVE_BY_EXPIRE)
+                {
+                    if (Unit* caster = GetCaster())
+                        caster->CastSpell(caster, 59798, true);
+                }
+                return;
           case 65920:                                       //Anub'arak remove spike trigger
                 if (m_removeMode == AURA_REMOVE_BY_EXPIRE)
                 {

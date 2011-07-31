@@ -2457,6 +2457,37 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 
                     return;
                 }
+                case 52238:                                 // Volkhan Temper, Summon Golems
+                {
+                    if (!unitTarget)
+                        return;
+
+                    m_caster->CastSpell(unitTarget, 52405, true);   //Summon Golem
+                    m_caster->CastSpell(m_caster, 52661, true);     //Summon Temper
+                    m_caster->CastSpell(unitTarget, 52654, false);  //Temper 2 Vokhan Deal Two Strike
+
+                    return;
+                }
+                case 52654:                                  // Volkhan Temper 2, Summon Golems
+                {
+                    if (!unitTarget)
+                        return;
+
+                    m_caster->CastSpell(unitTarget, 52405, true);   //Summon Golem
+                    m_caster->CastSpell(m_caster, 52661, true);     //Summon Temper
+
+                    return;
+                }
+                case 52429:                                 // Volkhan Golem Shattered
+                case 59527:
+                {
+                    if (m_caster->GetTypeId() != TYPEID_UNIT)
+                        return;
+
+                    ((Creature*)m_caster)->ForcedDespawn(500);
+
+                    return;
+                }
                 case 52308:                                 // Take Sputum Sample
                 {
                     switch(eff_idx)
