@@ -247,6 +247,12 @@ bool Creature::InitEntry(uint32 Entry, CreatureData const* data /*=NULL*/, GameE
         return false;
     }
 
+    if(!GetMap())
+    {
+        sLog.outError("Creature::UpdateEntry creature entry %u not has any map for init!", Entry);
+        return false;
+    }
+
     CreatureInfo const *cinfo = normalInfo;
     for (Difficulty diff = GetMap()->GetDifficulty(); diff > REGULAR_DIFFICULTY; diff = GetPrevDifficulty(diff, GetMap()->IsRaid()))
     {
