@@ -6414,7 +6414,7 @@ void Player::SendMessageToSetInRange(WorldPacket *data, float dist, bool self, b
 
 void Player::SendDirectMessage(WorldPacket *data)
 {
-    if (IsInWorld() && !IsDeleted())
+    if (!IsDeleted())
         GetSession()->SendPacket(data);
 }
 
