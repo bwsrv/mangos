@@ -306,7 +306,10 @@ Unit::~Unit()
     delete movespline;
 
     if (IsDeleted())
+    {
         CleanupDeletedAuras();
+        RemoveAllDynObjects();
+    }
 
     // those should be already removed at "RemoveFromWorld()" call
     MANGOS_ASSERT(m_gameObj.size() == 0);

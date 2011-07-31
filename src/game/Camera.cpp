@@ -30,11 +30,16 @@ Camera::Camera(Player* pl) : m_owner(*pl), m_source(pl)
 
 Camera::~Camera()
 {
-    // view of camera should be already reseted to owner (RemoveFromWorld -> Event_RemovedFromWorld -> ResetView)
-    MANGOS_ASSERT(m_source == &m_owner);
+    if (m_source && !m_source->IsDeleted())
+    {
+        // view of camera should be already reseted to owner (RemoveFromWorld -> Event_RemovedFromWorld -> ResetView)
+        MANGOS_ASSERT(m_source == &m_owner);
 
-    // for symmetry with constructor and way to make viewpoint's list empty
-    m_source->GetViewPoint().Detach(this);
+        // for symmetry with constructor and way to make viewpoint's list empty
+        m_source->GetViewPoint().Detach(this);
+    }
+    else
+        sLog.outError("Camera::~Camera destruct camera, but view not setted to owner!");
 }
 
 void Camera::ReceivePacket(WorldPacket *data)
