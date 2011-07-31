@@ -7874,6 +7874,13 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->RemoveAurasDueToSpell(47636);
                     return;
                 }
+                case 48679:                                 // Banshee's Magic Mirror 
+                { 
+                    if (!unitTarget || m_caster->GetTypeId() != TYPEID_PLAYER) 
+                        return; 
+                    unitTarget->CastSpell(m_caster, 48648, true); 
+                    return; 
+                }
                 case 47958:                                 // Crystal Spikes
                 {
                     // Summon Crystal Spike
