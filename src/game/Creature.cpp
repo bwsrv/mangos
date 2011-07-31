@@ -1585,6 +1585,9 @@ void Creature::Respawn()
 
 void Creature::ForcedDespawn(uint32 timeMSToDespawn)
 {
+    if (IsDeleted())
+        return;
+
     if (timeMSToDespawn)
     {
         ForcedDespawnDelayEvent *pEvent = new ForcedDespawnDelayEvent(*this);

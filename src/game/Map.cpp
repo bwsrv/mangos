@@ -194,8 +194,11 @@ void Map::RemoveFromGrid(Creature* obj, NGridType *grid, Cell const& cell)
 
 void Map::DeleteFromWorld(Player* pl)
 {
+    pl->SetDeleted();
     sObjectAccessor.RemoveObject(pl);
-    sWorld.AddObjectToRemoveList((WorldObject*)pl);
+    // temp solution - now all player objects must be deleted in Map::Update call, instead of World::Update (before update units on map)
+    // sWorld.AddObjectToRemoveList((WorldObject*)pl);
+    delete pl;
 }
 
 void
@@ -439,7 +442,7 @@ void Map::Update(const uint32 &t_diff)
     for(m_mapRefIter = m_mapRefManager.begin(); m_mapRefIter != m_mapRefManager.end(); ++m_mapRefIter)
     {
         Player* plr = m_mapRefIter->getSource();
-        if(plr && plr->IsInWorld())
+        if(plr && plr->IsInWorld() && !plr->IsDeleted())
         {
             WorldSession * pSession = plr->GetSession();
             MapSessionFilter updater(pSession);
@@ -452,7 +455,7 @@ void Map::Update(const uint32 &t_diff)
     for(m_mapRefIter = m_mapRefManager.begin(); m_mapRefIter != m_mapRefManager.end(); ++m_mapRefIter)
     {
         Player* plr = m_mapRefIter->getSource();
-        if(plr && plr->IsInWorld())
+        if(plr && plr->IsInWorld() && !plr->IsDeleted())
         {
             WorldObject::UpdateHelper helper(plr);
             helper.Update(t_diff);
@@ -474,7 +477,7 @@ void Map::Update(const uint32 &t_diff)
     {
         Player* plr = m_mapRefIter->getSource();
 
-        if (!plr || !plr->IsInWorld() || !plr->IsPositionValid())
+        if (!plr || !plr->IsInWorld() || !plr->IsPositionValid() || plr->IsDeleted())
             continue;
 
         //lets update mobs/objects in ALL visible cells around player!
@@ -984,10 +987,12 @@ void Map::AddObjectToRemoveList(WorldObject *obj)
 {
     MANGOS_ASSERT(obj->GetMapId()==GetId() && obj->GetInstanceId()==GetInstanceId());
 
-    obj->SetDeleted();
+    if (obj && obj->GetTypeId() == TYPEID_PLAYER)
+        obj->CleanupsBeforeDelete();                            // remove or simplify at least cross referenced links
 
     i_objectsToRemove.insert(obj);
     //DEBUG_LOG("Object (GUID: %u TypeId: %u ) added to removing list.",obj->GetGUIDLow(),obj->GetTypeId());
+    obj->SetDeleted();
 }
 
 void Map::RemoveAllObjectsInRemoveList()
