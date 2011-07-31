@@ -284,6 +284,7 @@ ObjectGridUnloader::Visit(GridRefManager<T> &m)
         ///- object must be out of world before delete
         obj->RemoveFromWorld();
         ///- object will get delinked from the manager when deleted
+        obj->SetDeleted();
         delete obj;
     }
 }
