@@ -7393,6 +7393,48 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     m_caster->SummonCreature(16474, unitTarget->GetPositionX(), unitTarget->GetPositionY(), unitTarget->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 30000);
                     return;
                 }
+                case 29126:                                 // Cleansing Flames Darnassus 
+                { 
+                    if (!unitTarget) 
+                        return; 
+                    unitTarget->CastSpell(unitTarget, 29099, true); // Create Flame of Darnassus 
+                    break; 
+                } 
+                case 29135:                                 // Cleansing Flames Ironforge 
+                { 
+                    if (!unitTarget) 
+                        return; 
+                    unitTarget->CastSpell(unitTarget, 29102, true); // Create Flame of Ironforge 
+                    break; 
+                } 
+                case 29136:                                 // Cleansing Flames Orgrimmar 
+                { 
+                    if (!unitTarget) 
+                        return; 
+                    unitTarget->CastSpell(unitTarget, 29130, true); // Create Flame of Orgrimmar 
+                    break; 
+                } 
+                case 29137:                                 // Cleansing Flames Stormwind 
+                { 
+                    if (!unitTarget) 
+                        return; 
+                    unitTarget->CastSpell(unitTarget, 29101, true); // Create Flame of Stormwind 
+                    break; 
+                } 
+                case 29138:                                 // Cleansing Flames Thunder Bluff 
+                { 
+                    if (!unitTarget) 
+                        return; 
+                    unitTarget->CastSpell(unitTarget, 29132, true); // Create Flame of Thunder Bluff 
+                    break; 
+                } 
+                case 29139:                                 // Cleansing Flames Undercity 
+                { 
+                    if (!unitTarget) 
+                        return; 
+                    unitTarget->CastSpell(unitTarget, 29133, true); // Create Flame of The Undercity 
+                    break; 
+                }
                 case 29830:                                 // Mirren's Drinking Hat
                 {
                     uint32 item = 0;
@@ -7760,6 +7802,20 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     unitTarget->CastSpell(m_caster, 45626, true);
                     break;
+                }
+                case 46671:                                 // Cleansing Flames Exodar 
+                { 
+                    if (!unitTarget) 
+                        return; 
+                    unitTarget->CastSpell(unitTarget, 46690, true); // Create Flame of the Exodar 
+                    break; 
+                } 
+                case 46672:                                 // Cleansing Flames Silvermoon 
+                { 
+                    if (!unitTarget) 
+                        return; 
+                    unitTarget->CastSpell(unitTarget, 46689, true); // Create Flame of The Silvermoon 
+                    break; 
                 }
                 case 47097:                                 // Surge Needle Teleporter
                 {
