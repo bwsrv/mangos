@@ -1003,8 +1003,14 @@ void Map::RemoveAllObjectsInRemoveList()
         WorldObject* obj = *i_objectsToRemove.begin();
         i_objectsToRemove.erase(i_objectsToRemove.begin());
 
-        if (!obj || !obj->IsDeleted())
+        if (!obj)
             continue;
+
+        if (!obj->IsDeleted())
+        {
+            DEBUG_LOG("Map::RemoveAllObjectsInRemoveList warning - object type %u (guid %u) found in remove list, but not maked deleted!",obj->GetTypeId(), obj->GetObjectGuid().GetCounter());
+            obj->SetDeleted();
+        }
 
         obj->CleanupsBeforeDelete();                            // remove or simplify at least cross referenced links
 

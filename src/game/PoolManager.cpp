@@ -440,7 +440,7 @@ void PoolGroup<GameObject>::Spawn1Object(MapPersistentState& mapState, PoolObjec
                 //DEBUG_LOG("Spawning gameobject %u", obj->guid);
                 if (!pGameobject->LoadFromDB(obj->guid, dataMap))
                 {
-                    delete pGameobject;
+                    sWorld.AddObjectToRemoveList((WorldObject*)pGameobject);
                     return;
                 }
                 else

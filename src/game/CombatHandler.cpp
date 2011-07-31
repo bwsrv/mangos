@@ -39,7 +39,7 @@ void WorldSession::HandleAttackSwingOpcode( WorldPacket & recv_data )
 
     Unit *pEnemy = _player->GetMap()->GetUnit(guid);
 
-    if(!pEnemy)
+    if(!pEnemy || pEnemy->IsDeleted())
     {
         sLog.outError( "WORLD: Enemy %s not found", guid.GetString().c_str());
 

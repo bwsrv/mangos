@@ -5742,7 +5742,7 @@ bool Unit::IsHostileTo(Unit const* unit) const
 
 bool Unit::IsFriendlyTo(Unit const* unit) const
 {
-    if (!unit)
+    if (!unit || unit->IsDeleted() || IsDeleted())
         return true;
 
     // always friendly to self
