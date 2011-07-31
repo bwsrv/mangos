@@ -3173,11 +3173,29 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 }
                 case 43874:                                 // Scourge Mur'gul Camp: Force Shield Arcane Purple x3
                     target->ApplyModFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE, apply);
+
                     if (apply)
                         target->addUnitState(UNIT_STAT_ROOT);
                     return;
                 case 47178:                                 // Plague Effect Self
                     target->SetFeared(apply, GetCasterGuid(), GetId());
+                    return;
+                case 54852:                                 // Drakkari Colossus Stun (Hmmm... I'm lookup all stun effect spell, but not find needed!)
+                    if (apply)
+                    {
+                        target->addUnitState(UNIT_STAT_STUNNED);
+                        target->SetTargetGuid(target->GetObjectGuid());
+                        target->CastSpell(target, 16245, true);
+                    }
+                    else
+                    {
+                        if (target->getVictim() && target->isAlive())
+                            target->SetTargetGuid(target->getVictim()->GetObjectGuid());
+                        target->clearUnitState(UNIT_STAT_STUNNED);
+                        target->RemoveAurasDueToSpell(16245);
+                    }
+                    target->ApplyModFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE, apply);
+                    target->ApplyModFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED, apply);
                     return;
                 case 56422:                                 // Nerubian Submerge
                     // not known if there are other things todo, only flag are confirmed valid
