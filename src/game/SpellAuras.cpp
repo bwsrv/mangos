@@ -2979,12 +2979,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 target->RemoveAurasDueToSpell(41106);
                 return;
             }
-<<<<<<< HEAD
-            case 54852:                                     // Cosmetic - Stun (Permanent)
-            {
-                target->clearUnitState(UNIT_STAT_STUNNED);
-                return;
-            }
             case 56150:                                     // Jedoga Sacriface Beam
             {
                 if (Unit* caster = GetCaster())
@@ -2996,8 +2990,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 }
                 return;
             }
-=======
->>>>>>> parent of b57dcfb... [mr428] Fixed spell Cosmetic Stun (permanent).
             case 56511:                                     // Towers of Certain Doom: Tower Bunny Smoke Flare Effect
             {
                 // Towers of Certain Doom: Skorn Cannonfire
