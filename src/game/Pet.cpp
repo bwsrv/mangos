@@ -90,6 +90,11 @@ void Pet::RemoveFromWorld(bool remove)
     Unit::RemoveFromWorld(remove);
 }
 
+void Pet::CleanupsBeforeDelete()
+{
+    RemoveFromWorld();
+}
+
 bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool current)
 {
     m_loading = true;
