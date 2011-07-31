@@ -4975,6 +4975,9 @@ void Spell::CastPreCastSpells(Unit* target)
 
 SpellCastResult Spell::CheckCast(bool strict)
 {
+    if (m_caster->IsDeleted())
+        return SPELL_FAILED_DONT_REPORT;
+
     // check cooldowns to prevent cheating (ignore passive spells, that client side visual only)
     if (m_caster->GetTypeId()==TYPEID_PLAYER && !(m_spellInfo->Attributes & SPELL_ATTR_PASSIVE) &&
         ((Player*)m_caster)->HasSpellCooldown(m_spellInfo->Id))
@@ -5081,6 +5084,9 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     if(Unit *target = m_targets.getUnitTarget())
     {
+        if(target->IsDeleted())
+            return SPELL_FAILED_DONT_REPORT;
+
         // target state requirements (not allowed state), apply to self also
         // This check not need - checked in CheckTarget()
         // if(m_spellInfo->TargetAuraStateNot && target->HasAuraState(AuraState(m_spellInfo->TargetAuraStateNot)))

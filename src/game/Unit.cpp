@@ -12215,11 +12215,11 @@ bool Unit::HasMorePoweredBuff(uint32 spellId)
             spellInfo->Effect[i] != SPELL_EFFECT_PERSISTENT_AREA_AURA )
             continue;
 
-        Unit::AuraList const& auras = GetAurasByType(AuraType(spellInfo->EffectApplyAuraName[SpellEffectIndex(i)]));
+        AuraList const auras = GetAurasByType(AuraType(spellInfo->EffectApplyAuraName[SpellEffectIndex(i)]));
         if (auras.empty())
             continue;
 
-        for (Unit::AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+        for (AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
             if ((*itr) && (*itr)->GetHolder() && !(*itr)->GetHolder()->IsDeleted() && (*itr)->GetSpellProto()->AttributesEx7 & SPELL_ATTR_EX7_REPLACEABLE_AURA)
                 if (spellInfo->CalculateSimpleValue(SpellEffectIndex(i)) < (*itr)->GetModifier()->m_amount)
                     return true;
