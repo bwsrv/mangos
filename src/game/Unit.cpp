@@ -4565,6 +4565,9 @@ void Unit::RemoveAura(uint32 spellId, SpellEffectIndex effindex, Aura* except)
     SpellAuraHolderBounds spair = GetSpellAuraHolderBounds(spellId);
     for(SpellAuraHolderMap::iterator iter = spair.first; iter != spair.second; )
     {
+        if (!iter->second || iter->second->IsDeleted())
+            continue;
+
         Aura *aur = iter->second->m_auras[effindex];
         if (aur && aur != except)
         {
@@ -4936,6 +4939,9 @@ void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase)
 
 void Unit::RemoveSpellAuraHolder(SpellAuraHolder *holder, AuraRemoveMode mode)
 {
+    if (holder->IsDeleted())
+        return;
+
     if (mode != AURA_REMOVE_BY_DELETE)
         holder->HandleSpellSpecificBoostsForward(false);
 
@@ -4953,7 +4959,7 @@ void Unit::RemoveSpellAuraHolder(SpellAuraHolder *holder, AuraRemoveMode mode)
     SpellAuraHolderBounds bounds = GetSpellAuraHolderBounds(holder->GetId());
     for (SpellAuraHolderMap::iterator itr = bounds.first; itr != bounds.second; ++itr)
     {
-        if (itr->second == holder)
+        if (itr->second && itr->second == holder)
         {
             m_spellAuraHolders.erase(itr);
             break;
