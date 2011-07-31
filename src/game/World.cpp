@@ -1565,6 +1565,8 @@ void World::Update(uint32 diff)
 
     /// <li> Handle session updates
     UpdateSessions(diff);
+    sMapMgr.RemoveAllObjectsInRemoveList();
+    RemoveAllObjectsInRemoveList();
 
     /// <li> Handle weather updates when the timer has passed
     if (m_timers[WUPDATE_WEATHERS].Passed())
@@ -1599,6 +1601,7 @@ void World::Update(uint32 diff)
     ///- Update objects (maps, transport, creatures,...)
     sMapMgr.Update(diff);
     sBattleGroundMgr.Update(diff);
+    RemoveAllObjectsInRemoveList();
 
     ///- Delete all characters which have been deleted X days before
     if (m_timers[WUPDATE_DELETECHARS].Passed())
@@ -1628,6 +1631,8 @@ void World::Update(uint32 diff)
         uint32 nextGameEvent = sGameEventMgr.Update();
         m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);
         m_timers[WUPDATE_EVENTS].Reset();
+        sMapMgr.RemoveAllObjectsInRemoveList();
+        RemoveAllObjectsInRemoveList();
     }
     static uint32 autobroadcaston = 0;
     autobroadcaston = sConfig.GetIntDefault("AutoBroadcast.On", 0);
@@ -1643,7 +1648,6 @@ void World::Update(uint32 diff)
     /// </ul>
     ///- Move all creatures with "delayed move" and remove and delete all objects with "delayed remove"
     sMapMgr.RemoveAllObjectsInRemoveList();
-
     RemoveAllObjectsInRemoveList();
 
     // update the instance reset times
@@ -1654,6 +1658,8 @@ void World::Update(uint32 diff)
 
     //cleanup unused GridMap objects as well as VMaps
     sTerrainMgr.Update(diff);
+
+    RemoveAllObjectsInRemoveList();
 }
 
 /// Send a packet to all players (except self if mentioned)

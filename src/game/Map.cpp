@@ -659,10 +659,8 @@ Map::Remove(T *obj, bool remove)
             obj->SaveRespawnTime();
 
         // Note: In case resurrectable corpse and pet its removed from global lists in own destructor
-        if (obj->GetTypeId() == TYPEID_UNIT)
-            sWorld.AddObjectToRemoveList((WorldObject*)obj);
-        else
-            delete obj;
+        obj->SetDeleted();
+        delete obj;
     }
 }
 

@@ -579,6 +579,7 @@ Player::~Player ()
 
     // it must be unloaded already in PlayerLogout and accessed only for loggined player
     //m_social = NULL;
+    GetViewPoint().Event_RemovedFromWorld();
 
     // Note: buy back item already deleted from DB when player was saved
     for(int i = 0; i < PLAYER_SLOTS_COUNT; ++i)

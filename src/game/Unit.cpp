@@ -309,6 +309,7 @@ Unit::~Unit()
     {
         CleanupDeletedAuras();
         RemoveAllDynObjects();
+        m_Events.KillAllEvents(true);
     }
 
     // those should be already removed at "RemoveFromWorld()" call
@@ -10038,7 +10039,7 @@ void Unit::CleanupsBeforeDelete()
         if (GetVehicleKit())
             RemoveVehicleKit();
         InterruptNonMeleeSpells(true);
-        m_Events.KillAllEvents(false);                      // non-delatable (currently casted spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
+        m_Events.KillAllEvents(IsDeleted());                      // non-delatable (currently casted spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
         CombatStop();
         ClearComboPointHolders();
         DeleteThreatList();

@@ -979,7 +979,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     if (!unit || unit->IsDeleted())
         return;
 
-    target->processed = true;                               // Target checked in apply effects procedure
+//    target->processed = true;                               // Target checked in apply effects procedure
 
     // Get mask of effects for target
     uint32 mask = target->effectMask;

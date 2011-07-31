@@ -284,14 +284,7 @@ ObjectGridUnloader::Visit(GridRefManager<T> &m)
         ///- object must be out of world before delete
         obj->RemoveFromWorld();
         ///- object will get delinked from the manager when deleted
-        if (obj->GetTypeId() != TYPEID_UNIT)
-            delete obj;
-        else
-        {
-            sWorld.AddObjectToRemoveList((WorldObject*)obj);
-            // objects deleted in World thread, and autounlink may not work properly.
-            m.getFirst()->unlink();
-        }
+        delete obj;
     }
 }
 

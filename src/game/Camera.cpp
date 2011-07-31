@@ -30,7 +30,7 @@ Camera::Camera(Player* pl) : m_owner(*pl), m_source(pl)
 
 Camera::~Camera()
 {
-    if (m_source && !m_source->IsDeleted())
+    if (m_source)
     {
         // view of camera should be already reseted to owner (RemoveFromWorld -> Event_RemovedFromWorld -> ResetView)
         MANGOS_ASSERT(m_source == &m_owner);
