@@ -21471,12 +21471,13 @@ void Player::UpdateForQuestWorldObjects()
         if (itr->IsGameObject())
         {
             if (GameObject *obj = GetMap()->GetGameObject(*itr))
-                obj->BuildValuesUpdateBlockForPlayer(&udata,this);
+                if (!obj->IsDeleted())
+                    obj->BuildValuesUpdateBlockForPlayer(&udata,this);
         }
         else if (itr->IsCreatureOrVehicle())
         {
             Creature *obj = GetMap()->GetAnyTypeCreature(*itr);
-            if(!obj)
+            if(!obj || obj->IsDeleted())
                 continue;
 
             // check if this unit requires quest specific flags
