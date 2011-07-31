@@ -6526,11 +6526,12 @@ SpellCastResult Spell::CheckRange(bool strict)
 
     if(target && target != m_caster)
     {
+        if(target->IsDeleted())
+            return SPELL_FAILED_OUT_OF_RANGE;
+
         // distance from target in checks
         float dist = m_caster->GetCombatDistance(target);
 
-        if(dist > max_range)
-            return SPELL_FAILED_OUT_OF_RANGE;
         if(min_range && dist < min_range)
             return SPELL_FAILED_TOO_CLOSE;
         if( m_caster->GetTypeId() == TYPEID_PLAYER &&
@@ -6540,6 +6541,9 @@ SpellCastResult Spell::CheckRange(bool strict)
 
     if (pGoTarget)
     {
+        if(pGoTarget->IsDeleted())
+            return SPELL_FAILED_OUT_OF_RANGE;
+
         // distance from target in checks
         float dist = m_caster->GetDistance(pGoTarget);
 
