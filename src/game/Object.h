@@ -160,6 +160,7 @@ class MANGOS_DLL_SPEC Object
 
         bool IsDeleted() const { return m_deleted;}
         void SetDeleted() { m_deleted = true; }
+        bool IsInitialized() const { return (m_uint32Values ? true : false);}
 
         virtual void BuildCreateUpdateBlockForPlayer( UpdateData *data, Player *target ) const;
         void SendCreateUpdateToPlayer(Player* player);

@@ -5752,7 +5752,7 @@ bool Unit::IsHostileTo(Unit const* unit) const
 
 bool Unit::IsFriendlyTo(Unit const* unit) const
 {
-    if (!unit || unit->IsDeleted() || IsDeleted())
+    if (!unit || !unit->IsInWorld() || unit->IsDeleted() || IsDeleted())
         return true;
 
     // always friendly to self
@@ -5783,15 +5783,21 @@ bool Unit::IsFriendlyTo(Unit const* unit) const
     if (testerOwner && targetOwner && (testerOwner->getVictim() == targetOwner || targetOwner->getVictim() == testerOwner))
         return false;
 
-    Unit const* tester = testerOwner ? testerOwner : this;
-    Unit const* target = targetOwner ? targetOwner : unit;
+    Unit const* tester = (testerOwner && testerOwner->IsInWorld() && !testerOwner->IsDeleted()) ? testerOwner : this;
+    Unit const* target = (targetOwner && targetOwner->IsInWorld() && !targetOwner->IsDeleted()) ? targetOwner : unit;
+
+    if (!tester || !tester->IsInWorld() || tester->IsDeleted() || IsDeleted())
+        return true;
+
+    if (!target || !target->IsInWorld() || target->IsDeleted())
+        return true;
 
     // always friendly to target with common owner, or to owner/pet
     if (tester == target)
         return true;
 
     // special cases (Duel)
-    if (tester->GetTypeId() == TYPEID_PLAYER && target->GetTypeId() == TYPEID_PLAYER)
+    if (tester->IsInWorld() && tester->GetTypeId() == TYPEID_PLAYER && target->IsInWorld() && target->GetTypeId() == TYPEID_PLAYER)
     {
         Player const* pTester = (Player const*)tester;
         Player const* pTarget = (Player const*)target;
@@ -8428,7 +8434,7 @@ void Unit::ClearInCombat()
 
 bool Unit::isTargetableForAttack(bool inverseAlive /*=false*/) const
 {
-    if (!IsInWorld() || IsDeleted())
+    if (!IsInWorld() || IsDeleted() || !IsInitialized())
         return false;
 
     if (GetTypeId()==TYPEID_PLAYER && ((Player *)this)->isGameMaster())
@@ -8515,6 +8521,9 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
 bool Unit::isVisibleForOrDetect(Unit const* u, WorldObject const* viewPoint, bool detect, bool inVisibleList, bool is3dDistance) const
 {
     if(!u || !IsInMap(u))
+        return false;
+
+    if(IsDeleted() || u->IsDeleted() || !IsInitialized() || !u->IsInitialized())
         return false;
 
     // Always can see self
@@ -12167,6 +12176,9 @@ uint32 Unit::CalculateSpellDurationWithHaste(SpellEntry const* spellProto, uint3
 
 bool Unit::IsVisibleTargetForAoEDamage(WorldObject const* caster, SpellEntry const* spellInfo) const
 {
+    if (!IsInitialized() || IsDeleted())
+        return false;
+
     bool no_stealth = false;
     switch (spellInfo->SpellFamilyName)
     {

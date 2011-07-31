@@ -2564,12 +2564,15 @@ void World::AddObjectToRemoveList(WorldObject *obj)
 {
     if (obj)
     {
-        i_objectsToRemove.insert(obj);
         if (!obj->IsDeleted())
         {
             DEBUG_LOG("World::AddObjectToRemoveList warning - not cleaned object type %u added to remove list!",obj->GetTypeId());
             obj->SetDeleted();
         }
+        if (obj->IsInitialized() && obj->GetObjectGuid().IsPlayer())
+            i_objectsToRemove.insert(obj);
+        else
+           delete obj;
     }
 }
 
