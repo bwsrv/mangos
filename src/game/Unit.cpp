@@ -11525,24 +11525,16 @@ void Unit::MonsterMoveWithSpeed(float x, float y, float z, float speed)
 
 void Unit::MonsterMoveJump(float x, float y, float z, float o, float speed, float height, bool isKnockBack)
 {
-    float ox, oy, oz;
-    GetPosition(ox, oy, oz);
-
     MaNGOS::NormalizeMapCoord(x);
     MaNGOS::NormalizeMapCoord(y);
-
-    if (GetTerrain()->CheckPathAccurate(ox,oy,oz,x,y,z, NULL))
-        DEBUG_LOG("Unit::MonsterMoveJump unit %u jumped  on %f",GetObjectGuid().GetCounter(), GetDistance(x,y,z));
-    else
-        DEBUG_LOG("Unit::MonsterMoveJump unit %u NOT jumped on full distance, real distance is %f",GetObjectGuid().GetCounter(), GetDistance(x,y,z));
 
     if (isKnockBack && GetTypeId() != TYPEID_PLAYER)
     {
         // Interrupt spells cause of movement
         InterruptNonMeleeSpells(false);
     }
-    UpdateAllowedPositionZ(x, y, z);
-    GetMotionMaster()->MoveJump(x,y,z,speed, height);
+
+    GetMotionMaster()->MoveJump(x, y, z, speed, height, 0, isKnockBack);
 }
 
 struct SetPvPHelper

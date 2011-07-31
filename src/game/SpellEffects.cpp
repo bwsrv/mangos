@@ -4194,16 +4194,14 @@ void Spell::EffectJump(SpellEffectIndex eff_idx)
         return;
     }
 
-    float speed_z = DEFAULT_JUMP_SPEED;
-    float dh      = DEFAULT_JUMP_HEIGHT;
+    int32 speed_z = m_spellInfo->EffectMiscValue[eff_idx];
+    if (!speed_z)
+        speed_z = 5;
+    int32 speed_xy = m_spellInfo->EffectMiscValueB[eff_idx];
+    if (!speed_xy)
+        speed_xy = 150;
 
-    if (m_spellInfo->EffectMiscValue[eff_idx])
-        speed_z = float(m_spellInfo->EffectMiscValue[eff_idx]);
-
-    if (m_spellInfo->EffectMiscValueB[eff_idx])
-        dh = float(m_spellInfo->EffectMiscValueB[eff_idx]/speed_z);
-
-    m_caster->MonsterMoveJump(x, y, z, o, speed_z, dh);
+    m_caster->MonsterMoveJump(x, y, z, o, float(speed_xy) / 2, float(speed_z) / 10);
 }
 
 void Spell::EffectTeleportUnits(SpellEffectIndex eff_idx)
