@@ -195,6 +195,7 @@ void Map::RemoveFromGrid(Creature* obj, NGridType *grid, Cell const& cell)
 void Map::DeleteFromWorld(Player* pl)
 {
     sObjectAccessor.RemoveObject(pl);
+    pl->SetDeleted();
     delete pl;
 }
 

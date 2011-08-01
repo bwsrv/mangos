@@ -10026,7 +10026,7 @@ void Unit::RemoveFromWorld(bool remove)
         UnsummonAllTotems();
         RemoveAllGameObjects();
         RemoveAllDynObjects();
-        if (remove)
+        if (remove && IsDeleted())
             CleanupDeletedAuras();
         else
             RemoveAllAuras(AURA_REMOVE_BY_DELETE);

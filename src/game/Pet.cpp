@@ -92,7 +92,7 @@ void Pet::RemoveFromWorld(bool remove)
 
 void Pet::CleanupsBeforeDelete()
 {
-    RemoveFromWorld();
+    Unit::CleanupsBeforeDelete();
 }
 
 bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool current)
