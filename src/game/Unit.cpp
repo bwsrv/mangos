@@ -300,6 +300,13 @@ Unit::~Unit()
         }
     }
 
+    if (IsDeleted())
+    {
+        CleanupDeletedAuras();
+        RemoveAllDynObjects();
+        m_Events.KillAllEvents(true);
+    }
+
     delete m_charmInfo;
     delete m_vehicleInfo;
 
@@ -5211,6 +5218,12 @@ void Unit::RemoveDynObject(uint32 spellid)
 
 void Unit::RemoveAllDynObjects()
 {
+    if (m_dynObjGUIDs.empty())
+        return;
+
+    if (IsDeleted())
+        DEBUG_LOG("Unit::RemoveAllDynObjects warning: %s guid %u has not cleaned auralist at remove (holders %u, auras %u)", GetObjectGuid().GetTypeName(),GetObjectGuid().GetCounter(),m_deletedHolders.size(), m_deletedAuras.size());
+
     while(!m_dynObjGUIDs.empty())
     {
         if (DynamicObject* dynObj = GetMap()->GetDynamicObject(*m_dynObjGUIDs.begin()))
@@ -11874,7 +11887,7 @@ void Unit::CleanupDeletedAuras()
         return;
 
     if (IsDeleted())
-        sLog.outError("Unit::CleanupDeletedAuras ERROR: %s guid %u has not cleaned auralist at remove (holders %u, auras %u)", GetObjectGuid().GetTypeName(),GetObjectGuid().GetCounter(),m_deletedHolders.size(), m_deletedAuras.size());
+        DEBUG_LOG("Unit::CleanupDeletedAuras warning: %s guid %u has not cleaned auralist at remove (holders %u, auras %u)", GetObjectGuid().GetTypeName(),GetObjectGuid().GetCounter(),m_deletedHolders.size(), m_deletedAuras.size());
 
     World::WorldWriteGuard Lock(sWorld.GetLock(WORLD_LOCK_AURAS));
 
