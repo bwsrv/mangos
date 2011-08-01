@@ -5292,7 +5292,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             if (target->IsImmuneToSpell(m_spellInfo))
                 return SPELL_FAILED_TARGET_AURASTATE;
 
-            if (target->HasMorePoweredBuff(m_spellInfo->Id))
+            if (!m_IsTriggeredSpell && target->HasMorePoweredBuff(m_spellInfo->Id))
                 return SPELL_FAILED_AURA_BOUNCED;
         }
 
