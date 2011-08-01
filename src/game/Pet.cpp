@@ -83,9 +83,9 @@ void Pet::RemoveFromWorld()
     if (((Creature*)this)->IsInWorld())
     {
         GetMap()->GetObjectsStore().erase<Pet>(GetObjectGuid(), (Pet*)NULL);
-        sObjectAccessor.RemoveObject(this);
+        if (sObjectAccessor.FindPet(GetObjectGuid()))
+            sObjectAccessor.RemoveObject(this);
     }
-
     ///- Don't call the function for Creature, normal mobs + totems go in a different storage
     Unit::RemoveFromWorld();
 }

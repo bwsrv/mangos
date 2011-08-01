@@ -1204,11 +1204,13 @@ void Map::CreateInstanceData(bool load)
 
 template void Map::Add(Corpse *);
 template void Map::Add(Creature *);
+template void Map::Add(Pet*);
 template void Map::Add(GameObject *);
 template void Map::Add(DynamicObject *);
 
 template void Map::Remove(Corpse *,bool);
 template void Map::Remove(Creature *,bool);
+template void Map::Remove(Pet*,bool);
 template void Map::Remove(GameObject *, bool);
 template void Map::Remove(DynamicObject *, bool);
 
