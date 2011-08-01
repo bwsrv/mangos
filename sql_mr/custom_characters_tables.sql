@@ -185,7 +185,7 @@ ALTER TABLE `pet_spell`
     ADD COLUMN `spec` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0' AFTER `active`,
     DROP PRIMARY KEY,
     ADD PRIMARY KEY (`guid`, `spell`, `spec`);
-	
+		
 -- Pet table cleanup
 ALTER TABLE `character_pet`
   DROP `resettalents_cost`,
@@ -200,12 +200,9 @@ CREATE TABLE IF NOT EXISTS hidden_rating (
     PRIMARY KEY  (guid)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
--- ADVANCE CHARACTERS TABLE
+-- Advance Characters Table
 
 SET FOREIGN_KEY_CHECKS=0;
--- ----------------------------
--- Table structure for `character_stats`
--- ----------------------------
 DROP TABLE IF EXISTS `character_stats`;
 CREATE TABLE `character_stats` (
   `guid` int(11) unsigned NOT NULL default '0' COMMENT 'Global Unique Identifier, Low part',
