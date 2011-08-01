@@ -5222,7 +5222,7 @@ void Unit::RemoveAllDynObjects()
         return;
 
     if (IsDeleted())
-        DEBUG_LOG("Unit::RemoveAllDynObjects warning: %s guid %u has not cleaned auralist at remove (holders %u, auras %u)", GetObjectGuid().GetTypeName(),GetObjectGuid().GetCounter(),m_deletedHolders.size(), m_deletedAuras.size());
+        DEBUG_LOG("Unit::RemoveAllDynObjects warning: %s guid %u has not cleaned object list at remove (objects %u)", GetObjectGuid().GetTypeName(),GetObjectGuid().GetCounter(),m_dynObjGUIDs.size());
 
     while(!m_dynObjGUIDs.empty())
     {
