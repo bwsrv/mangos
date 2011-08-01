@@ -451,16 +451,10 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                     case 50811:
                     case 61547:
                     {
-                        if (unitTarget == m_caster)
-                        {
-                            damage = 0;
-                        }
-                        else if (unitTarget && m_caster)
-                        {
-                            int32 dist = (int32)unitTarget->GetDistance(m_caster);
-                            int32 dmgPerYd = (int32)(damage / GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[effect_idx])));
-                            damage -= dmgPerYd * dist;
-                        }
+                        float dist = unitTarget->GetDistance(m_caster);
+                        float radius = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[effect_idx]));
+
+                        damage = damage / radius * (radius - dist);
                         break;
                     }
                     // Tympanic Tantrum
@@ -8319,7 +8313,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     if (!unitTarget)
                         return;
 
-                    unitTarget->CastSpell(unitTarget, m_spellInfo->Id + 1, true, NULL, NULL, m_caster->GetObjectGuid());
+                    unitTarget->CastSpell(unitTarget, m_spellInfo->CalculateSimpleValue(eff_idx), true);
                     return;
                 }
                 case 50894:                                 // Zul'Drak Rat
