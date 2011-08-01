@@ -215,6 +215,9 @@ void Object::SendCreateUpdateToPlayer(Player* player)
 
 void Object::BuildValuesUpdateBlockForPlayer(UpdateData *data, Player *target) const
 {
+    if (!IsInitialized())
+        return;
+
     ByteBuffer buf(500);
 
     buf << uint8(UPDATETYPE_VALUES);
