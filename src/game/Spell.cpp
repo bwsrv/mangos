@@ -5329,7 +5329,12 @@ SpellCastResult Spell::CheckCast(bool strict)
     SpellCastResult locRes= sSpellMgr.GetSpellAllowedInLocationError(m_spellInfo, m_caster->GetMapId(), zone, area,
         m_caster->GetCharmerOrOwnerPlayerOrPlayerItself());
     if (locRes != SPELL_CAST_OK)
-        return locRes;
+    {
+        if (!m_IsTriggeredSpell)
+            return locRes;
+        else
+            return SPELL_FAILED_DONT_REPORT;
+    }
 
     bool castOnVehicleAllowed = false;
 
