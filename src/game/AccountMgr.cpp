@@ -38,13 +38,13 @@ AccountMgr::~AccountMgr()
 
 AccountOpResult AccountMgr::CreateAccount(std::string username, std::string password)
 {
-    if(utf8length(username) > MAX_ACCOUNT_STR)
+    if (utf8length(username) > MAX_ACCOUNT_STR)
         return AOR_NAME_TOO_LONG;                           // username's too long
 
     normalizeString(username);
     normalizeString(password);
 
-    if(GetId(username))
+    if (GetId(username))
     {
         return AOR_NAME_ALREDY_EXIST;                       // username does already exist
     }
@@ -105,10 +105,10 @@ AccountOpResult AccountMgr::ChangeUsername(uint32 accid, std::string new_uname, 
         return AOR_NAME_NOT_EXIST;                          // account doesn't exist
     delete result;
 
-    if(utf8length(new_uname) > MAX_ACCOUNT_STR)
+    if (utf8length(new_uname) > MAX_ACCOUNT_STR)
         return AOR_NAME_TOO_LONG;
 
-    if(utf8length(new_passwd) > MAX_ACCOUNT_STR)
+    if (utf8length(new_passwd) > MAX_ACCOUNT_STR)
         return AOR_PASS_TOO_LONG;
 
     normalizeString(new_uname);
@@ -161,7 +161,7 @@ uint32 AccountMgr::GetId(std::string username)
 AccountTypes AccountMgr::GetSecurity(uint32 acc_id)
 {
     QueryResult *result = LoginDatabase.PQuery("SELECT gmlevel FROM account WHERE id = '%u'", acc_id);
-    if(result)
+    if (result)
     {
         AccountTypes sec = AccountTypes((*result)[0].GetInt32());
         delete result;
@@ -174,7 +174,7 @@ AccountTypes AccountMgr::GetSecurity(uint32 acc_id)
 bool AccountMgr::GetName(uint32 acc_id, std::string &name)
 {
     QueryResult *result = LoginDatabase.PQuery("SELECT username FROM account WHERE id = '%u'", acc_id);
-    if(result)
+    if (result)
     {
         name = (*result)[0].GetCppString();
         delete result;

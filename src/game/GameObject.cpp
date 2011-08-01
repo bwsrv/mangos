@@ -84,7 +84,7 @@ void GameObject::AddToWorld()
 void GameObject::RemoveFromWorld(bool remove)
 {
     ///- Remove the gameobject from the accessor
-    if(IsInWorld())
+    if (IsInWorld())
     {
         // Remove GO from owner
         if (ObjectGuid owner_guid = GetOwnerGuid())
@@ -474,7 +474,7 @@ void GameObject::Update(uint32 update_diff, uint32 diff)
                 case GAMEOBJECT_TYPE_CHEST:
                     if (m_groupLootId)
                     {
-                        if(update_diff < m_groupLootTimer)
+                        if (update_diff < m_groupLootTimer)
                             m_groupLootTimer -= update_diff;
                         else
                             StopGroupLoot();
@@ -570,10 +570,10 @@ void GameObject::Update(uint32 update_diff, uint32 diff)
 void GameObject::Refresh()
 {
     // not refresh despawned not casted GO (despawned casted GO destroyed in all cases anyway)
-    if(m_respawnTime > 0 && m_spawnedByDefault)
+    if (m_respawnTime > 0 && m_spawnedByDefault)
         return;
 
-    if(isSpawned())
+    if (isSpawned())
         GetMap()->Add(this);
 }
 
@@ -685,7 +685,7 @@ bool GameObject::LoadFromDB(uint32 guid, Map *map)
 {
     GameObjectData const* data = sObjectMgr.GetGOData(guid);
 
-    if( !data )
+    if ( !data )
     {
         sLog.outErrorDb("Gameobject (GUID: %u) not found in table `gameobject`, can't load. ",guid);
         return false;
@@ -719,7 +719,7 @@ bool GameObject::LoadFromDB(uint32 guid, Map *map)
     }
     else
     {
-        if(data->spawntimesecs >= 0)
+        if (data->spawntimesecs >= 0)
         {
             m_spawnedByDefault = true;
             m_respawnDelayTime = data->spawntimesecs;
@@ -828,7 +828,7 @@ Unit* GameObject::GetOwner() const
 
 void GameObject::SaveRespawnTime()
 {
-    if(m_respawnTime > time(NULL) && m_spawnedByDefault)
+    if (m_respawnTime > time(NULL) && m_spawnedByDefault)
         GetMap()->GetPersistentState()->SaveGORespawnTime(GetGUIDLow(), m_respawnTime);
 }
 
@@ -843,7 +843,7 @@ bool GameObject::isVisibleForInState(Player const* u, WorldObject const* viewPoi
         return false;
 
     // Transport always visible at this step implementation
-    if(IsTransport() && IsInMap(u))
+    if (IsTransport() && IsInMap(u))
         return true;
 
     // quick check visibility false cases for non-GM-mode
@@ -854,15 +854,15 @@ bool GameObject::isVisibleForInState(Player const* u, WorldObject const* viewPoi
             return false;
 
         // special invisibility cases
-        if(GetGOInfo()->type == GAMEOBJECT_TYPE_TRAP && GetGOInfo()->trap.stealthed)
+        if (GetGOInfo()->type == GAMEOBJECT_TYPE_TRAP && GetGOInfo()->trap.stealthed)
         {
-            if(u->HasAura(2836) && u->isInFront(this, 15.0f))   // hack, maybe values are wrong
+            if (u->HasAura(2836) && u->isInFront(this, 15.0f))   // hack, maybe values are wrong
                 return true;
 
             if (GetOwner() && u->IsFriendlyTo(GetOwner()))
                 return true;
 
-            if(m_lootState == GO_READY)
+            if (m_lootState == GO_READY)
                 return false;
         }
     }
@@ -874,7 +874,7 @@ bool GameObject::isVisibleForInState(Player const* u, WorldObject const* viewPoi
 
 void GameObject::Respawn()
 {
-    if(m_spawnedByDefault && m_respawnTime > 0)
+    if (m_spawnedByDefault && m_respawnTime > 0)
     {
         m_respawnTime = time(NULL);
         GetMap()->GetPersistentState()->SaveGORespawnTime(GetGUIDLow(), 0);
@@ -1048,7 +1048,7 @@ void GameObject::ResetDoorOrButton()
 
 void GameObject::UseDoorOrButton(uint32 time_to_restore, bool alternative /* = false */)
 {
-    if(m_lootState != GO_READY)
+    if (m_lootState != GO_READY)
         return;
 
     if(!time_to_restore)
@@ -1062,12 +1062,12 @@ void GameObject::UseDoorOrButton(uint32 time_to_restore, bool alternative /* = f
 
 void GameObject::SwitchDoorOrButton(bool activate, bool alternative /* = false */)
 {
-    if(activate)
+    if (activate)
         SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
     else
         RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
 
-    if(GetGoState() == GO_STATE_READY)                      //if closed -> open
+    if (GetGoState() == GO_STATE_READY)                      //if closed -> open
         SetGoState(alternative ? GO_STATE_ACTIVE_ALTERNATIVE : GO_STATE_ACTIVE);
     else                                                    //if open -> close
         SetGoState(GO_STATE_READY);
@@ -2099,7 +2099,7 @@ void GameObject::SetWorldRotationAngles(float z_rot, float y_rot, float x_rot)
 bool GameObject::IsHostileTo(Unit const* unit) const
 {
     // always non-hostile to GM in GM mode
-    if(unit->GetTypeId()==TYPEID_PLAYER && ((Player const*)unit)->isGameMaster())
+    if (unit->GetTypeId()==TYPEID_PLAYER && ((Player const*)unit)->isGameMaster())
         return false;
 
     // test owner instead if have
@@ -2120,17 +2120,17 @@ bool GameObject::IsHostileTo(Unit const* unit) const
         return false;
 
     // GvP forced reaction and reputation case
-    if(unit->GetTypeId()==TYPEID_PLAYER)
+    if (unit->GetTypeId()==TYPEID_PLAYER)
     {
         // forced reaction
-        if(tester_faction->faction)
+        if (tester_faction->faction)
         {
-            if(ReputationRank const* force = ((Player*)unit)->GetReputationMgr().GetForcedRankIfAny(tester_faction))
+            if (ReputationRank const* force = ((Player*)unit)->GetReputationMgr().GetForcedRankIfAny(tester_faction))
                 return *force <= REP_HOSTILE;
 
             // apply reputation state
             FactionEntry const* raw_tester_faction = sFactionStore.LookupEntry(tester_faction->faction);
-            if(raw_tester_faction && raw_tester_faction->reputationListID >=0 )
+            if (raw_tester_faction && raw_tester_faction->reputationListID >=0 )
                 return ((Player const*)unit)->GetReputationMgr().GetRank(raw_tester_faction) <= REP_HOSTILE;
         }
     }
@@ -2142,7 +2142,7 @@ bool GameObject::IsHostileTo(Unit const* unit) const
 bool GameObject::IsFriendlyTo(Unit const* unit) const
 {
     // always friendly to GM in GM mode
-    if(unit->GetTypeId()==TYPEID_PLAYER && ((Player const*)unit)->isGameMaster())
+    if (unit->GetTypeId()==TYPEID_PLAYER && ((Player const*)unit)->isGameMaster())
         return true;
 
     // test owner instead if have
@@ -2163,17 +2163,17 @@ bool GameObject::IsFriendlyTo(Unit const* unit) const
         return false;
 
     // GvP forced reaction and reputation case
-    if(unit->GetTypeId()==TYPEID_PLAYER)
+    if (unit->GetTypeId()==TYPEID_PLAYER)
     {
         // forced reaction
-        if(tester_faction->faction)
+        if (tester_faction->faction)
         {
-            if(ReputationRank const* force =((Player*)unit)->GetReputationMgr().GetForcedRankIfAny(tester_faction))
+            if (ReputationRank const* force =((Player*)unit)->GetReputationMgr().GetForcedRankIfAny(tester_faction))
                 return *force >= REP_FRIENDLY;
 
             // apply reputation state
-            if(FactionEntry const* raw_tester_faction = sFactionStore.LookupEntry(tester_faction->faction))
-                if(raw_tester_faction->reputationListID >=0 )
+            if (FactionEntry const* raw_tester_faction = sFactionStore.LookupEntry(tester_faction->faction))
+                if (raw_tester_faction->reputationListID >=0 )
                     return ((Player const*)unit)->GetReputationMgr().GetRank(raw_tester_faction) >= REP_FRIENDLY;
         }
     }

@@ -105,7 +105,7 @@ bool AssistDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
             if (assistant && assistant->CanAssistTo(&m_owner, victim))
             {
                 assistant->SetNoCallAssistance(true);
-                if(assistant->AI())
+                if (assistant->AI())
                     assistant->AI()->AttackStart(victim);
             }
         }
@@ -471,7 +471,7 @@ void Creature::Update(uint32 update_diff, uint32 diff)
             break;
         case DEAD:
         {
-            if( m_respawnTime <= time(NULL) )
+            if ( m_respawnTime <= time(NULL) )
             {
                 DEBUG_FILTER_LOG(LOG_FILTER_AI_AND_MOVEGENSS, "Respawning...");
                 m_respawnTime = 0;
@@ -482,7 +482,7 @@ void Creature::Update(uint32 update_diff, uint32 diff)
                 // Clear possible auras having IsDeathPersistent() attribute
                 RemoveAllAuras();
 
-                if(m_originalEntry != GetEntry())
+                if (m_originalEntry != GetEntry())
                 {
                     // need preserver gameevent state
                     GameEventCreatureData const* eventData = sGameEventMgr.GetCreatureUpdateDataForActiveEvent(GetGUIDLow());
@@ -537,7 +537,7 @@ void Creature::Update(uint32 update_diff, uint32 diff)
                 m_corpseDecayTimer -= update_diff;
                 if (m_groupLootId)
                 {
-                    if(update_diff < m_groupLootTimer)
+                    if (update_diff < m_groupLootTimer)
                         m_groupLootTimer -= update_diff;
                     else
                         StopGroupLoot();
@@ -611,9 +611,9 @@ void Creature::Update(uint32 update_diff, uint32 diff)
 
 void Creature::RegenerateAll(uint32 update_diff)
 {
-    if(m_regenTimer > 0)
+    if (m_regenTimer > 0)
     {
-        if(update_diff >= m_regenTimer)
+        if (update_diff >= m_regenTimer)
             m_regenTimer = 0;
         else
             m_regenTimer -= update_diff;
@@ -722,7 +722,7 @@ void Creature::RegenerateHealth()
         float HealthIncreaseRate = sWorld.getConfig(CONFIG_FLOAT_RATE_HEALTH);
         float Spirit = GetStat(STAT_SPIRIT);
 
-        if( GetPower(POWER_MANA) > 0 )
+        if ( GetPower(POWER_MANA) > 0 )
             addvalue = uint32(Spirit * 0.25 * HealthIncreaseRate);
         else
             addvalue = uint32(Spirit * 0.80 * HealthIncreaseRate);
@@ -760,7 +760,7 @@ void Creature::DoFleeToGetAssistance()
 bool Creature::AIM_Initialize()
 {
     // make sure nothing can change the AI during AI update
-    if(m_AI_locked)
+    if (m_AI_locked)
     {
         DEBUG_FILTER_LOG(LOG_FILTER_AI_AND_MOVEGENSS, "AIM_Initialize: failed to init, locked.");
         return false;
@@ -1300,17 +1300,17 @@ bool Creature::LoadFromDB(uint32 guidlow, Map *map)
 
     m_respawnTime  = map->GetPersistentState()->GetCreatureRespawnTime(GetGUIDLow());
 
-    if(m_respawnTime > time(NULL))                          // not ready to respawn
+    if (m_respawnTime > time(NULL))                          // not ready to respawn
     {
         m_deathState = DEAD;
-        if(CanFly())
+        if (CanFly())
         {
             float tz = GetTerrain()->GetHeight(data->posX, data->posY, data->posZ, false);
-            if(data->posZ - tz > 0.1)
+            if (data->posZ - tz > 0.1)
                 Relocate(data->posX, data->posY, tz);
         }
     }
-    else if(m_respawnTime)                                  // respawn time set but expired
+    else if (m_respawnTime)                                  // respawn time set but expired
     {
         m_respawnTime = 0;
 
@@ -1321,7 +1321,7 @@ bool Creature::LoadFromDB(uint32 guidlow, Map *map)
     if (curhealth)
     {
         curhealth = uint32(curhealth*_GetHealthMod(GetCreatureInfo()->rank));
-        if(curhealth < 1)
+        if (curhealth < 1)
             curhealth = 1;
     }
 
@@ -1339,7 +1339,7 @@ bool Creature::LoadFromDB(uint32 guidlow, Map *map)
 
 void Creature::LoadEquipment(uint32 equip_entry, bool force)
 {
-    if(equip_entry == 0)
+    if (equip_entry == 0)
     {
         if (force)
         {
@@ -1426,7 +1426,7 @@ void Creature::DeleteFromDB(uint32 lowguid, CreatureData const* data)
 float Creature::GetAttackDistance(Unit const* pl) const
 {
     float aggroRate = sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_AGGRO);
-    if(aggroRate == 0)
+    if (aggroRate == 0)
         return 0.0f;
 
     uint32 playerlevel   = pl->GetLevelForTarget(this);
@@ -1445,7 +1445,7 @@ float Creature::GetAttackDistance(Unit const* pl) const
     // radius grow if playlevel < creaturelevel
     RetDistance -= (float)leveldif;
 
-    if(creaturelevel+5 <= sWorld.getConfig(CONFIG_UINT32_MAX_PLAYER_LEVEL))
+    if (creaturelevel+5 <= sWorld.getConfig(CONFIG_UINT32_MAX_PLAYER_LEVEL))
     {
         // detect range auras
         RetDistance += GetTotalAuraModifier(SPELL_AURA_MOD_DETECT_RANGE);
@@ -1455,7 +1455,7 @@ float Creature::GetAttackDistance(Unit const* pl) const
     }
 
     // "Minimum Aggro Radius for a mob seems to be combat range (5 yards)"
-    if(RetDistance < 5)
+    if (RetDistance < 5)
         RetDistance = 5;
 
     return (RetDistance*aggroRate);
@@ -1657,7 +1657,7 @@ SpellEntry const *Creature::ReachWithSpellAttack(Unit *pVictim)
         bool bcontinue = true;
         for(int j = 0; j < MAX_EFFECT_INDEX; ++j)
         {
-            if( (spellInfo->Effect[j] == SPELL_EFFECT_SCHOOL_DAMAGE )       ||
+            if ( (spellInfo->Effect[j] == SPELL_EFFECT_SCHOOL_DAMAGE )       ||
                 (spellInfo->Effect[j] == SPELL_EFFECT_INSTAKILL)            ||
                 (spellInfo->Effect[j] == SPELL_EFFECT_ENVIRONMENTAL_DAMAGE) ||
                 (spellInfo->Effect[j] == SPELL_EFFECT_HEALTH_LEECH )
@@ -1667,9 +1667,9 @@ SpellEntry const *Creature::ReachWithSpellAttack(Unit *pVictim)
                 break;
             }
         }
-        if(bcontinue) continue;
+        if (bcontinue) continue;
 
-        if(spellInfo->manaCost > GetPower(POWER_MANA))
+        if (spellInfo->manaCost > GetPower(POWER_MANA))
             continue;
         SpellRangeEntry const* srange = sSpellRangeStore.LookupEntry(spellInfo->rangeIndex);
         float range = GetSpellMaxRange(srange);
@@ -1679,11 +1679,11 @@ SpellEntry const *Creature::ReachWithSpellAttack(Unit *pVictim)
 
         //if(!isInFront( pVictim, range ) && spellInfo->AttributesEx )
         //    continue;
-        if( dist > range || dist < minrange )
+        if ( dist > range || dist < minrange )
             continue;
-        if(spellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED))
+        if (spellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED))
             continue;
-        if(spellInfo->PreventionType == SPELL_PREVENTION_TYPE_PACIFY && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
+        if (spellInfo->PreventionType == SPELL_PREVENTION_TYPE_PACIFY && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
             continue;
         return spellInfo;
     }
@@ -1711,16 +1711,16 @@ SpellEntry const *Creature::ReachWithSpellCure(Unit *pVictim)
         bool bcontinue = true;
         for(int j = 0; j < MAX_EFFECT_INDEX; ++j)
         {
-            if( (spellInfo->Effect[j] == SPELL_EFFECT_HEAL ) )
+            if ( (spellInfo->Effect[j] == SPELL_EFFECT_HEAL ) )
             {
                 bcontinue = false;
                 break;
             }
         }
-        if(bcontinue)
+        if (bcontinue)
             continue;
 
-        if(spellInfo->manaCost > GetPower(POWER_MANA))
+        if (spellInfo->manaCost > GetPower(POWER_MANA))
             continue;
         SpellRangeEntry const* srange = sSpellRangeStore.LookupEntry(spellInfo->rangeIndex);
         float range = GetSpellMaxRange(srange);
@@ -1730,11 +1730,11 @@ SpellEntry const *Creature::ReachWithSpellCure(Unit *pVictim)
 
         //if(!isInFront( pVictim, range ) && spellInfo->AttributesEx )
         //    continue;
-        if( dist > range || dist < minrange )
+        if ( dist > range || dist < minrange )
             continue;
-        if(spellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED))
+        if (spellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED))
             continue;
-        if(spellInfo->PreventionType == SPELL_PREVENTION_TYPE_PACIFY && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
+        if (spellInfo->PreventionType == SPELL_PREVENTION_TYPE_PACIFY && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
             continue;
         return spellInfo;
     }
@@ -1744,26 +1744,26 @@ SpellEntry const *Creature::ReachWithSpellCure(Unit *pVictim)
 bool Creature::IsVisibleInGridForPlayer(Player* pl) const
 {
     // gamemaster in GM mode see all, including ghosts
-    if(pl->isGameMaster())
+    if (pl->isGameMaster())
         return true;
 
     if (GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_INVISIBLE)
         return false;
 
     // Live player (or with not release body see live creatures or death creatures with corpse disappearing time > 0
-    if(pl->isAlive() || pl->GetDeathTimer() > 0)
+    if (pl->isAlive() || pl->GetDeathTimer() > 0)
     {
         return (isAlive() || m_corpseDecayTimer > 0 || (m_isDeadByDefault && m_deathState == CORPSE));
     }
 
     // Dead player see live creatures near own corpse
-    if(isAlive())
+    if (isAlive())
     {
         Corpse *corpse = pl->GetCorpse();
-        if(corpse)
+        if (corpse)
         {
             // 20 - aggro distance for same level, 25 - max additional distance if player level less that creature level
-            if(corpse->IsWithinDistInMap(this,(20+25)*sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_AGGRO)))
+            if (corpse->IsWithinDistInMap(this,(20+25)*sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_AGGRO)))
                 return true;
         }
     }
@@ -1796,7 +1796,7 @@ void Creature::CallAssistance()
         SetNoCallAssistance(true);
 
         float radius = sWorld.getConfig(CONFIG_FLOAT_CREATURE_FAMILY_ASSISTANCE_RADIUS);
-        if(radius > 0)
+        if (radius > 0)
         {
             std::list<Creature*> assistList;
 
@@ -1881,10 +1881,10 @@ bool Creature::CanInitiateAttack()
 
 void Creature::SaveRespawnTime()
 {
-    if(IsPet() || !HasStaticDBSpawnData())
+    if (IsPet() || !HasStaticDBSpawnData())
         return;
 
-    if(m_respawnTime > time(NULL))                          // dead (no corpse)
+    if (m_respawnTime > time(NULL))                          // dead (no corpse)
         GetMap()->GetPersistentState()->SaveCreatureRespawnTime(GetGUIDLow(), m_respawnTime);
     else if (m_corpseDecayTimer > 0)                        // dead (corpse)
         GetMap()->GetPersistentState()->SaveCreatureRespawnTime(GetGUIDLow(), time(NULL) + m_respawnDelay + m_corpseDecayTimer / IN_MILLISECONDS);
@@ -1907,7 +1907,7 @@ bool Creature::IsOutOfThreatArea(Unit* pVictim) const
     if (!pVictim->isVisibleForOrDetect(this,this,false))
         return true;
 
-    if(sMapStore.LookupEntry(GetMapId())->IsDungeon())
+    if (sMapStore.LookupEntry(GetMapId())->IsDungeon())
         return false;
 
     float AttackDist = GetAttackDistance(pVictim);
@@ -1978,7 +1978,7 @@ bool Creature::LoadCreatureAddon(bool reload)
     if (cainfo->splineFlags & SPLINEFLAG_FLYING)
         SetLevitate(true);
 
-    if(cainfo->auras)
+    if (cainfo->auras)
     {
         for (uint32 const* cAura = cainfo->auras; *cAura; ++cAura)
         {
@@ -2146,10 +2146,10 @@ void Creature::AddCreatureSpellCooldown(uint32 spellid)
         return;
 
     uint32 cooldown = GetSpellRecoveryTime(spellInfo);
-    if(cooldown)
+    if (cooldown)
         _AddCreatureSpellCooldown(spellid, time(NULL) + cooldown/IN_MILLISECONDS);
 
-    if(spellInfo->Category)
+    if (spellInfo->Category)
         _AddCreatureCategoryCooldown(spellInfo->Category, time(NULL));
 }
 
@@ -2185,7 +2185,7 @@ bool Creature::HasSpell(uint32 spellID)
 time_t Creature::GetRespawnTimeEx() const
 {
     time_t now = time(NULL);
-    if(m_respawnTime > now)                                 // dead (no corpse)
+    if (m_respawnTime > now)                                 // dead (no corpse)
         return m_respawnTime;
     else if (m_corpseDecayTimer > 0)                        // dead (corpse)
         return now + m_respawnDelay + m_corpseDecayTimer / IN_MILLISECONDS;
@@ -2276,9 +2276,9 @@ uint32 Creature::GetLevelForTarget( Unit const* target ) const
         return Unit::GetLevelForTarget(target);
 
     uint32 level = target->getLevel()+sWorld.getConfig(CONFIG_UINT32_WORLD_BOSS_LEVEL_DIFF);
-    if(level < 1)
+    if (level < 1)
         return 1;
-    if(level > 255)
+    if (level > 255)
         return 255;
     return level;
 }
@@ -2316,17 +2316,17 @@ uint32 Creature::GetVendorItemCurrentCount(VendorItem const* vItem)
 
     VendorItemCounts::iterator itr = m_vendorItemCounts.begin();
     for(; itr != m_vendorItemCounts.end(); ++itr)
-        if(itr->itemId==vItem->item)
+        if (itr->itemId==vItem->item)
             break;
 
-    if(itr == m_vendorItemCounts.end())
+    if (itr == m_vendorItemCounts.end())
         return vItem->maxcount;
 
     VendorItemCount* vCount = &*itr;
 
     time_t ptime = time(NULL);
 
-    if( vCount->lastIncrementTime + vItem->incrtime <= ptime )
+    if ( vCount->lastIncrementTime + vItem->incrtime <= ptime )
     {
         ItemPrototype const* pProto = ObjectMgr::GetItemPrototype(vItem->item);
 
@@ -2351,10 +2351,10 @@ uint32 Creature::UpdateVendorItemCurrentCount(VendorItem const* vItem, uint32 us
 
     VendorItemCounts::iterator itr = m_vendorItemCounts.begin();
     for(; itr != m_vendorItemCounts.end(); ++itr)
-        if(itr->itemId==vItem->item)
+        if (itr->itemId==vItem->item)
             break;
 
-    if(itr == m_vendorItemCounts.end())
+    if (itr == m_vendorItemCounts.end())
     {
         uint32 new_count = vItem->maxcount > used_count ? vItem->maxcount-used_count : 0;
         m_vendorItemCounts.push_back(VendorItemCount(vItem->item,new_count));
@@ -2365,7 +2365,7 @@ uint32 Creature::UpdateVendorItemCurrentCount(VendorItem const* vItem, uint32 us
 
     time_t ptime = time(NULL);
 
-    if( vCount->lastIncrementTime + vItem->incrtime <= ptime )
+    if ( vCount->lastIncrementTime + vItem->incrtime <= ptime )
     {
         ItemPrototype const* pProto = ObjectMgr::GetItemPrototype(vItem->item);
 
@@ -2420,13 +2420,13 @@ void Creature::ClearTemporaryFaction()
 
 void Creature::SetActiveObjectState( bool on )
 {
-    if(m_isActiveObject==on)
+    if (m_isActiveObject==on)
         return;
 
     bool world = IsInWorld();
 
     Map* map;
-    if(world)
+    if (world)
     {
         map = GetMap();
         map->Remove(this,false);
@@ -2434,7 +2434,7 @@ void Creature::SetActiveObjectState( bool on )
 
     m_isActiveObject = on;
 
-    if(world)
+    if (world)
         map->Add(this);
 }
 

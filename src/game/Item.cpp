@@ -1369,7 +1369,7 @@ bool Item::HasTriggeredByAuraSpell(SpellEntry const* spellInfo) const
             continue;
 
         // wrong triggering type
-        if(spellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_EQUIP)
+        if (spellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_EQUIP)
             continue;
 
         // check if it is valid spell

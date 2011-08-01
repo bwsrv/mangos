@@ -450,16 +450,10 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                     case 50811:
                     case 61547:
                     {
-                        if (unitTarget == m_caster)
-                        {
-                            damage = 0;
-                        }
-                        else if (unitTarget && m_caster)
-                        {
-                            int32 dist = (int32)unitTarget->GetDistance(m_caster);
-                            int32 dmgPerYd = (int32)(damage / GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[effect_idx])));
-                            damage -= dmgPerYd * dist;
-                        }
+                        float dist = unitTarget->GetDistance(m_caster);
+                        float radius = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[effect_idx]));
+
+                        damage = damage / radius * (radius - dist);
                         break;
                     }
                     // Flame Tsunami (Sartharion encounter)
@@ -2780,7 +2774,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                         return;
 
                     Unit* caster = GetCaster();
-
                     if (!caster)
                         return;
 
@@ -3192,7 +3185,8 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 {
                     if (!unitTarget)
                         return;
-                    m_caster->CastSpell(unitTarget, 21887, true);// spell mod
+
+                    m_caster->CastSpell(unitTarget, 21887, true);
                     return;
                 }
                 // Last Stand
@@ -3430,6 +3424,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
             {
                 Unit* target = unitTarget;
                 uint32 spellid;
+
                 switch(m_spellInfo->Id)
                 {
                     case 57635: spellid = 57636; break;     // one from creature cases
@@ -3440,6 +3435,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 }
                 if (!target || !target->isAlive())
                     return;
+
                 m_caster->CastSpell(target,spellid,true,NULL);
             }
 
@@ -3658,6 +3654,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
             {
                 if (!unitTarget || unitTarget->getPowerType()!=POWER_MANA)
                     return;
+
                 m_caster->CastCustomSpell(unitTarget, 52032, &damage, 0, 0, true, 0, 0, m_originalCasterGUID);
                 return;
             }
@@ -3682,6 +3679,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
             {
                 if (!unitTarget || unitTarget->getPowerType() != POWER_MANA)
                     return;
+
                 // Glyph of Mana Tide
                 if (Unit *owner = m_caster->GetOwner())
                     if (Aura *dummy = owner->GetDummyAura(55441))
@@ -3696,6 +3694,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
             {
                 if (m_caster->GetTypeId()!=TYPEID_PLAYER)
                     return;
+
                 Item *item = ((Player*)m_caster)->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
                 if (item)
                 {
@@ -8134,7 +8133,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     if (!unitTarget)
                         return;
 
-                    unitTarget->CastSpell(unitTarget, m_spellInfo->Id + 1, true, NULL, NULL, m_caster->GetObjectGuid());
+                    unitTarget->CastSpell(unitTarget, m_spellInfo->Id + 1, true);
                     return;
                 }
                 case 50894:                                 // Zul'Drak Rat

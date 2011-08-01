@@ -136,7 +136,7 @@ namespace MaNGOS
             {
                 char const* text = sObjectMgr.GetMangosString(i_textId,loc_idx);
 
-                if(i_args)
+                if (i_args)
                 {
                     // we need copy va_list before use or original va_list will corrupted
                     va_list ap;
@@ -559,13 +559,13 @@ void BattleGround::Update(uint32 diff)
     }
 
     // Arena time limit
-    if(isArena() && !m_ArenaEnded)
+    if (isArena() && !m_ArenaEnded)
     {
-        if(m_StartTime > uint32(ARENA_TIME_LIMIT))
+        if (m_StartTime > uint32(ARENA_TIME_LIMIT))
         {
             Team winner;
             // winner is team with higher damage
-            if(GetDamageDoneForTeam(ALLIANCE) > GetDamageDoneForTeam(HORDE))
+            if (GetDamageDoneForTeam(ALLIANCE) > GetDamageDoneForTeam(HORDE))
                 winner = ALLIANCE;
             else if (GetDamageDoneForTeam(HORDE) > GetDamageDoneForTeam(ALLIANCE))
                 winner = HORDE;
@@ -756,7 +756,7 @@ void BattleGround::RewardXpToTeam(uint32 Xp, float percentOfLevel, Team team)
         if (bgTeam == team)
         {
             uint32 gain = Xp;
-            if(gain == 0 && percentOfLevel != 0)
+            if (gain == 0 && percentOfLevel != 0)
             {
                 percentOfLevel = percentOfLevel / 100;
                 gain = uint32(float(plr->GetUInt32Value(PLAYER_NEXT_LEVEL_XP))*percentOfLevel);
@@ -1091,16 +1091,16 @@ void BattleGround::RewardItem(Player *plr, uint32 item_id, uint32 count)
     uint32 no_space_count = 0;
     uint8 msg = plr->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, item_id, count, &no_space_count );
 
-    if( msg == EQUIP_ERR_ITEM_NOT_FOUND)
+    if ( msg == EQUIP_ERR_ITEM_NOT_FOUND)
     {
         sLog.outErrorDb("Battleground reward item (Entry %u) not exist in `item_template`.",item_id);
         return;
     }
 
-    if( msg != EQUIP_ERR_OK )                               // convert to possible store amount
+    if ( msg != EQUIP_ERR_OK )                               // convert to possible store amount
         count -= no_space_count;
 
-    if( count != 0 && !dest.empty())                        // can add some
+    if ( count != 0 && !dest.empty())                        // can add some
         if (Item* item = plr->StoreNewItem( dest, item_id, true, 0))
             plr->SendNewItem(item,count,true,false);
 
@@ -1209,7 +1209,7 @@ void BattleGround::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
 
     RemovePlayer(plr, guid);                                // BG subclass specific code
 
-    if(participant) // if the player was a match participant, remove auras, calc rating, update queue
+    if (participant) // if the player was a match participant, remove auras, calc rating, update queue
     {
         BattleGroundTypeId bgTypeId = GetTypeID();
         BattleGroundQueueTypeId bgQueueTypeId = BattleGroundMgr::BGQueueTypeId(GetTypeID(), GetArenaType());
@@ -1264,7 +1264,7 @@ void BattleGround::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
         // remove from raid group if player is member
         if (Group *group = GetBgRaid(team))
         {
-            if( !group->RemoveMember(guid, 0) )             // group was disbanded
+            if ( !group->RemoveMember(guid, 0) )             // group was disbanded
             {
                 SetBgRaid(team, NULL);
                 delete group;
@@ -1396,7 +1396,7 @@ void BattleGround::AddPlayer(Player *plr)
         plr->DestroyConjuredItems(true);
         plr->UnsummonPetTemporaryIfAny();
 
-        if(GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
+        if (GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
             plr->CastSpell(plr, SPELL_ARENA_PREPARATION, true);
 
         plr->CastSpell(plr, SPELL_ARENA_DAMPENING, true);
@@ -1405,7 +1405,7 @@ void BattleGround::AddPlayer(Player *plr)
     {
         plr->CastSpell(plr, SPELL_BATTLEGROUND_DAMPENING, true);
 
-        if(GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
+        if (GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
             plr->CastSpell(plr, SPELL_PREPARATION, true);   // reduces all mana cost of spells.
 
         plr->CastSpell(plr, SPELL_BATTLEGROUND_DAMPENING, true);
@@ -1432,7 +1432,7 @@ uint32 BattleGround::GetDamageDoneForTeam(Team team)
         if (!plr)
             continue;
         if(!bgTeam) bgTeam = plr->GetTeam();
-        if(bgTeam == team)
+        if (bgTeam == team)
             finaldamage += GetPlayerScore(plr, SCORE_DAMAGE_DONE);
     }
     return finaldamage;
@@ -1547,7 +1547,7 @@ void BattleGround::UpdatePlayerScore(Player *Source, uint32 type, uint32 value)
     //this procedure is called from virtual function implemented in bg subclass
     BattleGroundScoreMap::const_iterator itr = m_PlayerScores.find(Source->GetObjectGuid());
 
-    if(itr == m_PlayerScores.end())                         // player not found...
+    if (itr == m_PlayerScores.end())                         // player not found...
         return;
 
     switch(type)
@@ -2064,7 +2064,7 @@ uint32 BattleGround::GetPlayerScore(Player *Source, uint32 type)
 {
     BattleGroundScoreMap::const_iterator itr = m_PlayerScores.find(Source->GetGUID());
 
-    if(itr == m_PlayerScores.end())                         // player not found...
+    if (itr == m_PlayerScores.end())                         // player not found...
         return 0;
 
     switch(type)
