@@ -46,7 +46,7 @@ void DynamicObject::AddToWorld()
     Object::AddToWorld();
 }
 
-void DynamicObject::RemoveFromWorld()
+void DynamicObject::RemoveFromWorld(bool remove)
 {
     ///- Remove the dynamicObject from the accessor
     if(IsInWorld())

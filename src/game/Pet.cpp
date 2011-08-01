@@ -77,7 +77,7 @@ void Pet::AddToWorld()
     Unit::AddToWorld();
 }
 
-void Pet::RemoveFromWorld()
+void Pet::RemoveFromWorld(bool remove)
 {
     ///- Remove the pet from the accessor
     if (((Creature*)this)->IsInWorld())
@@ -87,7 +87,7 @@ void Pet::RemoveFromWorld()
             sObjectAccessor.RemoveObject(this);
     }
     ///- Don't call the function for Creature, normal mobs + totems go in a different storage
-    Unit::RemoveFromWorld();
+    Unit::RemoveFromWorld(remove);
 }
 
 void Pet::CleanupsBeforeDelete()
