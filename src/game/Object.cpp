@@ -1100,9 +1100,6 @@ float WorldObject::GetDistanceZ(const WorldObject* obj) const
 
 bool WorldObject::IsWithinDist3d(float x, float y, float z, float dist2compare) const
 {
-    if (IsDeleted())
-        return false;
-
     float dx = GetPositionX() - x;
     float dy = GetPositionY() - y;
     float dz = GetPositionZ() - z;
@@ -1116,9 +1113,6 @@ bool WorldObject::IsWithinDist3d(float x, float y, float z, float dist2compare) 
 
 bool WorldObject::IsWithinDist2d(float x, float y, float dist2compare) const
 {
-    if (IsDeleted())
-        return false;
-
     float dx = GetPositionX() - x;
     float dy = GetPositionY() - y;
     float distsq = dx*dx + dy*dy;
@@ -1131,9 +1125,6 @@ bool WorldObject::IsWithinDist2d(float x, float y, float dist2compare) const
 
 bool WorldObject::_IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D) const
 {
-    if (!obj || IsDeleted() || obj->IsDeleted())
-        return false;
-
     float dx = GetPositionX() - obj->GetPositionX();
     float dy = GetPositionY() - obj->GetPositionY();
     float distsq = dx*dx + dy*dy;
@@ -1150,7 +1141,7 @@ bool WorldObject::_IsWithinDist(WorldObject const* obj, float dist2compare, bool
 
 bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
 {
-    if (!IsInMap(obj) || IsDeleted())
+    if (!IsInMap(obj)) 
         return false;
 
     float ox,oy,oz;
@@ -1183,9 +1174,6 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
 
 bool WorldObject::IsWithinLOS(float ox, float oy, float oz) const
 {
-    if (IsDeleted())
-        return false;
-
     float x,y,z;
     GetPosition(x,y,z);
     VMAP::IVMapManager *vMapManager = VMAP::VMapFactory::createOrGetVMapManager();
@@ -1217,9 +1205,6 @@ bool WorldObject::GetDistanceOrder(WorldObject const* obj1, WorldObject const* o
 
 bool WorldObject::IsInRange(WorldObject const* obj, float minRange, float maxRange, bool is3D /* = true */) const
 {
-    if (!obj || IsDeleted() || obj->IsDeleted())
-        return false;
-
     float dx = GetPositionX() - obj->GetPositionX();
     float dy = GetPositionY() - obj->GetPositionY();
     float distsq = dx*dx + dy*dy;
@@ -1245,9 +1230,6 @@ bool WorldObject::IsInRange(WorldObject const* obj, float minRange, float maxRan
 
 bool WorldObject::IsInRange2d(float x, float y, float minRange, float maxRange) const
 {
-    if (IsDeleted())
-        return false;
-
     float dx = GetPositionX() - x;
     float dy = GetPositionY() - y;
     float distsq = dx*dx + dy*dy;
@@ -1268,9 +1250,6 @@ bool WorldObject::IsInRange2d(float x, float y, float minRange, float maxRange) 
 
 bool WorldObject::IsInRange3d(float x, float y, float z, float minRange, float maxRange) const
 {
-    if (IsDeleted())
-        return false;
-
     float dx = GetPositionX() - x;
     float dy = GetPositionY() - y;
     float dz = GetPositionZ() - z;
@@ -1292,9 +1271,6 @@ bool WorldObject::IsInRange3d(float x, float y, float z, float minRange, float m
 
 bool WorldObject::IsInBetween(const WorldObject *obj1, const WorldObject *obj2, float size) const
 {
-    if (!obj1 || obj1->IsDeleted() || !obj2 || obj2->IsDeleted())
-        return false;
-
     if (GetPositionX() > std::max(obj1->GetPositionX(), obj2->GetPositionX())
         || GetPositionX() < std::min(obj1->GetPositionX(), obj2->GetPositionX())
         || GetPositionY() > std::max(obj1->GetPositionY(), obj2->GetPositionY())
@@ -1310,9 +1286,7 @@ bool WorldObject::IsInBetween(const WorldObject *obj1, const WorldObject *obj2, 
 
 float WorldObject::GetAngle(const WorldObject* obj) const
 {
-    if(!obj || obj->IsDeleted()) 
-        return 0.0f;
-
+    if(!obj) return 0;
     return GetAngle( obj->GetPositionX(), obj->GetPositionY() );
 }
 
@@ -1604,21 +1578,21 @@ void WorldObject::BuildMonsterChat(WorldPacket *data, ObjectGuid senderGuid, uin
 void WorldObject::SendMessageToSet(WorldPacket *data, bool /*bToSelf*/)
 {
     //if object is in world, map for it already created!
-    if (IsInWorld() && !IsDeleted())
+    if (IsInWorld())
         GetMap()->MessageBroadcast(this, data);
 }
 
 void WorldObject::SendMessageToSetInRange(WorldPacket *data, float dist, bool /*bToSelf*/)
 {
     //if object is in world, map for it already created!
-    if (IsInWorld() && !IsDeleted())
+    if (IsInWorld())
         GetMap()->MessageDistBroadcast(this, data, dist);
 }
 
 void WorldObject::SendMessageToSetExcept(WorldPacket *data, Player const* skipped_receiver)
 {
     //if object is in world, map for it already created!
-    if (IsInWorld() && !IsDeleted())
+    if (IsInWorld())
     {
         MaNGOS::MessageDelivererExcept notifier(this, data, skipped_receiver);
         Cell::VisitWorldObjects(this, notifier, GetMap()->GetVisibilityDistance());
@@ -1682,7 +1656,7 @@ Creature* WorldObject::SummonCreature(uint32 id, float x, float y, float z, floa
 
     if (!pCreature->Create(GetMap()->GenerateLocalLowGuid(cinfo->GetHighGuid()), pos, cinfo, team))
     {
-        sWorld.AddObjectToRemoveList((WorldObject*)pCreature);
+        delete pCreature;
         return NULL;
     }
 

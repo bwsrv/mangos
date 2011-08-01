@@ -30,16 +30,11 @@ Camera::Camera(Player* pl) : m_owner(*pl), m_source(pl)
 
 Camera::~Camera()
 {
-    if (m_source)
-    {
-        // view of camera should be already reseted to owner (RemoveFromWorld -> Event_RemovedFromWorld -> ResetView)
-        MANGOS_ASSERT(m_source == &m_owner);
+    // view of camera should be already reseted to owner (RemoveFromWorld -> Event_RemovedFromWorld -> ResetView)
+    MANGOS_ASSERT(m_source == &m_owner);
 
-        // for symmetry with constructor and way to make viewpoint's list empty
-        m_source->GetViewPoint().Detach(this);
-    }
-    else
-        sLog.outError("Camera::~Camera destruct camera, but view not setted to owner!");
+    // for symmetry with constructor and way to make viewpoint's list empty
+    m_source->GetViewPoint().Detach(this);
 }
 
 void Camera::ReceivePacket(WorldPacket *data)
@@ -64,9 +59,6 @@ void Camera::SetView(WorldObject *obj, bool update_far_sight_field /*= true*/)
     if (m_source == obj)
         return;
 
-    if (!m_source || m_source->IsDeleted())
-        return;
-
     if (!m_owner.IsInMap(obj))
     {
         sLog.outError("Camera::SetView, viewpoint is not in map with camera's owner");
@@ -81,7 +73,7 @@ void Camera::SetView(WorldObject *obj, bool update_far_sight_field /*= true*/)
 
     // detach and deregister from active objects if there are no more reasons to be active
     m_source->GetViewPoint().Detach(this);
-    if (!m_source->isActiveObject() && m_source->GetMap())
+    if (!m_source->isActiveObject())
         m_source->GetMap()->RemoveFromActive(m_source);
 
     m_source = obj;

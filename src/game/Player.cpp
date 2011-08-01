@@ -579,7 +579,6 @@ Player::~Player ()
 
     // it must be unloaded already in PlayerLogout and accessed only for loggined player
     //m_social = NULL;
-    GetViewPoint().Event_RemovedFromWorld();
 
     // Note: buy back item already deleted from DB when player was saved
     for(int i = 0; i < PLAYER_SLOTS_COUNT; ++i)
@@ -6386,18 +6385,18 @@ void Player::SaveRecallPosition()
 
 void Player::SendMessageToSet(WorldPacket *data, bool self)
 {
-    if (IsInWorld() && !IsDeleted())
+    if (IsInWorld())
         GetMap()->MessageBroadcast(this, data, false);
 
     //if player is not in world and map in not created/already destroyed
     //no need to create one, just send packet for itself!
-    if (self && !IsDeleted())
+    if (self)
         GetSession()->SendPacket(data);
 }
 
 void Player::SendMessageToSetInRange(WorldPacket *data, float dist, bool self)
 {
-    if (IsInWorld() && !IsDeleted())
+    if (IsInWorld())
         GetMap()->MessageDistBroadcast(this, data, dist, false);
 
     if (self)
@@ -6406,17 +6405,16 @@ void Player::SendMessageToSetInRange(WorldPacket *data, float dist, bool self)
 
 void Player::SendMessageToSetInRange(WorldPacket *data, float dist, bool self, bool own_team_only)
 {
-    if (IsInWorld() && !IsDeleted())
+    if (IsInWorld())
         GetMap()->MessageDistBroadcast(this, data, dist, false, own_team_only);
 
-    if (self && !IsDeleted())
+    if (self)
         GetSession()->SendPacket(data);
 }
 
 void Player::SendDirectMessage(WorldPacket *data)
 {
-    if (!IsDeleted())
-        GetSession()->SendPacket(data);
+    GetSession()->SendPacket(data);
 }
 
 void Player::SendCinematicStart(uint32 CinematicSequenceId)
@@ -17170,7 +17168,7 @@ void Player::LoadPet()
     {
         Pet *pet = new Pet;
         if(!pet->LoadPetFromDB(this, 0, 0, true))
-            sWorld.AddObjectToRemoveList((WorldObject*)pet);
+            delete pet;
     }
 }
 
@@ -21472,13 +21470,12 @@ void Player::UpdateForQuestWorldObjects()
         if (itr->IsGameObject())
         {
             if (GameObject *obj = GetMap()->GetGameObject(*itr))
-                if (!obj->IsDeleted())
-                    obj->BuildValuesUpdateBlockForPlayer(&udata,this);
+                obj->BuildValuesUpdateBlockForPlayer(&udata,this);
         }
         else if (itr->IsCreatureOrVehicle())
         {
             Creature *obj = GetMap()->GetAnyTypeCreature(*itr);
-            if(!obj || obj->IsDeleted())
+            if(!obj)
                 continue;
 
             // check if this unit requires quest specific flags
@@ -23102,7 +23099,7 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
     Pet* NewPet = new Pet;
     NewPet->SetPetCounter(0);
     if(!NewPet->LoadPetFromDB(this, 0, m_temporaryUnsummonedPetNumber, true))
-        sWorld.AddObjectToRemoveList((WorldObject*)NewPet);
+        delete NewPet;
 
     m_temporaryUnsummonedPetNumber = 0;
 }

@@ -1618,7 +1618,7 @@ bool ChatHandler::HandleNpcAddCommand(char* args)
 
     if (!pCreature->Create(lowguid, pos, cinfo))
     {
-        sWorld.AddObjectToRemoveList((WorldObject*)pCreature);
+        delete pCreature;
         return false;
     }
 
@@ -3291,7 +3291,7 @@ bool ChatHandler::HandleWpModifyCommand(char* args)
         if (!wpCreature->Create(map->GenerateLocalLowGuid(HIGHGUID_UNIT), pos, waypointInfo))
         {
             PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, VISUAL_WAYPOINT);
-            sWorld.AddObjectToRemoveList((WorldObject*)wpCreature);
+            delete wpCreature;
             return false;
         }
 
@@ -3403,7 +3403,7 @@ bool ChatHandler::HandleWpModifyCommand(char* args)
                 if (!wpCreature2->Create(map->GenerateLocalLowGuid(HIGHGUID_UNIT), pos, waypointInfo))
                 {
                     PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, VISUAL_WAYPOINT);
-                    sWorld.AddObjectToRemoveList((WorldObject*)wpCreature2);
+                    delete wpCreature2;
                     return false;
                 }
 
@@ -3698,7 +3698,7 @@ bool ChatHandler::HandleWpShowCommand(char* args)
             if (!wpCreature->Create(map->GenerateLocalLowGuid(HIGHGUID_UNIT), pos, waypointInfo))
             {
                 PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, VISUAL_WAYPOINT);
-                sWorld.AddObjectToRemoveList((WorldObject*)wpCreature);
+                delete wpCreature;
                 delete result;
                 return false;
             }
@@ -3743,7 +3743,7 @@ bool ChatHandler::HandleWpShowCommand(char* args)
         if (!pCreature->Create(map->GenerateLocalLowGuid(HIGHGUID_UNIT), pos, waypointInfo))
         {
             PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, VISUAL_WAYPOINT);
-            sWorld.AddObjectToRemoveList((WorldObject*)pCreature);
+            delete pCreature;
             delete result;
             return false;
         }
@@ -3791,7 +3791,7 @@ bool ChatHandler::HandleWpShowCommand(char* args)
         if (!pCreature->Create(map->GenerateLocalLowGuid(HIGHGUID_UNIT), pos, waypointInfo))
         {
             PSendSysMessage(LANG_WAYPOINT_NOTCREATED, VISUAL_WAYPOINT);
-            sWorld.AddObjectToRemoveList((WorldObject*)pCreature);
+            delete pCreature;
             delete result;
             return false;
         }

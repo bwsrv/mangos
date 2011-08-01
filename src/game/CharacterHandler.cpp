@@ -481,7 +481,7 @@ void WorldSession::HandleCharCreateOpcode( WorldPacket & recv_data )
     if (!pNewChar->Create(sObjectMgr.GeneratePlayerLowGuid(), name, race_, class_, gender, skin, face, hairStyle, hairColor, facialHair, outfitId))
     {
         // Player not create (race/class problem?)
-        sWorld.AddObjectToRemoveList((WorldObject*)pNewChar);
+        delete pNewChar;
 
         data << (uint8)CHAR_CREATE_ERROR;
         SendPacket( &data );
@@ -508,7 +508,7 @@ void WorldSession::HandleCharCreateOpcode( WorldPacket & recv_data )
     BASIC_LOG("Account: %d (IP: %s) Create Character:[%s] (guid: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), pNewChar->GetGUIDLow());
     sLog.outChar("Account: %d (IP: %s) Create Character:[%s] (guid: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), pNewChar->GetGUIDLow());
 
-    sWorld.AddObjectToRemoveList((WorldObject*)pNewChar);                                        // created only to call SaveToDB()
+    delete pNewChar;                                        // created only to call SaveToDB()
 }
 
 void WorldSession::HandleCharDeleteOpcode( WorldPacket & recv_data )

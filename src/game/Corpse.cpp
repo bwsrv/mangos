@@ -56,7 +56,7 @@ void Corpse::AddToWorld()
     Object::AddToWorld();
 }
 
-void Corpse::RemoveFromWorld(bool remove)
+void Corpse::RemoveFromWorld()
 {
     ///- Remove the corpse from the accessor
     if(IsInWorld())

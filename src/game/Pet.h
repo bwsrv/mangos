@@ -166,7 +166,7 @@ class MANGOS_DLL_SPEC Pet : public Creature
         virtual ~Pet();
 
         void AddToWorld();
-        void RemoveFromWorld(bool remove = true);
+        void RemoveFromWorld();
         void CleanupsBeforeDelete();
 
         PetType getPetType() const { return m_petType; }

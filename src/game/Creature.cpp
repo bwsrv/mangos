@@ -175,7 +175,7 @@ m_creatureInfo(NULL)
 
 Creature::~Creature()
 {
-    // CleanupsBeforeDelete();
+    CleanupsBeforeDelete();
 
     m_vendorItemCounts.clear();
 
@@ -195,13 +195,13 @@ void Creature::AddToWorld()
         GetVehicleKit()->Reset();
 }
 
-void Creature::RemoveFromWorld(bool remove)
+void Creature::RemoveFromWorld()
 {
     ///- Remove the creature from the accessor
     if (IsInWorld() && GetObjectGuid().IsCreatureOrVehicle())
         GetMap()->GetObjectsStore().erase<Creature>(GetObjectGuid(), (Creature*)NULL);
 
-    Unit::RemoveFromWorld(remove);
+    Unit::RemoveFromWorld();
 }
 
 void Creature::RemoveCorpse()
@@ -1585,9 +1585,6 @@ void Creature::Respawn()
 
 void Creature::ForcedDespawn(uint32 timeMSToDespawn)
 {
-    if (IsDeleted())
-        return;
-
     if (timeMSToDespawn)
     {
         ForcedDespawnDelayEvent *pEvent = new ForcedDespawnDelayEvent(*this);
@@ -2511,7 +2508,7 @@ struct SpawnCreatureInMapsWorker
             //DEBUG_LOG("Spawning creature %u",*itr);
             if (!pCreature->LoadFromDB(i_guid, map))
             {
-                sWorld.AddObjectToRemoveList((WorldObject*)pCreature);
+                delete pCreature;
             }
             else
             {

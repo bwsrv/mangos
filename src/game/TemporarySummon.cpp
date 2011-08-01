@@ -155,7 +155,7 @@ void TemporarySummon::UnSummon()
 
     if (GetSummonerGuid().IsCreatureOrVehicle())
         if(Creature* sum = GetMap()->GetCreature(GetSummonerGuid()))
-            if (sum->IsInWorld() && !sum->IsDeleted() && sum->AI())
+            if (sum->AI())
                 sum->AI()->SummonedCreatureDespawn(this);
 
     AddObjectToRemoveList();

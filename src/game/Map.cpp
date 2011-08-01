@@ -194,10 +194,7 @@ void Map::RemoveFromGrid(Creature* obj, NGridType *grid, Cell const& cell)
 
 void Map::DeleteFromWorld(Player* pl)
 {
-    pl->SetDeleted();
     sObjectAccessor.RemoveObject(pl);
-    // temp solution - now all player objects must be deleted in Map::Update call, instead of World::Update (before update units on map)
-    // sWorld.AddObjectToRemoveList((WorldObject*)pl);
     delete pl;
 }
 
@@ -437,12 +434,11 @@ bool Map::loaded(const GridPair &p) const
 
 void Map::Update(const uint32 &t_diff)
 {
-    World::WorldReadGuard Lock(sWorld.GetLock(WORLD_LOCK_OBJECTS));
     /// update worldsessions for existing players
     for(m_mapRefIter = m_mapRefManager.begin(); m_mapRefIter != m_mapRefManager.end(); ++m_mapRefIter)
     {
         Player* plr = m_mapRefIter->getSource();
-        if(plr && plr->IsInWorld() && !plr->IsDeleted())
+        if(plr && plr->IsInWorld())
         {
             WorldSession * pSession = plr->GetSession();
             MapSessionFilter updater(pSession);
@@ -455,7 +451,7 @@ void Map::Update(const uint32 &t_diff)
     for(m_mapRefIter = m_mapRefManager.begin(); m_mapRefIter != m_mapRefManager.end(); ++m_mapRefIter)
     {
         Player* plr = m_mapRefIter->getSource();
-        if(plr && plr->IsInWorld() && !plr->IsDeleted())
+        if(plr && plr->IsInWorld())
         {
             WorldObject::UpdateHelper helper(plr);
             helper.Update(t_diff);
@@ -477,7 +473,7 @@ void Map::Update(const uint32 &t_diff)
     {
         Player* plr = m_mapRefIter->getSource();
 
-        if (!plr || !plr->IsInWorld() || !plr->IsPositionValid() || plr->IsDeleted())
+        if (!plr || !plr->IsInWorld() || !plr->IsPositionValid())
             continue;
 
         //lets update mobs/objects in ALL visible cells around player!
@@ -515,7 +511,7 @@ void Map::Update(const uint32 &t_diff)
             // step to next-next, and if we step to end() then newly added objects can wait next update.
             ++m_activeNonPlayersIter;
 
-            if (!obj->IsInWorld() || !obj->IsPositionValid() || obj->IsDeleted())
+            if (!obj->IsInWorld() || !obj->IsPositionValid())
                 continue;
 
             //lets update mobs/objects in ALL visible cells around player!
@@ -646,7 +642,7 @@ Map::Remove(T *obj, bool remove)
     if(remove)
         obj->CleanupsBeforeDelete();
     else
-        obj->RemoveFromWorld(remove);
+        obj->RemoveFromWorld();
 
     UpdateObjectVisibility(obj,cell,p);                     // i think will be better to call this function while object still in grid, this changes nothing but logically is better(as for me)
     RemoveFromGrid(obj,grid,cell);
@@ -659,7 +655,6 @@ Map::Remove(T *obj, bool remove)
             obj->SaveRespawnTime();
 
         // Note: In case resurrectable corpse and pet its removed from global lists in own destructor
-        obj->SetDeleted();
         delete obj;
     }
 }
@@ -984,12 +979,10 @@ void Map::AddObjectToRemoveList(WorldObject *obj)
 {
     MANGOS_ASSERT(obj->GetMapId()==GetId() && obj->GetInstanceId()==GetInstanceId());
 
-    if (obj && obj->GetTypeId() == TYPEID_PLAYER)
-        obj->CleanupsBeforeDelete();                            // remove or simplify at least cross referenced links
+    obj->CleanupsBeforeDelete();                            // remove or simplify at least cross referenced links
 
     i_objectsToRemove.insert(obj);
     //DEBUG_LOG("Object (GUID: %u TypeId: %u ) added to removing list.",obj->GetGUIDLow(),obj->GetTypeId());
-    obj->SetDeleted();
 }
 
 void Map::RemoveAllObjectsInRemoveList()
@@ -997,24 +990,11 @@ void Map::RemoveAllObjectsInRemoveList()
     if(i_objectsToRemove.empty())
         return;
 
-    World::WorldWriteGuard Lock(sWorld.GetLock(WORLD_LOCK_OBJECTS));
     //DEBUG_LOG("Object remover 1 check.");
     while(!i_objectsToRemove.empty())
     {
-
         WorldObject* obj = *i_objectsToRemove.begin();
         i_objectsToRemove.erase(i_objectsToRemove.begin());
-
-        if (!obj)
-            continue;
-
-        if (!obj->IsDeleted())
-        {
-            DEBUG_LOG("Map::RemoveAllObjectsInRemoveList warning - object type %u (guid %u) found in remove list, but not maked deleted!",obj->GetTypeId(), obj->GetObjectGuid().GetCounter());
-            obj->SetDeleted();
-        }
-
-        obj->CleanupsBeforeDelete();                            // remove or simplify at least cross referenced links
 
         switch(obj->GetTypeId())
         {
@@ -1224,13 +1204,11 @@ void Map::CreateInstanceData(bool load)
 
 template void Map::Add(Corpse *);
 template void Map::Add(Creature *);
-template void Map::Add(Pet*);
 template void Map::Add(GameObject *);
 template void Map::Add(DynamicObject *);
 
 template void Map::Remove(Corpse *,bool);
 template void Map::Remove(Creature *,bool);
-template void Map::Remove(Pet*,bool);
 template void Map::Remove(GameObject *, bool);
 template void Map::Remove(DynamicObject *, bool);
 

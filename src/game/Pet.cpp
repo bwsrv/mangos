@@ -77,17 +77,17 @@ void Pet::AddToWorld()
     Unit::AddToWorld();
 }
 
-void Pet::RemoveFromWorld(bool remove)
+void Pet::RemoveFromWorld()
 {
     ///- Remove the pet from the accessor
     if (((Creature*)this)->IsInWorld())
     {
         GetMap()->GetObjectsStore().erase<Pet>(GetObjectGuid(), (Pet*)NULL);
-    }
-    ///- Don't call the function for Creature, normal mobs + totems go in a different storage
-    if (sObjectAccessor.FindPet(GetObjectGuid()))
         sObjectAccessor.RemoveObject(this);
-    Unit::RemoveFromWorld(remove);
+    }
+
+    ///- Don't call the function for Creature, normal mobs + totems go in a different storage
+    Unit::RemoveFromWorld();
 }
 
 void Pet::CleanupsBeforeDelete()

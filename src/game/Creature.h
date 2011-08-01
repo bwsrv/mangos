@@ -460,7 +460,7 @@ class MANGOS_DLL_SPEC Creature : public Unit
         virtual ~Creature();
 
         void AddToWorld();
-        void RemoveFromWorld(bool remove = true);
+        void RemoveFromWorld();
 
         bool Create(uint32 guidlow, CreatureCreatePos& cPos, CreatureInfo const* cinfo, Team team = TEAM_NONE, const CreatureData *data = NULL, GameEventCreatureData const* eventData = NULL);
         bool LoadCreatureAddon(bool reload = false);

@@ -305,13 +305,6 @@ Unit::~Unit()
 
     delete movespline;
 
-    if (IsDeleted())
-    {
-        CleanupDeletedAuras();
-        RemoveAllDynObjects();
-        m_Events.KillAllEvents(true);
-    }
-
     // those should be already removed at "RemoveFromWorld()" call
     MANGOS_ASSERT(m_gameObj.size() == 0);
     MANGOS_ASSERT(m_dynObjGUIDs.size() == 0);
@@ -932,11 +925,11 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             {
                 TemporarySummon* pSummon = (TemporarySummon*)cVictim;
                 if (pSummon->GetSummonerGuid().IsCreatureOrVehicle())
+
                     if (Creature* pSummoner = cVictim->GetMap()->GetCreature(pSummon->GetSummonerGuid()))
-                        if (pSummoner->IsInWorld() && !pSummoner->IsDeleted() && pSummoner->AI())
-                            pSummoner->AI()->SummonedCreatureJustDied(cVictim);
+                        pSummoner->AI()->SummonedCreatureJustDied(cVictim);
             }
-            else if (pOwner && pOwner->IsInWorld() && !pOwner->IsDeleted() && pOwner->GetTypeId() == TYPEID_UNIT)
+            else if (pOwner && pOwner->GetTypeId() == TYPEID_UNIT)
             {
                 if (((Creature*)pOwner)->AI())
                     ((Creature*)pOwner)->AI()->SummonedCreatureJustDied(cVictim);
@@ -4566,9 +4559,6 @@ void Unit::RemoveAura(uint32 spellId, SpellEffectIndex effindex, Aura* except)
     SpellAuraHolderBounds spair = GetSpellAuraHolderBounds(spellId);
     for(SpellAuraHolderMap::iterator iter = spair.first; iter != spair.second; )
     {
-        if (!iter->second || iter->second->IsDeleted())
-            continue;
-
         Aura *aur = iter->second->m_auras[effindex];
         if (aur && aur != except)
         {
@@ -5384,9 +5374,6 @@ void Unit::RemoveAllGameObjects()
 
 void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage *log)
 {
-    if (!log->target || !log->target->IsInWorld() || log->target->IsDeleted())
-        return;
-
     uint32 targetHealth = log->target->GetHealth();
     uint32 overkill = log->damage > targetHealth ? log->damage - targetHealth : 0;
 
@@ -5409,9 +5396,6 @@ void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage *log)
 
 void Unit::SendSpellNonMeleeDamageLog(Unit *target, uint32 SpellID, uint32 Damage, SpellSchoolMask damageSchoolMask, uint32 AbsorbedDamage, uint32 Resist, bool PhysicalDamage, uint32 Blocked, bool CriticalHit)
 {
-    if (!target || !target->IsInWorld() || target->IsDeleted())
-        return;
-
     SpellNonMeleeDamage log(this, target, SpellID, damageSchoolMask);
     log.damage = Damage - AbsorbedDamage - Resist - Blocked;
     log.absorb = AbsorbedDamage;
@@ -5752,7 +5736,7 @@ bool Unit::IsHostileTo(Unit const* unit) const
 
 bool Unit::IsFriendlyTo(Unit const* unit) const
 {
-    if (!unit || !unit->IsInWorld() || unit->IsDeleted() || IsDeleted())
+    if (!unit)
         return true;
 
     // always friendly to self
@@ -6060,7 +6044,7 @@ void Unit::CombatStop(bool includingCast)
     AttackStop();
     RemoveAllAttackers();
 
-    if ( GetTypeId()==TYPEID_PLAYER && IsInWorld() && !IsDeleted())
+    if( GetTypeId()==TYPEID_PLAYER )
         ((Player*)this)->SendAttackSwingCancelAttack();     // melee and ranged forced attack cancel
     else if (GetTypeId() == TYPEID_UNIT)
     {
@@ -10017,7 +10001,7 @@ void Unit::AddToWorld()
     ScheduleAINotify(0);
 }
 
-void Unit::RemoveFromWorld(bool remove)
+void Unit::RemoveFromWorld()
 {
     // cleanup
     if (IsInWorld())
@@ -10029,10 +10013,7 @@ void Unit::RemoveFromWorld(bool remove)
         UnsummonAllTotems();
         RemoveAllGameObjects();
         RemoveAllDynObjects();
-        if (remove)
-            CleanupDeletedAuras();
-        else
-            RemoveAllAuras(AURA_REMOVE_BY_DELETE);
+        CleanupDeletedAuras();
         GetViewPoint().Event_RemovedFromWorld();
     }
 
@@ -10048,7 +10029,7 @@ void Unit::CleanupsBeforeDelete()
         if (GetVehicleKit())
             RemoveVehicleKit();
         InterruptNonMeleeSpells(true);
-        m_Events.KillAllEvents(IsDeleted());                      // non-delatable (currently casted spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
+        m_Events.KillAllEvents(false);                      // non-delatable (currently casted spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
         CombatStop();
         ClearComboPointHolders();
         DeleteThreatList();
@@ -12234,11 +12215,11 @@ bool Unit::HasMorePoweredBuff(uint32 spellId)
             spellInfo->Effect[i] != SPELL_EFFECT_PERSISTENT_AREA_AURA )
             continue;
 
-        AuraList const auras = GetAurasByType(AuraType(spellInfo->EffectApplyAuraName[SpellEffectIndex(i)]));
+        Unit::AuraList const& auras = GetAurasByType(AuraType(spellInfo->EffectApplyAuraName[SpellEffectIndex(i)]));
         if (auras.empty())
             continue;
 
-        for (AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+        for (Unit::AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
             if ((*itr) && (*itr)->GetHolder() && !(*itr)->GetHolder()->IsDeleted() && (*itr)->GetSpellProto()->AttributesEx7 & SPELL_ATTR_EX7_REPLACEABLE_AURA)
                 if (spellInfo->CalculateSimpleValue(SpellEffectIndex(i)) < (*itr)->GetModifier()->m_amount)
                     return true;

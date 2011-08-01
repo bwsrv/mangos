@@ -973,16 +973,14 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
 {
     if (target->processed)                                  // Check target
         return;
-
-    Unit* unit = m_caster->GetObjectGuid() == target->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, target->targetGUID);
-
-    if (!unit || unit->IsDeleted())
-        return;
-
-//    target->processed = true;                               // Target checked in apply effects procedure
+//?    target->processed = true;                               // Target checked in apply effects procedure
 
     // Get mask of effects for target
     uint32 mask = target->effectMask;
+
+    Unit* unit = m_caster->GetObjectGuid() == target->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, target->targetGUID);
+    if (!unit)
+        return;
 
     // Get original caster (if exist) and calculate damage/healing from him data
     Unit *real_caster = GetAffectiveCaster();
@@ -1214,9 +1212,6 @@ void Spell::DoSpellHitOnUnit(Unit *unit, uint32 effectMask, bool isReflected)
         return;
 
     Unit* realCaster = GetAffectiveCaster();
-
-    if (unit->IsDeleted() || (realCaster && realCaster->IsDeleted()) || !m_spellInfo)
-        return;
 
     // Recheck immune (only for delayed spells)
     if (m_spellInfo->speed && (
@@ -4977,9 +4972,6 @@ void Spell::CastPreCastSpells(Unit* target)
 
 SpellCastResult Spell::CheckCast(bool strict)
 {
-    if (m_caster->IsDeleted())
-        return SPELL_FAILED_DONT_REPORT;
-
     // check cooldowns to prevent cheating (ignore passive spells, that client side visual only)
     if (m_caster->GetTypeId()==TYPEID_PLAYER && !(m_spellInfo->Attributes & SPELL_ATTR_PASSIVE) &&
         ((Player*)m_caster)->HasSpellCooldown(m_spellInfo->Id))
@@ -5086,9 +5078,6 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     if (Unit *target = m_targets.getUnitTarget())
     {
-        if(target->IsDeleted())
-            return SPELL_FAILED_DONT_REPORT;
-
         // target state requirements (not allowed state), apply to self also
         // This check not need - checked in CheckTarget()
         // if (m_spellInfo->TargetAuraStateNot && target->HasAuraState(AuraState(m_spellInfo->TargetAuraStateNot)))
@@ -6534,12 +6523,11 @@ SpellCastResult Spell::CheckRange(bool strict)
 
     if (target && target != m_caster)
     {
-        if (target->IsDeleted())
-            return SPELL_FAILED_OUT_OF_RANGE;
-
         // distance from target in checks
         float dist = m_caster->GetCombatDistance(target);
 
+        if (max_range && dist > max_range)
+            return SPELL_FAILED_OUT_OF_RANGE;
         if (min_range && dist < min_range)
             return SPELL_FAILED_TOO_CLOSE;
         if ( m_caster->GetTypeId() == TYPEID_PLAYER &&
@@ -6549,9 +6537,6 @@ SpellCastResult Spell::CheckRange(bool strict)
 
     if (pGoTarget)
     {
-        if (pGoTarget->IsDeleted())
-            return SPELL_FAILED_OUT_OF_RANGE;
-
         // distance from target in checks
         float dist = m_caster->GetDistance(pGoTarget);
 
@@ -7885,7 +7870,7 @@ void Spell::DoSummonSnakes(SpellEffectIndex eff_idx)
         {
             sLog.outError("EffectSummonSnakes failed to summon snakes for Unit %s (GUID: %u) bacause of invalid position (x = %f, y = %f, z = %f map = %u)"
                 ,m_caster->GetName(), m_caster->GetObjectGuid().GetCounter(), position_x, position_y, position_z, m_caster->GetMap());
-            sWorld.AddObjectToRemoveList((WorldObject*)pSummon);
+            delete pSummon;
             continue;
         }
 

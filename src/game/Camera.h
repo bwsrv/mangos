@@ -81,13 +81,13 @@ class MANGOS_DLL_SPEC ViewPoint
 {
     friend class Camera;
 
-    typedef std::set<Camera*> CameraList;
+    typedef std::list<Camera*> CameraList;
 
     CameraList m_cameras;
     GridType * m_grid;
 
-    void Attach(Camera* c) { m_cameras.insert(c); }
-    void Detach(Camera* c) { m_cameras.erase(c); }
+    void Attach(Camera* c) { m_cameras.push_back(c); }
+    void Detach(Camera* c) { m_cameras.remove(c); }
 
     void CameraCall(void (Camera::*handler)())
     {

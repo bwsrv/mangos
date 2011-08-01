@@ -81,7 +81,7 @@ void GameObject::AddToWorld()
     Object::AddToWorld();
 }
 
-void GameObject::RemoveFromWorld(bool remove)
+void GameObject::RemoveFromWorld()
 {
     ///- Remove the gameobject from the accessor
     if (IsInWorld())
@@ -972,7 +972,7 @@ void GameObject::SummonLinkedTrapIfAny()
     if (!linkedGO->Create(GetMap()->GenerateLocalLowGuid(HIGHGUID_GAMEOBJECT), linkedEntry, GetMap(),
          GetPhaseMask(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, GO_ANIMPROGRESS_DEFAULT, GO_STATE_READY))
     {
-        sWorld.AddObjectToRemoveList((WorldObject*)linkedGO);
+        delete linkedGO;
         return;
     }
 
@@ -2242,7 +2242,7 @@ struct SpawnGameObjectInMapsWorker
             //DEBUG_LOG("Spawning gameobject %u", *itr);
             if (!pGameobject->LoadFromDB(i_guid, map))
             {
-                sWorld.AddObjectToRemoveList((WorldObject*)pGameobject);
+                delete pGameobject;
             }
             else
             {

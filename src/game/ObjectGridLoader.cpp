@@ -119,10 +119,7 @@ void LoadHelper(CellGuidSet const& guid_set, CellPair &cell, GridRefManager<T> &
         //sLog.outString("DEBUG: LoadHelper from table: %s for (guid: %u) Loading",table,guid);
         if(!obj->LoadFromDB(guid, map))
         {
-            if (WorldObject* wObj = (WorldObject*)obj)
-                sWorld.AddObjectToRemoveList(wObj);
-            else
-                delete obj;
+            delete obj;
             continue;
         }
 
@@ -284,7 +281,6 @@ ObjectGridUnloader::Visit(GridRefManager<T> &m)
         ///- object must be out of world before delete
         obj->RemoveFromWorld();
         ///- object will get delinked from the manager when deleted
-        obj->SetDeleted();
         delete obj;
     }
 }

@@ -1565,8 +1565,6 @@ void World::Update(uint32 diff)
 
     /// <li> Handle session updates
     UpdateSessions(diff);
-    sMapMgr.RemoveAllObjectsInRemoveList();
-    RemoveAllObjectsInRemoveList();
 
     /// <li> Handle weather updates when the timer has passed
     if (m_timers[WUPDATE_WEATHERS].Passed())
@@ -1601,7 +1599,6 @@ void World::Update(uint32 diff)
     ///- Update objects (maps, transport, creatures,...)
     sMapMgr.Update(diff);
     sBattleGroundMgr.Update(diff);
-    RemoveAllObjectsInRemoveList();
 
     ///- Delete all characters which have been deleted X days before
     if (m_timers[WUPDATE_DELETECHARS].Passed())
@@ -1631,8 +1628,6 @@ void World::Update(uint32 diff)
         uint32 nextGameEvent = sGameEventMgr.Update();
         m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);
         m_timers[WUPDATE_EVENTS].Reset();
-        sMapMgr.RemoveAllObjectsInRemoveList();
-        RemoveAllObjectsInRemoveList();
     }
     static uint32 autobroadcaston = 0;
     autobroadcaston = sConfig.GetIntDefault("AutoBroadcast.On", 0);
@@ -1648,7 +1643,6 @@ void World::Update(uint32 diff)
     /// </ul>
     ///- Move all creatures with "delayed move" and remove and delete all objects with "delayed remove"
     sMapMgr.RemoveAllObjectsInRemoveList();
-    RemoveAllObjectsInRemoveList();
 
     // update the instance reset times
     sMapPersistentStateMgr.Update();
@@ -1658,8 +1652,6 @@ void World::Update(uint32 diff)
 
     //cleanup unused GridMap objects as well as VMaps
     sTerrainMgr.Update(diff);
-
-    RemoveAllObjectsInRemoveList();
 }
 
 /// Send a packet to all players (except self if mentioned)
@@ -2558,34 +2550,4 @@ bool World::configNoReload(bool reload, eConfigBoolValues index, char const* fie
         sLog.outError("%s option can't be changed at mangosd.conf reload, using current value (%s).", fieldname, getConfig(index) ? "'true'" : "'false'");
 
     return false;
-}
-
-void World::AddObjectToRemoveList(WorldObject *obj)
-{
-    if (obj)
-    {
-        if (!obj->IsDeleted() && obj->IsInitialized())
-        {
-            DEBUG_LOG("World::AddObjectToRemoveList warning - not cleaned object type %u added to remove list!",obj->GetTypeId());
-        }
-        obj->SetDeleted();
-        if (obj->IsInitialized() && obj->GetObjectGuid().IsPlayer())
-            i_objectsToRemove.insert(obj);
-        else
-           delete obj;
-    }
-}
-
-void World::RemoveAllObjectsInRemoveList()
-{
-    if (i_objectsToRemove.empty())
-        return;
-
-    while(!i_objectsToRemove.empty())
-    {
-        WorldObject* obj = *i_objectsToRemove.begin();
-        i_objectsToRemove.erase(obj);
-        if (obj)
-            delete obj;
-    }
 }
