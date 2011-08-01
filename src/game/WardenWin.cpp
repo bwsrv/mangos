@@ -227,8 +227,7 @@ void WardenWin::RequestData()
     {
         id = irand(1, maxid - 1);
         wd = WardenDataStorage.GetWardenDataById(id);
-        if (!wd)
-            continue;
+
         SendDataId.push_back(id);
         switch (wd->Type)
         {
@@ -253,9 +252,6 @@ void WardenWin::RequestData()
     for (std::vector<uint32>::iterator itr = SendDataId.begin(); itr != SendDataId.end(); ++itr)
     {
         wd = WardenDataStorage.GetWardenDataById(*itr);
-
-        if (!wd)
-            continue;
 
         type = wd->Type;
         buff << uint8(type ^ xorByte);
@@ -385,9 +381,6 @@ void WardenWin::HandleData(ByteBuffer &buff)
         rd = WardenDataStorage.GetWardenDataById(*itr);
         rs = WardenDataStorage.GetWardenResultById(*itr);
 
-        if (!rd || !rs)
-            continue;
-
         type = rd->Type;
         switch (type)
         {
@@ -401,7 +394,6 @@ void WardenWin::HandleData(ByteBuffer &buff)
                     sLog.outError("WARDEN: RESULT MEM_CHECK not 0x00, CheckId %u account Id %u", *itr, Client->GetAccountId());
                     found = true;
                     checkNum = *itr;
-                    buff.rpos(buff.rpos() + rd->Length);
                     continue;
                 }
 
