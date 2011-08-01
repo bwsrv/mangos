@@ -2379,6 +2379,9 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         target->CastSpell(target, 48331, true);   //Cast Swirl Sword
                         target->CastSpell(target, 54159, true);   //Cast Remove Equipment
                         return;
+                    case 50756:                             // Drakos Shpere Passive
+                        target->CastSpell(target, 50758, true);
+                        return;
                     case 51405:                             // Digging for Treasure
                         target->HandleEmote(EMOTE_STATE_WORK);
                         // Pet will be following owner, this makes him stop
@@ -3276,6 +3279,11 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     return;
                 case 47178:                                 // Plague Effect Self
                     target->SetFeared(apply, GetCasterGuid(), GetId());
+                    return;
+                case 53813:                                 // Urom Shield
+                case 50053:                                 // Varos Shield
+                    target->ApplyModFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE, apply);
+                    target->ApplyModFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE, apply);
                     return;
                 case 54852:                                 // Drakkari Colossus Stun (Hmmm... I'm lookup all stun effect spell, but not find needed!)
                     if (apply)
@@ -5744,6 +5752,10 @@ void Aura::HandlePeriodicTriggerSpell(bool apply, bool /*Real*/)
                     target->CastSpell(target->GetPositionX(), target->GetPositionY(), position_z, 63471, true);
                 }
 
+                return;
+            case 51121:                                     // Urom Clocking Bomb
+                if (m_removeMode == AURA_REMOVE_BY_EXPIRE)
+                    target->CastSpell(target, 51132, true);
                 return;
             case 51912:                                     // Ultra-Advanced Proto-Typical Shortening Blaster
             case 53102:                                     // Scepter of Domination

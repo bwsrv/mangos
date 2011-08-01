@@ -415,6 +415,11 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                         damage = unitTarget->GetHealth() / 2;
                         break;
                     }
+                    case 51132:                              // Urom Clocking Bomb Damage
+                    {
+                        damage = m_caster->GetMaxHealth() - m_caster->GetHealth();
+                        break;
+                    }
                     case 52942:                              // Loken Pulsing Shock Wave N
                     case 59837:                              // Loken Pulsing Shock Wave H
                     case 52924:                              // Loken Arc Lightning Shock Effect
@@ -2325,6 +2330,14 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     else
                         m_caster->CastSpell(m_caster, 51345, true);
 
+                    return;
+                }
+                case 51336:                                 // Drakos Magic Pull
+                {
+                    if (!unitTarget)
+                        return;
+
+                    m_caster->CastSpell(unitTarget, 50770, true);
                     return;
                 }
                 case 51369:                                 // Tickbird Signal to Fall
@@ -8313,7 +8326,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     if (!unitTarget)
                         return;
 
-                    unitTarget->CastSpell(unitTarget, m_spellInfo->Id + 1, true);
+                    unitTarget->CastSpell(unitTarget, m_spellInfo->Id + 1, true, NULL, NULL, m_caster->GetObjectGuid());
                     return;
                 }
                 case 50894:                                 // Zul'Drak Rat
