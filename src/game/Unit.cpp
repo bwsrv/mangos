@@ -300,15 +300,9 @@ Unit::~Unit()
         }
     }
 
-    if (IsDeleted())
-    {
-        CleanupDeletedAuras();
-        RemoveAllDynObjects();
-        m_Events.KillAllEvents(true);
-    }
-
     delete m_charmInfo;
     delete m_vehicleInfo;
+    CleanupDeletedAuras();
 
     delete movespline;
 
@@ -932,9 +926,9 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             {
                 TemporarySummon* pSummon = (TemporarySummon*)cVictim;
                 if (pSummon->GetSummonerGuid().IsCreatureOrVehicle())
-
-                    if (Creature* pSummoner = cVictim->GetMap()->GetCreature(pSummon->GetSummonerGuid()))
-                        pSummoner->AI()->SummonedCreatureJustDied(cVictim);
+                    if(Creature* pSummoner = cVictim->GetMap()->GetCreature(pSummon->GetSummonerGuid()))
+                        if (pSummoner->AI())
+                            pSummoner->AI()->SummonedCreatureJustDied(cVictim);
             }
             else if (pOwner && pOwner->GetTypeId() == TYPEID_UNIT)
             {
@@ -3691,16 +3685,12 @@ void Unit::_UpdateSpells( uint32 time )
 
     // update auras
     // m_AurasUpdateIterator can be updated in inderect called code at aura remove to skip next planned to update but removed auras
-    if (!m_spellAuraHolders.empty())
+    for (m_spellAuraHoldersUpdateIterator = m_spellAuraHolders.begin(); m_spellAuraHoldersUpdateIterator != m_spellAuraHolders.end();)
     {
-        World::WorldReadGuard Lock(sWorld.GetLock(WORLD_LOCK_AURAS));
-        for (m_spellAuraHoldersUpdateIterator = m_spellAuraHolders.begin(); m_spellAuraHoldersUpdateIterator != m_spellAuraHolders.end();)
-        {
-            SpellAuraHolder* i_holder = m_spellAuraHoldersUpdateIterator->second;
-            ++m_spellAuraHoldersUpdateIterator;                            // need shift to next for allow update if need into aura update
-            if (i_holder && !i_holder->IsDeleted() && !i_holder->IsEmptyHolder() && !i_holder->IsInUse())
-                i_holder->UpdateHolder(time);
-        }
+        SpellAuraHolder* i_holder = m_spellAuraHoldersUpdateIterator->second;
+        ++m_spellAuraHoldersUpdateIterator;                            // need shift to next for allow update if need into aura update
+        if (i_holder && !i_holder->IsDeleted() && !i_holder->IsEmptyHolder() && !i_holder->IsInUse())
+            i_holder->UpdateHolder(time);
     }
 
     // remove expired auras
@@ -3708,7 +3698,7 @@ void Unit::_UpdateSpells( uint32 time )
     {
         SpellAuraHolder *holder = iter->second;
 
-        if (!holder->IsDeleted() && !(holder->IsPermanent() || holder->IsPassive()) && holder->GetAuraDuration() == 0)
+        if (!(holder->IsPermanent() || holder->IsPassive()) && holder->GetAuraDuration() == 0)
         {
             RemoveSpellAuraHolder(holder, AURA_REMOVE_BY_EXPIRE);
             iter = m_spellAuraHolders.begin();
@@ -3739,8 +3729,6 @@ void Unit::_UpdateSpells( uint32 time )
 
 void Unit::_UpdateAutoRepeatSpell()
 {
-    World::WorldReadGuard Lock(sWorld.GetLock(WORLD_LOCK_AURAS));
-
     bool isAutoShot = m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo->Id == SPELL_ID_AUTOSHOT;
 
     //check movement
@@ -4189,7 +4177,7 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
         !IsDeathOnlySpell(aurSpellInfo) &&
         (GetTypeId()!=TYPEID_PLAYER || !((Player*)this)->GetSession()->PlayerLoading()) )
     {
-        AddSpellAuraHolderToRemoveList(holder);
+        delete holder;
         return false;
     }
 
@@ -4198,7 +4186,7 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
         sLog.outError("Holder (spell %u) add to spell aura holder list of %s (lowguid: %u) but spell aura holder target is %s (lowguid: %u)",
             holder->GetId(),(GetTypeId()==TYPEID_PLAYER?"player":"creature"),GetGUIDLow(),
             (holder->GetTarget()->GetTypeId()==TYPEID_PLAYER?"player":"creature"),holder->GetTarget()->GetGUIDLow());
-        AddSpellAuraHolderToRemoveList(holder);
+        delete holder;
         return false;
     }
 
@@ -4219,7 +4207,7 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
                     // can be created with >1 stack by some spell mods
                     foundHolder->ModStackAmount(holder->GetStackAmount());
                     foundHolder->HandleSpellSpecificBoostsForward(true);
-                    AddSpellAuraHolderToRemoveList(holder);
+                    delete holder;
                     return false;
                 }
 
@@ -4306,7 +4294,7 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
     {
         if (!RemoveNoStackAurasDueToAuraHolder(holder))
         {
-            AddSpellAuraHolderToRemoveList(holder);
+            delete holder;
             return false;                                   // couldn't remove conflicting aura with higher rank
         }
     }
@@ -4937,9 +4925,6 @@ void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase)
 
 void Unit::RemoveSpellAuraHolder(SpellAuraHolder *holder, AuraRemoveMode mode)
 {
-    if (holder->IsDeleted())
-        return;
-
     if (mode != AURA_REMOVE_BY_DELETE)
         holder->HandleSpellSpecificBoostsForward(false);
 
@@ -4957,7 +4942,7 @@ void Unit::RemoveSpellAuraHolder(SpellAuraHolder *holder, AuraRemoveMode mode)
     SpellAuraHolderBounds bounds = GetSpellAuraHolderBounds(holder->GetId());
     for (SpellAuraHolderMap::iterator itr = bounds.first; itr != bounds.second; ++itr)
     {
-        if (itr->second && itr->second == holder)
+        if (itr->second == holder)
         {
             m_spellAuraHolders.erase(itr);
             break;
@@ -4981,7 +4966,15 @@ void Unit::RemoveSpellAuraHolder(SpellAuraHolder *holder, AuraRemoveMode mode)
     if (statue)
         statue->UnSummon();
 
-    AddSpellAuraHolderToRemoveList(holder);
+    // If holder in use (removed from code that plan access to it data after return)
+    // store it in holder list with delayed deletion
+    if (holder->IsInUse())
+    {
+        holder->SetDeleted();
+        m_deletedHolders.push_back(holder);
+    }
+    else
+        delete holder;
 
     if (mode != AURA_REMOVE_BY_EXPIRE && IsChanneledSpell(AurSpellInfo) && !IsAreaOfEffectSpell(AurSpellInfo) &&
         caster && caster->GetObjectGuid() != GetObjectGuid())
@@ -4989,15 +4982,6 @@ void Unit::RemoveSpellAuraHolder(SpellAuraHolder *holder, AuraRemoveMode mode)
         caster->InterruptSpell(CURRENT_CHANNELED_SPELL);
     }
 }
-
-void Unit::AddSpellAuraHolderToRemoveList(SpellAuraHolder* holder)
-{
-    if (!holder || holder->IsDeleted() )
-        return;
-
-    holder->SetDeleted();
-    m_deletedHolders.push_back(holder);
-};
 
 void Unit::RemoveSingleAuraFromSpellAuraHolder(SpellAuraHolder *holder, SpellEffectIndex index, AuraRemoveMode mode)
 {
@@ -5172,8 +5156,7 @@ Aura* Unit::GetAura(AuraType type, SpellFamily family, ClassFamilyMask const& cl
 {
     AuraList const& auras = GetAurasByType(type);
     for(AuraList::const_iterator i = auras.begin();i != auras.end(); ++i)
-        if (!(*i)->GetHolder()->IsDeleted() &&
-            (*i)->GetSpellProto()->IsFitToFamily(family, classMask) &&
+        if ((*i)->GetSpellProto()->IsFitToFamily(family, classMask) &&
             (!casterGuid || (*i)->GetCasterGuid() == casterGuid))
             return *i;
 
@@ -5184,7 +5167,7 @@ bool Unit::HasAura(uint32 spellId, SpellEffectIndex effIndex) const
 {
     SpellAuraHolderConstBounds spair = GetSpellAuraHolderBounds(spellId);
     for(SpellAuraHolderMap::const_iterator i_holder = spair.first; i_holder != spair.second; ++i_holder)
-        if (i_holder->second && !i_holder->second->IsDeleted() && i_holder->second->GetAuraByEffectIndex(effIndex))
+        if (i_holder->second->GetAuraByEffectIndex(effIndex))
             return true;
 
     return false;
@@ -5218,12 +5201,6 @@ void Unit::RemoveDynObject(uint32 spellid)
 
 void Unit::RemoveAllDynObjects()
 {
-    if (m_dynObjGUIDs.empty())
-        return;
-
-    if (IsDeleted())
-        DEBUG_LOG("Unit::RemoveAllDynObjects warning: %s guid %u has not cleaned object list at remove (objects %u)", GetObjectGuid().GetTypeName(),GetObjectGuid().GetCounter(),m_dynObjGUIDs.size());
-
     while(!m_dynObjGUIDs.empty())
     {
         if (DynamicObject* dynObj = GetMap()->GetDynamicObject(*m_dynObjGUIDs.begin()))
@@ -5780,21 +5757,15 @@ bool Unit::IsFriendlyTo(Unit const* unit) const
     if (testerOwner && targetOwner && (testerOwner->getVictim() == targetOwner || targetOwner->getVictim() == testerOwner))
         return false;
 
-    Unit const* tester = (testerOwner && testerOwner->IsInWorld() && !testerOwner->IsDeleted()) ? testerOwner : this;
-    Unit const* target = (targetOwner && targetOwner->IsInWorld() && !targetOwner->IsDeleted()) ? targetOwner : unit;
-
-    if (!tester || !tester->IsInWorld() || tester->IsDeleted() || IsDeleted())
-        return true;
-
-    if (!target || !target->IsInWorld() || target->IsDeleted())
-        return true;
+    Unit const* tester = testerOwner ? testerOwner : this;
+    Unit const* target = targetOwner ? targetOwner : unit;
 
     // always friendly to target with common owner, or to owner/pet
     if (tester == target)
         return true;
 
     // special cases (Duel)
-    if (tester->IsInWorld() && tester->GetTypeId() == TYPEID_PLAYER && target->IsInWorld() && target->GetTypeId() == TYPEID_PLAYER)
+    if (tester->GetTypeId() == TYPEID_PLAYER && target->GetTypeId() == TYPEID_PLAYER)
     {
         Player const* pTester = (Player const*)tester;
         Player const* pTarget = (Player const*)target;
@@ -6247,7 +6218,7 @@ Pet* Unit::GetPet() const
 
 Pet* Unit::_GetPet(ObjectGuid guid) const
 {
-    return sObjectAccessor.FindPet(guid);
+    return ObjectAccessor::FindPet(guid);
 }
 
 void Unit::RemoveMiniPet()
@@ -7747,7 +7718,7 @@ bool Unit::IsImmuneToSpell(SpellEntry const* spellInfo)
         AuraList const& immuneAuraApply = GetAurasByType(SPELL_AURA_MECHANIC_IMMUNITY_MASK);
         for(AuraList::const_iterator iter = immuneAuraApply.begin(); iter != immuneAuraApply.end(); ++iter)
         {
-            if ((*iter) && (*iter)->GetModifier()->m_miscvalue & (1 << (mechanic-1)))
+            if ((*iter)->GetModifier()->m_miscvalue & (1 << (mechanic-1)))
                 return true;
         }
 
@@ -7775,7 +7746,7 @@ bool Unit::IsImmuneToSpellEffect(SpellEntry const* spellInfo, SpellEffectIndex i
         AuraList const& immuneAuraApply = GetAurasByType(SPELL_AURA_MECHANIC_IMMUNITY_MASK);
         for(AuraList::const_iterator iter = immuneAuraApply.begin(); iter != immuneAuraApply.end(); ++iter)
         {
-            if ((*iter) && (*iter)->GetModifier()->m_miscvalue & (1 << (mechanic-1)))
+            if ((*iter)->GetModifier()->m_miscvalue & (1 << (mechanic-1)))
                 return true;
         }
     }
@@ -7797,7 +7768,7 @@ bool Unit::IsImmuneToSpellEffect(SpellEntry const* spellInfo, SpellEffectIndex i
             // Check school
             SpellSchoolMask schoolMask = GetSpellSchoolMask(spellInfo);
             for(AuraList::const_iterator iter = immuneAuraApply.begin(); iter != immuneAuraApply.end(); ++iter)
-                if ((*iter) && (*iter)->GetModifier()->m_miscvalue & schoolMask)
+                if ((*iter)->GetModifier()->m_miscvalue & schoolMask)
                     return true;
         }
 
@@ -8431,9 +8402,6 @@ void Unit::ClearInCombat()
 
 bool Unit::isTargetableForAttack(bool inverseAlive /*=false*/) const
 {
-    if (!IsInWorld() || IsDeleted() || !IsInitialized())
-        return false;
-
     if (GetTypeId()==TYPEID_PLAYER && ((Player *)this)->isGameMaster())
         return false;
 
@@ -8518,9 +8486,6 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
 bool Unit::isVisibleForOrDetect(Unit const* u, WorldObject const* viewPoint, bool detect, bool inVisibleList, bool is3dDistance) const
 {
     if(!u || !IsInMap(u))
-        return false;
-
-    if(IsDeleted() || u->IsDeleted() || !IsInitialized() || !u->IsInitialized())
         return false;
 
     // Always can see self
@@ -9259,15 +9224,12 @@ bool Unit::SelectHostileTarget()
         // Auras are pushed_back, last caster will be on the end
         for (AuraList::const_reverse_iterator aura = tauntAuras.rbegin(); aura != tauntAuras.rend(); ++aura)
         {
-            if ((*aura)->GetHolder() && !(*aura)->GetHolder()->IsDeleted())
+            if ((caster = (*aura)->GetCaster()) && caster->IsInMap(this) &&
+                caster->isTargetableForAttack() && caster->isInAccessablePlaceFor((Creature*)this) &&
+                (!IsCombatStationary() || CanReachWithMeleeAttack(caster)))
             {
-                if ((caster = (*aura)->GetCaster()) && caster->IsInMap(this) &&
-                    caster->isTargetableForAttack() && caster->isInAccessablePlaceFor((Creature*)this) &&
-                    (!IsCombatStationary() || CanReachWithMeleeAttack(caster)))
-                {
-                    target = caster;
-                    break;
-                }
+                target = caster;
+                break;
             }
         }
     }
@@ -10014,7 +9976,7 @@ void Unit::AddToWorld()
     ScheduleAINotify(0);
 }
 
-void Unit::RemoveFromWorld(bool remove)
+void Unit::RemoveFromWorld()
 {
     // cleanup
     if (IsInWorld())
@@ -10026,10 +9988,7 @@ void Unit::RemoveFromWorld(bool remove)
         UnsummonAllTotems();
         RemoveAllGameObjects();
         RemoveAllDynObjects();
-        if (remove && IsDeleted())
-            CleanupDeletedAuras();
-        else
-            RemoveAllAuras(AURA_REMOVE_BY_DELETE);
+        CleanupDeletedAuras();
         GetViewPoint().Event_RemovedFromWorld();
     }
 
@@ -11883,14 +11842,6 @@ bool Unit::IsIgnoreUnitState(SpellEntry const *spell, IgnoreUnitState ignoreStat
 
 void Unit::CleanupDeletedAuras()
 {
-    if (m_deletedHolders.empty() && m_deletedAuras.empty())
-        return;
-
-    if (IsDeleted())
-        DEBUG_LOG("Unit::CleanupDeletedAuras warning: %s guid %u has not cleaned auralist at remove (holders %u, auras %u)", GetObjectGuid().GetTypeName(),GetObjectGuid().GetCounter(),m_deletedHolders.size(), m_deletedAuras.size());
-
-    World::WorldWriteGuard Lock(sWorld.GetLock(WORLD_LOCK_AURAS));
-
     for (SpellAuraHolderList::const_iterator iter = m_deletedHolders.begin(); iter != m_deletedHolders.end(); ++iter)
         delete *iter;
     m_deletedHolders.clear();
@@ -12173,9 +12124,6 @@ uint32 Unit::CalculateSpellDurationWithHaste(SpellEntry const* spellProto, uint3
 
 bool Unit::IsVisibleTargetForAoEDamage(WorldObject const* caster, SpellEntry const* spellInfo) const
 {
-    if (!IsInitialized() || IsDeleted())
-        return false;
-
     bool no_stealth = false;
     switch (spellInfo->SpellFamilyName)
     {
@@ -12236,7 +12184,7 @@ bool Unit::HasMorePoweredBuff(uint32 spellId)
             continue;
 
         for (Unit::AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
-            if ((*itr) && (*itr)->GetHolder() && !(*itr)->GetHolder()->IsDeleted() && (*itr)->GetSpellProto()->AttributesEx7 & SPELL_ATTR_EX7_REPLACEABLE_AURA)
+            if ((*itr)->GetSpellProto()->AttributesEx7 & SPELL_ATTR_EX7_REPLACEABLE_AURA)
                 if (spellInfo->CalculateSimpleValue(SpellEffectIndex(i)) < (*itr)->GetModifier()->m_amount)
                     return true;
     }

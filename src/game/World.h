@@ -87,7 +87,7 @@ enum WorldTimers
 enum WorldLockType
 {
     WORLD_LOCK_AURAS,
-    WORLD_LOCK_OBJECTS,
+    WORLD_LOCK_TARGETS,
     WORLD_LOCK_THREAT,
     WORLD_LOCK_MAX,
 };

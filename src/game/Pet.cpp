@@ -77,22 +77,17 @@ void Pet::AddToWorld()
     Unit::AddToWorld();
 }
 
-void Pet::RemoveFromWorld(bool remove)
+void Pet::RemoveFromWorld()
 {
     ///- Remove the pet from the accessor
     if (((Creature*)this)->IsInWorld())
     {
         GetMap()->GetObjectsStore().erase<Pet>(GetObjectGuid(), (Pet*)NULL);
-        if (sObjectAccessor.FindPet(GetObjectGuid()))
-            sObjectAccessor.RemoveObject(this);
+        sObjectAccessor.RemoveObject(this);
     }
-    ///- Don't call the function for Creature, normal mobs + totems go in a different storage
-    Unit::RemoveFromWorld(remove);
-}
 
-void Pet::CleanupsBeforeDelete()
-{
-    Unit::CleanupsBeforeDelete();
+    ///- Don't call the function for Creature, normal mobs + totems go in a different storage
+    Unit::RemoveFromWorld();
 }
 
 bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool current)
@@ -775,7 +770,6 @@ void Pet::Unsummon(PetSaveMode mode, Unit* owner /*= NULL*/)
             SavePetToDB(mode);
     }
 
-    sObjectAccessor.RemoveObject(this);
     AddObjectToRemoveList();
 
 }
@@ -1358,7 +1352,7 @@ void Pet::_LoadAuras(uint32 timediff)
             if (!holder->IsEmptyHolder())
                 AddSpellAuraHolder(holder);
             else
-                AddSpellAuraHolderToRemoveList(holder);
+                delete holder;
         }
         while( result->NextRow() );
 

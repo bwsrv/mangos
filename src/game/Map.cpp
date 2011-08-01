@@ -195,7 +195,6 @@ void Map::RemoveFromGrid(Creature* obj, NGridType *grid, Cell const& cell)
 void Map::DeleteFromWorld(Player* pl)
 {
     sObjectAccessor.RemoveObject(pl);
-    pl->SetDeleted();
     delete pl;
 }
 
@@ -643,7 +642,7 @@ Map::Remove(T *obj, bool remove)
     if(remove)
         obj->CleanupsBeforeDelete();
     else
-        obj->RemoveFromWorld(remove);
+        obj->RemoveFromWorld();
 
     UpdateObjectVisibility(obj,cell,p);                     // i think will be better to call this function while object still in grid, this changes nothing but logically is better(as for me)
     RemoveFromGrid(obj,grid,cell);
@@ -983,7 +982,6 @@ void Map::AddObjectToRemoveList(WorldObject *obj)
     obj->CleanupsBeforeDelete();                            // remove or simplify at least cross referenced links
 
     i_objectsToRemove.insert(obj);
-    obj->SetDeleted();
     //DEBUG_LOG("Object (GUID: %u TypeId: %u ) added to removing list.",obj->GetGUIDLow(),obj->GetTypeId());
 }
 
@@ -1017,10 +1015,7 @@ void Map::RemoveAllObjectsInRemoveList()
                 Remove((GameObject*)obj,true);
                 break;
             case TYPEID_UNIT:
-                if (obj->GetObjectGuid().IsPet())
-                    Remove((Pet*)obj,true);
-                else
-                    Remove((Creature*)obj,true);
+                Remove((Creature*)obj,true);
                 break;
             default:
                 sLog.outError("Non-grid object (TypeId: %u) in grid object removing list, ignored.",obj->GetTypeId());
@@ -1206,13 +1201,11 @@ void Map::CreateInstanceData(bool load)
 
 template void Map::Add(Corpse *);
 template void Map::Add(Creature *);
-template void Map::Add(Pet*);
 template void Map::Add(GameObject *);
 template void Map::Add(DynamicObject *);
 
 template void Map::Remove(Corpse *,bool);
 template void Map::Remove(Creature *,bool);
-template void Map::Remove(Pet*,bool);
 template void Map::Remove(GameObject *, bool);
 template void Map::Remove(DynamicObject *, bool);
 

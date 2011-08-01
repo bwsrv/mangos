@@ -54,7 +54,7 @@ class Corpse : public WorldObject
         ~Corpse( );
 
         void AddToWorld();
-        void RemoveFromWorld(bool remove = true);
+        void RemoveFromWorld();
 
         bool Create( uint32 guidlow );
         bool Create( uint32 guidlow, Player *owner );

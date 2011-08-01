@@ -81,7 +81,7 @@ void GameObject::AddToWorld()
     Object::AddToWorld();
 }
 
-void GameObject::RemoveFromWorld(bool remove)
+void GameObject::RemoveFromWorld()
 {
     ///- Remove the gameobject from the accessor
     if (IsInWorld())

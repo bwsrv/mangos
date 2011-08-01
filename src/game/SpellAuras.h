@@ -65,7 +65,7 @@ class MANGOS_DLL_SPEC SpellAuraHolder
         void SetStackAmount(uint32 stackAmount);
         bool ModStackAmount(int32 num); // return true if last charge dropped
 
-        Aura* GetAuraByEffectIndex(SpellEffectIndex index) const { return IsDeleted() ? NULL : m_auras[index]; }
+        Aura* GetAuraByEffectIndex(SpellEffectIndex index) const { return m_auras[index]; }
 
         uint32 GetId() const { return m_spellProto->Id; }
         SpellEntry const* GetSpellProto() const { return m_spellProto; }

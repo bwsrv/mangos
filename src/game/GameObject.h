@@ -615,7 +615,7 @@ class MANGOS_DLL_SPEC GameObject : public WorldObject
         ~GameObject();
 
         void AddToWorld();
-        void RemoveFromWorld(bool remove = true);
+        void RemoveFromWorld();
 
         bool Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint8 animprogress, GOState go_state);
         void Update(uint32 update_diff, uint32 p_time) override;

@@ -973,7 +973,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
 {
     if (target->processed)                                  // Check target
         return;
-//?    target->processed = true;                               // Target checked in apply effects procedure
+    target->processed = true;                               // Target checked in apply effects procedure
 
     // Get mask of effects for target
     uint32 mask = target->effectMask;
@@ -1364,7 +1364,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, uint32 effectMask, bool isReflected)
                 // Fully diminished
                 if (duration == 0)
                 {
-                    unit->AddSpellAuraHolderToRemoveList(m_spellAuraHolder);
+                    delete m_spellAuraHolder;
                     return;
                 }
             }
@@ -1382,7 +1382,18 @@ void Spell::DoSpellHitOnUnit(Unit *unit, uint32 effectMask, bool isReflected)
         }
         else
         {
-            unit->AddSpellAuraHolderToRemoveList(m_spellAuraHolder);
+            if (!m_spellAuraHolder || m_spellAuraHolder->IsDeleted())
+                return;
+
+            m_spellAuraHolder->SetInUse(false);
+
+            if (m_spellAuraHolder->IsInUse())
+            {
+                m_spellAuraHolder->SetDeleted();
+                unit->AddSpellAuraHolderToRemoveList(m_spellAuraHolder);
+            }
+            else
+                delete m_spellAuraHolder;
         }
     }
 }
@@ -6258,7 +6269,7 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
                 }
                 if (!dualEffect && m_caster->getVictim() && (!IsPositiveSpell(m_spellInfo->Id) || IsDispelSpell(m_spellInfo)))
                 {
-                    if (!m_caster->IsHostileTo(_target) && (m_caster->GetCharmerOrOwner() && m_caster->GetCharmerOrOwner()->IsFriendlyTo(_target)))
+                    if (!m_caster->IsHostileTo(_target) && (m_caster->GetCharmerOrOwner() && !m_caster->GetCharmerOrOwner()->IsFriendlyTo(_target)))
                     {
                         DEBUG_LOG("Charmed creature attempt to cast negative spell %d, but target (guid %u) is friendly",m_spellInfo->Id, target->GetObjectGuid().GetRawValue());
                         return SPELL_FAILED_BAD_TARGETS;
@@ -6526,9 +6537,9 @@ SpellCastResult Spell::CheckRange(bool strict)
         // distance from target in checks
         float dist = m_caster->GetCombatDistance(target);
 
-        if (max_range && dist > max_range)
+        if(dist > max_range)
             return SPELL_FAILED_OUT_OF_RANGE;
-        if (min_range && dist < min_range)
+        if(min_range && dist < min_range)
             return SPELL_FAILED_TOO_CLOSE;
         if ( m_caster->GetTypeId() == TYPEID_PLAYER &&
             (m_spellInfo->FacingCasterFlags & SPELL_FACING_FLAG_INFRONT) && !m_caster->HasInArc( M_PI_F, target ) )
