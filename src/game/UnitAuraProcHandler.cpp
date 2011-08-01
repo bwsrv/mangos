@@ -2399,7 +2399,7 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                         chance = 15.0f;
                     }
                     // Judgement (any)
-                    else if (GetSpellSpecific(procSpell->Id)==SPELL_JUDGEMENT)
+                    else if (procSpell->SpellFamilyFlags.test<CF_PALADIN_JUDGEMENT_ACTIVATE>())
                     {
                         triggered_spell_id = 40472;
                         chance = 50.0f;
@@ -4663,7 +4663,7 @@ SpellAuraProcResult Unit::HandleAddFlatModifierAuraProc(Unit* pVictim, uint32 /*
             if (!procSpell)
                 return SPELL_AURA_PROC_FAILED;
 
-            if (GetSpellSpecific(procSpell->Id) != SPELL_JUDGEMENT)
+            if (!procSpell->SpellFamilyFlags.test<CF_PALADIN_JUDGEMENT_ACTIVATE>())
                 return SPELL_AURA_PROC_FAILED;
 
             int bp = triggeredByAura->GetModifier()->m_amount;
