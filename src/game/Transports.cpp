@@ -23,7 +23,6 @@
 #include "ObjectMgr.h"
 #include "ObjectGuid.h"
 #include "Path.h"
-#include "Unit.h"
 
 #include "WorldPacket.h"
 #include "DBCStores.h"
@@ -36,25 +35,17 @@ void MapManager::LoadTransports()
 
     uint32 count = 0;
 
-    if( !result )
+    if (!result)
     {
-<<<<<<< HEAD
         BarGoLink bar(1);
-=======
-        barGoLink bar( 1 );
->>>>>>> parent of 7046c54... [bws357] Transport: transport small Update (in future, transport used in instance) by lanc.
         bar.step();
 
         sLog.outString();
-        sLog.outString( ">> Loaded %u transports", count );
+        sLog.outString(">> Loaded %u transports", count);
         return;
     }
 
-<<<<<<< HEAD
     BarGoLink bar(result->GetRowCount());
-=======
-    barGoLink bar( (int)result->GetRowCount() );
->>>>>>> parent of 7046c54... [bws357] Transport: transport small Update (in future, transport used in instance) by lanc.
 
     do
     {
@@ -70,14 +61,14 @@ void MapManager::LoadTransports()
 
         const GameObjectInfo *goinfo = ObjectMgr::GetGameObjectInfo(entry);
 
-        if(!goinfo)
+        if (!goinfo)
         {
             sLog.outErrorDb("Transport ID:%u, Name: %s, will not be loaded, gameobject_template missing", entry, name.c_str());
             delete t;
             continue;
         }
 
-        if(goinfo->type != GAMEOBJECT_TYPE_MO_TRANSPORT)
+        if (goinfo->type != GAMEOBJECT_TYPE_MO_TRANSPORT)
         {
             sLog.outErrorDb("Transport ID:%u, Name: %s, will not be loaded, gameobject_template type wrong", entry, name.c_str());
             delete t;
@@ -95,7 +86,7 @@ void MapManager::LoadTransports()
 
         std::set<uint32> mapsUsed;
 
-        if(!t->GenerateWaypoints(goinfo->moTransport.taxiPathId, mapsUsed))
+        if (!t->GenerateWaypoints(goinfo->moTransport.taxiPathId, mapsUsed))
             // skip transports with empty waypoints list
         {
             sLog.outErrorDb("Transport (path id %u) path size = 0. Transport ignored, check DBC files or transport GO data0 field.",goinfo->moTransport.taxiPathId);
@@ -109,7 +100,7 @@ void MapManager::LoadTransports()
 
         //current code does not support transports in dungeon!
         const MapEntry* pMapInfo = sMapStore.LookupEntry(mapid);
-        if(!pMapInfo || pMapInfo->Instanceable())
+        if (!pMapInfo || pMapInfo->Instanceable())
         {
             delete t;
             continue;
@@ -136,12 +127,12 @@ void MapManager::LoadTransports()
     delete result;
 
     sLog.outString();
-    sLog.outString( ">> Loaded %u transports", count );
-    sLog.outString( ">> Loaded %u transports with mapID's", m_mapOnTransportGO.size() );
+    sLog.outString(">> Loaded %u transports", count);
+    sLog.outString(">> Loaded %u transports with mapID's", m_mapOnTransportGO.size());
 
     // check transport data DB integrity
     result = WorldDatabase.Query("SELECT gameobject.guid,gameobject.id,transports.name FROM gameobject,transports WHERE gameobject.id = transports.entry");
-    if(result)                                              // wrong data found
+    if (result)                                              // wrong data found
     {
         do
         {
@@ -184,7 +175,7 @@ bool Transport::Create(uint32 guidlow, uint32 mapid, float x, float y, float z, 
     Relocate(x,y,z,ang);
     // instance id and phaseMask isn't set to values different from std.
 
-    if(!IsPositionValid())
+    if (!IsPositionValid())
     {
         sLog.outError("Transport (GUID: %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)",
             guidlow,x,y);
@@ -301,7 +292,7 @@ bool Transport::GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids)
         if (keyFrames[i].node->actionFlag == 2)
         {
             // remember first stop frame
-            if(firstStop == -1)
+            if (firstStop == -1)
                 firstStop = i;
             lastStop = i;
         }
@@ -476,15 +467,15 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
     Map const* oldMap = GetMap();
     Relocate(x, y, z);
 
-    for(PlayerSet::iterator itr = m_player_passengers.begin(); itr != m_player_passengers.end();)
+    for (PlayerSet::iterator itr = m_passengers.begin(); itr != m_passengers.end();)
     {
         PlayerSet::iterator it2 = itr;
         ++itr;
 
         Player *plr = *it2;
-        if(!plr)
+        if (!plr)
         {
-            m_player_passengers.erase(it2);
+            m_passengers.erase(it2);
             continue;
         }
 
@@ -503,89 +494,33 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
     //player far teleport would try to create same instance, but we need it NOW for transport...
     //correct me if I'm wrong O.o
     Map * newMap = sMapMgr.CreateMap(newMapid, this);
-    for (CreatureSet::iterator itr = m_creature_passengers.begin(); itr != m_creature_passengers.end(); ++itr)
-    {
-        if(!(*itr))
-        {
-            m_creature_passengers.erase(itr);
-            continue;
-        }
-
-        (*itr)->RemoveFromWorld();
-        (*itr)->SetMap(newMap);
-        //newMap->CreatureRelocation(*itr, GetPositionX() + x, GetPositionY() + y, GetPositionZ() + z, (*itr)->GetOrientation());
-        newMap->Add(*itr);
-    }
     SetMap(newMap);
 
-    if(oldMap != newMap)
+    if (oldMap != newMap)
     {
         UpdateForMap(oldMap);
         UpdateForMap(newMap);
     }
 }
 
-bool Transport::AddPlayerPassenger(Player* passenger)
+bool Transport::AddPassenger(Player* passenger)
 {
-    if (m_player_passengers.find(passenger) != m_player_passengers.end())
-        return false;
-
-    m_player_passengers.insert(passenger);
-
-    DEBUG_LOG("Player %s boarded transport %s.", passenger->GetName(), GetName());
-
-    return true;
-}
-
-bool Transport::AddCreaturePassenger(Creature* passenger)
-{
-    if (m_creature_passengers.find(passenger) != m_creature_passengers.end())
-        return false;
-
-    m_creature_passengers.insert(passenger);
-
-    DEBUG_LOG("Creature %s boarded transport %s.", passenger->GetName(), GetName());
-
-    return true;
-}
-
-bool Transport::RemovePlayerPassenger(Player* passenger)
-{
-    if (!m_player_passengers.erase(passenger))
-        return false;
-
-    DEBUG_LOG("Player %s removed from transport %s.", passenger->GetName(), GetName());
-
-    return true;
-}
-
-bool Transport::RemoveCreaturePassenger(Creature* passenger)
-{
-    if (!m_creature_passengers.erase(passenger))
-        return false;
-
-    DEBUG_LOG("Creature %s removed from transport %s.", passenger->GetName(), GetName());
-
-    return true;
-}
-
-void Transport::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target)
-{
-    for (CreatureSet::const_iterator itr = m_creature_passengers.begin(); itr != m_creature_passengers.end(); ++itr)
+    if (m_passengers.find(passenger) == m_passengers.end())
     {
-        if (!(*itr))
-        {
-            m_creature_passengers.erase(itr);
-            continue;
-        }
-
-        (*itr)->BuildCreateUpdateBlockForPlayer(data, target);
+        DETAIL_LOG("Player %s boarded transport %s.", passenger->GetName(), GetName());
+        m_passengers.insert(passenger);
     }
-
-    Object::BuildCreateUpdateBlockForPlayer(data, target);
+    return true;
 }
 
-void Transport::Update( uint32 update_diff, uint32 /*p_time*/)
+bool Transport::RemovePassenger(Player* passenger)
+{
+    if (m_passengers.erase(passenger))
+        DETAIL_LOG("Player %s removed from transport %s.", passenger->GetName(), GetName());
+    return true;
+}
+
+void Transport::Update(uint32 update_diff, uint32 /*p_time*/)
 {
     if (m_WayPoints.size() <= 1)
         return;
@@ -611,24 +546,13 @@ void Transport::Update( uint32 update_diff, uint32 /*p_time*/)
         }
 
         /*
-        for(PlayerSet::const_iterator itr = m_passengers.begin(); itr != m_passengers.end();)
+        for (PlayerSet::const_iterator itr = m_passengers.begin(); itr != m_passengers.end();)
         {
             PlayerSet::const_iterator it2 = itr;
             ++itr;
-            //(*it2)->SetPosition( m_curr->second.x + (*it2)->GetTransOffsetX(), m_curr->second.y + (*it2)->GetTransOffsetY(), m_curr->second.z + (*it2)->GetTransOffsetZ(), (*it2)->GetTransOffsetO() );
+            //(*it2)->SetPosition(m_curr->second.x + (*it2)->GetTransOffsetX(), m_curr->second.y + (*it2)->GetTransOffsetY(), m_curr->second.z + (*it2)->GetTransOffsetZ(), (*it2)->GetTransOffsetO());
         }
         */
-
-        for (CreatureSet::const_iterator itr = m_creature_passengers.begin(); itr != m_creature_passengers.end(); itr++)
-        {
-            if (!(*itr))
-            {
-                m_creature_passengers.erase(itr);
-                continue;
-            }
-
-            (*itr)->GetMap()->CreatureRelocation(*itr, m_curr->second.x + (*itr)->GetTransOffsetX(), m_curr->second.y + (*itr)->GetTransOffsetY(), m_curr->second.z + (*itr)->GetTransOffsetZ(), (*itr)->GetTransOffsetO());
-        }
 
         m_nextNodeTime = m_curr->first;
 
@@ -642,14 +566,14 @@ void Transport::Update( uint32 update_diff, uint32 /*p_time*/)
 void Transport::UpdateForMap(Map const* targetMap)
 {
     Map::PlayerList const& pl = targetMap->GetPlayers();
-    if(pl.isEmpty())
+    if (pl.isEmpty())
         return;
 
-    if(GetMapId()==targetMap->GetId())
+    if (GetMapId()==targetMap->GetId())
     {
-        for(Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
+        for (Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
         {
-            if(this != itr->getSource()->GetTransport())
+            if (this != itr->getSource()->GetTransport())
             {
                 UpdateData transData;
                 BuildCreateUpdateBlockForPlayer(&transData, itr->getSource());
@@ -666,8 +590,8 @@ void Transport::UpdateForMap(Map const* targetMap)
         WorldPacket out_packet;
         transData.BuildPacket(&out_packet);
 
-        for(Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
-            if(this != itr->getSource()->GetTransport())
+        for (Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
+            if (this != itr->getSource()->GetTransport())
                 itr->getSource()->SendDirectMessage(&out_packet);
     }
 }

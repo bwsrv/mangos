@@ -195,7 +195,6 @@ struct CreatureData
     float posY;
     float posZ;
     float orientation;
-    uint32 transguid;
     uint32 spawntimesecs;
     float spawndist;
     uint32 currentwaypoint;

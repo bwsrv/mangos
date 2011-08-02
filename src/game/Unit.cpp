@@ -265,8 +265,6 @@ Unit::Unit() :
     m_CombatTimer = 0;
     m_lastManaUseTimer = 0;
 
-    m_transport = NULL;
-
     //m_victimThreat = 0.0f;
     for (int i = 0; i < MAX_SPELL_SCHOOL; ++i)
         m_threatModifier[i] = 1.0f;
@@ -413,71 +411,56 @@ bool Unit::haveOffhandWeapon() const
     }
 }
 
-void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, SplineType type, SplineFlags flags, uint32 Time, Player* player, ...)
+void Unit::SendMonsterMoveTransport(WorldObject *transport, SplineType type, SplineFlags flags, uint32 moveTime, ...)
 {
     va_list vargs;
-    va_start(vargs,player);
+    va_start(vargs, moveTime);
 
-    float moveTime = (float)Time;
-
-    WorldPacket data( (m_transport && !(flags & SPLINEFLAG_TRAJECTORY))  ? SMSG_MONSTER_MOVE_TRANSPORT : SMSG_MONSTER_MOVE, (41 + GetPackGUID().size()) );
+    WorldPacket data(SMSG_MONSTER_MOVE_TRANSPORT, 60);
     data << GetPackGUID();
-    if (m_transport && !(flags & SPLINEFLAG_TRAJECTORY))
-    {
-        data.appendPackGUID(m_transport->GetGUID());
-        data << uint8(0);
-    }
-    data << uint8(0);                                       // new in 3.1 bool, used to toggle MOVEFLAG2_UNK4 = 0x0040 on client side
-    data << GetPositionX() << GetPositionY() << GetPositionZ();
+    data << transport->GetPackGUID();
+    data << uint8(m_movementInfo.GetTransportSeat());
+    data << uint8(0);                                       // new in 3.1
+    data << float(transport->GetPositionX());
+    data << float(transport->GetPositionY());
+    data << float(transport->GetPositionZ());
     data << uint32(WorldTimer::getMSTime());
 
-    data << uint8(type);                                    // unknown
+    data << uint8(type);                                    // spline type
+
     switch(type)
     {
         case SPLINETYPE_NORMAL:                             // normal packet
             break;
         case SPLINETYPE_STOP:                               // stop packet (raw pos?)
             va_end(vargs);
-            SendMessageToSet( &data, true );
+            SendMessageToSet(&data, true);
             return;
-        case SPLINETYPE_FACINGSPOT:                         // facing spot, not used currently
-        {
+        case SPLINETYPE_FACINGSPOT:                         // facing spot
             data << float(va_arg(vargs,double));
             data << float(va_arg(vargs,double));
             data << float(va_arg(vargs,double));
             break;
-        }
         case SPLINETYPE_FACINGTARGET:
-            data << uint64(va_arg(vargs,uint64));           // ObjectGuid in fact
+            data << uint64(va_arg(vargs,uint64));
             break;
         case SPLINETYPE_FACINGANGLE:
             data << float(va_arg(vargs,double));            // facing angle
             break;
     }
 
-    data << uint32(flags);                                  // splineflags
-    data << uint32(moveTime);                               // Time in between points
-    if (flags & SPLINEFLAG_TRAJECTORY)
-    {
-        data << float(va_arg(vargs, double));               // Z jump speed
-        data << uint32(0);                                  // walk time after jump
-    }
-    data << uint32(1);                                      // 1 single waypoint
-    if (m_transport && !(flags & SPLINEFLAG_TRAJECTORY))
-    {
-        data << m_movementInfo.GetTransportPos()->x << m_movementInfo.GetTransportPos()->y << m_movementInfo.GetTransportPos()->z;
-    }
-    else
-    {
-        data << NewPosX << NewPosY << NewPosZ;                  // the single waypoint Point B
-    }
-
     va_end(vargs);
 
-    if(player)
-        player->GetSession()->SendPacket(&data);
-    else
-        SendMessageToSet( &data, true );
+    data << uint32(flags);
+
+    data << uint32(moveTime);                               // Time in between points
+    data << uint32(1);                                      // 1 single waypoint
+
+    data << float(m_movementInfo.GetTransportPos()->x);
+    data << float(m_movementInfo.GetTransportPos()->y);
+    data << float(m_movementInfo.GetTransportPos()->z);
+
+    SendMessageToSet(&data, true);
 }
 
 void Unit::SendMonsterMoveJump(float NewPosX, float NewPosY, float NewPosZ, float vert_speed, uint32 flags, uint32 Time, Player* player)
@@ -12093,7 +12076,7 @@ void Unit::EnterVehicle(VehicleKit *vehicle, int8 seatId)
     if (Transport* pTransport = GetTransport())
     {
         if (GetTypeId() == TYPEID_PLAYER)
-            pTransport->RemovePlayerPassenger((Player*)this);
+            pTransport->RemovePassenger((Player*)this);
 
         SetTransport(NULL);
     }
