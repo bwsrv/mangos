@@ -1081,7 +1081,7 @@ void Item::SendTimeUpdate(Player* owner)
     owner->GetSession()->SendPacket(&data);
 }
 
-Item* Item::CreateItem(uint32 item, uint32 count, Player const* player, uint32 randomPropertyId)
+Item* Item::CreateItem( uint32 item, uint32 count, Player const* player, uint32 randomPropertyId)
 {
     if (count < 1)
         return NULL;                                        //don't create item at zero count
@@ -1104,7 +1104,7 @@ Item* Item::CreateItem(uint32 item, uint32 count, Player const* player, uint32 r
                     std::ostringstream ss;
                     sLog.outDetail("WoWArmory: write feed log (guid: %u, type: 2, data: %u)", player->GetGUIDLow(), item);
                     ss << "REPLACE INTO armory_character_feed_log (guid, type, data, date, counter, item_guid) VALUES (" << player->GetGUIDLow() << ", 2, " << item << ", UNIX_TIMESTAMP(NOW()), 1," << pItem->GetGUIDLow()  << ")";
-                    CharacterDatabase.PExecute(ss.str().c_str());
+                    CharacterDatabase.PExecute( ss.str().c_str());
                 }
             }
             /** World of Warcraft Armory **/
@@ -1335,7 +1335,7 @@ void Item::SetSoulboundTradeable(AllowedLooterSet* allowedLooters, Player* curre
         allowedGUIDs.clear();
         SetState(ITEM_CHANGED, currentOwner);
 
-        CharacterDatabase.PExecute("DELETE FROM item_soulbound_trade_data WHERE itemGuid = '%u'", GetGUIDLow());
+        CharacterDatabase.PExecute( "DELETE FROM item_soulbound_trade_data WHERE itemGuid = '%u'", GetGUIDLow());
     }
 }
 

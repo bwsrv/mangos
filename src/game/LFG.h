@@ -40,26 +40,26 @@ enum LFGRoleMask
     LFG_ROLE_MASK_DAMAGE  = (1 << ROLE_DAMAGE),
 
     // unions
-    LFG_ROLE_MASK_THD     = (LFG_ROLE_MASK_TANK   |
+    LFG_ROLE_MASK_THD     = ( LFG_ROLE_MASK_TANK   |
                                LFG_ROLE_MASK_HEALER |
                                LFG_ROLE_MASK_DAMAGE),
 
-    LFG_ROLE_MASK_TH      = (LFG_ROLE_MASK_TANK |
+    LFG_ROLE_MASK_TH      = ( LFG_ROLE_MASK_TANK |
                                LFG_ROLE_MASK_HEALER),
 
-    LFG_ROLE_MASK_TD      = (LFG_ROLE_MASK_TANK |
+    LFG_ROLE_MASK_TD      = ( LFG_ROLE_MASK_TANK |
                                LFG_ROLE_MASK_DAMAGE),
 
-    LFG_ROLE_MASK_HD      = (LFG_ROLE_MASK_DAMAGE |
+    LFG_ROLE_MASK_HD      = ( LFG_ROLE_MASK_DAMAGE |
                                LFG_ROLE_MASK_HEALER),
 
-    LFG_ROLE_MASK_LTHD     = (LFG_ROLE_MASK_THD |
+    LFG_ROLE_MASK_LTHD     = ( LFG_ROLE_MASK_THD |
                                LFG_ROLE_MASK_LEADER),
-    LFG_ROLE_MASK_LTH      = (LFG_ROLE_MASK_TH |
+    LFG_ROLE_MASK_LTH      = ( LFG_ROLE_MASK_TH |
                                LFG_ROLE_MASK_LEADER),
-    LFG_ROLE_MASK_LTD      = (LFG_ROLE_MASK_TD |
+    LFG_ROLE_MASK_LTD      = ( LFG_ROLE_MASK_TD |
                                LFG_ROLE_MASK_LEADER),
-    LFG_ROLE_MASK_LHD      = (LFG_ROLE_MASK_HD |
+    LFG_ROLE_MASK_LHD      = ( LFG_ROLE_MASK_HD |
                                LFG_ROLE_MASK_LEADER),
 };
 
@@ -232,8 +232,8 @@ struct LFGPlayerState
 
     LFGRoleMask    GetRoles();
     void SetRoles(uint8 roles);
-    void AddRole(LFGRoles role) { rolesMask = LFGRoleMask(rolesMask | (1 << role)); };
-    void RemoveRole(LFGRoles role) { rolesMask = LFGRoleMask(rolesMask & ~(1 << role)); };
+    void AddRole(LFGRoles role) { rolesMask = LFGRoleMask( rolesMask | (1 << role)); };
+    void RemoveRole(LFGRoles role) { rolesMask = LFGRoleMask( rolesMask & ~(1 << role)); };
     bool IsSingleRole();
 
     LFGProposal*  GetProposal()   { return m_proposal; };
@@ -323,7 +323,7 @@ public:
 
     // Role checks
     LFGRoleCheckState GetRoleCheckState() const { return m_roleCheckState;};
-    void SetRoleCheckState(LFGRoleCheckState _state) { m_roleCheckState = _state; };
+    void SetRoleCheckState( LFGRoleCheckState _state) { m_roleCheckState = _state; };
     void StartRoleCheck();
     bool QueryRoleCheckTime() {return (time_t(time(NULL)) < m_roleCheckCancelTime);};
     bool IsRoleCheckActive();

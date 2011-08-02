@@ -487,7 +487,7 @@ enum SkillRangeType
 SkillRangeType GetSkillRangeType(SkillLineEntry const *pSkill, bool racial);
 
 #define MAX_PLAYER_NAME          12                         // max allowed by client name length
-#define MAX_INTERNAL_PLAYER_NAME 15                         // max server internal player name length (> MAX_PLAYER_NAME for support declined names)
+#define MAX_INTERNAL_PLAYER_NAME 15                         // max server internal player name length ( > MAX_PLAYER_NAME for support declined names)
 #define MAX_PET_NAME             12                         // max allowed by client name length
 #define MAX_CHARTER_NAME         24                         // max allowed by client name length
 
@@ -571,19 +571,19 @@ class ObjectMgr
         ArenaTeamMap::iterator GetArenaTeamMapBegin() { return mArenaTeamMap.begin(); }
         ArenaTeamMap::iterator GetArenaTeamMapEnd()   { return mArenaTeamMap.end(); }
 
-        static CreatureInfo const *GetCreatureTemplate(uint32 id);
-        CreatureModelInfo const *GetCreatureModelInfo(uint32 modelid);
+        static CreatureInfo const *GetCreatureTemplate( uint32 id);
+        CreatureModelInfo const *GetCreatureModelInfo( uint32 modelid);
         CreatureModelInfo const* GetCreatureModelRandomGender(uint32 display_id);
         uint32 GetCreatureModelAlternativeModel(uint32 modelId);
-        CreatureSpellsList const* GetCreatureSpells(uint32 id, uint8 activeState = 0);
+        CreatureSpellsList const* GetCreatureSpells( uint32 id, uint8 activeState = 0);
 
-        EquipmentInfo const *GetEquipmentInfo(uint32 entry);
-        static CreatureDataAddon const *GetCreatureAddon(uint32 lowguid)
+        EquipmentInfo const *GetEquipmentInfo( uint32 entry);
+        static CreatureDataAddon const *GetCreatureAddon( uint32 lowguid)
         {
             return sCreatureDataAddonStorage.LookupEntry<CreatureDataAddon>(lowguid);
         }
 
-        static CreatureDataAddon const *GetCreatureTemplateAddon(uint32 entry)
+        static CreatureDataAddon const *GetCreatureTemplateAddon( uint32 entry)
         {
             return sCreatureInfoAddonStorage.LookupEntry<CreatureDataAddon>(entry);
         }
@@ -629,9 +629,9 @@ class ObjectMgr
         uint32 GetPlayerAccountIdByGUID(ObjectGuid guid) const;
         uint32 GetPlayerAccountIdByPlayerName(const std::string& name) const;
 
-        uint32 GetNearestTaxiNode(float x, float y, float z, uint32 mapid, Team team);
-        void GetTaxiPath(uint32 source, uint32 destination, uint32 &path, uint32 &cost);
-        uint32 GetTaxiMountDisplayId(uint32 id, Team team, bool allowed_alt_team = false);
+        uint32 GetNearestTaxiNode( float x, float y, float z, uint32 mapid, Team team);
+        void GetTaxiPath( uint32 source, uint32 destination, uint32 &path, uint32 &cost);
+        uint32 GetTaxiMountDisplayId( uint32 id, Team team, bool allowed_alt_team = false);
 
         Quest const* GetQuestTemplate(uint32 quest_id) const
         {
@@ -666,7 +666,7 @@ class ObjectMgr
 
         AreaTrigger const* GetAreaTrigger(uint32 trigger) const
         {
-            AreaTriggerMap::const_iterator itr = mAreaTriggers.find(trigger);
+            AreaTriggerMap::const_iterator itr = mAreaTriggers.find( trigger);
             if (itr != mAreaTriggers.end())
                 return &itr->second;
             return NULL;
@@ -1025,9 +1025,9 @@ class ObjectMgr
         bool IsReservedName(const std::string& name) const;
 
         // name with valid structure and symbols
-        static uint8 CheckPlayerName(const std::string& name, bool create = false);
-        static PetNameInvalidReason CheckPetName(const std::string& name);
-        static bool IsValidCharterName(const std::string& name);
+        static uint8 CheckPlayerName( const std::string& name, bool create = false);
+        static PetNameInvalidReason CheckPetName( const std::string& name);
+        static bool IsValidCharterName( const std::string& name);
 
         static bool CheckDeclinedNames(std::wstring w_ownname, DeclinedName const& names);
 

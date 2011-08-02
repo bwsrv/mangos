@@ -146,7 +146,7 @@ void BattleGroundAV::HandleQuestComplete(uint32 questid, Player *player)
             break;
         case BG_AV_QUEST_A_BOSS1:
         case BG_AV_QUEST_H_BOSS1:
-            m_Team_QuestStatus[teamIdx][4] += 4;               // there are 2 quests where you can turn in 5 or 1 item.. (+ 4 cause +1 will be done some lines below)
+            m_Team_QuestStatus[teamIdx][4] += 4;               // there are 2 quests where you can turn in 5 or 1 item.. ( + 4 cause +1 will be done some lines below)
             reputation = 4;
         case BG_AV_QUEST_A_BOSS2:
         case BG_AV_QUEST_H_BOSS2:
@@ -211,7 +211,7 @@ void BattleGroundAV::HandleQuestComplete(uint32 questid, Player *player)
 void BattleGroundAV::UpdateScore(BattleGroundTeamIndex teamIdx, int32 points)
 {
     // note: to remove reinforcements points must be negative, for adding reinforcements points must be positive
-    MANGOS_ASSERT(teamIdx == BG_TEAM_ALLIANCE || teamIdx == BG_TEAM_HORDE);
+    MANGOS_ASSERT( teamIdx == BG_TEAM_ALLIANCE || teamIdx == BG_TEAM_HORDE);
     m_TeamScores[teamIdx] += points;                      // m_TeamScores is int32 - so no problems here
 
     if (points < 0)
@@ -561,9 +561,9 @@ void BattleGroundAV::EventPlayerDefendsPoint(Player* player, BG_AV_Nodes node)
 
     if (IsTower(node))
     {
-        SendYell2ToAll(LANG_BG_AV_TOWER_DEFENDED, LANG_UNIVERSAL, GetSingleCreatureGuid(BG_AV_HERALD, 0),
+        SendYell2ToAll( LANG_BG_AV_TOWER_DEFENDED, LANG_UNIVERSAL, GetSingleCreatureGuid(BG_AV_HERALD, 0),
             GetNodeName(node),
-            (teamIdx == BG_TEAM_ALLIANCE) ? LANG_BG_ALLY:LANG_BG_HORDE);
+            ( teamIdx == BG_TEAM_ALLIANCE) ? LANG_BG_ALLY:LANG_BG_HORDE);
         UpdatePlayerScore(player, SCORE_TOWERS_DEFENDED, 1);
         PlaySoundToAll(BG_AV_SOUND_BOTH_TOWER_DEFEND);
     }
@@ -571,7 +571,7 @@ void BattleGroundAV::EventPlayerDefendsPoint(Player* player, BG_AV_Nodes node)
     {
         SendYell2ToAll(LANG_BG_AV_GRAVE_DEFENDED, LANG_UNIVERSAL, GetSingleCreatureGuid(BG_AV_HERALD, 0),
             GetNodeName(node),
-            (teamIdx == BG_TEAM_ALLIANCE) ? LANG_BG_ALLY:LANG_BG_HORDE);
+            ( teamIdx == BG_TEAM_ALLIANCE) ? LANG_BG_ALLY:LANG_BG_HORDE);
         UpdatePlayerScore(player, SCORE_GRAVEYARDS_DEFENDED, 1);
     // update the statistic for the defending player
         PlaySoundToAll((teamIdx == BG_TEAM_ALLIANCE)?BG_AV_SOUND_ALLIANCE_GOOD:BG_AV_SOUND_HORDE_GOOD);
@@ -594,14 +594,14 @@ void BattleGroundAV::EventPlayerAssaultsPoint(Player* player, BG_AV_Nodes node)
     {
         SendYell2ToAll(LANG_BG_AV_TOWER_ASSAULTED, LANG_UNIVERSAL, GetSingleCreatureGuid(BG_AV_HERALD, 0),
             GetNodeName(node),
-            (teamIdx == BG_TEAM_ALLIANCE) ? LANG_BG_ALLY:LANG_BG_HORDE);
+            ( teamIdx == BG_TEAM_ALLIANCE) ? LANG_BG_ALLY:LANG_BG_HORDE);
         UpdatePlayerScore(player, SCORE_TOWERS_ASSAULTED, 1);
     }
     else
     {
         SendYell2ToAll(LANG_BG_AV_GRAVE_ASSAULTED, LANG_UNIVERSAL, GetSingleCreatureGuid(BG_AV_HERALD, 0),
             GetNodeName(node),
-            (teamIdx == BG_TEAM_ALLIANCE) ? LANG_BG_ALLY:LANG_BG_HORDE);
+            ( teamIdx == BG_TEAM_ALLIANCE) ? LANG_BG_ALLY:LANG_BG_HORDE);
         // update the statistic for the assaulting player
         UpdatePlayerScore(player, SCORE_GRAVEYARDS_ASSAULTED, 1);
     }
@@ -681,7 +681,7 @@ WorldSafeLocsEntry const* BattleGroundAV::GetClosestGraveYard(Player *plr)
         {
             if (m_Nodes[i].Owner != teamIdx || m_Nodes[i].State != POINT_CONTROLLED)
                 continue;
-            WorldSafeLocsEntry const * entry = sWorldSafeLocsStore.LookupEntry(BG_AV_GraveyardIds[i]);
+            WorldSafeLocsEntry const * entry = sWorldSafeLocsStore.LookupEntry( BG_AV_GraveyardIds[i]);
             if (!entry)
                 continue;
             float dist = (entry->x - x) * (entry->x - x) + (entry->y - y) * (entry->y - y);
@@ -694,7 +694,7 @@ WorldSafeLocsEntry const* BattleGroundAV::GetClosestGraveYard(Player *plr)
     }
     // If not, place ghost in the starting-cave
     if (!good_entry)
-        good_entry = sWorldSafeLocsStore.LookupEntry(BG_AV_GraveyardIds[teamIdx + 7]);
+        good_entry = sWorldSafeLocsStore.LookupEntry( BG_AV_GraveyardIds[teamIdx + 7]);
 
     return good_entry;
 }

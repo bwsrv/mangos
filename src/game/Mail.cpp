@@ -39,7 +39,7 @@
  * @param sender The object/player sending this mail.
  * @param stationery The stationary associated with this sender.
  */
-MailSender::MailSender(Object* sender, MailStationery stationery) : m_stationery(stationery)
+MailSender::MailSender( Object* sender, MailStationery stationery) : m_stationery(stationery)
 {
     switch(sender->GetTypeId())
     {
@@ -63,7 +63,7 @@ MailSender::MailSender(Object* sender, MailStationery stationery) : m_stationery
         default:
             m_messageType = MAIL_NORMAL;
             m_senderId = 0;                                 // will show mail from nonexistent player
-            sLog.outError("MailSender::MailSender - Mail have unexpected sender typeid (%u)", sender->GetTypeId());
+            sLog.outError( "MailSender::MailSender - Mail have unexpected sender typeid (%u)", sender->GetTypeId());
             break;
     }
 }
@@ -72,7 +72,7 @@ MailSender::MailSender(Object* sender, MailStationery stationery) : m_stationery
  *
  * @param sender the AuctionEntry from which this mail is generated.
  */
-MailSender::MailSender(AuctionEntry* sender)
+MailSender::MailSender( AuctionEntry* sender)
     : m_messageType(MAIL_AUCTION), m_senderId(sender->GetHouseId()), m_stationery(MAIL_STATIONERY_AUCTION)
 {
 }
@@ -102,7 +102,7 @@ MailReceiver::MailReceiver(Player* receiver, ObjectGuid receiver_guid) : m_recei
  * @param item The item to be added to the MailDraft.
  * @returns the MailDraft the item was added to.
  */
-MailDraft& MailDraft::AddItem(Item* item)
+MailDraft& MailDraft::AddItem( Item* item)
 {
     m_items[item->GetGUIDLow()] = item;
     return *this;
@@ -142,7 +142,7 @@ bool MailDraft::prepareItems(Player* receiver)
  *
  * @param inDB A boolean specifying whether the change should be saved to the database or not.
  */
-void MailDraft::deleteIncludedItems(bool inDB /**= false*/)
+void MailDraft::deleteIncludedItems( bool inDB /**= false*/)
 {
     for (MailItemMap::iterator mailItemIter = m_items.begin(); mailItemIter != m_items.end(); ++mailItemIter)
     {
@@ -341,7 +341,7 @@ void MailDraft::SendMailTo(MailReceiver const& receiver, MailSender const& sende
  * @param receiver             reciver of mail
  */
 
-void Mail::prepareTemplateItems(Player* receiver)
+void Mail::prepareTemplateItems( Player* receiver)
 {
     if (!mailTemplateId || !items.empty())
         return;

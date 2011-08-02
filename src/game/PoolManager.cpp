@@ -402,7 +402,7 @@ void PoolGroup<Creature>::Spawn1Object(MapPersistentState& mapState, PoolObject*
                     // if new spawn replaces a just despawned creature, not instantly spawn but set respawn timer
                     if (!instantly)
                     {
-                        pCreature->SetRespawnTime(pCreature->GetRespawnDelay());
+                        pCreature->SetRespawnTime( pCreature->GetRespawnDelay());
                         if (sWorld.getConfig(CONFIG_BOOL_SAVE_RESPAWN_TIME_IMMEDIATELY) || pCreature->IsWorldBoss())
                             pCreature->SaveRespawnTime();
                     }
@@ -450,7 +450,7 @@ void PoolGroup<GameObject>::Spawn1Object(MapPersistentState& mapState, PoolObjec
                         // if new spawn replaces a just despawned object, not instantly spawn but set respawn timer
                         if (!instantly)
                         {
-                            pGameobject->SetRespawnTime(pGameobject->GetRespawnDelay());
+                            pGameobject->SetRespawnTime( pGameobject->GetRespawnDelay());
                             if (sWorld.getConfig(CONFIG_BOOL_SAVE_RESPAWN_TIME_IMMEDIATELY))
                                 pGameobject->SaveRespawnTime();
                         }
@@ -613,7 +613,7 @@ void PoolManager::LoadFromDB()
     } while (result->NextRow());
 
     sLog.outString();
-    sLog.outString(">> Loaded %u objects pools", count);
+    sLog.outString( ">> Loaded %u objects pools", count);
     delete result;
 
     PoolMapChecker mapChecker(mPoolTemplate);
@@ -681,7 +681,7 @@ void PoolManager::LoadFromDB()
 
         } while (result->NextRow());
         sLog.outString();
-        sLog.outString(">> Loaded %u creatures in pools from `pool_creature`", count);
+        sLog.outString( ">> Loaded %u creatures in pools from `pool_creature`", count);
         delete result;
     }
 
@@ -826,7 +826,7 @@ void PoolManager::LoadFromDB()
             SearchPair p(guid, pool_id);
             mGameobjectSearchMap.insert(p);
 
-        } while(result->NextRow());
+        } while( result->NextRow());
         sLog.outString();
         sLog.outString(">> Loaded %u gameobject in pools from `pool_gameobject`", count);
         delete result;
@@ -908,7 +908,7 @@ void PoolManager::LoadFromDB()
             SearchPair p(guid, pool_id);
             mGameobjectSearchMap.insert(p);
 
-        } while(result->NextRow());
+        } while( result->NextRow());
         sLog.outString();
         sLog.outString(">> Loaded %u gameobject in pools from `pool_gameobject_template`", count);
         delete result;
@@ -977,7 +977,7 @@ void PoolManager::LoadFromDB()
             // update top independent pool flag
             mPoolTemplate[child_pool_id].AutoSpawn = false;
 
-        } while(result->NextRow());
+        } while( result->NextRow());
 
         // Now check for circular reference
         for (uint16 i=0; i<max_pool_id; ++i)
@@ -1016,7 +1016,7 @@ void PoolManager::LoadFromDB()
         }
 
         sLog.outString();
-        sLog.outString(">> Loaded %u pools in mother pools", count);
+        sLog.outString( ">> Loaded %u pools in mother pools", count);
         delete result;
     }
 

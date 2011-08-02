@@ -45,7 +45,7 @@ enum StableResultCode
     STABLE_ERR_EXOTIC       = 0x0C,                         // "you are unable to control exotic creatures"
 };
 
-void WorldSession::HandleTabardVendorActivateOpcode(WorldPacket & recv_data)
+void WorldSession::HandleTabardVendorActivateOpcode( WorldPacket & recv_data)
 {
     ObjectGuid guid;
     recv_data >> guid;
@@ -66,12 +66,12 @@ void WorldSession::HandleTabardVendorActivateOpcode(WorldPacket & recv_data)
 
 void WorldSession::SendTabardVendorActivate(ObjectGuid guid)
 {
-    WorldPacket data(MSG_TABARDVENDOR_ACTIVATE, 8);
+    WorldPacket data( MSG_TABARDVENDOR_ACTIVATE, 8);
     data << ObjectGuid(guid);
     SendPacket(&data);
 }
 
-void WorldSession::HandleBankerActivateOpcode(WorldPacket & recv_data)
+void WorldSession::HandleBankerActivateOpcode( WorldPacket & recv_data)
 {
     ObjectGuid guid;
 
@@ -103,7 +103,7 @@ void WorldSession::SendShowMailBox(ObjectGuid guid)
     SendPacket(&data);
 }
 
-void WorldSession::HandleTrainerListOpcode(WorldPacket & recv_data)
+void WorldSession::HandleTrainerListOpcode( WorldPacket & recv_data)
 {
     ObjectGuid guid;
 
@@ -141,7 +141,7 @@ static void SendTrainerSpellHelper(WorldPacket& data, TrainerSpell const* tSpell
 
 void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
 {
-    DEBUG_LOG("WORLD: SendTrainerList");
+    DEBUG_LOG( "WORLD: SendTrainerList");
 
     Creature *unit = GetPlayer()->GetNPCIfCanInteractWith(guid,UNIT_NPC_FLAG_TRAINER);
     if (!unit)
@@ -174,7 +174,7 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
     uint32 maxcount = (cSpells ? cSpells->spellList.size() : 0) + (tSpells ? tSpells->spellList.size() : 0);
     uint32 trainer_type = cSpells && cSpells->trainerType ? cSpells->trainerType : (tSpells ? tSpells->trainerType : 0);
 
-    WorldPacket data(SMSG_TRAINER_LIST, 8+4+4+maxcount*38 + strTitle.size()+1);
+    WorldPacket data( SMSG_TRAINER_LIST, 8+4+4+maxcount*38 + strTitle.size()+1);
     data << ObjectGuid(guid);
     data << uint32(trainer_type);
 
@@ -229,7 +229,7 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
     SendPacket(&data);
 }
 
-void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket & recv_data)
+void WorldSession::HandleTrainerBuySpellOpcode( WorldPacket & recv_data)
 {
     ObjectGuid guid;
     uint32 spellId = 0;
@@ -280,7 +280,7 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket & recv_data)
     if (_player->GetMoney() < nSpellCost)
         return;
 
-    _player->ModifyMoney(-int32(nSpellCost));
+    _player->ModifyMoney( -int32(nSpellCost));
 
     WorldPacket data(SMSG_PLAY_SPELL_VISUAL, 12);           // visual effect on trainer
     data << ObjectGuid(guid);
@@ -335,7 +335,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket & recv_data)
     }
 }
 
-void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket & recv_data)
+void WorldSession::HandleGossipSelectOptionOpcode( WorldPacket & recv_data)
 {
     DEBUG_LOG("WORLD: CMSG_GOSSIP_SELECT_OPTION");
 
@@ -387,7 +387,7 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket & recv_data)
     }
 }
 
-void WorldSession::HandleSpiritHealerActivateOpcode(WorldPacket & recv_data)
+void WorldSession::HandleSpiritHealerActivateOpcode( WorldPacket & recv_data)
 {
     DEBUG_LOG("WORLD: CMSG_SPIRIT_HEALER_ACTIVATE");
 
@@ -398,7 +398,7 @@ void WorldSession::HandleSpiritHealerActivateOpcode(WorldPacket & recv_data)
     Creature *unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_SPIRITHEALER);
     if (!unit)
     {
-        DEBUG_LOG("WORLD: HandleSpiritHealerActivateOpcode - %s not found or you can't interact with him.", guid.GetString().c_str());
+        DEBUG_LOG( "WORLD: HandleSpiritHealerActivateOpcode - %s not found or you can't interact with him.", guid.GetString().c_str());
         return;
     }
 
@@ -448,7 +448,7 @@ void WorldSession::SendSpiritResurrect()
     }
 }
 
-void WorldSession::HandleBinderActivateOpcode(WorldPacket & recv_data)
+void WorldSession::HandleBinderActivateOpcode( WorldPacket & recv_data)
 {
     ObjectGuid npcGuid;
     recv_data >> npcGuid;
@@ -479,15 +479,15 @@ void WorldSession::SendBindPoint(Creature *npc)
     // send spell for bind 3286 bind magic
     npc->CastSpell(_player, 3286, true);                    // Bind
 
-    WorldPacket data(SMSG_TRAINER_BUY_SUCCEEDED, (8+4));
+    WorldPacket data( SMSG_TRAINER_BUY_SUCCEEDED, (8+4));
     data << npc->GetObjectGuid();
     data << uint32(3286);                                   // Bind
-    SendPacket(&data);
+    SendPacket( &data);
 
     _player->PlayerTalkClass->CloseGossip();
 }
 
-void WorldSession::HandleListStabledPetsOpcode(WorldPacket & recv_data)
+void WorldSession::HandleListStabledPetsOpcode( WorldPacket & recv_data)
 {
     DEBUG_LOG("WORLD: Recv MSG_LIST_STABLED_PETS");
     ObjectGuid npcGUID;
@@ -497,7 +497,7 @@ void WorldSession::HandleListStabledPetsOpcode(WorldPacket & recv_data)
     Creature *unit = GetPlayer()->GetNPCIfCanInteractWith(npcGUID, UNIT_NPC_FLAG_STABLEMASTER);
     if (!unit)
     {
-        DEBUG_LOG("WORLD: HandleListStabledPetsOpcode - %s not found or you can't interact with him.", npcGUID.GetString().c_str());
+        DEBUG_LOG( "WORLD: HandleListStabledPetsOpcode - %s not found or you can't interact with him.", npcGUID.GetString().c_str());
         return;
     }
 
@@ -508,7 +508,7 @@ void WorldSession::HandleListStabledPetsOpcode(WorldPacket & recv_data)
     SendStablePet(npcGUID);
 }
 
-void WorldSession::SendStablePet(ObjectGuid guid)
+void WorldSession::SendStablePet( ObjectGuid guid)
 {
     DEBUG_LOG("WORLD: Recv MSG_LIST_STABLED_PETS Send.");
 
@@ -552,7 +552,7 @@ void WorldSession::SendStablePet(ObjectGuid guid)
             data << uint8(2);                               // 1 = current, 2/3 = in stable (any from 4,5,... create problems with proper show)
 
             ++num;
-        }while(result->NextRow());
+        }while( result->NextRow());
 
         delete result;
     }
@@ -593,7 +593,7 @@ bool WorldSession::CheckStableMaster(ObjectGuid guid)
     return true;
 }
 
-void WorldSession::HandleStablePet(WorldPacket & recv_data)
+void WorldSession::HandleStablePet( WorldPacket & recv_data)
 {
     DEBUG_LOG("WORLD: Recv CMSG_STABLE_PET");
     ObjectGuid npcGUID;
@@ -643,7 +643,7 @@ void WorldSession::HandleStablePet(WorldPacket & recv_data)
 
             // this slot not free, skip
             ++free_slot;
-        }while(result->NextRow());
+        }while( result->NextRow());
 
         delete result;
     }
@@ -657,7 +657,7 @@ void WorldSession::HandleStablePet(WorldPacket & recv_data)
         SendStableResult(STABLE_ERR_STABLE);
 }
 
-void WorldSession::HandleUnstablePet(WorldPacket & recv_data)
+void WorldSession::HandleUnstablePet( WorldPacket & recv_data)
 {
     DEBUG_LOG("WORLD: Recv CMSG_UNSTABLE_PET.");
     ObjectGuid npcGUID;
@@ -728,7 +728,7 @@ void WorldSession::HandleUnstablePet(WorldPacket & recv_data)
     SendStableResult(STABLE_SUCCESS_UNSTABLE);
 }
 
-void WorldSession::HandleBuyStableSlot(WorldPacket & recv_data)
+void WorldSession::HandleBuyStableSlot( WorldPacket & recv_data)
 {
     DEBUG_LOG("WORLD: Recv CMSG_BUY_STABLE_SLOT.");
     ObjectGuid npcGUID;
@@ -761,12 +761,12 @@ void WorldSession::HandleBuyStableSlot(WorldPacket & recv_data)
         SendStableResult(STABLE_ERR_STABLE);
 }
 
-void WorldSession::HandleStableRevivePet(WorldPacket &/* recv_data */)
+void WorldSession::HandleStableRevivePet( WorldPacket &/* recv_data */)
 {
     DEBUG_LOG("HandleStableRevivePet: Not implemented");
 }
 
-void WorldSession::HandleStableSwapPet(WorldPacket & recv_data)
+void WorldSession::HandleStableSwapPet( WorldPacket & recv_data)
 {
     DEBUG_LOG("WORLD: Recv CMSG_STABLE_SWAP_PET.");
     ObjectGuid npcGUID;
@@ -839,7 +839,7 @@ void WorldSession::HandleStableSwapPet(WorldPacket & recv_data)
         SendStableResult(STABLE_SUCCESS_UNSTABLE);
 }
 
-void WorldSession::HandleRepairItemOpcode(WorldPacket & recv_data)
+void WorldSession::HandleRepairItemOpcode( WorldPacket & recv_data)
 {
     DEBUG_LOG("WORLD: CMSG_REPAIR_ITEM");
 
@@ -852,7 +852,7 @@ void WorldSession::HandleRepairItemOpcode(WorldPacket & recv_data)
     Creature *unit = GetPlayer()->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_REPAIR);
     if (!unit)
     {
-        DEBUG_LOG("WORLD: HandleRepairItemOpcode - %s not found or you can't interact with him.", npcGuid.GetString().c_str());
+        DEBUG_LOG( "WORLD: HandleRepairItemOpcode - %s not found or you can't interact with him.", npcGuid.GetString().c_str());
         return;
     }
 

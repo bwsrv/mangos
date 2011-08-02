@@ -20,12 +20,12 @@
 #include "Log.h"
 #include "CreatureAI.h"
 
-TemporarySummon::TemporarySummon(ObjectGuid summoner) :
+TemporarySummon::TemporarySummon( ObjectGuid summoner) :
 Creature(CREATURE_SUBTYPE_TEMPORARY_SUMMON), m_type(TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN), m_timer(0), m_lifetime(0), m_summoner(summoner)
 {
 }
 
-void TemporarySummon::Update(uint32 update_diff,  uint32 diff)
+void TemporarySummon::Update( uint32 update_diff,  uint32 diff)
 {
     switch(m_type)
     {
@@ -136,7 +136,7 @@ void TemporarySummon::Update(uint32 update_diff,  uint32 diff)
             break;
     }
 
-    Creature::Update(update_diff, diff);
+    Creature::Update( update_diff, diff);
 }
 
 void TemporarySummon::Summon(TempSummonType type, uint32 lifetime)

@@ -378,7 +378,7 @@ m_effIndex(eff), m_positive(false), m_isPeriodic(false), m_isAreaAura(false),
 m_isPersistent(false), m_in_use(0), m_spellAuraHolder(holder)
 {
     MANGOS_ASSERT(target);
-    MANGOS_ASSERT(spellproto && spellproto == sSpellStore.LookupEntry(spellproto->Id) && "`info` must be pointer to sSpellStore element");
+    MANGOS_ASSERT(spellproto && spellproto == sSpellStore.LookupEntry( spellproto->Id) && "`info` must be pointer to sSpellStore element");
 
     m_currentBasePoints = currentBasePoints ? *currentBasePoints : spellproto->CalculateSimpleValue(eff);
 
@@ -951,7 +951,7 @@ bool Aura::CanProcFrom(SpellEntry const *spell, uint32 procFlag, uint32 EventPro
     }
 }
 
-void Aura::ReapplyAffectedPassiveAuras(Unit* target, bool owner_mode)
+void Aura::ReapplyAffectedPassiveAuras( Unit* target, bool owner_mode)
 {
     // we need store cast item guids for self casted spells
     // expected that not exist permanent auras from stackable auras from different items
@@ -1251,7 +1251,7 @@ void Aura::TriggerSpell()
 
                             // casted in left/right (but triggered spell have wide forward cone)
                             float forward = target->GetOrientation();
-                            float angle = target->GetOrientation() + (tick % 2 == 0 ? M_PI_F / 2 : - M_PI_F / 2);
+                            float angle = target->GetOrientation() + ( tick % 2 == 0 ? M_PI_F / 2 : - M_PI_F / 2);
                             target->SetOrientation(angle);
                             triggerTarget->CastSpell(triggerTarget, trigger_spell_id, true, NULL, this, casterGUID);
                             target->SetOrientation(forward);
@@ -4226,11 +4226,11 @@ void Aura::HandleChannelDeathItem(bool apply, bool Real)
         uint32 count = m_modifier.m_amount;
 
         ItemPosCountVec dest;
-        InventoryResult msg = ((Player*)caster)->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, spellInfo->EffectItemType[m_effIndex], count, &noSpaceForCount);
+        InventoryResult msg = ((Player*)caster)->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, spellInfo->EffectItemType[m_effIndex], count, &noSpaceForCount);
         if (msg != EQUIP_ERR_OK)
         {
             count-=noSpaceForCount;
-            ((Player*)caster)->SendEquipError(msg, NULL, NULL, spellInfo->EffectItemType[m_effIndex]);
+            ((Player*)caster)->SendEquipError( msg, NULL, NULL, spellInfo->EffectItemType[m_effIndex]);
             if (count==0)
                 return;
         }
@@ -4535,7 +4535,7 @@ void Aura::HandleModCharm(bool apply, bool Real)
             ((Creature*)target)->AIM_Initialize();
             CharmInfo *charmInfo = target->InitCharmInfo(target);
             charmInfo->InitCharmCreateSpells();
-            charmInfo->SetReactState(REACT_DEFENSIVE);
+            charmInfo->SetReactState( REACT_DEFENSIVE);
 
             if (caster->GetTypeId() == TYPEID_PLAYER && caster->getClass() == CLASS_WARLOCK)
             {
@@ -5499,7 +5499,7 @@ void Aura::HandleAuraModSchoolImmunity(bool apply, bool Real)
             ++next;
             SpellEntry const *spell = iter->second->GetSpellProto();
             if ((GetSpellSchoolMask(spell) & school_mask)//Check for school mask
-                && !(spell->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY)   //Spells unaffected by invulnerability
+                && !( spell->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY)   //Spells unaffected by invulnerability
                 && !iter->second->IsPositive()          //Don't remove positive spells
                 && spell->Id != GetId())               //Don't remove self
             {
@@ -6276,7 +6276,7 @@ void Aura::HandleAuraModStat(bool apply, bool /*Real*/)
 
     for (int32 i = STAT_STRENGTH; i < MAX_STATS; i++)
     {
-        // -1 or -2 is all stats (misc < -2 checked in function beginning)
+        // -1 or -2 is all stats ( misc < -2 checked in function beginning)
         if (m_modifier.m_miscvalue < 0 || m_modifier.m_miscvalue == i)
         {
             //m_target->ApplyStatMod(Stats(i), m_modifier.m_amount,apply);
@@ -6516,7 +6516,7 @@ void Aura::HandleAuraModIncreaseHealth(bool apply, bool Real)
     switch(GetId())
     {
         case 12976:                                         // Warrior Last Stand triggered spell
-        case 28726:                                         // Nightmare Seed (Nightmare Seed)
+        case 28726:                                         // Nightmare Seed ( Nightmare Seed)
         case 31616:                                         // Nature's Guardian
         case 34511:                                         // Valor (Bulwark of Kings, Bulwark of the Ancient Kings)
         case 44055: case 55915: case 55917: case 67596:     // Tremendous Fortitude (Battlemaster's Alacrity)
@@ -6906,7 +6906,7 @@ void Aura::HandleModDamageDone(bool apply, bool Real)
     }
 
     // m_modifier.m_miscvalue is bitmask of spell schools
-    // 1 (0-bit) - normal school damage (SPELL_SCHOOL_MASK_NORMAL)
+    // 1 ( 0-bit) - normal school damage (SPELL_SCHOOL_MASK_NORMAL)
     // 126 - full bitmask all magic damages (SPELL_SCHOOL_MASK_MAGIC) including wands
     // 127 - full bitmask any damages
     //
@@ -6990,7 +6990,7 @@ void Aura::HandleModDamagePercentDone(bool apply, bool Real)
     }
 
     // m_modifier.m_miscvalue is bitmask of spell schools
-    // 1 (0-bit) - normal school damage (SPELL_SCHOOL_MASK_NORMAL)
+    // 1 ( 0-bit) - normal school damage (SPELL_SCHOOL_MASK_NORMAL)
     // 126 - full bitmask all magic damages (SPELL_SCHOOL_MASK_MAGIC) including wand
     // 127 - full bitmask any damages
     //
@@ -7503,7 +7503,7 @@ void Aura::HandleAuraRetainComboPoints(bool apply, bool Real)
             target->AddComboPoints(unit, -m_modifier.m_amount);
 }
 
-void Aura::HandleModUnattackable(bool Apply, bool Real)
+void Aura::HandleModUnattackable( bool Apply, bool Real)
 {
     if (Real && Apply)
      {
@@ -7513,7 +7513,7 @@ void Aura::HandleModUnattackable(bool Apply, bool Real)
     GetTarget()->ApplyModFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE,Apply);
 }
 
-void Aura::HandleSpiritOfRedemption(bool apply, bool Real)
+void Aura::HandleSpiritOfRedemption( bool apply, bool Real)
 {
     // spells required only Real aura add/remove
     if (!Real)
@@ -8296,7 +8296,7 @@ void Aura::PeriodicTick()
             if (target->hasUnitState(UNIT_STAT_ISOLATED))
                 return;
 
-            Powers powerType = ((m_modifier.m_miscvalue > POWER_RUNIC_POWER || m_modifier.m_miscvalue < 0) ? POWER_MANA : Powers(m_modifier.m_miscvalue));
+            Powers powerType = ( (m_modifier.m_miscvalue > POWER_RUNIC_POWER || m_modifier.m_miscvalue < 0) ? POWER_MANA : Powers(m_modifier.m_miscvalue));
 
             // ignore non positive values (can be result apply spellmods to aura damage
             uint32 amount = m_modifier.m_amount > 0 ? m_modifier.m_amount : 0;
@@ -9443,7 +9443,7 @@ void Aura::HandlePhase(bool apply, bool Real)
     }
 }
 
-void Aura::HandleAuraSafeFall(bool Apply, bool Real)
+void Aura::HandleAuraSafeFall( bool Apply, bool Real)
 {
     // implemented in WorldSession::HandleMovementOpcodes
 
@@ -9524,7 +9524,7 @@ m_stackAmount(1), m_removeMode(AURA_REMOVE_BY_DEFAULT), m_AuraDRGroup(DIMINISHIN
 m_permanent(false), m_isRemovedOnShapeLost(true), m_deleted(false), m_in_use(0)
 {
     MANGOS_ASSERT(target);
-    MANGOS_ASSERT(spellproto && spellproto == sSpellStore.LookupEntry(spellproto->Id) && "`info` must be pointer to sSpellStore element");
+    MANGOS_ASSERT(spellproto && spellproto == sSpellStore.LookupEntry( spellproto->Id) && "`info` must be pointer to sSpellStore element");
 
     if (!caster)
         m_casterGuid = target->GetObjectGuid();
@@ -9653,7 +9653,7 @@ void SpellAuraHolder::_AddSpellAuraHolder()
 
     if (IsNeedVisibleSlot(caster))
     {
-        SetAuraSlot(slot);
+        SetAuraSlot( slot);
         if (slot < MAX_AURAS)                        // slot found send data to client
         {
             SetVisibleAura(false);

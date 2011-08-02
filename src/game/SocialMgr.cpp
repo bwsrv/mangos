@@ -26,7 +26,7 @@
 #include "World.h"
 #include "Util.h"
 
-INSTANTIATE_SINGLETON_1(SocialMgr);
+INSTANTIATE_SINGLETON_1( SocialMgr);
 
 PlayerSocial::PlayerSocial()
 {
@@ -332,7 +332,7 @@ PlayerSocial *SocialMgr::LoadFromDB(QueryResult *result, ObjectGuid guid)
         else
             friendCounter++;
     }
-    while(result->NextRow());
+    while( result->NextRow());
     delete result;
     return social;
 }

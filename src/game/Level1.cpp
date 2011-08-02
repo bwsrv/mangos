@@ -1503,18 +1503,18 @@ bool ChatHandler::HandleModifyMountCommand(char* args)
     chr->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP);
     chr->Mount(mId);
 
-    WorldPacket data(SMSG_FORCE_RUN_SPEED_CHANGE, (8+4+1+4));
+    WorldPacket data( SMSG_FORCE_RUN_SPEED_CHANGE, (8+4+1+4));
     data << chr->GetPackGUID();
     data << (uint32)0;
     data << (uint8)0;                                       //new 2.1.0
     data << float(speed);
-    chr->SendMessageToSet(&data, true);
+    chr->SendMessageToSet( &data, true);
 
-    data.Initialize(SMSG_FORCE_SWIM_SPEED_CHANGE, (8+4+4));
+    data.Initialize( SMSG_FORCE_SWIM_SPEED_CHANGE, (8+4+4));
     data << chr->GetPackGUID();
     data << (uint32)0;
     data << float(speed);
-    chr->SendMessageToSet(&data, true);
+    chr->SendMessageToSet( &data, true);
 
     return true;
 }
@@ -1562,7 +1562,7 @@ bool ChatHandler::HandleModifyMoneyCommand(char* args)
             PSendSysMessage(LANG_YOU_TAKE_MONEY, abs(addmoney), GetNameLink(chr).c_str());
             if (needReportToTarget(chr))
                 ChatHandler(chr).PSendSysMessage(LANG_YOURS_MONEY_TAKEN, GetNameLink().c_str(), abs(addmoney));
-            chr->SetMoney(newmoney);
+            chr->SetMoney( newmoney);
         }
     }
     else
@@ -1574,7 +1574,7 @@ bool ChatHandler::HandleModifyMoneyCommand(char* args)
         if (addmoney >=MAX_MONEY_AMOUNT)
             chr->SetMoney(MAX_MONEY_AMOUNT);
         else
-            chr->ModifyMoney(addmoney);
+            chr->ModifyMoney( addmoney);
     }
 
     DETAIL_LOG(GetMangosString(LANG_NEW_MONEY), moneyuser, addmoney, chr->GetMoney());
@@ -1711,7 +1711,7 @@ bool ChatHandler::HandleLookupTeleCommand(char * args)
         return false;
 
     // converting string that we try to find to lower case
-    wstrToLower(wnamepart);
+    wstrToLower( wnamepart);
 
     std::ostringstream reply;
 
@@ -2030,7 +2030,7 @@ bool ChatHandler::HandleGroupgoCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleGoHelper(Player* player, uint32 mapid, float x, float y, float const* zPtr, float const* ortPtr)
+bool ChatHandler::HandleGoHelper( Player* player, uint32 mapid, float x, float y, float const* zPtr, float const* ortPtr)
 {
     float z;
     float ort = player->GetOrientation();

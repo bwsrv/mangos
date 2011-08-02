@@ -364,7 +364,7 @@ bool Guild::LoadRanksFromDB(QueryResult *guildRanksResult)
             rankRights |= GR_RIGHT_ALL;
 
         AddRank(rankName, rankRights, rankMoney);
-    } while(guildRanksResult->NextRow());
+    } while( guildRanksResult->NextRow());
 
     if (m_Ranks.size() < GUILD_RANKS_MIN_COUNT)             // if too few ranks, renew them
     {
@@ -384,7 +384,7 @@ bool Guild::LoadRanksFromDB(QueryResult *guildRanksResult)
             std::string name = m_Ranks[i].Name;
             uint32 rights = m_Ranks[i].Rights;
             CharacterDatabase.escape_string(name);
-            CharacterDatabase.PExecute("INSERT INTO guild_rank (guildid,rid,rname,rights) VALUES ('%u', '%u', '%s', '%u')", m_Id, uint32(i), name.c_str(), rights);
+            CharacterDatabase.PExecute( "INSERT INTO guild_rank (guildid,rid,rname,rights) VALUES ('%u', '%u', '%s', '%u')", m_Id, uint32(i), name.c_str(), rights);
         }
         CharacterDatabase.CommitTransaction();
     }
@@ -631,7 +631,7 @@ void Guild::CreateRank(std::string name_,uint32 rights)
     }
     // name now can be used for encoding to DB
     CharacterDatabase.escape_string(name_);
-    CharacterDatabase.PExecute("INSERT INTO guild_rank (guildid,rid,rname,rights) VALUES ('%u', '%u', '%s', '%u')", m_Id, new_rank_id, name_.c_str(), rights);
+    CharacterDatabase.PExecute( "INSERT INTO guild_rank (guildid,rid,rname,rights) VALUES ('%u', '%u', '%s', '%u')", m_Id, new_rank_id, name_.c_str(), rights);
 }
 
 void Guild::AddRank(const std::string& name_,uint32 rights, uint32 money)
@@ -775,7 +775,7 @@ void Guild::Roster(WorldSession *session /*= NULL*/)
         session->SendPacket(&data);
     else
         BroadcastPacket(&data);
-    DEBUG_LOG("WORLD: Sent (SMSG_GUILD_ROSTER)");
+    DEBUG_LOG( "WORLD: Sent (SMSG_GUILD_ROSTER)");
 }
 
 void Guild::Query(WorldSession *session)
@@ -800,8 +800,8 @@ void Guild::Query(WorldSession *session)
     data << uint32(m_BackgroundColor);
     data << uint32(0);                                      // probably real ranks count
 
-    session->SendPacket(&data);
-    DEBUG_LOG("WORLD: Sent (SMSG_GUILD_QUERY_RESPONSE)");
+    session->SendPacket( &data);
+    DEBUG_LOG( "WORLD: Sent (SMSG_GUILD_QUERY_RESPONSE)");
 }
 
 void Guild::SetEmblem(uint32 emblemStyle, uint32 emblemColor, uint32 borderStyle, uint32 borderColor, uint32 backgroundColor)
@@ -897,7 +897,7 @@ void Guild::LoadGuildEventLogFromDB()
         // Add entry to list
         m_GuildEventLog.push_front(NewEvent);
 
-    } while(result->NextRow());
+    } while( result->NextRow());
     delete result;
 }
 
@@ -1167,13 +1167,13 @@ void Guild::LoadGuildBankFromDB()
 
         if (TabId >= GetPurchasedTabs())
         {
-            sLog.outError("Guild::LoadGuildBankFromDB: Invalid tab for item (GUID: %u id: #%u) in guild bank, skipped.", ItemGuid,ItemEntry);
+            sLog.outError( "Guild::LoadGuildBankFromDB: Invalid tab for item (GUID: %u id: #%u) in guild bank, skipped.", ItemGuid,ItemEntry);
             continue;
         }
 
         if (SlotId >= GUILD_BANK_MAX_SLOTS)
         {
-            sLog.outError("Guild::LoadGuildBankFromDB: Invalid slot for item (GUID: %u id: #%u) in guild bank, skipped.", ItemGuid,ItemEntry);
+            sLog.outError( "Guild::LoadGuildBankFromDB: Invalid slot for item (GUID: %u id: #%u) in guild bank, skipped.", ItemGuid,ItemEntry);
             continue;
         }
 
@@ -1181,7 +1181,7 @@ void Guild::LoadGuildBankFromDB()
 
         if (!proto)
         {
-            sLog.outError("Guild::LoadGuildBankFromDB: Unknown item (GUID: %u id: #%u) in guild bank, skipped.", ItemGuid,ItemEntry);
+            sLog.outError( "Guild::LoadGuildBankFromDB: Unknown item (GUID: %u id: #%u) in guild bank, skipped.", ItemGuid,ItemEntry);
             continue;
         }
 
@@ -1633,7 +1633,7 @@ bool Guild::AddGBankItemToDB(uint32 GuildId, uint32 BankTab , uint32 BankTabSlot
     return true;
 }
 
-void Guild::AppendDisplayGuildBankSlot(WorldPacket& data, GuildBankTab const *tab, int slot)
+void Guild::AppendDisplayGuildBankSlot( WorldPacket& data, GuildBankTab const *tab, int slot)
 {
     Item *pItem = tab->Slots[slot];
     uint32 entry = pItem ? pItem->GetEntry() : 0;
@@ -1696,12 +1696,12 @@ Item* Guild::StoreItem(uint8 tabId, GuildItemPosCountVec const& dest, Item* pIte
 }
 
 // Return stored item (if stored to stack, it can diff. from pItem). And pItem ca be deleted in this case.
-Item* Guild::_StoreItem(uint8 tab, uint8 slot, Item *pItem, uint32 count, bool clone)
+Item* Guild::_StoreItem( uint8 tab, uint8 slot, Item *pItem, uint32 count, bool clone)
 {
     if (!pItem)
         return NULL;
 
-    DEBUG_LOG("GUILD STORAGE: StoreItem tab = %u, slot = %u, item = %u, count = %u", tab, slot, pItem->GetEntry(), count);
+    DEBUG_LOG( "GUILD STORAGE: StoreItem tab = %u, slot = %u, item = %u, count = %u", tab, slot, pItem->GetEntry(), count);
 
     Item* pItem2 = m_TabListMap[tab]->Slots[slot];
 
@@ -1727,7 +1727,7 @@ Item* Guild::_StoreItem(uint8 tab, uint8 slot, Item *pItem, uint32 count, bool c
     }
     else
     {
-        pItem2->SetCount(pItem2->GetCount() + count);
+        pItem2->SetCount( pItem2->GetCount() + count);
         pItem2->FSetState(ITEM_CHANGED);
         pItem2->SaveToDB();                                 // not in inventory and can be save standalone
 
@@ -1749,7 +1749,7 @@ void Guild::RemoveItem(uint8 tab, uint8 slot)
         GetId(), uint32(tab), uint32(slot));
 }
 
-InventoryResult Guild::_CanStoreItem_InSpecificSlot(uint8 tab, uint8 slot, GuildItemPosCountVec &dest, uint32& count, bool swap, Item* pSrcItem) const
+InventoryResult Guild::_CanStoreItem_InSpecificSlot( uint8 tab, uint8 slot, GuildItemPosCountVec &dest, uint32& count, bool swap, Item* pSrcItem) const
 {
     Item* pItem2 = m_TabListMap[tab]->Slots[slot];
 
@@ -1792,7 +1792,7 @@ InventoryResult Guild::_CanStoreItem_InSpecificSlot(uint8 tab, uint8 slot, Guild
     return EQUIP_ERR_OK;
 }
 
-InventoryResult Guild::_CanStoreItem_InTab(uint8 tab, GuildItemPosCountVec &dest, uint32& count, bool merge, Item* pSrcItem, uint8 skip_slot) const
+InventoryResult Guild::_CanStoreItem_InTab( uint8 tab, GuildItemPosCountVec &dest, uint32& count, bool merge, Item* pSrcItem, uint8 skip_slot) const
 {
     for (uint32 j = 0; j < GUILD_BANK_MAX_SLOTS; ++j)
     {
@@ -1849,9 +1849,9 @@ InventoryResult Guild::_CanStoreItem_InTab(uint8 tab, GuildItemPosCountVec &dest
     return EQUIP_ERR_OK;
 }
 
-InventoryResult Guild::CanStoreItem(uint8 tab, uint8 slot, GuildItemPosCountVec &dest, uint32 count, Item *pItem, bool swap) const
+InventoryResult Guild::CanStoreItem( uint8 tab, uint8 slot, GuildItemPosCountVec &dest, uint32 count, Item *pItem, bool swap) const
 {
-    DEBUG_LOG("GUILD STORAGE: CanStoreItem tab = %u, slot = %u, item = %u, count = %u", tab, slot, pItem->GetEntry(), count);
+    DEBUG_LOG( "GUILD STORAGE: CanStoreItem tab = %u, slot = %u, item = %u, count = %u", tab, slot, pItem->GetEntry(), count);
 
     if (count > pItem->GetCount())
         return EQUIP_ERR_COULDNT_SPLIT_ITEMS;
@@ -1965,22 +1965,22 @@ void Guild::SwapItems(Player * pl, uint8 BankTab, uint8 BankTabSlot, uint8 BankT
         InventoryResult msg = CanStoreItem(BankTabDst, BankTabSlotDst, dest, SplitedAmount, pItemSrc, false);
         if (msg != EQUIP_ERR_OK)
         {
-            pl->SendEquipError(msg, pItemSrc, NULL);
+            pl->SendEquipError( msg, pItemSrc, NULL);
             return;
         }
 
-        Item *pNewItem = pItemSrc->CloneItem(SplitedAmount);
+        Item *pNewItem = pItemSrc->CloneItem( SplitedAmount);
         if (!pNewItem)
         {
-            pl->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, pItemSrc, NULL);
+            pl->SendEquipError( EQUIP_ERR_ITEM_NOT_FOUND, pItemSrc, NULL);
             return;
         }
 
         CharacterDatabase.BeginTransaction();
         LogBankEvent(GUILD_BANK_LOG_MOVE_ITEM, BankTab, pl->GetGUIDLow(), pItemSrc->GetEntry(), SplitedAmount, BankTabDst);
 
-        pl->ItemRemovedQuestCheck(pItemSrc->GetEntry(), SplitedAmount);
-        pItemSrc->SetCount(pItemSrc->GetCount() - SplitedAmount);
+        pl->ItemRemovedQuestCheck( pItemSrc->GetEntry(), SplitedAmount);
+        pItemSrc->SetCount( pItemSrc->GetCount() - SplitedAmount);
         pItemSrc->FSetState(ITEM_CHANGED);
         pItemSrc->SaveToDB();                               // not in inventory and can be save standalone
         StoreItem(BankTabDst, dest, pNewItem);
@@ -2005,7 +2005,7 @@ void Guild::SwapItems(Player * pl, uint8 BankTab, uint8 BankTabSlot, uint8 BankT
             msg = CanStoreItem(BankTabDst, BankTabSlotDst, gDest, pItemSrc->GetCount(), pItemSrc, true);
             if (msg != EQUIP_ERR_OK)
             {
-                pl->SendEquipError(msg, pItemSrc, NULL);
+                pl->SendEquipError( msg, pItemSrc, NULL);
                 return;
             }
 
@@ -2013,7 +2013,7 @@ void Guild::SwapItems(Player * pl, uint8 BankTab, uint8 BankTabSlot, uint8 BankT
             msg = CanStoreItem(BankTab, BankTabSlot, gSrc, pItemDst->GetCount(), pItemDst, true);
             if (msg != EQUIP_ERR_OK)
             {
-                pl->SendEquipError(msg, pItemDst, NULL);
+                pl->SendEquipError( msg, pItemDst, NULL);
                 return;
             }
 
@@ -2046,7 +2046,7 @@ void Guild::SwapItems(Player * pl, uint8 BankTab, uint8 BankTabSlot, uint8 BankT
 }
 
 
-void Guild::MoveFromBankToChar(Player * pl, uint8 BankTab, uint8 BankTabSlot, uint8 PlayerBag, uint8 PlayerSlot, uint32 SplitedAmount)
+void Guild::MoveFromBankToChar( Player * pl, uint8 BankTab, uint8 BankTabSlot, uint8 PlayerBag, uint8 PlayerSlot, uint32 SplitedAmount)
 {
     Item *pItemBank = GetItem(BankTab, BankTabSlot);
     Item *pItemChar = pl->GetItemByPos(PlayerBag, PlayerSlot);
@@ -2061,10 +2061,10 @@ void Guild::MoveFromBankToChar(Player * pl, uint8 BankTab, uint8 BankTabSlot, ui
 
     if (SplitedAmount)
     {                                                   // Bank -> Char split to slot (patly move)
-        Item *pNewItem = pItemBank->CloneItem(SplitedAmount);
+        Item *pNewItem = pItemBank->CloneItem( SplitedAmount);
         if (!pNewItem)
         {
-            pl->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, pItemBank, NULL);
+            pl->SendEquipError( EQUIP_ERR_ITEM_NOT_FOUND, pItemBank, NULL);
             return;
         }
 
@@ -2072,7 +2072,7 @@ void Guild::MoveFromBankToChar(Player * pl, uint8 BankTab, uint8 BankTabSlot, ui
         InventoryResult msg = pl->CanStoreItem(PlayerBag, PlayerSlot, dest, pNewItem, false);
         if (msg != EQUIP_ERR_OK)
         {
-            pl->SendEquipError(msg, pNewItem, NULL);
+            pl->SendEquipError( msg, pNewItem, NULL);
             delete pNewItem;
             return;
         }
@@ -2128,7 +2128,7 @@ void Guild::MoveFromBankToChar(Player * pl, uint8 BankTab, uint8 BankTabSlot, ui
             {
                 if (!pItemChar->CanBeTraded())
                 {
-                    pl->SendEquipError(EQUIP_ERR_ITEMS_CANT_BE_SWAPPED, pItemChar, NULL);
+                    pl->SendEquipError( EQUIP_ERR_ITEMS_CANT_BE_SWAPPED, pItemChar, NULL);
                     return;
                 }
             }
@@ -2137,7 +2137,7 @@ void Guild::MoveFromBankToChar(Player * pl, uint8 BankTab, uint8 BankTabSlot, ui
             msg = pl->CanStoreItem(PlayerBag, PlayerSlot, iDest, pItemBank, true);
             if (msg != EQUIP_ERR_OK)
             {
-                pl->SendEquipError(msg, pItemBank, NULL);
+                pl->SendEquipError( msg, pItemBank, NULL);
                 return;
             }
 
@@ -2147,7 +2147,7 @@ void Guild::MoveFromBankToChar(Player * pl, uint8 BankTab, uint8 BankTabSlot, ui
                 msg = CanStoreItem(BankTab,BankTabSlot,gDest,pItemChar->GetCount(),pItemChar,true);
                 if (msg != EQUIP_ERR_OK)
                 {
-                    pl->SendEquipError(msg, pItemChar, NULL);
+                    pl->SendEquipError( msg, pItemChar, NULL);
                     return;
                 }
             }
@@ -2194,7 +2194,7 @@ void Guild::MoveFromBankToChar(Player * pl, uint8 BankTab, uint8 BankTabSlot, ui
 }
 
 
-void Guild::MoveFromCharToBank(Player * pl, uint8 PlayerBag, uint8 PlayerSlot, uint8 BankTab, uint8 BankTabSlot, uint32 SplitedAmount)
+void Guild::MoveFromCharToBank( Player * pl, uint8 PlayerBag, uint8 PlayerSlot, uint8 BankTab, uint8 BankTabSlot, uint32 SplitedAmount)
 {
     Item *pItemBank = GetItem(BankTab, BankTabSlot);
     Item *pItemChar = pl->GetItemByPos(PlayerBag, PlayerSlot);
@@ -2204,7 +2204,7 @@ void Guild::MoveFromCharToBank(Player * pl, uint8 PlayerBag, uint8 PlayerSlot, u
 
     if (!pItemChar->CanBeTraded())
     {
-        pl->SendEquipError(EQUIP_ERR_ITEMS_CANT_BE_SWAPPED, pItemChar, NULL);
+        pl->SendEquipError( EQUIP_ERR_ITEMS_CANT_BE_SWAPPED, pItemChar, NULL);
         return;
     }
 
@@ -2223,14 +2223,14 @@ void Guild::MoveFromCharToBank(Player * pl, uint8 PlayerBag, uint8 PlayerSlot, u
         InventoryResult msg = CanStoreItem(BankTab, BankTabSlot, dest, SplitedAmount, pItemChar, false);
         if (msg != EQUIP_ERR_OK)
         {
-            pl->SendEquipError(msg, pItemChar, NULL);
+            pl->SendEquipError( msg, pItemChar, NULL);
             return;
         }
 
-        Item *pNewItem = pItemChar->CloneItem(SplitedAmount);
+        Item *pNewItem = pItemChar->CloneItem( SplitedAmount);
         if (!pNewItem)
         {
-            pl->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, pItemChar, NULL);
+            pl->SendEquipError( EQUIP_ERR_ITEM_NOT_FOUND, pItemChar, NULL);
             return;
         }
 
@@ -2245,7 +2245,7 @@ void Guild::MoveFromCharToBank(Player * pl, uint8 PlayerBag, uint8 PlayerSlot, u
         CharacterDatabase.BeginTransaction();
         LogBankEvent(GUILD_BANK_LOG_DEPOSIT_ITEM, BankTab, pl->GetGUIDLow(), pItemChar->GetEntry(), SplitedAmount);
 
-        pl->ItemRemovedQuestCheck(pItemChar->GetEntry(), SplitedAmount);
+        pl->ItemRemovedQuestCheck( pItemChar->GetEntry(), SplitedAmount);
         pItemChar->SetCount(pItemChar->GetCount()-SplitedAmount);
         pItemChar->SetState(ITEM_CHANGED);
         pl->SaveInventoryAndGoldToDB();
@@ -2289,7 +2289,7 @@ void Guild::MoveFromCharToBank(Player * pl, uint8 PlayerBag, uint8 PlayerSlot, u
                 msg = pl->CanStoreItem(PlayerBag, PlayerSlot, iDest, pItemBank, true);
                 if (msg != EQUIP_ERR_OK)
                 {
-                    pl->SendEquipError(msg, pItemBank, NULL);
+                    pl->SendEquipError( msg, pItemBank, NULL);
                     return;
                 }
             }
@@ -2298,7 +2298,7 @@ void Guild::MoveFromCharToBank(Player * pl, uint8 PlayerBag, uint8 PlayerSlot, u
             msg = CanStoreItem(BankTab, BankTabSlot, gDest, pItemChar->GetCount(), pItemChar, true);
             if (msg != EQUIP_ERR_OK)
             {
-                pl->SendEquipError(msg, pItemChar, NULL);
+                pl->SendEquipError( msg, pItemChar, NULL);
                 return;
             }
 
@@ -2372,7 +2372,7 @@ void Guild::BroadcastEvent(GuildEvents event, ObjectGuid guid, char const* str1 
     DEBUG_LOG("WORLD: Sent SMSG_GUILD_EVENT");
 }
 
-void Guild::DeleteGuildBankItems(bool alsoInDB /*= false*/)
+void Guild::DeleteGuildBankItems( bool alsoInDB /*= false*/)
 {
     for (size_t i = 0; i < m_TabListMap.size(); ++i)
     {

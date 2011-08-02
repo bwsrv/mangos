@@ -70,7 +70,7 @@ void WaypointManager::Load()
         BarGoLink bar(1);
         bar.step();
         sLog.outString();
-        sLog.outString(">> Loaded 0 paths. DB table `creature_movement` is empty.");
+        sLog.outString( ">> Loaded 0 paths. DB table `creature_movement` is empty.");
     }
     else
     {
@@ -91,7 +91,7 @@ void WaypointManager::Load()
         while(result->NextRow());
 
         sLog.outString();
-        sLog.outString(">> Paths loaded");
+        sLog.outString( ">> Paths loaded");
 
         delete result;
 
@@ -187,7 +187,7 @@ void WaypointManager::Load()
                 {
                     if (be.textid[i] < MIN_DB_SCRIPT_STRING_ID || be.textid[i] >= MAX_DB_SCRIPT_STRING_ID)
                     {
-                        sLog.outErrorDb("Table `db_script_string` not have string id  %u", be.textid[i]);
+                        sLog.outErrorDb( "Table `db_script_string` not have string id  %u", be.textid[i]);
                         continue;
                     }
                 }
@@ -231,9 +231,9 @@ void WaypointManager::Load()
         }
 
         sLog.outString();
-        sLog.outString(">> Waypoints and behaviors loaded");
+        sLog.outString( ">> Waypoints and behaviors loaded");
         sLog.outString();
-        sLog.outString(">>> Loaded %u paths, %u nodes and %u behaviors", total_paths, total_nodes, total_behaviors);
+        sLog.outString( ">>> Loaded %u paths, %u nodes and %u behaviors", total_paths, total_nodes, total_behaviors);
 
         delete result;
     }
@@ -246,7 +246,7 @@ void WaypointManager::Load()
         BarGoLink bar(1);
         bar.step();
         sLog.outString();
-        sLog.outString(">> Loaded 0 path templates. DB table `creature_movement_template` is empty.");
+        sLog.outString( ">> Loaded 0 path templates. DB table `creature_movement_template` is empty.");
     }
     else
     {
@@ -350,7 +350,7 @@ void WaypointManager::Load()
                 {
                     if (be.textid[i] < MIN_DB_SCRIPT_STRING_ID || be.textid[i] >= MAX_DB_SCRIPT_STRING_ID)
                     {
-                        sLog.outErrorDb("Table `db_script_string` not have string id %u", be.textid[i]);
+                        sLog.outErrorDb( "Table `db_script_string` not have string id %u", be.textid[i]);
                         continue;
                     }
                 }
@@ -382,9 +382,9 @@ void WaypointManager::Load()
         delete result;
 
         sLog.outString();
-        sLog.outString(">> Waypoint templates loaded");
+        sLog.outString( ">> Waypoint templates loaded");
         sLog.outString();
-        sLog.outString(">>> Loaded %u path templates with %u nodes and %u behaviors", total_paths, total_nodes, total_behaviors);
+        sLog.outString( ">>> Loaded %u path templates with %u nodes and %u behaviors", total_paths, total_nodes, total_behaviors);
     }
 
     if (!movementScriptSet.empty())
@@ -474,7 +474,7 @@ void WaypointManager::_addNode(uint32 id, uint32 point, float x, float y, float 
 uint32 WaypointManager::GetLastPoint(uint32 id, uint32 default_notfound)
 {
     uint32 point = default_notfound;
-    /*QueryResult *result = WorldDatabase.PQuery("SELECT MAX(point) FROM creature_movement WHERE id = '%u'", id);
+    /*QueryResult *result = WorldDatabase.PQuery( "SELECT MAX(point) FROM creature_movement WHERE id = '%u'", id);
     if (result)
     {
         point = (*result)[0].GetUInt32()+1;
@@ -560,7 +560,7 @@ void WaypointManager::SetNodeText(uint32 id, uint32 point, const char *text_fiel
 void WaypointManager::CheckTextsExistance(std::set<int32>& ids)
 {
     WaypointPathMap::const_iterator pmItr = m_pathMap.begin();
-    for (; pmItr != m_pathMap.end(); ++pmItr)
+    for ( ; pmItr != m_pathMap.end(); ++pmItr)
     {
         for (size_t i = 0; i < pmItr->second.size(); ++i)
         {
@@ -604,7 +604,7 @@ void WaypointManager::CheckTextsExistance(std::set<int32>& ids)
     }
 
     WaypointPathTemplateMap::const_iterator wptItr = m_pathTemplateMap.begin();
-    for (; wptItr != m_pathTemplateMap.end(); ++wptItr)
+    for ( ; wptItr != m_pathTemplateMap.end(); ++wptItr)
     {
         for (size_t i = 0; i < wptItr->second.size(); ++i)
         {

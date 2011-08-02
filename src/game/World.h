@@ -569,7 +569,7 @@ class World
 
         void Update(uint32 diff);
 
-        void UpdateSessions(uint32 diff);
+        void UpdateSessions( uint32 diff);
 
         /// Get a server configuration element (see #eConfigFloatValues)
         void setConfig(eConfigFloatValues index,float value) { m_configFloatValues[index]=value; }

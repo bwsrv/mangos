@@ -344,7 +344,7 @@ void VehicleKit::InstallAllAccessories(uint32 entry)
         InstallAccessory(itr->uiAccessory, itr->uiSeat, itr->bMinion);
 }
 
-void VehicleKit::InstallAccessory(uint32 entry, int8 seatId, bool minion)
+void VehicleKit::InstallAccessory( uint32 entry, int8 seatId, bool minion)
 {
     if (Unit *passenger = GetPassenger(seatId))
     {

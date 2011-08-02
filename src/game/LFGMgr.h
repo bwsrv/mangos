@@ -152,7 +152,7 @@ struct LFGProposal
     LFGType GetType();
 
     void Start();
-    bool IsExpired() { return (m_cancelTime > 0 && m_cancelTime < time_t(time(NULL)));};
+    bool IsExpired() { return ( m_cancelTime > 0 && m_cancelTime < time_t(time(NULL)));};
 
     private:
     LFGDungeonEntry const* m_dungeon;                        // Dungeon

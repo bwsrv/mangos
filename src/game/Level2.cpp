@@ -156,7 +156,7 @@ bool ChatHandler::HandleUnmuteCommand(char* args)
     return true;
 }
 
-void ChatHandler::ShowTriggerTargetListHelper(uint32 id, AreaTrigger const* at, bool subpart /*= false*/)
+void ChatHandler::ShowTriggerTargetListHelper( uint32 id, AreaTrigger const* at, bool subpart /*= false*/)
 {
     if (m_session)
     {
@@ -177,7 +177,7 @@ void ChatHandler::ShowTriggerTargetListHelper(uint32 id, AreaTrigger const* at, 
             subpart ? " -> " : "", id, at->target_mapId, at->target_X, at->target_Y, at->target_Z);
 }
 
-void ChatHandler::ShowTriggerListHelper(AreaTriggerEntry const * atEntry)
+void ChatHandler::ShowTriggerListHelper( AreaTriggerEntry const * atEntry)
 {
 
     char const* tavern = sObjectMgr.IsTavernAreaTrigger(atEntry->id) ? GetMangosString(LANG_TRIGGER_TAVERN) : "";
@@ -1360,7 +1360,7 @@ bool ChatHandler::HandleCharacterAchievementsCommand(char* args)
     return true;
 }
 
-void ChatHandler::ShowFactionListHelper(FactionEntry const * factionEntry, LocaleConstant loc, FactionState const* repState /*= NULL*/, Player * target /*= NULL */)
+void ChatHandler::ShowFactionListHelper( FactionEntry const * factionEntry, LocaleConstant loc, FactionState const* repState /*= NULL*/, Player * target /*= NULL */)
 {
     std::string name = factionEntry->name[loc];
 
@@ -3929,7 +3929,7 @@ bool ChatHandler::HandleWpExportCommand(char *args)
         outfile << "INSERT INTO creature_movement ";
         outfile << "(id, point, position_x, position_y, position_z, orientation, model1, model2, waittime, emote, spell, textid1, textid2, textid3, textid4, textid5) VALUES ";
 
-        outfile << "(";
+        outfile << "( ";
         outfile << fields[15].GetUInt32();                  // id
         outfile << ", ";
         outfile << fields[0].GetUInt32();                   // point

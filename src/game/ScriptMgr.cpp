@@ -785,7 +785,7 @@ void ScriptMgr::CheckScriptTexts(ScriptMapMap const& scripts, std::set<int32>& i
                 for (int i = 0; i < MAX_TEXT_ID; ++i)
                 {
                     if (itrM->second.talk.textId[i] && !sObjectMgr.GetMangosStringLocale(itrM->second.talk.textId[i]))
-                        sLog.outErrorDb("Table `db_script_string` is missing string id %u, used in database script id %u.", itrM->second.talk.textId[i], itrMM->first);
+                        sLog.outErrorDb( "Table `db_script_string` is missing string id %u, used in database script id %u.", itrM->second.talk.textId[i], itrMM->first);
 
                     if (ids.find(itrM->second.talk.textId[i]) != ids.end())
                         ids.erase(itrM->second.talk.textId[i]);
@@ -1156,7 +1156,7 @@ ScriptLoadResult ScriptMgr::LoadScriptLibrary(const char* libName)
 
     m_hScriptLib = MANGOS_LOAD_LIBRARY(name.c_str());
 
-    sLog.outString(">> Loading %s Script library", name.c_str());
+    sLog.outString( ">> Loading %s Script library", name.c_str());
 
     if (!m_hScriptLib)
         return SCRIPT_LOAD_ERR_NOT_FOUND;

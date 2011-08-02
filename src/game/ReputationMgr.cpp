@@ -86,7 +86,7 @@ ReputationRank ReputationMgr::GetBaseRank(FactionEntry const* factionEntry) cons
     return ReputationToRank(reputation);
 }
 
-void ReputationMgr::ApplyForceReaction(uint32 faction_id,ReputationRank rank,bool apply)
+void ReputationMgr::ApplyForceReaction( uint32 faction_id,ReputationRank rank,bool apply)
 {
     if (apply)
         m_forcedReactions[faction_id] = rank;
@@ -381,7 +381,7 @@ void ReputationMgr::SetVisible(FactionState* faction)
     SendVisible(faction);
 }
 
-void ReputationMgr::SetAtWar(RepListID repListID, bool on)
+void ReputationMgr::SetAtWar( RepListID repListID, bool on)
 {
     FactionStateList::iterator itr = m_factions.find(repListID);
     if (itr == m_factions.end())
@@ -413,7 +413,7 @@ void ReputationMgr::SetAtWar(FactionState* faction, bool atWar)
     faction->needSave = true;
 }
 
-void ReputationMgr::SetInactive(RepListID repListID, bool on)
+void ReputationMgr::SetInactive( RepListID repListID, bool on)
 {
     FactionStateList::iterator itr = m_factions.find(repListID);
     if (itr == m_factions.end())
@@ -497,7 +497,7 @@ void ReputationMgr::LoadFromDB(QueryResult *result)
                 }
             }
         }
-        while(result->NextRow());
+        while( result->NextRow());
 
         delete result;
     }
@@ -522,7 +522,7 @@ void ReputationMgr::SaveToDB()
     }
 }
 
-void ReputationMgr::UpdateRankCounters(ReputationRank old_rank, ReputationRank new_rank)
+void ReputationMgr::UpdateRankCounters( ReputationRank old_rank, ReputationRank new_rank)
 {
     if (old_rank >= REP_EXALTED)
         --m_exaltedFactionCount;

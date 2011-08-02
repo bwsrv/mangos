@@ -54,7 +54,7 @@ namespace FactorySelector
 
         // select by script name
         if (!ai_factory && !ainame.empty())
-            ai_factory = ai_registry.GetRegistryItem(ainame.c_str());
+            ai_factory = ai_registry.GetRegistryItem( ainame.c_str());
 
         if (!ai_factory && creature->IsGuard())
             ai_factory = ai_registry.GetRegistryItem("GuardAI");
@@ -98,11 +98,11 @@ namespace FactorySelector
             int best_val = -1;
             std::vector<std::string> l;
             mv_registry.GetRegisteredItems(l);
-            for (std::vector<std::string>::iterator iter = l.begin(); iter != l.end(); ++iter)
+            for ( std::vector<std::string>::iterator iter = l.begin(); iter != l.end(); ++iter)
             {
             const MovementGeneratorCreator *factory = mv_registry.GetRegistryItem((*iter).c_str());
             const SelectableMovement *p = dynamic_cast<const SelectableMovement *>(factory);
-            ASSERT(p != NULL);
+            ASSERT( p != NULL);
             int val = p->Permit(creature);
             if (val > best_val)
             {

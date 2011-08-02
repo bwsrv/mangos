@@ -135,7 +135,7 @@ uint32 GetSpellCastTime(SpellEntry const* spellInfo, Spell const* spell)
     return (castTime > 0) ? uint32(castTime) : 0;
 }
 
-uint32 GetSpellCastTimeForBonus(SpellEntry const *spellProto, DamageEffectType damagetype)
+uint32 GetSpellCastTimeForBonus( SpellEntry const *spellProto, DamageEffectType damagetype)
 {
     uint32 CastingTime = !IsChanneledSpell(spellProto) ? GetSpellCastTime(spellProto) : GetSpellDuration(spellProto);
 
@@ -1199,7 +1199,7 @@ void SpellMgr::LoadSpellTargetPositions()
         mSpellTargetPositions[Spell_ID] = st;
         ++count;
 
-    } while(result->NextRow());
+    } while( result->NextRow());
 
     delete result;
 
@@ -1442,7 +1442,7 @@ void SpellMgr::LoadSpellProcEvents()
     delete result;
 
     sLog.outString();
-    sLog.outString(">> Loaded %u extra spell proc event conditions +%u custom proc (inc. +%u custom ranks)",  rankHelper.worker.count, rankHelper.worker.customProc, rankHelper.customRank);
+    sLog.outString( ">> Loaded %u extra spell proc event conditions +%u custom proc (inc. +%u custom ranks)",  rankHelper.worker.count, rankHelper.worker.customProc, rankHelper.customRank);
 }
 
 struct DoSpellProcItemEnchant
@@ -1509,12 +1509,12 @@ void SpellMgr::LoadSpellProcItemEnchant()
         doForHighRanks(entry,worker);
 
         ++count;
-    } while(result->NextRow());
+    } while( result->NextRow());
 
     delete result;
 
     sLog.outString();
-    sLog.outString(">> Loaded %u proc item enchant definitions", count);
+    sLog.outString( ">> Loaded %u proc item enchant definitions", count);
 }
 
 bool IsCastEndProcModifierAura(SpellEntry const *spellInfo, SpellEffectIndex effecIdx, SpellEntry const *procSpell)
@@ -1710,12 +1710,12 @@ void SpellMgr::LoadSpellBonuses()
 
         ++count;
 
-    } while(result->NextRow());
+    } while( result->NextRow());
 
     delete result;
 
     sLog.outString();
-    sLog.outString(">> Loaded %u extra spell bonus data",  count);
+    sLog.outString( ">> Loaded %u extra spell bonus data",  count);
 }
 
 bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const * spellProcEvent, uint32 EventProcFlag, SpellEntry const * procSpell, uint32 procFlags, uint32 procExtra)
@@ -1820,12 +1820,12 @@ void SpellMgr::LoadSpellElixirs()
         mSpellElixirs[entry] = mask;
 
         ++count;
-    } while(result->NextRow());
+    } while( result->NextRow());
 
     delete result;
 
     sLog.outString();
-    sLog.outString(">> Loaded %u spell elixir definitions", count);
+    sLog.outString( ">> Loaded %u spell elixir definitions", count);
 }
 
 struct DoSpellThreat
@@ -1916,14 +1916,14 @@ void SpellMgr::LoadSpellThreats()
 
         rankHelper.RecordRank(ste, entry);
 
-    } while(result->NextRow());
+    } while( result->NextRow());
 
     rankHelper.FillHigherRanks();
 
     delete result;
 
     sLog.outString();
-    sLog.outString(">> Loaded %u spell threat entries", rankHelper.worker.count);
+    sLog.outString( ">> Loaded %u spell threat entries", rankHelper.worker.count);
 }
 
 bool SpellMgr::IsRankSpellDueToSpell(SpellEntry const *spellInfo_1,uint32 spellId_2) const
@@ -3131,7 +3131,7 @@ void SpellMgr::LoadSpellChains()
         mSpellChains[spell_id] = node;
 
         ++new_count;
-    } while(result->NextRow());
+    } while( result->NextRow());
 
     delete result;
 
@@ -3211,7 +3211,7 @@ void SpellMgr::LoadSpellChains()
     }
 
     sLog.outString();
-    sLog.outString(">> Loaded %u spell chain records (%u from DBC data with %u req field updates, and %u loaded from table)", dbc_count+new_count, dbc_count, req_count, new_count);
+    sLog.outString( ">> Loaded %u spell chain records (%u from DBC data with %u req field updates, and %u loaded from table)", dbc_count+new_count, dbc_count, req_count, new_count);
 }
 
 void SpellMgr::LoadSpellLearnSkills()
@@ -3360,7 +3360,7 @@ void SpellMgr::LoadSpellLearnSpells()
     }
 
     sLog.outString();
-    sLog.outString(">> Loaded %u spell learn spells + %u found in DBC", count, dbc_count);
+    sLog.outString( ">> Loaded %u spell learn spells + %u found in DBC", count, dbc_count);
 }
 
 void SpellMgr::LoadSpellScriptTarget()
@@ -3588,12 +3588,12 @@ void SpellMgr::LoadSpellPetAuras()
         }
 
         ++count;
-    } while(result->NextRow());
+    } while( result->NextRow());
 
     delete result;
 
     sLog.outString();
-    sLog.outString(">> Loaded %u spell pet auras", count);
+    sLog.outString( ">> Loaded %u spell pet auras", count);
 }
 
 void SpellMgr::LoadPetLevelupSpellMap()
@@ -3634,7 +3634,7 @@ void SpellMgr::LoadPetLevelupSpellMap()
     }
 
     sLog.outString();
-    sLog.outString(">> Loaded %u pet levelup and default spells for %u families", count, family_count);
+    sLog.outString( ">> Loaded %u pet levelup and default spells for %u families", count, family_count);
 }
 
 bool SpellMgr::LoadPetDefaultSpells_helper(CreatureInfo const* cInfo, PetDefaultSpellsEntry& petDefSpells)
@@ -3759,7 +3759,7 @@ void SpellMgr::LoadPetDefaultSpells()
     }
 
     sLog.outString();
-    sLog.outString(">> Loaded addition spells for %u pet spell data entries and %u summonable creature templates", countData, countCreature);
+    sLog.outString( ">> Loaded addition spells for %u pet spell data entries and %u summonable creature templates", countData, countCreature);
 }
 
 /// Some checks for spells, to prevent adding deprecated/broken spells for trainers, spell book, etc
@@ -3800,7 +3800,7 @@ bool SpellMgr::IsSpellValid(SpellEntry const* spellInfo, Player* pl, bool msg)
 
                 }
                 // also possible IsLootCraftingSpell case but fake item must exist anyway
-                else if (!ObjectMgr::GetItemPrototype(spellInfo->EffectItemType[i]))
+                else if (!ObjectMgr::GetItemPrototype( spellInfo->EffectItemType[i]))
                 {
                     if (msg)
                     {
@@ -3838,7 +3838,7 @@ bool SpellMgr::IsSpellValid(SpellEntry const* spellInfo, Player* pl, bool msg)
     {
         for (int j = 0; j < MAX_SPELL_REAGENTS; ++j)
         {
-            if (spellInfo->Reagent[j] > 0 && !ObjectMgr::GetItemPrototype(spellInfo->Reagent[j]))
+            if (spellInfo->Reagent[j] > 0 && !ObjectMgr::GetItemPrototype( spellInfo->Reagent[j]))
             {
                 if (msg)
                 {
@@ -4512,12 +4512,12 @@ void SpellMgr::CheckUsedSpells(char const* table)
             }
         }
 
-    } while(result->NextRow());
+    } while( result->NextRow());
 
     delete result;
 
     sLog.outString();
-    sLog.outString(">> Checked %u spells and %u spell masks", countSpells, countMasks);
+    sLog.outString( ">> Checked %u spells and %u spell masks", countSpells, countMasks);
 }
 
 DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto, bool triggered)

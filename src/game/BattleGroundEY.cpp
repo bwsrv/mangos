@@ -503,7 +503,7 @@ void BattleGroundEY::EventPlayerDroppedFlag(Player *Source)
     m_FlagsTimer = BG_EY_FLAG_RESPAWN_TIME;
     Source->CastSpell(Source, SPELL_RECENTLY_DROPPED_FLAG, true);
     Source->CastSpell(Source, BG_EY_PLAYER_DROPPED_FLAG_SPELL, true);
-    //this does not work correctly :((it should remove flag carrier name)
+    //this does not work correctly :( (it should remove flag carrier name)
     UpdateWorldState(NETHERSTORM_FLAG_STATE_HORDE, BG_EY_FLAG_STATE_WAIT_RESPAWN);
     UpdateWorldState(NETHERSTORM_FLAG_STATE_ALLIANCE, BG_EY_FLAG_STATE_WAIT_RESPAWN);
 

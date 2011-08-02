@@ -67,7 +67,7 @@
 #include "LFGMgr.h"
 #include "WardenDataStorage.h"
 
-INSTANTIATE_SINGLETON_1(World);
+INSTANTIATE_SINGLETON_1( World);
 
 volatile bool World::m_stopEvent = false;
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
@@ -443,8 +443,8 @@ void World::LoadConfigSettings(bool reload)
     }
 
     ///- Read the player limit and the Message of the day from the config file
-    SetPlayerLimit(sConfig.GetIntDefault("PlayerLimit", DEFAULT_PLAYER_LIMIT), true);
-    SetMotd(sConfig.GetStringDefault("Motd", "Welcome to the Massive Network Game Object Server."));
+    SetPlayerLimit( sConfig.GetIntDefault("PlayerLimit", DEFAULT_PLAYER_LIMIT), true);
+    SetMotd( sConfig.GetStringDefault("Motd", "Welcome to the Massive Network Game Object Server."));
 
     ///- Read all rates from the config file
     setConfigPos(CONFIG_FLOAT_RATE_HEALTH, "Rate.Health", 1.0f);
@@ -931,9 +931,9 @@ void World::LoadConfigSettings(bool reload)
     VMAP::VMapFactory::createOrGetVMapManager()->setEnableLineOfSightCalc(enableLOS);
     VMAP::VMapFactory::createOrGetVMapManager()->setEnableHeightCalc(enableHeight);
     VMAP::VMapFactory::preventSpellsFromBeingTestedForLoS(ignoreSpellIds.c_str());
-    sLog.outString("WORLD: VMap support included. LineOfSight:%i, getHeight:%i, indoorCheck:%i",
+    sLog.outString( "WORLD: VMap support included. LineOfSight:%i, getHeight:%i, indoorCheck:%i",
         enableLOS, enableHeight, getConfig(CONFIG_BOOL_VMAP_INDOOR_CHECK) ? 1 : 0);
-    sLog.outString("WORLD: VMap data directory is: %svmaps",m_dataPath.c_str());
+    sLog.outString( "WORLD: VMap data directory is: %svmaps",m_dataPath.c_str());
 }
 
 /// Initialize the World
@@ -990,13 +990,13 @@ void World::SetInitialWorldSettings()
     DetectDBCLang();
     sObjectMgr.SetDBCLocaleIndex(GetDefaultDbcLocale());    // Get once for all the locale index of DBC language (console/broadcasts)
 
-    sLog.outString("Loading Script Names...");
+    sLog.outString( "Loading Script Names...");
     sScriptMgr.LoadScriptNames();
 
-    sLog.outString("Loading WorldTemplate...");
+    sLog.outString( "Loading WorldTemplate...");
     sObjectMgr.LoadWorldTemplate();
 
-    sLog.outString("Loading InstanceTemplate...");
+    sLog.outString( "Loading InstanceTemplate...");
     sObjectMgr.LoadInstanceTemplate();
 
     sLog.outString("Loading SkillLineAbilityMultiMap Data...");
@@ -1006,53 +1006,53 @@ void World::SetInitialWorldSettings()
     sSpellMgr.LoadSkillRaceClassInfoMap();
 
     ///- Clean up and pack instances
-    sLog.outString("Cleaning up instances...");
+    sLog.outString( "Cleaning up instances...");
     sMapPersistentStateMgr.CleanupInstances();              // must be called before `creature_respawn`/`gameobject_respawn` tables
 
-    sLog.outString("Packing instances...");
+    sLog.outString( "Packing instances...");
     sMapPersistentStateMgr.PackInstances();
 
-    sLog.outString("Packing groups...");
+    sLog.outString( "Packing groups...");
     sObjectMgr.PackGroupIds();                              // must be after CleanupInstances
 
     ///- Init highest guids before any guid using table loading to prevent using not initialized guids in some code.
     sObjectMgr.SetHighestGuids();                           // must be after PackInstances() and PackGroupIds()
     sLog.outString();
 
-    sLog.outString("Loading Page Texts...");
+    sLog.outString( "Loading Page Texts...");
     sObjectMgr.LoadPageTexts();
 
-    sLog.outString("Loading Game Object Templates...");   // must be after LoadPageTexts
+    sLog.outString( "Loading Game Object Templates...");   // must be after LoadPageTexts
     sObjectMgr.LoadGameobjectInfo();
 
-    sLog.outString("Loading Spell Chain Data...");
+    sLog.outString( "Loading Spell Chain Data...");
     sSpellMgr.LoadSpellChains();
 
-    sLog.outString("Loading Spell Elixir types...");
+    sLog.outString( "Loading Spell Elixir types...");
     sSpellMgr.LoadSpellElixirs();
 
-    sLog.outString("Loading Spell Learn Skills...");
+    sLog.outString( "Loading Spell Learn Skills...");
     sSpellMgr.LoadSpellLearnSkills();                       // must be after LoadSpellChains
 
-    sLog.outString("Loading Spell Learn Spells...");
+    sLog.outString( "Loading Spell Learn Spells...");
     sSpellMgr.LoadSpellLearnSpells();
 
-    sLog.outString("Loading Spell Proc Event conditions...");
+    sLog.outString( "Loading Spell Proc Event conditions...");
     sSpellMgr.LoadSpellProcEvents();
 
-    sLog.outString("Loading Spell Bonus Data...");
+    sLog.outString( "Loading Spell Bonus Data...");
     sSpellMgr.LoadSpellBonuses();                           // must be after LoadSpellChains
 
-    sLog.outString("Loading Spell Proc Item Enchant...");
+    sLog.outString( "Loading Spell Proc Item Enchant...");
     sSpellMgr.LoadSpellProcItemEnchant();                   // must be after LoadSpellChains
 
-    sLog.outString("Loading Aggro Spells Definitions...");
+    sLog.outString( "Loading Aggro Spells Definitions...");
     sSpellMgr.LoadSpellThreats();
 
-    sLog.outString("Loading NPC Texts...");
+    sLog.outString( "Loading NPC Texts...");
     sObjectMgr.LoadGossipText();
 
-    sLog.outString("Loading Item Random Enchantments Table...");
+    sLog.outString( "Loading Item Random Enchantments Table...");
     LoadRandomEnchantmentsTable();
 
     sLog.outString("Loading Items...");                     // must be after LoadRandomEnchantmentsTable and LoadPageTexts
@@ -1064,177 +1064,177 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading Item expire converts...");      // must be after LoadItemPrototypes
     sObjectMgr.LoadItemExpireConverts();
 
-    sLog.outString("Loading Creature Model Based Info Data...");
+    sLog.outString( "Loading Creature Model Based Info Data...");
     sObjectMgr.LoadCreatureModelInfo();
 
-    sLog.outString("Loading Equipment templates...");
+    sLog.outString( "Loading Equipment templates...");
     sObjectMgr.LoadEquipmentTemplates();
 
-    sLog.outString("Loading Creature templates...");
+    sLog.outString( "Loading Creature templates...");
     sObjectMgr.LoadCreatureTemplates();
 
-    sLog.outString("Loading Creature spells...");
+    sLog.outString( "Loading Creature spells...");
     sObjectMgr.LoadCreatureSpells();
 
-    sLog.outString("Loading Creature Model for race..."); // must be after creature templates
+    sLog.outString( "Loading Creature Model for race..."); // must be after creature templates
     sObjectMgr.LoadCreatureModelRace();
 
-    sLog.outString("Loading SpellsScriptTarget...");
+    sLog.outString( "Loading SpellsScriptTarget...");
     sSpellMgr.LoadSpellScriptTarget();                      // must be after LoadCreatureTemplates and LoadGameobjectInfo
 
     sLog.outString("Loading Instance encounters data...");  // must be after creature templates
     sObjectMgr.LoadInstanceEncounters();
 
-    sLog.outString("Loading ItemRequiredTarget...");
+    sLog.outString( "Loading ItemRequiredTarget...");
     sObjectMgr.LoadItemRequiredTarget();
 
-    sLog.outString("Loading Reputation Reward Rates...");
+    sLog.outString( "Loading Reputation Reward Rates...");
     sObjectMgr.LoadReputationRewardRate();
 
-    sLog.outString("Loading Creature Reputation OnKill Data...");
+    sLog.outString( "Loading Creature Reputation OnKill Data...");
     sObjectMgr.LoadReputationOnKill();
 
-    sLog.outString("Loading Reputation Spillover Data...");
+    sLog.outString( "Loading Reputation Spillover Data...");
     sObjectMgr.LoadReputationSpilloverTemplate();
 
-    sLog.outString("Loading Points Of Interest Data...");
+    sLog.outString( "Loading Points Of Interest Data...");
     sObjectMgr.LoadPointsOfInterest();
 
-    sLog.outString("Loading Creature Data...");
+    sLog.outString( "Loading Creature Data...");
     sObjectMgr.LoadCreatures();
 
-    sLog.outString("Loading pet levelup spells...");
+    sLog.outString( "Loading pet levelup spells...");
     sSpellMgr.LoadPetLevelupSpellMap();
 
-    sLog.outString("Loading pet default spell additional to levelup spells...");
+    sLog.outString( "Loading pet default spell additional to levelup spells...");
     sSpellMgr.LoadPetDefaultSpells();
 
-    sLog.outString("Loading Creature Addon Data...");
+    sLog.outString( "Loading Creature Addon Data...");
     sLog.outString();
     sObjectMgr.LoadCreatureAddons();                        // must be after LoadCreatureTemplates() and LoadCreatures()
-    sLog.outString(">>> Creature Addon Data loaded");
+    sLog.outString( ">>> Creature Addon Data loaded");
     sLog.outString();
 
     sLog.outString("Loading Vehicle Accessories...");
     sObjectMgr.LoadVehicleAccessories();
 
-    sLog.outString("Loading Creature Respawn Data...");   // must be after PackInstances()
+    sLog.outString( "Loading Creature Respawn Data...");   // must be after PackInstances()
     sMapPersistentStateMgr.LoadCreatureRespawnTimes();
 
-    sLog.outString("Loading Gameobject Data...");
+    sLog.outString( "Loading Gameobject Data...");
     sObjectMgr.LoadGameobjects();
 
-    sLog.outString("Loading Objects Pooling Data...");
+    sLog.outString( "Loading Objects Pooling Data...");
     sPoolMgr.LoadFromDB();
 
-    sLog.outString("Loading Weather Data...");
+    sLog.outString( "Loading Weather Data...");
     sObjectMgr.LoadWeatherZoneChances();
 
-    sLog.outString("Loading Quests...");
+    sLog.outString( "Loading Quests...");
     sObjectMgr.LoadQuests();                                // must be loaded after DBCs, creature_template, item_template, gameobject tables
 
-    sLog.outString("Loading Quest POI");
+    sLog.outString( "Loading Quest POI");
     sObjectMgr.LoadQuestPOI();
 
-    sLog.outString("Loading Quests Relations...");
+    sLog.outString( "Loading Quests Relations...");
     sLog.outString();
     sObjectMgr.LoadQuestRelations();                        // must be after quest load
-    sLog.outString(">>> Quests Relations loaded");
+    sLog.outString( ">>> Quests Relations loaded");
     sLog.outString();
 
-    sLog.outString("Loading Game Event Data...");          // must be after sPoolMgr.LoadFromDB and quests to properly load pool events and quests for events
+    sLog.outString( "Loading Game Event Data...");          // must be after sPoolMgr.LoadFromDB and quests to properly load pool events and quests for events
     sLog.outString();
     sGameEventMgr.LoadFromDB();
-    sLog.outString(">>> Game Event Data loaded");
+    sLog.outString( ">>> Game Event Data loaded");
     sLog.outString();
 
-    sLog.outString("Creating map persistent states for non-instanceable maps...");   // must be after PackInstances(), LoadCreatures(), sPoolMgr.LoadFromDB(), sGameEventMgr.LoadFromDB();
+    sLog.outString( "Creating map persistent states for non-instanceable maps...");   // must be after PackInstances(), LoadCreatures(), sPoolMgr.LoadFromDB(), sGameEventMgr.LoadFromDB();
     sMapPersistentStateMgr.InitWorldMaps();
 
-    sLog.outString("Loading Creature Respawn Data...");   // must be after LoadCreatures(), and sMapPersistentStateMgr.InitWorldMaps()
+    sLog.outString( "Loading Creature Respawn Data...");   // must be after LoadCreatures(), and sMapPersistentStateMgr.InitWorldMaps()
     sMapPersistentStateMgr.LoadCreatureRespawnTimes();
 
-    sLog.outString("Loading Gameobject Respawn Data..."); // must be after LoadGameobjects(), and sMapPersistentStateMgr.InitWorldMaps()
+    sLog.outString( "Loading Gameobject Respawn Data..."); // must be after LoadGameobjects(), and sMapPersistentStateMgr.InitWorldMaps()
     sMapPersistentStateMgr.LoadGameobjectRespawnTimes();
 
-    sLog.outString("Loading UNIT_NPC_FLAG_SPELLCLICK Data...");
+    sLog.outString( "Loading UNIT_NPC_FLAG_SPELLCLICK Data...");
     sObjectMgr.LoadNPCSpellClickSpells();
 
-    sLog.outString("Loading SpellArea Data...");          // must be after quest load
+    sLog.outString( "Loading SpellArea Data...");          // must be after quest load
     sSpellMgr.LoadSpellAreas();
 
-    sLog.outString("Loading AreaTrigger definitions...");
+    sLog.outString( "Loading AreaTrigger definitions...");
     sObjectMgr.LoadAreaTriggerTeleports();                  // must be after item template load
 
-    sLog.outString("Loading Quest Area Triggers...");
+    sLog.outString( "Loading Quest Area Triggers...");
     sObjectMgr.LoadQuestAreaTriggers();                     // must be after LoadQuests
 
-    sLog.outString("Loading Tavern Area Triggers...");
+    sLog.outString( "Loading Tavern Area Triggers...");
     sObjectMgr.LoadTavernAreaTriggers();
 
-    sLog.outString("Loading AreaTrigger script names...");
+    sLog.outString( "Loading AreaTrigger script names...");
     sScriptMgr.LoadAreaTriggerScripts();
 
-    sLog.outString("Loading event id script names...");
+    sLog.outString( "Loading event id script names...");
     sScriptMgr.LoadEventIdScripts();
 
-    sLog.outString("Loading Graveyard-zone links...");
+    sLog.outString( "Loading Graveyard-zone links...");
     sObjectMgr.LoadGraveyardZones();
 
-    sLog.outString("Loading spell target destination coordinates...");
+    sLog.outString( "Loading spell target destination coordinates...");
     sSpellMgr.LoadSpellTargetPositions();
 
-    sLog.outString("Loading spell pet auras...");
+    sLog.outString( "Loading spell pet auras...");
     sSpellMgr.LoadSpellPetAuras();
 
-    sLog.outString("Loading Player Create Info & Level Stats...");
+    sLog.outString( "Loading Player Create Info & Level Stats...");
     sLog.outString();
     sObjectMgr.LoadPlayerInfo();
-    sLog.outString(">>> Player Create Info & Level Stats loaded");
+    sLog.outString( ">>> Player Create Info & Level Stats loaded");
     sLog.outString();
 
-    sLog.outString("Loading Exploration BaseXP Data...");
+    sLog.outString( "Loading Exploration BaseXP Data...");
     sObjectMgr.LoadExplorationBaseXP();
 
-    sLog.outString("Loading Pet Name Parts...");
+    sLog.outString( "Loading Pet Name Parts...");
     sObjectMgr.LoadPetNames();
 
     CharacterDatabaseCleaner::CleanDatabase();
 
-    sLog.outString("Loading the max pet number...");
+    sLog.outString( "Loading the max pet number...");
     sObjectMgr.LoadPetNumber();
 
-    sLog.outString("Loading pet level stats...");
+    sLog.outString( "Loading pet level stats...");
     sObjectMgr.LoadPetLevelInfo();
 
-    sLog.outString("Loading pet scaling data...");
+    sLog.outString( "Loading pet scaling data...");
     sObjectMgr.LoadPetScalingData();
 
-    sLog.outString("Loading Player Corpses...");
+    sLog.outString( "Loading Player Corpses...");
     sObjectMgr.LoadCorpses();
 
-    sLog.outString("Loading Player level dependent mail rewards...");
+    sLog.outString( "Loading Player level dependent mail rewards...");
     sObjectMgr.LoadMailLevelRewards();
 
-    sLog.outString("Loading Spell disabled...");
+    sLog.outString( "Loading Spell disabled...");
     sObjectMgr.LoadSpellDisabledEntrys();
 
-    sLog.outString("Loading Loot Tables...");
+    sLog.outString( "Loading Loot Tables...");
     sLog.outString();
     LoadLootTables();
-    sLog.outString(">>> Loot Tables loaded");
+    sLog.outString( ">>> Loot Tables loaded");
     sLog.outString();
 
-    sLog.outString("Loading Skill Discovery Table...");
+    sLog.outString( "Loading Skill Discovery Table...");
     LoadSkillDiscoveryTable();
 
-    sLog.outString("Loading Skill Extra Item Table...");
+    sLog.outString( "Loading Skill Extra Item Table...");
     LoadSkillExtraItemTable();
 
-    sLog.outString("Loading Skill Fishing base level requirements...");
+    sLog.outString( "Loading Skill Fishing base level requirements...");
     sObjectMgr.LoadFishingBaseSkillLevel();
 
-    sLog.outString("Loading Achievements...");
+    sLog.outString( "Loading Achievements...");
     sLog.outString();
     sAchievementMgr.LoadAchievementReferenceList();
     sAchievementMgr.LoadAchievementCriteriaList();
@@ -1242,38 +1242,38 @@ void World::SetInitialWorldSettings()
     sAchievementMgr.LoadRewards();
     sAchievementMgr.LoadRewardLocales();
     sAchievementMgr.LoadCompletedAchievements();
-    sLog.outString(">>> Achievements loaded");
+    sLog.outString( ">>> Achievements loaded");
     sLog.outString();
 
-    sLog.outString("Loading Npc Text Id...");
+    sLog.outString( "Loading Npc Text Id...");
     sObjectMgr.LoadNpcGossips();                            // must be after load Creature and LoadGossipText
 
-    sLog.outString("Loading Gossip scripts...");
+    sLog.outString( "Loading Gossip scripts...");
     sScriptMgr.LoadGossipScripts();                         // must be before gossip menu options
 
-    sLog.outString("Loading Gossip menus...");
+    sLog.outString( "Loading Gossip menus...");
     sObjectMgr.LoadGossipMenu();
 
-    sLog.outString("Loading Gossip menu options...");
+    sLog.outString( "Loading Gossip menu options...");
     sObjectMgr.LoadGossipMenuItems();
 
-    sLog.outString("Loading Vendors...");
+    sLog.outString( "Loading Vendors...");
     sObjectMgr.LoadVendorTemplates();                       // must be after load ItemTemplate
     sObjectMgr.LoadVendors();                               // must be after load CreatureTemplate, VendorTemplate, and ItemTemplate
 
-    sLog.outString("Loading Trainers...");
+    sLog.outString( "Loading Trainers...");
     sObjectMgr.LoadTrainerTemplates();                      // must be after load CreatureTemplate
     sObjectMgr.LoadTrainers();                              // must be after load CreatureTemplate, TrainerTemplate
 
-    sLog.outString("Loading Waypoint scripts...");        // before loading from creature_movement
+    sLog.outString( "Loading Waypoint scripts...");        // before loading from creature_movement
     sScriptMgr.LoadCreatureMovementScripts();
 
-    sLog.outString("Loading Waypoints...");
+    sLog.outString( "Loading Waypoints...");
     sLog.outString();
     sWaypointMgr.Load();
 
     ///- Loading localization data
-    sLog.outString("Loading Localization strings...");
+    sLog.outString( "Loading Localization strings...");
     sObjectMgr.LoadCreatureLocales();                       // must be after CreatureInfo loading
     sObjectMgr.LoadGameObjectLocales();                     // must be after GameobjectInfo loading
     sObjectMgr.LoadItemLocales();                           // must be after ItemPrototypes loading
@@ -1282,75 +1282,75 @@ void World::SetInitialWorldSettings()
     sObjectMgr.LoadPageTextLocales();                       // must be after PageText loading
     sObjectMgr.LoadGossipMenuItemsLocales();                // must be after gossip menu items loading
     sObjectMgr.LoadPointOfInterestLocales();                // must be after POI loading
-    sLog.outString(">>> Localization strings loaded");
+    sLog.outString( ">>> Localization strings loaded");
     sLog.outString();
 
     sLog.outString("Loading LFG rewards...");               // After load all static data
     sLFGMgr.LoadRewards();
 
     ///- Load dynamic data tables from the database
-    sLog.outString("Loading Auctions...");
+    sLog.outString( "Loading Auctions...");
     sLog.outString();
     sAuctionMgr.LoadAuctionItems();
     sAuctionMgr.LoadAuctions();
-    sLog.outString(">>> Auctions loaded");
+    sLog.outString( ">>> Auctions loaded");
     sLog.outString();
 
-    sLog.outString("Loading Guilds...");
+    sLog.outString( "Loading Guilds...");
     sGuildMgr.LoadGuilds();
 
-    sLog.outString("Loading ArenaTeams...");
+    sLog.outString( "Loading ArenaTeams...");
     sObjectMgr.LoadArenaTeams();
 
-    sLog.outString("Loading Groups...");
+    sLog.outString( "Loading Groups...");
     sObjectMgr.LoadGroups();
 
-    sLog.outString("Loading ReservedNames...");
+    sLog.outString( "Loading ReservedNames...");
     sObjectMgr.LoadReservedPlayersNames();
 
-    sLog.outString("Loading GameObjects for quests...");
+    sLog.outString( "Loading GameObjects for quests...");
     sObjectMgr.LoadGameObjectForQuests();
 
-    sLog.outString("Loading BattleMasters...");
+    sLog.outString( "Loading BattleMasters...");
     sBattleGroundMgr.LoadBattleMastersEntry();
 
-    sLog.outString("Loading BattleGround event indexes...");
+    sLog.outString( "Loading BattleGround event indexes...");
     sBattleGroundMgr.LoadBattleEventIndexes();
 
-    sLog.outString("Loading GameTeleports...");
+    sLog.outString( "Loading GameTeleports...");
     sObjectMgr.LoadGameTele();
 
-    sLog.outString("Loading GM tickets...");
+    sLog.outString( "Loading GM tickets...");
     sTicketMgr.LoadGMTickets();
 
-    sLog.outString("Loading AntiCheat config...");
+    sLog.outString( "Loading AntiCheat config...");
     sObjectMgr.LoadAntiCheatConfig();
 
     ///- Handle outdated emails (delete/return)
-    sLog.outString("Returning old mails...");
+    sLog.outString( "Returning old mails...");
     sObjectMgr.ReturnOrDeleteOldMails(false);
 
     ///- Load and initialize scripts
-    sLog.outString("Loading Scripts...");
+    sLog.outString( "Loading Scripts...");
     sLog.outString();
     sScriptMgr.LoadQuestStartScripts();                         // must be after load Creature/Gameobject(Template/Data) and QuestTemplate
     sScriptMgr.LoadQuestEndScripts();                           // must be after load Creature/Gameobject(Template/Data) and QuestTemplate
     sScriptMgr.LoadSpellScripts();                              // must be after load Creature/Gameobject(Template/Data)
     sScriptMgr.LoadGameObjectScripts();                         // must be after load Creature/Gameobject(Template/Data)
     sScriptMgr.LoadEventScripts();                              // must be after load Creature/Gameobject(Template/Data)
-    sLog.outString(">>> Scripts loaded");
+    sLog.outString( ">>> Scripts loaded");
     sLog.outString();
 
-    sLog.outString("Loading Scripts text locales...");    // must be after Load*Scripts calls
+    sLog.outString( "Loading Scripts text locales...");    // must be after Load*Scripts calls
     sScriptMgr.LoadDbScriptStrings();
 
-    sLog.outString("Loading CreatureEventAI Texts...");
+    sLog.outString( "Loading CreatureEventAI Texts...");
     sEventAIMgr.LoadCreatureEventAI_Texts(false);       // false, will checked in LoadCreatureEventAI_Scripts
 
-    sLog.outString("Loading CreatureEventAI Summons...");
+    sLog.outString( "Loading CreatureEventAI Summons...");
     sEventAIMgr.LoadCreatureEventAI_Summons(false);     // false, will checked in LoadCreatureEventAI_Scripts
 
-    sLog.outString("Loading CreatureEventAI Scripts...");
+    sLog.outString( "Loading CreatureEventAI Scripts...");
     sEventAIMgr.LoadCreatureEventAI_Scripts();
 
     sLog.outString("Initializing Scripts...");
@@ -1371,7 +1371,7 @@ void World::SetInitialWorldSettings()
     }
 
     ///- Initialize game time and timers
-    sLog.outString("DEBUG:: Initialize game time and timers");
+    sLog.outString( "DEBUG:: Initialize game time and timers");
     m_gameTime = time(NULL);
     m_startTime=m_gameTime;
 
@@ -1380,7 +1380,7 @@ void World::SetInitialWorldSettings()
     time(&curr);
     local=*(localtime(&curr));                              // dereference and assign
     char isoDate[128];
-    sprintf(isoDate, "%04d-%02d-%02d %02d:%02d:%02d",
+    sprintf( isoDate, "%04d-%02d-%02d %02d:%02d:%02d",
         local.tm_year+1900, local.tm_mon+1, local.tm_mday, local.tm_hour, local.tm_min, local.tm_sec);
 
     LoginDatabase.PExecute("INSERT INTO uptime (realmid, starttime, startstring, uptime) VALUES('%u', " UI64FMTD ", '%s', 0)", realmID, uint64(m_startTime), isoDate);
@@ -1402,9 +1402,9 @@ void World::SetInitialWorldSettings()
     //to set mailtimer to return mails every day between 4 and 5 am
     //mailtimer is increased when updating auctions
     //one second is 1000 -(tested on win system)
-    mail_timer = uint32((((localtime(&m_gameTime)->tm_hour + 20) % 24)* HOUR * IN_MILLISECONDS) / m_timers[WUPDATE_AUCTIONS].GetInterval());
+    mail_timer = uint32((((localtime( &m_gameTime)->tm_hour + 20) % 24)* HOUR * IN_MILLISECONDS) / m_timers[WUPDATE_AUCTIONS].GetInterval());
                                                             //1440
-    mail_timer_expires = uint32((DAY * IN_MILLISECONDS) / (m_timers[WUPDATE_AUCTIONS].GetInterval()));
+    mail_timer_expires = uint32( (DAY * IN_MILLISECONDS) / (m_timers[WUPDATE_AUCTIONS].GetInterval()));
     DEBUG_LOG("Mail timer set to: %u, mail return is called every %u minutes", mail_timer, mail_timer_expires);
 
     ///- Initialize static helper structures
@@ -1412,16 +1412,16 @@ void World::SetInitialWorldSettings()
     Player::InitVisibleBits();
 
     ///- Initialize MapManager
-    sLog.outString("Starting Map System");
+    sLog.outString( "Starting Map System");
     sMapMgr.Initialize();
 
     ///- Initialize Battlegrounds
-    sLog.outString("Starting BattleGround System");
+    sLog.outString( "Starting BattleGround System");
     sBattleGroundMgr.CreateInitialBattleGrounds();
     sBattleGroundMgr.InitAutomaticArenaPointDistribution();
 
     //Not sure if this can be moved up in the sequence (with static data loading) as it uses MapManager
-    sLog.outString("Loading Transports...");
+    sLog.outString( "Loading Transports...");
     sMapMgr.LoadTransports();
 
     sLog.outString("Deleting expired bans...");
@@ -1454,10 +1454,10 @@ void World::SetInitialWorldSettings()
     sLog.outString("Initialize AuctionHouseBot...");
     sAuctionBot.Initialize();
 
-    sLog.outString("WORLD: World initialized");
+    sLog.outString( "WORLD: World initialized");
 
     uint32 uStartInterval = WorldTimer::getMSTimeDiff(uStartTime, WorldTimer::getMSTime());
-    sLog.outString("SERVER STARTUP TIME: %i minutes %i seconds", uStartInterval / 60000, (uStartInterval % 60000) / 1000);
+    sLog.outString( "SERVER STARTUP TIME: %i minutes %i seconds", uStartInterval / 60000, (uStartInterval % 60000) / 1000);
 }
 
 void World::DetectDBCLang()
@@ -1885,7 +1885,7 @@ BanReturn World::BanAccount(BanMode mode, std::string nameOrIP, uint32 duration_
             if (std::string(sess->GetPlayerName()) != author)
                 sess->KickPlayer();
     }
-    while(resultAccounts->NextRow());
+    while( resultAccounts->NextRow());
 
     delete resultAccounts;
     return BAN_SUCCESS;
@@ -2028,10 +2028,10 @@ void World::SendServerMessage(ServerMessageType type, const char *text, Player* 
     if (player)
         player->GetSession()->SendPacket(&data);
     else
-        SendGlobalMessage(&data);
+        SendGlobalMessage( &data);
 }
 
-void World::UpdateSessions(uint32 diff)
+void World::UpdateSessions( uint32 diff)
 {
     ///- Add new sessions
     WorldSession* sess;
@@ -2351,7 +2351,7 @@ void World::ResetMonthlyQuests()
     SetMonthlyQuestResetTime(false);
 }
 
-void World::SetPlayerLimit(int32 limit, bool needUpdate)
+void World::SetPlayerLimit( int32 limit, bool needUpdate)
 {
     if (limit < -SEC_ADMINISTRATOR)
         limit = -SEC_ADMINISTRATOR;
@@ -2414,7 +2414,7 @@ void World::setConfig(eConfigFloatValues index, char const* fieldname, float def
     setConfig(index, sConfig.GetFloatDefault(fieldname,defvalue));
 }
 
-void World::setConfig(eConfigBoolValues index, char const* fieldname, bool defvalue)
+void World::setConfig( eConfigBoolValues index, char const* fieldname, bool defvalue)
 {
     setConfig(index, sConfig.GetBoolDefault(fieldname,defvalue));
 }

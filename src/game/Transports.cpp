@@ -41,7 +41,7 @@ void MapManager::LoadTransports()
         bar.step();
 
         sLog.outString();
-        sLog.outString(">> Loaded %u transports", count);
+        sLog.outString( ">> Loaded %u transports", count);
         return;
     }
 
@@ -127,8 +127,8 @@ void MapManager::LoadTransports()
     delete result;
 
     sLog.outString();
-    sLog.outString(">> Loaded %u transports", count);
-    sLog.outString(">> Loaded %u transports with mapID's", m_mapOnTransportGO.size());
+    sLog.outString( ">> Loaded %u transports", count);
+    sLog.outString( ">> Loaded %u transports with mapID's", m_mapOnTransportGO.size());
 
     // check transport data DB integrity
     result = WorldDatabase.Query("SELECT gameobject.guid,gameobject.id,transports.name FROM gameobject,transports WHERE gameobject.id = transports.entry");
@@ -520,7 +520,7 @@ bool Transport::RemovePassenger(Player* passenger)
     return true;
 }
 
-void Transport::Update(uint32 update_diff, uint32 /*p_time*/)
+void Transport::Update( uint32 update_diff, uint32 /*p_time*/)
 {
     if (m_WayPoints.size() <= 1)
         return;
@@ -550,7 +550,7 @@ void Transport::Update(uint32 update_diff, uint32 /*p_time*/)
         {
             PlayerSet::const_iterator it2 = itr;
             ++itr;
-            //(*it2)->SetPosition(m_curr->second.x + (*it2)->GetTransOffsetX(), m_curr->second.y + (*it2)->GetTransOffsetY(), m_curr->second.z + (*it2)->GetTransOffsetZ(), (*it2)->GetTransOffsetO());
+            //(*it2)->SetPosition( m_curr->second.x + (*it2)->GetTransOffsetX(), m_curr->second.y + (*it2)->GetTransOffsetY(), m_curr->second.z + (*it2)->GetTransOffsetZ(), (*it2)->GetTransOffsetO());
         }
         */
 

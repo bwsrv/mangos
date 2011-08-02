@@ -312,7 +312,7 @@ class MANGOS_DLL_SPEC WorldSession
             }
         }
         //used with item_page table
-        bool SendItemInfo(uint32 itemid, WorldPacket data);
+        bool SendItemInfo( uint32 itemid, WorldPacket data);
 
         //auction
         void SendAuctionHello(Unit *unit);
@@ -333,16 +333,16 @@ class MANGOS_DLL_SPEC WorldSession
 
         //Taxi
         void SendTaxiStatus(ObjectGuid guid);
-        void SendTaxiMenu(Creature* unit);
-        void SendDoFlight(uint32 mountDisplayId, uint32 path, uint32 pathNode = 0);
-        bool SendLearnNewTaxiNode(Creature* unit);
+        void SendTaxiMenu( Creature* unit);
+        void SendDoFlight( uint32 mountDisplayId, uint32 path, uint32 pathNode = 0);
+        bool SendLearnNewTaxiNode( Creature* unit);
 
         // Guild/Arena Team
         void SendGuildCommandResult(uint32 typecmd, const std::string& str, uint32 cmdresult);
         void SendArenaTeamCommandResult(uint32 team_action, const std::string& team, const std::string& player, uint32 error_id);
         void SendNotInArenaTeamPacket(uint8 type);
         void SendPetitionShowList(ObjectGuid guid);
-        void SendSaveGuildEmblem(uint32 msg);
+        void SendSaveGuildEmblem( uint32 msg);
 
         void BuildPartyMemberStatsChangedPacket(Player *player, WorldPacket *data);
 
@@ -368,7 +368,7 @@ class MANGOS_DLL_SPEC WorldSession
     public:                                                 // opcodes handlers
 
         void Handle_NULL(WorldPacket& recvPacket);          // not used
-        void Handle_EarlyProccess(WorldPacket& recvPacket);// just mark packets processed in WorldSocket::OnRead
+        void Handle_EarlyProccess( WorldPacket& recvPacket);// just mark packets processed in WorldSocket::OnRead
         void Handle_ServerSide(WorldPacket& recvPacket);    // sever side only, can't be accepted from client
         void Handle_Deprecated(WorldPacket& recvPacket);    // never used anymore by client
 
@@ -395,7 +395,7 @@ class MANGOS_DLL_SPEC WorldSession
         void HandleMoveWaterWalkAck(WorldPacket& recvPacket);
         void HandleFeatherFallAck(WorldPacket &recv_data);
 
-        void HandleMoveHoverAck(WorldPacket & recv_data);
+        void HandleMoveHoverAck( WorldPacket & recv_data);
 
         void HandleMountSpecialAnimOpcode(WorldPacket &recvdata);
 
@@ -410,7 +410,7 @@ class MANGOS_DLL_SPEC WorldSession
         void HandleMoveKnockBackAck(WorldPacket& recvPacket);
 
         void HandleMoveTeleportAckOpcode(WorldPacket& recvPacket);
-        void HandleForceSpeedChangeAckOpcodes(WorldPacket & recv_data);
+        void HandleForceSpeedChangeAckOpcodes( WorldPacket & recv_data);
 
         void HandlePingOpcode(WorldPacket& recvPacket);
         void HandleAuthSessionOpcode(WorldPacket& recvPacket);
@@ -455,7 +455,7 @@ class MANGOS_DLL_SPEC WorldSession
 
         void HandleAreaTriggerOpcode(WorldPacket& recvPacket);
 
-        void HandleSetFactionAtWarOpcode(WorldPacket & recv_data);
+        void HandleSetFactionAtWarOpcode( WorldPacket & recv_data);
         void HandleSetWatchedFactionOpcode(WorldPacket & recv_data);
         void HandleSetFactionInactiveOpcode(WorldPacket & recv_data);
 
@@ -491,7 +491,7 @@ class MANGOS_DLL_SPEC WorldSession
         void HandleEjectPasenger(WorldPacket &recv_data);
         void HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data);
 
-        void HandleRequestRaidInfoOpcode(WorldPacket & recv_data);
+        void HandleRequestRaidInfoOpcode( WorldPacket & recv_data);
 
         void HandleGroupInviteOpcode(WorldPacket& recvPacket);
         void HandleGroupAcceptOpcode(WorldPacket& recvPacket);
@@ -500,18 +500,18 @@ class MANGOS_DLL_SPEC WorldSession
         void HandleGroupUninviteGuidOpcode(WorldPacket& recvPacket);
         void HandleGroupSetLeaderOpcode(WorldPacket& recvPacket);
         void HandleGroupDisbandOpcode(WorldPacket& recvPacket);
-        void HandleOptOutOfLootOpcode(WorldPacket &recv_data);
-        void HandleSetAllowLowLevelRaidOpcode(WorldPacket & recv_data);
+        void HandleOptOutOfLootOpcode( WorldPacket &recv_data);
+        void HandleSetAllowLowLevelRaidOpcode( WorldPacket & recv_data);
         void HandleLootMethodOpcode(WorldPacket& recvPacket);
-        void HandleLootRoll(WorldPacket &recv_data);
-        void HandleRequestPartyMemberStatsOpcode(WorldPacket &recv_data);
-        void HandleRaidTargetUpdateOpcode(WorldPacket & recv_data);
-        void HandleRaidReadyCheckOpcode(WorldPacket & recv_data);
-        void HandleRaidReadyCheckFinishedOpcode(WorldPacket & recv_data);
-        void HandleGroupRaidConvertOpcode(WorldPacket & recv_data);
-        void HandleGroupChangeSubGroupOpcode(WorldPacket & recv_data);
-        void HandleGroupAssistantLeaderOpcode(WorldPacket & recv_data);
-        void HandlePartyAssignmentOpcode(WorldPacket & recv_data);
+        void HandleLootRoll( WorldPacket &recv_data);
+        void HandleRequestPartyMemberStatsOpcode( WorldPacket &recv_data);
+        void HandleRaidTargetUpdateOpcode( WorldPacket & recv_data);
+        void HandleRaidReadyCheckOpcode( WorldPacket & recv_data);
+        void HandleRaidReadyCheckFinishedOpcode( WorldPacket & recv_data);
+        void HandleGroupRaidConvertOpcode( WorldPacket & recv_data);
+        void HandleGroupChangeSubGroupOpcode( WorldPacket & recv_data);
+        void HandleGroupAssistantLeaderOpcode( WorldPacket & recv_data);
+        void HandlePartyAssignmentOpcode( WorldPacket & recv_data);
 
         void HandlePetitionBuyOpcode(WorldPacket& recv_data);
         void HandlePetitionShowSignOpcode(WorldPacket& recv_data);
@@ -584,30 +584,30 @@ class MANGOS_DLL_SPEC WorldSession
         void HandleUnacceptTradeOpcode(WorldPacket& recvPacket);
 
         void HandleAuctionHelloOpcode(WorldPacket& recvPacket);
-        void HandleAuctionListItems(WorldPacket & recv_data);
-        void HandleAuctionListBidderItems(WorldPacket & recv_data);
-        void HandleAuctionSellItem(WorldPacket & recv_data);
+        void HandleAuctionListItems( WorldPacket & recv_data);
+        void HandleAuctionListBidderItems( WorldPacket & recv_data);
+        void HandleAuctionSellItem( WorldPacket & recv_data);
 
-        void HandleAuctionRemoveItem(WorldPacket & recv_data);
-        void HandleAuctionListOwnerItems(WorldPacket & recv_data);
-        void HandleAuctionPlaceBid(WorldPacket & recv_data);
+        void HandleAuctionRemoveItem( WorldPacket & recv_data);
+        void HandleAuctionListOwnerItems( WorldPacket & recv_data);
+        void HandleAuctionPlaceBid( WorldPacket & recv_data);
 
-        void AuctionBind(uint32 price, AuctionEntry * auction, Player * pl, Player* auction_owner);
-        void HandleAuctionListPendingSales(WorldPacket & recv_data);
+        void AuctionBind( uint32 price, AuctionEntry * auction, Player * pl, Player* auction_owner);
+        void HandleAuctionListPendingSales( WorldPacket & recv_data);
 
-        void HandleGetMailList(WorldPacket & recv_data);
-        void HandleSendMail(WorldPacket & recv_data);
-        void HandleMailTakeMoney(WorldPacket & recv_data);
-        void HandleMailTakeItem(WorldPacket & recv_data);
-        void HandleMailMarkAsRead(WorldPacket & recv_data);
-        void HandleMailReturnToSender(WorldPacket & recv_data);
-        void HandleMailDelete(WorldPacket & recv_data);
-        void HandleItemTextQuery(WorldPacket & recv_data);
+        void HandleGetMailList( WorldPacket & recv_data);
+        void HandleSendMail( WorldPacket & recv_data);
+        void HandleMailTakeMoney( WorldPacket & recv_data);
+        void HandleMailTakeItem( WorldPacket & recv_data);
+        void HandleMailMarkAsRead( WorldPacket & recv_data);
+        void HandleMailReturnToSender( WorldPacket & recv_data);
+        void HandleMailDelete( WorldPacket & recv_data);
+        void HandleItemTextQuery( WorldPacket & recv_data);
         void HandleMailCreateTextItem(WorldPacket & recv_data);
         void HandleQueryNextMailTime(WorldPacket & recv_data);
         void HandleCancelChanneling(WorldPacket & recv_data);
 
-        void SendItemPageInfo(ItemPrototype *itemProto);
+        void SendItemPageInfo( ItemPrototype *itemProto);
         void HandleSplitItemOpcode(WorldPacket& recvPacket);
         void HandleSwapInvItemOpcode(WorldPacket& recvPacket);
         void HandleDestroyItemOpcode(WorldPacket& recvPacket);
@@ -620,7 +620,7 @@ class MANGOS_DLL_SPEC WorldSession
         void HandleAutoStoreBagItemOpcode(WorldPacket& recvPacket);
         void HandleReadItemOpcode(WorldPacket& recvPacket);
         void HandleAutoEquipItemSlotOpcode(WorldPacket & recvPacket);
-        void HandleSwapItem(WorldPacket & recvPacket);
+        void HandleSwapItem( WorldPacket & recvPacket);
         void HandleBuybackItem(WorldPacket & recvPacket);
         void HandleAutoBankItemOpcode(WorldPacket& recvPacket);
         void HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket);
@@ -669,9 +669,9 @@ class MANGOS_DLL_SPEC WorldSession
         void HandleTextEmoteOpcode(WorldPacket& recvPacket);
         void HandleChatIgnoredOpcode(WorldPacket& recvPacket);
 
-        void HandleReclaimCorpseOpcode(WorldPacket& recvPacket);
-        void HandleCorpseQueryOpcode(WorldPacket& recvPacket);
-        void HandleCorpseMapPositionQueryOpcode(WorldPacket& recvPacket);
+        void HandleReclaimCorpseOpcode( WorldPacket& recvPacket);
+        void HandleCorpseQueryOpcode( WorldPacket& recvPacket);
+        void HandleCorpseMapPositionQueryOpcode( WorldPacket& recvPacket);
         void HandleResurrectResponseOpcode(WorldPacket& recvPacket);
         void HandleSummonResponseOpcode(WorldPacket& recv_data);
 
@@ -701,22 +701,22 @@ class MANGOS_DLL_SPEC WorldSession
         void HandlePageQuerySkippedOpcode(WorldPacket& recvPacket);
         void HandlePageTextQueryOpcode(WorldPacket& recvPacket);
 
-        void HandleTutorialFlagOpcode (WorldPacket & recv_data);
-        void HandleTutorialClearOpcode(WorldPacket & recv_data);
-        void HandleTutorialResetOpcode(WorldPacket & recv_data);
+        void HandleTutorialFlagOpcode ( WorldPacket & recv_data);
+        void HandleTutorialClearOpcode( WorldPacket & recv_data);
+        void HandleTutorialResetOpcode( WorldPacket & recv_data);
 
         //Pet
-        void HandlePetAction(WorldPacket & recv_data);
+        void HandlePetAction( WorldPacket & recv_data);
         void HandlePetStopAttack(WorldPacket& recv_data);
-        void HandlePetNameQueryOpcode(WorldPacket & recv_data);
-        void HandlePetSetAction(WorldPacket & recv_data);
-        void HandlePetAbandon(WorldPacket & recv_data);
-        void HandlePetRename(WorldPacket & recv_data);
-        void HandlePetCancelAuraOpcode(WorldPacket& recvPacket);
-        void HandlePetSpellAutocastOpcode(WorldPacket& recvPacket);
-        void HandlePetCastSpellOpcode(WorldPacket& recvPacket);
-        void HandlePetLearnTalent(WorldPacket& recvPacket);
-        void HandleLearnPreviewTalentsPet(WorldPacket& recvPacket);
+        void HandlePetNameQueryOpcode( WorldPacket & recv_data);
+        void HandlePetSetAction( WorldPacket & recv_data);
+        void HandlePetAbandon( WorldPacket & recv_data);
+        void HandlePetRename( WorldPacket & recv_data);
+        void HandlePetCancelAuraOpcode( WorldPacket& recvPacket);
+        void HandlePetSpellAutocastOpcode( WorldPacket& recvPacket);
+        void HandlePetCastSpellOpcode( WorldPacket& recvPacket);
+        void HandlePetLearnTalent( WorldPacket& recvPacket);
+        void HandleLearnPreviewTalentsPet( WorldPacket& recvPacket);
 
         void HandleSetActionBarTogglesOpcode(WorldPacket& recv_data);
 
@@ -730,13 +730,13 @@ class MANGOS_DLL_SPEC WorldSession
         void HandleBattlemasterHelloOpcode(WorldPacket &recv_data);
         void HandleBattlemasterJoinOpcode(WorldPacket &recv_data);
         void HandleBattleGroundPlayerPositionsOpcode(WorldPacket& recv_data);
-        void HandlePVPLogDataOpcode(WorldPacket &recv_data);
+        void HandlePVPLogDataOpcode( WorldPacket &recv_data);
         void HandleBattlefieldStatusOpcode(WorldPacket &recv_data);
-        void HandleBattleFieldPortOpcode(WorldPacket &recv_data);
-        void HandleBattlefieldListOpcode(WorldPacket &recv_data);
-        void HandleLeaveBattlefieldOpcode(WorldPacket &recv_data);
-        void HandleBattlemasterJoinArena(WorldPacket &recv_data);
-        void HandleReportPvPAFK(WorldPacket &recv_data);
+        void HandleBattleFieldPortOpcode( WorldPacket &recv_data);
+        void HandleBattlefieldListOpcode( WorldPacket &recv_data);
+        void HandleLeaveBattlefieldOpcode( WorldPacket &recv_data);
+        void HandleBattlemasterJoinArena( WorldPacket &recv_data);
+        void HandleReportPvPAFK( WorldPacket &recv_data);
 
         void HandleWardenDataOpcode(WorldPacket& recv_data);
         void HandleWorldTeleportOpcode(WorldPacket& recv_data);
@@ -875,7 +875,7 @@ class MANGOS_DLL_SPEC WorldSession
         bool VerifyMovementInfo(MovementInfo const& movementInfo, ObjectGuid const& guid) const;
         void HandleMoverRelocation(MovementInfo& movementInfo);
 
-        void ExecuteOpcode(OpcodeHandler const& opHandle, WorldPacket* packet);
+        void ExecuteOpcode( OpcodeHandler const& opHandle, WorldPacket* packet);
 
         // logging helper
         void LogUnexpectedOpcode(WorldPacket *packet, const char * reason);

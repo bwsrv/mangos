@@ -2248,7 +2248,7 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                     if (!damage)
                         return SPELL_AURA_PROC_FAILED;
 
-                    basepoints[0] = int32(pVictim->GetMaxHealth() * triggeredByAura->GetModifier()->m_amount / 100);
+                    basepoints[0] = int32( pVictim->GetMaxHealth() * triggeredByAura->GetModifier()->m_amount / 100);
                     pVictim->CastCustomSpell(pVictim, 20267, &basepoints[0], NULL, NULL, true, NULL, triggeredByAura);
                     return SPELL_AURA_PROC_OK;
                 }
@@ -2708,7 +2708,7 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                         ((Player*)this)->AddSpellCooldown(dummySpell->Id,0,time(NULL) + cooldown);
 
                     // Attack Twice
-                    for (uint32 i = 0; i<2; ++i)
+                    for ( uint32 i = 0; i<2; ++i)
                         CastCustomSpell(pVictim,triggered_spell_id,&basepoints[0],NULL,NULL,true,castItem,triggeredByAura);
 
                     return SPELL_AURA_PROC_OK;
@@ -4476,7 +4476,7 @@ SpellAuraProcResult Unit::HandleOverrideClassScriptAuraProc(Unit *pVictim, uint3
             if (!roll_chance_i(triggerAmount))
                 return SPELL_AURA_PROC_FAILED;
 
-            switch(pVictim->getPowerType())
+            switch( pVictim->getPowerType())
             {
                 case POWER_MANA:        triggered_spell_id = 48542; break;
                 case POWER_RAGE:        triggered_spell_id = 48541; break;
@@ -4546,7 +4546,7 @@ SpellAuraProcResult Unit::HandleOverrideClassScriptAuraProc(Unit *pVictim, uint3
     return SPELL_AURA_PROC_OK;
 }
 
-SpellAuraProcResult Unit::HandleMendingAuraProc(Unit* /*pVictim*/, uint32 /*damage*/, Aura* triggeredByAura, SpellEntry const* /*procSpell*/, uint32 /*procFlag*/, uint32 /*procEx*/, uint32 /*cooldown*/)
+SpellAuraProcResult Unit::HandleMendingAuraProc( Unit* /*pVictim*/, uint32 /*damage*/, Aura* triggeredByAura, SpellEntry const* /*procSpell*/, uint32 /*procFlag*/, uint32 /*procEx*/, uint32 /*cooldown*/)
 {
     // aura can be deleted at casts
     SpellEntry const* spellProto = triggeredByAura->GetSpellProto();

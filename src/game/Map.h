@@ -55,7 +55,7 @@ class BattleGround;
 class GridMap;
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push,N), also any gcc version not support it at some platform
-#if defined(__GNUC__)
+#if defined( __GNUC__)
 #pragma pack(1)
 #else
 #pragma pack(push,1)
@@ -82,7 +82,7 @@ enum LevelRequirementVsMode
     LEVELREQUIREMENT_HEROIC = 70
 };
 
-#if defined(__GNUC__)
+#if defined( __GNUC__)
 #pragma pack()
 #else
 #pragma pack(pop)
@@ -137,7 +137,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
         bool IsRemovalGrid(float x, float y) const
         {
             GridPair p = MaNGOS::ComputeGridPair(x, y);
-            return(!getNGrid(p.x_coord, p.y_coord) || getNGrid(p.x_coord, p.y_coord)->GetGridState() == GRID_STATE_REMOVAL);
+            return( !getNGrid(p.x_coord, p.y_coord) || getNGrid(p.x_coord, p.y_coord)->GetGridState() == GRID_STATE_REMOVAL);
         }
 
         bool IsLoaded(float x, float y) const
@@ -264,10 +264,10 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
 
         void SetTimer(uint32 t) { i_gridExpiry = t < MIN_GRID_DELAY ? MIN_GRID_DELAY : t; }
 
-        void SendInitSelf(Player * player);
+        void SendInitSelf( Player * player);
 
-        void SendInitTransports(Player * player);
-        void SendRemoveTransports(Player * player);
+        void SendInitTransports( Player * player);
+        void SendRemoveTransports( Player * player);
 
         bool CreatureCellRelocation(Creature *creature, Cell new_cell);
 

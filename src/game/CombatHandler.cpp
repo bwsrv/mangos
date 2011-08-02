@@ -24,7 +24,7 @@
 #include "ObjectGuid.h"
 #include "Player.h"
 
-void WorldSession::HandleAttackSwingOpcode(WorldPacket & recv_data)
+void WorldSession::HandleAttackSwingOpcode( WorldPacket & recv_data)
 {
     ObjectGuid guid;
     recv_data >> guid;
@@ -41,7 +41,7 @@ void WorldSession::HandleAttackSwingOpcode(WorldPacket & recv_data)
 
     if (!pEnemy)
     {
-        sLog.outError("WORLD: Enemy %s not found", guid.GetString().c_str());
+        sLog.outError( "WORLD: Enemy %s not found", guid.GetString().c_str());
 
         // stop attack state at client
         SendAttackStop(NULL);
@@ -50,7 +50,7 @@ void WorldSession::HandleAttackSwingOpcode(WorldPacket & recv_data)
 
     if (_player->IsFriendlyTo(pEnemy) || pEnemy->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE))
     {
-        sLog.outError("WORLD: Enemy %s is friendly",guid.GetString().c_str());
+        sLog.outError( "WORLD: Enemy %s is friendly",guid.GetString().c_str());
 
         // stop attack state at client
         SendAttackStop(pEnemy);
@@ -68,17 +68,17 @@ void WorldSession::HandleAttackSwingOpcode(WorldPacket & recv_data)
     _player->Attack(pEnemy,true);
 }
 
-void WorldSession::HandleAttackStopOpcode(WorldPacket & /*recv_data*/)
+void WorldSession::HandleAttackStopOpcode( WorldPacket & /*recv_data*/)
 {
     GetPlayer()->AttackStop();
 }
 
-void WorldSession::HandleSetSheathedOpcode(WorldPacket & recv_data)
+void WorldSession::HandleSetSheathedOpcode( WorldPacket & recv_data)
 {
     uint32 sheathed;
     recv_data >> sheathed;
 
-    //DEBUG_LOG("WORLD: Recvd CMSG_SETSHEATHED Message guidlow:%u value1:%u", GetPlayer()->GetGUIDLow(), sheathed);
+    //DEBUG_LOG( "WORLD: Recvd CMSG_SETSHEATHED Message guidlow:%u value1:%u", GetPlayer()->GetGUIDLow(), sheathed);
 
     if (sheathed >= MAX_SHEATH_STATE)
     {
@@ -91,7 +91,7 @@ void WorldSession::HandleSetSheathedOpcode(WorldPacket & recv_data)
 
 void WorldSession::SendAttackStop(Unit const* enemy)
 {
-    WorldPacket data(SMSG_ATTACKSTOP, (4+20));            // we guess size
+    WorldPacket data( SMSG_ATTACKSTOP, (4+20));            // we guess size
     data << GetPlayer()->GetPackGUID();
     data << (enemy ? enemy->GetPackGUID() : PackedGuid());  // must be packed guid
     data << uint32(0);                                      // unk, can be 1 also

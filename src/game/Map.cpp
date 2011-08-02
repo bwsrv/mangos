@@ -327,7 +327,7 @@ Map::Add(T *obj)
         EnsureGridCreated(GridPair(cell.GridX(), cell.GridY()));
 
     NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
-    MANGOS_ASSERT(grid != NULL);
+    MANGOS_ASSERT( grid != NULL);
 
     AddToGrid(obj,grid,cell);
     obj->AddToWorld();
@@ -429,7 +429,7 @@ void Map::MessageDistBroadcast(WorldObject *obj, WorldPacket *msg, float dist)
 
 bool Map::loaded(const GridPair &p) const
 {
-    return (getNGrid(p.x_coord, p.y_coord) && isGridObjectDataLoaded(p.x_coord, p.y_coord));
+    return ( getNGrid(p.x_coord, p.y_coord) && isGridObjectDataLoaded(p.x_coord, p.y_coord));
 }
 
 void Map::Update(const uint32 &t_diff)
@@ -634,7 +634,7 @@ Map::Remove(T *obj, bool remove)
 
     DEBUG_LOG("Remove object (GUID: %u TypeId:%u) from grid[%u,%u]", obj->GetGUIDLow(), obj->GetTypeId(), cell.data.Part.grid_x, cell.data.Part.grid_y);
     NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
-    MANGOS_ASSERT(grid != NULL);
+    MANGOS_ASSERT( grid != NULL);
 
     if (obj->isActiveObject())
         RemoveFromActive(obj);
@@ -776,7 +776,7 @@ bool Map::CreatureRespawnRelocation(Creature *c)
 bool Map::UnloadGrid(const uint32 &x, const uint32 &y, bool pForce)
 {
     NGridType *grid = getNGrid(x, y);
-    MANGOS_ASSERT(grid != NULL);
+    MANGOS_ASSERT( grid != NULL);
 
     {
         if (!pForce && ActiveObjectsNearGrid(x, y))
@@ -875,7 +875,7 @@ const char* Map::GetMapName() const
     return i_mapEntry ? i_mapEntry->name[sWorld.GetDefaultDbcLocale()] : "UNNAMEDMAP\x0";
 }
 
-void Map::UpdateObjectVisibility(WorldObject* obj, Cell cell, CellPair cellpair)
+void Map::UpdateObjectVisibility( WorldObject* obj, Cell cell, CellPair cellpair)
 {
     cell.SetNoCreate();
     MaNGOS::VisibleChangesNotifier notifier(*obj);
@@ -883,7 +883,7 @@ void Map::UpdateObjectVisibility(WorldObject* obj, Cell cell, CellPair cellpair)
     cell.Visit(cellpair, player_notifier, *this, *obj, GetVisibilityDistance());
 }
 
-void Map::SendInitSelf(Player * player)
+void Map::SendInitSelf( Player * player)
 {
     DETAIL_LOG("Creating player data for himself %u", player->GetGUIDLow());
 
@@ -915,7 +915,7 @@ void Map::SendInitSelf(Player * player)
     player->GetSession()->SendPacket(&packet);
 }
 
-void Map::SendInitTransports(Player * player)
+void Map::SendInitTransports( Player * player)
 {
     // Hack to send out transports
     MapManager::TransportMap& tmap = sMapMgr.m_TransportsByMap;
@@ -942,7 +942,7 @@ void Map::SendInitTransports(Player * player)
     player->GetSession()->SendPacket(&packet);
 }
 
-void Map::SendRemoveTransports(Player * player)
+void Map::SendRemoveTransports( Player * player)
 {
     // Hack to send out transports
     MapManager::TransportMap& tmap = sMapMgr.m_TransportsByMap;
@@ -1080,7 +1080,7 @@ bool Map::ActiveObjectsNearGrid(uint32 x, uint32 y) const
     return false;
 }
 
-void Map::AddToActive(WorldObject* obj)
+void Map::AddToActive( WorldObject* obj)
 {
     m_activeNonPlayers.insert(obj);
 
@@ -1106,7 +1106,7 @@ void Map::AddToActive(WorldObject* obj)
     }
 }
 
-void Map::RemoveFromActive(WorldObject* obj)
+void Map::RemoveFromActive( WorldObject* obj)
 {
     // Map::Update for active object in proccess
     if (m_activeNonPlayersIter != m_activeNonPlayers.end())

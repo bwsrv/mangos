@@ -558,7 +558,7 @@ namespace MaNGOS
             bool operator()(Creature* u)
             {
                 if (u->isAlive() || u->IsDeadByDefault() || u->IsTaxiFlying() ||
-                   (u->GetCreatureTypeMask() & CREATURE_TYPEMASK_HUMANOID_OR_UNDEAD) == 0)
+                   ( u->GetCreatureTypeMask() & CREATURE_TYPEMASK_HUMANOID_OR_UNDEAD) == 0)
                     return false;
 
                 return i_fobj->IsWithinDistInMap(u, i_range);
@@ -974,7 +974,7 @@ namespace MaNGOS
                 if (u->GetTypeId()==TYPEID_UNIT && ((Creature*)u)->IsTotem())
                     return false;
 
-                if ((i_targetForPlayer ? !i_obj->IsFriendlyTo(u) : i_obj->IsHostileTo(u))&& i_obj->IsWithinDistInMap(u, i_range))
+                if (( i_targetForPlayer ? !i_obj->IsFriendlyTo(u) : i_obj->IsHostileTo(u))&& i_obj->IsWithinDistInMap(u, i_range))
                     return true;
 
                 return false;
@@ -1274,7 +1274,7 @@ namespace MaNGOS
                 for (size_t i = 0; i < i_data_cache.size(); ++i)
                     delete i_data_cache[i];
             }
-            void operator()(Player* p);
+            void operator()( Player* p);
 
         private:
             Builder& i_builder;
@@ -1295,7 +1295,7 @@ namespace MaNGOS
                     for (size_t j = 0; j < i_data_cache[i].size(); ++j)
                         delete i_data_cache[i][j];
             }
-            void operator()(Player* p);
+            void operator()( Player* p);
 
         private:
             Builder& i_builder;

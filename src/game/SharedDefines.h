@@ -193,14 +193,14 @@ enum SpellSchoolMask
     // unions
 
     // 124, not include normal and holy damage
-    SPELL_SCHOOL_MASK_SPELL   = (SPELL_SCHOOL_MASK_FIRE   |
+    SPELL_SCHOOL_MASK_SPELL   = ( SPELL_SCHOOL_MASK_FIRE   |
                                   SPELL_SCHOOL_MASK_NATURE | SPELL_SCHOOL_MASK_FROST  |
                                   SPELL_SCHOOL_MASK_SHADOW | SPELL_SCHOOL_MASK_ARCANE),
     // 126
-    SPELL_SCHOOL_MASK_MAGIC   = (SPELL_SCHOOL_MASK_HOLY | SPELL_SCHOOL_MASK_SPELL),
+    SPELL_SCHOOL_MASK_MAGIC   = ( SPELL_SCHOOL_MASK_HOLY | SPELL_SCHOOL_MASK_SPELL),
 
     // 127
-    SPELL_SCHOOL_MASK_ALL     = (SPELL_SCHOOL_MASK_NORMAL | SPELL_SCHOOL_MASK_MAGIC)
+    SPELL_SCHOOL_MASK_ALL     = ( SPELL_SCHOOL_MASK_NORMAL | SPELL_SCHOOL_MASK_MAGIC)
 };
 
 inline SpellSchools GetFirstSchoolInMask(SpellSchoolMask mask)
@@ -1121,7 +1121,7 @@ enum Mechanics
 #define MAX_MECHANIC            32
 
 // Used for spell 42292 Immune Movement Impairment and Loss of Control (0x49967da6)
-#define IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK (\
+#define IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK ( \
     (1<<(MECHANIC_CHARM   -1))|(1<<(MECHANIC_DISORIENTED-1))|(1<<(MECHANIC_FEAR  -1))| \
     (1<<(MECHANIC_ROOT    -1))|(1<<(MECHANIC_SLOWATTACK -1))|(1<<(MECHANIC_SLEEP -1))| \
     (1<<(MECHANIC_SNARE   -1))|(1<<(MECHANIC_STUN       -1))|(1<<(MECHANIC_FREEZE-1))| \
@@ -1129,20 +1129,20 @@ enum Mechanics
     (1<<(MECHANIC_SHACKLE -1))|(1<<(MECHANIC_TURN       -1))|(1<<(MECHANIC_HORROR-1))| \
     (1<<(MECHANIC_DAZE    -1))|(1<<(MECHANIC_SAPPED     -1)))
 
-#define IMMUNE_TO_ROOT_AND_SNARE_MASK (\
+#define IMMUNE_TO_ROOT_AND_SNARE_MASK ( \
     (1<<(MECHANIC_ROOT-1))|(1<<(MECHANIC_SNARE-1)))
 
-#define IMMUNE_TO_ROOT_AND_STUN_MASK (\
+#define IMMUNE_TO_ROOT_AND_STUN_MASK ( \
     (1<<(MECHANIC_ROOT-1))|(1<<(MECHANIC_STUN-1)))
 
-#define IMMUNE_TO_SILENCE_AND_STUN_AND_FEAR_MASK (\
+#define IMMUNE_TO_SILENCE_AND_STUN_AND_FEAR_MASK ( \
     (1<<(MECHANIC_SILENCE-1))|(1<<(MECHANIC_STUN-1))|(1<<(MECHANIC_FEAR-1)))
 
-#define IMMUNE_TO_INTERRUPT_AND_SILENCE_MASK (\
+#define IMMUNE_TO_INTERRUPT_AND_SILENCE_MASK ( \
     (1<<(MECHANIC_INTERRUPT-1))|(1<<(MECHANIC_SILENCE-1)))
 
 // Daze and all croud control spells except polymorph are not removed
-#define MECHANIC_NOT_REMOVED_BY_SHAPESHIFT (\
+#define MECHANIC_NOT_REMOVED_BY_SHAPESHIFT ( \
     (1<<(MECHANIC_CHARM  -1))|(1<<(MECHANIC_DISORIENTED-1))|(1<<(MECHANIC_FEAR  -1))| \
     (1<<(MECHANIC_STUN   -1))|(1<<(MECHANIC_FREEZE     -1))|(1<<(MECHANIC_BANISH-1))| \
     (1<<(MECHANIC_SHACKLE-1))|(1<<(MECHANIC_HORROR     -1))|(1<<(MECHANIC_TURN  -1))| \
@@ -1165,7 +1165,7 @@ enum DispelType
     DESPEL_OLD_UNUSED   = 11
 };
 
-#define DISPEL_ALL_MASK ((1<<DISPEL_MAGIC) | (1<<DISPEL_CURSE) | (1<<DISPEL_DISEASE) | (1<<DISPEL_POISON))
+#define DISPEL_ALL_MASK ( (1<<DISPEL_MAGIC) | (1<<DISPEL_CURSE) | (1<<DISPEL_DISEASE) | (1<<DISPEL_POISON))
 
 //To all Immune system,if target has immunes,
 //some spell that related to ImmuneToDispel or ImmuneToSchool or ImmuneToDamage type can't cast to it,

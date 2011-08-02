@@ -232,7 +232,7 @@ bool CannibalizeObjectCheck::operator()(Corpse* u)
     return false;
 }
 
-void MaNGOS::RespawnDo::operator()(Creature* u) const
+void MaNGOS::RespawnDo::operator()( Creature* u) const
 {
     // prevent respawn creatures for not active BG event
     Map* map = u->GetMap();
@@ -246,7 +246,7 @@ void MaNGOS::RespawnDo::operator()(Creature* u) const
     u->Respawn();
 }
 
-void MaNGOS::RespawnDo::operator()(GameObject* u) const
+void MaNGOS::RespawnDo::operator()( GameObject* u) const
 {
     // prevent respawn gameobject for not active BG event
     Map* map = u->GetMap();

@@ -67,7 +67,7 @@ class PrioritizeManaUnitWraper
 
 struct PrioritizeMana
 {
-    int operator()(PrioritizeManaUnitWraper const& x, PrioritizeManaUnitWraper const& y) const
+    int operator()( PrioritizeManaUnitWraper const& x, PrioritizeManaUnitWraper const& y) const
     {
         return x.getPercent() > y.getPercent();
     }
@@ -91,7 +91,7 @@ private:
 
 struct PrioritizeHealth
 {
-    int operator()(PrioritizeHealthUnitWraper const& x, PrioritizeHealthUnitWraper const& y) const
+    int operator()( PrioritizeHealthUnitWraper const& x, PrioritizeHealthUnitWraper const& y) const
     {
         return x.getPercent() > y.getPercent();
     }
@@ -191,7 +191,7 @@ void SpellCastTargets::Update(Unit* caster)
 {
     m_GOTarget   = m_GOTargetGUID ? caster->GetMap()->GetGameObject(m_GOTargetGUID) : NULL;
     m_unitTarget = m_unitTargetGUID ?
-        (m_unitTargetGUID == caster->GetObjectGuid() ? caster : ObjectAccessor::GetUnit(*caster, m_unitTargetGUID)) :
+        ( m_unitTargetGUID == caster->GetObjectGuid() ? caster : ObjectAccessor::GetUnit(*caster, m_unitTargetGUID)) :
         NULL;
 
     m_itemTarget = NULL;
@@ -213,7 +213,7 @@ void SpellCastTargets::Update(Unit* caster)
     }
 }
 
-void SpellCastTargets::read(ByteBuffer& data, Unit *caster)
+void SpellCastTargets::read( ByteBuffer& data, Unit *caster)
 {
     data >> m_targetMask;
 
@@ -228,13 +228,13 @@ void SpellCastTargets::read(ByteBuffer& data, Unit *caster)
     }
 
     // TARGET_FLAG_UNK2 is used for non-combat pets, maybe other?
-    if (m_targetMask & (TARGET_FLAG_UNIT | TARGET_FLAG_UNK2))
+    if (m_targetMask & ( TARGET_FLAG_UNIT | TARGET_FLAG_UNK2))
         data >> m_unitTargetGUID.ReadAsPacked();
 
-    if (m_targetMask & (TARGET_FLAG_OBJECT))
+    if (m_targetMask & ( TARGET_FLAG_OBJECT))
         data >> m_GOTargetGUID.ReadAsPacked();
 
-    if ((m_targetMask & (TARGET_FLAG_ITEM | TARGET_FLAG_TRADE_ITEM)) && caster->GetTypeId() == TYPEID_PLAYER)
+    if (( m_targetMask & ( TARGET_FLAG_ITEM | TARGET_FLAG_TRADE_ITEM)) && caster->GetTypeId() == TYPEID_PLAYER)
         data >> m_itemTargetGUID.ReadAsPacked();
 
     if (m_targetMask & (TARGET_FLAG_CORPSE | TARGET_FLAG_PVP_CORPSE))
@@ -263,11 +263,11 @@ void SpellCastTargets::read(ByteBuffer& data, Unit *caster)
     Update(caster);
 }
 
-void SpellCastTargets::write(ByteBuffer& data) const
+void SpellCastTargets::write( ByteBuffer& data) const
 {
     data << uint32(m_targetMask);
 
-    if (m_targetMask & (TARGET_FLAG_UNIT | TARGET_FLAG_PVP_CORPSE | TARGET_FLAG_OBJECT | TARGET_FLAG_CORPSE | TARGET_FLAG_UNK2))
+    if (m_targetMask & ( TARGET_FLAG_UNIT | TARGET_FLAG_PVP_CORPSE | TARGET_FLAG_OBJECT | TARGET_FLAG_CORPSE | TARGET_FLAG_UNK2))
     {
         if (m_targetMask & TARGET_FLAG_UNIT)
         {
@@ -283,13 +283,13 @@ void SpellCastTargets::write(ByteBuffer& data) const
             else
                 data << uint8(0);
         }
-        else if (m_targetMask & (TARGET_FLAG_CORPSE | TARGET_FLAG_PVP_CORPSE))
+        else if (m_targetMask & ( TARGET_FLAG_CORPSE | TARGET_FLAG_PVP_CORPSE))
             data << m_CorpseTargetGUID.WriteAsPacked();
         else
             data << uint8(0);
     }
 
-    if (m_targetMask & (TARGET_FLAG_ITEM | TARGET_FLAG_TRADE_ITEM))
+    if (m_targetMask & ( TARGET_FLAG_ITEM | TARGET_FLAG_TRADE_ITEM))
     {
         if (m_itemTarget)
             data << m_itemTarget->GetPackGUID();
@@ -313,10 +313,10 @@ void SpellCastTargets::write(ByteBuffer& data) const
         data << m_strTarget;
 }
 
-Spell::Spell(Unit* caster, SpellEntry const *info, bool triggered, ObjectGuid originalCasterGUID, SpellEntry const* triggeredBy)
+Spell::Spell( Unit* caster, SpellEntry const *info, bool triggered, ObjectGuid originalCasterGUID, SpellEntry const* triggeredBy)
 {
-    MANGOS_ASSERT(caster != NULL && info != NULL);
-    MANGOS_ASSERT(info == sSpellStore.LookupEntry(info->Id) && "`info` must be pointer to sSpellStore element");
+    MANGOS_ASSERT( caster != NULL && info != NULL);
+    MANGOS_ASSERT( info == sSpellStore.LookupEntry( info->Id) && "`info` must be pointer to sSpellStore element");
 
     if (info->SpellDifficultyId && caster->GetTypeId() != TYPEID_PLAYER && caster->IsInWorld() && caster->GetMap()->IsDungeon())
     {
@@ -696,8 +696,8 @@ void Spell::prepareDataForTriggerSystem()
 {
     //==========================================================================================
     // Now fill data for trigger system, need know:
-    // an spell trigger another or not (m_canTrigger)
-    // Create base triggers flags for Attacker and Victim (m_procAttacker and  m_procVictim)
+    // an spell trigger another or not ( m_canTrigger)
+    // Create base triggers flags for Attacker and Victim ( m_procAttacker and  m_procVictim)
     //==========================================================================================
     // Fill flag can spell trigger or not
     // TODO: possible exist spell attribute for this
@@ -2854,10 +2854,10 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 if (st->target_mapId == m_caster->GetMapId())
                     m_targets.setDestination(st->target_X, st->target_Y, st->target_Z);
                 else
-                    sLog.outError("SPELL: wrong map (%u instead %u) target coordinates for spell ID %u", st->target_mapId, m_caster->GetMapId(), m_spellInfo->Id);
+                    sLog.outError( "SPELL: wrong map (%u instead %u) target coordinates for spell ID %u", st->target_mapId, m_caster->GetMapId(), m_spellInfo->Id);
             }
             else
-                sLog.outError("SPELL: unknown target coordinates for spell ID %u", m_spellInfo->Id);
+                sLog.outError( "SPELL: unknown target coordinates for spell ID %u", m_spellInfo->Id);
             break;
         }
         case TARGET_INFRONT_OF_VICTIM:
@@ -3140,7 +3140,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             break;
         }
         default:
-            //sLog.outError("SPELL: Unknown implicit target (%u) for spell ID %u", targetMode, m_spellInfo->Id);
+            //sLog.outError( "SPELL: Unknown implicit target (%u) for spell ID %u", targetMode, m_spellInfo->Id);
             break;
     }
 
@@ -3255,7 +3255,7 @@ void Spell::prepare(SpellCastTargets const* targets, Aura* triggeredByAura)
     if (!m_IsTriggeredSpell)
     {
         // add to cast type slot
-        m_caster->SetCurrentCastedSpell(this);
+        m_caster->SetCurrentCastedSpell( this);
 
         // will show cast bar
         SendSpellStart();
@@ -4270,7 +4270,7 @@ void Spell::WriteAmmoToPacket(WorldPacket* data)
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
     {
-        Item *pItem = ((Player*)m_caster)->GetWeaponForAttack(RANGED_ATTACK);
+        Item *pItem = ((Player*)m_caster)->GetWeaponForAttack( RANGED_ATTACK);
         if (pItem)
         {
             ammoInventoryType = pItem->GetProto()->InventoryType;
@@ -4281,7 +4281,7 @@ void Spell::WriteAmmoToPacket(WorldPacket* data)
                 uint32 ammoID = ((Player*)m_caster)->GetUInt32Value(PLAYER_AMMO_ID);
                 if (ammoID)
                 {
-                    ItemPrototype const *pProto = ObjectMgr::GetItemPrototype(ammoID);
+                    ItemPrototype const *pProto = ObjectMgr::GetItemPrototype( ammoID);
                     if (pProto)
                     {
                         ammoDisplayID = pProto->DisplayInfoID;
@@ -4524,7 +4524,7 @@ void Spell::SendChannelUpdate(uint32 time)
         m_caster->SetUInt32Value(UNIT_CHANNEL_SPELL, 0);
     }
 
-    WorldPacket data(MSG_CHANNEL_UPDATE, 8+4);
+    WorldPacket data( MSG_CHANNEL_UPDATE, 8+4);
     data << m_caster->GetPackGUID();
     data << uint32(time);
     m_caster->SendMessageToSet(&data, true);
@@ -4562,7 +4562,7 @@ void Spell::SendChannelStart(uint32 duration)
         }
     }
 
-    WorldPacket data(MSG_CHANNEL_START, (8+4+4));
+    WorldPacket data( MSG_CHANNEL_START, (8+4+4));
     data << m_caster->GetPackGUID();
     data << uint32(m_spellInfo->Id);
     data << uint32(duration);
@@ -4676,7 +4676,7 @@ void Spell::TakePower()
     // health as power used
     if (m_spellInfo->powerType == POWER_HEALTH)
     {
-        m_caster->ModifyHealth(-(int32)m_powerCost);
+        m_caster->ModifyHealth( -(int32)m_powerCost);
         return;
     }
 
@@ -4941,7 +4941,7 @@ void Spell::HandleEffects(Unit *pUnitTarget, Item *pItemTarget, GameObject *pGOT
         m_damageIndex = i;
 }
 
-void Spell::AddTriggeredSpell(uint32 spellId)
+void Spell::AddTriggeredSpell( uint32 spellId)
 {
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
 
@@ -4954,7 +4954,7 @@ void Spell::AddTriggeredSpell(uint32 spellId)
     m_TriggerSpells.push_back(spellInfo);
 }
 
-void Spell::AddPrecastSpell(uint32 spellId)
+void Spell::AddPrecastSpell( uint32 spellId)
 {
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
 
@@ -5769,7 +5769,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                     return SPELL_FAILED_TARGET_UNSKINNABLE;
 
                 Creature* creature = (Creature*)m_targets.getUnitTarget();
-                if (creature->GetCreatureType() != CREATURE_TYPE_CRITTER && (!creature->lootForBody || creature->lootForSkin || !creature->loot.empty()))
+                if (creature->GetCreatureType() != CREATURE_TYPE_CRITTER && ( !creature->lootForBody || creature->lootForSkin || !creature->loot.empty()))
                 {
                     return SPELL_FAILED_TARGET_NOT_LOOTED;
                 }
@@ -6472,7 +6472,7 @@ bool Spell::CanAutoCast(Unit* target)
                         return false;
             }
         }
-        else if (IsAreaAuraEffect(m_spellInfo->Effect[j]))
+        else if (IsAreaAuraEffect( m_spellInfo->Effect[j]))
         {
                 if (target->HasAura(m_spellInfo->Id, SpellEffectIndex(j)))
                     return false;
@@ -6548,7 +6548,7 @@ SpellCastResult Spell::CheckRange(bool strict)
         if (min_range && dist < min_range)
             return SPELL_FAILED_TOO_CLOSE;
         if (m_caster->GetTypeId() == TYPEID_PLAYER &&
-            (m_spellInfo->FacingCasterFlags & SPELL_FACING_FLAG_INFRONT) && !m_caster->HasInArc(M_PI_F, target))
+            (m_spellInfo->FacingCasterFlags & SPELL_FACING_FLAG_INFRONT) && !m_caster->HasInArc( M_PI_F, target))
             return SPELL_FAILED_UNIT_NOT_INFRONT;
     }
 
@@ -6562,7 +6562,7 @@ SpellCastResult Spell::CheckRange(bool strict)
         if (min_range && dist < min_range)
             return SPELL_FAILED_TOO_CLOSE;
         if (m_caster->GetTypeId() == TYPEID_PLAYER &&
-            (m_spellInfo->FacingCasterFlags & SPELL_FACING_FLAG_INFRONT) && !m_caster->HasInArc(M_PI_F, pGoTarget))
+            (m_spellInfo->FacingCasterFlags & SPELL_FACING_FLAG_INFRONT) && !m_caster->HasInArc( M_PI_F, pGoTarget))
             return SPELL_FAILED_NOT_INFRONT;
     }
 
@@ -6948,7 +6948,7 @@ SpellCastResult Spell::CheckItems()
                     InventoryResult msg = p_caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, m_spellInfo->EffectItemType[i], 1);
                     if (msg != EQUIP_ERR_OK)
                     {
-                        p_caster->SendEquipError(msg, NULL, NULL, m_spellInfo->EffectItemType[i]);
+                        p_caster->SendEquipError( msg, NULL, NULL, m_spellInfo->EffectItemType[i]);
                         return SPELL_FAILED_DONT_REPORT;
                     }
                 }
@@ -6975,10 +6975,10 @@ SpellCastResult Spell::CheckItems()
                 if (isVellumTarget && m_spellInfo->EffectItemType[i])
                 {
                     ItemPosCountVec dest;
-                    InventoryResult msg = p_caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, m_spellInfo->EffectItemType[i], 1);
+                    InventoryResult msg = p_caster->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, m_spellInfo->EffectItemType[i], 1);
                     if (msg != EQUIP_ERR_OK)
                     {
-                        p_caster->SendEquipError(msg, NULL, NULL);
+                        p_caster->SendEquipError( msg, NULL, NULL);
                         return SPELL_FAILED_DONT_REPORT;
                     }
                 }
@@ -7101,7 +7101,7 @@ SpellCastResult Spell::CheckItems()
                     case ITEM_SUBCLASS_WEAPON_THROWN:
                     {
                         uint32 ammo = pItem->GetEntry();
-                        if (!((Player*)m_caster)->HasItemCount(ammo, 1))
+                        if (!((Player*)m_caster)->HasItemCount( ammo, 1))
                             return SPELL_FAILED_NO_AMMO;
                     };  break;
                     case ITEM_SUBCLASS_WEAPON_GUN:
@@ -7118,7 +7118,7 @@ SpellCastResult Spell::CheckItems()
                             return SPELL_FAILED_NO_AMMO;
                         }
 
-                        ItemPrototype const *ammoProto = ObjectMgr::GetItemPrototype(ammo);
+                        ItemPrototype const *ammoProto = ObjectMgr::GetItemPrototype( ammo);
                         if (!ammoProto)
                             return SPELL_FAILED_NO_AMMO;
 
@@ -7141,7 +7141,7 @@ SpellCastResult Spell::CheckItems()
                                 return SPELL_FAILED_NO_AMMO;
                         }
 
-                        if (!((Player*)m_caster)->HasItemCount(ammo, 1))
+                        if (!((Player*)m_caster)->HasItemCount( ammo, 1))
                             return SPELL_FAILED_NO_AMMO;
                     };  break;
                     case ITEM_SUBCLASS_WEAPON_WAND:
@@ -7169,7 +7169,7 @@ void Spell::Delayed()
     if (isDelayableNoMore())                                 // Spells may only be delayed twice
         return;
 
-    // spells not loosing casting time (slam, dynamites, bombs..)
+    // spells not loosing casting time ( slam, dynamites, bombs..)
     if (!(m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_DAMAGE))
         return;
 
@@ -7313,7 +7313,7 @@ CurrentSpellTypes Spell::GetCurrentContainer()
         return(CURRENT_GENERIC_SPELL);
 }
 
-bool Spell::CheckTarget(Unit* target, SpellEffectIndex eff)
+bool Spell::CheckTarget( Unit* target, SpellEffectIndex eff)
 {
     // Check targets for creature type mask and remove not appropriate (skip explicit self target case, maybe need other explicit targets)
     if (m_spellInfo->EffectImplicitTargetA[eff] != TARGET_SELF)

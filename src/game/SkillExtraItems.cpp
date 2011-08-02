@@ -114,7 +114,7 @@ void LoadSkillExtraItemTable()
     else
     {
         sLog.outString();
-        sLog.outString(">> Loaded 0 spell specialization definitions. DB table `skill_extra_item_template` is empty.");
+        sLog.outString( ">> Loaded 0 spell specialization definitions. DB table `skill_extra_item_template` is empty.");
     }
 }
 

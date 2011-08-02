@@ -383,7 +383,7 @@ uint32 Group::RemoveMember(ObjectGuid guid, uint8 method)
     {
         bool leaderChanged = _removeMember(guid);
 
-        if (Player *player = sObjectMgr.GetPlayer(guid))
+        if (Player *player = sObjectMgr.GetPlayer( guid))
         {
             // quest related GO state dependent from raid membership
             if (isRaidGroup())
@@ -393,8 +393,8 @@ uint32 Group::RemoveMember(ObjectGuid guid, uint8 method)
 
             if (method == 1)
             {
-                data.Initialize(SMSG_GROUP_UNINVITE, 0);
-                player->GetSession()->SendPacket(&data);
+                data.Initialize( SMSG_GROUP_UNINVITE, 0);
+                player->GetSession()->SendPacket( &data);
             }
 
             //we already removed player from group and in player->GetGroup() is his original group!
@@ -554,7 +554,7 @@ void Group::SendLootStartRoll(uint32 CountDown, uint32 mapid, const Roll &r)
         RollVoteMask mask = r.GetVoteMaskFor(p);
         data.put<uint8>(voteMaskPos,uint8(mask));
 
-        p->GetSession()->SendPacket(&data);
+        p->GetSession()->SendPacket( &data);
     }
 }
 
@@ -571,14 +571,14 @@ void Group::SendLootRoll(ObjectGuid const& targetGuid, uint8 rollNumber, uint8 r
     data << uint8(rollType);                                // 0: "Need for: [item name]" 0: "You have selected need for [item name] 1: need roll 2: greed roll
     data << uint8(0);                                       // auto pass on loot
 
-    for (Roll::PlayerVote::const_iterator itr = r.playerVote.begin(); itr != r.playerVote.end(); ++itr)
+    for ( Roll::PlayerVote::const_iterator itr = r.playerVote.begin(); itr != r.playerVote.end(); ++itr)
     {
         Player *p = sObjectMgr.GetPlayer(itr->first);
         if (!p || !p->GetSession())
             continue;
 
         if (itr->second != ROLL_NOT_VALID)
-            p->GetSession()->SendPacket(&data);
+            p->GetSession()->SendPacket( &data);
     }
 }
 
@@ -601,7 +601,7 @@ void Group::SendLootRollWon(ObjectGuid const& targetGuid, uint8 rollNumber, Roll
             continue;
 
         if (itr->second != ROLL_NOT_VALID)
-            p->GetSession()->SendPacket(&data);
+            p->GetSession()->SendPacket( &data);
     }
 }
 
@@ -621,7 +621,7 @@ void Group::SendLootAllPassed(Roll const& r)
             continue;
 
         if (itr->second != ROLL_NOT_VALID)
-            p->GetSession()->SendPacket(&data);
+            p->GetSession()->SendPacket( &data);
     }
 }
 
@@ -883,14 +883,14 @@ void Group::CountTheRoll(Rolls::iterator& rollI)
 
                 ItemPosCountVec dest;
                 LootItem *item = &(roll->getLoot()->items[roll->itemSlot]);
-                InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, roll->itemid, item->count);
+                InventoryResult msg = player->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, roll->itemid, item->count);
                 if (msg == EQUIP_ERR_OK)
                 {
                     item->is_looted = true;
                     roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                     --roll->getLoot()->unlootedCount;
                     AllowedLooterSet* looters = item->GetAllowedLooters();
-                    player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, (looters->size() > 1) ? looters : NULL);
+                    player->StoreNewItem( dest, roll->itemid, true, item->randomPropertyId, (looters->size() > 1) ? looters : NULL);
                     player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, roll->itemid, item->count);
                     player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, roll->getLoot()->loot_type, item->count);
                     player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, roll->itemid, item->count);
@@ -898,7 +898,7 @@ void Group::CountTheRoll(Rolls::iterator& rollI)
                 else
                 {
                     item->is_blocked = false;
-                    player->SendEquipError(msg, NULL, NULL, roll->itemid);
+                    player->SendEquipError( msg, NULL, NULL, roll->itemid);
                 }
             }
         }
@@ -939,14 +939,14 @@ void Group::CountTheRoll(Rolls::iterator& rollI)
                 if (rollvote == ROLL_GREED)
                 {
                     ItemPosCountVec dest;
-                    InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, roll->itemid, item->count);
+                    InventoryResult msg = player->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, roll->itemid, item->count);
                     if (msg == EQUIP_ERR_OK)
                     {
                         item->is_looted = true;
                         roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                         --roll->getLoot()->unlootedCount;
                         AllowedLooterSet* looters = item->GetAllowedLooters();
-                        player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, (looters->size() > 1) ? looters : NULL);
+                        player->StoreNewItem( dest, roll->itemid, true, item->randomPropertyId, (looters->size() > 1) ? looters : NULL);
                         player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, roll->itemid, item->count);
                         player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, roll->getLoot()->loot_type, item->count);
                         player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, roll->itemid, item->count);
@@ -954,7 +954,7 @@ void Group::CountTheRoll(Rolls::iterator& rollI)
                     else
                     {
                         item->is_blocked = false;
-                        player->SendEquipError(msg, NULL, NULL, roll->itemid);
+                        player->SendEquipError( msg, NULL, NULL, roll->itemid);
                     }
                 }
                 else if (rollvote == ROLL_DISENCHANT)
@@ -1109,7 +1109,7 @@ void Group::SendUpdate()
             data << uint8(m_raidDifficulty);                // Raid Difficulty
             data << uint8(0);                               // 3.3, dynamic difficulty?
         }
-        player->GetSession()->SendPacket(&data);
+        player->GetSession()->SendPacket( &data);
     }
 }
 
@@ -1530,7 +1530,7 @@ void Group::ChangeMembersGroup(Player *player, uint8 group)
     }
 }
 
-uint32 Group::GetMaxSkillValueForGroup(SkillType skill)
+uint32 Group::GetMaxSkillValueForGroup( SkillType skill)
 {
     uint32 maxvalue = 0;
 
@@ -1548,7 +1548,7 @@ uint32 Group::GetMaxSkillValueForGroup(SkillType skill)
     return maxvalue;
 }
 
-void Group::UpdateLooterGuid(WorldObject* object, bool ifneed)
+void Group::UpdateLooterGuid( WorldObject* object, bool ifneed)
 {
     switch (GetLootMethod())
     {
