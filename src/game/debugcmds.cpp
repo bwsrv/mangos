@@ -768,7 +768,7 @@ bool ChatHandler::HandleSetValueHelper(Object* target, uint32 field, char* typeS
             return false;
 
         DEBUG_LOG(GetMangosString(LANG_SET_FLOAT), guid.GetString().c_str(), field, fValue);
-        target->SetFloatValue(field , fValue );
+        target->SetFloatValue(field , fValue);
         PSendSysMessage(LANG_SET_FLOAT_FIELD, guid.GetString().c_str(), field, fValue);
     }
 
@@ -929,7 +929,7 @@ bool ChatHandler::HandleDebugGetValueCommand(char* args)
     return HandleGetValueHelper(target, field, typeStr);
 }
 
-bool ChatHandler::HandlerDebugModValueHelper( Object* target, uint32 field, char* typeStr, char* valStr )
+bool ChatHandler::HandlerDebugModValueHelper( Object* target, uint32 field, char* typeStr, char* valStr)
 {
     ObjectGuid guid = target->GetObjectGuid();
 
@@ -1078,7 +1078,7 @@ bool ChatHandler::HandleDebugSpellCoefsCommand(char* args)
     {
         // Heals (Also count Mana Shield and Absorb effects as heals)
         if (spellEntry->Effect[i] == SPELL_EFFECT_HEAL || spellEntry->Effect[i] == SPELL_EFFECT_HEAL_MAX_HEALTH ||
-            (spellEntry->Effect[i] == SPELL_EFFECT_APPLY_AURA && (spellEntry->EffectApplyAuraName[i] == SPELL_AURA_SCHOOL_ABSORB || spellEntry->EffectApplyAuraName[i] == SPELL_AURA_PERIODIC_HEAL)) )
+            (spellEntry->Effect[i] == SPELL_EFFECT_APPLY_AURA && (spellEntry->EffectApplyAuraName[i] == SPELL_AURA_SCHOOL_ABSORB || spellEntry->EffectApplyAuraName[i] == SPELL_AURA_PERIODIC_HEAL)))
         {
             isDirectHeal = true;
             break;

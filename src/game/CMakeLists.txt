@@ -90,7 +90,7 @@ if (UNIX)
   if (NOT (CMAKE_SYSTEM_NAME STREQUAL "FreeBSD" OR CMAKE_SYSTEM_NAME STREQUAL "NetBSD"))
     target_link_libraries(game
       dl
-    )
+   )
   endif ()
 endif ()
 

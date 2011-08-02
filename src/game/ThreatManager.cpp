@@ -142,7 +142,7 @@ void HostileReference::updateOnlineStatus()
         ((getTarget()->GetTypeId() != TYPEID_PLAYER || !((Player*)getTarget())->isGameMaster()) ||
         !getTarget()->IsTaxiFlying()))
     {
-        Creature* creature = (Creature* ) getSourceUnit();
+        Creature* creature = (Creature*) getSourceUnit();
         online = getTarget()->isInAccessablePlaceFor(creature);
         if (!online)
         {
@@ -425,11 +425,11 @@ void ThreatManager::addThreat(Unit* pVictim, float pThreat, bool crit, SpellScho
         return;
 
     // not to GM
-    if (!pVictim || (pVictim->GetTypeId() == TYPEID_PLAYER && ((Player*)pVictim)->isGameMaster()) )
+    if (!pVictim || (pVictim->GetTypeId() == TYPEID_PLAYER && ((Player*)pVictim)->isGameMaster()))
         return;
 
     // not to dead and not for dead
-    if (!pVictim->isAlive() || !getOwner()->isAlive() )
+    if (!pVictim->isAlive() || !getOwner()->isAlive())
         return;
 
     MANGOS_ASSERT(getOwner()->GetTypeId()== TYPEID_UNIT);

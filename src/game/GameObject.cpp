@@ -113,7 +113,7 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMa
 
     if (!IsPositionValid())
     {
-        sLog.outError("Gameobject (GUID: %u Entry: %u ) not created. Suggested coordinates are invalid (X: %f Y: %f)",guidlow,name_id,x,y);
+        sLog.outError("Gameobject (GUID: %u Entry: %u) not created. Suggested coordinates are invalid (X: %f Y: %f)",guidlow,name_id,x,y);
         return false;
     }
 
@@ -685,7 +685,7 @@ bool GameObject::LoadFromDB(uint32 guid, Map *map)
 {
     GameObjectData const* data = sObjectMgr.GetGOData(guid);
 
-    if ( !data )
+    if (!data)
     {
         sLog.outErrorDb("Gameobject (GUID: %u) not found in table `gameobject`, can't load. ",guid);
         return false;
@@ -707,7 +707,7 @@ bool GameObject::LoadFromDB(uint32 guid, Map *map)
     uint8 animprogress = data->animprogress;
     GOState go_state = data->go_state;
 
-    if (!Create(guid,entry, map, phaseMask, x, y, z, ang, rotation0, rotation1, rotation2, rotation3, animprogress, go_state) )
+    if (!Create(guid,entry, map, phaseMask, x, y, z, ang, rotation0, rotation1, rotation2, rotation3, animprogress, go_state))
         return false;
 
     if (!GetGOInfo()->GetDespawnPossibility() && !GetGOInfo()->IsDespawnAtAction() && data->spawntimesecs >= 0)
@@ -1895,7 +1895,7 @@ void GameObject::Use(Unit* user)
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
     if (!spellInfo)
     {
-        sLog.outError("WORLD: unknown spell id %u at use action for gameobject (Entry: %u GoType: %u )", spellId,GetEntry(),GetGoType());
+        sLog.outError("WORLD: unknown spell id %u at use action for gameobject (Entry: %u GoType: %u)", spellId,GetEntry(),GetGoType());
         return;
     }
 
@@ -2094,7 +2094,7 @@ void GameObject::SetTransportPathRotation(float qx, float qy, float qz, float qw
 
 void GameObject::SetWorldRotationAngles(float z_rot, float y_rot, float x_rot)
 {
-    Quat quat( G3D::Matrix3::fromEulerAnglesZYX(z_rot, y_rot, x_rot) );
+    Quat quat( G3D::Matrix3::fromEulerAnglesZYX(z_rot, y_rot, x_rot));
     SetWorldRotation(quat.x, quat.y, quat.z, quat.w);
 }
 
@@ -2132,7 +2132,7 @@ bool GameObject::IsHostileTo(Unit const* unit) const
 
             // apply reputation state
             FactionEntry const* raw_tester_faction = sFactionStore.LookupEntry(tester_faction->faction);
-            if (raw_tester_faction && raw_tester_faction->reputationListID >=0 )
+            if (raw_tester_faction && raw_tester_faction->reputationListID >=0)
                 return ((Player const*)unit)->GetReputationMgr().GetRank(raw_tester_faction) <= REP_HOSTILE;
         }
     }
@@ -2175,7 +2175,7 @@ bool GameObject::IsFriendlyTo(Unit const* unit) const
 
             // apply reputation state
             if (FactionEntry const* raw_tester_faction = sFactionStore.LookupEntry(tester_faction->faction))
-                if (raw_tester_faction->reputationListID >=0 )
+                if (raw_tester_faction->reputationListID >=0)
                     return ((Player const*)unit)->GetReputationMgr().GetRank(raw_tester_faction) >= REP_FRIENDLY;
         }
     }

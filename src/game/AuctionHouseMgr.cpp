@@ -569,7 +569,7 @@ void AuctionHouseObject::Update()
 {
     time_t curTime = sWorld.GetGameTime();
     ///- Handle expired auctions
-    for (AuctionEntryMap::iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); )
+    for (AuctionEntryMap::iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end();)
     {
         if (itr->second->moneyDeliveryTime)                 // pending auction
         {

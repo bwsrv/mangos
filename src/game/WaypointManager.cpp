@@ -70,7 +70,7 @@ void WaypointManager::Load()
         BarGoLink bar(1);
         bar.step();
         sLog.outString();
-        sLog.outString( ">> Loaded 0 paths. DB table `creature_movement` is empty." );
+        sLog.outString( ">> Loaded 0 paths. DB table `creature_movement` is empty.");
     }
     else
     {
@@ -91,7 +91,7 @@ void WaypointManager::Load()
         while(result->NextRow());
 
         sLog.outString();
-        sLog.outString( ">> Paths loaded" );
+        sLog.outString( ">> Paths loaded");
 
         delete result;
 
@@ -231,7 +231,7 @@ void WaypointManager::Load()
         }
 
         sLog.outString();
-        sLog.outString( ">> Waypoints and behaviors loaded" );
+        sLog.outString( ">> Waypoints and behaviors loaded");
         sLog.outString();
         sLog.outString( ">>> Loaded %u paths, %u nodes and %u behaviors", total_paths, total_nodes, total_behaviors);
 
@@ -246,7 +246,7 @@ void WaypointManager::Load()
         BarGoLink bar(1);
         bar.step();
         sLog.outString();
-        sLog.outString( ">> Loaded 0 path templates. DB table `creature_movement_template` is empty." );
+        sLog.outString( ">> Loaded 0 path templates. DB table `creature_movement_template` is empty.");
     }
     else
     {
@@ -382,7 +382,7 @@ void WaypointManager::Load()
         delete result;
 
         sLog.outString();
-        sLog.outString( ">> Waypoint templates loaded" );
+        sLog.outString( ">> Waypoint templates loaded");
         sLog.outString();
         sLog.outString( ">>> Loaded %u path templates with %u nodes and %u behaviors", total_paths, total_nodes, total_behaviors);
     }
@@ -475,7 +475,7 @@ uint32 WaypointManager::GetLastPoint(uint32 id, uint32 default_notfound)
 {
     uint32 point = default_notfound;
     /*QueryResult *result = WorldDatabase.PQuery( "SELECT MAX(point) FROM creature_movement WHERE id = '%u'", id);
-    if ( result )
+    if (result)
     {
         point = (*result)[0].GetUInt32()+1;
         delete result;

@@ -140,9 +140,9 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
     {
         ItemPosCountVec traderDst;
         ItemPosCountVec playerDst;
-        bool traderCanTrade = (myItems[i]==NULL || trader->CanStoreItem( NULL_BAG, NULL_SLOT, traderDst, myItems[i], false ) == EQUIP_ERR_OK);
-        bool playerCanTrade = (hisItems[i]==NULL || _player->CanStoreItem( NULL_BAG, NULL_SLOT, playerDst, hisItems[i], false ) == EQUIP_ERR_OK);
-        if (traderCanTrade && playerCanTrade )
+        bool traderCanTrade = (myItems[i]==NULL || trader->CanStoreItem( NULL_BAG, NULL_SLOT, traderDst, myItems[i], false) == EQUIP_ERR_OK);
+        bool playerCanTrade = (hisItems[i]==NULL || _player->CanStoreItem( NULL_BAG, NULL_SLOT, playerDst, hisItems[i], false) == EQUIP_ERR_OK);
+        if (traderCanTrade && playerCanTrade)
         {
             // Ok, if trade item exists and can be stored
             // If we trade in both directions we had to check, if the trade will work before we actually do it
@@ -191,7 +191,7 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
             {
                 if (!traderCanTrade)
                     sLog.outError("trader can't store item: %s", myItems[i]->GetGuidStr().c_str());
-                if (_player->CanStoreItem( NULL_BAG, NULL_SLOT, playerDst, myItems[i], false ) == EQUIP_ERR_OK)
+                if (_player->CanStoreItem( NULL_BAG, NULL_SLOT, playerDst, myItems[i], false) == EQUIP_ERR_OK)
                     _player->MoveItemToInventory(playerDst, myItems[i], true, true);
                 else
                     sLog.outError("player can't take item back: %s", myItems[i]->GetGuidStr().c_str());
@@ -201,7 +201,7 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
             {
                 if (!playerCanTrade)
                     sLog.outError("player can't store item: %s", hisItems[i]->GetGuidStr().c_str());
-                if (trader->CanStoreItem( NULL_BAG, NULL_SLOT, traderDst, hisItems[i], false ) == EQUIP_ERR_OK)
+                if (trader->CanStoreItem( NULL_BAG, NULL_SLOT, traderDst, hisItems[i], false) == EQUIP_ERR_OK)
                     trader->MoveItemToInventory(traderDst, hisItems[i], true, true);
                 else
                     sLog.outError("trader can't take item back: %s", hisItems[i]->GetGuidStr().c_str());
@@ -286,7 +286,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& recvPacket)
     // not accept case incorrect money amount
     if (his_trade->GetMoney() > trader->GetMoney())
     {
-        trader->GetSession( )->SendNotification(LANG_NOT_ENOUGH_GOLD);
+        trader->GetSession()->SendNotification(LANG_NOT_ENOUGH_GOLD);
         his_trade->SetAccepted(false, true);
         return;
     }
@@ -406,8 +406,8 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& recvPacket)
         trader->GetSession()->SendTradeStatus(TRADE_STATUS_TRADE_ACCEPT);
 
         // test if item will fit in each inventory
-        hisCanCompleteTrade =  (trader->CanStoreItems( myItems,TRADE_SLOT_TRADED_COUNT )== EQUIP_ERR_OK);
-        myCanCompleteTrade = (_player->CanStoreItems( hisItems,TRADE_SLOT_TRADED_COUNT ) == EQUIP_ERR_OK);
+        hisCanCompleteTrade =  (trader->CanStoreItems( myItems,TRADE_SLOT_TRADED_COUNT)== EQUIP_ERR_OK);
+        myCanCompleteTrade = (_player->CanStoreItems( hisItems,TRADE_SLOT_TRADED_COUNT) == EQUIP_ERR_OK);
 
         clearAcceptTradeMode(myItems, hisItems);
 
@@ -417,7 +417,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& recvPacket)
             clearAcceptTradeMode(my_trade, his_trade);
 
             SendNotification(LANG_NOT_FREE_TRADE_SLOTS);
-            trader->GetSession( )->SendNotification(LANG_NOT_PARTNER_FREE_TRADE_SLOTS);
+            trader->GetSession()->SendNotification(LANG_NOT_PARTNER_FREE_TRADE_SLOTS);
             my_trade->SetAccepted(false);
             his_trade->SetAccepted(false);
             return;
@@ -471,9 +471,9 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& recvPacket)
         }
 
         // update money
-        _player->ModifyMoney( -int32(my_trade->GetMoney()) );
+        _player->ModifyMoney( -int32(my_trade->GetMoney()));
         _player->ModifyMoney(his_trade->GetMoney());
-        trader->ModifyMoney( -int32(his_trade->GetMoney()) );
+        trader->ModifyMoney( -int32(his_trade->GetMoney()));
         trader->ModifyMoney(my_trade->GetMoney());
 
         if (my_spell)
@@ -570,7 +570,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    Player* pOther = ObjectAccessor::FindPlayer( otherGuid );
+    Player* pOther = ObjectAccessor::FindPlayer( otherGuid);
 
     if (!pOther)
     {
@@ -615,7 +615,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
     }
 
     // Frozen Mod
-    /* if (pOther->GetTeam() !=_player->GetTeam() )
+    /* if (pOther->GetTeam() !=_player->GetTeam())
     {
         SendTradeStatus(TRADE_STATUS_WRONG_FACTION);
         return;

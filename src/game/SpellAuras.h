@@ -390,7 +390,7 @@ class MANGOS_DLL_SPEC Aura
         int32 GetMiscBValue() const { return m_spellAuraHolder->GetSpellProto()->EffectMiscValueB[m_effIndex]; }
 
         SpellEntry const* GetSpellProto() const { return ( GetHolder() ? GetHolder()->GetSpellProto() : NULL); }
-        uint32 GetId() const{ return ( GetHolder() ? GetHolder()->GetSpellProto()->Id : 0 ); }
+        uint32 GetId() const{ return ( GetHolder() ? GetHolder()->GetSpellProto()->Id : 0); }
         ObjectGuid const& GetCastItemGuid() const { return GetHolder()->GetCastItemGuid(); }
         ObjectGuid const& GetCasterGuid() const { return GetHolder()->GetCasterGuid(); }
         Unit* GetCaster() const { return ( GetHolder() ? GetHolder()->GetCaster() : NULL); }

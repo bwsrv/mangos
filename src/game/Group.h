@@ -125,13 +125,13 @@ enum GroupFlagMask
     // unions
     GROUP_MEMBER_AMT     = ( GROUP_ASSISTANT   |
                              GROUP_MAIN_ASSISTANT |
-                             GROUP_MAIN_TANK      ),
+                             GROUP_MAIN_TANK     ),
     GROUP_MEMBER_AT      = ( GROUP_ASSISTANT   |
-                             GROUP_MAIN_TANK      ),
+                             GROUP_MAIN_TANK     ),
     GROUP_MEMBER_AM      = ( GROUP_ASSISTANT   |
-                             GROUP_MAIN_ASSISTANT ),
+                             GROUP_MAIN_ASSISTANT),
     GROUP_MEMBER_MT      = ( GROUP_MAIN_ASSISTANT |
-                             GROUP_MAIN_TANK      ),
+                             GROUP_MAIN_TANK     ),
 
 };
 
@@ -256,7 +256,7 @@ class MANGOS_DLL_SPEC Group
         void   ChangeLeader(ObjectGuid guid);
         void   SetLootMethod(LootMethod method) { m_lootMethod = method; }
         void   SetLooterGuid(ObjectGuid guid) { m_looterGuid = guid; }
-        void   UpdateLooterGuid(WorldObject* object, bool ifneed = false );
+        void   UpdateLooterGuid(WorldObject* object, bool ifneed = false);
         void   SetLootThreshold(ItemQualities threshold) { m_lootThreshold = threshold; }
         void   Disband(bool hideDestroy=false);
 
@@ -363,7 +363,7 @@ class MANGOS_DLL_SPEC Group
         void EndRoll();
 
         void LinkMember(GroupReference *pRef) { m_memberMgr.insertFirst(pRef); }
-        void DelinkMember(GroupReference* /*pRef*/ ) { }
+        void DelinkMember(GroupReference* /*pRef*/) { }
 
         InstanceGroupBind* BindToInstance(DungeonPersistentState *save, bool permanent, bool load = false);
         void UnbindInstance(uint32 mapid, uint8 difficulty, bool unload = false);

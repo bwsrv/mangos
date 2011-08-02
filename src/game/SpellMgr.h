@@ -82,7 +82,7 @@ SpellSpecific GetSpellSpecific(uint32 spellId);
 // Different spell properties
 inline float GetSpellRadius(SpellRadiusEntry const *radius) { return (radius ? radius->Radius : 0); }
 uint32 GetSpellCastTime(SpellEntry const* spellInfo, Spell const* spell = NULL);
-uint32 GetSpellCastTimeForBonus( SpellEntry const *spellProto, DamageEffectType damagetype );
+uint32 GetSpellCastTimeForBonus( SpellEntry const *spellProto, DamageEffectType damagetype);
 float CalculateDefaultCoefficient(SpellEntry const *spellProto, DamageEffectType const damagetype);
 inline float GetSpellMinRange(SpellRangeEntry const *range, bool friendly = false)
 {
@@ -278,7 +278,7 @@ bool IsSingleTargetSpells(SpellEntry const *spellInfo1, SpellEntry const *spellI
 
 inline bool IsCasterSourceTarget(uint32 target)
 {
-    switch (target )
+    switch (target)
     {
         case TARGET_SELF:
         case TARGET_PET:
@@ -324,9 +324,9 @@ inline bool IsSpellWithCasterSourceTargetsOnly(SpellEntry const* spellInfo)
     return true;
 }
 
-inline bool IsPointEffectTarget( Targets target )
+inline bool IsPointEffectTarget( Targets target)
 {
-    switch (target )
+    switch (target)
     {
         case TARGET_INNKEEPER_COORDINATES:
         case TARGET_TABLE_X_Y_Z_COORDINATES:
@@ -350,9 +350,9 @@ inline bool IsPointEffectTarget( Targets target )
     return false;
 }
 
-inline bool IsAreaEffectPossitiveTarget( Targets target )
+inline bool IsAreaEffectPossitiveTarget( Targets target)
 {
-    switch (target )
+    switch (target)
     {
         case TARGET_ALL_PARTY_AROUND_CASTER:
         case TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER:
@@ -369,9 +369,9 @@ inline bool IsAreaEffectPossitiveTarget( Targets target )
     return false;
 }
 
-inline bool IsAreaEffectTarget( Targets target )
+inline bool IsAreaEffectTarget( Targets target)
 {
-    switch (target )
+    switch (target)
     {
         case TARGET_AREAEFFECT_INSTANT:
         case TARGET_AREAEFFECT_CUSTOM:
@@ -409,7 +409,7 @@ inline bool IsAreaOfEffectSpell(SpellEntry const *spellInfo)
 
 inline bool IsAreaAuraEffect(uint32 effect)
 {
-    if ( effect == SPELL_EFFECT_APPLY_AREA_AURA_PARTY    ||
+    if (effect == SPELL_EFFECT_APPLY_AREA_AURA_PARTY    ||
         effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID     ||
         effect == SPELL_EFFECT_APPLY_AREA_AURA_FRIEND   ||
         effect == SPELL_EFFECT_APPLY_AREA_AURA_ENEMY    ||
@@ -801,7 +801,7 @@ struct SpellArea
     uint32 areaId;                                          // zone/subzone/or 0 is not limited to zone
     uint32 questStart;                                      // quest start (quest must be active or rewarded for spell apply)
     uint32 questEnd;                                        // quest end (quest don't must be rewarded for spell apply)
-    int32  auraSpell;                                       // spell aura must be applied for spell apply )if possitive) and it don't must be applied in other case
+    int32  auraSpell;                                       // spell aura must be applied for spell apply)if possitive) and it don't must be applied in other case
     uint32 raceMask;                                        // can be applied only to races
     Gender gender;                                          // can be applied only to gender
     bool questStartCanActive;                               // if true then quest start can be active (not only rewarded)
@@ -958,7 +958,7 @@ class SpellMgr
         SpellProcEventEntry const* GetSpellProcEvent(uint32 spellId) const
         {
             SpellProcEventMap::const_iterator itr = mSpellProcEventMap.find(spellId);
-            if ( itr != mSpellProcEventMap.end( ) )
+            if (itr != mSpellProcEventMap.end())
                 return &itr->second;
             return NULL;
         }
@@ -980,7 +980,7 @@ class SpellMgr
         {
             // Lookup data
             SpellBonusMap::const_iterator itr = mSpellBonusMap.find(spellId);
-            if ( itr != mSpellBonusMap.end( ) )
+            if (itr != mSpellBonusMap.end())
                 return &itr->second;
 
             return NULL;
@@ -989,8 +989,8 @@ class SpellMgr
         // Spell target coordinates
         SpellTargetPosition const* GetSpellTargetPosition(uint32 spell_id) const
         {
-            SpellTargetPositionMap::const_iterator itr = mSpellTargetPositions.find( spell_id );
-            if ( itr != mSpellTargetPositions.end( ) )
+            SpellTargetPositionMap::const_iterator itr = mSpellTargetPositions.find( spell_id);
+            if (itr != mSpellTargetPositions.end())
                 return &itr->second;
             return NULL;
         }

@@ -147,19 +147,19 @@ Quest::Quest(Field * questRecord)
 
     for (int i=0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
     {
-        if ( ReqItemId[i] )
+        if (ReqItemId[i])
             ++m_reqitemscount;
     }
 
     for (int i=0; i < QUEST_OBJECTIVES_COUNT; ++i)
     {
-        if ( ReqCreatureOrGOId[i] )
+        if (ReqCreatureOrGOId[i])
             ++m_reqCreatureOrGOcount;
     }
 
     for (int i=0; i < QUEST_REWARDS_COUNT; ++i)
     {
-        if ( RewItemId[i] )
+        if (RewItemId[i])
             ++m_rewitemscount;
     }
 

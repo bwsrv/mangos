@@ -35,7 +35,7 @@ Weather::Weather(uint32 zone, WeatherZoneChances const* weatherChances) : m_zone
     m_type = WEATHER_TYPE_FINE;
     m_grade = 0;
 
-    DETAIL_FILTER_LOG(LOG_FILTER_WEATHER, "WORLD: Starting weather system for zone %u (change every %u minutes).", m_zone, (m_timer.GetInterval() / (MINUTE*IN_MILLISECONDS)) );
+    DETAIL_FILTER_LOG(LOG_FILTER_WEATHER, "WORLD: Starting weather system for zone %u (change every %u minutes).", m_zone, (m_timer.GetInterval() / (MINUTE*IN_MILLISECONDS)));
 }
 
 /// Launch a weather update
@@ -184,18 +184,18 @@ bool Weather::ReGenerate()
 
 void Weather::SendWeatherUpdateToPlayer(Player *player)
 {
-    WorldPacket data( SMSG_WEATHER, (4+4+1) );
+    WorldPacket data( SMSG_WEATHER, (4+4+1));
 
     data << uint32(GetWeatherState()) << (float)m_grade << uint8(0);
-    player->GetSession()->SendPacket( &data );
+    player->GetSession()->SendPacket( &data);
 }
 
 void Weather::SendFineWeatherUpdateToPlayer(Player *player)
 {
-    WorldPacket data( SMSG_WEATHER, (4+4+1) );
+    WorldPacket data( SMSG_WEATHER, (4+4+1));
 
     data << (uint32)WEATHER_STATE_FINE << (float)0.0f << uint8(0);
-    player->GetSession()->SendPacket( &data );
+    player->GetSession()->SendPacket( &data);
 }
 
 /// Send the new weather to all players in the zone
@@ -213,9 +213,9 @@ bool Weather::UpdateWeather()
 
     WeatherState state = GetWeatherState();
 
-    WorldPacket data( SMSG_WEATHER, (4+4+1) );
+    WorldPacket data( SMSG_WEATHER, (4+4+1));
     data << uint32(state) << (float)m_grade << uint8(0);
-    player->SendMessageToSet( &data, true );
+    player->SendMessageToSet( &data, true);
 
     ///- Log the event
     char const* wthstr;

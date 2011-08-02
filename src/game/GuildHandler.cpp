@@ -778,7 +778,7 @@ void WorldSession::HandleGuildEventLogQueryOpcode(WorldPacket& /* recvPacket */)
 
 /******  GUILD BANK  *******/
 
-void WorldSession::HandleGuildBankMoneyWithdrawn( WorldPacket & /* recv_data */ )
+void WorldSession::HandleGuildBankMoneyWithdrawn( WorldPacket & /* recv_data */)
 {
     DEBUG_LOG("WORLD: Received (MSG_GUILD_BANK_MONEY_WITHDRAWN)");
 
@@ -787,7 +787,7 @@ void WorldSession::HandleGuildBankMoneyWithdrawn( WorldPacket & /* recv_data */ 
             pGuild->SendMoneyInfo(this, GetPlayer()->GetGUIDLow());
 }
 
-void WorldSession::HandleGuildPermissions( WorldPacket& /* recv_data */ )
+void WorldSession::HandleGuildPermissions( WorldPacket& /* recv_data */)
 {
     DEBUG_LOG("WORLD: Received (MSG_GUILD_PERMISSIONS)");
 
@@ -816,7 +816,7 @@ void WorldSession::HandleGuildPermissions( WorldPacket& /* recv_data */ )
 }
 
 /* Called when clicking on Guild bank gameobject */
-void WorldSession::HandleGuildBankerActivate( WorldPacket & recv_data )
+void WorldSession::HandleGuildBankerActivate( WorldPacket & recv_data)
 {
     DEBUG_LOG("WORLD: Received (CMSG_GUILD_BANKER_ACTIVATE)");
 
@@ -840,7 +840,7 @@ void WorldSession::HandleGuildBankerActivate( WorldPacket & recv_data )
 }
 
 /* Called when opening guild bank tab only (first one) */
-void WorldSession::HandleGuildBankQueryTab( WorldPacket & recv_data )
+void WorldSession::HandleGuildBankQueryTab( WorldPacket & recv_data)
 {
     DEBUG_LOG("WORLD: Received (CMSG_GUILD_BANK_QUERY_TAB)");
 
@@ -868,7 +868,7 @@ void WorldSession::HandleGuildBankQueryTab( WorldPacket & recv_data )
     pGuild->DisplayGuildBankContent(this, TabId);
 }
 
-void WorldSession::HandleGuildBankDepositMoney( WorldPacket & recv_data )
+void WorldSession::HandleGuildBankDepositMoney( WorldPacket & recv_data)
 {
     DEBUG_LOG("WORLD: Received (CMSG_GUILD_BANK_DEPOSIT_MONEY)");
 
@@ -919,7 +919,7 @@ void WorldSession::HandleGuildBankDepositMoney( WorldPacket & recv_data )
     pGuild->DisplayGuildBankMoneyUpdate(this);
 }
 
-void WorldSession::HandleGuildBankWithdrawMoney( WorldPacket & recv_data )
+void WorldSession::HandleGuildBankWithdrawMoney( WorldPacket & recv_data)
 {
     DEBUG_LOG("WORLD: Received (CMSG_GUILD_BANK_WITHDRAW_MONEY)");
 
@@ -972,7 +972,7 @@ void WorldSession::HandleGuildBankWithdrawMoney( WorldPacket & recv_data )
     pGuild->DisplayGuildBankMoneyUpdate(this);
 }
 
-void WorldSession::HandleGuildBankSwapItems( WorldPacket & recv_data )
+void WorldSession::HandleGuildBankSwapItems( WorldPacket & recv_data)
 {
     DEBUG_LOG("WORLD: Received (CMSG_GUILD_BANK_SWAP_ITEMS)");
 
@@ -1065,9 +1065,9 @@ void WorldSession::HandleGuildBankSwapItems( WorldPacket & recv_data )
     // Player <-> Bank
 
     // allow work with inventory only
-    if (!Player::IsInventoryPos(PlayerBag, PlayerSlot) && !(PlayerBag == NULL_BAG && PlayerSlot == NULL_SLOT) )
+    if (!Player::IsInventoryPos(PlayerBag, PlayerSlot) && !(PlayerBag == NULL_BAG && PlayerSlot == NULL_SLOT))
     {
-        _player->SendEquipError( EQUIP_ERR_NONE, NULL, NULL );
+        _player->SendEquipError( EQUIP_ERR_NONE, NULL, NULL);
         return;
     }
 
@@ -1078,7 +1078,7 @@ void WorldSession::HandleGuildBankSwapItems( WorldPacket & recv_data )
         pGuild->MoveFromCharToBank(_player, PlayerBag, PlayerSlot, BankTab, BankTabSlot, SplitedAmount);
 }
 
-void WorldSession::HandleGuildBankBuyTab( WorldPacket & recv_data )
+void WorldSession::HandleGuildBankBuyTab( WorldPacket & recv_data)
 {
     DEBUG_LOG("WORLD: Received (CMSG_GUILD_BANK_BUY_TAB)");
 
@@ -1118,7 +1118,7 @@ void WorldSession::HandleGuildBankBuyTab( WorldPacket & recv_data )
     pGuild->DisplayGuildBankTabsInfo(this);
 }
 
-void WorldSession::HandleGuildBankUpdateTab( WorldPacket & recv_data )
+void WorldSession::HandleGuildBankUpdateTab( WorldPacket & recv_data)
 {
     DEBUG_LOG("WORLD: Received (CMSG_GUILD_BANK_UPDATE_TAB)");
 
@@ -1157,7 +1157,7 @@ void WorldSession::HandleGuildBankUpdateTab( WorldPacket & recv_data )
     pGuild->DisplayGuildBankContent(this, TabId);
 }
 
-void WorldSession::HandleGuildBankLogQuery( WorldPacket & recv_data )
+void WorldSession::HandleGuildBankLogQuery( WorldPacket & recv_data)
 {
     DEBUG_LOG("WORLD: Received (MSG_GUILD_BANK_LOG_QUERY)");
 
@@ -1223,9 +1223,9 @@ void WorldSession::HandleSetGuildBankTabText(WorldPacket &recv_data)
     pGuild->SetGuildBankTabText(TabId, Text);
 }
 
-void WorldSession::SendSaveGuildEmblem( uint32 msg )
+void WorldSession::SendSaveGuildEmblem( uint32 msg)
 {
     WorldPacket data(MSG_SAVE_GUILD_EMBLEM, 4);
     data << uint32(msg);                                    // not part of guild
-    SendPacket( &data );
+    SendPacket( &data);
 }

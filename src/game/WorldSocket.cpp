@@ -43,7 +43,7 @@
 #include "Log.h"
 #include "DBCStores.h"
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__)
 #pragma pack(1)
 #else
 #pragma pack(push,1)
@@ -90,7 +90,7 @@ struct ClientPktHeader
     uint32 cmd;
 };
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__)
 #pragma pack()
 #else
 #pragma pack(pop)

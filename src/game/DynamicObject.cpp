@@ -155,7 +155,7 @@ void DynamicObject::Delete()
 void DynamicObject::Delay(int32 delaytime)
 {
     m_aliveDuration -= delaytime;
-    for (AffectedSet::iterator iter = m_affected.begin(); iter != m_affected.end(); )
+    for (AffectedSet::iterator iter = m_affected.begin(); iter != m_affected.end();)
     {
         Unit *target = GetMap()->GetUnit((*iter));
         if (target)
@@ -204,7 +204,7 @@ bool DynamicObject::isVisibleForInState(Player const* u, WorldObject const* view
     return IsWithinDistInMap(viewPoint, GetMap()->GetVisibilityDistance() + (inVisibleList ? World::GetVisibleObjectGreyDistance() : 0.0f), false);
 }
 
-bool DynamicObject::IsHostileTo( Unit const* unit ) const
+bool DynamicObject::IsHostileTo( Unit const* unit) const
 {
     if (Unit* owner = GetCaster())
         return owner->IsHostileTo(unit);
@@ -212,7 +212,7 @@ bool DynamicObject::IsHostileTo( Unit const* unit ) const
         return false;
 }
 
-bool DynamicObject::IsFriendlyTo( Unit const* unit ) const
+bool DynamicObject::IsFriendlyTo( Unit const* unit) const
 {
     if (Unit* owner = GetCaster())
         return owner->IsFriendlyTo(unit);

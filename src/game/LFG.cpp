@@ -97,7 +97,7 @@ void LFGPlayerState::SetJoined()
 
 bool LFGPlayerState::IsSingleRole()
 {
-    if (   LFGRoleMask(rolesMask & ~LFG_ROLE_MASK_TANK   & ~LFG_ROLE_MASK_LEADER) == LFG_ROLE_MASK_NONE
+    if (  LFGRoleMask(rolesMask & ~LFG_ROLE_MASK_TANK   & ~LFG_ROLE_MASK_LEADER) == LFG_ROLE_MASK_NONE
         || LFGRoleMask(rolesMask & ~LFG_ROLE_MASK_HEALER & ~LFG_ROLE_MASK_LEADER) == LFG_ROLE_MASK_NONE
         || LFGRoleMask(rolesMask & ~LFG_ROLE_MASK_TANK   & ~LFG_ROLE_MASK_LEADER) == LFG_ROLE_MASK_NONE)
         return true;

@@ -227,8 +227,8 @@ bool LexicsCutter::Compare_Word(std::string& str, unsigned int pos, LC_WordVecto
         if (ls.count(lchar) == 0)
        {
            // letter is not in set, but we must check, if it is not space or repeat
-           if ( (!(IgnoreMiddleSpaces && (lchar == " "))) &&
-               (!(IgnoreLetterRepeat && (lchar == lchar_prev))) )
+           if ((!(IgnoreMiddleSpaces && (lchar == " "))) &&
+               (!(IgnoreLetterRepeat && (lchar == lchar_prev))))
            {
                // no checks viable
                return(false);

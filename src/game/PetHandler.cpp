@@ -276,7 +276,7 @@ void WorldSession::HandlePetSetAction(WorldPacket& recv_data)
                 {
                     for (GroupPetList::const_iterator itr = m_groupPets->begin(); itr != m_groupPets->end(); ++itr)
                         if (Pet* _pet = ObjectAccessor::FindPet(*itr))
-                            if ( _pet->IsInWorld())
+                            if (_pet->IsInWorld())
                             {
                                 _pet->ToggleAutocast(spell_id, true);
                             }
@@ -291,7 +291,7 @@ void WorldSession::HandlePetSetAction(WorldPacket& recv_data)
                 {
                     for (GroupPetList::const_iterator itr = m_groupPets->begin(); itr != m_groupPets->end(); ++itr)
                         if (Pet* _pet = ObjectAccessor::FindPet(*itr))
-                            if ( _pet->IsInWorld())
+                            if (_pet->IsInWorld())
                             {
                                 _pet->ToggleAutocast(spell_id, false);
                             }
@@ -446,7 +446,7 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
         {
             for (GroupPetList::const_iterator itr = m_groupPets.begin(); itr != m_groupPets.end(); ++itr)
                 if (Pet* _pet = _player->GetMap()->GetPet(*itr))
-                    if ( _pet->IsInWorld())
+                    if (_pet->IsInWorld())
                         _pet->ToggleAutocast(spellid, state);
         }
     }
@@ -495,7 +495,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
     recvPacket >> targets->ReadForCaster(pet);
 
     if (pet->IsPet() || pet->isCharmed())
-        GetPlayer()->CallForAllControlledUnits(DoPetCastWithHelper(GetPlayer(), cast_count, targets, spellInfo ),CONTROLLED_PET|CONTROLLED_GUARDIANS|CONTROLLED_CHARM);
+        GetPlayer()->CallForAllControlledUnits(DoPetCastWithHelper(GetPlayer(), cast_count, targets, spellInfo),CONTROLLED_PET|CONTROLLED_GUARDIANS|CONTROLLED_CHARM);
 
     if (targets)
        delete targets;

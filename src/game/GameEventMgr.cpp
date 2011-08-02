@@ -79,7 +79,7 @@ void GameEventMgr::StartEvent( uint16 event_id, bool overwrite /*=false*/, bool 
     }
 }
 
-void GameEventMgr::StopEvent( uint16 event_id, bool overwrite )
+void GameEventMgr::StopEvent( uint16 event_id, bool overwrite)
 {
     UnApplyEvent(event_id);
     if (overwrite)
@@ -169,7 +169,7 @@ void GameEventMgr::LoadFromDB()
         delete result;
 
         sLog.outString();
-        sLog.outString( ">> Loaded %u game events", count );
+        sLog.outString( ">> Loaded %u game events", count);
     }
 
     std::map<uint16,int16> pool2event;                      // for check unique spawn event associated with pool
@@ -191,7 +191,7 @@ void GameEventMgr::LoadFromDB()
         bar.step();
 
         sLog.outString();
-        sLog.outString(">> Loaded %u creatures in game events", count );
+        sLog.outString(">> Loaded %u creatures in game events", count);
     }
     else
     {
@@ -256,7 +256,7 @@ void GameEventMgr::LoadFromDB()
         delete result;
 
         sLog.outString();
-        sLog.outString( ">> Loaded %u creatures in game events", count );
+        sLog.outString( ">> Loaded %u creatures in game events", count);
     }
 
     mGameEventGameobjectGuids.resize(mGameEvent.size()*2-1);
@@ -271,7 +271,7 @@ void GameEventMgr::LoadFromDB()
         bar.step();
 
         sLog.outString();
-        sLog.outString(">> Loaded %u gameobjects in game events", count );
+        sLog.outString(">> Loaded %u gameobjects in game events", count);
     }
     else
     {
@@ -336,7 +336,7 @@ void GameEventMgr::LoadFromDB()
         delete result;
 
         sLog.outString();
-        sLog.outString( ">> Loaded %u gameobjects in game events", count );
+        sLog.outString( ">> Loaded %u gameobjects in game events", count);
     }
 
     // now recheck that all eventPools linked with events after our skip pools with parents
@@ -364,7 +364,7 @@ void GameEventMgr::LoadFromDB()
         bar.step();
 
         sLog.outString();
-        sLog.outString(">> Loaded %u creature reactions at game events", count );
+        sLog.outString(">> Loaded %u creature reactions at game events", count);
     }
     else
     {
@@ -432,7 +432,7 @@ void GameEventMgr::LoadFromDB()
         delete result;
 
         sLog.outString();
-        sLog.outString(">> Loaded %u creature reactions at game events", count );
+        sLog.outString(">> Loaded %u creature reactions at game events", count);
     }
 
     mGameEventQuests.resize(mGameEvent.size());
@@ -446,7 +446,7 @@ void GameEventMgr::LoadFromDB()
         bar.step();
 
         sLog.outString();
-        sLog.outString(">> Loaded %u quests additions in game events", count );
+        sLog.outString(">> Loaded %u quests additions in game events", count);
     }
     else
     {
@@ -494,7 +494,7 @@ void GameEventMgr::LoadFromDB()
         delete result;
 
         sLog.outString();
-        sLog.outString( ">> Loaded %u quest additions in game events", count );
+        sLog.outString( ">> Loaded %u quest additions in game events", count);
     }
 
     mGameEventMails.resize(mGameEvent.size()*2-1);
@@ -508,7 +508,7 @@ void GameEventMgr::LoadFromDB()
         bar.step();
 
         sLog.outString();
-        sLog.outString(">> Loaded %u start/end game event mails", count );
+        sLog.outString(">> Loaded %u start/end game event mails", count);
     }
     else
     {
@@ -576,7 +576,7 @@ void GameEventMgr::LoadFromDB()
         delete result;
 
         sLog.outString();
-        sLog.outString(">> Loaded %u start/end game event mails", count );
+        sLog.outString(">> Loaded %u start/end game event mails", count);
     }
 }
 
@@ -602,12 +602,12 @@ uint32 GameEventMgr::Initialize()                           // return the next e
     }
 
     uint32 delay = Update(&activeAtShutdown);
-    BASIC_LOG("Game Event system initialized." );
+    BASIC_LOG("Game Event system initialized.");
     m_IsGameEventsInit = true;
     return delay;
 }
 
-void GameEventMgr::Initialize( MapPersistentState* state )
+void GameEventMgr::Initialize( MapPersistentState* state)
 {
     // At map persistent state creating need only apply pool spawn modifications
     // other data is global and will be auto-apply
@@ -793,7 +793,7 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
     for (GuidList::iterator itr = mGameEventCreatureGuids[internal_event_id].begin();itr != mGameEventCreatureGuids[internal_event_id].end();++itr)
     {
         // Remove the creature from grid
-        if ( CreatureData const* data = sObjectMgr.GetCreatureData(*itr) )
+        if (CreatureData const* data = sObjectMgr.GetCreatureData(*itr))
         {
             // negative event id for pool element meaning unspawn in pool and exclude for next spawns
             if (event_id < 0)
@@ -1019,7 +1019,7 @@ GameEventMgr::GameEventMgr()
     m_IsGameEventsInit = false;
 }
 
-bool GameEventMgr::IsActiveHoliday( HolidayIds id )
+bool GameEventMgr::IsActiveHoliday( HolidayIds id)
 {
     if (id == HOLIDAY_NONE)
         return false;
@@ -1031,7 +1031,7 @@ bool GameEventMgr::IsActiveHoliday( HolidayIds id )
     return false;
 }
 
-MANGOS_DLL_SPEC bool IsHolidayActive( HolidayIds id )
+MANGOS_DLL_SPEC bool IsHolidayActive( HolidayIds id)
 {
     return sGameEventMgr.IsActiveHoliday(id);
 }

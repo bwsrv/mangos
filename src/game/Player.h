@@ -161,7 +161,7 @@ enum ActionButtonType
 
 struct ActionButton
 {
-    ActionButton() : packedData(0), uState( ACTIONBUTTON_NEW ) {}
+    ActionButton() : packedData(0), uState( ACTIONBUTTON_NEW) {}
 
     uint32 packedData;
     ActionButtonUpdateState uState;
@@ -259,7 +259,7 @@ struct PlayerClassInfo
 
 struct PlayerLevelInfo
 {
-    PlayerLevelInfo() { for (int i=0; i < MAX_STATS; ++i ) stats[i] = 0; }
+    PlayerLevelInfo() { for (int i=0; i < MAX_STATS; ++i) stats[i] = 0; }
 
     uint8 stats[MAX_STATS];
 };
@@ -929,7 +929,7 @@ class MANGOS_DLL_SPEC PlayerTaxi
         {
             uint8  field   = uint8((nodeidx - 1) / 32);
             uint32 submask = 1<<((nodeidx-1)%32);
-            if ((m_taximask[field] & submask) != submask )
+            if ((m_taximask[field] & submask) != submask)
             {
                 m_taximask[field] |= submask;
                 return true;
@@ -1054,7 +1054,7 @@ class MANGOS_DLL_SPEC Player : public Unit
     friend void Item::RemoveFromUpdateQueueOf(Player *player);
     public:
         explicit Player (WorldSession *session);
-        ~Player ( );
+        ~Player ();
 
         void CleanupsBeforeDelete();
 
@@ -1083,11 +1083,11 @@ class MANGOS_DLL_SPEC Player : public Unit
         }
         void SummonIfPossible(bool agree);
 
-        bool Create( uint32 guidlow, const std::string& name, uint8 race, uint8 class_, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair, uint8 outfitId );
+        bool Create( uint32 guidlow, const std::string& name, uint8 race, uint8 class_, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair, uint8 outfitId);
 
         void Update(uint32 update_diff, uint32 time) override;
 
-        static bool BuildEnumData( QueryResult * result,  WorldPacket * p_data );
+        static bool BuildEnumData( QueryResult * result,  WorldPacket * p_data);
 
         void SetInWater(bool apply);
 
@@ -1142,7 +1142,7 @@ class MANGOS_DLL_SPEC Player : public Unit
 
             if (state < 0)
                 m_ExtraFlags |= PLAYER_EXTRA_AUCTION_ENEMY;
-            else if ( state > 0)
+            else if (state > 0)
                 m_ExtraFlags |= PLAYER_EXTRA_AUCTION_NEUTRAL;
         }
 
@@ -1189,30 +1189,30 @@ class MANGOS_DLL_SPEC Player : public Unit
         /*********************************************************/
 
         void SetVirtualItemSlot( uint8 i, Item* item);
-        void SetSheath( SheathState sheathed );             // overwrite Unit version
+        void SetSheath( SheathState sheathed);             // overwrite Unit version
         uint8 FindEquipSlot(ItemPrototype const* proto, uint32 slot, bool swap) const;
         uint32 GetItemCount(uint32 item, bool inBankAlso = false, Item* skipItem = NULL) const;
         uint32 GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipItem = NULL) const;
         Item* GetItemByGuid(ObjectGuid guid) const;
         Item* GetItemByEntry(uint32 item) const;            // only for special cases
         Item* GetItemByLimitedCategory(uint32 limitedCategory) const;
-        Item* GetItemByPos( uint16 pos ) const;
-        Item* GetItemByPos( uint8 bag, uint8 slot ) const;
+        Item* GetItemByPos( uint16 pos) const;
+        Item* GetItemByPos( uint8 bag, uint8 slot) const;
         uint32 GetItemDisplayIdInSlot(uint8 bag, uint8 slot) const;
         Item* GetWeaponForAttack(WeaponAttackType attackType) const { return GetWeaponForAttack(attackType,false,false); }
         Item* GetWeaponForAttack(WeaponAttackType attackType, bool nonbroken, bool useable) const;
         Item* GetShield(bool useable = false) const;
-        static uint32 GetAttackBySlot( uint8 slot );        // MAX_ATTACK if not weapon slot
+        static uint32 GetAttackBySlot( uint8 slot);        // MAX_ATTACK if not weapon slot
         std::vector<Item *> &GetItemUpdateQueue() { return m_itemUpdateQueue; }
-        static bool IsInventoryPos( uint16 pos ) { return IsInventoryPos(pos >> 8, pos & 255); }
-        static bool IsInventoryPos( uint8 bag, uint8 slot );
-        static bool IsEquipmentPos( uint16 pos ) { return IsEquipmentPos(pos >> 8, pos & 255); }
-        static bool IsEquipmentPos( uint8 bag, uint8 slot );
-        static bool IsBagPos( uint16 pos );
-        static bool IsBankPos( uint16 pos ) { return IsBankPos(pos >> 8, pos & 255); }
-        static bool IsBankPos( uint8 bag, uint8 slot );
-        bool IsValidPos( uint16 pos, bool explicit_pos ) const { return IsValidPos(pos >> 8, pos & 255, explicit_pos); }
-        bool IsValidPos( uint8 bag, uint8 slot, bool explicit_pos ) const;
+        static bool IsInventoryPos( uint16 pos) { return IsInventoryPos(pos >> 8, pos & 255); }
+        static bool IsInventoryPos( uint8 bag, uint8 slot);
+        static bool IsEquipmentPos( uint16 pos) { return IsEquipmentPos(pos >> 8, pos & 255); }
+        static bool IsEquipmentPos( uint8 bag, uint8 slot);
+        static bool IsBagPos( uint16 pos);
+        static bool IsBankPos( uint16 pos) { return IsBankPos(pos >> 8, pos & 255); }
+        static bool IsBankPos( uint8 bag, uint8 slot);
+        bool IsValidPos( uint16 pos, bool explicit_pos) const { return IsValidPos(pos >> 8, pos & 255, explicit_pos); }
+        bool IsValidPos( uint8 bag, uint8 slot, bool explicit_pos) const;
         uint8 GetBankBagSlotCount() const { return GetByteValue(PLAYER_BYTES_2, 2); }
         void SetBankBagSlotCount(uint8 count) { SetByteValue(PLAYER_BYTES_2, 2, count); }
         bool HasItemCount( uint32 item, uint32 count, bool inBankAlso = false) const;
@@ -1222,35 +1222,35 @@ class MANGOS_DLL_SPEC Player : public Unit
         bool HasItemOrGemWithLimitCategoryEquipped( uint32 limitCategory, uint32 count, uint8 except_slot = NULL_SLOT) const;
         InventoryResult CanTakeMoreSimilarItems(Item* pItem) const { return _CanTakeMoreSimilarItems(pItem->GetEntry(), pItem->GetCount(), pItem); }
         InventoryResult CanTakeMoreSimilarItems(uint32 entry, uint32 count) const { return _CanTakeMoreSimilarItems(entry, count, NULL); }
-        InventoryResult CanStoreNewItem( uint8 bag, uint8 slot, ItemPosCountVec& dest, uint32 item, uint32 count, uint32* no_space_count = NULL ) const
+        InventoryResult CanStoreNewItem( uint8 bag, uint8 slot, ItemPosCountVec& dest, uint32 item, uint32 count, uint32* no_space_count = NULL) const
         {
-            return _CanStoreItem(bag, slot, dest, item, count, NULL, false, no_space_count );
+            return _CanStoreItem(bag, slot, dest, item, count, NULL, false, no_space_count);
         }
-        InventoryResult CanStoreItem( uint8 bag, uint8 slot, ItemPosCountVec& dest, Item *pItem, bool swap = false ) const
+        InventoryResult CanStoreItem( uint8 bag, uint8 slot, ItemPosCountVec& dest, Item *pItem, bool swap = false) const
         {
             if (!pItem)
                 return EQUIP_ERR_ITEM_NOT_FOUND;
             uint32 count = pItem->GetCount();
-            return _CanStoreItem( bag, slot, dest, pItem->GetEntry(), count, pItem, swap, NULL );
+            return _CanStoreItem( bag, slot, dest, pItem->GetEntry(), count, pItem, swap, NULL);
 
         }
         InventoryResult CanStoreItems(Item **pItem,int count) const;
         InventoryResult CanEquipNewItem(uint8 slot, uint16 &dest, uint32 item, bool swap) const;
         InventoryResult CanEquipItem(uint8 slot, uint16 &dest, Item *pItem, bool swap, bool direct_action = true) const;
 
-        InventoryResult CanEquipUniqueItem( Item * pItem, uint8 except_slot = NULL_SLOT, uint32 limit_count = 1 ) const;
-        InventoryResult CanEquipUniqueItem( ItemPrototype const* itemProto, uint8 except_slot = NULL_SLOT, uint32 limit_count = 1 ) const;
-        InventoryResult CanUnequipItems( uint32 item, uint32 count ) const;
-        InventoryResult CanUnequipItem( uint16 src, bool swap ) const;
-        InventoryResult CanBankItem( uint8 bag, uint8 slot, ItemPosCountVec& dest, Item *pItem, bool swap, bool not_loading = true ) const;
+        InventoryResult CanEquipUniqueItem( Item * pItem, uint8 except_slot = NULL_SLOT, uint32 limit_count = 1) const;
+        InventoryResult CanEquipUniqueItem( ItemPrototype const* itemProto, uint8 except_slot = NULL_SLOT, uint32 limit_count = 1) const;
+        InventoryResult CanUnequipItems( uint32 item, uint32 count) const;
+        InventoryResult CanUnequipItem( uint16 src, bool swap) const;
+        InventoryResult CanBankItem( uint8 bag, uint8 slot, ItemPosCountVec& dest, Item *pItem, bool swap, bool not_loading = true) const;
         InventoryResult CanUseItem(Item *pItem, bool direct_action = true) const;
         bool HasItemTotemCategory(uint32 TotemCategory) const;
         InventoryResult CanUseItem(ItemPrototype const *pItem) const;
-        InventoryResult CanUseAmmo( uint32 item ) const;
-        Item* StoreNewItem( ItemPosCountVec const& pos, uint32 item, bool update,int32 randomPropertyId = 0, AllowedLooterSet* allowedLooters = NULL );
-        Item* StoreItem( ItemPosCountVec const& pos, Item *pItem, bool update );
-        Item* EquipNewItem( uint16 pos, uint32 item, bool update );
-        Item* EquipItem( uint16 pos, Item *pItem, bool update );
+        InventoryResult CanUseAmmo( uint32 item) const;
+        Item* StoreNewItem( ItemPosCountVec const& pos, uint32 item, bool update,int32 randomPropertyId = 0, AllowedLooterSet* allowedLooters = NULL);
+        Item* StoreItem( ItemPosCountVec const& pos, Item *pItem, bool update);
+        Item* EquipNewItem( uint16 pos, uint32 item, bool update);
+        Item* EquipItem( uint16 pos, Item *pItem, bool update);
         void AutoUnequipOffhandIfNeed();
         bool StoreNewItemInBestSlots(uint32 item_id, uint32 item_count);
         Item* StoreNewItemInInventorySlot(uint32 itemEntry, uint32 amount);
@@ -1261,17 +1261,17 @@ class MANGOS_DLL_SPEC Player : public Unit
         Item* ConvertItem(Item* item, uint32 newItemId);
 
         InventoryResult _CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, uint32* no_space_count = NULL) const;
-        InventoryResult _CanStoreItem( uint8 bag, uint8 slot, ItemPosCountVec& dest, uint32 entry, uint32 count, Item *pItem = NULL, bool swap = false, uint32* no_space_count = NULL ) const;
+        InventoryResult _CanStoreItem( uint8 bag, uint8 slot, ItemPosCountVec& dest, uint32 entry, uint32 count, Item *pItem = NULL, bool swap = false, uint32* no_space_count = NULL) const;
 
-        void ApplyEquipCooldown( Item * pItem );
-        void SetAmmo( uint32 item );
+        void ApplyEquipCooldown( Item * pItem);
+        void SetAmmo( uint32 item);
         void RemoveAmmo();
         float GetAmmoDPS() const { return m_ammoDPS; }
         bool CheckAmmoCompatibility(const ItemPrototype *ammo_proto) const;
         void QuickEquipItem( uint16 pos, Item *pItem);
         void VisualizeItem( uint8 slot, Item *pItem);
         void SetVisibleItemSlot(uint8 slot, Item *pItem);
-        Item* BankItem( ItemPosCountVec const& dest, Item *pItem, bool update )
+        Item* BankItem( ItemPosCountVec const& dest, Item *pItem, bool update)
         {
             return StoreItem( dest, pItem, update);
         }
@@ -1281,24 +1281,24 @@ class MANGOS_DLL_SPEC Player : public Unit
                                                             // in trade, auction, guild bank, mail....
         void MoveItemToInventory(ItemPosCountVec const& dest, Item* pItem, bool update, bool in_characterInventoryDB = false);
                                                             // in trade, guild bank, mail....
-        void RemoveItemDependentAurasAndCasts( Item * pItem );
-        void DestroyItem( uint8 bag, uint8 slot, bool update );
+        void RemoveItemDependentAurasAndCasts( Item * pItem);
+        void DestroyItem( uint8 bag, uint8 slot, bool update);
         void DestroyItemCount( uint32 item, uint32 count, bool update, bool unequip_check = false);
-        void DestroyItemCount( Item* item, uint32& count, bool update );
-        void DestroyConjuredItems( bool update );
-        void DestroyZoneLimitedItem( bool update, uint32 new_zone );
-        void SplitItem( uint16 src, uint16 dst, uint32 count );
-        void SwapItem( uint16 src, uint16 dst );
-        void AddItemToBuyBackSlot( Item *pItem );
-        Item* GetItemFromBuyBackSlot( uint32 slot );
-        void RemoveItemFromBuyBackSlot( uint32 slot, bool del );
+        void DestroyItemCount( Item* item, uint32& count, bool update);
+        void DestroyConjuredItems( bool update);
+        void DestroyZoneLimitedItem( bool update, uint32 new_zone);
+        void SplitItem( uint16 src, uint16 dst, uint32 count);
+        void SwapItem( uint16 src, uint16 dst);
+        void AddItemToBuyBackSlot( Item *pItem);
+        Item* GetItemFromBuyBackSlot( uint32 slot);
+        void RemoveItemFromBuyBackSlot( uint32 slot, bool del);
 
         void TakeExtendedCost(uint32 extendedCostId, uint32 count);
 
         uint32 GetMaxKeyringSize() const { return KEYRING_SLOT_END-KEYRING_SLOT_START; }
-        void SendEquipError( InventoryResult msg, Item* pItem, Item *pItem2 = NULL, uint32 itemid = 0 ) const;
-        void SendBuyError( BuyResult msg, Creature* pCreature, uint32 item, uint32 param );
-        void SendSellError( SellResult msg, Creature* pCreature, ObjectGuid itemGuid, uint32 param );
+        void SendEquipError( InventoryResult msg, Item* pItem, Item *pItem2 = NULL, uint32 itemid = 0) const;
+        void SendBuyError( BuyResult msg, Creature* pCreature, uint32 item, uint32 param);
+        void SendSellError( SellResult msg, Creature* pCreature, ObjectGuid itemGuid, uint32 param);
         void AddWeaponProficiency(uint32 newflag) { m_WeaponProficiency |= newflag; }
         void AddArmorProficiency(uint32 newflag) { m_ArmorProficiency |= newflag; }
         uint32 GetWeaponProficiency() const { return m_WeaponProficiency; }
@@ -1314,10 +1314,10 @@ class MANGOS_DLL_SPEC Player : public Unit
             Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
             return offItem && ((mainItem && mainItem->GetProto()->InventoryType == INVTYPE_2HWEAPON) || offItem->GetProto()->InventoryType == INVTYPE_2HWEAPON);
         }
-        void SendNewItem( Item *item, uint32 count, bool received, bool created, bool broadcast = false );
+        void SendNewItem( Item *item, uint32 count, bool received, bool created, bool broadcast = false);
         bool BuyItemFromVendorSlot(ObjectGuid vendorGuid, uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot);
 
-        float GetReputationPriceDiscount( Creature const* pCreature ) const;
+        float GetReputationPriceDiscount( Creature const* pCreature) const;
 
         Player* GetTrader() const { return m_trade ? m_trade->GetTrader() : NULL; }
         TradeData* GetTradeData() const { return m_trade; }
@@ -1362,54 +1362,54 @@ class MANGOS_DLL_SPEC Player : public Unit
         // Return player level when QuestLevel is dynamic (-1)
         uint32 GetQuestLevelForPlayer(Quest const* pQuest) const { return pQuest && (pQuest->GetQuestLevel() > 0) ? (uint32)pQuest->GetQuestLevel() : getLevel(); }
 
-        void PrepareQuestMenu(ObjectGuid guid );
+        void PrepareQuestMenu(ObjectGuid guid);
         void SendPreparedQuest(ObjectGuid guid);
-        bool IsActiveQuest( uint32 quest_id ) const;        // can be taken or taken
-        bool IsCurrentQuest( uint32 quest_id ) const;       // taken and not yet rewarded
-        Quest const *GetNextQuest(ObjectGuid guid, Quest const *pQuest );
-        bool CanSeeStartQuest( Quest const *pQuest ) const;
-        bool CanTakeQuest( Quest const *pQuest, bool msg ) const;
-        bool CanAddQuest( Quest const *pQuest, bool msg ) const;
-        bool CanCompleteQuest( uint32 quest_id ) const;
+        bool IsActiveQuest( uint32 quest_id) const;        // can be taken or taken
+        bool IsCurrentQuest( uint32 quest_id) const;       // taken and not yet rewarded
+        Quest const *GetNextQuest(ObjectGuid guid, Quest const *pQuest);
+        bool CanSeeStartQuest( Quest const *pQuest) const;
+        bool CanTakeQuest( Quest const *pQuest, bool msg) const;
+        bool CanAddQuest( Quest const *pQuest, bool msg) const;
+        bool CanCompleteQuest( uint32 quest_id) const;
         bool CanCompleteRepeatableQuest(Quest const *pQuest) const;
-        bool CanRewardQuest( Quest const *pQuest, bool msg ) const;
-        bool CanRewardQuest( Quest const *pQuest, uint32 reward, bool msg ) const;
-        void AddQuest( Quest const *pQuest, Object *questGiver );
-        void CompleteQuest( uint32 quest_id );
-        void IncompleteQuest( uint32 quest_id );
-        void RewardQuest( Quest const *pQuest, uint32 reward, Object* questGiver, bool announce = true );
+        bool CanRewardQuest( Quest const *pQuest, bool msg) const;
+        bool CanRewardQuest( Quest const *pQuest, uint32 reward, bool msg) const;
+        void AddQuest( Quest const *pQuest, Object *questGiver);
+        void CompleteQuest( uint32 quest_id);
+        void IncompleteQuest( uint32 quest_id);
+        void RewardQuest( Quest const *pQuest, uint32 reward, Object* questGiver, bool announce = true);
 
-        void FailQuest( uint32 quest_id );
+        void FailQuest( uint32 quest_id);
         bool SatisfyQuestSkill(Quest const* qInfo, bool msg) const;
-        bool SatisfyQuestLevel( Quest const* qInfo, bool msg ) const;
-        bool SatisfyQuestLog( bool msg ) const;
-        bool SatisfyQuestPreviousQuest( Quest const* qInfo, bool msg ) const;
+        bool SatisfyQuestLevel( Quest const* qInfo, bool msg) const;
+        bool SatisfyQuestLog( bool msg) const;
+        bool SatisfyQuestPreviousQuest( Quest const* qInfo, bool msg) const;
         bool SatisfyQuestClass(Quest const* qInfo, bool msg) const;
-        bool SatisfyQuestRace( Quest const* qInfo, bool msg ) const;
-        bool SatisfyQuestReputation( Quest const* qInfo, bool msg ) const;
-        bool SatisfyQuestStatus( Quest const* qInfo, bool msg ) const;
-        bool SatisfyQuestTimed( Quest const* qInfo, bool msg ) const;
-        bool SatisfyQuestExclusiveGroup( Quest const* qInfo, bool msg ) const;
-        bool SatisfyQuestNextChain( Quest const* qInfo, bool msg ) const;
-        bool SatisfyQuestPrevChain( Quest const* qInfo, bool msg ) const;
-        bool SatisfyQuestDay( Quest const* qInfo, bool msg ) const;
-        bool SatisfyQuestWeek( Quest const* qInfo, bool msg ) const;
+        bool SatisfyQuestRace( Quest const* qInfo, bool msg) const;
+        bool SatisfyQuestReputation( Quest const* qInfo, bool msg) const;
+        bool SatisfyQuestStatus( Quest const* qInfo, bool msg) const;
+        bool SatisfyQuestTimed( Quest const* qInfo, bool msg) const;
+        bool SatisfyQuestExclusiveGroup( Quest const* qInfo, bool msg) const;
+        bool SatisfyQuestNextChain( Quest const* qInfo, bool msg) const;
+        bool SatisfyQuestPrevChain( Quest const* qInfo, bool msg) const;
+        bool SatisfyQuestDay( Quest const* qInfo, bool msg) const;
+        bool SatisfyQuestWeek( Quest const* qInfo, bool msg) const;
         bool SatisfyQuestMonth(Quest const* qInfo, bool msg) const;
         bool CanGiveQuestSourceItemIfNeed( Quest const *pQuest, ItemPosCountVec* dest = NULL) const;
         void GiveQuestSourceItemIfNeed(Quest const *pQuest);
-        bool TakeQuestSourceItem( uint32 quest_id, bool msg );
-        bool GetQuestRewardStatus( uint32 quest_id ) const;
-        QuestStatus GetQuestStatus( uint32 quest_id ) const;
-        void SetQuestStatus( uint32 quest_id, QuestStatus status );
+        bool TakeQuestSourceItem( uint32 quest_id, bool msg);
+        bool GetQuestRewardStatus( uint32 quest_id) const;
+        QuestStatus GetQuestStatus( uint32 quest_id) const;
+        void SetQuestStatus( uint32 quest_id, QuestStatus status);
 
-        void SetDailyQuestStatus( uint32 quest_id );
-        void SetWeeklyQuestStatus( uint32 quest_id );
+        void SetDailyQuestStatus( uint32 quest_id);
+        void SetWeeklyQuestStatus( uint32 quest_id);
         void SetMonthlyQuestStatus(uint32 quest_id);
         void ResetDailyQuestStatus();
         void ResetWeeklyQuestStatus();
         void ResetMonthlyQuestStatus();
 
-        uint16 FindQuestSlot( uint32 quest_id ) const;
+        uint16 FindQuestSlot( uint32 quest_id) const;
         uint32 GetQuestSlotQuestId(uint16 slot) const { return GetUInt32Value(PLAYER_QUEST_LOG_1_1 + slot * MAX_QUEST_OFFSET + QUEST_ID_OFFSET); }
         void SetQuestSlot(uint16 slot, uint32 quest_id, uint32 timer = 0)
         {
@@ -1441,28 +1441,28 @@ class MANGOS_DLL_SPEC Player : public Unit
             }
         }
         uint32 GetReqKillOrCastCurrentCount(uint32 quest_id, int32 entry);
-        void AreaExploredOrEventHappens( uint32 questId );
-        void GroupEventHappens( uint32 questId, WorldObject const* pEventObject );
-        void ItemAddedQuestCheck( uint32 entry, uint32 count );
-        void ItemRemovedQuestCheck( uint32 entry, uint32 count );
-        void KilledMonster( CreatureInfo const* cInfo, ObjectGuid guid );
+        void AreaExploredOrEventHappens( uint32 questId);
+        void GroupEventHappens( uint32 questId, WorldObject const* pEventObject);
+        void ItemAddedQuestCheck( uint32 entry, uint32 count);
+        void ItemRemovedQuestCheck( uint32 entry, uint32 count);
+        void KilledMonster( CreatureInfo const* cInfo, ObjectGuid guid);
         void KilledMonsterCredit( uint32 entry, ObjectGuid guid = ObjectGuid());
-        void CastedCreatureOrGO( uint32 entry, ObjectGuid guid, uint32 spell_id, bool original_caster = true );
-        void TalkedToCreature( uint32 entry, ObjectGuid guid );
-        void MoneyChanged( uint32 value );
-        void ReputationChanged(FactionEntry const* factionEntry );
-        bool HasQuestForItem( uint32 itemid ) const;
+        void CastedCreatureOrGO( uint32 entry, ObjectGuid guid, uint32 spell_id, bool original_caster = true);
+        void TalkedToCreature( uint32 entry, ObjectGuid guid);
+        void MoneyChanged( uint32 value);
+        void ReputationChanged(FactionEntry const* factionEntry);
+        bool HasQuestForItem( uint32 itemid) const;
         bool HasQuestForGO(int32 GOId) const;
         void UpdateForQuestWorldObjects();
         bool CanShareQuest(uint32 quest_id) const;
 
         void SendQuestCompleteEvent(uint32 quest_id);
-        void SendQuestReward( Quest const *pQuest, uint32 XP, Object* questGiver );
+        void SendQuestReward( Quest const *pQuest, uint32 XP, Object* questGiver);
         void SendQuestFailed( uint32 quest_id, InventoryResult reason = EQUIP_ERR_OK);
-        void SendQuestTimerFailed( uint32 quest_id );
-        void SendCanTakeQuestResponse( uint32 msg ) const;
+        void SendQuestTimerFailed( uint32 quest_id);
+        void SendCanTakeQuestResponse( uint32 msg) const;
         void SendQuestConfirmAccept(Quest const* pQuest, Player* pReceiver);
-        void SendPushToPartyResponse( Player *pPlayer, uint32 msg );
+        void SendPushToPartyResponse( Player *pPlayer, uint32 msg);
         void SendQuestUpdateAddCreatureOrGo(Quest const* pQuest, ObjectGuid guid, uint32 creatureOrGO_idx, uint32 count);
 
         ObjectGuid GetDividerGuid() const { return m_dividerGuid; }
@@ -1471,10 +1471,10 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         uint32 GetInGameTime() { return m_ingametime; }
 
-        void SetInGameTime( uint32 time ) { m_ingametime = time; }
+        void SetInGameTime( uint32 time) { m_ingametime = time; }
 
-        void AddTimedQuest( uint32 quest_id ) { m_timedquests.insert(quest_id); }
-        void RemoveTimedQuest( uint32 quest_id ) { m_timedquests.erase(quest_id); }
+        void AddTimedQuest( uint32 quest_id) { m_timedquests.insert(quest_id); }
+        void RemoveTimedQuest( uint32 quest_id) { m_timedquests.erase(quest_id); }
 
         void chompAndTrim(std::string& str);
         bool getNextQuestId(const std::string& pString, unsigned int& pStartPos, unsigned int& pId);
@@ -1513,9 +1513,9 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         void SetBindPoint(ObjectGuid guid);
         void SendTalentWipeConfirm(ObjectGuid guid);
-        void RewardRage( uint32 damage, uint32 weaponSpeedHitFactor, bool attacker );
+        void RewardRage( uint32 damage, uint32 weaponSpeedHitFactor, bool attacker);
         void SendPetSkillWipeConfirm();
-        void CalcRage( uint32 damage,bool attacker );
+        void CalcRage( uint32 damage,bool attacker);
         void RegenerateAll(uint32 diff = REGEN_TIME_FULL);
         void Regenerate(Powers power, uint32 diff);
         void RegenerateHealth(uint32 diff);
@@ -1523,7 +1523,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         void setWeaponChangeTimer(uint32 time) {m_weaponChangeTimer = time;}
 
         uint32 GetMoney() const { return GetUInt32Value (PLAYER_FIELD_COINAGE); }
-        void ModifyMoney( int32 d )
+        void ModifyMoney( int32 d)
         {
             if (d < 0)
                 SetMoney (GetMoney() > uint32(-d) ? GetMoney() + d : 0);
@@ -1534,16 +1534,16 @@ class MANGOS_DLL_SPEC Player : public Unit
             if (GetMoney() >= MAX_MONEY_AMOUNT)
                 SendEquipError(EQUIP_ERR_TOO_MUCH_GOLD,NULL,NULL);
         }
-        void SetMoney( uint32 value )
+        void SetMoney( uint32 value)
         {
             SetUInt32Value (PLAYER_FIELD_COINAGE, value);
-            MoneyChanged( value );
+            MoneyChanged( value);
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_GOLD_VALUE_OWNED);
         }
 
         QuestStatusMap& getQuestStatusMap() { return mQuestStatus; };
 
-        ObjectGuid const& GetSelectionGuid( ) const { return m_curSelectionGuid; }
+        ObjectGuid const& GetSelectionGuid() const { return m_curSelectionGuid; }
         void SetSelectionGuid(ObjectGuid guid) { m_curSelectionGuid = guid; SetTargetGuid(guid); }
 
         void SendComboPoints(ObjectGuid targetGuid, uint8 combopoints);
@@ -1584,7 +1584,7 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         void AddMItem(Item* it)
         {
-            MANGOS_ASSERT( it );
+            MANGOS_ASSERT( it);
             //ASSERT deleted, because items can be added before loading
             mMitems[it->GetGUIDLow()] = it;
         }
@@ -1677,13 +1677,13 @@ class MANGOS_DLL_SPEC Player : public Unit
             time_t t = time(NULL);
             return itr != m_spellCooldowns.end() && itr->second.end > t ? itr->second.end - t : 0;
         }
-        void AddSpellAndCategoryCooldowns(SpellEntry const* spellInfo, uint32 itemId, Spell* spell = NULL, bool infinityCooldown = false );
+        void AddSpellAndCategoryCooldowns(SpellEntry const* spellInfo, uint32 itemId, Spell* spell = NULL, bool infinityCooldown = false);
         void AddSpellCooldown(uint32 spell_id, uint32 itemid, time_t end_time);
         void SendCooldownEvent(SpellEntry const *spellInfo, uint32 itemId = 0, Spell* spell = NULL);
-        void ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs );
+        void ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs);
         void RemoveSpellCooldown(uint32 spell_id, bool update = false);
         void RemoveSpellCategoryCooldown(uint32 cat, bool update = false);
-        void SendClearCooldown( uint32 spell_id, Unit* target );
+        void SendClearCooldown( uint32 spell_id, Unit* target);
         void SendModifyCooldown( uint32 spell_id, int32 delta);
 
         GlobalCooldownMgr& GetGlobalCooldownMgr() { return m_GlobalCooldownMgr; }
@@ -1863,8 +1863,8 @@ class MANGOS_DLL_SPEC Player : public Unit
         WorldSession* GetSession() const { return m_session; }
         void SetSession(WorldSession *s) { m_session = s; }
 
-        void BuildCreateUpdateBlockForPlayer( UpdateData *data, Player *target ) const;
-        void DestroyForPlayer( Player *target, bool anim = false ) const;
+        void BuildCreateUpdateBlockForPlayer( UpdateData *data, Player *target) const;
+        void DestroyForPlayer( Player *target, bool anim = false) const;
         void SendLogXPGain(uint32 GivenXP,Unit* victim,uint32 BonusXP, bool ReferAFriend);
 
         // notifiers
@@ -1884,7 +1884,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         void SendResetFailedNotify(uint32 mapid);
 
         bool SetPosition(float x, float y, float z, float orientation, bool teleport = false);
-        void UpdateUnderwaterState( Map * m, float x, float y, float z );
+        void UpdateUnderwaterState( Map * m, float x, float y, float z);
 
         void SendMessageToSet(WorldPacket *data, bool self);// overwrite Object::SendMessageToSet
         void SendMessageToSetInRange(WorldPacket *data, float fist, bool self);
@@ -1921,7 +1921,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         void JoinedChannel(Channel *c);
         void LeftChannel(Channel *c);
         void CleanupChannels();
-        void UpdateLocalChannels( uint32 newZone );
+        void UpdateLocalChannels( uint32 newZone);
         void LeaveLFGChannel();
         void JoinLFGChannel();
 
@@ -2061,7 +2061,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         std::vector<ItemSetEffect *> ItemSetEff;
 
         void SendLoot(ObjectGuid guid, LootType loot_type);
-        void SendLootRelease(ObjectGuid guid );
+        void SendLootRelease(ObjectGuid guid);
         void SendNotifyLootItemRemoved(uint8 lootSlot);
         void SendNotifyLootMoneyRemoved();
 
@@ -2669,13 +2669,13 @@ class MANGOS_DLL_SPEC Player : public Unit
     private:
         void _HandleDeadlyPoison(Unit* Target, WeaponAttackType attType, SpellEntry const *spellInfo);
         // internal common parts for CanStore/StoreItem functions
-        InventoryResult _CanStoreItem_InSpecificSlot( uint8 bag, uint8 slot, ItemPosCountVec& dest, ItemPrototype const *pProto, uint32& count, bool swap, Item *pSrcItem ) const;
-        InventoryResult _CanStoreItem_InBag( uint8 bag, ItemPosCountVec& dest, ItemPrototype const *pProto, uint32& count, bool merge, bool non_specialized, Item *pSrcItem, uint8 skip_bag, uint8 skip_slot ) const;
-        InventoryResult _CanStoreItem_InInventorySlots( uint8 slot_begin, uint8 slot_end, ItemPosCountVec& dest, ItemPrototype const *pProto, uint32& count, bool merge, Item *pSrcItem, uint8 skip_bag, uint8 skip_slot ) const;
-        Item* _StoreItem( uint16 pos, Item *pItem, uint32 count, bool clone, bool update );
+        InventoryResult _CanStoreItem_InSpecificSlot( uint8 bag, uint8 slot, ItemPosCountVec& dest, ItemPrototype const *pProto, uint32& count, bool swap, Item *pSrcItem) const;
+        InventoryResult _CanStoreItem_InBag( uint8 bag, ItemPosCountVec& dest, ItemPrototype const *pProto, uint32& count, bool merge, bool non_specialized, Item *pSrcItem, uint8 skip_bag, uint8 skip_slot) const;
+        InventoryResult _CanStoreItem_InInventorySlots( uint8 slot_begin, uint8 slot_end, ItemPosCountVec& dest, ItemPrototype const *pProto, uint32& count, bool merge, Item *pSrcItem, uint8 skip_bag, uint8 skip_slot) const;
+        Item* _StoreItem( uint16 pos, Item *pItem, uint32 count, bool clone, bool update);
 
         void UpdateKnownCurrencies(uint32 itemId, bool apply);
-        void AdjustQuestReqItemCount( Quest const* pQuest, QuestStatusData& questStatusData );
+        void AdjustQuestReqItemCount( Quest const* pQuest, QuestStatusData& questStatusData);
 
         void SetCanDelayTeleport(bool setting) { m_bCanDelayTeleport = setting; }
         bool IsHasDelayedTeleport() const
@@ -2781,7 +2781,7 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
             totalflat += mod->m_amount;
         else
         {
-            // skip percent mods for null basevalue (most important for spell mods with charges )
+            // skip percent mods for null basevalue (most important for spell mods with charges)
             if (basevalue == T(0))
                 continue;
 

@@ -116,7 +116,7 @@ void BattleGroundEY::AddPoints(Team team, uint32 Points)
     BattleGroundTeamIndex team_index = GetTeamIndexByTeamId(team);
     m_TeamScores[team_index] += Points;
     m_HonorScoreTics[team_index] += Points;
-    if (m_HonorScoreTics[team_index] >= m_HonorTics )
+    if (m_HonorScoreTics[team_index] >= m_HonorTics)
     {
         RewardHonorToTeam(GetBonusHonorFromKill(1), team);
         m_HonorScoreTics[team_index] -= m_HonorTics;
@@ -398,7 +398,7 @@ bool BattleGroundEY::SetupBattleGround()
         if (!AddObject(BG_EY_OBJECT_SPEEDBUFF_FEL_REAVER + i * 3, Buff_Entries[0], at->x, at->y, at->z, 0.907571f, 0, 0, 0.438371f, 0.898794f, RESPAWN_ONE_DAY)
             || !AddObject(BG_EY_OBJECT_SPEEDBUFF_FEL_REAVER + i * 3 + 1, Buff_Entries[1], at->x, at->y, at->z, 0.907571f, 0, 0, 0.438371f, 0.898794f, RESPAWN_ONE_DAY)
             || !AddObject(BG_EY_OBJECT_SPEEDBUFF_FEL_REAVER + i * 3 + 2, Buff_Entries[2], at->x, at->y, at->z, 0.907571f, 0, 0, 0.438371f, 0.898794f, RESPAWN_ONE_DAY)
-            )
+           )
             sLog.outError("BattleGroundEY: Cannot spawn buff");
     }
 

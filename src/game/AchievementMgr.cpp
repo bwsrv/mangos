@@ -1471,7 +1471,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if (miscvalue2 != achievementCriteria->roll_greed_on_loot.rollValue)
                     continue;
 					
-                ItemPrototype const *pProto = ObjectMgr::GetItemPrototype( miscvalue1 );
+                ItemPrototype const *pProto = ObjectMgr::GetItemPrototype( miscvalue1);
 
                 uint32 requiredItemLevel = 0;
                 if (achievementCriteria->ID == 2412 || achievementCriteria->ID == 2358)
@@ -2163,7 +2163,7 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
         // subject and text
         std::string subject = reward->subject;
         std::string text = reward->text;
-        if ( loc_idx >= 0 )
+        if (loc_idx >= 0)
         {
             if (AchievementRewardLocale const* loc = sAchievementMgr.GetAchievementRewardLocale(achievement, GetPlayer()->getGender()))
             {
@@ -2641,7 +2641,7 @@ void AchievementGlobalMgr::LoadRewards()
     delete result;
 
     sLog.outString();
-    sLog.outString( ">> Loaded %u achievement rewards", count );
+    sLog.outString( ">> Loaded %u achievement rewards", count);
 }
 
 void AchievementGlobalMgr::LoadRewardLocales()
@@ -2734,5 +2734,5 @@ void AchievementGlobalMgr::LoadRewardLocales()
     delete result;
 
     sLog.outString();
-    sLog.outString( ">> Loaded %lu achievement reward locale strings", (unsigned long)m_achievementRewardLocales.size() );
+    sLog.outString( ">> Loaded %lu achievement reward locale strings", (unsigned long)m_achievementRewardLocales.size());
 }

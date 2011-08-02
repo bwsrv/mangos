@@ -186,7 +186,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
     }
 
     ItemPosCountVec dest;
-    InventoryResult msg = _player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, charterid, pProto->BuyCount );
+    InventoryResult msg = _player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, charterid, pProto->BuyCount);
     if (msg != EQUIP_ERR_OK)
     {
         _player->SendEquipError(msg, NULL, NULL, charterid);
@@ -227,8 +227,8 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
     DEBUG_LOG("Invalid petition GUIDs: %s", ssInvalidPetitionGUIDs.str().c_str());
     CharacterDatabase.escape_string(name);
     CharacterDatabase.BeginTransaction();
-    CharacterDatabase.PExecute("DELETE FROM petition WHERE petitionguid IN ( %s )",  ssInvalidPetitionGUIDs.str().c_str());
-    CharacterDatabase.PExecute("DELETE FROM petition_sign WHERE petitionguid IN ( %s )", ssInvalidPetitionGUIDs.str().c_str());
+    CharacterDatabase.PExecute("DELETE FROM petition WHERE petitionguid IN ( %s)",  ssInvalidPetitionGUIDs.str().c_str());
+    CharacterDatabase.PExecute("DELETE FROM petition_sign WHERE petitionguid IN ( %s)", ssInvalidPetitionGUIDs.str().c_str());
     CharacterDatabase.PExecute("INSERT INTO petition (ownerguid, petitionguid, name, type) VALUES ('%u', '%u', '%s', '%u')",
         _player->GetGUIDLow(), charter->GetGUIDLow(), name.c_str(), type);
     CharacterDatabase.CommitTransaction();
@@ -633,7 +633,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recv_data)
 
     DEBUG_LOG("OFFER PETITION: type %u petition %s to %s", type, petitionGuid.GetString().c_str(), playerGuid.GetString().c_str());
 
-    if (!sWorld.getConfig(CONFIG_BOOL_ALLOW_TWO_SIDE_INTERACTION_GUILD) && GetPlayer()->GetTeam() != player->GetTeam() )
+    if (!sWorld.getConfig(CONFIG_BOOL_ALLOW_TWO_SIDE_INTERACTION_GUILD) && GetPlayer()->GetTeam() != player->GetTeam())
     {
         if (type != 9)
             SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", "", ERR_ARENA_TEAM_NOT_ALLIED);

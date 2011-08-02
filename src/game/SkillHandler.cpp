@@ -25,7 +25,7 @@
 #include "WorldSession.h"
 #include "UpdateMask.h"
 
-void WorldSession::HandleLearnTalentOpcode( WorldPacket & recv_data )
+void WorldSession::HandleLearnTalentOpcode( WorldPacket & recv_data)
 {
     uint32 talent_id, requested_rank;
     recv_data >> talent_id >> requested_rank;
@@ -53,7 +53,7 @@ void WorldSession::HandleLearnPreviewTalents(WorldPacket& recvPacket)
     _player->SendTalentsInfoData(false);
 }
 
-void WorldSession::HandleTalentWipeConfirmOpcode( WorldPacket & recv_data )
+void WorldSession::HandleTalentWipeConfirmOpcode( WorldPacket & recv_data)
 {
     DETAIL_LOG("MSG_TALENT_WIPE_CONFIRM");
     ObjectGuid guid;
@@ -75,7 +75,7 @@ void WorldSession::HandleTalentWipeConfirmOpcode( WorldPacket & recv_data )
         WorldPacket data( MSG_TALENT_WIPE_CONFIRM, 8+4);    //you have not any talent
         data << uint64(0);
         data << uint32(0);
-        SendPacket( &data );
+        SendPacket( &data);
         return;
     }
 

@@ -124,14 +124,14 @@ bool ChatHandler::HandleServerInfoCommand(char* /*args*/)
 bool ChatHandler::HandleDismountCommand(char* /*args*/)
 {
     //If player is not mounted, so go out :)
-    if (!m_session->GetPlayer( )->IsMounted())
+    if (!m_session->GetPlayer()->IsMounted())
     {
         SendSysMessage(LANG_CHAR_NON_MOUNTED);
         SetSentErrorMessage(true);
         return false;
     }
 
-    if (m_session->GetPlayer( )->IsTaxiFlying())
+    if (m_session->GetPlayer()->IsTaxiFlying())
     {
         SendSysMessage(LANG_YOU_IN_FLIGHT);
         SetSentErrorMessage(true);

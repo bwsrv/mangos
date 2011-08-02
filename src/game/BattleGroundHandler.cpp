@@ -68,14 +68,14 @@ void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket & recv_data)
     SendBattlegGroundList(guid, bgTypeId);
 }
 
-void WorldSession::SendBattlegGroundList( ObjectGuid guid, BattleGroundTypeId bgTypeId )
+void WorldSession::SendBattlegGroundList( ObjectGuid guid, BattleGroundTypeId bgTypeId)
 {
     WorldPacket data;
     sBattleGroundMgr.BuildBattleGroundListPacket(&data, guid, _player, bgTypeId, 0);
-    SendPacket( &data );
+    SendPacket( &data);
 }
 
-void WorldSession::HandleBattlemasterJoinOpcode( WorldPacket & recv_data )
+void WorldSession::HandleBattlemasterJoinOpcode( WorldPacket & recv_data)
 {
     ObjectGuid guid;
     uint32 bgTypeId_;
@@ -239,7 +239,7 @@ void WorldSession::HandleBattlemasterJoinOpcode( WorldPacket & recv_data )
     sBattleGroundMgr.ScheduleQueueUpdate(0, ARENA_TYPE_NONE, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
 }
 
-void WorldSession::HandleBattleGroundPlayerPositionsOpcode( WorldPacket & /*recv_data*/ )
+void WorldSession::HandleBattleGroundPlayerPositionsOpcode( WorldPacket & /*recv_data*/)
 {
                                                             // empty opcode
     DEBUG_LOG("WORLD: Recvd MSG_BATTLEGROUND_PLAYER_POSITIONS Message");
@@ -248,7 +248,7 @@ void WorldSession::HandleBattleGroundPlayerPositionsOpcode( WorldPacket & /*recv
     if (!bg)                                                 // can't be received if player not in battleground
         return;
 
-    switch( bg->GetTypeID(true) )
+    switch( bg->GetTypeID(true))
     {
         case BATTLEGROUND_WS:
             {
@@ -307,7 +307,7 @@ void WorldSession::HandleBattleGroundPlayerPositionsOpcode( WorldPacket & /*recv
     }
 }
 
-void WorldSession::HandlePVPLogDataOpcode( WorldPacket & /*recv_data*/ )
+void WorldSession::HandlePVPLogDataOpcode( WorldPacket & /*recv_data*/)
 {
     DEBUG_LOG( "WORLD: Recvd MSG_PVP_LOG_DATA Message");
 
@@ -326,7 +326,7 @@ void WorldSession::HandlePVPLogDataOpcode( WorldPacket & /*recv_data*/ )
     DEBUG_LOG( "WORLD: Sent MSG_PVP_LOG_DATA Message");
 }
 
-void WorldSession::HandleBattlefieldListOpcode( WorldPacket &recv_data )
+void WorldSession::HandleBattlefieldListOpcode( WorldPacket &recv_data)
 {
     DEBUG_LOG( "WORLD: Recvd CMSG_BATTLEFIELD_LIST Message");
 
@@ -348,10 +348,10 @@ void WorldSession::HandleBattlefieldListOpcode( WorldPacket &recv_data )
 
     WorldPacket data;
     sBattleGroundMgr.BuildBattleGroundListPacket(&data, ObjectGuid(), _player, BattleGroundTypeId(bgTypeId), fromWhere);
-    SendPacket( &data );
+    SendPacket( &data);
 }
 
-void WorldSession::HandleBattleFieldPortOpcode( WorldPacket &recv_data )
+void WorldSession::HandleBattleFieldPortOpcode( WorldPacket &recv_data)
 {
     DEBUG_LOG( "WORLD: Recvd CMSG_BATTLEFIELD_PORT Message");
 
@@ -438,7 +438,7 @@ void WorldSession::HandleBattleFieldPortOpcode( WorldPacket &recv_data )
     }
     uint32 queueSlot = _player->GetBattleGroundQueueIndex(bgQueueTypeId);
     WorldPacket data;
-    switch( action )
+    switch( action)
     {
         case 1:                                         // port to battleground
             if (!_player->IsInvitedForBattleGroundQueueType(bgQueueTypeId))
@@ -506,7 +506,7 @@ void WorldSession::HandleBattleFieldPortOpcode( WorldPacket &recv_data )
     }
 }
 
-void WorldSession::HandleLeaveBattlefieldOpcode( WorldPacket& recv_data )
+void WorldSession::HandleLeaveBattlefieldOpcode( WorldPacket& recv_data)
 {
     DEBUG_LOG( "WORLD: Recvd CMSG_LEAVE_BATTLEFIELD Message");
 
@@ -527,10 +527,10 @@ void WorldSession::HandleLeaveBattlefieldOpcode( WorldPacket& recv_data )
     _player->LeaveBattleground();
 }
 
-void WorldSession::HandleBattlefieldStatusOpcode( WorldPacket & /*recv_data*/ )
+void WorldSession::HandleBattlefieldStatusOpcode( WorldPacket & /*recv_data*/)
 {
     // empty opcode
-    DEBUG_LOG( "WORLD: Battleground status" );
+    DEBUG_LOG( "WORLD: Battleground status");
 
     WorldPacket data;
     // we must update all queues here
@@ -591,7 +591,7 @@ void WorldSession::HandleBattlefieldStatusOpcode( WorldPacket & /*recv_data*/ )
     }
 }
 
-void WorldSession::HandleAreaSpiritHealerQueryOpcode( WorldPacket & recv_data )
+void WorldSession::HandleAreaSpiritHealerQueryOpcode( WorldPacket & recv_data)
 {
     DEBUG_LOG("WORLD: CMSG_AREA_SPIRIT_HEALER_QUERY");
 
@@ -612,7 +612,7 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode( WorldPacket & recv_data )
     unit->SendAreaSpiritHealerQueryOpcode(GetPlayer());
 }
 
-void WorldSession::HandleAreaSpiritHealerQueueOpcode( WorldPacket & recv_data )
+void WorldSession::HandleAreaSpiritHealerQueueOpcode( WorldPacket & recv_data)
 {
     DEBUG_LOG("WORLD: CMSG_AREA_SPIRIT_HEALER_QUEUE");
 
@@ -633,7 +633,7 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode( WorldPacket & recv_data )
     sScriptMgr.OnGossipHello(GetPlayer(), unit);
 }
 
-void WorldSession::HandleBattlemasterJoinArena( WorldPacket & recv_data )
+void WorldSession::HandleBattlemasterJoinArena( WorldPacket & recv_data)
 {
     DEBUG_LOG("WORLD: CMSG_BATTLEMASTER_JOIN_ARENA");
     //recv_data.hexlike();
@@ -809,7 +809,7 @@ void WorldSession::HandleBattlemasterJoinArena( WorldPacket & recv_data )
     sBattleGroundMgr.ScheduleQueueUpdate(arenaRating, arenatype, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
 }
 
-void WorldSession::HandleReportPvPAFK( WorldPacket & recv_data )
+void WorldSession::HandleReportPvPAFK( WorldPacket & recv_data)
 {
     ObjectGuid playerGuid;
     recv_data >> playerGuid;

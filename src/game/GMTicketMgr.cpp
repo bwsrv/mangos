@@ -36,7 +36,7 @@ void GMTicketMgr::LoadGMTickets()
         //      0     1            2              3                                  4
         "SELECT guid, ticket_text, response_text, UNIX_TIMESTAMP(ticket_lastchange), ticket_id FROM character_ticket ORDER BY ticket_id ASC");
 
-    if ( !result )
+    if (!result)
     {
         BarGoLink bar(1);
 

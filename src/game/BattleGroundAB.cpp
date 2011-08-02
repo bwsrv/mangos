@@ -445,7 +445,7 @@ bool BattleGroundAB::SetupBattleGround()
         if (!AddObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + 3 * i, Buff_Entries[0], BG_AB_BuffPositions[i][0], BG_AB_BuffPositions[i][1], BG_AB_BuffPositions[i][2], BG_AB_BuffPositions[i][3], 0, 0, sin(BG_AB_BuffPositions[i][3]/2), cos(BG_AB_BuffPositions[i][3]/2), RESPAWN_ONE_DAY)
             || !AddObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + 3 * i + 1, Buff_Entries[1], BG_AB_BuffPositions[i][0], BG_AB_BuffPositions[i][1], BG_AB_BuffPositions[i][2], BG_AB_BuffPositions[i][3], 0, 0, sin(BG_AB_BuffPositions[i][3]/2), cos(BG_AB_BuffPositions[i][3]/2), RESPAWN_ONE_DAY)
             || !AddObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + 3 * i + 2, Buff_Entries[2], BG_AB_BuffPositions[i][0], BG_AB_BuffPositions[i][1], BG_AB_BuffPositions[i][2], BG_AB_BuffPositions[i][3], 0, 0, sin(BG_AB_BuffPositions[i][3]/2), cos(BG_AB_BuffPositions[i][3]/2), RESPAWN_ONE_DAY)
-            )
+           )
             sLog.outErrorDb("BatteGroundAB: Failed to spawn buff object!");
     }
 
@@ -518,7 +518,7 @@ WorldSafeLocsEntry const* BattleGroundAB::GetClosestGraveYard(Player* player)
         float mindist = 999999.0f;
         for (uint8 i = 0; i < nodes.size(); ++i)
         {
-            WorldSafeLocsEntry const*entry = sWorldSafeLocsStore.LookupEntry( BG_AB_GraveyardIds[nodes[i]] );
+            WorldSafeLocsEntry const*entry = sWorldSafeLocsStore.LookupEntry( BG_AB_GraveyardIds[nodes[i]]);
             if (!entry)
                 continue;
             float dist = (entry->x - plr_x)*(entry->x - plr_x)+(entry->y - plr_y)*(entry->y - plr_y);
@@ -532,7 +532,7 @@ WorldSafeLocsEntry const* BattleGroundAB::GetClosestGraveYard(Player* player)
     }
     // If not, place ghost on starting location
     if (!good_entry)
-        good_entry = sWorldSafeLocsStore.LookupEntry( BG_AB_GraveyardIds[teamIndex+5] );
+        good_entry = sWorldSafeLocsStore.LookupEntry( BG_AB_GraveyardIds[teamIndex+5]);
 
     return good_entry;
 }
@@ -540,7 +540,7 @@ WorldSafeLocsEntry const* BattleGroundAB::GetClosestGraveYard(Player* player)
 void BattleGroundAB::UpdatePlayerScore(Player *Source, uint32 type, uint32 value)
 {
     BattleGroundScoreMap::iterator itr = m_PlayerScores.find(Source->GetObjectGuid());
-    if ( itr == m_PlayerScores.end() )                         // player not found...
+    if (itr == m_PlayerScores.end())                         // player not found...
         return;
 
     switch(type)

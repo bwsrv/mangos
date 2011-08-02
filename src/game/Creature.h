@@ -57,7 +57,7 @@ enum CreatureFlagsExtra
 };
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push,N), also any gcc version not support it at some platform
-#if defined( __GNUC__ )
+#if defined( __GNUC__)
 #pragma pack(1)
 #else
 #pragma pack(push,1)
@@ -254,7 +254,7 @@ typedef std::map<uint8 /* index */,     CreatureSpellEntry> CreatureSpellsList;
 typedef std::map<uint32 /*creature_id*/,CreatureSpellsList> CreatureSpellStorage;
 
 // GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform
-#if defined( __GNUC__ )
+#if defined( __GNUC__)
 #pragma pack()
 #else
 #pragma pack(pop)
@@ -336,7 +336,7 @@ struct VendorItemData
     {
         m_items.push_back(new VendorItem(item, maxcount, ptime, ExtendedCost));
     }
-    bool RemoveItem( uint32 item_id );
+    bool RemoveItem( uint32 item_id);
     VendorItem const* FindItemCostPair(uint32 item_id, uint32 extendedCost) const;
 
     void Clear()

@@ -62,7 +62,7 @@ bool WorldSession::processChatmessageFurtherAfterSecurityChecks(std::string& msg
     return true;
 }
 
-void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
+void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data)
 {
     uint32 type;
     uint32 lang;
@@ -76,7 +76,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
         return;
     }
 
-    DEBUG_LOG("CHAT: packet received. type %u, lang %u", type, lang );
+    DEBUG_LOG("CHAT: packet received. type %u, lang %u", type, lang);
 
     // prevent talking at unknown language (cheating)
     LanguageDesc const* langDesc = GetLanguageDescByID(lang);
@@ -232,7 +232,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
                 return;
             }
 
-            if (!sWorld.getConfig(CONFIG_BOOL_ALLOW_TWO_SIDE_INTERACTION_CHAT) && tSecurity == SEC_PLAYER && pSecurity == SEC_PLAYER )
+            if (!sWorld.getConfig(CONFIG_BOOL_ALLOW_TWO_SIDE_INTERACTION_CHAT) && tSecurity == SEC_PLAYER && pSecurity == SEC_PLAYER)
             {
                 if (GetPlayer()->GetTeam() != player->GetTeam())
                 {
@@ -559,7 +559,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
     }
 }
 
-void WorldSession::HandleEmoteOpcode( WorldPacket & recv_data )
+void WorldSession::HandleEmoteOpcode( WorldPacket & recv_data)
 {
     if (!GetPlayer()->isAlive() || GetPlayer()->hasUnitState(UNIT_STAT_DIED))
         return;
@@ -601,7 +601,7 @@ namespace MaNGOS
     };
 }                                                           // namespace MaNGOS
 
-void WorldSession::HandleTextEmoteOpcode( WorldPacket & recv_data )
+void WorldSession::HandleTextEmoteOpcode( WorldPacket & recv_data)
 {
     if (!GetPlayer()->isAlive())
         return;
@@ -658,7 +658,7 @@ void WorldSession::HandleTextEmoteOpcode( WorldPacket & recv_data )
         ((Creature*)unit)->AI()->ReceiveEmote(GetPlayer(), text_emote);
 }
 
-void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recv_data )
+void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recv_data)
 {
     ObjectGuid iguid;
     uint8 unk;

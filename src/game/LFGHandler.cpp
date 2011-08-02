@@ -25,7 +25,7 @@
 #include "World.h"
 #include "LFGMgr.h"
 
-void WorldSession::HandleLfgJoinOpcode( WorldPacket & recv_data )
+void WorldSession::HandleLfgJoinOpcode( WorldPacket & recv_data)
 {
     if (!GetPlayer())
         return;
@@ -95,7 +95,7 @@ void WorldSession::HandleLfgJoinOpcode( WorldPacket & recv_data )
     sLFGMgr.Join(GetPlayer());
 }
 
-void WorldSession::HandleLfgLeaveOpcode( WorldPacket & /*recv_data*/ )
+void WorldSession::HandleLfgLeaveOpcode( WorldPacket & /*recv_data*/)
 {
     Group* group = GetPlayer()->GetGroup();
 
@@ -115,7 +115,7 @@ void WorldSession::HandleLfgGetStatus(WorldPacket & /*recv_data*/)
     // Need implement
 }
 
-void WorldSession::HandleLfrSearchOpcode( WorldPacket & recv_data )
+void WorldSession::HandleLfrSearchOpcode( WorldPacket & recv_data)
 {
     uint32 entry;                                           // Raid id to search
     recv_data >> entry;
@@ -128,7 +128,7 @@ void WorldSession::HandleLfrSearchOpcode( WorldPacket & recv_data )
     SendLfgUpdateList(entry & 0x00FFFFFF);
 }
 
-void WorldSession::HandleLfrLeaveOpcode( WorldPacket & recv_data )
+void WorldSession::HandleLfrLeaveOpcode( WorldPacket & recv_data)
 {
     uint32 entry;                                          // Raid id queue to leave
     recv_data >> entry;
@@ -153,19 +153,19 @@ void WorldSession::HandleLfrLeaveOpcode( WorldPacket & recv_data )
     }
 }
 
-void WorldSession::HandleLfgClearOpcode( WorldPacket & /*recv_data */ )
+void WorldSession::HandleLfgClearOpcode( WorldPacket & /*recv_data */)
 {
     // empty packet
     DEBUG_LOG("CMSG_CLEAR_LOOKING_FOR_GROUP %u ", GetPlayer()->GetObjectGuid().GetCounter());
 
     sLFGMgr.ClearLFRList(GetPlayer());
 
-    if (sWorld.getConfig(CONFIG_BOOL_RESTRICTED_LFG_CHANNEL) && _player->GetSession()->GetSecurity() == SEC_PLAYER )
+    if (sWorld.getConfig(CONFIG_BOOL_RESTRICTED_LFG_CHANNEL) && _player->GetSession()->GetSecurity() == SEC_PLAYER)
         GetPlayer()->LeaveLFGChannel();
 
 }
 
-void WorldSession::HandleSetLfgCommentOpcode( WorldPacket & recv_data )
+void WorldSession::HandleSetLfgCommentOpcode( WorldPacket & recv_data)
 {
     std::string comment;
     recv_data >> comment;

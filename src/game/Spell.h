@@ -100,8 +100,8 @@ class SpellCastTargets
         SpellCastTargets();
         ~SpellCastTargets();
 
-        void read( ByteBuffer& data, Unit *caster );
-        void write( ByteBuffer& data ) const;
+        void read( ByteBuffer& data, Unit *caster);
+        void write( ByteBuffer& data) const;
 
         SpellCastTargetsReader ReadForCaster(Unit* caster) { return SpellCastTargetsReader(*this,caster); }
 
@@ -225,7 +225,7 @@ class Spell
 {
     friend struct MaNGOS::SpellNotifierPlayer;
     friend struct MaNGOS::SpellNotifierCreatureAndPlayer;
-    friend void Unit::SetCurrentCastedSpell( Spell * pSpell );
+    friend void Unit::SetCurrentCastedSpell( Spell * pSpell);
     public:
 
         void EffectEmpty(SpellEffectIndex eff_idx);
@@ -420,7 +420,7 @@ class Spell
 
         template<typename T> WorldObject* FindCorpseUsing();
 
-        bool CheckTarget( Unit* target, SpellEffectIndex eff );
+        bool CheckTarget( Unit* target, SpellEffectIndex eff);
         bool CanAutoCast(Unit* target);
 
         static void MANGOS_DLL_SPEC SendCastResult(Player* caster, SpellEntry const* spellInfo, uint8 cast_count, SpellCastResult result);
@@ -688,13 +688,13 @@ namespace MaNGOS
             for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
             {
                 Player * pPlayer = itr->getSource();
-                if ( !pPlayer->isAlive() || pPlayer->IsTaxiFlying())
+                if (!pPlayer->isAlive() || pPlayer->IsTaxiFlying())
                     continue;
 
-                if ( i_originalCaster->IsFriendlyTo(pPlayer) )
+                if (i_originalCaster->IsFriendlyTo(pPlayer))
                     continue;
 
-                if ( pPlayer->IsWithinDist3d(i_spell.m_targets.m_destX, i_spell.m_targets.m_destY, i_spell.m_targets.m_destZ,i_radius))
+                if (pPlayer->IsWithinDist3d(i_spell.m_targets.m_destX, i_spell.m_targets.m_destY, i_spell.m_targets.m_destZ,i_radius))
                     i_data.push_back(pPlayer);
             }
         }
@@ -767,7 +767,7 @@ namespace MaNGOS
             {
                 // there are still more spells which can be casted on dead, but
                 // they are no AOE and don't have such a nice SPELL_ATTR flag
-                if ( (i_TargetType != SPELL_TARGETS_ALL && !itr->getSource()->isTargetableForAttack(i_spell.m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_CAST_ON_DEAD))
+                if ((i_TargetType != SPELL_TARGETS_ALL && !itr->getSource()->isTargetableForAttack(i_spell.m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_CAST_ON_DEAD))
                     // mostly phase check
                     || !itr->getSource()->IsInMap(i_originalCaster))
                     continue;
@@ -775,19 +775,19 @@ namespace MaNGOS
                 switch (i_TargetType)
                 {
                     case SPELL_TARGETS_HOSTILE:
-                        if (!i_originalCaster->IsHostileTo( itr->getSource() ))
+                        if (!i_originalCaster->IsHostileTo( itr->getSource()))
                             continue;
                         break;
                     case SPELL_TARGETS_NOT_FRIENDLY:
-                        if (i_originalCaster->IsFriendlyTo( itr->getSource() ))
+                        if (i_originalCaster->IsFriendlyTo( itr->getSource()))
                             continue;
                         break;
                     case SPELL_TARGETS_NOT_HOSTILE:
-                        if (i_originalCaster->IsHostileTo( itr->getSource() ))
+                        if (i_originalCaster->IsHostileTo( itr->getSource()))
                             continue;
                         break;
                     case SPELL_TARGETS_FRIENDLY:
-                        if (!i_originalCaster->IsFriendlyTo( itr->getSource() ))
+                        if (!i_originalCaster->IsFriendlyTo( itr->getSource()))
                             continue;
                         break;
                     case SPELL_TARGETS_AOE_DAMAGE:
@@ -797,12 +797,12 @@ namespace MaNGOS
 
                         if (i_playerControlled)
                         {
-                            if (i_originalCaster->IsFriendlyTo( itr->getSource() ))
+                            if (i_originalCaster->IsFriendlyTo( itr->getSource()))
                                 continue;
                         }
                         else
                         {
-                            if (!i_originalCaster->IsHostileTo( itr->getSource() ))
+                            if (!i_originalCaster->IsHostileTo( itr->getSource()))
                                 continue;
                         }
 
@@ -819,23 +819,23 @@ namespace MaNGOS
                 switch(i_push_type)
                 {
                     case PUSH_IN_FRONT:
-                        if (i_castingObject->isInFront((Unit*)(itr->getSource()), i_radius, 2*M_PI_F/3 ))
+                        if (i_castingObject->isInFront((Unit*)(itr->getSource()), i_radius, 2*M_PI_F/3))
                             i_data->push_back(itr->getSource());
                         break;
                     case PUSH_IN_FRONT_90:
-                        if (i_castingObject->isInFront((Unit*)(itr->getSource()), i_radius, M_PI_F/2 ))
+                        if (i_castingObject->isInFront((Unit*)(itr->getSource()), i_radius, M_PI_F/2))
                             i_data->push_back(itr->getSource());
                         break;
                     case PUSH_IN_FRONT_30:
-                        if (i_castingObject->isInFront((Unit*)(itr->getSource()), i_radius, M_PI_F/6 ))
+                        if (i_castingObject->isInFront((Unit*)(itr->getSource()), i_radius, M_PI_F/6))
                             i_data->push_back(itr->getSource());
                         break;
                     case PUSH_IN_FRONT_15:
-                        if (i_castingObject->isInFront((Unit*)(itr->getSource()), i_radius, M_PI_F/12 ))
+                        if (i_castingObject->isInFront((Unit*)(itr->getSource()), i_radius, M_PI_F/12))
                             i_data->push_back(itr->getSource());
                         break;
                     case PUSH_IN_BACK:
-                        if (i_castingObject->isInBack((Unit*)(itr->getSource()), i_radius, 2*M_PI_F/3 ))
+                        if (i_castingObject->isInBack((Unit*)(itr->getSource()), i_radius, 2*M_PI_F/3))
                             i_data->push_back(itr->getSource());
                         break;
                     case PUSH_SELF_CENTER:
@@ -855,18 +855,18 @@ namespace MaNGOS
         }
 
         #ifdef WIN32
-        template<> inline void Visit(CorpseMapType & ) {}
-        template<> inline void Visit(GameObjectMapType & ) {}
-        template<> inline void Visit(DynamicObjectMapType & ) {}
-        template<> inline void Visit(CameraMapType & ) {}
+        template<> inline void Visit(CorpseMapType &) {}
+        template<> inline void Visit(GameObjectMapType &) {}
+        template<> inline void Visit(DynamicObjectMapType &) {}
+        template<> inline void Visit(CameraMapType &) {}
         #endif
     };
 
     #ifndef WIN32
-    template<> inline void SpellNotifierCreatureAndPlayer::Visit(CorpseMapType& ) {}
-    template<> inline void SpellNotifierCreatureAndPlayer::Visit(GameObjectMapType& ) {}
-    template<> inline void SpellNotifierCreatureAndPlayer::Visit(DynamicObjectMapType& ) {}
-    template<> inline void SpellNotifierCreatureAndPlayer::Visit(CameraMapType& ) {}
+    template<> inline void SpellNotifierCreatureAndPlayer::Visit(CorpseMapType&) {}
+    template<> inline void SpellNotifierCreatureAndPlayer::Visit(GameObjectMapType&) {}
+    template<> inline void SpellNotifierCreatureAndPlayer::Visit(DynamicObjectMapType&) {}
+    template<> inline void SpellNotifierCreatureAndPlayer::Visit(CameraMapType&) {}
     #endif
 }
 

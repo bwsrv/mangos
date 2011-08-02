@@ -111,10 +111,10 @@ class MANGOS_DLL_SPEC CreatureAI
         virtual void OwnerKilledUnit(Unit *) {}
 
         // Called when the creature summon successfully other creature
-        virtual void JustSummoned(Creature* ) {}
+        virtual void JustSummoned(Creature*) {}
 
         // Called when the creature summon successfully a gameobject
-        virtual void JustSummoned(GameObject* ) {}
+        virtual void JustSummoned(GameObject*) {}
 
         // Called when the creature summon despawn
         virtual void SummonedCreatureDespawn(Creature* /*unit*/) {}
