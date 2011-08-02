@@ -19076,16 +19076,8 @@ void Player::UpdateDuelFlag(time_t currTime)
 
 void Player::RemovePet(PetSaveMode mode)
 {
-    GroupPetList groupPets = GetPets();
-    if (!groupPets.empty())
-    {
-        for (GroupPetList::const_iterator itr = groupPets.begin(); itr != groupPets.end(); ++itr)
-             if (Pet* _pet = GetMap()->GetPet(*itr))
-                 _pet->Unsummon(mode, this);
-    }
-    else
-        if (Pet* pet = GetPet())
-            pet->Unsummon(mode, this);
+    if (Pet* pet = GetPet())
+        pet->Unsummon(mode, this);
 }
 
 void Player::BuildPlayerChat(WorldPacket *data, uint8 msgtype, const std::string& text, uint32 language) const

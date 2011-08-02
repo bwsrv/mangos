@@ -71,8 +71,7 @@ void Pet::AddToWorld()
     if (!((Creature*)this)->IsInWorld())
     {
         GetMap()->GetObjectsStore().insert<Pet>(GetObjectGuid(), (Pet*)this);
-        if (!sObjectAccessor.FindPet(GetObjectGuid()))
-            sObjectAccessor.AddObject(this);
+        sObjectAccessor.AddObject(this);
     }
 
     Unit::AddToWorld();
@@ -84,9 +83,9 @@ void Pet::RemoveFromWorld()
     if (((Creature*)this)->IsInWorld())
     {
         GetMap()->GetObjectsStore().erase<Pet>(GetObjectGuid(), (Pet*)NULL);
-        if (sObjectAccessor.FindPet(GetObjectGuid()))
-            sObjectAccessor.RemoveObject(this);
+        sObjectAccessor.RemoveObject(this);
     }
+
     ///- Don't call the function for Creature, normal mobs + totems go in a different storage
     Unit::RemoveFromWorld();
 }
@@ -771,11 +770,8 @@ void Pet::Unsummon(PetSaveMode mode, Unit* owner /*= NULL*/)
             SavePetToDB(mode);
     }
 
-    // Removing pet from ObjectAccessor immediately (his also binded to map)
-    if (sObjectAccessor.FindPet(GetObjectGuid()))
-        sObjectAccessor.RemoveObject(this);
-
     AddObjectToRemoveList();
+
 }
 
 void Pet::GivePetXP(uint32 xp)
