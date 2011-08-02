@@ -626,7 +626,7 @@ bool ChatHandler::HandleDebugGetItemStateCommand(char* args)
             }
 
             if (item->GetState() == ITEM_REMOVED) continue;
-            Item *test = player->GetItemByPos( item->GetBagSlot(), item->GetSlot());
+            Item *test = player->GetItemByPos(item->GetBagSlot(), item->GetSlot());
 
             if (test == NULL)
             {
@@ -664,7 +664,7 @@ bool ChatHandler::HandleDebugArenaCommand(char* /*args*/)
 
 bool ChatHandler::HandleDebugSpellCheckCommand(char* /*args*/)
 {
-    sLog.outString( "Check expected in code spell properties base at table 'spell_check' content...");
+    sLog.outString("Check expected in code spell properties base at table 'spell_check' content...");
     sSpellMgr.CheckUsedSpells("spell_check");
     return true;
 }
@@ -929,7 +929,7 @@ bool ChatHandler::HandleDebugGetValueCommand(char* args)
     return HandleGetValueHelper(target, field, typeStr);
 }
 
-bool ChatHandler::HandlerDebugModValueHelper( Object* target, uint32 field, char* typeStr, char* valStr)
+bool ChatHandler::HandlerDebugModValueHelper(Object* target, uint32 field, char* typeStr, char* valStr)
 {
     ObjectGuid guid = target->GetObjectGuid();
 

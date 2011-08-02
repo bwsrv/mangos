@@ -227,8 +227,8 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
     DEBUG_LOG("Invalid petition GUIDs: %s", ssInvalidPetitionGUIDs.str().c_str());
     CharacterDatabase.escape_string(name);
     CharacterDatabase.BeginTransaction();
-    CharacterDatabase.PExecute("DELETE FROM petition WHERE petitionguid IN ( %s)",  ssInvalidPetitionGUIDs.str().c_str());
-    CharacterDatabase.PExecute("DELETE FROM petition_sign WHERE petitionguid IN ( %s)", ssInvalidPetitionGUIDs.str().c_str());
+    CharacterDatabase.PExecute("DELETE FROM petition WHERE petitionguid IN (%s)",  ssInvalidPetitionGUIDs.str().c_str());
+    CharacterDatabase.PExecute("DELETE FROM petition_sign WHERE petitionguid IN (%s)", ssInvalidPetitionGUIDs.str().c_str());
     CharacterDatabase.PExecute("INSERT INTO petition (ownerguid, petitionguid, name, type) VALUES ('%u', '%u', '%s', '%u')",
         _player->GetGUIDLow(), charter->GetGUIDLow(), name.c_str(), type);
     CharacterDatabase.CommitTransaction();

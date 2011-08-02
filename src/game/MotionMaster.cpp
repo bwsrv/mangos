@@ -70,7 +70,7 @@ void MotionMaster::UpdateMotion(uint32 diff)
 
     if (!empty())
     {
-    MANGOS_ASSERT( !empty());
+    MANGOS_ASSERT(!empty());
     m_cleanFlag |= MMCF_UPDATE;
 
     if (!top()->Update(*m_owner, diff))
@@ -107,7 +107,7 @@ void MotionMaster::UpdateMotion(uint32 diff)
 
 void MotionMaster::DirectClean(bool reset, bool all)
 {
-    while( all ? !empty() : size() > 1)
+    while(all ? !empty() : size() > 1)
     {
         MovementGenerator *curr = top();
         pop();
@@ -115,7 +115,7 @@ void MotionMaster::DirectClean(bool reset, bool all)
         if (m_owner && m_owner->IsInWorld())
             curr->Finalize(*m_owner);
 
-        if (!isStatic( curr))
+        if (!isStatic(curr))
             delete curr;
     }
 
@@ -123,7 +123,7 @@ void MotionMaster::DirectClean(bool reset, bool all)
     {
         if (!empty())
         {
-            MANGOS_ASSERT( !empty());
+            MANGOS_ASSERT(!empty());
             top()->Reset(*m_owner);
         }
     }
@@ -142,7 +142,7 @@ void MotionMaster::DelayedClean(bool reset, bool all)
     if (!m_expList)
         m_expList = new ExpireList();
 
-    while( all ? !empty() : size() > 1)
+    while(all ? !empty() : size() > 1)
     {
         MovementGenerator *curr = top();
         pop();
@@ -150,7 +150,7 @@ void MotionMaster::DelayedClean(bool reset, bool all)
         if (m_owner && m_owner->IsInWorld())
             curr->Finalize(*m_owner);
 
-        if (!isStatic( curr))
+        if (!isStatic(curr))
             m_expList->push_back(curr);
     }
 }
@@ -443,7 +443,7 @@ void MotionMaster::Mutate(MovementGenerator *m)
 void MotionMaster::propagateSpeedChange()
 {
     Impl::container_type::iterator it = Impl::c.begin();
-    for ( ;it != end(); ++it)
+    for (;it != end(); ++it)
     {
         (*it)->unitSpeedChanged();
     }

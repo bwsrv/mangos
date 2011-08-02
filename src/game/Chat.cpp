@@ -955,7 +955,7 @@ bool ChatHandler::hasStringAbbr(const char* name, const char* part)
                 return true;
             else if (!*name)
                 return false;
-            else if (tolower( *name) != tolower( *part))
+            else if (tolower(*name) != tolower(*part))
                 return false;
             ++name; ++part;
         }
@@ -1047,7 +1047,7 @@ void ChatHandler::PSendSysMessage(const char *format, ...)
     SendSysMessage(str);
 }
 
-void ChatHandler::CheckIntegrity( ChatCommand *table, ChatCommand *parentCommand)
+void ChatHandler::CheckIntegrity(ChatCommand *table, ChatCommand *parentCommand)
 {
     for (uint32 i = 0; table[i].Name != NULL; ++i)
     {
@@ -2066,7 +2066,7 @@ valid examples:
 }
 
 //Note: target_guid used only in CHAT_MSG_WHISPER_INFORM mode (in this case channelName ignored)
-void ChatHandler::FillMessageData( WorldPacket *data, WorldSession* session, uint8 type, uint32 language, const char *channelName, ObjectGuid targetGuid, const char *message, Unit *speaker)
+void ChatHandler::FillMessageData(WorldPacket *data, WorldSession* session, uint8 type, uint32 language, const char *channelName, ObjectGuid targetGuid, const char *message, Unit *speaker)
 {
     uint32 messageLength = (message ? strlen(message) : 0) + 1;
 
@@ -2430,7 +2430,7 @@ char* ChatHandler::ExtractLiteralArg(char** args, char const* lit /*= NULL*/)
  * @param asis control save quote string wrappers
  * @return     quote-like string, or NULL if args empty or not appropriate content.
  */
-char* ChatHandler::ExtractQuotedArg( char** args, bool asis /*= false*/)
+char* ChatHandler::ExtractQuotedArg(char** args, bool asis /*= false*/)
 {
     if (!*args || !**args)
         return NULL;
@@ -2706,7 +2706,7 @@ char* ChatHandler::ExtractLinkArg(char** args, char const* const* linkTypes /*= 
  * @param asis control save quote string wrappers
  * @return     extracted arg string, or NULL if args empty or not appropriate content.
  */
-char* ChatHandler::ExtractArg( char** args, bool asis /*= false*/)
+char* ChatHandler::ExtractArg(char** args, bool asis /*= false*/)
 {
     if (!*args || !**args)
         return NULL;

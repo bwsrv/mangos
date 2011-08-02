@@ -177,7 +177,7 @@ class MANGOS_DLL_SPEC Pet : public Creature
 
         bool Create (uint32 guidlow, CreatureCreatePos& cPos, CreatureInfo const* cinfo, uint32 pet_number, Unit* owner);
         bool CreateBaseAtCreature(Creature* creature, Unit* owner);
-        bool LoadPetFromDB( Player* owner,uint32 petentry = 0,uint32 petnumber = 0, bool current = false);
+        bool LoadPetFromDB(Player* owner,uint32 petentry = 0,uint32 petnumber = 0, bool current = false);
         void SavePetToDB(PetSaveMode mode);
         void Unsummon(PetSaveMode mode, Unit* owner = NULL);
         static void DeleteFromDB(uint32 guidlow, bool separate_transaction = true);
@@ -244,7 +244,7 @@ class MANGOS_DLL_SPEC Pet : public Creature
         void ApplyExpertizeScalingBonus(bool apply);
         void ApplyPowerregenScalingBonus(bool apply);
         bool ReapplyScalingAura(SpellAuraHolder* holder, SpellEntry const *spellproto, SpellEffectIndex index, int32 basePoints);
-        PetScalingData* CalculateScalingData( bool recalculate = false);
+        PetScalingData* CalculateScalingData(bool recalculate = false);
         void AddScalingAction(ScalingTarget target, uint32 stat, bool apply);
         void ApplyHappinessBonus(bool apply);
 
@@ -294,7 +294,7 @@ class MANGOS_DLL_SPEC Pet : public Creature
         bool Summon();
         void SetCreateSpellID(uint32 SpellID) { m_createSpellID = SpellID; }
         uint32 GetCreateSpellID() { return m_createSpellID; }
-        bool IsInWorld() const { return ( !m_loading && !m_removed && Object::IsInWorld()); }
+        bool IsInWorld() const { return (!m_loading && !m_removed && Object::IsInWorld()); }
 
         // overwrite Creature function for name localization back to WorldObject version without localization
         const char* GetNameForLocaleIdx(int32 locale_idx) const { return WorldObject::GetNameForLocaleIdx(locale_idx); }
@@ -346,7 +346,7 @@ struct ApplyScalingBonusWithHelper
 
 struct DoPetActionWithHelper
 {
-    explicit DoPetActionWithHelper( Player* _owner, uint8 _flag, uint32 _spellid, ObjectGuid _petGuid, ObjectGuid _targetGuid) :
+    explicit DoPetActionWithHelper(Player* _owner, uint8 _flag, uint32 _spellid, ObjectGuid _petGuid, ObjectGuid _targetGuid) :
              owner(_owner), flag(_flag), spellid(_spellid), petGuid(_petGuid), targetGuid(_targetGuid)
     {}
     void operator()(Unit* unit) const { unit->DoPetAction(owner, flag, spellid, petGuid, targetGuid); }
@@ -359,7 +359,7 @@ struct DoPetActionWithHelper
 
 struct DoPetCastWithHelper
 {
-    explicit DoPetCastWithHelper( Player* _owner, uint8 _cast_count, SpellCastTargets* _targets, SpellEntry const* _spellInfo) :
+    explicit DoPetCastWithHelper(Player* _owner, uint8 _cast_count, SpellCastTargets* _targets, SpellEntry const* _spellInfo) :
              owner(_owner), cast_count(_cast_count), targets(_targets), spellInfo(_spellInfo)
     {}
     void operator()(Unit* unit) const { unit->DoPetCastSpell(owner,cast_count,targets,spellInfo); }

@@ -123,14 +123,14 @@ enum GroupFlagMask
     GROUP_MAIN_TANK      = (1 << GROUP_FLAG_MAIN_TANK),
 
     // unions
-    GROUP_MEMBER_AMT     = ( GROUP_ASSISTANT   |
+    GROUP_MEMBER_AMT     = (GROUP_ASSISTANT   |
                              GROUP_MAIN_ASSISTANT |
                              GROUP_MAIN_TANK     ),
-    GROUP_MEMBER_AT      = ( GROUP_ASSISTANT   |
+    GROUP_MEMBER_AT      = (GROUP_ASSISTANT   |
                              GROUP_MAIN_TANK     ),
-    GROUP_MEMBER_AM      = ( GROUP_ASSISTANT   |
+    GROUP_MEMBER_AM      = (GROUP_ASSISTANT   |
                              GROUP_MAIN_ASSISTANT),
-    GROUP_MEMBER_MT      = ( GROUP_MAIN_ASSISTANT |
+    GROUP_MEMBER_MT      = (GROUP_MAIN_ASSISTANT |
                              GROUP_MAIN_TANK     ),
 
 };

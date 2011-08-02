@@ -35,18 +35,18 @@ static eConfigFloatValues const qualityToRate[MAX_ITEM_QUALITY] = {
     CONFIG_FLOAT_RATE_DROP_ITEM_ARTIFACT,                                // ITEM_QUALITY_ARTIFACT
 };
 
-LootStore LootTemplates_Creature(     "creature_loot_template",     "creature entry",                 true);
-LootStore LootTemplates_Disenchant(   "disenchant_loot_template",   "item disenchant id",             true);
-LootStore LootTemplates_Fishing(      "fishing_loot_template",      "area id",                        true);
-LootStore LootTemplates_Gameobject(   "gameobject_loot_template",   "gameobject lootid",              true);
-LootStore LootTemplates_Item(         "item_loot_template",         "item entry with ITEM_FLAG_LOOTABLE", true);
-LootStore LootTemplates_Mail(         "mail_loot_template",         "mail template id",               false);
-LootStore LootTemplates_Milling(      "milling_loot_template",      "item entry (herb)",              true);
+LootStore LootTemplates_Creature(    "creature_loot_template",     "creature entry",                 true);
+LootStore LootTemplates_Disenchant(  "disenchant_loot_template",   "item disenchant id",             true);
+LootStore LootTemplates_Fishing(     "fishing_loot_template",      "area id",                        true);
+LootStore LootTemplates_Gameobject(  "gameobject_loot_template",   "gameobject lootid",              true);
+LootStore LootTemplates_Item(        "item_loot_template",         "item entry with ITEM_FLAG_LOOTABLE", true);
+LootStore LootTemplates_Mail(        "mail_loot_template",         "mail template id",               false);
+LootStore LootTemplates_Milling(     "milling_loot_template",      "item entry (herb)",              true);
 LootStore LootTemplates_Pickpocketing("pickpocketing_loot_template","creature pickpocket lootid",     true);
-LootStore LootTemplates_Prospecting(  "prospecting_loot_template",  "item entry (ore)",               true);
-LootStore LootTemplates_Reference(    "reference_loot_template",    "reference id",                   false);
-LootStore LootTemplates_Skinning(     "skinning_loot_template",     "creature skinning id",           true);
-LootStore LootTemplates_Spell(        "spell_loot_template",        "spell id (random item creating)",false);
+LootStore LootTemplates_Prospecting( "prospecting_loot_template",  "item entry (ore)",               true);
+LootStore LootTemplates_Reference(   "reference_loot_template",    "reference id",                   false);
+LootStore LootTemplates_Skinning(    "skinning_loot_template",     "creature skinning id",           true);
+LootStore LootTemplates_Spell(       "spell_loot_template",        "spell id (random item creating)",false);
 
 class LootTemplate::LootGroup                               // A set of loot definitions for items (refs are not allowed)
 {
@@ -95,7 +95,7 @@ void LootStore::LoadLootTable()
     // Clearing store (for reloading case)
     Clear();
 
-    sLog.outString( "%s :", GetName());
+    sLog.outString("%s :", GetName());
 
     //                                                 0      1     2                    3        4              5         6              7                 8
     QueryResult *result = WorldDatabase.PQuery("SELECT entry, item, ChanceOrQuestChance, groupid, mincountOrRef, maxcount, lootcondition, condition_value1, condition_value2 FROM %s",GetName());
@@ -172,12 +172,12 @@ void LootStore::LoadLootTable()
         Verify();                                           // Checks validity of the loot store
 
         sLog.outString();
-        sLog.outString( ">> Loaded %u loot definitions (%lu templates)", count, (unsigned long)m_LootTemplates.size());
+        sLog.outString(">> Loaded %u loot definitions (%lu templates)", count, (unsigned long)m_LootTemplates.size());
     }
     else
     {
         sLog.outString();
-        sLog.outErrorDb( ">> Loaded 0 loot definitions. DB table `%s` is empty.",GetName());
+        sLog.outErrorDb(">> Loaded 0 loot definitions. DB table `%s` is empty.",GetName());
     }
 }
 
@@ -655,7 +655,7 @@ void Loot::NotifyQuestItemRemoved(uint8 questIndex)
     }
 }
 
-void Loot::generateMoneyLoot( uint32 minAmount, uint32 maxAmount)
+void Loot::generateMoneyLoot(uint32 minAmount, uint32 maxAmount)
 {
     if (maxAmount > 0)
     {

@@ -31,7 +31,7 @@
 #include "World.h"
 #include "Util.h"
 
-void WorldSession::HandleAutostoreLootItemOpcode( WorldPacket & recv_data)
+void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recv_data)
 {
     DEBUG_LOG("WORLD: CMSG_AUTOSTORE_LOOT_ITEM");
     Player  *player =   GetPlayer();
@@ -42,7 +42,7 @@ void WorldSession::HandleAutostoreLootItemOpcode( WorldPacket & recv_data)
 
     recv_data >> lootSlot;
 
-    switch( lguid.GetHigh())
+    switch(lguid.GetHigh())
     {
         case HIGHGUID_GAMEOBJECT:
         {
@@ -60,7 +60,7 @@ void WorldSession::HandleAutostoreLootItemOpcode( WorldPacket & recv_data)
         }
         case HIGHGUID_ITEM:
         {
-            pItem = player->GetItemByGuid( lguid);
+            pItem = player->GetItemByGuid(lguid);
 
             if (!pItem || !pItem->HasGeneratedLoot())
             {
@@ -113,7 +113,7 @@ void WorldSession::HandleAutostoreLootItemOpcode( WorldPacket & recv_data)
 
     if (!item)
     {
-        player->SendEquipError( EQUIP_ERR_ALREADY_LOOTED, NULL, NULL);
+        player->SendEquipError(EQUIP_ERR_ALREADY_LOOTED, NULL, NULL);
         return;
     }
 
@@ -128,11 +128,11 @@ void WorldSession::HandleAutostoreLootItemOpcode( WorldPacket & recv_data)
         pItem->SetLootState(ITEM_LOOT_CHANGED);
 
     ItemPosCountVec dest;
-    InventoryResult msg = player->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, item->itemid, item->count);
+    InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item->itemid, item->count);
     if (msg == EQUIP_ERR_OK)
     {
         AllowedLooterSet* looters = item->GetAllowedLooters();
-        Item * newitem = player->StoreNewItem( dest, item->itemid, true, item->randomPropertyId, (looters->size() > 1) ? looters : NULL);
+        Item * newitem = player->StoreNewItem(dest, item->itemid, true, item->randomPropertyId, (looters->size() > 1) ? looters : NULL);
 
         if (qitem)
         {
@@ -172,10 +172,10 @@ void WorldSession::HandleAutostoreLootItemOpcode( WorldPacket & recv_data)
         player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, item->itemid, item->count);
     }
     else
-        player->SendEquipError( msg, NULL, NULL, item->itemid);
+        player->SendEquipError(msg, NULL, NULL, item->itemid);
 }
 
-void WorldSession::HandleLootMoneyOpcode( WorldPacket & /*recv_data*/)
+void WorldSession::HandleLootMoneyOpcode(WorldPacket & /*recv_data*/)
 {
     DEBUG_LOG("WORLD: CMSG_LOOT_MONEY");
 
@@ -255,7 +255,7 @@ void WorldSession::HandleLootMoneyOpcode( WorldPacket & /*recv_data*/)
 
             for (std::vector<Player*>::const_iterator i = playersNear.begin(); i != playersNear.end(); ++i)
             {
-                (*i)->ModifyMoney( money_per_player);
+                (*i)->ModifyMoney(money_per_player);
                 (*i)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, money_per_player);
 
                 WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4+1);
@@ -267,7 +267,7 @@ void WorldSession::HandleLootMoneyOpcode( WorldPacket & /*recv_data*/)
         }
         else
         {
-            player->ModifyMoney( pLoot->gold);
+            player->ModifyMoney(pLoot->gold);
             player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, pLoot->gold);
 
             WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4+1);
@@ -283,7 +283,7 @@ void WorldSession::HandleLootMoneyOpcode( WorldPacket & /*recv_data*/)
     }
 }
 
-void WorldSession::HandleLootOpcode( WorldPacket & recv_data)
+void WorldSession::HandleLootOpcode(WorldPacket & recv_data)
 {
     DEBUG_LOG("WORLD: CMSG_LOOT");
 
@@ -297,7 +297,7 @@ void WorldSession::HandleLootOpcode( WorldPacket & recv_data)
     GetPlayer()->SendLoot(guid, LOOT_CORPSE);
 }
 
-void WorldSession::HandleLootReleaseOpcode( WorldPacket & recv_data)
+void WorldSession::HandleLootReleaseOpcode(WorldPacket & recv_data)
 {
     DEBUG_LOG("WORLD: CMSG_LOOT_RELEASE");
 
@@ -452,7 +452,7 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
                         player->AutoStoreLoot(pItem->loot); // can be lost if no space
                     pItem->loot.clear();
                     pItem->SetLootState(ITEM_LOOT_REMOVED);
-                    player->DestroyItem( pItem->GetBagSlot(),pItem->GetSlot(), true);
+                    player->DestroyItem(pItem->GetBagSlot(),pItem->GetSlot(), true);
                     break;
                 }
                 // normal persistence loot
@@ -462,7 +462,7 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
                     if (pItem->loot.isLooted())
                     {
                         pItem->SetLootState(ITEM_LOOT_REMOVED);
-                        player->DestroyItem( pItem->GetBagSlot(),pItem->GetSlot(), true);
+                        player->DestroyItem(pItem->GetBagSlot(),pItem->GetSlot(), true);
                     }
                     break;
                 }
@@ -506,7 +506,7 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
     loot->RemoveLooter(player->GetObjectGuid());
 }
 
-void WorldSession::HandleLootMasterGiveOpcode( WorldPacket & recv_data)
+void WorldSession::HandleLootMasterGiveOpcode(WorldPacket & recv_data)
 {
     uint8 slotid;
     ObjectGuid lootguid;
@@ -559,13 +559,13 @@ void WorldSession::HandleLootMasterGiveOpcode( WorldPacket & recv_data)
     LootItem& item = pLoot->items[slotid];
 
     ItemPosCountVec dest;
-    InventoryResult msg = target->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, item.itemid, item.count);
+    InventoryResult msg = target->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item.itemid, item.count);
     if (msg != EQUIP_ERR_OK)
     {
-        target->SendEquipError( msg, NULL, NULL, item.itemid);
+        target->SendEquipError(msg, NULL, NULL, item.itemid);
 
         // send duplicate of error massage to master looter
-        _player->SendEquipError( msg, NULL, NULL, item.itemid);
+        _player->SendEquipError(msg, NULL, NULL, item.itemid);
         return;
     }
 
@@ -573,7 +573,7 @@ void WorldSession::HandleLootMasterGiveOpcode( WorldPacket & recv_data)
     AllowedLooterSet* looters = item.GetAllowedLooters();
 
     // now move item from loot to target inventory
-    Item* newitem = target->StoreNewItem( dest, item.itemid, true, item.randomPropertyId, (looters->size() > 1) ? looters : NULL);
+    Item* newitem = target->StoreNewItem(dest, item.itemid, true, item.randomPropertyId, (looters->size() > 1) ? looters : NULL);
     target->SendNewItem(newitem, uint32(item.count), false, false, true);
     target->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item.itemid, item.count);
     target->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, pLoot->loot_type, item.count);

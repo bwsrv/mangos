@@ -139,12 +139,12 @@ inline void MaNGOS::DynamicObjectUpdater::VisitHelper(Unit* target)
     // for player casts use less strict negative and more stricted positive targeting
     if (i_check->GetTypeId() == TYPEID_PLAYER)
     {
-        if (i_check->IsFriendlyTo( target) != i_positive)
+        if (i_check->IsFriendlyTo(target) != i_positive)
                 return;
     }
     else
     {
-        if (i_check->IsHostileTo( target) == i_positive)
+        if (i_check->IsHostileTo(target) == i_positive)
             return;
     }
 
@@ -557,7 +557,7 @@ void MaNGOS::PlayerListSearcher<Check>::Visit(PlayerMapType &m)
 }
 
 template<class Builder>
-void MaNGOS::LocalizedPacketDo<Builder>::operator()( Player* p)
+void MaNGOS::LocalizedPacketDo<Builder>::operator()(Player* p)
 {
     int32 loc_idx = p->GetSession()->GetSessionDbLocaleIndex();
     uint32 cache_idx = loc_idx+1;
@@ -582,7 +582,7 @@ void MaNGOS::LocalizedPacketDo<Builder>::operator()( Player* p)
 }
 
 template<class Builder>
-void MaNGOS::LocalizedPacketListDo<Builder>::operator()( Player* p)
+void MaNGOS::LocalizedPacketListDo<Builder>::operator()(Player* p)
 {
     int32 loc_idx = p->GetSession()->GetSessionDbLocaleIndex();
     uint32 cache_idx = loc_idx+1;

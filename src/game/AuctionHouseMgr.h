@@ -117,13 +117,13 @@ class AuctionHouseObject
 
         void AddAuction(AuctionEntry *ah)
         {
-            MANGOS_ASSERT( ah);
+            MANGOS_ASSERT(ah);
             AuctionsMap[ah->Id] = ah;
         }
 
         AuctionEntry* GetAuction(uint32 id) const
         {
-            AuctionEntryMap::const_iterator itr = AuctionsMap.find( id);
+            AuctionEntryMap::const_iterator itr = AuctionsMap.find(id);
             return itr != AuctionsMap.end() ? itr->second : NULL;
         }
 
@@ -190,9 +190,9 @@ class AuctionHouseMgr
         }
 
         //auction messages
-        void SendAuctionWonMail( AuctionEntry * auction);
-        void SendAuctionSuccessfulMail( AuctionEntry * auction);
-        void SendAuctionExpiredMail( AuctionEntry * auction);
+        void SendAuctionWonMail(AuctionEntry * auction);
+        void SendAuctionSuccessfulMail(AuctionEntry * auction);
+        void SendAuctionExpiredMail(AuctionEntry * auction);
         static uint32 GetAuctionDeposit(AuctionHouseEntry const* entry, uint32 time, Item *pItem);
 
         static uint32 GetAuctionHouseTeam(AuctionHouseEntry const* house);

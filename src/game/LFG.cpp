@@ -29,7 +29,7 @@ void LFGPlayerState::Clear()
     rolesMask = LFG_ROLE_MASK_NONE;
     update = true;
     m_state = LFG_STATE_NONE;
-    AddFlags( LFG_MEMBER_FLAG_NONE |
+    AddFlags(LFG_MEMBER_FLAG_NONE |
               LFG_MEMBER_FLAG_CHARINFO |
               LFG_MEMBER_FLAG_COMMENT |
               LFG_MEMBER_FLAG_GROUPLEADER |
@@ -97,7 +97,7 @@ void LFGPlayerState::SetJoined()
 
 bool LFGPlayerState::IsSingleRole()
 {
-    if (  LFGRoleMask(rolesMask & ~LFG_ROLE_MASK_TANK   & ~LFG_ROLE_MASK_LEADER) == LFG_ROLE_MASK_NONE
+    if ( LFGRoleMask(rolesMask & ~LFG_ROLE_MASK_TANK   & ~LFG_ROLE_MASK_LEADER) == LFG_ROLE_MASK_NONE
         || LFGRoleMask(rolesMask & ~LFG_ROLE_MASK_HEALER & ~LFG_ROLE_MASK_LEADER) == LFG_ROLE_MASK_NONE
         || LFGRoleMask(rolesMask & ~LFG_ROLE_MASK_TANK   & ~LFG_ROLE_MASK_LEADER) == LFG_ROLE_MASK_NONE)
         return true;

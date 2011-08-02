@@ -92,7 +92,7 @@ ObjectAccessor::FindPlayerByName(const char *name)
     HashMapHolder<Player>::ReadGuard g(HashMapHolder<Player>::GetLock());
     HashMapHolder<Player>::MapType& m = sObjectAccessor.GetPlayers();
     for (HashMapHolder<Player>::MapType::iterator iter = m.begin(); iter != m.end(); ++iter)
-        if (iter->second->IsInWorld() && ( ::strcmp(name, iter->second->GetName()) == 0))
+        if (iter->second->IsInWorld() && (::strcmp(name, iter->second->GetName()) == 0))
             return iter->second;
 
     return NULL;

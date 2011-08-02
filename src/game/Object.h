@@ -158,7 +158,7 @@ class MANGOS_DLL_SPEC Object
         uint8 GetTypeId() const { return m_objectTypeId; }
         bool isType(TypeMask mask) const { return (mask & m_objectType); }
 
-        virtual void BuildCreateUpdateBlockForPlayer( UpdateData *data, Player *target) const;
+        virtual void BuildCreateUpdateBlockForPlayer(UpdateData *data, Player *target) const;
         void SendCreateUpdateToPlayer(Player* player);
 
         // must be overwrite in appropriate subclasses (WorldObject, Item currently), or will crash
@@ -168,68 +168,68 @@ class MANGOS_DLL_SPEC Object
         void MarkForClientUpdate();
         void SendForcedObjectUpdate();
 
-        void BuildValuesUpdateBlockForPlayer( UpdateData *data, Player *target) const;
-        void BuildOutOfRangeUpdateBlock( UpdateData *data) const;
-        void BuildMovementUpdateBlock( UpdateData * data, uint16 flags = 0) const;
+        void BuildValuesUpdateBlockForPlayer(UpdateData *data, Player *target) const;
+        void BuildOutOfRangeUpdateBlock(UpdateData *data) const;
+        void BuildMovementUpdateBlock(UpdateData * data, uint16 flags = 0) const;
 
-        virtual void DestroyForPlayer( Player *target, bool anim = false) const;
+        virtual void DestroyForPlayer(Player *target, bool anim = false) const;
 
-        const int32& GetInt32Value( uint16 index) const
+        const int32& GetInt32Value(uint16 index) const
         {
-            MANGOS_ASSERT( index < m_valuesCount || PrintIndexError( index , false));
+            MANGOS_ASSERT(index < m_valuesCount || PrintIndexError(index , false));
             return m_int32Values[ index ];
         }
 
-        const uint32& GetUInt32Value( uint16 index) const
+        const uint32& GetUInt32Value(uint16 index) const
         {
-            MANGOS_ASSERT( index < m_valuesCount || PrintIndexError( index , false));
+            MANGOS_ASSERT(index < m_valuesCount || PrintIndexError(index , false));
             return m_uint32Values[ index ];
         }
 
-        const uint64& GetUInt64Value( uint16 index) const
+        const uint64& GetUInt64Value(uint16 index) const
         {
-            MANGOS_ASSERT( index + 1 < m_valuesCount || PrintIndexError( index , false));
+            MANGOS_ASSERT(index + 1 < m_valuesCount || PrintIndexError(index , false));
             return *((uint64*)&(m_uint32Values[ index ]));
         }
 
-        const float& GetFloatValue( uint16 index) const
+        const float& GetFloatValue(uint16 index) const
         {
-            MANGOS_ASSERT( index < m_valuesCount || PrintIndexError( index , false));
+            MANGOS_ASSERT(index < m_valuesCount || PrintIndexError(index , false));
             return m_floatValues[ index ];
         }
 
-        uint8 GetByteValue( uint16 index, uint8 offset) const
+        uint8 GetByteValue(uint16 index, uint8 offset) const
         {
-            MANGOS_ASSERT( index < m_valuesCount || PrintIndexError( index , false));
-            MANGOS_ASSERT( offset < 4);
+            MANGOS_ASSERT(index < m_valuesCount || PrintIndexError(index , false));
+            MANGOS_ASSERT(offset < 4);
             return *(((uint8*)&m_uint32Values[ index ])+offset);
         }
 
-        uint16 GetUInt16Value( uint16 index, uint8 offset) const
+        uint16 GetUInt16Value(uint16 index, uint8 offset) const
         {
-            MANGOS_ASSERT( index < m_valuesCount || PrintIndexError( index , false));
-            MANGOS_ASSERT( offset < 2);
+            MANGOS_ASSERT(index < m_valuesCount || PrintIndexError(index , false));
+            MANGOS_ASSERT(offset < 2);
             return *(((uint16*)&m_uint32Values[ index ])+offset);
         }
 
-        ObjectGuid const& GetGuidValue( uint16 index) const { return *reinterpret_cast<ObjectGuid const*>(&GetUInt64Value(index)); }
+        ObjectGuid const& GetGuidValue(uint16 index) const { return *reinterpret_cast<ObjectGuid const*>(&GetUInt64Value(index)); }
 
-        void SetInt32Value(  uint16 index,        int32  value);
-        void SetUInt32Value( uint16 index,       uint32  value);
-        void SetUInt64Value( uint16 index, const uint64 &value);
-        void SetFloatValue(  uint16 index,       float   value);
-        void SetByteValue(   uint16 index, uint8 offset, uint8 value);
-        void SetUInt16Value( uint16 index, uint8 offset, uint16 value);
-        void SetInt16Value(  uint16 index, uint8 offset, int16 value) { SetUInt16Value(index,offset,(uint16)value); }
-        void SetGuidValue( uint16 index, ObjectGuid const& value) { SetUInt64Value(index, value.GetRawValue()); }
-        void SetStatFloatValue( uint16 index, float value);
-        void SetStatInt32Value( uint16 index, int32 value);
+        void SetInt32Value( uint16 index,        int32  value);
+        void SetUInt32Value(uint16 index,       uint32  value);
+        void SetUInt64Value(uint16 index, const uint64 &value);
+        void SetFloatValue( uint16 index,       float   value);
+        void SetByteValue(  uint16 index, uint8 offset, uint8 value);
+        void SetUInt16Value(uint16 index, uint8 offset, uint16 value);
+        void SetInt16Value( uint16 index, uint8 offset, int16 value) { SetUInt16Value(index,offset,(uint16)value); }
+        void SetGuidValue(uint16 index, ObjectGuid const& value) { SetUInt64Value(index, value.GetRawValue()); }
+        void SetStatFloatValue(uint16 index, float value);
+        void SetStatInt32Value(uint16 index, int32 value);
 
         void ApplyModUInt32Value(uint16 index, int32 val, bool apply);
         void ApplyModInt32Value(uint16 index, int32 val, bool apply);
         void ApplyModUInt64Value(uint16 index, int32 val, bool apply);
-        void ApplyModPositiveFloatValue( uint16 index, float val, bool apply);
-        void ApplyModSignedFloatValue( uint16 index, float val, bool apply);
+        void ApplyModPositiveFloatValue(uint16 index, float val, bool apply);
+        void ApplyModSignedFloatValue(uint16 index, float val, bool apply);
 
         void ApplyPercentModFloatValue(uint16 index, float val, bool apply)
         {
@@ -237,10 +237,10 @@ class MANGOS_DLL_SPEC Object
             SetFloatValue(index, GetFloatValue(index) * (apply?(100.0f+val)/100.0f : 100.0f / (100.0f+val)));
         }
 
-        void SetFlag( uint16 index, uint32 newFlag);
-        void RemoveFlag( uint16 index, uint32 oldFlag);
+        void SetFlag(uint16 index, uint32 newFlag);
+        void RemoveFlag(uint16 index, uint32 oldFlag);
 
-        void ToggleFlag( uint16 index, uint32 flag)
+        void ToggleFlag(uint16 index, uint32 flag)
         {
             if (HasFlag(index, flag))
                 RemoveFlag(index, flag);
@@ -248,13 +248,13 @@ class MANGOS_DLL_SPEC Object
                 SetFlag(index, flag);
         }
 
-        bool HasFlag( uint16 index, uint32 flag) const
+        bool HasFlag(uint16 index, uint32 flag) const
         {
-            MANGOS_ASSERT( index < m_valuesCount || PrintIndexError( index , false));
+            MANGOS_ASSERT(index < m_valuesCount || PrintIndexError(index , false));
             return (m_uint32Values[ index ] & flag) != 0;
         }
 
-        void ApplyModFlag( uint16 index, uint32 flag, bool apply)
+        void ApplyModFlag(uint16 index, uint32 flag, bool apply)
         {
             if (apply)
                 SetFlag(index, flag);
@@ -262,10 +262,10 @@ class MANGOS_DLL_SPEC Object
                 RemoveFlag(index, flag);
         }
 
-        void SetByteFlag( uint16 index, uint8 offset, uint8 newFlag);
-        void RemoveByteFlag( uint16 index, uint8 offset, uint8 newFlag);
+        void SetByteFlag(uint16 index, uint8 offset, uint8 newFlag);
+        void RemoveByteFlag(uint16 index, uint8 offset, uint8 newFlag);
 
-        void ToggleByteFlag( uint16 index, uint8 offset, uint8 flag)
+        void ToggleByteFlag(uint16 index, uint8 offset, uint8 flag)
         {
             if (HasByteFlag(index, offset, flag))
                 RemoveByteFlag(index, offset, flag);
@@ -273,14 +273,14 @@ class MANGOS_DLL_SPEC Object
                 SetByteFlag(index, offset, flag);
         }
 
-        bool HasByteFlag( uint16 index, uint8 offset, uint8 flag) const
+        bool HasByteFlag(uint16 index, uint8 offset, uint8 flag) const
         {
-            MANGOS_ASSERT( index < m_valuesCount || PrintIndexError( index , false));
-            MANGOS_ASSERT( offset < 4);
+            MANGOS_ASSERT(index < m_valuesCount || PrintIndexError(index , false));
+            MANGOS_ASSERT(offset < 4);
             return (((uint8*)&m_uint32Values[index])[offset] & flag) != 0;
         }
 
-        void ApplyModByteFlag( uint16 index, uint8 offset, uint32 flag, bool apply)
+        void ApplyModByteFlag(uint16 index, uint8 offset, uint32 flag, bool apply)
         {
             if (apply)
                 SetByteFlag(index, offset, flag);
@@ -291,7 +291,7 @@ class MANGOS_DLL_SPEC Object
         void SetShortFlag(uint16 index, bool highpart, uint16 newFlag);
         void RemoveShortFlag(uint16 index, bool highpart, uint16 oldFlag);
 
-        void ToggleShortFlag( uint16 index, bool highpart, uint8 flag)
+        void ToggleShortFlag(uint16 index, bool highpart, uint8 flag)
         {
             if (HasShortFlag(index, highpart, flag))
                 RemoveShortFlag(index, highpart, flag);
@@ -299,13 +299,13 @@ class MANGOS_DLL_SPEC Object
                 SetShortFlag(index, highpart, flag);
         }
 
-        bool HasShortFlag( uint16 index, bool highpart, uint8 flag) const
+        bool HasShortFlag(uint16 index, bool highpart, uint8 flag) const
         {
-            MANGOS_ASSERT( index < m_valuesCount || PrintIndexError( index , false));
+            MANGOS_ASSERT(index < m_valuesCount || PrintIndexError(index , false));
             return (((uint16*)&m_uint32Values[index])[highpart ? 1 : 0] & flag) != 0;
         }
 
-        void ApplyModShortFlag( uint16 index, bool highpart, uint32 flag, bool apply)
+        void ApplyModShortFlag(uint16 index, bool highpart, uint32 flag, bool apply)
         {
             if (apply)
                 SetShortFlag(index, highpart, flag);
@@ -313,21 +313,21 @@ class MANGOS_DLL_SPEC Object
                 RemoveShortFlag(index, highpart, flag);
         }
 
-        void SetFlag64( uint16 index, uint64 newFlag)
+        void SetFlag64(uint16 index, uint64 newFlag)
         {
             uint64 oldval = GetUInt64Value(index);
             uint64 newval = oldval | newFlag;
             SetUInt64Value(index,newval);
         }
 
-        void RemoveFlag64( uint16 index, uint64 oldFlag)
+        void RemoveFlag64(uint16 index, uint64 oldFlag)
         {
             uint64 oldval = GetUInt64Value(index);
             uint64 newval = oldval & ~oldFlag;
             SetUInt64Value(index,newval);
         }
 
-        void ToggleFlag64( uint16 index, uint64 flag)
+        void ToggleFlag64(uint16 index, uint64 flag)
         {
             if (HasFlag64(index, flag))
                 RemoveFlag64(index, flag);
@@ -335,13 +335,13 @@ class MANGOS_DLL_SPEC Object
                 SetFlag64(index, flag);
         }
 
-        bool HasFlag64( uint16 index, uint64 flag) const
+        bool HasFlag64(uint16 index, uint64 flag) const
         {
-            MANGOS_ASSERT( index < m_valuesCount || PrintIndexError( index , false));
-            return (GetUInt64Value( index) & flag) != 0;
+            MANGOS_ASSERT(index < m_valuesCount || PrintIndexError(index , false));
+            return (GetUInt64Value(index) & flag) != 0;
         }
 
-        void ApplyModFlag64( uint16 index, uint64 flag, bool apply)
+        void ApplyModFlag64(uint16 index, uint64 flag, bool apply)
         {
             if (apply)
                 SetFlag64(index, flag);
@@ -424,15 +424,15 @@ class MANGOS_DLL_SPEC WorldObject : public Object
                 explicit UpdateHelper(WorldObject * obj) : m_obj(obj) {}
                 ~UpdateHelper() { }
 
-                void Update( uint32 time_diff)
+                void Update(uint32 time_diff)
                 {
-                    m_obj->Update( m_obj->m_updateTracker.timeElapsed(), time_diff);
+                    m_obj->Update(m_obj->m_updateTracker.timeElapsed(), time_diff);
                     m_obj->m_updateTracker.Reset();
                 }
 
             private:
-                UpdateHelper( const UpdateHelper&);
-                UpdateHelper& operator=( const UpdateHelper&);
+                UpdateHelper(const UpdateHelper&);
+                UpdateHelper& operator=(const UpdateHelper&);
 
                 WorldObject * const m_obj;
         };
@@ -451,19 +451,19 @@ class MANGOS_DLL_SPEC WorldObject : public Object
         float GetPositionX() const { return m_position.x; }
         float GetPositionY() const { return m_position.y; }
         float GetPositionZ() const { return m_position.z; }
-        void GetPosition( float &x, float &y, float &z) const
+        void GetPosition(float &x, float &y, float &z) const
             { x = m_position.x; y = m_position.y; z = m_position.z; }
-        void GetPosition( WorldLocation &loc) const
+        void GetPosition(WorldLocation &loc) const
             { loc.mapid = m_mapId; GetPosition(loc.coord_x, loc.coord_y, loc.coord_z); loc.orientation = GetOrientation(); }
         float GetOrientation() const { return m_position.o; }
-        void GetNearPoint2D( float &x, float &y, float distance, float absAngle) const;
+        void GetNearPoint2D(float &x, float &y, float distance, float absAngle) const;
         void GetNearPoint(WorldObject const* searcher, float &x, float &y, float &z, float searcher_bounding_radius, float distance2d, float absAngle) const;
         void GetClosePoint(float &x, float &y, float &z, float bounding_radius, float distance2d = 0, float angle = 0, const WorldObject* obj = NULL) const
         {
             // angle calculated from current orientation
             GetNearPoint(obj, x, y, z, bounding_radius, distance2d, GetOrientation() + angle);
         }
-        void GetContactPoint( const WorldObject* obj, float &x, float &y, float &z, float distance2d = CONTACT_DISTANCE) const
+        void GetContactPoint(const WorldObject* obj, float &x, float &y, float &z, float distance2d = CONTACT_DISTANCE) const
         {
             // angle to face `obj` to `this` using distance includes size of `obj`
             GetNearPoint(obj, x, y, z, obj->GetObjectBoundingRadius(), distance2d, GetAngle(obj));
@@ -475,7 +475,7 @@ class MANGOS_DLL_SPEC WorldObject : public Object
         void UpdateGroundPositionZ(float x, float y, float &z) const;
         void UpdateAllowedPositionZ(float x, float y, float &z) const;
 
-        void GetRandomPoint( float x, float y, float z, float distance, float &rand_x, float &rand_y, float &rand_z) const;
+        void GetRandomPoint(float x, float y, float z, float distance, float &rand_x, float &rand_y, float &rand_z) const;
 
         uint32 GetMapId() const { return m_mapId; }
         uint32 GetInstanceId() const { return m_InstanceId; }
@@ -496,7 +496,7 @@ class MANGOS_DLL_SPEC WorldObject : public Object
 
         virtual const char* GetNameForLocaleIdx(int32 /*locale_idx*/) const { return GetName(); }
 
-        float GetDistance( const WorldObject* obj) const;
+        float GetDistance(const WorldObject* obj) const;
         float GetDistance(float x, float y, float z) const;
         float GetDistance2d(const WorldObject* obj) const;
         float GetDistance2d(float x, float y) const;
@@ -532,9 +532,9 @@ class MANGOS_DLL_SPEC WorldObject : public Object
         float GetExactDist2d(const float x, const float y) const
         { return sqrt(GetExactDist2dSq(x, y)); }
 
-        float GetAngle( const WorldObject* obj) const;
-        float GetAngle( const float x, const float y) const;
-        bool HasInArc( const float arcangle, const WorldObject* obj) const;
+        float GetAngle(const WorldObject* obj) const;
+        float GetAngle(const float x, const float y) const;
+        bool HasInArc(const float arcangle, const WorldObject* obj) const;
         bool isInFrontInMap(WorldObject const* target,float distance, float arc = M_PI) const;
         bool isInBackInMap(WorldObject const* target, float distance, float arc = M_PI) const;
         bool isInFront(WorldObject const* target,float distance, float arc = M_PI) const;

@@ -395,7 +395,7 @@ void LoadDBCStores(const std::string& dataPath)
             // fill AreaId->DBC records
             sAreaFlagByAreaID.insert(AreaFlagByAreaID::value_type(uint16(area->ID),area->exploreFlag));
 
-            // fill MapId->DBC records ( skip sub zones and continents)
+            // fill MapId->DBC records (skip sub zones and continents)
             if (area->zone==0 && area->mapid != 0 && area->mapid != 1 && area->mapid != 530 && area->mapid != 571)
                 sAreaFlagByMapID.insert(AreaFlagByMapID::value_type(area->mapid,area->exploreFlag));
         }
@@ -591,7 +591,7 @@ void LoadDBCStores(const std::string& dataPath)
         // now have all max ranks (and then bit amount used for store talent ranks in inspect)
         for (uint32 talentTabId = 1; talentTabId < sTalentTabStore.GetNumRows(); ++talentTabId)
         {
-            TalentTabEntry const *talentTabInfo = sTalentTabStore.LookupEntry( talentTabId);
+            TalentTabEntry const *talentTabInfo = sTalentTabStore.LookupEntry(talentTabId);
             if (!talentTabInfo)
                 continue;
 
@@ -735,7 +735,7 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     sLog.outString();
-    sLog.outString( ">> Initialized %d data stores", DBCFilesCount);
+    sLog.outString(">> Initialized %d data stores", DBCFilesCount);
 }
 
 SimpleFactionsList const* GetFactionTeamList(uint32 faction)
@@ -928,7 +928,7 @@ LFGDungeonExpansionEntry const* GetLFGExpansionEntry(uint32 dungeonId, uint32 ex
     return itr != sLFGDungeonExpansionMap.end() ? itr->second : NULL;
 }
 
-PvPDifficultyEntry const* GetBattlegroundBracketByLevel( uint32 mapid, uint32 level)
+PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level)
 {
     PvPDifficultyEntry const* maxEntry = NULL;              // used for level > max listed level case
     for (uint32 i = 0; i < sPvPDifficultyStore.GetNumRows(); ++i)

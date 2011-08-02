@@ -69,21 +69,21 @@ class MANGOS_DLL_SPEC ChatHandler
         explicit ChatHandler(Player* player);
         ~ChatHandler();
 
-        static void FillMessageData( WorldPacket *data, WorldSession* session, uint8 type, uint32 language, const char *channelName, ObjectGuid targetGuid, const char *message, Unit *speaker);
+        static void FillMessageData(WorldPacket *data, WorldSession* session, uint8 type, uint32 language, const char *channelName, ObjectGuid targetGuid, const char *message, Unit *speaker);
 
-        static void FillMessageData( WorldPacket *data, WorldSession* session, uint8 type, uint32 language, ObjectGuid targetGuid, const char* message)
+        static void FillMessageData(WorldPacket *data, WorldSession* session, uint8 type, uint32 language, ObjectGuid targetGuid, const char* message)
         {
-            FillMessageData( data, session, type, language, NULL, targetGuid, message, NULL);
+            FillMessageData(data, session, type, language, NULL, targetGuid, message, NULL);
         }
 
-        static void FillMessageData( WorldPacket *data, WorldSession* session, uint8 type, uint32 language, const char* message)
+        static void FillMessageData(WorldPacket *data, WorldSession* session, uint8 type, uint32 language, const char* message)
         {
-            FillMessageData( data, session, type, language, NULL, ObjectGuid(), message, NULL);
+            FillMessageData(data, session, type, language, NULL, ObjectGuid(), message, NULL);
         }
 
-        void FillSystemMessageData( WorldPacket *data, const char* message)
+        void FillSystemMessageData(WorldPacket *data, const char* message)
         {
-            FillMessageData( data, m_session, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, ObjectGuid(), message);
+            FillMessageData(data, m_session, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, ObjectGuid(), message);
         }
 
         static char* LineFromMessage(char*& pos) { char* start = strtok(pos,"\n"); pos = NULL; return start; }
@@ -92,11 +92,11 @@ class MANGOS_DLL_SPEC ChatHandler
         virtual const char *GetMangosString(int32 entry) const;
         const char *GetOnOffStr(bool value) const;
 
-        virtual void SendSysMessage(  const char *str);
+        virtual void SendSysMessage( const char *str);
 
-        void SendSysMessage(          int32     entry);
-        void PSendSysMessage(         const char *format, ...) ATTR_PRINTF(2,3);
-        void PSendSysMessage(         int32     entry, ... );
+        void SendSysMessage(         int32     entry);
+        void PSendSysMessage(        const char *format, ...) ATTR_PRINTF(2,3);
+        void PSendSysMessage(        int32     entry, ... );
 
         void SendGlobalSysMessage(const char *str);
         void PSendGlobalSysMessage(const char *format, ...) ATTR_PRINTF(2,3);

@@ -728,7 +728,7 @@ void ArenaTeam::FinishGame(int32 mod)
     // update team's rank
     m_stats.rank = 1;
     ObjectMgr::ArenaTeamMap::const_iterator i = sObjectMgr.GetArenaTeamMapBegin();
-    for ( ; i != sObjectMgr.GetArenaTeamMapEnd(); ++i)
+    for (; i != sObjectMgr.GetArenaTeamMapEnd(); ++i)
     {
         if (i->second->GetType() == this->m_Type && i->second->GetStats().rating > m_stats.rating)
             ++m_stats.rank;

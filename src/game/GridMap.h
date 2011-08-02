@@ -254,7 +254,7 @@ private:
     TerrainInfo(const TerrainInfo&);
     TerrainInfo& operator=(const TerrainInfo&);
 
-    GridMap * GetGrid( const float x, const float y);
+    GridMap * GetGrid(const float x, const float y);
     GridMap * LoadMapAndVMap(const uint32 x, const uint32 y);
 
     int RefGrid(const uint32& x, const uint32& y);

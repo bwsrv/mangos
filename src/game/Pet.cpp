@@ -90,7 +90,7 @@ void Pet::RemoveFromWorld()
     Unit::RemoveFromWorld();
 }
 
-bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool current)
+bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool current)
 {
     m_loading = true;
 
@@ -423,7 +423,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
         }
 
         // save pet
-        SqlStatement savePet = CharacterDatabase.CreateStatement(insPet, "INSERT INTO character_pet ( id, entry,  owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, "
+        SqlStatement savePet = CharacterDatabase.CreateStatement(insPet, "INSERT INTO character_pet (id, entry,  owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, "
             "curmana, curhappiness, abdata, savetime, CreatedBySpell, PetType) "
              "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
@@ -532,7 +532,7 @@ void Pet::Update(uint32 update_diff, uint32 diff)
     if (!IsInWorld())                               // pet already removed, just wait in remove queue, no updates
         return;
 
-    switch( m_deathState)
+    switch(m_deathState)
     {
         case CORPSE:
         {
@@ -617,7 +617,7 @@ void Pet::Update(uint32 update_diff, uint32 diff)
 
 }
 
-void Pet::RegenerateAll( uint32 update_diff)
+void Pet::RegenerateAll(uint32 update_diff)
 {
     //regenerate focus for hunter pets or energy for deathknight's ghoul
     if (m_regenTimer <= update_diff)
@@ -796,7 +796,7 @@ void Pet::GivePetXP(uint32 xp)
     uint32 curXP = GetUInt32Value(UNIT_FIELD_PETEXPERIENCE);
     uint32 newXP = curXP + xp;
 
-    while( newXP >= nextLvlXP && level < maxlevel)
+    while(newXP >= nextLvlXP && level < maxlevel)
     {
         newXP -= nextLvlXP;
         ++level;
@@ -932,8 +932,8 @@ bool Pet::InitStatsForLevel(uint32 petlevel, Unit* owner)
         createStats[MAX_STATS]    = int32(cinfo->maxhealth * petlevel / cinfo->maxlevel / (1 +  cinfo->rank));
         createStats[MAX_STATS+1]  = int32(cinfo->maxmana * petlevel / cinfo->maxlevel / (1 +  cinfo->rank));
         createStats[MAX_STATS+2]  = int32(cinfo->attackpower * petlevel / cinfo->maxlevel / (1 +  cinfo->rank));
-        createStats[MAX_STATS+3]  = int32( cinfo->mindmg * petlevel / cinfo->maxlevel / (1 + cinfo->rank));
-        createStats[MAX_STATS+4]  = int32( cinfo->maxdmg * petlevel / cinfo->maxlevel / (1 + cinfo->rank));
+        createStats[MAX_STATS+3]  = int32(cinfo->mindmg * petlevel / cinfo->maxlevel / (1 + cinfo->rank));
+        createStats[MAX_STATS+4]  = int32(cinfo->maxdmg * petlevel / cinfo->maxlevel / (1 + cinfo->rank));
         createStats[MAX_STATS+5]  = int32(cinfo->minrangedmg * petlevel / cinfo->maxlevel/ (1 + cinfo->rank));
         createStats[MAX_STATS+6]  = int32(cinfo->maxrangedmg * petlevel / cinfo->maxlevel/ (1 + cinfo->rank));
         SetFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE, float(cinfo->maxrangedmg * petlevel / cinfo->maxlevel));
@@ -1024,7 +1024,7 @@ bool Pet::InitStatsForLevel(uint32 petlevel, Unit* owner)
         else
             SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE,  float(createResistance[SPELL_SCHOOL_NORMAL]));
 
-        for ( int i = STAT_STRENGTH; i < MAX_STATS; ++i)
+        for (int i = STAT_STRENGTH; i < MAX_STATS; ++i)
             if (pInfo->stats[i])
                SetCreateStat(Stats(i), float(pInfo->stats[i]));
             else
@@ -1160,7 +1160,7 @@ void Pet::_LoadSpellCooldowns()
 
             DEBUG_LOG("Pet (Number: %u) spell %u cooldown loaded (%u secs).", m_charmInfo->GetPetNumber(), spell_id, uint32(db_time-curTime));
         }
-        while( result->NextRow());
+        while(result->NextRow());
 
         delete result;
 
@@ -1215,7 +1215,7 @@ void Pet::_LoadSpells()
 
             addSpell(fields[0].GetUInt32(), ActiveStates(fields[1].GetUInt8()), PETSPELL_UNCHANGED);
         }
-        while( result->NextRow());
+        while(result->NextRow());
 
         delete result;
     }
@@ -1354,7 +1354,7 @@ void Pet::_LoadAuras(uint32 timediff)
             else
                 delete holder;
         }
-        while( result->NextRow());
+        while(result->NextRow());
 
         delete result;
     }
@@ -1503,7 +1503,7 @@ bool Pet::addSpell(uint32 spell_id,ActiveStates active /*= ACT_DECIDE*/, PetSpel
     // talent: unlearn all other talent ranks (high and low)
     if (TalentSpellPos const* talentPos = GetTalentSpellPos(spell_id))
     {
-        if (TalentEntry const *talentInfo = sTalentStore.LookupEntry( talentPos->talent_id))
+        if (TalentEntry const *talentInfo = sTalentStore.LookupEntry(talentPos->talent_id))
         {
             for (int i=0; i < MAX_TALENT_RANK; ++i)
             {
@@ -1750,7 +1750,7 @@ bool Pet::resetTalents()
 
         if (!talentInfo) continue;
 
-        TalentTabEntry const *talentTabInfo = sTalentTabStore.LookupEntry( talentInfo->TalentTab);
+        TalentTabEntry const *talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
 
         if (!talentTabInfo)
             continue;
@@ -1819,7 +1819,7 @@ void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* online_pet /*= NULL*/)
 
         need_comma = true;
     }
-    while( resultPets->NextRow());
+    while(resultPets->NextRow());
 
     delete resultPets;
 
@@ -1842,7 +1842,7 @@ void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* online_pet /*= NULL*/)
 
         need_execute = true;
     }
-    while( result->NextRow());
+    while(result->NextRow());
 
     delete result;
 
@@ -3365,7 +3365,7 @@ float Pet::OCTRegenHPPerSpirit()
 {
     Unit* owner = GetOwner();
     if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
-        return ( GetPower(POWER_MANA) > 0) ? (GetStat(STAT_SPIRIT) * 0.25f) : (GetStat(STAT_SPIRIT) * 0.80f);
+        return (GetPower(POWER_MANA) > 0) ? (GetStat(STAT_SPIRIT) * 0.25f) : (GetStat(STAT_SPIRIT) * 0.80f);
 
     uint32 level = ((Player*)owner)->getLevel();
     uint32 pclass = ((Player*)owner)->getClass();

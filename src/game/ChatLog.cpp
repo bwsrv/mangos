@@ -29,7 +29,7 @@
 #include "Policies/SingletonImp.h"
 #include "Config/Config.h"
 
-INSTANTIATE_SINGLETON_1( ChatLog);
+INSTANTIATE_SINGLETON_1(ChatLog);
 
 ChatLog::ChatLog()
 {

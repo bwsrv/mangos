@@ -67,7 +67,7 @@ TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
     return NULL;
 }
 
-bool VendorItemData::RemoveItem( uint32 item_id)
+bool VendorItemData::RemoveItem(uint32 item_id)
 {
     bool found = false;
     for (VendorItemList::iterator i = m_items.begin(); i != m_items.end();)
@@ -113,7 +113,7 @@ bool AssistDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
     return true;
 }
 
-AssistDelayEvent::AssistDelayEvent( ObjectGuid victim, Unit& owner, std::list<Creature*> const& assistants) : BasicEvent(), m_victimGuid(victim), m_owner(owner)
+AssistDelayEvent::AssistDelayEvent(ObjectGuid victim, Unit& owner, std::list<Creature*> const& assistants) : BasicEvent(), m_victimGuid(victim), m_owner(owner)
 {
     // Pushing guids because in delay can happen some creature gets despawned => invalid pointer
     m_assistantGuids.reserve(assistants.size());
@@ -453,7 +453,7 @@ uint32 Creature::ChooseDisplayId(const CreatureInfo *cinfo, const CreatureData *
 
 void Creature::Update(uint32 update_diff, uint32 diff)
 {
-    switch( m_deathState)
+    switch(m_deathState)
     {
         case JUST_ALIVED:
             // Don't must be called, see Creature::SetDeathState JUST_ALIVED -> ALIVE promoting.
@@ -499,7 +499,7 @@ void Creature::Update(uint32 update_diff, uint32 diff)
                     LoadCreatureAddon(true);
                 }
                 else
-                    SetDeathState( JUST_ALIVED);
+                    SetDeathState(JUST_ALIVED);
 
                 //Call AI respawn virtual function
                 if (AI())
@@ -565,7 +565,7 @@ void Creature::Update(uint32 update_diff, uint32 diff)
                 }
             }
 
-            Unit::Update( update_diff, diff);
+            Unit::Update(update_diff, diff);
 
             // creature can be dead after Unit::Update call
             // CORPSE/DEAD state will processed at next tick (in other case death timer will be updated unexpectedly)
@@ -842,15 +842,15 @@ bool Creature::IsTrainerOf(Player* pPlayer, bool msg) const
                     pPlayer->PlayerTalkClass->ClearMenus();
                     switch(GetCreatureInfo()->trainer_class)
                     {
-                        case CLASS_DRUID:  pPlayer->PlayerTalkClass->SendGossipMenu( 4913, GetObjectGuid()); break;
+                        case CLASS_DRUID:  pPlayer->PlayerTalkClass->SendGossipMenu(4913, GetObjectGuid()); break;
                         case CLASS_HUNTER: pPlayer->PlayerTalkClass->SendGossipMenu(10090, GetObjectGuid()); break;
-                        case CLASS_MAGE:   pPlayer->PlayerTalkClass->SendGossipMenu(  328, GetObjectGuid()); break;
-                        case CLASS_PALADIN:pPlayer->PlayerTalkClass->SendGossipMenu( 1635, GetObjectGuid()); break;
-                        case CLASS_PRIEST: pPlayer->PlayerTalkClass->SendGossipMenu( 4436, GetObjectGuid()); break;
-                        case CLASS_ROGUE:  pPlayer->PlayerTalkClass->SendGossipMenu( 4797, GetObjectGuid()); break;
-                        case CLASS_SHAMAN: pPlayer->PlayerTalkClass->SendGossipMenu( 5003, GetObjectGuid()); break;
-                        case CLASS_WARLOCK:pPlayer->PlayerTalkClass->SendGossipMenu( 5836, GetObjectGuid()); break;
-                        case CLASS_WARRIOR:pPlayer->PlayerTalkClass->SendGossipMenu( 4985, GetObjectGuid()); break;
+                        case CLASS_MAGE:   pPlayer->PlayerTalkClass->SendGossipMenu( 328, GetObjectGuid()); break;
+                        case CLASS_PALADIN:pPlayer->PlayerTalkClass->SendGossipMenu(1635, GetObjectGuid()); break;
+                        case CLASS_PRIEST: pPlayer->PlayerTalkClass->SendGossipMenu(4436, GetObjectGuid()); break;
+                        case CLASS_ROGUE:  pPlayer->PlayerTalkClass->SendGossipMenu(4797, GetObjectGuid()); break;
+                        case CLASS_SHAMAN: pPlayer->PlayerTalkClass->SendGossipMenu(5003, GetObjectGuid()); break;
+                        case CLASS_WARLOCK:pPlayer->PlayerTalkClass->SendGossipMenu(5836, GetObjectGuid()); break;
+                        case CLASS_WARRIOR:pPlayer->PlayerTalkClass->SendGossipMenu(4985, GetObjectGuid()); break;
                     }
                 }
                 return false;
@@ -889,7 +889,7 @@ bool Creature::IsTrainerOf(Player* pPlayer, bool msg) const
                         case RACE_ORC:          pPlayer->PlayerTalkClass->SendGossipMenu(5863, GetObjectGuid()); break;
                         case RACE_TAUREN:       pPlayer->PlayerTalkClass->SendGossipMenu(5864, GetObjectGuid()); break;
                         case RACE_TROLL:        pPlayer->PlayerTalkClass->SendGossipMenu(5816, GetObjectGuid()); break;
-                        case RACE_UNDEAD:       pPlayer->PlayerTalkClass->SendGossipMenu( 624, GetObjectGuid()); break;
+                        case RACE_UNDEAD:       pPlayer->PlayerTalkClass->SendGossipMenu(624, GetObjectGuid()); break;
                         case RACE_BLOODELF:     pPlayer->PlayerTalkClass->SendGossipMenu(5862, GetObjectGuid()); break;
                         case RACE_DRAENEI:      pPlayer->PlayerTalkClass->SendGossipMenu(5864, GetObjectGuid()); break;
                     }
@@ -1668,7 +1668,7 @@ SpellEntry const *Creature::ReachWithSpellAttack(Unit *pVictim)
 
         float dist = GetCombatDistance(pVictim);
 
-        //if (!isInFront( pVictim, range) && spellInfo->AttributesEx)
+        //if (!isInFront(pVictim, range) && spellInfo->AttributesEx)
         //    continue;
         if (dist > range || dist < minrange)
             continue;
@@ -1719,7 +1719,7 @@ SpellEntry const *Creature::ReachWithSpellCure(Unit *pVictim)
 
         float dist = GetCombatDistance(pVictim);
 
-        //if (!isInFront( pVictim, range) && spellInfo->AttributesEx)
+        //if (!isInFront(pVictim, range) && spellInfo->AttributesEx)
         //    continue;
         if (dist > range || dist < minrange)
             continue;
@@ -2184,7 +2184,7 @@ time_t Creature::GetRespawnTimeEx() const
         return now;
 }
 
-void Creature::GetRespawnCoord( float &x, float &y, float &z, float* ori, float* dist) const
+void Creature::GetRespawnCoord(float &x, float &y, float &z, float* ori, float* dist) const
 {
     if (CreatureData const* data = sObjectMgr.GetCreatureData(GetGUIDLow()))
     {
@@ -2261,7 +2261,7 @@ void Creature::AllLootRemovedFromCorpse()
     }
 }
 
-uint32 Creature::GetLevelForTarget( Unit const* target) const
+uint32 Creature::GetLevelForTarget(Unit const* target) const
 {
     if (!IsWorldBoss())
         return Unit::GetLevelForTarget(target);
@@ -2409,7 +2409,7 @@ void Creature::ClearTemporaryFaction()
     setFaction(GetCreatureInfo()->faction_A);
 }
 
-void Creature::SetActiveObjectState( bool on)
+void Creature::SetActiveObjectState(bool on)
 {
     if (m_isActiveObject==on)
         return;
@@ -2454,7 +2454,7 @@ void Creature::ApplyGameEventSpells(GameEventCreatureData const* eventData, bool
         CastSpell(this, cast_spell, true);
 }
 
-void Creature::FillGuidsListFromThreatList( std::vector<ObjectGuid>& guids, uint32 maxamount /*= 0*/)
+void Creature::FillGuidsListFromThreatList(std::vector<ObjectGuid>& guids, uint32 maxamount /*= 0*/)
 {
     if (!CanHaveThreatList())
         return;

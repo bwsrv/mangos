@@ -377,13 +377,13 @@ bool AntiCheat::CheckNeeded(AntiCheatCheck checktype)
 
     AntiCheatCheck checkMainType =  (checktype >= 100) ? AntiCheatCheck(checktype / 100) : checktype;
 
-    switch( checkMainType)
+    switch(checkMainType)
     {
         case CHECK_NULL:
             return false;
             break;
         case CHECK_MOVEMENT:
-            if (  GetPlayer()->GetTransport()
+            if ( GetPlayer()->GetTransport()
                 || GetPlayer()->HasMovementFlag(MOVEFLAG_ONTRANSPORT) 
                 || GetMover()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE
                 || GetPlayer()->IsTaxiFlying())
@@ -412,7 +412,7 @@ bool AntiCheat::CheckNeeded(AntiCheatCheck checktype)
     if (checktype < 100)
         return true;
 
-    switch( checktype)
+    switch(checktype)
     {
         case CHECK_MOVEMENT_SPEED:
             if  (GetMover()->HasAura(56266))
@@ -559,7 +559,7 @@ bool AntiCheat::CheckSpeed()
 
 bool AntiCheat::CheckWaterWalking()
 {
-    if  (   GetMover()->HasAuraType(SPELL_AURA_WATER_WALK)
+    if  (  GetMover()->HasAuraType(SPELL_AURA_WATER_WALK)
         ||  GetMover()->HasAura(60068)
         ||  GetMover()->HasAura(61081)
         ||  GetMover()->HasAuraType(SPELL_AURA_GHOST)
@@ -884,7 +884,7 @@ bool AntiCheat::CheckMeleeDamage()
 
 bool AntiCheat::isCanFly()
 {
-    if (  GetMover()->HasAuraType(SPELL_AURA_FLY)
+    if ( GetMover()->HasAuraType(SPELL_AURA_FLY)
         || GetMover()->HasAuraType(SPELL_AURA_MOD_FLIGHT_SPEED)
         || GetMover()->HasAuraType(SPELL_AURA_MOD_FLIGHT_SPEED_MOUNTED)
         || GetMover()->HasAuraType(SPELL_AURA_MOD_FLIGHT_SPEED_NOT_STACKING)

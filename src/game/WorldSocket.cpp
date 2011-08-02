@@ -43,7 +43,7 @@
 #include "Log.h"
 #include "DBCStores.h"
 
-#if defined( __GNUC__)
+#if defined(__GNUC__)
 #pragma pack(1)
 #else
 #pragma pack(push,1)
@@ -90,7 +90,7 @@ struct ClientPktHeader
     uint32 cmd;
 };
 
-#if defined( __GNUC__)
+#if defined(__GNUC__)
 #pragma pack()
 #else
 #pragma pack(pop)
@@ -656,7 +656,7 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
 
     if (opcode >= NUM_MSG_TYPES)
     {
-        sLog.outError( "SESSION: received nonexistent opcode 0x%.4X", opcode);
+        sLog.outError("SESSION: received nonexistent opcode 0x%.4X", opcode);
         return -1;
     }
 

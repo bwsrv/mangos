@@ -657,7 +657,7 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
 
     // updated in DB
     std::ostringstream ss;
-    ss << "INSERT INTO gameobject VALUES ( "
+    ss << "INSERT INTO gameobject VALUES ("
         << GetGUIDLow() << ", "
         << GetEntry() << ", "
         << mapid << ", "
@@ -2094,7 +2094,7 @@ void GameObject::SetTransportPathRotation(float qx, float qy, float qz, float qw
 
 void GameObject::SetWorldRotationAngles(float z_rot, float y_rot, float x_rot)
 {
-    Quat quat( G3D::Matrix3::fromEulerAnglesZYX(z_rot, y_rot, x_rot));
+    Quat quat(G3D::Matrix3::fromEulerAnglesZYX(z_rot, y_rot, x_rot));
     SetWorldRotation(quat.x, quat.y, quat.z, quat.w);
 }
 

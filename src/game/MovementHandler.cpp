@@ -32,9 +32,9 @@
 #include "MapPersistentStateMgr.h"
 #include "ObjectMgr.h"
 
-void WorldSession::HandleMoveWorldportAckOpcode( WorldPacket & /*recv_data*/)
+void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket & /*recv_data*/)
 {
-    DEBUG_LOG( "WORLD: got MSG_MOVE_WORLDPORT_ACK.");
+    DEBUG_LOG("WORLD: got MSG_MOVE_WORLDPORT_ACK.");
     HandleMoveWorldportAckOpcode();
 }
 
@@ -252,7 +252,7 @@ void WorldSession::HandleMoveTeleportAckOpcode(WorldPacket& recv_data)
     GetPlayer()->ProcessDelayedOperations();
 }
 
-void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data)
+void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
 {
     uint32 opcode = recv_data.GetOpcode();
     DEBUG_LOG("WORLD: Recvd %s (%u, 0x%X) opcode", LookupOpcodeName(opcode), opcode, opcode);
@@ -419,7 +419,7 @@ void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvdata*/)
     GetPlayer()->SendMessageToSet(&data, false);
 }
 
-void WorldSession::HandleMoveKnockBackAck( WorldPacket & recv_data)
+void WorldSession::HandleMoveKnockBackAck(WorldPacket & recv_data)
 {
     DEBUG_LOG("CMSG_MOVE_KNOCK_BACK_ACK");
 
@@ -455,7 +455,7 @@ void WorldSession::HandleMoveKnockBackAck( WorldPacket & recv_data)
     mover->SendMessageToSetExcept(&data, _player);
 }
 
-void WorldSession::HandleMoveHoverAck( WorldPacket& recv_data)
+void WorldSession::HandleMoveHoverAck(WorldPacket& recv_data)
 {
     DEBUG_LOG("CMSG_MOVE_HOVER_ACK");
 
@@ -561,7 +561,7 @@ void WorldSession::HandleMoverRelocation(MovementInfo& movementInfo)
         if (movementInfo.HasMovementFlag(MOVEFLAG_SWIMMING) != plMover->IsInWater())
         {
             // now client not include swimming flag in case jumping under water
-            plMover->SetInWater( !plMover->IsInWater() || plMover->GetTerrain()->IsUnderWater(movementInfo.GetPos()->x, movementInfo.GetPos()->y, movementInfo.GetPos()->z));
+            plMover->SetInWater(!plMover->IsInWater() || plMover->GetTerrain()->IsUnderWater(movementInfo.GetPos()->x, movementInfo.GetPos()->y, movementInfo.GetPos()->z));
         }
 
         plMover->SetPosition(movementInfo.GetPos()->x, movementInfo.GetPos()->y, movementInfo.GetPos()->z, movementInfo.GetPos()->o);

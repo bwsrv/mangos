@@ -2547,24 +2547,24 @@ void LFGMgr::UpdateQueueStatus(LFGType type)
 
         tanks    += (LFG_TANKS_NEEDED - pqInfo->tanks);
         if (LFG_TANKS_NEEDED - pqInfo->tanks)
-            tanksTime += uint64( time(NULL) - pqInfo->joinTime);
+            tanksTime += uint64(time(NULL) - pqInfo->joinTime);
         healers  += (LFG_HEALERS_NEEDED - pqInfo->healers);
         if (LFG_HEALERS_NEEDED - pqInfo->healers)
-            healersTime += uint64( time(NULL) - pqInfo->joinTime);
+            healersTime += uint64(time(NULL) - pqInfo->joinTime);
         damagers += (LFG_DPS_NEEDED - pqInfo->dps);
         if (LFG_DPS_NEEDED - pqInfo->dps)
-            damagersTime += uint64( time(NULL) - pqInfo->joinTime);
+            damagersTime += uint64(time(NULL) - pqInfo->joinTime);
         if (itr->first.IsGroup())
         {
             if (Group* group = sObjectMgr.GetGroup(itr->first))
             {
-                fullTime  += uint64( time(NULL) - pqInfo->joinTime)*group->GetMembersCount();
+                fullTime  += uint64(time(NULL) - pqInfo->joinTime)*group->GetMembersCount();
                 fullCount += group->GetMembersCount();
             }
         }
         else
         {
-            fullTime  += uint64( time(NULL) - pqInfo->joinTime);
+            fullTime  += uint64(time(NULL) - pqInfo->joinTime);
             fullCount +=1;
         }
     }

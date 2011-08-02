@@ -23,7 +23,7 @@
 #include "SpellMgr.h"
 #include "Map.h"
 
-HostileRefManager::HostileRefManager( Unit *pOwner) : iOwner(pOwner), m_redirectionMod(0.0f)
+HostileRefManager::HostileRefManager(Unit *pOwner) : iOwner(pOwner), m_redirectionMod(0.0f)
 {
 
 }

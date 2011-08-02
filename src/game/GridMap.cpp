@@ -1033,13 +1033,13 @@ float TerrainInfo::GetWaterOrGroundLevel(float x, float y, float z, float* pGrou
         GridMapLiquidData liquid_status;
 
         GridMapLiquidStatus res = getLiquidStatus(x, y, ground_z, MAP_ALL_LIQUIDS, &liquid_status);
-        return res ? ( swim ? liquid_status.level - 2.0f : liquid_status.level) : ground_z;
+        return res ? (swim ? liquid_status.level - 2.0f : liquid_status.level) : ground_z;
     }
 
     return VMAP_INVALID_HEIGHT_VALUE;
 }
 
-GridMap * TerrainInfo::GetGrid( const float x, const float y)
+GridMap * TerrainInfo::GetGrid(const float x, const float y)
 {
     // half opt method
     int gx=(int)(32-x/SIZE_OF_GRIDS);                       //grid x
@@ -1053,7 +1053,7 @@ GridMap * TerrainInfo::GetGrid( const float x, const float y)
     return pMap;
 }
 
-GridMap * TerrainInfo::LoadMapAndVMap( const uint32 x, const uint32 y)
+GridMap * TerrainInfo::LoadMapAndVMap(const uint32 x, const uint32 y)
 {
     //double checked lock pattern
     if (!m_GridMaps[x][y])
@@ -1365,7 +1365,7 @@ uint32 TerrainManager::GetZoneIdByAreaFlag(uint16 areaflag,uint32 map_id)
     AreaTableEntry const *entry = GetAreaEntryByAreaFlagAndMap(areaflag,map_id);
 
     if (entry)
-        return ( entry->zone != 0) ? entry->zone : entry->ID;
+        return (entry->zone != 0) ? entry->zone : entry->ID;
     else
         return 0;
 }
@@ -1375,5 +1375,5 @@ void TerrainManager::GetZoneAndAreaIdByAreaFlag(uint32& zoneid, uint32& areaid, 
     AreaTableEntry const *entry = GetAreaEntryByAreaFlagAndMap(areaflag,map_id);
 
     areaid = entry ? entry->ID : 0;
-    zoneid = entry ? (( entry->zone != 0) ? entry->zone : entry->ID) : 0;
+    zoneid = entry ? ((entry->zone != 0) ? entry->zone : entry->ID) : 0;
 }

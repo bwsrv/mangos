@@ -100,8 +100,8 @@ class SpellCastTargets
         SpellCastTargets();
         ~SpellCastTargets();
 
-        void read( ByteBuffer& data, Unit *caster);
-        void write( ByteBuffer& data) const;
+        void read(ByteBuffer& data, Unit *caster);
+        void write(ByteBuffer& data) const;
 
         SpellCastTargetsReader ReadForCaster(Unit* caster) { return SpellCastTargetsReader(*this,caster); }
 
@@ -225,7 +225,7 @@ class Spell
 {
     friend struct MaNGOS::SpellNotifierPlayer;
     friend struct MaNGOS::SpellNotifierCreatureAndPlayer;
-    friend void Unit::SetCurrentCastedSpell( Spell * pSpell);
+    friend void Unit::SetCurrentCastedSpell(Spell * pSpell);
     public:
 
         void EffectEmpty(SpellEffectIndex eff_idx);
@@ -420,7 +420,7 @@ class Spell
 
         template<typename T> WorldObject* FindCorpseUsing();
 
-        bool CheckTarget( Unit* target, SpellEffectIndex eff);
+        bool CheckTarget(Unit* target, SpellEffectIndex eff);
         bool CanAutoCast(Unit* target);
 
         static void MANGOS_DLL_SPEC SendCastResult(Player* caster, SpellEntry const* spellInfo, uint8 cast_count, SpellCastResult result);
@@ -775,19 +775,19 @@ namespace MaNGOS
                 switch (i_TargetType)
                 {
                     case SPELL_TARGETS_HOSTILE:
-                        if (!i_originalCaster->IsHostileTo( itr->getSource()))
+                        if (!i_originalCaster->IsHostileTo(itr->getSource()))
                             continue;
                         break;
                     case SPELL_TARGETS_NOT_FRIENDLY:
-                        if (i_originalCaster->IsFriendlyTo( itr->getSource()))
+                        if (i_originalCaster->IsFriendlyTo(itr->getSource()))
                             continue;
                         break;
                     case SPELL_TARGETS_NOT_HOSTILE:
-                        if (i_originalCaster->IsHostileTo( itr->getSource()))
+                        if (i_originalCaster->IsHostileTo(itr->getSource()))
                             continue;
                         break;
                     case SPELL_TARGETS_FRIENDLY:
-                        if (!i_originalCaster->IsFriendlyTo( itr->getSource()))
+                        if (!i_originalCaster->IsFriendlyTo(itr->getSource()))
                             continue;
                         break;
                     case SPELL_TARGETS_AOE_DAMAGE:
@@ -797,12 +797,12 @@ namespace MaNGOS
 
                         if (i_playerControlled)
                         {
-                            if (i_originalCaster->IsFriendlyTo( itr->getSource()))
+                            if (i_originalCaster->IsFriendlyTo(itr->getSource()))
                                 continue;
                         }
                         else
                         {
-                            if (!i_originalCaster->IsHostileTo( itr->getSource()))
+                            if (!i_originalCaster->IsHostileTo(itr->getSource()))
                                 continue;
                         }
 

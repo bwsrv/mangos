@@ -82,7 +82,7 @@ SpellSpecific GetSpellSpecific(uint32 spellId);
 // Different spell properties
 inline float GetSpellRadius(SpellRadiusEntry const *radius) { return (radius ? radius->Radius : 0); }
 uint32 GetSpellCastTime(SpellEntry const* spellInfo, Spell const* spell = NULL);
-uint32 GetSpellCastTimeForBonus( SpellEntry const *spellProto, DamageEffectType damagetype);
+uint32 GetSpellCastTimeForBonus(SpellEntry const *spellProto, DamageEffectType damagetype);
 float CalculateDefaultCoefficient(SpellEntry const *spellProto, DamageEffectType const damagetype);
 inline float GetSpellMinRange(SpellRangeEntry const *range, bool friendly = false)
 {
@@ -324,7 +324,7 @@ inline bool IsSpellWithCasterSourceTargetsOnly(SpellEntry const* spellInfo)
     return true;
 }
 
-inline bool IsPointEffectTarget( Targets target)
+inline bool IsPointEffectTarget(Targets target)
 {
     switch (target)
     {
@@ -350,7 +350,7 @@ inline bool IsPointEffectTarget( Targets target)
     return false;
 }
 
-inline bool IsAreaEffectPossitiveTarget( Targets target)
+inline bool IsAreaEffectPossitiveTarget(Targets target)
 {
     switch (target)
     {
@@ -369,7 +369,7 @@ inline bool IsAreaEffectPossitiveTarget( Targets target)
     return false;
 }
 
-inline bool IsAreaEffectTarget( Targets target)
+inline bool IsAreaEffectTarget(Targets target)
 {
     switch (target)
     {
@@ -661,7 +661,7 @@ enum ProcFlagsEx
     PROC_EX_FULL_BLOCK          = 0x0002000,                // block al attack damage
     PROC_EX_RESERVED2           = 0x0004000,
     PROC_EX_RESERVED3           = 0x0008000,
-    PROC_EX_EX_TRIGGER_ALWAYS   = 0x0010000,                // If set trigger always ( no matter another flags) used for drop charges
+    PROC_EX_EX_TRIGGER_ALWAYS   = 0x0010000,                // If set trigger always (no matter another flags) used for drop charges
     PROC_EX_EX_ONE_TIME_TRIGGER = 0x0020000,                // If set trigger always but only one time (not used)
     PROC_EX_PERIODIC_POSITIVE   = 0x0040000,                // For periodic heal
     PROC_EX_CAST_END            = 0x0080000,                // procs on end of cast
@@ -973,7 +973,7 @@ class SpellMgr
             return itr->second;
         }
 
-        static bool IsSpellProcEventCanTriggeredBy( SpellProcEventEntry const * spellProcEvent, uint32 EventProcFlag, SpellEntry const * procSpell, uint32 procFlags, uint32 procExtra);
+        static bool IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const * spellProcEvent, uint32 EventProcFlag, SpellEntry const * procSpell, uint32 procFlags, uint32 procExtra);
 
         // Spell bonus data
         SpellBonusEntry const* GetSpellBonusData(uint32 spellId) const
@@ -989,7 +989,7 @@ class SpellMgr
         // Spell target coordinates
         SpellTargetPosition const* GetSpellTargetPosition(uint32 spell_id) const
         {
-            SpellTargetPositionMap::const_iterator itr = mSpellTargetPositions.find( spell_id);
+            SpellTargetPositionMap::const_iterator itr = mSpellTargetPositions.find(spell_id);
             if (itr != mSpellTargetPositions.end())
                 return &itr->second;
             return NULL;

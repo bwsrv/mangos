@@ -271,7 +271,7 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data)
 
     pl->SendMailResult(0, MAIL_SEND, MAIL_OK);
 
-    pl->ModifyMoney( -int32(reqmoney));
+    pl->ModifyMoney(-int32(reqmoney));
     pl->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_MAIL, cost);
 
     bool needItemDelay = false;
@@ -493,7 +493,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket & recv_data)
     Item *it = pl->GetMItem(itemId);
 
     ItemPosCountVec dest;
-    InventoryResult msg = _player->CanStoreItem( NULL_BAG, NULL_SLOT, dest, it, false);
+    InventoryResult msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, it, false);
     if (msg == EQUIP_ERR_OK)
     {
         m->RemoveItem(itemId);
@@ -536,7 +536,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket & recv_data)
                     .SendMailTo(MailReceiver(sender, sender_guid), _player, MAIL_CHECK_MASK_COD_PAYMENT);
             }
 
-            pl->ModifyMoney( -int32(m->COD));
+            pl->ModifyMoney(-int32(m->COD));
         }
         m->COD = 0;
         m->state = MAIL_STATE_CHANGED;
@@ -771,7 +771,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket & recv_data)
     DETAIL_LOG("HandleMailCreateTextItem mailid=%u", mailId);
 
     ItemPosCountVec dest;
-    InventoryResult msg = _player->CanStoreItem( NULL_BAG, NULL_SLOT, dest, bodyItem, false);
+    InventoryResult msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, bodyItem, false);
     if (msg == EQUIP_ERR_OK)
     {
         m->checked = m->checked | MAIL_CHECK_MASK_COPIED;
