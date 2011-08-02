@@ -1050,8 +1050,8 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     CreatureData& data = sObjectMgr.NewOrExistCreatureData(GetGUIDLow());
 
     uint32 displayId = GetNativeDisplayId();
-    uint32 transportMap = 0;
-    bool IsTransport = false;
+    uint32 transportUse;
+    bool IsTransport;
 
     // check if it's a custom model and if not, use 0 for displayId
     CreatureInfo const *cinfo = GetCreatureInfo();
@@ -1073,9 +1073,12 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     if (GetTransport())
     {
         IsTransport = true;
-        uint32 MapId = GetTransport()->GetGOInfo()->moTransport.mapID;
-        if (MapId)
-            transportMap = MapId;
+        transportUse = 1;
+    }
+    else
+    {
+        IsTransport = false;
+        transportUse = 0;
     }
 
     // data->guid = guid don't must be update at save
@@ -1088,7 +1091,7 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     data.posY = IsTransport ? GetTransOffsetY() : GetPositionY();
     data.posZ = IsTransport ? GetTransOffsetZ() : GetPositionZ();
     data.orientation = IsTransport ? GetTransOffsetO() : GetOrientation();
-    data.transMap = transportMap;
+    data.transActive = transportUse;
     data.spawntimesecs = m_respawnDelay;
     // prevent add data integrity problems
     data.spawndist = GetDefaultMovementType()==IDLE_MOTION_TYPE ? 0 : m_respawnradius;
@@ -1119,7 +1122,7 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
         << (IsTransport ? GetTransOffsetY() : GetPositionY()) << ","
         << (IsTransport ? GetTransOffsetZ() : GetPositionZ()) << ","
         << (IsTransport ? GetTransOffsetO() : GetOrientation()) << ","
-        << transportMap << ","
+        << transportUse << ","
         << m_respawnDelay << ","                            //respawn time
         << (float) m_respawnradius << ","                   //spawn distance (float)
         << (uint32) (0) << ","                              //currentwaypoint

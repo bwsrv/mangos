@@ -34,25 +34,19 @@ class MANGOS_DLL_SPEC Transport : public GameObject
         bool Create(uint32 guidlow, uint32 mapid, float x, float y, float z, float ang, uint8 animprogress, uint16 dynamicHighValue);
         bool GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids);
         void Update(uint32 update_diff, uint32 p_time) override;
-        void UpdateCreaturePositions(Creature* npc, Map* map, float second_x, float second_y, float second_z, float second_o, bool teleport = false);
         bool AddPassenger(Unit* passenger);
         bool RemovePassenger(Unit* passenger);
-        void EnterThisTransport(Creature* pPas, float tX, float tY, float tZ, float tO);
-        void LeaveThisTransport(Creature* pPas);
 
         typedef std::set<Unit*> UnitSet;
         UnitSet const& GetUnitPassengers() const { return _passengers; }
+
+        Creature* AddNPCPassenger(uint32 entry, float x, float y, float z, float o, Team team = TEAM_NONE);
+        void UpdateCreaturePositions(Creature* npc, Map* map, float second_x, float second_y, float second_z, float second_o, bool teleport = false);
 
         void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target);
         void BuildMovementPacket(Map const* targetMap, bool isMoving = false);
         bool GetStopped() const { return isStopped; }
         void SetStopped(bool values) { isStopped = values; }
-        void LoadTransportAccessory();
-        Creature* SummonTransportCreature(uint32 entry, float tX, float tY, float tZ, float tO, TempSummonType spwtype, uint32 despwtime);
-        void CreatureUpdate();
-        void GenerateMicroPoint();
-        uint32 GetTimerSpeedValue(float dist);
-        void SetWayPoint(uint32 poindId = 0);
 
     private:
         struct WayPoint
@@ -87,9 +81,6 @@ class MANGOS_DLL_SPEC Transport : public GameObject
         WayPointMap m_WayPoints;
         uint32 m_nextNodeTime;
         uint32 m_period;
-        bool m_onePeriod;
-        uint32 m_microPointTimer; 
-        uint32 m_waypointTimer;
 
     private:
         void TeleportTransport(uint32 newMapid, float x, float y, float z);

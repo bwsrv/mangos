@@ -931,7 +931,7 @@ void Map::SendInitTransports( Player * player )
     for (MapManager::TransportSet::const_iterator i = tset.begin(); i != tset.end(); ++i)
     {
         // send data for current transport in other place
-        if((*i) != player->GetTransport() && (*i)->GetMapId()==i_id && (*i)->GetMap() == player->GetMap()) //we can't see transport from another instance
+        if((*i) != player->GetTransport() && (*i)->GetMapId()==i_id)
         {
             (*i)->BuildCreateUpdateBlockForPlayer(&transData, player);
         }
@@ -957,7 +957,7 @@ void Map::SendRemoveTransports( Player * player )
 
     // except used transport
     for (MapManager::TransportSet::const_iterator i = tset.begin(); i != tset.end(); ++i)
-        if((*i) != player->GetTransport() && (*i)->GetMapId()!=i_id && (*i)->GetMap() == player->GetMap())
+        if((*i) != player->GetTransport() && (*i)->GetMapId()!=i_id)
             (*i)->BuildOutOfRangeUpdateBlock(&transData);
 
     WorldPacket packet;
@@ -3284,7 +3284,7 @@ void Map::PlayDirectSoundToMap(uint32 soundId)
         itr->getSource()->SendDirectMessage(&data);
 }
 
-Transport* Map::LoadTransportInMap(uint32 transportEntry, uint32 pointId, uint32 period, bool IsStoped /* = false*/, float orientation)
+Transport* Map::LoadTransportInMap(uint32 transportEntry, uint32 transportPosition/*=0*/, uint32 transportPeriod /*= 0*/, bool IsStoped /* = false*/)
 {
     Transport* trans = new Transport;
     const GameObjectInfo *goinfo = ObjectMgr::GetGameObjectInfo(transportEntry);
@@ -3292,22 +3292,18 @@ Transport* Map::LoadTransportInMap(uint32 transportEntry, uint32 pointId, uint32
         return NULL;
 
     std::set<uint32> mapsUse;
-    trans->m_onePeriod = true;
-    trans->m_period = period;
-    trans->m_waypointTimer = 1000;
-    trans->m_microPointTimer = 1000;
-
+    trans->m_period = transportPeriod;
     if (!trans->GenerateWaypoints(goinfo->moTransport.taxiPathId, mapsUse))
     {
         delete trans;
         return NULL;
     }
 
-    uint32 mapid = trans->m_WayPoints[pointId].mapid;
-    float x = trans->m_WayPoints[pointId].x;
-    float y = trans->m_WayPoints[pointId].y;
-    float z = trans->m_WayPoints[pointId].z;
-    float o = orientation;
+    uint32 mapid = trans->m_WayPoints[transportPosition].mapid;
+    float x = trans->m_WayPoints[transportPosition].x;
+    float y = trans->m_WayPoints[transportPosition].y;
+    float z = trans->m_WayPoints[transportPosition].z;
+    float o = 1.0f;
 
     if (!trans->Create(transportEntry, mapid, x, y, z, o, GO_ANIMPROGRESS_DEFAULT, 0))
     {
@@ -3320,30 +3316,11 @@ Transport* Map::LoadTransportInMap(uint32 transportEntry, uint32 pointId, uint32
     for (std::set<uint32>::const_iterator i = mapsUse.begin(); i != mapsUse.end(); ++i)
         sMapMgr.m_TransportsByMap[*i].insert(trans);
 
-    Add(trans);
-
-    trans->SetWayPoint(pointId);
-    trans->LoadTransportAccessory();
-
-    if (IsStoped)
-        trans->BuildMovementPacket(this);
-    else
+    trans->SetMap(this);
+    if (!IsStoped)
         trans->BuildMovementPacket(this, true);
-
-    error_log("%s with Entry = %u LOADED in dX = %f, dY = %f, dZ = %f", trans->GetName(), trans->GetEntry(), x, y, z);
+    else
+        trans->BuildMovementPacket(this);
 
     return trans;
-}
-
-/*##### WARNING! USE THIS ONLY IF TRANSPORT ON WORLD MAP, NOT ON INSTANCE MAP! #####*/
-Transport* Map::GetTransportFromStorage(uint32 entry)
-{
-    for (MapManager::TransportSet::iterator itr = sMapMgr.m_Transports.begin(); itr != sMapMgr.m_Transports.end(); ++itr)
-    {
-        Transport* trans = *itr;
-        if (trans->GetEntry() == entry && this == trans->GetMap())
-            return trans;
-    }
-
-    return NULL;
 }
