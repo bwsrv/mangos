@@ -230,7 +230,6 @@ struct GameObjectInfo
             uint32 transportPhysics;                        //5
             uint32 mapID;                                   //6
             uint32 worldState1;                             //7
-            uint32 inInstance;                              //8
         } moTransport;
         //16 GAMEOBJECT_TYPE_DUELFLAG - empty
         //17 GAMEOBJECT_TYPE_FISHINGNODE - empty
