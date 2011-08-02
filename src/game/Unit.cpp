@@ -6286,7 +6286,7 @@ void Unit::SetPet(Pet* pet)
 
         AddPetToList(pet);
 
-        if (GetTypeId() == TYPEID_PLAYER)
+        if (!pet->GetPetCounter() && GetTypeId() == TYPEID_PLAYER)
             ((Player*)this)->SendPetGUIDs();
     }
     else

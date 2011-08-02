@@ -5476,6 +5476,11 @@ void Spell::DoSummonGroupPets(SpellEffectIndex eff_idx)
     if (amount > 5)
         amount = 1;  // Don't find any cast, summons over 3 pet.
 
+    CreatureCreatePos pos (m_caster->GetMap(), m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, -m_caster->GetOrientation(), m_caster->GetPhaseMask());
+
+    if (!(m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION))
+        pos = CreatureCreatePos(m_caster, -m_caster->GetOrientation());
+
     if (m_caster->GetTypeId()==TYPEID_PLAYER)
     {
         QueryResult* result = CharacterDatabase.PQuery("SELECT id FROM character_pet WHERE owner = '%u' AND entry = '%u'",
@@ -5534,17 +5539,14 @@ void Spell::DoSummonGroupPets(SpellEffectIndex eff_idx)
         pet->SetCreateSpellID(originalSpellID);
         pet->SetDuration(m_duration);
 
-        CreatureCreatePos pos (m_caster->GetMap(), m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, -m_caster->GetOrientation(), m_caster->GetPhaseMask());
-
-        if (!(m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION))
-            pos = CreatureCreatePos(m_caster, -m_caster->GetOrientation());
-
         if (!pet->Create(0, pos, cInfo, 0, m_caster))
         {
             sLog.outErrorDb("Spell::EffectSummonGroupPets: not possible create creature entry %u",m_spellInfo->EffectMiscValue[eff_idx]);
             delete pet;
             return;
         }
+
+        pet->SetSummonPoint(pos);
 
         if (!pet->Summon())
         {

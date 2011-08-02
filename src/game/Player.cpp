@@ -19237,13 +19237,14 @@ void Player::PetSpellInitialize()
 
 void Player::SendPetGUIDs()
 {
-    if (!GetPetGuid())
+    GroupPetList m_groupPets = GetPets();
+    if (m_groupPets.empty())
         return;
 
-    // Later this function might get modified for multiple guids
-    WorldPacket data(SMSG_PET_GUIDS, 12);
-    data << uint32(1);                      // count
-    data << ObjectGuid(GetPetGuid());
+    WorldPacket data(SMSG_PET_GUIDS, 4+8*m_groupPets.size());
+    data << uint32(m_groupPets.size());                      // count
+    for (GroupPetList::const_iterator itr = m_groupPets.begin(); itr != m_groupPets.end(); ++itr)
+        data << (*itr);
     GetSession()->SendPacket(&data);
 }
 
