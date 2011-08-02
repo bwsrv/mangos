@@ -2235,8 +2235,8 @@ template<typename Func>
 bool Unit::CheckAllControlledUnits(Func const& func, uint32 controlledMask) const
 {
     if (controlledMask & CONTROLLED_PET)
-        for (GroupPetList::const_iterator itr = m_groupPets.begin(); itr != m_groupPets.end(); ++itr)
-           if (Pet* pet = _GetPet(*itr))
+        for (GroupPetList::const_iterator itr = m_groupPets.begin(); itr != m_groupPets.end();)
+           if (Pet const* pet = _GetPet(*(itr++)))
                if (func(pet))
                    return true;
 

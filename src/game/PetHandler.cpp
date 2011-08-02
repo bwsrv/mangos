@@ -275,7 +275,7 @@ void WorldSession::HandlePetSetAction(WorldPacket& recv_data)
                 else if (!m_groupPets->empty())
                 {
                     for (GroupPetList::const_iterator itr = m_groupPets->begin(); itr != m_groupPets->end(); ++itr)
-                        if (Pet* _pet = ObjectAccessor::FindPet(*itr))
+                        if (Pet* _pet = GetPlayer()->GetMap()->GetPet(*itr))
                             if ( _pet->IsInWorld())
                             {
                                 _pet->ToggleAutocast(spell_id, true);
@@ -290,7 +290,7 @@ void WorldSession::HandlePetSetAction(WorldPacket& recv_data)
                 else if (!m_groupPets->empty())
                 {
                     for (GroupPetList::const_iterator itr = m_groupPets->begin(); itr != m_groupPets->end(); ++itr)
-                        if (Pet* _pet = ObjectAccessor::FindPet(*itr))
+                        if (Pet* _pet = GetPlayer()->GetMap()->GetPet(*itr))
                             if ( _pet->IsInWorld())
                             {
                                 _pet->ToggleAutocast(spell_id, false);

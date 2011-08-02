@@ -117,15 +117,6 @@ void ObjectAccessor::KickPlayer(ObjectGuid guid)
     }
 }
 
-Pet* ObjectAccessor::FindPet(ObjectGuid guid)
-{
-    Pet * pet = HashMapHolder<Pet>::Find(guid);
-    if(!pet || !pet->IsInWorld())
-        return NULL;
-
-    return pet;
-}
-
 Corpse*
 ObjectAccessor::GetCorpseForPlayerGUID(ObjectGuid guid)
 {
