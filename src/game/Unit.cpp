@@ -6068,6 +6068,9 @@ bool Unit::isAttackingPlayer() const
 
 void Unit::RemoveAllAttackers()
 {
+    if (!GetMap())
+        return;
+
     while (!m_attackers.empty())
     {
         AttackerSet::iterator iter = m_attackers.begin();
