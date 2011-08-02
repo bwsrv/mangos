@@ -6275,7 +6275,7 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
                 }
                 if (!dualEffect && m_caster->getVictim() && (!IsPositiveSpell(m_spellInfo->Id) || IsDispelSpell(m_spellInfo)))
                 {
-                    if (!m_caster->IsHostileTo(_target) && (m_caster->GetCharmerOrOwner() && !m_caster->GetCharmerOrOwner()->IsFriendlyTo(_target)))
+                    if (!m_caster->IsHostileTo(_target) && (m_caster->GetCharmerOrOwner() && m_caster->GetCharmerOrOwner()->IsFriendlyTo(_target)))
                     {
                         DEBUG_LOG("Charmed creature attempt to cast negative spell %d, but target (guid %u) is friendly",m_spellInfo->Id, target->GetObjectGuid().GetRawValue());
                         return SPELL_FAILED_BAD_TARGETS;
