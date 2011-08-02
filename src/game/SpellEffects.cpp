@@ -428,6 +428,11 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                         damage = unitTarget->GetHealth() / 2;
                         break;
                     }
+                    case 51132: // Urom Clocking Bomb Damage
+                    {
+                        damage = m_caster->GetMaxHealth() - m_caster->GetHealth();
+                        break;
+                    }
                     // Explode
                     case 47496:
                     {
@@ -2261,7 +2266,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 
                     return;
                 }
-                case 51336:                                 // Magic Pull
+                case 51336:                                 // Drakos Magic Pull
                 {
                     if (!unitTarget)
                         return;
@@ -8133,7 +8138,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     if (!unitTarget)
                         return;
 
-                    unitTarget->CastSpell(unitTarget, m_spellInfo->Id + 1, true);
+                    unitTarget->CastSpell(unitTarget, m_spellInfo->Id + 1, true, NULL, NULL, m_caster->GetObjectGuid());
                     return;
                 }
                 case 50894:                                 // Zul'Drak Rat
