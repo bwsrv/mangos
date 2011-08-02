@@ -40,7 +40,7 @@ class Path
         float GetTotalLength(uint32 start, uint32 end) const
         {
             float len = 0.0f;
-            for(unsigned int idx=start+1; idx < end; ++idx)
+            for (unsigned int idx=start+1; idx < end; ++idx)
             {
                 PathNode const& node = i_nodes[idx];
                 PathNode const& prev = i_nodes[idx-1];

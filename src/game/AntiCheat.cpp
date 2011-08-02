@@ -108,7 +108,7 @@ bool AntiCheat::CheckNull()
 AntiCheatCheckEntry* AntiCheat::_FindCheck(AntiCheatCheck checktype)
 {
 
-    for(uint16 i = 0; AntiCheatCheckList[i].checkType != CHECK_MAX; ++i)
+    for (uint16 i = 0; AntiCheatCheckList[i].checkType != CHECK_MAX; ++i)
     {
         AntiCheatCheckEntry* pEntry = &AntiCheatCheckList[i];
         if (pEntry->checkType == checktype)
@@ -694,7 +694,7 @@ bool AntiCheat::CheckTp2Plane()
 
     plane_z = GetMover()->GetTerrain()->GetHeight(m_currentmovementInfo->GetPos()->x, m_currentmovementInfo->GetPos()->y, MAX_HEIGHT) - m_currentmovementInfo->GetPos()->z;
     plane_z = (plane_z < -500.0f) ? 0 : plane_z; //check holes in heigth map
-    if(plane_z < m_currentConfig->checkFloatParam[1] && plane_z > -m_currentConfig->checkFloatParam[1])
+    if (plane_z < m_currentConfig->checkFloatParam[1] && plane_z > -m_currentConfig->checkFloatParam[1])
             return true;
 
     char buffer[255];
@@ -715,7 +715,7 @@ bool AntiCheat::CheckZAxis()
     float delta_x   = GetPlayer()->GetPositionX() - m_currentmovementInfo->GetPos()->x;
     float delta_y   = GetPlayer()->GetPositionY() - m_currentmovementInfo->GetPos()->y;
 
-    if(fabs(delta_x) > m_currentConfig->checkFloatParam[0] || fabs(delta_y) > m_currentConfig->checkFloatParam[0])
+    if (fabs(delta_x) > m_currentConfig->checkFloatParam[0] || fabs(delta_y) > m_currentConfig->checkFloatParam[0])
         return true;
 
     float delta_z   = GetPlayer()->GetPositionZ() - m_currentmovementInfo->GetPos()->z;
@@ -789,7 +789,7 @@ bool AntiCheat::CheckSpellFamily()
 
     SkillLineAbilityMapBounds skill_bounds = sSpellMgr.GetSkillLineAbilityMapBounds(m_currentspellID);
 
-    for(SkillLineAbilityMap::const_iterator _spell_idx = skill_bounds.first; _spell_idx != skill_bounds.second; ++_spell_idx)
+    for (SkillLineAbilityMap::const_iterator _spell_idx = skill_bounds.first; _spell_idx != skill_bounds.second; ++_spell_idx)
     {
         SkillLineEntry const *pSkill = sSkillLineStore.LookupEntry(_spell_idx->second->skillId);
 

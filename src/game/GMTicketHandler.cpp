@@ -63,9 +63,9 @@ void WorldSession::HandleGMTicketGetTicketOpcode( WorldPacket & /*recv_data*/ )
     SendQueryTimeResponse();
 
     GMTicket* ticket = sTicketMgr.GetGMTicket(GetPlayer()->GetObjectGuid());
-    if(ticket)
+    if (ticket)
     {
-        if(ticket->HasResponse())
+        if (ticket->HasResponse())
             SendGMResponse(ticket);
         else
             SendGMTicketGetTicket(0x06, ticket);
@@ -79,7 +79,7 @@ void WorldSession::HandleGMTicketUpdateTextOpcode( WorldPacket & recv_data )
     std::string ticketText;
     recv_data >> ticketText;
 
-    if(GMTicket* ticket = sTicketMgr.GetGMTicket(GetPlayer()->GetObjectGuid()))
+    if (GMTicket* ticket = sTicketMgr.GetGMTicket(GetPlayer()->GetObjectGuid()))
         ticket->SetText(ticketText.c_str());
     else
         sLog.outError("Ticket update: Player %s (GUID: %u) doesn't have active ticket", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow());
@@ -113,7 +113,7 @@ void WorldSession::HandleGMTicketCreateOpcode( WorldPacket & recv_data )
 
     DEBUG_LOG("TicketCreate: map %u, x %f, y %f, z %f, text %s", map, x, y, z, ticketText.c_str());
 
-    if(sTicketMgr.GetGMTicket(GetPlayer()->GetObjectGuid()) && !isFollowup)
+    if (sTicketMgr.GetGMTicket(GetPlayer()->GetObjectGuid()) && !isFollowup)
     {
         WorldPacket data( SMSG_GMTICKET_CREATE, 4 );
         data << uint32(1);                                  // 1 - You already have GM ticket
@@ -121,7 +121,7 @@ void WorldSession::HandleGMTicketCreateOpcode( WorldPacket & recv_data )
         return;
     }
 
-    if(isFollowup)
+    if (isFollowup)
         sTicketMgr.Delete(_player->GetObjectGuid());
 
     sTicketMgr.Create(_player->GetObjectGuid(), ticketText.c_str());
@@ -158,7 +158,7 @@ void WorldSession::HandleGMSurveySubmitOpcode( WorldPacket & recv_data)
 
     uint8 result[10];
     memset(result, 0, sizeof(result));
-    for( int i = 0; i < 10; ++i)
+    for (int i = 0; i < 10; ++i)
     {
         uint32 questionID;
         recv_data >> questionID;                            // GMSurveyQuestions.dbc

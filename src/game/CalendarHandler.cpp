@@ -45,11 +45,11 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket &/*recv_data*/)
     size_t p_counter = data.wpos();
     data << uint32(counter);                                // instance state count
 
-    for(int i = 0; i < MAX_DIFFICULTY; ++i)
+    for (int i = 0; i < MAX_DIFFICULTY; ++i)
     {
         for (Player::BoundInstancesMap::const_iterator itr = _player->m_boundInstances[i].begin(); itr != _player->m_boundInstances[i].end(); ++itr)
         {
-            if(itr->second.perm)
+            if (itr->second.perm)
             {
                 DungeonPersistentState *state = itr->second.state;
                 data << uint32(state->GetMapId());
@@ -66,15 +66,15 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket &/*recv_data*/)
     counter = 0;
     p_counter = data.wpos();
     data << uint32(counter);                                // Instance reset intervals
-    for(MapDifficultyMap::const_iterator itr = sMapDifficultyMap.begin(); itr != sMapDifficultyMap.end(); ++itr)
+    for (MapDifficultyMap::const_iterator itr = sMapDifficultyMap.begin(); itr != sMapDifficultyMap.end(); ++itr)
     {
         MapDifficultyEntry const* mapDiff = itr->second;
 
-        if(!mapDiff || mapDiff->resetTime == 0)
+        if (!mapDiff || mapDiff->resetTime == 0)
             continue;
 
         const MapEntry* map = sMapStore.LookupEntry(mapDiff->MapId);
-        if(!map || !map->IsRaid())
+        if (!map || !map->IsRaid())
             continue;
 
         uint32 period =  uint32(mapDiff->resetTime / DAY * sWorld.getConfig(CONFIG_FLOAT_RATE_INSTANCE_RESET_TIME)) * DAY;
@@ -90,7 +90,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket &/*recv_data*/)
 
     data << (uint32) 0;                                     // unk counter 5
 /*
-    for(uint32 i = 0; i < holidays_count; ++i)
+    for (uint32 i = 0; i < holidays_count; ++i)
     {
         data << uint32(0);                                  // Holidays.dbc ID
         data << uint32(0);                                  // Holidays.dbc region
@@ -98,13 +98,13 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket &/*recv_data*/)
         data << uint32(0);                                  // Holidays.dbc priority
         data << uint32(0);                                  // Holidays.dbc calendarFilterType
 
-        for(uint32 j = 0; j < 26; j++)
+        for (uint32 j = 0; j < 26; j++)
             data << uint32(0);                              // Holidays.dbc date
 
-        for(uint32 j = 0; j < 10; j++)
+        for (uint32 j = 0; j < 10; j++)
             data << uint32(0);                              // Holidays.dbc duration
 
-        for(uint32 j = 0; j < 10; j++)
+        for (uint32 j = 0; j < 10; j++)
             data << uint32(0);                              // Holidays.dbc calendarFlags
 
         data << "";                                         // Holidays.dbc textureFilename

@@ -575,7 +575,7 @@ bool GridMap::ExistMap(uint32 mapid,int gx,int gy)
 
     FILE *pf=fopen(tmp,"rb");
 
-    if(!pf)
+    if (!pf)
     {
         sLog.outError("Check existing of map file '%s': not exist!",tmp);
         delete[] tmp;
@@ -601,13 +601,13 @@ bool GridMap::ExistMap(uint32 mapid,int gx,int gy)
 
 bool GridMap::ExistVMap(uint32 mapid,int gx,int gy)
 {
-    if(VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager())
+    if (VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager())
     {
-        if(vmgr->isMapLoadingEnabled())
+        if (vmgr->isMapLoadingEnabled())
         {
                                                             // x and y are swapped !! => fixed now
             bool exists = vmgr->existsMap((sWorld.GetDataPath()+ "vmaps").c_str(),  mapid, gx,gy);
-            if(!exists)
+            if (!exists)
             {
                 std::string name = vmgr->getDirFileName(mapid,gx,gy);
                 sLog.outError("VMap file '%s' is missing or point to wrong version vmap file, redo vmaps with latest vmap_assembler.exe program", (sWorld.GetDataPath()+"vmaps/"+name).c_str());
@@ -659,7 +659,7 @@ GridMap * TerrainInfo::Load(const uint32 x, const uint32 y)
 
     //quick check if GridMap already loaded
     GridMap * pMap = m_GridMaps[x][y];
-    if(!pMap)
+    if (!pMap)
         pMap = LoadMapAndVMap(x, y);
 
     return pMap;
@@ -671,10 +671,10 @@ void TerrainInfo::Unload(const uint32 x, const uint32 y)
     MANGOS_ASSERT(x < MAX_NUMBER_OF_GRIDS);
     MANGOS_ASSERT(y < MAX_NUMBER_OF_GRIDS);
 
-    if(m_GridMaps[x][y])
+    if (m_GridMaps[x][y])
     {
         //decrease grid reference count...
-        if(UnrefGrid(x, y) == 0)
+        if (UnrefGrid(x, y) == 0)
         {
             //TODO: add your additional logic here
 
@@ -687,7 +687,7 @@ void TerrainInfo::Unload(const uint32 x, const uint32 y)
 void TerrainInfo::CleanUpGrids(const uint32 diff)
 {
     i_timer.Update(diff);
-    if( !i_timer.Passed() )
+    if ( !i_timer.Passed() )
         return;
 
     for (int y = 0; y < MAX_NUMBER_OF_GRIDS; ++y)
@@ -698,7 +698,7 @@ void TerrainInfo::CleanUpGrids(const uint32 diff)
             GridMap * pMap = m_GridMaps[x][y];
 
             //delete those GridMap objects which have refcount = 0
-            if(pMap && iRef == 0 )
+            if (pMap && iRef == 0 )
             {
                 m_GridMaps[x][y] = NULL;
                 //delete grid data if reference count == 0
@@ -731,7 +731,7 @@ int TerrainInfo::UnrefGrid(const uint32& x, const uint32& y)
     int16& iRef = m_GridRef[x][y];
 
     LOCK_GUARD _lock(m_refMutex);
-    if(iRef > 0)
+    if (iRef > 0)
         return (iRef -= 1);
 
     return 0;
@@ -812,22 +812,22 @@ inline bool IsOutdoorWMO(uint32 mogpFlags, int32 adtId, int32 rootId, int32 grou
 {
     bool outdoor = true;
 
-    if(wmoEntry && atEntry)
+    if (wmoEntry && atEntry)
     {
-        if(atEntry->flags & AREA_FLAG_OUTSIDE)
+        if (atEntry->flags & AREA_FLAG_OUTSIDE)
             return true;
-        if(atEntry->flags & AREA_FLAG_INSIDE)
+        if (atEntry->flags & AREA_FLAG_INSIDE)
             return false;
     }
 
     outdoor = mogpFlags&0x8;
 
-    if(wmoEntry)
+    if (wmoEntry)
     {
-        if(wmoEntry->Flags & 4)
+        if (wmoEntry->Flags & 4)
             return true;
 
-        if((wmoEntry->Flags & 2)!=0)
+        if ((wmoEntry->Flags & 2)!=0)
             outdoor = false;
     }
     return outdoor;
@@ -839,12 +839,12 @@ bool TerrainInfo::IsOutdoors(float x, float y, float z) const
     int32 adtId, rootId, groupId;
 
     // no wmo found? -> outside by default
-    if(!GetAreaInfo(x, y, z, mogpFlags, adtId, rootId, groupId))
+    if (!GetAreaInfo(x, y, z, mogpFlags, adtId, rootId, groupId))
         return true;
 
     AreaTableEntry const* atEntry = 0;
     WMOAreaTableEntry const* wmoEntry= GetWMOAreaTableEntryByTripple(rootId, adtId, groupId);
-    if(wmoEntry)
+    if (wmoEntry)
     {
         DEBUG_LOG("Got WMOAreaTableEntry! flag %u, areaid %u", wmoEntry->Flags, wmoEntry->areaId);
 
@@ -861,11 +861,11 @@ bool TerrainInfo::GetAreaInfo(float x, float y, float z, uint32 &flags, int32 &a
     if (vmgr->getAreaInfo(GetMapId(), x, y, vmap_z, flags, adtId, rootId, groupId))
     {
         // check if there's terrain between player height and object height
-        if(GridMap *gmap = const_cast<TerrainInfo*>(this)->GetGrid(x, y))
+        if (GridMap *gmap = const_cast<TerrainInfo*>(this)->GetGrid(x, y))
         {
             float _mapheight = gmap->getHeight(x,y);
             // z + 2.0f condition taken from GetHeight(), not sure if it's such a great choice...
-            if(z + 2.0f > _mapheight &&  _mapheight > vmap_z)
+            if (z + 2.0f > _mapheight &&  _mapheight > vmap_z)
                 return false;
         }
         return true;
@@ -881,11 +881,11 @@ uint16 TerrainInfo::GetAreaFlag(float x, float y, float z, bool *isOutdoors) con
     AreaTableEntry const* atEntry = 0;
     bool haveAreaInfo = false;
 
-    if(GetAreaInfo(x, y, z, mogpFlags, adtId, rootId, groupId))
+    if (GetAreaInfo(x, y, z, mogpFlags, adtId, rootId, groupId))
     {
         haveAreaInfo = true;
         wmoEntry = GetWMOAreaTableEntryByTripple(rootId, adtId, groupId);
-        if(wmoEntry)
+        if (wmoEntry)
             atEntry = GetAreaEntryByAreaID(wmoEntry->areaId);
     }
 
@@ -894,7 +894,7 @@ uint16 TerrainInfo::GetAreaFlag(float x, float y, float z, bool *isOutdoors) con
         areaflag = atEntry->exploreFlag;
     else
     {
-        if(GridMap *gmap = const_cast<TerrainInfo*>(this)->GetGrid(x, y))
+        if (GridMap *gmap = const_cast<TerrainInfo*>(this)->GetGrid(x, y))
             areaflag = gmap->getArea(x, y);
         // this used while not all *.map files generated (instances)
         else
@@ -913,7 +913,7 @@ uint16 TerrainInfo::GetAreaFlag(float x, float y, float z, bool *isOutdoors) con
 
 uint8 TerrainInfo::GetTerrainType(float x, float y ) const
 {
-    if(GridMap *gmap = const_cast<TerrainInfo*>(this)->GetGrid(x, y))
+    if (GridMap *gmap = const_cast<TerrainInfo*>(this)->GetGrid(x, y))
         return gmap->getTerrainType(x, y);
     else
         return 0;
@@ -968,7 +968,7 @@ GridMapLiquidStatus TerrainInfo::getLiquidStatus(float x, float y, float z, uint
             result = LIQUID_MAP_ABOVE_WATER;
         }
     }
-    if(GridMap* gmap = const_cast<TerrainInfo*>(this)->GetGrid(x, y))
+    if (GridMap* gmap = const_cast<TerrainInfo*>(this)->GetGrid(x, y))
     {
         GridMapLiquidData map_data;
         GridMapLiquidStatus map_result = gmap->getLiquidStatus(x, y, z, ReqLiquidType, &map_data);
@@ -1047,7 +1047,7 @@ GridMap * TerrainInfo::GetGrid( const float x, const float y )
 
     //quick check if GridMap already loaded
     GridMap * pMap = m_GridMaps[gx][gy];
-    if(!pMap)
+    if (!pMap)
          pMap = LoadMapAndVMap(gx, gy);
 
     return pMap;
@@ -1056,11 +1056,11 @@ GridMap * TerrainInfo::GetGrid( const float x, const float y )
 GridMap * TerrainInfo::LoadMapAndVMap( const uint32 x, const uint32 y )
 {
     //double checked lock pattern
-    if(!m_GridMaps[x][y])
+    if (!m_GridMaps[x][y])
     {
         LOCK_GUARD lock(m_mutex);
 
-        if(!m_GridMaps[x][y])
+        if (!m_GridMaps[x][y])
         {
             GridMap * map = new GridMap();
 
@@ -1071,7 +1071,7 @@ GridMap * TerrainInfo::LoadMapAndVMap( const uint32 x, const uint32 y )
             snprintf(tmp, len, (char *)(sWorld.GetDataPath()+"maps/%03u%02u%02u.map").c_str(),m_mapId, x, y);
             sLog.outDetail("Loading map %s",tmp);
 
-            if(!map->loadData(tmp))
+            if (!map->loadData(tmp))
             {
                 sLog.outError("Error load map file: \n %s\n", tmp);
                 //ASSERT(false);
@@ -1233,7 +1233,7 @@ bool TerrainInfo::CheckPathAccurate(float srcX, float srcY, float srcZ, float& d
             Cell::VisitAllObjects(mover, searcher, 2*mover->GetObjectBoundingRadius());
             if (!tempTargetGOList.empty())
             {
-                for(std::list<GameObject*>::iterator iter = tempTargetGOList.begin(); iter != tempTargetGOList.end(); ++iter)
+                for (std::list<GameObject*>::iterator iter = tempTargetGOList.begin(); iter != tempTargetGOList.end(); ++iter)
                 {
                     if (((*iter)->GetGoType() == GAMEOBJECT_TYPE_DOOR && (*iter)->GetGoState() == GO_STATE_READY)
                         || (*iter)->GetGoType() != GAMEOBJECT_TYPE_DOOR)
@@ -1304,7 +1304,7 @@ TerrainInfo * TerrainManager::LoadTerrain(const uint32 mapId)
 
     TerrainInfo * ptr = NULL;
     TerrainDataMap::const_iterator iter = i_TerrainMap.find(mapId);
-    if(iter == i_TerrainMap.end())
+    if (iter == i_TerrainMap.end())
     {
         ptr = new TerrainInfo(mapId);
         i_TerrainMap[mapId] = ptr;
@@ -1317,17 +1317,17 @@ TerrainInfo * TerrainManager::LoadTerrain(const uint32 mapId)
 
 void TerrainManager::UnloadTerrain(const uint32 mapId)
 {
-    if(sWorld.getConfig(CONFIG_BOOL_GRID_UNLOAD) == 0)
+    if (sWorld.getConfig(CONFIG_BOOL_GRID_UNLOAD) == 0)
         return;
 
     Guard _guard(*this);
 
     TerrainDataMap::iterator iter = i_TerrainMap.find(mapId);
-    if(iter != i_TerrainMap.end())
+    if (iter != i_TerrainMap.end())
     {
         TerrainInfo * ptr = (*iter).second;
         //lets check if this object can be actually freed
-        if(ptr->IsReferenced() == false)
+        if (ptr->IsReferenced() == false)
         {
             i_TerrainMap.erase(iter);
             delete ptr;
@@ -1364,7 +1364,7 @@ uint32 TerrainManager::GetZoneIdByAreaFlag(uint16 areaflag,uint32 map_id)
 {
     AreaTableEntry const *entry = GetAreaEntryByAreaFlagAndMap(areaflag,map_id);
 
-    if( entry )
+    if ( entry )
         return ( entry->zone != 0 ) ? entry->zone : entry->ID;
     else
         return 0;

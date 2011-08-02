@@ -101,16 +101,16 @@ World::World()
     m_defaultDbcLocale = LOCALE_enUS;
     m_availableDbcLocaleMask = 0;
 
-    for(int i = 0; i < CONFIG_UINT32_VALUE_COUNT; ++i)
+    for (int i = 0; i < CONFIG_UINT32_VALUE_COUNT; ++i)
         m_configUint32Values[i] = 0;
 
-    for(int i = 0; i < CONFIG_INT32_VALUE_COUNT; ++i)
+    for (int i = 0; i < CONFIG_INT32_VALUE_COUNT; ++i)
         m_configInt32Values[i] = 0;
 
-    for(int i = 0; i < CONFIG_FLOAT_VALUE_COUNT; ++i)
+    for (int i = 0; i < CONFIG_FLOAT_VALUE_COUNT; ++i)
         m_configFloatValues[i] = 0.0f;
 
-    for(int i = 0; i < CONFIG_BOOL_VALUE_COUNT; ++i)
+    for (int i = 0; i < CONFIG_BOOL_VALUE_COUNT; ++i)
         m_configBoolValues[i] = false;
 }
 
@@ -147,10 +147,10 @@ Player* World::FindPlayerInZone(uint32 zone)
     SessionMap::const_iterator itr;
     for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
     {
-        if(!itr->second)
+        if (!itr->second)
             continue;
         Player *player = itr->second->GetPlayer();
-        if(!player)
+        if (!player)
             continue;
         if ( player->IsInWorld() && player->GetZoneId() == zone )
         {
@@ -284,8 +284,8 @@ int32 World::GetQueuedSessionPos(WorldSession* sess)
 {
     uint32 position = 1;
 
-    for(Queue::const_iterator iter = m_QueuedSessions.begin(); iter != m_QueuedSessions.end(); ++iter, ++position)
-        if((*iter) == sess)
+    for (Queue::const_iterator iter = m_QueuedSessions.begin(); iter != m_QueuedSessions.end(); ++iter, ++position)
+        if ((*iter) == sess)
             return position;
 
     return 0;
@@ -319,9 +319,9 @@ bool World::RemoveQueuedSession(WorldSession* sess)
     // search to remove and count skipped positions
     bool found = false;
 
-    for(;iter != m_QueuedSessions.end(); ++iter, ++position)
+    for (;iter != m_QueuedSessions.end(); ++iter, ++position)
     {
-        if(*iter==sess)
+        if (*iter==sess)
         {
             sess->SetInQueue(false);
             iter = m_QueuedSessions.erase(iter);
@@ -334,7 +334,7 @@ bool World::RemoveQueuedSession(WorldSession* sess)
     // position store position of removed socket and then new position next socket after removed
 
     // if session not queued then we need decrease sessions count
-    if(!found && sessions)
+    if (!found && sessions)
         --sessions;
 
     // accept first in queue
@@ -361,7 +361,7 @@ bool World::RemoveQueuedSession(WorldSession* sess)
 
     // update position from iter to end()
     // iter point to first not updated socket, position store new position
-    for(; iter != m_QueuedSessions.end(); ++iter, ++position)
+    for (; iter != m_QueuedSessions.end(); ++iter, ++position)
         (*iter)->SendAuthWaitQue(position);
 
     return found;
@@ -397,7 +397,7 @@ Weather* World::AddWeather(uint32 zone_id)
     WeatherZoneChances const* weatherChances = sObjectMgr.GetWeatherChances(zone_id);
 
     // zone not have weather, ignore
-    if(!weatherChances)
+    if (!weatherChances)
         return NULL;
 
     Weather* w = new Weather(zone_id,weatherChances);
@@ -1510,7 +1510,7 @@ void World::DetectDBCLang()
 void World::Update(uint32 diff)
 {
     ///- Update the different timers
-    for(int i = 0; i < WUPDATE_COUNT; ++i)
+    for (int i = 0; i < WUPDATE_COUNT; ++i)
     {
         if (m_timers[i].GetCurrent()>=0)
             m_timers[i].Update(diff);
@@ -1574,7 +1574,7 @@ void World::Update(uint32 diff)
         {
             ///- and remove Weather objects for zones with no player
                                                             //As interval > WorldTick
-            if(!itr->second->Update(m_timers[WUPDATE_WEATHERS].GetInterval()))
+            if (!itr->second->Update(m_timers[WUPDATE_WEATHERS].GetInterval()))
             {
                 delete itr->second;
                 m_weathers.erase(itr++);
@@ -1737,9 +1737,9 @@ void World::SendWorldText(int32 string_id, ...)
 
     MaNGOS::WorldWorldTextBuilder wt_builder(string_id, &ap);
     MaNGOS::LocalizedPacketListDo<MaNGOS::WorldWorldTextBuilder> wt_do(wt_builder);
-    for(SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
     {
-        if(!itr->second || !itr->second->GetPlayer() || !itr->second->GetPlayer()->IsInWorld() )
+        if (!itr->second || !itr->second->GetPlayer() || !itr->second->GetPlayer()->IsInWorld() )
             continue;
 
         wt_do(itr->second->GetPlayer());
@@ -1756,9 +1756,9 @@ void World::SendWorldTextWithSecurity(AccountTypes security, int32 string_id, ..
 
     MaNGOS::WorldWorldTextBuilder wt_builder(string_id, &ap);
     MaNGOS::LocalizedPacketListDo<MaNGOS::WorldWorldTextBuilder> wt_do(wt_builder);
-    for(SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
     {
-        if(!itr->second || !itr->second->GetPlayer() || !itr->second->GetPlayer()->IsInWorld() || itr->second->GetSecurity() < security )
+        if (!itr->second || !itr->second->GetPlayer() || !itr->second->GetPlayer()->IsInWorld() || itr->second->GetSecurity() < security )
             continue;
 
         wt_do(itr->second->GetPlayer());
@@ -1860,7 +1860,7 @@ BanReturn World::BanAccount(BanMode mode, std::string nameOrIP, uint32 duration_
             return BAN_SYNTAX_ERROR;
     }
 
-    if(!resultAccounts)
+    if (!resultAccounts)
     {
         if (mode==BAN_IP)
             return BAN_SUCCESS;                             // ip correctly banned but nobody affected (yet)
@@ -1925,12 +1925,12 @@ void World::_UpdateGameTime()
     m_gameTime = thisTime;
 
     ///- if there is a shutdown timer
-    if(!m_stopEvent && m_ShutdownTimer > 0 && elapsed > 0)
+    if (!m_stopEvent && m_ShutdownTimer > 0 && elapsed > 0)
     {
         ///- ... and it is overdue, stop the world (set m_stopEvent)
         if ( m_ShutdownTimer <= elapsed )
         {
-            if(!(m_ShutdownMask & SHUTDOWN_MASK_IDLE) || GetActiveAndQueuedSessionCount()==0)
+            if (!(m_ShutdownMask & SHUTDOWN_MASK_IDLE) || GetActiveAndQueuedSessionCount()==0)
                 m_stopEvent = true;                         // exist code already set
             else
                 m_ShutdownTimer = 1;                        // minimum timer value to wait idle state
@@ -1958,7 +1958,7 @@ void World::ShutdownServ(uint32 time, uint32 options, uint8 exitcode)
     ///- If the shutdown time is 0, set m_stopEvent (except if shutdown is 'idle' with remaining sessions)
     if (time==0)
     {
-        if(!(options & SHUTDOWN_MASK_IDLE) || GetActiveAndQueuedSessionCount()==0)
+        if (!(options & SHUTDOWN_MASK_IDLE) || GetActiveAndQueuedSessionCount()==0)
             m_stopEvent = true;                             // exist code already set
         else
             m_ShutdownTimer = 1;                            //So that the session count is re-evaluated at next world tick
@@ -2005,7 +2005,7 @@ void World::ShutdownMsg(bool show, Player* player)
 void World::ShutdownCancel()
 {
     // nothing cancel or too later
-    if(!m_ShutdownTimer || m_stopEvent)
+    if (!m_ShutdownTimer || m_stopEvent)
         return;
 
     ServerMessageType msgid = (m_ShutdownMask & SHUTDOWN_MASK_RESTART) ? SERVER_MSG_RESTART_CANCELLED : SERVER_MSG_SHUTDOWN_CANCELLED;
@@ -2047,7 +2047,7 @@ void World::UpdateSessions( uint32 diff )
         WorldSession * pSession = itr->second;
         WorldSessionFilter updater(pSession);
 
-        if(!pSession->Update(updater))
+        if (!pSession->Update(updater))
         {
             RemoveQueuedSession(pSession);
             m_sessions.erase(itr);
@@ -2092,7 +2092,7 @@ void World::SendBroadcast()
         result = CharacterDatabase.PQuery("SELECT `text`, `next` FROM `autobroadcast` ORDER BY RAND() LIMIT 1");
     }
 
-    if(!result)
+    if (!result)
         return;
 
     Field *fields = result->Fetch();
@@ -2307,7 +2307,7 @@ void World::ResetDailyQuests()
 {
     DETAIL_LOG("Daily quests reset for all characters.");
     CharacterDatabase.Execute("DELETE FROM character_queststatus_daily");
-    for(SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         if (itr->second->GetPlayer())
             itr->second->GetPlayer()->ResetDailyQuestStatus();
 
@@ -2319,7 +2319,7 @@ void World::ResetWeeklyQuests()
 {
     DETAIL_LOG("Weekly quests reset for all characters.");
     CharacterDatabase.Execute("DELETE FROM character_queststatus_weekly");
-    for(SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         if (itr->second->GetPlayer())
             itr->second->GetPlayer()->ResetWeeklyQuestStatus();
 
@@ -2331,7 +2331,7 @@ void World::ResetRandomBG()
 {
     sLog.outDetail("Random BG status reset for all characters.");
     CharacterDatabase.Execute("DELETE FROM character_battleground_random");
-    for(SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         if (itr->second->GetPlayer())
             itr->second->GetPlayer()->SetRandomWinner(false);
 
@@ -2344,7 +2344,7 @@ void World::ResetMonthlyQuests()
     DETAIL_LOG("Monthly quests reset for all characters.");
     CharacterDatabase.Execute("TRUNCATE character_queststatus_monthly");
 
-    for(SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         if (itr->second->GetPlayer())
             itr->second->GetPlayer()->ResetMonthlyQuestStatus();
 

@@ -89,7 +89,7 @@ void WorldSession::HandleAutostoreLootItemOpcode( WorldPacket & recv_data )
 
             bool ok_loot = pCreature && pCreature->isAlive() == (player->getClass()==CLASS_ROGUE && pCreature->lootForPickPocketed);
 
-            if( !ok_loot || !pCreature->IsWithinDistInMap(_player,INTERACTION_DISTANCE) )
+            if ( !ok_loot || !pCreature->IsWithinDistInMap(_player,INTERACTION_DISTANCE) )
             {
                 player->SendLootRelease(lguid);
                 return;
@@ -111,7 +111,7 @@ void WorldSession::HandleAutostoreLootItemOpcode( WorldPacket & recv_data )
 
     LootItem *item = loot->LootItemInSlot(lootSlot,player,&qitem,&ffaitem,&conditem);
 
-    if(!item)
+    if (!item)
     {
         player->SendEquipError( EQUIP_ERR_ALREADY_LOOTED, NULL, NULL );
         return;
@@ -154,7 +154,7 @@ void WorldSession::HandleAutostoreLootItemOpcode( WorldPacket & recv_data )
             else
             {
                 //not freeforall, notify everyone
-                if(conditem)
+                if (conditem)
                     conditem->is_looted=true;
                 loot->NotifyItemRemoved(lootSlot);
             }
@@ -194,7 +194,7 @@ void WorldSession::HandleLootMoneyOpcode( WorldPacket & /*recv_data*/ )
             GameObject *pGameObject = GetPlayer()->GetMap()->GetGameObject(guid);
 
             // not check distance for GO in case owned GO (fishing bobber case, for example)
-            if( pGameObject && (pGameObject->GetOwnerGuid() == _player->GetObjectGuid() || pGameObject->IsWithinDistInMap(_player,INTERACTION_DISTANCE)) )
+            if ( pGameObject && (pGameObject->GetOwnerGuid() == _player->GetObjectGuid() || pGameObject->IsWithinDistInMap(_player,INTERACTION_DISTANCE)) )
                 pLoot = &pGameObject->loot;
 
             break;
@@ -242,10 +242,10 @@ void WorldSession::HandleLootMoneyOpcode( WorldPacket & /*recv_data*/ )
             Group *group = player->GetGroup();
 
             std::vector<Player*> playersNear;
-            for(GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+            for (GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
             {
                 Player* playerGroup = itr->getSource();
-                if(!playerGroup)
+                if (!playerGroup)
                     continue;
                 if (player->IsWithinDistInMap(playerGroup,sWorld.getConfig(CONFIG_FLOAT_GROUP_XP_DISTANCE),false))
                     playersNear.push_back(playerGroup);
@@ -319,7 +319,7 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
 
     player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_LOOTING);
 
-    if(!player->IsInWorld())
+    if (!player->IsInWorld())
         return;
 
     switch(lguid.GetHigh())
@@ -342,13 +342,13 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
             else if (loot->isLooted() || go->GetGoType() == GAMEOBJECT_TYPE_FISHINGNODE)
             {
                 // GO is mineral vein? so it is not removed after its looted
-                if(go->GetGoType() == GAMEOBJECT_TYPE_CHEST)
+                if (go->GetGoType() == GAMEOBJECT_TYPE_CHEST)
                 {
                     uint32 go_min = go->GetGOInfo()->chest.minSuccessOpens;
                     uint32 go_max = go->GetGOInfo()->chest.maxSuccessOpens;
 
                     // only vein pass this check
-                    if(go_min != 0 && go_max > go_min)
+                    if (go_min != 0 && go_max > go_min)
                     {
                         float amount_rate = sWorld.getConfig(CONFIG_FLOAT_RATE_MINING_AMOUNT);
                         float min_amount = go_min*amount_rate;
@@ -357,19 +357,19 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
                         go->AddUse();
                         float uses = float(go->GetUseCount());
 
-                        if(uses < max_amount)
+                        if (uses < max_amount)
                         {
-                            if(uses >= min_amount)
+                            if (uses >= min_amount)
                             {
                                 float chance_rate = sWorld.getConfig(CONFIG_FLOAT_RATE_MINING_NEXT);
 
                                 int32 ReqValue = 175;
                                 LockEntry const *lockInfo = sLockStore.LookupEntry(go->GetGOInfo()->chest.lockId);
-                                if(lockInfo)
+                                if (lockInfo)
                                     ReqValue = lockInfo->Skill[0];
                                 float skill = float(player->GetSkillValue(SKILL_MINING))/(ReqValue+25);
                                 double chance = pow(0.8*chance_rate,4*(1/double(max_amount))*double(uses));
-                                if(roll_chance_f(float(100.0f*chance+skill)))
+                                if (roll_chance_f(float(100.0f*chance+skill)))
                                 {
                                     go->SetLootState(GO_READY);
                                 }
@@ -435,7 +435,7 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
                     uint32 count = pItem->GetCount();
 
                     // >=5 checked in spell code, but will work for cheating cases also with removing from another stacks.
-                    if(count > 5)
+                    if (count > 5)
                         count = 5;
 
                     // reset loot for allow repeat looting if stack > 5
@@ -481,7 +481,7 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
             loot = &pCreature->loot;
 
             // update next looter
-            if(Group* group = pCreature->GetGroupLootRecipient())
+            if (Group* group = pCreature->GetGroupLootRecipient())
                 if (group->GetLooterGuid() == player->GetObjectGuid())
                     group->UpdateLooterGuid(pCreature);
 
@@ -490,7 +490,7 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
                 // for example skinning after normal loot
                 pCreature->PrepareBodyLootState();
 
-                if(!pCreature->isAlive())
+                if (!pCreature->isAlive())
                     pCreature->AllLootRemovedFromCorpse();
             }
             break;
@@ -534,15 +534,15 @@ void WorldSession::HandleLootMasterGiveOpcode( WorldPacket & recv_data )
     if (lootguid.IsCreatureOrVehicle())
     {
         Creature *pCreature = GetPlayer()->GetMap()->GetCreature(lootguid);
-        if(!pCreature)
+        if (!pCreature)
             return;
 
         pLoot = &pCreature->loot;
     }
-    else if(lootguid.IsGameObject())
+    else if (lootguid.IsGameObject())
     {
         GameObject *pGO = GetPlayer()->GetMap()->GetGameObject(lootguid);
-        if(!pGO)
+        if (!pGO)
             return;
 
         pLoot = &pGO->loot;

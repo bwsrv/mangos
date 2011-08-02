@@ -1308,7 +1308,7 @@ bool Item::IsEligibleForRefund()
     if (proto->MaxCount > 1)
         return false;
 
-    for(int i = 0; i < 5; ++i)
+    for (int i = 0; i < 5; ++i)
     {
         _Spell spell = proto->Spells[i];
 
@@ -1365,7 +1365,7 @@ bool Item::HasTriggeredByAuraSpell(SpellEntry const* spellInfo) const
         _Spell const& spellData = proto->Spells[i];
 
         // no spell
-        if(!spellData.SpellId)
+        if (!spellData.SpellId)
             continue;
 
         // wrong triggering type
@@ -1374,7 +1374,7 @@ bool Item::HasTriggeredByAuraSpell(SpellEntry const* spellInfo) const
 
         // check if it is valid spell
         SpellEntry const* spellproto = sSpellStore.LookupEntry(spellData.SpellId);
-        if(!spellproto)
+        if (!spellproto)
             continue;
 
         for (int j = 0; j < MAX_EFFECT_INDEX; j++)

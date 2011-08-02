@@ -40,10 +40,10 @@ MapManager::MapManager()
 
 MapManager::~MapManager()
 {
-    for(MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
+    for (MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
         delete iter->second;
 
-    for(TransportSet::iterator i = m_Transports.begin(); i != m_Transports.end(); ++i)
+    for (TransportSet::iterator i = m_Transports.begin(); i != m_Transports.end(); ++i)
         delete *i;
 
     DeleteStateMachine();
@@ -87,34 +87,34 @@ void MapManager::UpdateGridState(grid_state_t state, Map& map, NGridType& ngrid,
 
 void MapManager::InitializeVisibilityDistanceInfo()
 {
-    for(MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
+    for (MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
         (*iter).second->InitVisibilityDistance();
 }
 
 Map* MapManager::CreateMap(uint32 id, const WorldObject* obj)
 {
     MANGOS_ASSERT(obj);
-    //if(!obj->IsInWorld()) sLog.outError("GetMap: called for map %d with object (typeid %d, guid %d, mapid %d, instanceid %d) who is not in world!", id, obj->GetTypeId(), obj->GetGUIDLow(), obj->GetMapId(), obj->GetInstanceId());
+    //if (!obj->IsInWorld()) sLog.outError("GetMap: called for map %d with object (typeid %d, guid %d, mapid %d, instanceid %d) who is not in world!", id, obj->GetTypeId(), obj->GetGUIDLow(), obj->GetMapId(), obj->GetInstanceId());
     Guard _guard(*this);
 
     Map * m = NULL;
 
     const MapEntry* entry = sMapStore.LookupEntry(id);
-    if(!entry)
+    if (!entry)
         return NULL;
 
-    if(entry->Instanceable())
+    if (entry->Instanceable())
     {
         MANGOS_ASSERT(obj->GetTypeId() == TYPEID_PLAYER);
         //create DungeonMap object
-        if(obj->GetTypeId() == TYPEID_PLAYER)
+        if (obj->GetTypeId() == TYPEID_PLAYER)
             m = CreateInstance(id, (Player*)obj);
     }
     else
     {
         //create regular non-instanceable map
         m = FindMap(id);
-        if( m == NULL )
+        if ( m == NULL )
         {
             m = new WorldMap(id, i_gridCleanUpDelay);
             //add map into container
@@ -141,11 +141,11 @@ Map* MapManager::FindMap(uint32 mapid, uint32 instanceId) const
     Guard guard(*this);
 
     MapMapType::const_iterator iter = i_maps.find(MapID(mapid, instanceId));
-    if(iter == i_maps.end())
+    if (iter == i_maps.end())
         return NULL;
 
     //this is a small workaround for transports
-    if(instanceId == 0 && iter->second->Instanceable())
+    if (instanceId == 0 && iter->second->Instanceable())
     {
         assert(false);
         return NULL;
@@ -161,17 +161,17 @@ Map* MapManager::FindMap(uint32 mapid, uint32 instanceId) const
 bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
 {
     const MapEntry *entry = sMapStore.LookupEntry(mapid);
-    if(!entry)
+    if (!entry)
         return false;
 
     const char *mapName = entry->name[player->GetSession()->GetSessionDbcLocale()];
 
-    if(entry->IsDungeon())
+    if (entry->IsDungeon())
     {
         if (entry->IsRaid())
         {
             // GMs can avoid raid limitations
-            if(!player->isGameMaster() && !sWorld.getConfig(CONFIG_BOOL_INSTANCE_IGNORE_RAID))
+            if (!player->isGameMaster() && !sWorld.getConfig(CONFIG_BOOL_INSTANCE_IGNORE_RAID))
             {
                 // can only enter in a raid group
                 Group* group = player->GetGroup();
@@ -199,7 +199,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
         }
 
         // TODO: move this to a map dependent location
-        /*if(i_data && i_data->IsEncounterInProgress())
+        /*if (i_data && i_data->IsEncounterInProgress())
         {
             DEBUG_LOG("MAP: Player '%s' can't enter instance '%s' while an encounter is in progress.", player->GetName(), GetMapName());
             player->SendTransferAborted(GetId(), TRANSFER_ABORT_ZONE_IN_COMBAT);
@@ -215,7 +215,7 @@ void MapManager::DeleteInstance(uint32 mapid, uint32 instanceId)
     Guard _guard(*this);
 
     MapMapType::iterator iter = i_maps.find(MapID(mapid, instanceId));
-    if(iter != i_maps.end())
+    if (iter != i_maps.end())
     {
         Map * pMap = iter->second;
         if (pMap->Instanceable())
@@ -232,7 +232,7 @@ void
 MapManager::Update(uint32 diff)
 {
     i_timer.Update(diff);
-    if( !i_timer.Passed())
+    if ( !i_timer.Passed())
         return;
 
     for (MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
@@ -258,7 +258,7 @@ MapManager::Update(uint32 diff)
     {
         Map * pMap = iter->second;
         //check if map can be unloaded
-        if(pMap->CanUnload((uint32)i_timer.GetCurrent()))
+        if (pMap->CanUnload((uint32)i_timer.GetCurrent()))
         {
             pMap->UnloadAll(true);
             delete pMap;
@@ -274,7 +274,7 @@ MapManager::Update(uint32 diff)
 
 void MapManager::RemoveAllObjectsInRemoveList()
 {
-    for(MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
+    for (MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
         iter->second->RemoveAllObjectsInRemoveList();
 }
 
@@ -297,7 +297,7 @@ bool MapManager::IsValidMAP(uint32 mapid)
 
 void MapManager::UnloadAll()
 {
-    for(MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
+    for (MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
         iter->second->UnloadAll(true);
 
     while(!i_maps.empty())
@@ -318,10 +318,10 @@ uint32 MapManager::GetNumInstances()
     Guard guard(*this);
 
     uint32 ret = 0;
-    for(MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)
+    for (MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)
     {
         Map *map = itr->second;
-        if(!map->IsDungeon()) continue;
+        if (!map->IsDungeon()) continue;
             ret += 1;
     }
     return ret;
@@ -332,10 +332,10 @@ uint32 MapManager::GetNumPlayersInInstances()
     Guard guard(*this);
 
     uint32 ret = 0;
-    for(MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)
+    for (MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)
     {
         Map *map = itr->second;
-        if(!map->IsDungeon()) continue;
+        if (!map->IsDungeon()) continue;
             ret += map->GetPlayers().getSize();
     }
     return ret;
@@ -350,7 +350,7 @@ Map* MapManager::CreateInstance(uint32 id, Player * player)
     uint32 NewInstanceId = 0;                                   // instanceId of the resulting map
     const MapEntry* entry = sMapStore.LookupEntry(id);
 
-    if(entry->IsBattleGroundOrArena())
+    if (entry->IsBattleGroundOrArena())
     {
         // find existing bg map for player
         NewInstanceId = player->GetBattleGroundId();
@@ -378,7 +378,7 @@ Map* MapManager::CreateInstance(uint32 id, Player * player)
     }
 
     //add a new map object into the registry
-    if(pNewMap)
+    if (pNewMap)
     {
         i_maps[MapID(id, NewInstanceId)] = pNewMap;
         map = pNewMap;

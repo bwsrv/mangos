@@ -331,7 +331,7 @@ class AchievementGlobalMgr
         {
             AchievementRewardsMapBounds bounds = m_achievementRewards.equal_range(achievement->ID);
             for (AchievementRewardsMap::const_iterator iter = bounds.first; iter != bounds.second; ++iter)
-                if(iter->second.gender == GENDER_NONE || uint8(iter->second.gender) == gender)
+                if (iter->second.gender == GENDER_NONE || uint8(iter->second.gender) == gender)
                     return &iter->second;
 
             return NULL;
@@ -341,7 +341,7 @@ class AchievementGlobalMgr
         {
             AchievementRewardLocalesMapBounds bounds = m_achievementRewardLocales.equal_range(achievement->ID);
             for (AchievementRewardLocalesMap::const_iterator iter = bounds.first; iter != bounds.second; ++iter)
-                if(iter->second.gender == GENDER_NONE || uint8(iter->second.gender) == gender)
+                if (iter->second.gender == GENDER_NONE || uint8(iter->second.gender) == gender)
                     return &iter->second;
 
             return NULL;

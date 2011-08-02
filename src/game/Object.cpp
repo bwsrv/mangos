@@ -93,7 +93,7 @@ void Object::_InitValues()
 
 void Object::_Create(ObjectGuid guid)
 {
-    if(!m_uint32Values)
+    if (!m_uint32Values)
         _InitValues();
 
     SetGuidValue(OBJECT_FIELD_GUID, guid);
@@ -117,7 +117,7 @@ void Object::SendForcedObjectUpdate()
 //    RemoveFromClientUpdateList();
 
     WorldPacket packet;                                     // here we allocate a std::vector with a size of 0x10000
-    for(UpdateDataMapType::iterator iter = update_players.begin(); iter != update_players.end(); ++iter)
+    for (UpdateDataMapType::iterator iter = update_players.begin(); iter != update_players.end(); ++iter)
     {
         iter->second.BuildPacket(&packet);
         iter->first->GetSession()->SendPacket(&packet);
@@ -139,7 +139,7 @@ void Object::BuildMovementUpdateBlock(UpdateData * data, uint16 flags ) const
 
 void Object::BuildCreateUpdateBlockForPlayer(UpdateData *data, Player *target) const
 {
-    if(!target)
+    if (!target)
         return;
 
     uint8  updatetype   = UPDATETYPE_CREATE_OBJECT;
@@ -180,7 +180,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData *data, Player *target) c
 
         if (isType(TYPEMASK_UNIT))
         {
-            if(((Unit*)this)->getVictim())
+            if (((Unit*)this)->getVictim())
                 updateFlags |= UPDATEFLAG_HAS_ATTACKING_TARGET;
         }
     }
@@ -249,7 +249,7 @@ void Object::BuildMovementUpdate(ByteBuffer * data, uint16 updateFlags) const
     uint16 moveFlags2 = (isType(TYPEMASK_UNIT) ? ((Unit*)this)->m_movementInfo.GetMovementFlags2() : MOVEFLAG2_NONE);
 
     if (GetTypeId() == TYPEID_UNIT)
-        if(((Creature*)this)->GetVehicleKit())
+        if (((Creature*)this)->GetVehicleKit())
             moveFlags2 |= MOVEFLAG2_ALLOW_PITCHING;         // always allow pitch
 */
 
@@ -475,7 +475,7 @@ void Object::BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask *
     // 2 specialized loops for speed optimization in non-unit case
     if (isType(TYPEMASK_UNIT))                              // unit (creature/player) case
     {
-        for(uint16 index = 0; index < m_valuesCount; ++index)
+        for (uint16 index = 0; index < m_valuesCount; ++index)
         {
             if (updateMask->GetBit(index))
             {
@@ -556,7 +556,7 @@ void Object::BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask *
                 {
                     bool ch = false;
 
-                    if((GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT) && target != this)
+                    if ((GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT) && target != this)
                     {
                         bool forcefriendly = false; // bool for pets/totems to offload more code from the big if below
 
@@ -569,7 +569,7 @@ void Object::BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask *
                                 && (target->IsInSameGroupWith((Player*)((Creature*)this)->GetOwner()) || target->IsInSameRaidWith((Player*)((Creature*)this)->GetOwner())));
                         }
 
-                        if(((Unit*)this)->IsSpoofSamePlayerFaction() || forcefriendly || (target->GetTypeId() == TYPEID_PLAYER && GetTypeId() == TYPEID_PLAYER && (target->IsInSameGroupWith((Player*)this) || target->IsInSameRaidWith((Player*)this))))
+                        if (((Unit*)this)->IsSpoofSamePlayerFaction() || forcefriendly || (target->GetTypeId() == TYPEID_PLAYER && GetTypeId() == TYPEID_PLAYER && (target->IsInSameGroupWith((Player*)this) || target->IsInSameRaidWith((Player*)this))))
                         {
                             if (index == UNIT_FIELD_BYTES_2)
                             {
@@ -594,7 +594,7 @@ void Object::BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask *
                         }
                     }
 
-                    if(!ch)
+                    if (!ch)
                         *data << m_uint32Values[ index ];
                 }
                 // Frozen Mod
@@ -608,7 +608,7 @@ void Object::BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask *
     }
     else if (isType(TYPEMASK_GAMEOBJECT))                   // gameobject case
     {
-        for(uint16 index = 0; index < m_valuesCount; ++index)
+        for (uint16 index = 0; index < m_valuesCount; ++index)
         {
             if (updateMask->GetBit(index))
             {
@@ -655,7 +655,7 @@ void Object::BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask *
     }
     else                                                    // other objects case (no special index checks)
     {
-        for(uint16 index = 0; index < m_valuesCount; ++index)
+        for (uint16 index = 0; index < m_valuesCount; ++index)
         {
             if (updateMask->GetBit(index))
             {
@@ -670,7 +670,7 @@ void Object::ClearUpdateMask(bool remove)
 {
     if (m_uint32Values)
     {
-        for( uint16 index = 0; index < m_valuesCount; ++index )
+        for ( uint16 index = 0; index < m_valuesCount; ++index )
         {
             if (m_uint32Values_mirror[index]!= m_uint32Values[index])
                 m_uint32Values_mirror[index] = m_uint32Values[index];
@@ -687,7 +687,7 @@ void Object::ClearUpdateMask(bool remove)
 
 bool Object::LoadValues(const char* data)
 {
-    if(!m_uint32Values) _InitValues();
+    if (!m_uint32Values) _InitValues();
 
     Tokens tokens = StrSplit(data, " ");
 
@@ -706,7 +706,7 @@ bool Object::LoadValues(const char* data)
 
 void Object::_SetUpdateBits(UpdateMask *updateMask, Player* /*target*/) const
 {
-    for( uint16 index = 0; index < m_valuesCount; ++index )
+    for ( uint16 index = 0; index < m_valuesCount; ++index )
     {
         if (m_uint32Values_mirror[index]!= m_uint32Values[index])
             updateMask->SetBit(index);
@@ -715,7 +715,7 @@ void Object::_SetUpdateBits(UpdateMask *updateMask, Player* /*target*/) const
 
 void Object::_SetCreateBits(UpdateMask *updateMask, Player* /*target*/) const
 {
-    for( uint16 index = 0; index < m_valuesCount; ++index )
+    for ( uint16 index = 0; index < m_valuesCount; ++index )
     {
         if (GetUInt32Value(index) != 0)
             updateMask->SetBit(index);
@@ -747,7 +747,7 @@ void Object::SetUInt32Value( uint16 index, uint32 value )
 void Object::SetUInt64Value( uint16 index, const uint64 &value )
 {
     MANGOS_ASSERT( index + 1 < m_valuesCount || PrintIndexError( index, true ) );
-    if(*((uint64*)&(m_uint32Values[ index ])) != value)
+    if (*((uint64*)&(m_uint32Values[ index ])) != value)
     {
         m_uint32Values[ index ] = *((uint32*)&value);
         m_uint32Values[ index + 1 ] = *(((uint32*)&value) + 1);
@@ -886,7 +886,7 @@ void Object::SetByteFlag( uint16 index, uint8 offset, uint8 newFlag )
         return;
     }
 
-    if(!(uint8(m_uint32Values[ index ] >> (offset * 8)) & newFlag))
+    if (!(uint8(m_uint32Values[ index ] >> (offset * 8)) & newFlag))
     {
         m_uint32Values[ index ] |= uint32(uint32(newFlag) << (offset * 8));
         MarkForClientUpdate();
@@ -976,7 +976,7 @@ void Object::MarkForClientUpdate()
 {
     if (m_inWorld)
     {
-        if(!m_objectUpdated)
+        if (!m_objectUpdated)
         {
             AddToClientUpdateList();
             m_objectUpdated = true;
@@ -1285,7 +1285,7 @@ bool WorldObject::IsInBetween(const WorldObject *obj1, const WorldObject *obj2, 
 
 float WorldObject::GetAngle(const WorldObject* obj) const
 {
-    if(!obj) return 0;
+    if (!obj) return 0;
     return GetAngle( obj->GetPositionX(), obj->GetPositionY() );
 }
 
@@ -1525,7 +1525,7 @@ void WorldObject::MonsterYellToZone(int32 textId, uint32 language, Unit* target)
     uint32 zoneid = GetZoneId();
 
     Map::PlayerList const& pList = GetMap()->GetPlayers();
-    for(Map::PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
+    for (Map::PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
         if (itr->getSource()->GetZoneId()==zoneid)
             say_do(itr->getSource());
 }
@@ -1636,7 +1636,7 @@ void WorldObject::AddObjectToRemoveList()
 Creature* WorldObject::SummonCreature(uint32 id, float x, float y, float z, float ang,TempSummonType spwtype,uint32 despwtime, bool asActiveObject)
 {
     CreatureInfo const *cinfo = ObjectMgr::GetCreatureTemplate(id);
-    if(!cinfo)
+    if (!cinfo)
     {
         sLog.outErrorDb("WorldObject::SummonCreature: Creature (Entry: %u) not existed for summoner: %s. ", id, GetGuidStr().c_str());
         return NULL;
@@ -1682,7 +1682,7 @@ GameObject* WorldObject::SummonGameobject(uint32 id, float x, float y, float z, 
     if (!map)
         return NULL;
 
-    if(!pGameObj->Create(map->GenerateLocalLowGuid(HIGHGUID_GAMEOBJECT), id, map,
+    if (!pGameObj->Create(map->GenerateLocalLowGuid(HIGHGUID_GAMEOBJECT), id, map,
         GetPhaseMask(), x, y, z, angle, 0.0f, 0.0f, 0.0f, 0.0f, 100, GO_STATE_READY))
     {
         delete pGameObj;
@@ -1789,7 +1789,7 @@ void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, 
     z = GetPositionZ();
 
     // if detection disabled, return first point
-    if(!sWorld.getConfig(CONFIG_BOOL_DETECT_POS_COLLISION))
+    if (!sWorld.getConfig(CONFIG_BOOL_DETECT_POS_COLLISION))
     {
         if (searcher)
             searcher->UpdateAllowedPositionZ(x, y, z);      // update to LOS height if available
@@ -2004,7 +2004,7 @@ struct WorldObjectChangeAccumulator
 
     void Visit(CameraMapType &m)
     {
-        for(CameraMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+        for (CameraMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
         {
             Player* owner = iter->getSource()->GetOwner();
             if (owner != &i_object && owner->HaveAtClient(&i_object))
@@ -2102,7 +2102,7 @@ Player* WorldObject::GetLootRecipient() const
         return player;
 
     // find any in group
-    for(GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+    for (GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
         if (Player *p = itr->getSource())
             return p;
 
@@ -2126,7 +2126,7 @@ void WorldObject::SetLootRecipient(Unit *unit)
     }
 
     Player* player = unit->GetCharmerOrOwnerPlayerOrPlayerItself();
-    if(!player)                                             // normal creature, no player involved
+    if (!player)                                             // normal creature, no player involved
         return;
 
     // set player for non group case or if group will disbanded

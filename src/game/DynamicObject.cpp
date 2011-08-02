@@ -40,7 +40,7 @@ DynamicObject::DynamicObject() : WorldObject()
 void DynamicObject::AddToWorld()
 {
     ///- Register the dynamicObject for guid lookup
-    if(!IsInWorld())
+    if (!IsInWorld())
         GetMap()->GetObjectsStore().insert<DynamicObject>(GetObjectGuid(), (DynamicObject*)this);
 
     Object::AddToWorld();
@@ -49,7 +49,7 @@ void DynamicObject::AddToWorld()
 void DynamicObject::RemoveFromWorld()
 {
     ///- Remove the dynamicObject from the accessor
-    if(IsInWorld())
+    if (IsInWorld())
     {
         GetMap()->GetObjectsStore().erase<DynamicObject>(GetObjectGuid(), (DynamicObject*)NULL);
         GetViewPoint().Event_RemovedFromWorld();
@@ -64,7 +64,7 @@ bool DynamicObject::Create(uint32 guidlow, Unit *caster, uint32 spellId, SpellEf
     SetMap(caster->GetMap());
     Relocate(x, y, z, 0);
 
-    if(!IsPositionValid())
+    if (!IsPositionValid())
     {
         sLog.outError("DynamicObject (spell %u eff %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)",spellId,effIndex,GetPositionX(),GetPositionY());
         return false;
@@ -118,7 +118,7 @@ void DynamicObject::Update(uint32 update_diff, uint32 p_time)
 {
     // caster can be not in world at time dynamic object update, but dynamic object not yet deleted in Unit destructor
     Unit* caster = GetCaster();
-    if(!caster)
+    if (!caster)
     {
         Delete();
         return;
@@ -126,20 +126,20 @@ void DynamicObject::Update(uint32 update_diff, uint32 p_time)
 
     bool deleteThis = false;
 
-    if(m_aliveDuration > int32(p_time))
+    if (m_aliveDuration > int32(p_time))
         m_aliveDuration -= p_time;
     else
         deleteThis = true;
 
     // have radius and work as persistent effect
-    if(m_radius)
+    if (m_radius)
     {
         // TODO: make a timer and update this in larger intervals
         MaNGOS::DynamicObjectUpdater notifier(*this, caster, m_positive);
         Cell::VisitAllObjects(this, notifier, m_radius);
     }
 
-    if(deleteThis)
+    if (deleteThis)
     {
         caster->RemoveDynObjectWithGUID(GetObjectGuid());
         Delete();
@@ -155,7 +155,7 @@ void DynamicObject::Delete()
 void DynamicObject::Delay(int32 delaytime)
 {
     m_aliveDuration -= delaytime;
-    for(AffectedSet::iterator iter = m_affected.begin(); iter != m_affected.end(); )
+    for (AffectedSet::iterator iter = m_affected.begin(); iter != m_affected.end(); )
     {
         Unit *target = GetMap()->GetUnit((*iter));
         if (target)

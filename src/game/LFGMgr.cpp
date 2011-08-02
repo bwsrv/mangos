@@ -334,7 +334,7 @@ void LFGMgr::Join(Player* player)
                     if (member && member->IsInWorld())
                     {
                         RemoveFromQueue(member->GetObjectGuid());
-                        if(sWorld.getConfig(CONFIG_BOOL_RESTRICTED_LFG_CHANNEL))
+                        if (sWorld.getConfig(CONFIG_BOOL_RESTRICTED_LFG_CHANNEL))
                             member->JoinLFGChannel();
                         member->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_JOIN_PROPOSAL, type);
                         member->GetLFGState()->SetState((type == LFG_TYPE_RAID) ? LFG_STATE_LFR : LFG_STATE_LFG);
@@ -361,7 +361,7 @@ void LFGMgr::Join(Player* player)
                     Player* member = itr->getSource();
                     if (member && member->IsInWorld())
                     {
-                        if(sWorld.getConfig(CONFIG_BOOL_RESTRICTED_LFG_CHANNEL))
+                        if (sWorld.getConfig(CONFIG_BOOL_RESTRICTED_LFG_CHANNEL))
                             member->JoinLFGChannel();
                         member->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_JOIN_PROPOSAL, type);
                         member->GetLFGState()->SetState(LFG_STATE_LFG);
@@ -461,7 +461,7 @@ void LFGMgr::Leave(Player* player)
                     member->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_REMOVED_FROM_QUEUE, type);
                     RemoveFromQueue(member->GetObjectGuid());
                     RemoveFromSearchMatrix(member->GetObjectGuid());
-                    if(sWorld.getConfig(CONFIG_BOOL_RESTRICTED_LFG_CHANNEL) && member->GetSession()->GetSecurity() == SEC_PLAYER )
+                    if (sWorld.getConfig(CONFIG_BOOL_RESTRICTED_LFG_CHANNEL) && member->GetSession()->GetSecurity() == SEC_PLAYER )
                         member->LeaveLFGChannel();
                     member->GetLFGState()->Clear();
             }
@@ -472,7 +472,7 @@ void LFGMgr::Leave(Player* player)
     {
         player->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_REMOVED_FROM_QUEUE, type);
         player->GetLFGState()->Clear();
-        if(sWorld.getConfig(CONFIG_BOOL_RESTRICTED_LFG_CHANNEL) && player->GetSession()->GetSecurity() == SEC_PLAYER )
+        if (sWorld.getConfig(CONFIG_BOOL_RESTRICTED_LFG_CHANNEL) && player->GetSession()->GetSecurity() == SEC_PLAYER )
             player->LeaveLFGChannel();
     }
     player->GetSession()->SendLfgUpdateSearch(false);
@@ -1262,7 +1262,7 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
     for (LFGQueueSet::const_iterator itr = pProposal->playerGuids.begin(); itr != pProposal->playerGuids.end(); ++itr )
     {
         Player* player = sObjectMgr.GetPlayer(*itr);
-        if(player && player->IsInWorld())
+        if (player && player->IsInWorld())
         {
             if (player->GetLFGState()->GetAnswer() != LFG_ANSWER_AGREE)   // No answer (-1) or not accepted (0)
                 allAnswered = false;
@@ -1275,7 +1275,7 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
         for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             Player* member = itr->getSource();
-            if(member && member->IsInWorld())
+            if (member && member->IsInWorld())
             {
                 if (member->GetLFGState()->GetAnswer() != LFG_ANSWER_AGREE)   // No answer (-1) or not accepted (0)
                     allAnswered = false;
@@ -1555,7 +1555,7 @@ void LFGMgr::CleanupProposals(LFGType type)
     }
     if (!expiredProposals.empty())
     {
-        for(std::set<uint32>::const_iterator itr = expiredProposals.begin(); itr != expiredProposals.end(); ++itr)
+        for (std::set<uint32>::const_iterator itr = expiredProposals.begin(); itr != expiredProposals.end(); ++itr)
         {
             DEBUG_LOG("LFGMgr::CleanupProposals: remove expired proposal %u", *itr);
             RemoveProposal(*itr);
@@ -3080,7 +3080,7 @@ void LFGMgr::LoadLFDGroupPropertiesForPlayer(Player* player)
         return;
 
     player->GetLFGState()->SetRoles(group->GetGroupRoles(player->GetObjectGuid()));
-    if(sWorld.getConfig(CONFIG_BOOL_RESTRICTED_LFG_CHANNEL))
+    if (sWorld.getConfig(CONFIG_BOOL_RESTRICTED_LFG_CHANNEL))
         player->JoinLFGChannel();
 
     switch (group->GetLFGState()->GetState())

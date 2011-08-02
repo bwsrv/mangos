@@ -280,7 +280,7 @@ struct RankInfo
 {
     RankInfo(const std::string& _name, uint32 _rights, uint32 _money) : Name(_name), Rights(_rights), BankMoneyPerDay(_money)
     {
-        for(uint8 i = 0; i < GUILD_BANK_MAX_TABS; ++i)
+        for (uint8 i = 0; i < GUILD_BANK_MAX_TABS; ++i)
         {
             TabRight[i] = 0;
             TabSlotPerDay[i] = 0;
@@ -354,9 +354,9 @@ class Guild
         template<class Do>
         void BroadcastWorker(Do& _do, Player* except = NULL)
         {
-            for(MemberList::iterator itr = members.begin(); itr != members.end(); ++itr)
-                if(Player *player = ObjectAccessor::FindPlayer(ObjectGuid(HIGHGUID_PLAYER, itr->first)))
-                    if(player != except)
+            for (MemberList::iterator itr = members.begin(); itr != members.end(); ++itr)
+                if (Player *player = ObjectAccessor::FindPlayer(ObjectGuid(HIGHGUID_PLAYER, itr->first)))
+                    if (player != except)
                         _do(player);
         }
 
@@ -387,8 +387,8 @@ class Guild
 
         MemberSlot* GetMemberSlot(const std::string& name)
         {
-            for(MemberList::iterator itr = members.begin(); itr != members.end(); ++itr)
-                if(itr->second.Name == name)
+            for (MemberList::iterator itr = members.begin(); itr != members.end(); ++itr)
+                if (itr->second.Name == name)
                     return &itr->second;
 
             return NULL;

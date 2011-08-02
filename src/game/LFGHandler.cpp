@@ -160,7 +160,7 @@ void WorldSession::HandleLfgClearOpcode( WorldPacket & /*recv_data */ )
 
     sLFGMgr.ClearLFRList(GetPlayer());
 
-    if(sWorld.getConfig(CONFIG_BOOL_RESTRICTED_LFG_CHANNEL) && _player->GetSession()->GetSecurity() == SEC_PLAYER )
+    if (sWorld.getConfig(CONFIG_BOOL_RESTRICTED_LFG_CHANNEL) && _player->GetSession()->GetSecurity() == SEC_PLAYER )
         GetPlayer()->LeaveLFGChannel();
 
 }
@@ -634,7 +634,7 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonID)
     LFGQueueSet playersUpdated;
     playersUpdated.clear();
 
-    for(LFGQueueSet::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+    for (LFGQueueSet::const_iterator itr = players.begin(); itr != players.end(); ++itr)
     {
         Player* player   = sObjectMgr.GetPlayer(*itr);
 
@@ -757,7 +757,7 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonID)
         data << uint32(playerCount);                           // players count
         data << uint32(playerCount);                           // players count 2
 
-        for(LFGQueueSet::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+        for (LFGQueueSet::const_iterator itr = players.begin(); itr != players.end(); ++itr)
         {
             Player* player   = sObjectMgr.GetPlayer(*itr);
 
@@ -776,7 +776,7 @@ void WorldSession::SendLfgUpdateList(uint32 dungeonID)
                 data << uint8(player->getClass());
                 data << uint8(player->getRace());
 
-                for(int i = 0; i < 3; ++i)
+                for (int i = 0; i < 3; ++i)
                     data << uint8(player->GetTalentsCount(i));                                      // spent talents count in specific tab
 
                 data << uint32(player->GetArmor());                                                 // armor

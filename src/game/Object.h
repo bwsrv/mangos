@@ -104,7 +104,7 @@ class WorldUpdateCounter
 
         time_t timeElapsed()
         {
-            if(!m_tmStart)
+            if (!m_tmStart)
                 m_tmStart = WorldTimer::tickPrevTime();
 
             return WorldTimer::getMSTimeDiff(m_tmStart, WorldTimer::tickTime());
@@ -124,7 +124,7 @@ class MANGOS_DLL_SPEC Object
         const bool& IsInWorld() const { return m_inWorld; }
         virtual void AddToWorld()
         {
-            if(m_inWorld)
+            if (m_inWorld)
                 return;
 
             m_inWorld = true;
@@ -242,7 +242,7 @@ class MANGOS_DLL_SPEC Object
 
         void ToggleFlag( uint16 index, uint32 flag)
         {
-            if(HasFlag(index, flag))
+            if (HasFlag(index, flag))
                 RemoveFlag(index, flag);
             else
                 SetFlag(index, flag);

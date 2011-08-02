@@ -180,7 +180,7 @@ void ObjectPosSelector::UpdateNextAreaStart(UsedAreaSide side)
 bool ObjectPosSelector::NextAngle(float& angle)
 {
     // loop until both side fail and leave 0..PI
-    for(;;)
+    for (;;)
     {
         // ++ direction less updated
         if (m_stepAngle[USED_POS_PLUS] < M_PI_F && m_stepAngle[USED_POS_PLUS] <= m_stepAngle[USED_POS_MINUS])

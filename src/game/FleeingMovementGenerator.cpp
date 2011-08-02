@@ -31,18 +31,18 @@ template<class T>
 void
 FleeingMovementGenerator<T>::_setTargetLocation(T &owner)
 {
-    if( !&owner )
+    if (!&owner)
         return;
 
     // ignore in case other no reaction state
     if (owner.hasUnitState(UNIT_STAT_CAN_NOT_REACT & ~UNIT_STAT_FLEEING))
         return;
 
-    if(!_setMoveData(owner))
+    if (!_setMoveData(owner))
         return;
 
     float x, y, z;
-    if(!_getPoint(owner, x, y, z))
+    if (!_getPoint(owner, x, y, z))
         return;
 
     owner.addUnitState(UNIT_STAT_FLEEING_MOVE);
@@ -57,7 +57,7 @@ template<class T>
 bool
 FleeingMovementGenerator<T>::_getPoint(T &owner, float &x, float &y, float &z)
 {
-    if(!&owner)
+    if (!&owner)
         return false;
 
     x = owner.GetPositionX();
@@ -67,9 +67,9 @@ FleeingMovementGenerator<T>::_getPoint(T &owner, float &x, float &y, float &z)
     float temp_x, temp_y, angle;
     const TerrainInfo * _map = owner.GetTerrain();
     //primitive path-finding
-    for(uint8 i = 0; i < 18; ++i)
+    for (uint8 i = 0; i < 18; ++i)
     {
-        if(i_only_forward && i > 2)
+        if (i_only_forward && i > 2)
             break;
 
         float distance = 5.0f;
@@ -148,11 +148,11 @@ FleeingMovementGenerator<T>::_getPoint(T &owner, float &x, float &y, float &z)
         temp_y = y + distance * sin(angle);
         MaNGOS::NormalizeMapCoord(temp_x);
         MaNGOS::NormalizeMapCoord(temp_y);
-        if( owner.IsWithinLOS(temp_x,temp_y,z))
+        if (owner.IsWithinLOS(temp_x,temp_y,z))
         {
             bool is_water_now = _map->IsInWater(x,y,z);
 
-            if(is_water_now && _map->IsInWater(temp_x,temp_y,z))
+            if (is_water_now && _map->IsInWater(temp_x,temp_y,z))
             {
                 x = temp_x;
                 y = temp_y;
@@ -160,19 +160,19 @@ FleeingMovementGenerator<T>::_getPoint(T &owner, float &x, float &y, float &z)
             }
             float new_z = _map->GetHeight(temp_x,temp_y,z,true);
 
-            if(new_z <= INVALID_HEIGHT)
+            if (new_z <= INVALID_HEIGHT)
                 continue;
 
             bool is_water_next = _map->IsInWater(temp_x,temp_y,new_z);
 
-            if((is_water_now && !is_water_next && !is_land_ok) || (!is_water_now && is_water_next && !is_water_ok))
+            if ((is_water_now && !is_water_next && !is_land_ok) || (!is_water_now && is_water_next && !is_water_ok))
                 continue;
 
-            if( !(new_z - z) || distance / fabs(new_z - z) > 1.0f)
+            if (!(new_z - z) || distance / fabs(new_z - z) > 1.0f)
             {
                 float new_z_left = _map->GetHeight(temp_x + 1.0f*cos(angle+M_PI_F/2),temp_y + 1.0f*sin(angle+M_PI_F/2),z,true);
                 float new_z_right = _map->GetHeight(temp_x + 1.0f*cos(angle-M_PI_F/2),temp_y + 1.0f*sin(angle-M_PI_F/2),z,true);
-                if(fabs(new_z_left - new_z) < 1.2f && fabs(new_z_right - new_z) < 1.2f)
+                if (fabs(new_z_left - new_z) < 1.2f && fabs(new_z_right - new_z) < 1.2f)
                 {
                     x = temp_x;
                     y = temp_y;
@@ -249,18 +249,18 @@ FleeingMovementGenerator<T>::_setMoveData(T &owner)
     //get angle and 'distance from caster' to run
     float angle;
 
-    if(i_cur_angle == 0.0f && i_last_distance_from_caster == 0.0f) //just started, first time
+    if (i_cur_angle == 0.0f && i_last_distance_from_caster == 0.0f) //just started, first time
     {
         angle = rand_norm_f()*(1.0f - cur_dist/MIN_QUIET_DISTANCE) * M_PI_F/3 + rand_norm_f()*M_PI_F*2/3;
         i_to_distance_from_caster = MIN_QUIET_DISTANCE;
         i_only_forward = true;
     }
-    else if(cur_dist < MIN_QUIET_DISTANCE)
+    else if (cur_dist < MIN_QUIET_DISTANCE)
     {
         angle = M_PI_F/6 + rand_norm_f()*M_PI_F*2/3;
         i_to_distance_from_caster = cur_dist*2/3 + rand_norm_f()*(MIN_QUIET_DISTANCE - cur_dist*2/3);
     }
-    else if(cur_dist > MAX_QUIET_DISTANCE)
+    else if (cur_dist > MAX_QUIET_DISTANCE)
     {
         angle = rand_norm_f()*M_PI_F/3 + M_PI_F*2/3;
         i_to_distance_from_caster = MIN_QUIET_DISTANCE + 2.5f + rand_norm_f()*(MAX_QUIET_DISTANCE - MIN_QUIET_DISTANCE - 2.5f);
@@ -353,7 +353,7 @@ void FleeingMovementGenerator<T>::Reset(T &owner)
 template<class T>
 bool FleeingMovementGenerator<T>::Update(T &owner, const uint32 & time_diff)
 {
-    if( !&owner || !owner.isAlive() )
+    if (!&owner || !owner.isAlive())
         return false;
 
     // ignore in case other no reaction state
@@ -400,7 +400,7 @@ void TimedFleeingMovementGenerator::Finalize(Unit &owner)
 
 bool TimedFleeingMovementGenerator::Update(Unit & owner, const uint32 & time_diff)
 {
-    if( !owner.isAlive() )
+    if (!owner.isAlive())
         return false;
 
     // ignore in case other no reaction state

@@ -85,7 +85,7 @@ void MapPersistentState::SaveCreatureRespawnTime(uint32 loguid, time_t t)
     SqlStatement stmt = CharacterDatabase.CreateStatement(delSpawnTime, "DELETE FROM creature_respawn WHERE guid = ? AND instance = ?");
     stmt.PExecute(loguid, m_instanceid);
 
-    if(t > sWorld.GetGameTime())
+    if (t > sWorld.GetGameTime())
     {
         stmt = CharacterDatabase.CreateStatement(insSpawnTime, "INSERT INTO creature_respawn VALUES ( ?, ?, ? )");
         stmt.PExecute(loguid, uint64(t), m_instanceid);
@@ -110,7 +110,7 @@ void MapPersistentState::SaveGORespawnTime(uint32 loguid, time_t t)
     SqlStatement stmt = CharacterDatabase.CreateStatement(delSpawnTime, "DELETE FROM gameobject_respawn WHERE guid = ? AND instance = ?");
     stmt.PExecute(loguid, m_instanceid);
 
-    if(t > sWorld.GetGameTime())
+    if (t > sWorld.GetGameTime())
     {
         stmt = CharacterDatabase.CreateStatement(insSpawnTime, "INSERT INTO gameobject_respawn VALUES ( ?, ?, ? )");
         stmt.PExecute(loguid, uint64(t), m_instanceid);
@@ -244,7 +244,7 @@ void DungeonPersistentState::SaveToDB()
     if (Map *map = GetMap())
     {
         InstanceData *iData = map->GetInstanceData();
-        if(iData && iData->Save())
+        if (iData && iData->Save())
         {
             data = iData->Save();
             CharacterDatabase.escape_string(data);
@@ -393,7 +393,7 @@ void DungeonResetScheduler::LoadResetTimes()
     InstResetTimeMapDiffType instResetTime;
 
     QueryResult *result = CharacterDatabase.Query("SELECT id, map, difficulty, resettime FROM instance WHERE resettime > 0");
-    if( result )
+    if ( result )
     {
         do
         {
@@ -421,7 +421,7 @@ void DungeonResetScheduler::LoadResetTimes()
 
         // update reset time for normal instances with the max creature respawn time + X hours
         result = CharacterDatabase.Query("SELECT MAX(respawntime), instance FROM creature_respawn WHERE instance > 0 GROUP BY instance");
-        if( result )
+        if ( result )
         {
             do
             {
@@ -429,7 +429,7 @@ void DungeonResetScheduler::LoadResetTimes()
                 uint32 instance = fields[1].GetUInt32();
                 time_t resettime = time_t(fields[0].GetUInt64() + 2 * HOUR);
                 InstResetTimeMapDiffType::iterator itr = instResetTime.find(instance);
-                if(itr != instResetTime.end() && itr->second.second != resettime)
+                if (itr != instResetTime.end() && itr->second.second != resettime)
                 {
                     CharacterDatabase.DirectPExecute("UPDATE instance SET resettime = '"UI64FMTD"' WHERE id = '%u'", uint64(resettime), instance);
                     itr->second.second = resettime;
@@ -440,15 +440,15 @@ void DungeonResetScheduler::LoadResetTimes()
         }
 
         // schedule the reset times
-        for(InstResetTimeMapDiffType::iterator itr = instResetTime.begin(); itr != instResetTime.end(); ++itr)
-            if(itr->second.second > now)
+        for (InstResetTimeMapDiffType::iterator itr = instResetTime.begin(); itr != instResetTime.end(); ++itr)
+            if (itr->second.second > now)
                 ScheduleReset(true, itr->second.second, DungeonResetEvent(RESET_EVENT_NORMAL_DUNGEON, PAIR32_LOPART(itr->second.first),Difficulty(PAIR32_HIPART(itr->second.first)),itr->first));
     }
 
     // load the global respawn times for raid/heroic instances
     uint32 diff = sWorld.getConfig(CONFIG_UINT32_INSTANCE_RESET_TIME_HOUR) * HOUR;
     result = CharacterDatabase.Query("SELECT mapid, difficulty, resettime FROM instance_reset");
-    if(result)
+    if (result)
     {
         do
         {
@@ -478,7 +478,7 @@ void DungeonResetScheduler::LoadResetTimes()
 
             // update the reset time if the hour in the configs changes
             time_t newresettime = (oldresettime / DAY) * DAY + diff;
-            if(oldresettime != newresettime && newresettime > now)
+            if (oldresettime != newresettime && newresettime > now)
                 CharacterDatabase.DirectPExecute("UPDATE instance_reset SET resettime = '"UI64FMTD"' WHERE mapid = '%u' AND difficulty = '%u'", (uint64)newresettime, mapid, difficulty);
 
             SetResetTimeFor(mapid,difficulty,newresettime);
@@ -492,7 +492,7 @@ void DungeonResetScheduler::LoadResetTimes()
 
     // calculate new global reset times for expired instances and those that have never been reset yet
     // add the global reset times to the priority queue
-    for(MapDifficultyMap::const_iterator itr = sMapDifficultyMap.begin(); itr != sMapDifficultyMap.end(); ++itr)
+    for (MapDifficultyMap::const_iterator itr = sMapDifficultyMap.begin(); itr != sMapDifficultyMap.end(); ++itr)
     {
 
         uint32 map_diff_pair = itr->first;
@@ -512,7 +512,7 @@ void DungeonResetScheduler::LoadResetTimes()
 
         time_t t = GetResetTimeFor(mapid,difficulty);
 
-        if(!t || t < now)
+        if (!t || t < now)
         {
             t = CalculateNextResetTime(mapDiff , t);
             CharacterDatabase.DirectPExecute("REPLACE INTO instance_reset VALUES ('%u','%u','"UI64FMTD"')", mapid, difficulty, (uint64)t);
@@ -522,8 +522,8 @@ void DungeonResetScheduler::LoadResetTimes()
 
         // schedule the global reset/warning
         ResetEventType type = RESET_EVENT_INFORM_1;
-        for(; type < RESET_EVENT_INFORM_LAST; type = ResetEventType(type+1))
-            if(t - resetEventTypeDelay[type] > now)
+        for (; type < RESET_EVENT_INFORM_LAST; type = ResetEventType(type+1))
+            if (t - resetEventTypeDelay[type] > now)
                 break;
 
         ScheduleReset(true, t - resetEventTypeDelay[type], DungeonResetEvent(type, mapid, difficulty, 0));
@@ -540,7 +540,7 @@ void DungeonResetScheduler::ScheduleReset(bool add, time_t time, DungeonResetEve
         ResetTimeQueue::iterator itr;
         std::pair<ResetTimeQueue::iterator, ResetTimeQueue::iterator> range;
         range = m_resetTimeQueue.equal_range(time);
-        for(itr = range.first; itr != range.second; ++itr)
+        for (itr = range.first; itr != range.second; ++itr)
         {
             if (itr->second == event)
             {
@@ -549,18 +549,18 @@ void DungeonResetScheduler::ScheduleReset(bool add, time_t time, DungeonResetEve
             }
         }
         // in case the reset time changed (should happen very rarely), we search the whole queue
-        if(itr == range.second)
+        if (itr == range.second)
         {
-            for(itr = m_resetTimeQueue.begin(); itr != m_resetTimeQueue.end(); ++itr)
+            for (itr = m_resetTimeQueue.begin(); itr != m_resetTimeQueue.end(); ++itr)
             {
-                if(itr->second == event)
+                if (itr->second == event)
                 {
                     m_resetTimeQueue.erase(itr);
                     return;
                 }
             }
 
-            if(itr == m_resetTimeQueue.end())
+            if (itr == m_resetTimeQueue.end())
                 sLog.outError("DungeonResetScheduler::ScheduleReset: cannot cancel the reset, the event(%d,%d,%d) was not found!", event.type, event.mapid, event.instanceId);
         }
     }
@@ -584,7 +584,7 @@ void DungeonResetScheduler::Update()
             MapDifficultyEntry const* mapDiff = GetMapDifficultyData(event.mapid,event.difficulty);
 
             m_InstanceSaves._ResetOrWarnAll(event.mapid, event.difficulty, event.type != RESET_EVENT_INFORM_LAST, resetTime);
-            if(event.type != RESET_EVENT_INFORM_LAST)
+            if (event.type != RESET_EVENT_INFORM_LAST)
             {
                 // schedule the next warning/reset
                 event.type = ResetEventType(event.type+1);
@@ -753,13 +753,13 @@ void MapPersistentStateManager::_DelHelper(DatabaseType &db, const char *fields,
     va_end(ap);
 
     QueryResult *result = db.PQuery("SELECT %s FROM %s %s", fields, table, szQueryTail);
-    if(result)
+    if (result)
     {
         do
         {
             Field *fields = result->Fetch();
             std::ostringstream ss;
-            for(size_t i = 0; i < fieldTokens.size(); i++)
+            for (size_t i = 0; i < fieldTokens.size(); i++)
             {
                 std::string fieldValue = fields[i].GetCppString();
                 db.escape_string(fieldValue);
@@ -814,7 +814,7 @@ void MapPersistentStateManager::PackInstances()
     // any associations to ids not in this table are assumed to be
     // cleaned already in CleanupInstances
     QueryResult *result = CharacterDatabase.Query("SELECT id FROM instance");
-    if( result )
+    if ( result )
     {
         do
         {
@@ -906,7 +906,7 @@ void MapPersistentStateManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficu
         }
 
         // remove all binds to instances of the given map
-        for(PersistentStateMap::iterator itr = m_instanceSaveByInstanceId.begin(); itr != m_instanceSaveByInstanceId.end();)
+        for (PersistentStateMap::iterator itr = m_instanceSaveByInstanceId.begin(); itr != m_instanceSaveByInstanceId.end();)
         {
             if (itr->second->GetMapId() == mapid && itr->second->GetDifficulty() == difficulty)
                 _ResetSave(m_instanceSaveByInstanceId, itr);
@@ -931,10 +931,10 @@ void MapPersistentStateManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficu
     const MapManager::MapMapType& maps = sMapMgr.Maps();
 
     MapManager::MapMapType::const_iterator iter_last = maps.lower_bound(MapID(mapid + 1));
-    for(MapManager::MapMapType::const_iterator mitr = maps.lower_bound(MapID(mapid)); mitr != iter_last; ++mitr)
+    for (MapManager::MapMapType::const_iterator mitr = maps.lower_bound(MapID(mapid)); mitr != iter_last; ++mitr)
     {
         Map *map2 = mitr->second;
-        if(map2->GetId() != mapid)
+        if (map2->GetId() != mapid)
             break;
 
         if (warn)
@@ -951,7 +951,7 @@ void MapPersistentStateManager::GetStatistics(uint32& numStates, uint32& numBoun
     numBoundGroups = 0;
 
     // only instanceable maps have bounds
-    for(PersistentStateMap::iterator itr = m_instanceSaveByInstanceId.begin(); itr != m_instanceSaveByInstanceId.end(); ++itr)
+    for (PersistentStateMap::iterator itr = m_instanceSaveByInstanceId.begin(); itr != m_instanceSaveByInstanceId.end(); ++itr)
     {
         if (!itr->second->GetMapEntry()->IsDungeon())
             continue;
@@ -971,7 +971,7 @@ void MapPersistentStateManager::_CleanupExpiredInstancesAtTime( time_t t )
 void MapPersistentStateManager::InitWorldMaps()
 {
     MapPersistentState* state = NULL;                       // need any from created for shared pool state
-    for(uint32 mapid = 0; mapid < sMapStore.GetNumRows(); ++mapid)
+    for (uint32 mapid = 0; mapid < sMapStore.GetNumRows(); ++mapid)
         if (MapEntry const* entry = sMapStore.LookupEntry(mapid))
             if (!entry->Instanceable())
                 state = AddPersistentState(entry, 0, REGULAR_DIFFICULTY, 0, false, true, false);
@@ -1027,7 +1027,7 @@ void MapPersistentStateManager::LoadCreatureRespawnTimes()
         if (!mapEntry || (mapEntry->Instanceable() != (instanceId != 0)))
             continue;
 
-        if(difficulty >= (!mapEntry->Instanceable() ? REGULAR_DIFFICULTY : (mapEntry->IsRaid() ? MAX_RAID_DIFFICULTY : MAX_DUNGEON_DIFFICULTY)))
+        if (difficulty >= (!mapEntry->Instanceable() ? REGULAR_DIFFICULTY : (mapEntry->IsRaid() ? MAX_RAID_DIFFICULTY : MAX_DUNGEON_DIFFICULTY)))
             continue;
 
         MapPersistentState* state = AddPersistentState(mapEntry, instanceId, Difficulty(difficulty), resetTime, mapEntry->IsDungeon(), true, true, completedEncounters);
@@ -1094,7 +1094,7 @@ void MapPersistentStateManager::LoadGameobjectRespawnTimes()
         if (!mapEntry || (mapEntry->Instanceable() != (instanceId != 0)))
             continue;
 
-        if(difficulty >= (!mapEntry->Instanceable() ? REGULAR_DIFFICULTY : (mapEntry->IsRaid() ? MAX_RAID_DIFFICULTY : MAX_DUNGEON_DIFFICULTY)))
+        if (difficulty >= (!mapEntry->Instanceable() ? REGULAR_DIFFICULTY : (mapEntry->IsRaid() ? MAX_RAID_DIFFICULTY : MAX_DUNGEON_DIFFICULTY)))
             continue;
 
         MapPersistentState* state = AddPersistentState(mapEntry, instanceId, Difficulty(difficulty), resetTime, mapEntry->IsDungeon(), true, true, completedEncounters);

@@ -30,7 +30,7 @@ class UpdateMask
 
         ~UpdateMask( )
         {
-            if(mUpdateMask)
+            if (mUpdateMask)
                 delete [] mUpdateMask;
         }
 
@@ -56,7 +56,7 @@ class UpdateMask
 
         void SetCount (uint32 valuesCount)
         {
-            if(mUpdateMask)
+            if (mUpdateMask)
                 delete [] mUpdateMask;
 
             mCount = valuesCount;
