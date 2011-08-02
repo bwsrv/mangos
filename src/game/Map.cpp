@@ -3278,7 +3278,7 @@ void Map::PlayDirectSoundToMap(uint32 soundId)
         itr->getSource()->SendDirectMessage(&data);
 }
 
-Transport* Map::LoadTransportInMap(uint32 transportEntry, uint32 transportPosition/*=0*/, uint32 transportPeriod /*= 0*/, bool IsStoped /* = false*/)
+Transport* Map::LoadTransportInMap(uint32 transportEntry, uint32 transportPeriod /*= 0*/, bool IsStoped /* = false*/)
 {
     Transport* trans = new Transport;
     const GameObjectInfo *goinfo = ObjectMgr::GetGameObjectInfo(transportEntry);
@@ -3293,10 +3293,10 @@ Transport* Map::LoadTransportInMap(uint32 transportEntry, uint32 transportPositi
         return NULL;
     }
 
-    uint32 mapid = trans->m_WayPoints[transportPosition].mapid;
-    float x = trans->m_WayPoints[transportPosition].x;
-    float y = trans->m_WayPoints[transportPosition].y;
-    float z = trans->m_WayPoints[transportPosition].z;
+    uint32 mapid = trans->m_WayPoints[0].mapid;
+    float x = trans->m_WayPoints[0].x;
+    float y = trans->m_WayPoints[0].y;
+    float z = trans->m_WayPoints[0].z;
     float o = 1.0f;
 
     if (!trans->Create(transportEntry, mapid, x, y, z, o, GO_ANIMPROGRESS_DEFAULT, 0))
