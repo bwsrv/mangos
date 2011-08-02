@@ -192,7 +192,7 @@ int WorldSocket::SendPacket(const WorldPacket& pct)
         if (!pct.empty())
             mb->copy((const char*)pct.contents(), pct.size());
 
-        if (msg_queue()->enqueue_tail(mb, (ACE_Time_Value*)&ACE_Time_Value::zero) == -1)
+        if(msg_queue()->enqueue_tail(mb, (ACE_Time_Value*)&ACE_Time_Value::zero) == -1)
         {
             sLog.outError("WorldSocket::SendPacket enqueue_tail");
             mb->release();
@@ -841,7 +841,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
     id = fields[0].GetUInt32();
     security = fields[1].GetUInt16();
-    if (security > SEC_ADMINISTRATOR)                        // prevent invalid security settings in DB
+    if(security > SEC_ADMINISTRATOR)                        // prevent invalid security settings in DB
         security = SEC_ADMINISTRATOR;
 
     K.SetHexStr(fields[2].GetString());

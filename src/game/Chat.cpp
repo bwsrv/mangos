@@ -905,7 +905,7 @@ bool ChatHandler::HasLowerSecurity(Player* target, ObjectGuid guid, bool strong)
     else
         target_account = sObjectMgr.GetPlayerAccountIdByGUID(guid);
 
-    if (!target_session && !target_account)
+    if(!target_session && !target_account)
     {
         SendSysMessage(LANG_PLAYER_NOT_FOUND);
         SetSentErrorMessage(true);
@@ -949,7 +949,7 @@ bool ChatHandler::hasStringAbbr(const char* name, const char* part)
         if ( !*part )
             return false;
 
-        for (;;)
+        for(;;)
         {
             if ( !*part )
                 return true;
@@ -1049,7 +1049,7 @@ void ChatHandler::PSendSysMessage(const char *format, ...)
 
 void ChatHandler::CheckIntegrity( ChatCommand *table, ChatCommand *parentCommand )
 {
-    for (uint32 i = 0; table[i].Name != NULL; ++i)
+    for(uint32 i = 0; table[i].Name != NULL; ++i)
     {
         ChatCommand* command = &table[i];
 
@@ -1148,7 +1148,7 @@ ChatCommandSearchResult ChatHandler::FindCommand(ChatCommand* table, char const*
     while (*text == ' ') ++text;
 
     // search first level command in table
-    for (uint32 i = 0; table[i].Name != NULL; ++i)
+    for(uint32 i = 0; table[i].Name != NULL; ++i)
     {
         if (exactlyName)
         {
@@ -1499,7 +1499,7 @@ valid examples:
             // find next pipe command
             message = strchr(message, '|');
 
-            if (!message)
+            if(!message)
                 return true;
 
             ++message;
@@ -1598,7 +1598,7 @@ valid examples:
             case 'c':
                 color = 0;
                 // validate color, expect 8 hex chars
-                for (int i=0; i<8; i++)
+                for(int i=0; i<8; i++)
                 {
                     char c;
                     reader >> c;
@@ -1638,7 +1638,7 @@ valid examples:
                         return false;
 
                     linkedItem = ObjectMgr::GetItemPrototype(atoi(buffer));
-                    if (!linkedItem)
+                    if(!linkedItem)
                     {
                         DEBUG_LOG("ChatHandler::isValidChatMessage got invalid itemID %u in |item command", atoi(buffer));
                         return false;
@@ -1659,7 +1659,7 @@ valid examples:
                     int32 propertyId = 0;
                     bool negativeNumber = false;
                     char c;
-                    for (uint8 i=0; i < randomPropertyPosition; ++i)
+                    for(uint8 i=0; i < randomPropertyPosition; ++i)
                     {
                         propertyId = 0;
                         negativeNumber = false;
@@ -1934,7 +1934,7 @@ valid examples:
                                 return false;
                             }
 
-                            for (uint8 i=0; i < MAX_LOCALE; ++i)
+                            for(uint8 i=0; i < MAX_LOCALE; ++i)
                             {
                                 uint32 skillLineNameLength = strlen(skillLine->name[i]);
                                 if (skillLineNameLength > 0 && strncmp(skillLine->name[i], buffer, skillLineNameLength) == 0)
@@ -1947,7 +1947,7 @@ valid examples:
                             }
                         }
                         bool foundName = false;
-                        for (uint8 i=0; i<MAX_LOCALE; ++i)
+                        for(uint8 i=0; i<MAX_LOCALE; ++i)
                         {
                             if (*linkedSpell->SpellName[i] && strcmp(linkedSpell->SpellName[i], buffer) == 0)
                             {
@@ -1971,7 +1971,7 @@ valid examples:
                             }
 
                             bool foundName = false;
-                            for (uint8 i=0; i < ql->Title.size(); ++i)
+                            for(uint8 i=0; i < ql->Title.size(); ++i)
                             {
                                 if (ql->Title[i] == buffer)
                                 {
@@ -2002,7 +2002,7 @@ valid examples:
                             ItemLocale const *il = sObjectMgr.GetItemLocale(linkedItem->ItemId);
 
                             bool foundName = false;
-                            for (uint8 i=LOCALE_koKR; i<MAX_LOCALE; ++i)
+                            for(uint8 i=LOCALE_koKR; i<MAX_LOCALE; ++i)
                             {
                                 int8 dbIndex = sObjectMgr.GetIndexForLocale(LocaleConstant(i));
                                 if (dbIndex == -1 || il == NULL || (size_t)dbIndex >= il->Name.size())
@@ -2031,7 +2031,7 @@ valid examples:
                     else if (linkedAchievement)
                     {
                         bool foundName = false;
-                        for (uint8 i=0; i<MAX_LOCALE; ++i)
+                        for(uint8 i=0; i<MAX_LOCALE; ++i)
                         {
                             if (*linkedAchievement->name[i] && strcmp(linkedAchievement->name[i], buffer) == 0)
                             {
@@ -2148,7 +2148,7 @@ void ChatHandler::FillMessageData( WorldPacket *data, WorldSession* session, uin
 
 Player * ChatHandler::getSelectedPlayer()
 {
-    if (!m_session)
+    if(!m_session)
         return NULL;
 
     ObjectGuid guid  = m_session->GetPlayer()->GetSelectionGuid();
@@ -2161,7 +2161,7 @@ Player * ChatHandler::getSelectedPlayer()
 
 Unit* ChatHandler::getSelectedUnit()
 {
-    if (!m_session)
+    if(!m_session)
         return NULL;
 
     ObjectGuid guid = m_session->GetPlayer()->GetSelectionGuid();
@@ -2175,7 +2175,7 @@ Unit* ChatHandler::getSelectedUnit()
 
 Creature* ChatHandler::getSelectedCreature()
 {
-    if (!m_session)
+    if(!m_session)
         return NULL;
 
     return m_session->GetPlayer()->GetMap()->GetAnyTypeCreature(m_session->GetPlayer()->GetSelectionGuid());
@@ -2189,7 +2189,7 @@ Creature* ChatHandler::getSelectedCreature()
  */
 void ChatHandler::SkipWhiteSpaces(char** args)
 {
-    if (!*args)
+    if(!*args)
         return;
 
     while(isWhiteSpace(**args))
@@ -2895,7 +2895,7 @@ uint32 ChatHandler::ExtractSpellIdFromLink(char** text)
         {
             // talent
             TalentEntry const* talentEntry = sTalentStore.LookupEntry(id);
-            if (!talentEntry)
+            if(!talentEntry)
                 return 0;
 
             int32 rank;
@@ -3230,7 +3230,7 @@ bool ChatHandler::ExtractLocationFromLink(char** text, uint32& mapid, float& x, 
             }
 
             AreaTrigger const* at = sObjectMgr.GetAreaTrigger(id);
-            if (!at)
+            if(!at)
             {
                 PSendSysMessage(LANG_AREATRIGER_NOT_HAS_TARGET, id);
                 SetSentErrorMessage(true);
@@ -3253,11 +3253,11 @@ std::string ChatHandler::ExtractPlayerNameFromLink(char** text)
 {
     // |color|Hplayer:name|h[name]|h|r
     char* name_str = ExtractKeyFromLink(text, "Hplayer");
-    if (!name_str)
+    if(!name_str)
         return "";
 
     std::string name = name_str;
-    if (!normalizePlayerName(name))
+    if(!normalizePlayerName(name))
         return "";
 
     return name;
@@ -3319,7 +3319,7 @@ bool ChatHandler::ExtractPlayerTarget(char** args, Player** player /*= NULL*/, O
     }
 
     // some from req. data must be provided (note: name is empty if player not exist)
-    if ((!player || !*player) && (!player_guid || !*player_guid) && (!player_name || player_name->empty()))
+    if((!player || !*player) && (!player_guid || !*player_guid) && (!player_name || player_name->empty()))
     {
         SendSysMessage(LANG_PLAYER_NOT_FOUND);
         SetSentErrorMessage(true);

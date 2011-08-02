@@ -67,19 +67,19 @@ Cell::Visit(const CellPair &standing_cell, TypeContainerVisitor<T, CONTAINER> &v
     //no jokes here... Actually placing ASSERT() here was good idea, but
     //we had some problems with DynamicObjects, which pass radius = 0.0f (DB issue?)
     //maybe it is better to just return when radius <= 0.0f?
-    if (radius <= 0.0f)
+    if(radius <= 0.0f)
     {
         m.Visit(*this, visitor);
         return;
     }
     //lets limit the upper value for search radius
-    if (radius > 333.0f)
+    if(radius > 333.0f)
         radius = 333.0f;
 
     //lets calculate object coord offsets from cell borders.
     CellArea area = Cell::CalculateCellArea(x, y, radius);
     //if radius fits inside standing cell
-    if (!area)
+    if(!area)
     {
         m.Visit(*this, visitor);
         return;
@@ -91,7 +91,7 @@ Cell::Visit(const CellPair &standing_cell, TypeContainerVisitor<T, CONTAINER> &v
     //if radius is known to reach cell area more than 4x4 then we should call optimized VisitCircle
     //currently this technique works with MAX_NUMBER_OF_CELLS 16 and higher, with lower values
     //there are nothing to optimize because SIZE_OF_GRID_CELL is too big...
-    if (((end_cell.x_coord - begin_cell.x_coord) > 4) && ((end_cell.y_coord - begin_cell.y_coord) > 4))
+    if(((end_cell.x_coord - begin_cell.x_coord) > 4) && ((end_cell.y_coord - begin_cell.y_coord) > 4))
     {
         VisitCircle(visitor, m, begin_cell, end_cell);
         return;
@@ -102,13 +102,13 @@ Cell::Visit(const CellPair &standing_cell, TypeContainerVisitor<T, CONTAINER> &v
     m.Visit(*this, visitor);
 
     // loop the cell range
-    for (uint32 x = begin_cell.x_coord; x <= end_cell.x_coord; x++)
+    for(uint32 x = begin_cell.x_coord; x <= end_cell.x_coord; x++)
     {
-        for (uint32 y = begin_cell.y_coord; y <= end_cell.y_coord; y++)
+        for(uint32 y = begin_cell.y_coord; y <= end_cell.y_coord; y++)
         {
             CellPair cell_pair(x,y);
             //lets skip standing cell since we already visited it
-            if (cell_pair != standing_cell)
+            if(cell_pair != standing_cell)
             {
                 Cell r_zone(cell_pair);
                 r_zone.data.Part.nocreate = data.Part.nocreate;
@@ -129,9 +129,9 @@ Cell::VisitCircle(TypeContainerVisitor<T, CONTAINER> &visitor, Map &m, const Cel
     const uint32 x_end = end_cell.x_coord - x_shift;
 
     //visit central strip with constant width...
-    for (uint32 x = x_start; x <= x_end; ++x)
+    for(uint32 x = x_start; x <= x_end; ++x)
     {
-        for (uint32 y = begin_cell.y_coord; y <= end_cell.y_coord; ++y)
+        for(uint32 y = begin_cell.y_coord; y <= end_cell.y_coord; ++y)
         {
             CellPair cell_pair(x,y);
             Cell r_zone(cell_pair);
@@ -142,7 +142,7 @@ Cell::VisitCircle(TypeContainerVisitor<T, CONTAINER> &visitor, Map &m, const Cel
 
     //if x_shift == 0 then we have too small cell area, which were already
     //visited at previous step, so just return from procedure...
-    if (x_shift == 0)
+    if(x_shift == 0)
         return;
 
     uint32 y_start = end_cell.y_coord;

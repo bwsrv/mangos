@@ -36,7 +36,7 @@ void GMTicketMgr::LoadGMTickets()
         //      0     1            2              3                                  4
         "SELECT guid, ticket_text, response_text, UNIX_TIMESTAMP(ticket_lastchange), ticket_id FROM character_ticket ORDER BY ticket_id ASC");
 
-    if ( !result )
+    if( !result )
     {
         BarGoLink bar(1);
 
@@ -81,9 +81,9 @@ void GMTicketMgr::LoadGMTickets()
 
 void GMTicketMgr::DeleteAll()
 {
-    for (GMTicketMap::const_iterator itr = m_GMTicketMap.begin(); itr != m_GMTicketMap.end(); ++itr)
+    for(GMTicketMap::const_iterator itr = m_GMTicketMap.begin(); itr != m_GMTicketMap.end(); ++itr)
     {
-        if (Player* owner = sObjectMgr.GetPlayer(itr->first))
+        if(Player* owner = sObjectMgr.GetPlayer(itr->first))
             owner->GetSession()->SendGMTicketGetTicket(0x0A);
     }
     CharacterDatabase.Execute("DELETE FROM character_ticket");

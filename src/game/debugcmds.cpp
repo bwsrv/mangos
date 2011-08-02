@@ -154,46 +154,46 @@ bool ChatHandler::HandleDebugSendOpcodeCommand(char* /*args*/)
         std::string type;
         ifs >> type;
 
-        if (type == "")
+        if(type == "")
             break;
 
-        if (type == "uint8")
+        if(type == "uint8")
         {
             uint16 val1;
             ifs >> val1;
             data << uint8(val1);
         }
-        else if (type == "uint16")
+        else if(type == "uint16")
         {
             uint16 val2;
             ifs >> val2;
             data << val2;
         }
-        else if (type == "uint32")
+        else if(type == "uint32")
         {
             uint32 val3;
             ifs >> val3;
             data << val3;
         }
-        else if (type == "uint64")
+        else if(type == "uint64")
         {
             uint64 val4;
             ifs >> val4;
             data << val4;
         }
-        else if (type == "float")
+        else if(type == "float")
         {
             float val5;
             ifs >> val5;
             data << val5;
         }
-        else if (type == "string")
+        else if(type == "string")
         {
             std::string val6;
             ifs >> val6;
             data << val6;
         }
-        else if (type == "pguid")
+        else if(type == "pguid")
         {
             data << unit->GetPackGUID();
         }
@@ -347,7 +347,7 @@ bool ChatHandler::HandleDebugGetLootRecipientCommand(char* /*args*/)
 
     if (!target->HasLootRecipient())
         SendSysMessage("loot recipient: no loot recipient");
-    else if (Player* recipient = target->GetLootRecipient())
+    else if(Player* recipient = target->GetLootRecipient())
         PSendSysMessage("loot recipient: %s with raw data %s from group %u",
             recipient->GetGuidStr().c_str(),
             target->GetLootRecipientGuid().GetString().c_str(),
@@ -411,7 +411,7 @@ bool ChatHandler::HandleDebugGetItemStateCommand(char* args)
         SendSysMessage(state_str.c_str());
         for (uint8 i = PLAYER_SLOT_START; i < PLAYER_SLOT_END; ++i)
         {
-            if (i >= BUYBACK_SLOT_START && i < BUYBACK_SLOT_END)
+            if(i >= BUYBACK_SLOT_START && i < BUYBACK_SLOT_END)
                 continue;
 
             Item *item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
@@ -440,10 +440,10 @@ bool ChatHandler::HandleDebugGetItemStateCommand(char* args)
     if (list_queue)
     {
         std::vector<Item *> &updateQueue = player->GetItemUpdateQueue();
-        for (size_t i = 0; i < updateQueue.size(); ++i)
+        for(size_t i = 0; i < updateQueue.size(); ++i)
         {
             Item *item = updateQueue[i];
-            if (!item) continue;
+            if(!item) continue;
 
             Bag *container = item->GetContainer();
             uint8 bag_slot = container ? container->GetSlot() : uint8(INVENTORY_SLOT_BAG_0);
@@ -470,7 +470,7 @@ bool ChatHandler::HandleDebugGetItemStateCommand(char* args)
         std::vector<Item *> &updateQueue = player->GetItemUpdateQueue();
         for (uint8 i = PLAYER_SLOT_START; i < PLAYER_SLOT_END; ++i)
         {
-            if (i >= BUYBACK_SLOT_START && i < BUYBACK_SLOT_END)
+            if(i >= BUYBACK_SLOT_START && i < BUYBACK_SLOT_END)
                 continue;
 
             Item *item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
@@ -531,7 +531,7 @@ bool ChatHandler::HandleDebugGetItemStateCommand(char* args)
                 error = true; continue;
             }
 
-            if (item->IsBag())
+            if(item->IsBag())
             {
                 Bag *bag = (Bag*)item;
                 for (uint8 j = 0; j < bag->GetBagSize(); ++j)
@@ -605,10 +605,10 @@ bool ChatHandler::HandleDebugGetItemStateCommand(char* args)
             }
         }
 
-        for (size_t i = 0; i < updateQueue.size(); ++i)
+        for(size_t i = 0; i < updateQueue.size(); ++i)
         {
             Item *item = updateQueue[i];
-            if (!item) continue;
+            if(!item) continue;
 
             if (item->GetOwnerGuid() != player->GetObjectGuid())
             {
@@ -717,7 +717,7 @@ bool ChatHandler::HandleDebugSetAuraStateCommand(char* args)
     if (!state)
     {
         // reset all states
-        for (int i = 1; i <= 32; ++i)
+        for(int i = 1; i <= 32; ++i)
             unit->ModifyAuraState(AuraState(i),false);
         return true;
     }
@@ -751,7 +751,7 @@ bool ChatHandler::HandleSetValueHelper(Object* target, uint32 field, char* typeS
     else
         return false;
 
-    if (base)
+    if(base)
     {
         uint32 iValue;
         if (!ExtractUInt32Base(&valStr, iValue, base))
@@ -803,7 +803,7 @@ bool ChatHandler::HandleDebugSetItemValueCommand(char* args)
 bool ChatHandler::HandleDebugSetValueCommand(char* args)
 {
     Unit* target = getSelectedUnit();
-    if (!target)
+    if(!target)
     {
         SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
         SetSentErrorMessage(true);
@@ -911,7 +911,7 @@ bool ChatHandler::HandleDebugGetItemValueCommand(char* args)
 bool ChatHandler::HandleDebugGetValueCommand(char* args)
 {
     Unit* target = getSelectedUnit();
-    if (!target)
+    if(!target)
     {
         SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
         SetSentErrorMessage(true);
@@ -1036,7 +1036,7 @@ bool ChatHandler::HandleDebugModItemValueCommand(char* args)
 bool ChatHandler::HandleDebugModValueCommand(char* args)
 {
     Unit* target = getSelectedUnit();
-    if (!target)
+    if(!target)
     {
         SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
         SetSentErrorMessage(true);
@@ -1074,7 +1074,7 @@ bool ChatHandler::HandleDebugSpellCoefsCommand(char* args)
     float dot_calc = CalculateDefaultCoefficient(spellEntry, DOT);
 
     bool isDirectHeal = false;
-    for (int i = 0; i < 3; ++i)
+    for(int i = 0; i < 3; ++i)
     {
         // Heals (Also count Mana Shield and Absorb effects as heals)
         if (spellEntry->Effect[i] == SPELL_EFFECT_HEAL || spellEntry->Effect[i] == SPELL_EFFECT_HEAL_MAX_HEALTH ||
@@ -1086,7 +1086,7 @@ bool ChatHandler::HandleDebugSpellCoefsCommand(char* args)
     }
 
     bool isDotHeal = false;
-    for (int i = 0; i < 3; ++i)
+    for(int i = 0; i < 3; ++i)
     {
         // Periodic Heals
         if (spellEntry->Effect[i] == SPELL_EFFECT_APPLY_AURA && spellEntry->EffectApplyAuraName[i] == SPELL_AURA_PERIODIC_HEAL)

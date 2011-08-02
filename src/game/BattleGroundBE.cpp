@@ -157,7 +157,7 @@ void BattleGroundBE::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
 {
 
     BattleGroundScoreMap::iterator itr = m_PlayerScores.find(Source->GetObjectGuid());
-    if (itr == m_PlayerScores.end())                         // player not found...
+    if(itr == m_PlayerScores.end())                         // player not found...
         return;
 
     //there is nothing special in this score

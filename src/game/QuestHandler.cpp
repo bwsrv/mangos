@@ -132,7 +132,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode( WorldPacket & recv_data )
     Object* pObject = _player->GetObjectByTypeMask(guid, TYPEMASK_CREATURE_GAMEOBJECT_PLAYER_OR_ITEM);
 
     // no or incorrect quest giver
-    if (!pObject
+    if(!pObject
         || (pObject->GetTypeId()!=TYPEID_PLAYER && !pObject->HasQuest(quest))
         || (pObject->GetTypeId()==TYPEID_PLAYER && !((Player*)pObject)->CanShareQuest(quest))
         )
@@ -146,7 +146,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode( WorldPacket & recv_data )
     if ( qInfo )
     {
         // prevent cheating
-        if (!GetPlayer()->CanTakeQuest(qInfo,true) )
+        if(!GetPlayer()->CanTakeQuest(qInfo,true) )
         {
             _player->PlayerTalkClass->CloseGossip();
             _player->ClearDividerGuid();
@@ -159,7 +159,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode( WorldPacket & recv_data )
             _player->ClearDividerGuid();
         }
 
-        if ( _player->CanAddQuest( qInfo, true ) )
+        if( _player->CanAddQuest( qInfo, true ) )
         {
             _player->AddQuest( qInfo, pObject );            // pObject (if it item) can be destroyed at call
 
@@ -167,7 +167,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode( WorldPacket & recv_data )
             {
                 if (Group* pGroup = _player->GetGroup())
                 {
-                    for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+                    for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
                     {
                         Player* pPlayer = itr->getSource();
 
@@ -194,7 +194,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode( WorldPacket & recv_data )
 
             _player->PlayerTalkClass->CloseGossip();
 
-            if ( qInfo->GetSrcSpell() > 0 )
+            if( qInfo->GetSrcSpell() > 0 )
                 _player->CastSpell( _player, qInfo->GetSrcSpell(), true);
 
             return;
@@ -244,7 +244,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode( WorldPacket & recv_data )
     ObjectGuid guid;
     recv_data >> guid >> quest >> reward;
 
-    if (reward >= QUEST_REWARD_CHOICES_COUNT)
+    if(reward >= QUEST_REWARD_CHOICES_COUNT)
     {
         sLog.outError("Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player %s (guid %d) tried to get invalid reward (%u) (probably packet hacking)", _player->GetName(), _player->GetGUIDLow(), reward);
         return;
@@ -260,16 +260,16 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode( WorldPacket & recv_data )
     DEBUG_LOG("WORLD: Received CMSG_QUESTGIVER_CHOOSE_REWARD npc = %s, quest = %u, reward = %u", guid.GetString().c_str(), quest, reward);
 
     Object* pObject = _player->GetObjectByTypeMask(guid, TYPEMASK_CREATURE_OR_GAMEOBJECT);
-    if (!pObject)
+    if(!pObject)
         return;
 
-    if (!pObject->HasInvolvedQuest(quest))
+    if(!pObject->HasInvolvedQuest(quest))
         return;
 
     Quest const *pQuest = sObjectMgr.GetQuestTemplate(quest);
-    if ( pQuest )
+    if( pQuest )
     {
-        if ( _player->CanRewardQuest( pQuest, reward, true ) )
+        if( _player->CanRewardQuest( pQuest, reward, true ) )
         {
             _player->RewardQuest( pQuest, reward, pObject );
 
@@ -323,7 +323,7 @@ void WorldSession::HandleQuestLogSwapQuest(WorldPacket& recv_data )
     uint8 slot1, slot2;
     recv_data >> slot1 >> slot2;
 
-    if (slot1 == slot2 || slot1 >= MAX_QUEST_LOG_SIZE || slot2 >= MAX_QUEST_LOG_SIZE)
+    if(slot1 == slot2 || slot1 >= MAX_QUEST_LOG_SIZE || slot2 >= MAX_QUEST_LOG_SIZE)
         return;
 
     DEBUG_LOG( "WORLD: Received CMSG_QUESTLOG_SWAP_QUEST slot 1 = %u, slot 2 = %u", slot1, slot2 );
@@ -338,11 +338,11 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recv_data)
 
     DEBUG_LOG( "WORLD: Received CMSG_QUESTLOG_REMOVE_QUEST slot = %u",slot );
 
-    if ( slot < MAX_QUEST_LOG_SIZE )
+    if( slot < MAX_QUEST_LOG_SIZE )
     {
-        if (uint32 quest = _player->GetQuestSlotQuestId(slot))
+        if(uint32 quest = _player->GetQuestSlotQuestId(slot))
         {
-            if (!_player->TakeQuestSourceItem( quest, true ))
+            if(!_player->TakeQuestSourceItem( quest, true ))
                 return;                                     // can't un-equip some items, reject quest cancel
 
             if (const Quest *pQuest = sObjectMgr.GetQuestTemplate(quest))
@@ -445,7 +445,7 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
     {
         if (Group* pGroup = _player->GetGroup())
         {
-            for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+            for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
             {
                 Player *pPlayer = itr->getSource();
 
@@ -540,7 +540,7 @@ uint32 WorldSession::getDialogStatus(Player *pPlayer, Object* questgiver, uint32
             return DIALOG_STATUS_NONE;
     }
 
-    for (QuestRelationsMap::const_iterator itr = irbounds.first; itr != irbounds.second; ++itr)
+    for(QuestRelationsMap::const_iterator itr = irbounds.first; itr != irbounds.second; ++itr)
     {
         uint32 dialogStatusNew = 0;
         uint32 quest_id = itr->second;
@@ -566,7 +566,7 @@ uint32 WorldSession::getDialogStatus(Player *pPlayer, Object* questgiver, uint32
             dialogStatus = dialogStatusNew;
     }
 
-    for (QuestRelationsMap::const_iterator itr = rbounds.first; itr != rbounds.second; ++itr)
+    for(QuestRelationsMap::const_iterator itr = rbounds.first; itr != rbounds.second; ++itr)
     {
         uint32 dialogStatusNew = 0;
         uint32 quest_id = itr->second;
@@ -618,7 +618,7 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket
     WorldPacket data(SMSG_QUESTGIVER_STATUS_MULTIPLE, 4);
     data << uint32(count);                                  // placeholder
 
-    for (ObjectGuidSet::const_iterator itr = _player->m_clientGUIDs.begin(); itr != _player->m_clientGUIDs.end(); ++itr)
+    for(ObjectGuidSet::const_iterator itr = _player->m_clientGUIDs.begin(); itr != _player->m_clientGUIDs.end(); ++itr)
     {
         uint8 dialogStatus = DIALOG_STATUS_NONE;
 

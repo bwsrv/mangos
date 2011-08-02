@@ -131,10 +131,10 @@ void Totem::UnSummon()
             // Not only the player can summon the totem (scripted AI)
             if (Group *pGroup = ((Player*)owner)->GetGroup())
             {
-                for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+                for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
                 {
                     Player* Target = itr->getSource();
-                    if (Target && pGroup->SameSubGroup((Player*)owner, Target))
+                    if(Target && pGroup->SameSubGroup((Player*)owner, Target))
                         Target->RemoveAurasDueToSpell(GetSpell());
                 }
             }
@@ -177,10 +177,10 @@ void Totem::SetTypeBySummonSpell(SpellEntry const * spellProto)
         if (GetSpellCastTime(totemSpell))
             m_type = TOTEM_ACTIVE;
 
-        if (totemSpell->Id == 40132 || totemSpell->Id == 40133)
+        if(totemSpell->Id == 40132 || totemSpell->Id == 40133)
             m_type = TOTEM_PASSIVE;                             // Shaman summoning totems
     }
-    if (spellProto->SpellIconID == 2056)
+    if(spellProto->SpellIconID == 2056)
         m_type = TOTEM_STATUE;                              //Jewelery statue
 
 }

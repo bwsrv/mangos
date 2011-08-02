@@ -36,7 +36,7 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recv_data)
     recv_data >> guid.ReadAsPacked();
     recv_data >> mi;
 
-    if (!GetPlayer()->GetVehicle())
+    if(!GetPlayer()->GetVehicle())
         return;
 
     bool dismiss = true;
@@ -53,7 +53,7 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recv_data)
 
     uint32 controlSpell = 0;
     Unit::AuraList const& controlAuras = vehicle->GetAurasByType(SPELL_AURA_CONTROL_VEHICLE);
-    for (Unit::AuraList::const_iterator i = controlAuras.begin(); i != controlAuras.end(); ++i)
+    for(Unit::AuraList::const_iterator i = controlAuras.begin(); i != controlAuras.end(); ++i)
     {
         if ((*i)->GetCasterGuid() == GetPlayer()->GetObjectGuid())
         {
@@ -80,7 +80,7 @@ void WorldSession::HandleRequestVehicleExit(WorldPacket &recv_data)
 {
     DEBUG_LOG("WORLD: Received CMSG_REQUEST_VEHICLE_EXIT");
 
-    if (!GetPlayer()->GetVehicle())
+    if(!GetPlayer()->GetVehicle())
         return;
 
     Unit* vehicle = GetPlayer()->GetVehicle()->GetBase();
@@ -89,7 +89,7 @@ void WorldSession::HandleRequestVehicleExit(WorldPacket &recv_data)
 
     uint32 controlSpell = 0;
     Unit::AuraList const& controlAuras = vehicle->GetAurasByType(SPELL_AURA_CONTROL_VEHICLE);
-    for (Unit::AuraList::const_iterator i = controlAuras.begin(); i != controlAuras.end(); ++i)
+    for(Unit::AuraList::const_iterator i = controlAuras.begin(); i != controlAuras.end(); ++i)
     {
         if ((*i)->GetCasterGuid() == GetPlayer()->GetObjectGuid())
         {
@@ -227,7 +227,7 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
     if (pVehicle->GetBase()->GetVehicleInfo()->GetEntry()->m_flags & VEHICLE_FLAG_DISABLE_SWITCH)
         return;
 
-    if (guid.GetRawValue() == guid2.GetRawValue())
+    if(guid.GetRawValue() == guid2.GetRawValue())
         GetPlayer()->ChangeSeat(seatId, false);
 
     else if (guid2.IsVehicle())
@@ -235,7 +235,7 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
         if (Creature* vehicle = GetPlayer()->GetMap()->GetAnyTypeCreature(guid2))
         {
             if (VehicleKit* pVehicle2 = vehicle->GetVehicleKit())
-                if (pVehicle2->HasEmptySeat(seatId))
+                if(pVehicle2->HasEmptySeat(seatId))
                 {
                     GetPlayer()->ExitVehicle();
                     GetPlayer()->EnterVehicle(pVehicle2, seatId);

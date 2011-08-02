@@ -40,7 +40,7 @@ ConfusedMovementGenerator<T>::Initialize(T &unit)
     bool is_water_ok, is_land_ok;
     _InitSpecific(unit, is_water_ok, is_land_ok);
 
-    for (unsigned int idx=0; idx < MAX_CONF_WAYPOINTS+1; ++idx)
+    for(unsigned int idx=0; idx < MAX_CONF_WAYPOINTS+1; ++idx)
     {
         const float wanderX=wander_distance*rand_norm_f() - wander_distance/2;
         const float wanderY=wander_distance*rand_norm_f() - wander_distance/2;
@@ -53,7 +53,7 @@ ConfusedMovementGenerator<T>::Initialize(T &unit)
         MaNGOS::NormalizeMapCoord(i_waypoints[idx][1]);
 
         // check LOS
-        if (!unit.IsWithinLOS(i_waypoints[idx][0], i_waypoints[idx][1], z))
+        if(!unit.IsWithinLOS(i_waypoints[idx][0], i_waypoints[idx][1], z))
         {
             i_waypoints[idx][0] = idx > 0 ? i_waypoints[idx-1][0] : x;
             i_waypoints[idx][1] = idx > 0 ? i_waypoints[idx-1][1] : y;
@@ -129,7 +129,7 @@ bool ConfusedMovementGenerator<T>::Update(T &unit, const uint32 &diff)
     {
         // waiting for next move
         i_nextMoveTime.Update(diff);
-        if (i_nextMoveTime.Passed() )
+        if(i_nextMoveTime.Passed() )
         {
             // start moving
             unit.addUnitState(UNIT_STAT_CONFUSED_MOVE);

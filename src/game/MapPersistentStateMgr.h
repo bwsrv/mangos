@@ -413,7 +413,7 @@ inline void MapPersistentStateManager::DoForAllStatesWithMapId(uint32 mapId, Do&
 
     if (mapEntry->Instanceable())
     {
-        for (PersistentStateMap::iterator itr = m_instanceSaveByInstanceId.begin(); itr != m_instanceSaveByInstanceId.end();)
+        for(PersistentStateMap::iterator itr = m_instanceSaveByInstanceId.begin(); itr != m_instanceSaveByInstanceId.end();)
         {
             if (itr->second->GetMapId() == mapId)
                 _do((itr++)->second);

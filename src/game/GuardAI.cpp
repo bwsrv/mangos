@@ -122,10 +122,10 @@ bool GuardAI::IsVisible(Unit *pl) const
 
 void GuardAI::AttackStart(Unit *u)
 {
-    if (!u)
+    if( !u )
         return;
 
-    if (m_creature->Attack(u,true))
+    if(m_creature->Attack(u,true))
     {
         i_victimGuid = u->GetObjectGuid();
         m_creature->AddThreat(u);
@@ -138,6 +138,6 @@ void GuardAI::AttackStart(Unit *u)
 
 void GuardAI::JustDied(Unit *killer)
 {
-    if (Player* pkiller = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
+    if(Player* pkiller = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
         m_creature->SendZoneUnderAttackMessage(pkiller);
 }

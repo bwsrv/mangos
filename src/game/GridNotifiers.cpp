@@ -31,7 +31,7 @@ using namespace MaNGOS;
 void
 VisibleChangesNotifier::Visit(CameraMapType &m)
 {
-    for (CameraMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
+    for(CameraMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
     {
         iter->getSource()->UpdateVisibilityOf(&i_object);
     }
@@ -43,9 +43,9 @@ VisibleNotifier::Notify()
     Player& player = *i_camera.GetOwner();
     // at this moment i_clientGUIDs have guids that not iterate at grid level checks
     // but exist one case when this possible and object not out of range: transports
-    if (Transport* transport = player.GetTransport())
+    if(Transport* transport = player.GetTransport())
     {
-        for (Transport::PlayerSet::const_iterator itr = transport->GetPassengers().begin();itr!=transport->GetPassengers().end();++itr)
+        for(Transport::PlayerSet::const_iterator itr = transport->GetPassengers().begin();itr!=transport->GetPassengers().end();++itr)
         {
             if (i_clientGUIDs.find((*itr)->GetObjectGuid()) != i_clientGUIDs.end())
             {
@@ -59,7 +59,7 @@ VisibleNotifier::Notify()
 
     // generate outOfRange for not iterate objects
     i_data.AddOutOfRangeGUID(i_clientGUIDs);
-    for (ObjectGuidSet::iterator itr = i_clientGUIDs.begin();itr!=i_clientGUIDs.end();++itr)
+    for(ObjectGuidSet::iterator itr = i_clientGUIDs.begin();itr!=i_clientGUIDs.end();++itr)
     {
         player.m_clientGUIDs.erase(*itr);
 
@@ -76,7 +76,7 @@ VisibleNotifier::Notify()
 
         // send out of range to other players if need
         ObjectGuidSet const& oor = i_data.GetOutOfRangeGUIDs();
-        for (ObjectGuidSet::const_iterator iter = oor.begin(); iter != oor.end(); ++iter)
+        for(ObjectGuidSet::const_iterator iter = oor.begin(); iter != oor.end(); ++iter)
         {
             if (!iter->IsPlayer())
                 continue;
@@ -89,7 +89,7 @@ VisibleNotifier::Notify()
     // Now do operations that required done at object visibility change to visible
 
     // send data at target visibility change (adding to client)
-    for (std::set<WorldObject*>::const_iterator vItr = i_visibleNow.begin(); vItr != i_visibleNow.end(); ++vItr)
+    for(std::set<WorldObject*>::const_iterator vItr = i_visibleNow.begin(); vItr != i_visibleNow.end(); ++vItr)
     {
         // target aura duration for caster show only if target exist at caster client
         if ((*vItr) != &player && (*vItr)->isType(TYPEMASK_UNIT))
@@ -100,7 +100,7 @@ VisibleNotifier::Notify()
 void
 MessageDeliverer::Visit(CameraMapType &m)
 {
-    for (CameraMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    for(CameraMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
         Player* owner = iter->getSource()->GetOwner();
 
@@ -117,7 +117,7 @@ MessageDeliverer::Visit(CameraMapType &m)
 
 void MessageDelivererExcept::Visit(CameraMapType &m)
 {
-    for (CameraMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    for(CameraMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
         Player* owner = iter->getSource()->GetOwner();
 
@@ -133,12 +133,12 @@ void MessageDelivererExcept::Visit(CameraMapType &m)
 void
 ObjectMessageDeliverer::Visit(CameraMapType &m)
 {
-    for (CameraMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    for(CameraMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
-        if (!iter->getSource()->GetBody()->InSamePhase(i_phaseMask))
+        if(!iter->getSource()->GetBody()->InSamePhase(i_phaseMask))
             continue;
 
-        if (WorldSession* session = iter->getSource()->GetOwner()->GetSession())
+        if(WorldSession* session = iter->getSource()->GetOwner()->GetSession())
             session->SendPacket(i_message);
     }
 }
@@ -146,7 +146,7 @@ ObjectMessageDeliverer::Visit(CameraMapType &m)
 void
 MessageDistDeliverer::Visit(CameraMapType &m)
 {
-    for (CameraMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
+    for(CameraMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
     {
         Player * owner = iter->getSource()->GetOwner();
 
@@ -166,7 +166,7 @@ MessageDistDeliverer::Visit(CameraMapType &m)
 void
 ObjectMessageDistDeliverer::Visit(CameraMapType &m)
 {
-    for (CameraMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
+    for(CameraMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
     {
         if (!i_dist || iter->getSource()->GetBody()->IsWithinDist(&i_object,i_dist))
         {
@@ -182,7 +182,7 @@ ObjectMessageDistDeliverer::Visit(CameraMapType &m)
 template<class T> void
 ObjectUpdater::Visit(GridRefManager<T> &m)
 {
-    for (typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
+    for(typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
         WorldObject::UpdateHelper helper(iter->getSource());
         helper.Update(i_timeDiff);
@@ -192,7 +192,7 @@ ObjectUpdater::Visit(GridRefManager<T> &m)
 bool RaiseDeadObjectCheck::operator()(Corpse* u)
 {
     // ignore bones
-    if (u->GetType() == CORPSE_BONES)
+    if(u->GetType() == CORPSE_BONES)
         return false;
     if (Player* owner = ObjectAccessor::FindPlayer(u->GetOwnerGuid()))
         return i_fobj->IsWithinDistInMap(u, i_range);
@@ -218,15 +218,15 @@ bool NearestCorpseInObjectRangeCheck::operator()(Corpse* u)
 bool CannibalizeObjectCheck::operator()(Corpse* u)
 {
     // ignore bones
-    if (u->GetType()==CORPSE_BONES)
+    if(u->GetType()==CORPSE_BONES)
         return false;
 
     Player* owner = ObjectAccessor::FindPlayer(u->GetOwnerGuid());
 
-    if ( !owner || i_fobj->IsFriendlyTo(owner))
+    if( !owner || i_fobj->IsFriendlyTo(owner))
         return false;
 
-    if (i_fobj->IsWithinDistInMap(u, i_range) )
+    if(i_fobj->IsWithinDistInMap(u, i_range) )
         return true;
 
     return false;
@@ -259,6 +259,7 @@ void MaNGOS::RespawnDo::operator()( GameObject* u ) const
 
     u->Respawn();
 }
+
 
 template void ObjectUpdater::Visit<GameObject>(GameObjectMapType &);
 template void ObjectUpdater::Visit<DynamicObject>(DynamicObjectMapType &);

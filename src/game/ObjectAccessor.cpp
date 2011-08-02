@@ -40,7 +40,7 @@ INSTANTIATE_CLASS_MUTEX(ObjectAccessor, ACE_Thread_Mutex);
 ObjectAccessor::ObjectAccessor() {}
 ObjectAccessor::~ObjectAccessor()
 {
-    for (Player2CorpsesMapType::const_iterator itr = i_player2corpse.begin(); itr != i_player2corpse.end(); ++itr)
+    for(Player2CorpsesMapType::const_iterator itr = i_player2corpse.begin(); itr != i_player2corpse.end(); ++itr)
     {
         itr->second->RemoveFromWorld();
         delete itr->second;
@@ -120,7 +120,7 @@ void ObjectAccessor::KickPlayer(ObjectGuid guid)
 Pet* ObjectAccessor::FindPet(ObjectGuid guid)
 {
     Pet * pet = HashMapHolder<Pet>::Find(guid);
-    if (!pet || !pet->IsInWorld())
+    if(!pet || !pet->IsInWorld())
         return NULL;
 
     return pet;
@@ -147,7 +147,7 @@ ObjectAccessor::RemoveCorpse(Corpse *corpse)
 
     Guard guard(i_corpseGuard);
     Player2CorpsesMapType::iterator iter = i_player2corpse.find(corpse->GetOwnerGuid());
-    if ( iter == i_player2corpse.end() )
+    if( iter == i_player2corpse.end() )
         return;
 
     // build mapid*cellid -> guid_set map
@@ -180,8 +180,8 @@ void
 ObjectAccessor::AddCorpsesToGrid(GridPair const& gridpair,GridType& grid,Map* map)
 {
     Guard guard(i_corpseGuard);
-    for (Player2CorpsesMapType::iterator iter = i_player2corpse.begin(); iter != i_player2corpse.end(); ++iter)
-        if (iter->second->GetGrid() == gridpair)
+    for(Player2CorpsesMapType::iterator iter = i_player2corpse.begin(); iter != i_player2corpse.end(); ++iter)
+        if(iter->second->GetGrid() == gridpair)
     {
         // verify, if the corpse in our instance (add only corpses which are)
         if (map->Instanceable())
@@ -202,7 +202,7 @@ Corpse*
 ObjectAccessor::ConvertCorpseForPlayer(ObjectGuid player_guid, bool insignia)
 {
     Corpse *corpse = GetCorpseForPlayerGUID(player_guid);
-    if (!corpse)
+    if(!corpse)
     {
         //in fact this function is called from several places
         //even when player doesn't have a corpse, not an error
@@ -218,7 +218,7 @@ ObjectAccessor::ConvertCorpseForPlayer(ObjectGuid player_guid, bool insignia)
     // remove resurrectable corpse from grid object registry (loaded state checked into call)
     // do not load the map if it's not loaded
     Map *map = sMapMgr.FindMap(corpse->GetMapId(), corpse->GetInstanceId());
-    if (map)
+    if(map)
         map->Remove(corpse, false);
 
     // remove corpse from DB
@@ -250,7 +250,7 @@ ObjectAccessor::ConvertCorpseForPlayer(ObjectGuid player_guid, bool insignia)
 
         for (int i = 0; i < EQUIPMENT_SLOT_END; ++i)
         {
-            if (corpse->GetUInt32Value(CORPSE_FIELD_ITEM + i))
+            if(corpse->GetUInt32Value(CORPSE_FIELD_ITEM + i))
                 bones->SetUInt32Value(CORPSE_FIELD_ITEM + i, 0);
         }
 
@@ -268,12 +268,12 @@ void ObjectAccessor::RemoveOldCorpses()
 {
     time_t now = time(NULL);
     Player2CorpsesMapType::iterator next;
-    for (Player2CorpsesMapType::iterator itr = i_player2corpse.begin(); itr != i_player2corpse.end(); itr = next)
+    for(Player2CorpsesMapType::iterator itr = i_player2corpse.begin(); itr != i_player2corpse.end(); itr = next)
     {
         next = itr;
         ++next;
 
-        if (!itr->second->IsExpired(now))
+        if(!itr->second->IsExpired(now))
             continue;
 
         ConvertCorpseForPlayer(itr->first);

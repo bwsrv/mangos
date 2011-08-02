@@ -93,7 +93,7 @@ class MANGOS_DLL_SPEC ViewPoint
     {
         if (!m_cameras.empty())
         {
-            for (CameraList::iterator itr = m_cameras.begin(); itr != m_cameras.end();)
+            for(CameraList::iterator itr = m_cameras.begin(); itr != m_cameras.end();)
             {
                 if (Camera *c = *(itr++))
                     (c->*handler)();

@@ -121,7 +121,7 @@ void HostileRefManager::deleteReferencesForFaction(uint32 faction)
     while(ref)
     {
         HostileReference* nextRef = ref->next();
-        if (ref->getSource()->getOwner()->getFactionTemplateEntry()->faction == faction)
+        if(ref->getSource()->getOwner()->getFactionTemplateEntry()->faction == faction)
         {
             ref->removeReference();
             delete ref;
@@ -139,7 +139,7 @@ void HostileRefManager::deleteReference(Unit *pCreature)
     while(ref)
     {
         HostileReference* nextRef = ref->next();
-        if (ref->getSource()->getOwner() == pCreature)
+        if(ref->getSource()->getOwner() == pCreature)
         {
             ref->removeReference();
             delete ref;
@@ -158,7 +158,7 @@ void HostileRefManager::setOnlineOfflineState(Unit *pCreature,bool pIsOnline)
     while(ref)
     {
         HostileReference* nextRef = ref->next();
-        if (ref->getSource()->getOwner() == pCreature)
+        if(ref->getSource()->getOwner() == pCreature)
         {
             ref->setOnlineOfflineState(pIsOnline);
             break;

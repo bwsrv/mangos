@@ -73,9 +73,9 @@ source_group("Movement"
     movement/util.cpp
 )
 
-if (PCH)
+if(PCH)
   include_directories(${CMAKE_CURRENT_BINARY_DIR})
-endif ()
+endif()
 
 add_library(game STATIC
   ${game_SRCS}
@@ -85,33 +85,33 @@ target_link_libraries(game
   shared
 )
 
-if (UNIX)
+if(UNIX)
   # Both systems don't have libdl and don't need them
   if (NOT (CMAKE_SYSTEM_NAME STREQUAL "FreeBSD" OR CMAKE_SYSTEM_NAME STREQUAL "NetBSD"))
     target_link_libraries(game
       dl
     )
-  endif ()
-endif ()
+  endif()
+endif()
 
 add_dependencies(game revision.h)
-if (NOT ACE_USE_EXTERNAL)
+if(NOT ACE_USE_EXTERNAL)
   add_dependencies(game ACE_Project)
 # add_dependencies(game ace)
-endif ()
+endif()
 
 # Generate precompiled header
-if (PCH)
-  if (MSVC OR XCODE)
-    if (MSVC)
+if(PCH)
+  if(MSVC OR XCODE)
+    if(MSVC)
       set(game_pch "${CMAKE_CURRENT_SOURCE_DIR}/pchdef.cpp")
-    endif ()
+    endif()
     add_native_precompiled_header(game ${CMAKE_CURRENT_SOURCE_DIR}/pchdef.h)
-  elseif (CMAKE_COMPILER_IS_GNUCXX)
+  elseif(CMAKE_COMPILER_IS_GNUCXX)
     add_precompiled_header(game ${CMAKE_CURRENT_SOURCE_DIR}/pchdef.h)
-    if (NOT ACE_USE_EXTERNAL)
+    if(NOT ACE_USE_EXTERNAL)
       add_dependencies(game_pch_dephelp ACE_Project)
     # add_dependencies(game_pch_dephelp ace)
-    endif ()
-  endif ()
-endif ()
+    endif()
+  endif()
+endif()

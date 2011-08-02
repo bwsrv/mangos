@@ -662,7 +662,7 @@ class MANGOS_DLL_SPEC GameObject : public WorldObject
         time_t GetRespawnTimeEx() const
         {
             time_t now = time(NULL);
-            if (m_respawnTime > now)
+            if(m_respawnTime > now)
                 return m_respawnTime;
             else
                 return now;

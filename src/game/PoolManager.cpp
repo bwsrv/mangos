@@ -306,7 +306,7 @@ void PoolGroup<Pool>::RemoveOneRelation(uint16 child_pool_id)
 {
     for (PoolObjectList::iterator itr = ExplicitlyChanced.begin(); itr != ExplicitlyChanced.end(); ++itr)
     {
-        if (itr->guid == child_pool_id)
+        if(itr->guid == child_pool_id)
         {
             ExplicitlyChanced.erase(itr);
             break;
@@ -314,7 +314,7 @@ void PoolGroup<Pool>::RemoveOneRelation(uint16 child_pool_id)
     }
     for (PoolObjectList::iterator itr = EqualChanced.begin(); itr != EqualChanced.end(); ++itr)
     {
-        if (itr->guid == child_pool_id)
+        if(itr->guid == child_pool_id)
         {
             EqualChanced.erase(itr);
             break;
@@ -400,7 +400,7 @@ void PoolGroup<Creature>::Spawn1Object(MapPersistentState& mapState, PoolObject*
                 else
                 {
                     // if new spawn replaces a just despawned creature, not instantly spawn but set respawn timer
-                    if (!instantly)
+                    if(!instantly)
                     {
                         pCreature->SetRespawnTime( pCreature->GetRespawnDelay() );
                         if (sWorld.getConfig(CONFIG_BOOL_SAVE_RESPAWN_TIME_IMMEDIATELY) || pCreature->IsWorldBoss())
@@ -410,7 +410,7 @@ void PoolGroup<Creature>::Spawn1Object(MapPersistentState& mapState, PoolObject*
                 }
             }
             // for not loaded grid just update respawn time (avoid work for instances until implemented support)
-            else if (!instantly)
+            else if(!instantly)
             {
                 dataMapState->SaveCreatureRespawnTime(obj->guid, time(NULL) + data->spawntimesecs);
             }
@@ -448,7 +448,7 @@ void PoolGroup<GameObject>::Spawn1Object(MapPersistentState& mapState, PoolObjec
                     if (pGameobject->isSpawnedByDefault())
                     {
                         // if new spawn replaces a just despawned object, not instantly spawn but set respawn timer
-                        if (!instantly)
+                        if(!instantly)
                         {
                             pGameobject->SetRespawnTime( pGameobject->GetRespawnDelay() );
                             if (sWorld.getConfig(CONFIG_BOOL_SAVE_RESPAWN_TIME_IMMEDIATELY))
@@ -459,7 +459,7 @@ void PoolGroup<GameObject>::Spawn1Object(MapPersistentState& mapState, PoolObjec
                 }
             }
             // for not loaded grid just update respawn time (avoid work for instances until implemented support)
-            else if (!instantly)
+            else if(!instantly)
             {
                 // for spawned by default object only
                 if (data->spawntimesecs >= 0)
@@ -920,7 +920,7 @@ void PoolManager::LoadFromDB()
     result = WorldDatabase.Query("SELECT pool_id, mother_pool, chance FROM pool_pool");
 
     count = 0;
-    if ( !result )
+    if( !result )
     {
         BarGoLink bar2(1);
         bar2.step();
@@ -980,10 +980,10 @@ void PoolManager::LoadFromDB()
         } while( result->NextRow() );
 
         // Now check for circular reference
-        for (uint16 i=0; i<max_pool_id; ++i)
+        for(uint16 i=0; i<max_pool_id; ++i)
         {
             std::set<uint16> checkedPools;
-            for (SearchMap::iterator poolItr = mPoolSearchMap.find(i); poolItr != mPoolSearchMap.end(); poolItr = mPoolSearchMap.find(poolItr->second))
+            for(SearchMap::iterator poolItr = mPoolSearchMap.find(i); poolItr != mPoolSearchMap.end(); poolItr = mPoolSearchMap.find(poolItr->second))
             {
                 // if child pool not have map data then it empty or have not checked child then will checked and all line later
                 if (MapEntry const* childMapEntry = mPoolTemplate[poolItr->first].mapEntry)
@@ -998,7 +998,7 @@ void PoolManager::LoadFromDB()
                 }
 
                 checkedPools.insert(poolItr->first);
-                if (checkedPools.find(poolItr->second) != checkedPools.end())
+                if(checkedPools.find(poolItr->second) != checkedPools.end())
                 {
                     std::ostringstream ss;
                     ss<< "The pool(s) ";
@@ -1021,7 +1021,7 @@ void PoolManager::LoadFromDB()
     }
 
     // check chances integrity
-    for (uint16 pool_entry = 0; pool_entry < mPoolTemplate.size(); ++pool_entry)
+    for(uint16 pool_entry = 0; pool_entry < mPoolTemplate.size(); ++pool_entry)
     {
         if (mPoolTemplate[pool_entry].AutoSpawn)
         {
@@ -1038,7 +1038,7 @@ void PoolManager::LoadFromDB()
 void PoolManager::Initialize(MapPersistentState* state)
 {
     // spawn pools for expected map or for not initialized shared pools state for non-instanceable maps
-    for (uint16 pool_entry = 0; pool_entry < mPoolTemplate.size(); ++pool_entry)
+    for(uint16 pool_entry = 0; pool_entry < mPoolTemplate.size(); ++pool_entry)
         if (mPoolTemplate[pool_entry].AutoSpawn)
             InitSpawnPool(*state, pool_entry);
 }

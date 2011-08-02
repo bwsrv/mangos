@@ -80,11 +80,11 @@ void WorldSession::HandleTaxiQueryAvailableNodes( WorldPacket & recv_data )
     }
 
     // remove fake death
-    if (GetPlayer()->hasUnitState(UNIT_STAT_DIED))
+    if(GetPlayer()->hasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
 
     // unknown taxi node case
-    if ( SendLearnNewTaxiNode(unit) )
+    if( SendLearnNewTaxiNode(unit) )
         return;
 
     // known taxi node case
@@ -167,14 +167,14 @@ void WorldSession::HandleActivateTaxiExpressOpcode ( WorldPacket & recv_data )
     }
     std::vector<uint32> nodes;
 
-    for (uint32 i = 0; i < node_count; ++i)
+    for(uint32 i = 0; i < node_count; ++i)
     {
         uint32 node;
         recv_data >> node;
         nodes.push_back(node);
     }
 
-    if (nodes.empty())
+    if(nodes.empty())
         return;
 
     DEBUG_LOG( "WORLD: Received CMSG_ACTIVATETAXIEXPRESS from %d to %d" ,nodes.front(),nodes.back());
@@ -199,15 +199,15 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& recv_data)
     // 2) switch from one map to other in case multi-map taxi path
     // we need process only (1)
     uint32 curDest = GetPlayer()->m_taxi.GetTaxiDestination();
-    if (!curDest)
+    if(!curDest)
         return;
 
     TaxiNodesEntry const* curDestNode = sTaxiNodesStore.LookupEntry(curDest);
 
     // far teleport case
-    if (curDestNode && curDestNode->map_id != GetPlayer()->GetMapId())
+    if(curDestNode && curDestNode->map_id != GetPlayer()->GetMapId())
     {
-        if (GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType()==FLIGHT_MOTION_TYPE)
+        if(GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType()==FLIGHT_MOTION_TYPE)
         {
             // short preparations to continue flight
             FlightPathMovementGenerator* flight = (FlightPathMovementGenerator*)(GetPlayer()->GetMotionMaster()->top());
@@ -232,7 +232,7 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& recv_data)
         // Add to taximask middle hubs in taxicheat mode (to prevent having player with disabled taxicheat and not having back flight path)
         if (GetPlayer()->isTaxiCheater())
         {
-            if (GetPlayer()->m_taxi.SetTaximaskNode(sourcenode))
+            if(GetPlayer()->m_taxi.SetTaximaskNode(sourcenode))
             {
                 WorldPacket data(SMSG_NEW_TAXI_PATH, 0);
                 _player->GetSession()->SendPacket( &data );
@@ -246,7 +246,7 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& recv_data)
         uint32 path, cost;
         sObjectMgr.GetTaxiPath( sourcenode, destinationnode, path, cost);
 
-        if (path && mountDisplayId)
+        if(path && mountDisplayId)
             SendDoFlight( mountDisplayId, path, 1 );        // skip start fly node
         else
             GetPlayer()->m_taxi.ClearTaxiDestinations();    // clear problematic path and next

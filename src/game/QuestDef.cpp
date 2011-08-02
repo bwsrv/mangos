@@ -259,7 +259,7 @@ uint32 Quest::XPValue(Player *pPlayer) const
 
 int32  Quest::GetRewOrReqMoney() const
 {
-    if (RewOrReqMoney <=0)
+    if(RewOrReqMoney <=0)
         return RewOrReqMoney;
 
     return int32(RewOrReqMoney * sWorld.getConfig(CONFIG_FLOAT_RATE_DROP_MONEY));
@@ -280,11 +280,11 @@ uint32 Quest::CalculateRewardHonor(uint32 level) const
 
     uint32 honor = 0;
 
-    if (GetRewHonorAddition() > 0 || GetRewHonorMultiplier() > 0.0f)
+    if(GetRewHonorAddition() > 0 || GetRewHonorMultiplier() > 0.0f)
     {
         // values stored from 0.. for 1...
         TeamContributionPoints const* tc = sTeamContributionPoints.LookupEntry(level-1);
-        if (!tc)
+        if(!tc)
             return 0;
         uint32 i_honor = uint32(tc->Value * GetRewHonorMultiplier() * 0.1f);
         honor = i_honor + GetRewHonorAddition();

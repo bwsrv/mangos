@@ -88,12 +88,12 @@ Group::Group() : m_Guid(ObjectGuid()), m_groupType(GROUPTYPE_NORMAL),
 
 Group::~Group()
 {
-    if (m_bgGroup)
+    if(m_bgGroup)
     {
         DEBUG_LOG("Group::~Group: battleground group being deleted.");
-        if (m_bgGroup->GetBgRaid(ALLIANCE) == this)
+        if(m_bgGroup->GetBgRaid(ALLIANCE) == this)
             m_bgGroup->SetBgRaid(ALLIANCE, NULL);
-        else if (m_bgGroup->GetBgRaid(HORDE) == this)
+        else if(m_bgGroup->GetBgRaid(HORDE) == this)
             m_bgGroup->SetBgRaid(HORDE, NULL);
         else
             sLog.outError("Group::~Group: battleground group is not linked to the correct battleground.");
@@ -110,8 +110,8 @@ Group::~Group()
     // it is undefined whether objectmgr (which stores the groups) or instancesavemgr
     // will be unloaded first so we must be prepared for both cases
     // this may unload some dungeon persistent state
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
-        for (BoundInstancesMap::iterator itr2 = m_boundInstances[i].begin(); itr2 != m_boundInstances[i].end(); ++itr2)
+    for(uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+        for(BoundInstancesMap::iterator itr2 = m_boundInstances[i].begin(); itr2 != m_boundInstances[i].end(); ++itr2)
             itr2->second.state->RemoveGroup(this);
 
     // Sub group counters clean up
@@ -143,7 +143,7 @@ bool Group::Create(ObjectGuid guid, const char * name)
         m_Guid = ObjectGuid(HIGHGUID_GROUP,sObjectMgr.GenerateGroupLowGuid());
 
         Player *leader = sObjectMgr.GetPlayer(guid);
-        if (leader)
+        if(leader)
         {
             m_dungeonDifficulty = leader->GetDungeonDifficulty();
             m_raidDifficulty = leader->GetRaidDifficulty();
@@ -208,7 +208,7 @@ bool Group::LoadGroupFromDB(Field* fields)
     m_looterGuid = ObjectGuid(HIGHGUID_PLAYER, fields[1].GetUInt32());
     m_lootThreshold = ItemQualities(fields[2].GetUInt16());
 
-    for (int i = 0; i < TARGET_ICON_COUNT; ++i)
+    for(int i = 0; i < TARGET_ICON_COUNT; ++i)
         m_targetIcons[i] = ObjectGuid(fields[3+i].GetUInt64());
 
     return true;
@@ -245,24 +245,24 @@ void Group::ConvertToRaid()
 
     _initRaidSubGroupsCounter();
 
-    if (!isBGGroup())
+    if(!isBGGroup())
         CharacterDatabase.PExecute("UPDATE groups SET groupType = %u WHERE groupId='%u'", uint8(m_groupType), m_Guid.GetCounter());
     SendUpdate();
 
     // update quest related GO states (quest activity dependent from raid membership)
-    for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
-        if (Player* player = sObjectMgr.GetPlayer(citr->guid))
+    for(member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
+        if(Player* player = sObjectMgr.GetPlayer(citr->guid))
             player->UpdateForQuestWorldObjects();
 }
 
 bool Group::AddInvite(Player *player)
 {
-    if ( !player || player->GetGroupInvite() )
+    if( !player || player->GetGroupInvite() )
         return false;
     Group* group = player->GetGroup();
-    if ( group && group->isBGGroup() )
+    if( group && group->isBGGroup() )
         group = player->GetOriginalGroup();
-    if ( group )
+    if( group )
         return false;
 
     RemoveInvite(player);
@@ -276,7 +276,7 @@ bool Group::AddInvite(Player *player)
 
 bool Group::AddLeaderInvite(Player *player)
 {
-    if (!AddInvite(player))
+    if(!AddInvite(player))
         return false;
 
     m_leaderGuid = player->GetObjectGuid();
@@ -294,7 +294,7 @@ uint32 Group::RemoveInvite(Player *player)
 
 void Group::RemoveAllInvites()
 {
-    for (InvitesList::iterator itr = m_invitees.begin(); itr!=m_invitees.end(); ++itr)
+    for(InvitesList::iterator itr = m_invitees.begin(); itr!=m_invitees.end(); ++itr)
         (*itr)->SetGroupInvite(NULL);
 
     m_invitees.clear();
@@ -302,7 +302,7 @@ void Group::RemoveAllInvites()
 
 Player* Group::GetInvited(ObjectGuid guid) const
 {
-    for (InvitesList::const_iterator itr = m_invitees.begin(); itr != m_invitees.end(); ++itr)
+    for(InvitesList::const_iterator itr = m_invitees.begin(); itr != m_invitees.end(); ++itr)
         if ((*itr)->GetObjectGuid() == guid)
             return (*itr);
 
@@ -311,9 +311,9 @@ Player* Group::GetInvited(ObjectGuid guid) const
 
 Player* Group::GetInvited(const std::string& name) const
 {
-    for (InvitesList::const_iterator itr = m_invitees.begin(); itr != m_invitees.end(); ++itr)
+    for(InvitesList::const_iterator itr = m_invitees.begin(); itr != m_invitees.end(); ++itr)
     {
-        if ((*itr)->GetName() == name)
+        if((*itr)->GetName() == name)
             return (*itr);
     }
     return NULL;
@@ -356,7 +356,7 @@ bool Group::AddMember(ObjectGuid guid, const char* name)
         UpdatePlayerOutOfRange(player);
 
         // quest related GO state dependent from raid membership
-        if (isRaidGroup())
+        if(isRaidGroup())
             player->UpdateForQuestWorldObjects();
 
     }
@@ -452,44 +452,44 @@ void Group::Disband(bool hideDestroy)
 {
     Player *player;
 
-    for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
+    for(member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
         player = sObjectMgr.GetPlayer(citr->guid);
-        if (!player)
+        if(!player)
             continue;
 
         //we cannot call _removeMember because it would invalidate member iterator
         //if we are removing player from battleground raid
-        if ( isBGGroup() )
+        if( isBGGroup() )
             player->RemoveFromBattleGroundRaid();
         else
         {
             //we can remove player who is in battleground from his original group
-            if ( player->GetOriginalGroup() == this )
+            if( player->GetOriginalGroup() == this )
                 player->SetOriginalGroup(NULL);
             else
                 player->SetGroup(NULL);
         }
 
         // quest related GO state dependent from raid membership
-        if (isRaidGroup())
+        if(isRaidGroup())
             player->UpdateForQuestWorldObjects();
 
-        if (!player->GetSession())
+        if(!player->GetSession())
             continue;
 
         if (isLFDGroup())
             sLFGMgr.RemoveMemberFromLFDGroup(this, player->GetObjectGuid());
 
         WorldPacket data;
-        if (!hideDestroy)
+        if(!hideDestroy)
         {
             data.Initialize(SMSG_GROUP_DESTROYED, 0);
             player->GetSession()->SendPacket(&data);
         }
 
         //we already removed player from group and in player->GetGroup() is his original group, send update
-        if (Group* group = player->GetGroup())
+        if( Group* group = player->GetGroup() )
         {
             group->SendUpdate();
         }
@@ -508,7 +508,7 @@ void Group::Disband(bool hideDestroy)
 
     RemoveAllInvites();
 
-    if (!isBGGroup())
+    if(!isBGGroup())
     {
         CharacterDatabase.BeginTransaction();
         CharacterDatabase.PExecute("DELETE FROM groups WHERE groupId='%u'", m_Guid.GetCounter());
@@ -544,10 +544,10 @@ void Group::SendLootStartRoll(uint32 CountDown, uint32 mapid, const Roll &r)
     for (Roll::PlayerVote::const_iterator itr = r.playerVote.begin(); itr != r.playerVote.end(); ++itr)
     {
         Player *p = sObjectMgr.GetPlayer(itr->first);
-        if (!p || !p->GetSession())
+        if(!p || !p->GetSession())
             continue;
 
-        if (itr->second == ROLL_NOT_VALID)
+        if(itr->second == ROLL_NOT_VALID)
             continue;
 
         // dependent from player
@@ -571,13 +571,13 @@ void Group::SendLootRoll(ObjectGuid const& targetGuid, uint8 rollNumber, uint8 r
     data << uint8(rollType);                                // 0: "Need for: [item name]" 0: "You have selected need for [item name] 1: need roll 2: greed roll
     data << uint8(0);                                       // auto pass on loot
 
-    for ( Roll::PlayerVote::const_iterator itr = r.playerVote.begin(); itr != r.playerVote.end(); ++itr)
+    for( Roll::PlayerVote::const_iterator itr = r.playerVote.begin(); itr != r.playerVote.end(); ++itr)
     {
         Player *p = sObjectMgr.GetPlayer(itr->first);
-        if (!p || !p->GetSession())
+        if(!p || !p->GetSession())
             continue;
 
-        if (itr->second != ROLL_NOT_VALID)
+        if(itr->second != ROLL_NOT_VALID)
             p->GetSession()->SendPacket( &data );
     }
 }
@@ -594,13 +594,13 @@ void Group::SendLootRollWon(ObjectGuid const& targetGuid, uint8 rollNumber, Roll
     data << uint8(rollNumber);                              // rollnumber related to SMSG_LOOT_ROLL
     data << uint8(rollType);                                // Rolltype related to SMSG_LOOT_ROLL
 
-    for (Roll::PlayerVote::const_iterator itr = r.playerVote.begin(); itr != r.playerVote.end(); ++itr)
+    for( Roll::PlayerVote::const_iterator itr = r.playerVote.begin(); itr != r.playerVote.end(); ++itr)
     {
         Player *p = sObjectMgr.GetPlayer(itr->first);
-        if (!p || !p->GetSession())
+        if(!p || !p->GetSession())
             continue;
 
-        if (itr->second != ROLL_NOT_VALID)
+        if(itr->second != ROLL_NOT_VALID)
             p->GetSession()->SendPacket( &data );
     }
 }
@@ -614,13 +614,13 @@ void Group::SendLootAllPassed(Roll const& r)
     data << uint32(r.itemRandomPropId);                     // Item random property ID
     data << uint32(r.itemRandomSuffix);                     // Item random suffix ID
 
-    for (Roll::PlayerVote::const_iterator itr=r.playerVote.begin(); itr!=r.playerVote.end(); ++itr)
+    for( Roll::PlayerVote::const_iterator itr=r.playerVote.begin(); itr!=r.playerVote.end(); ++itr)
     {
         Player *p = sObjectMgr.GetPlayer(itr->first);
-        if (!p || !p->GetSession())
+        if(!p || !p->GetSession())
             continue;
 
-        if (itr->second != ROLL_NOT_VALID)
+        if(itr->second != ROLL_NOT_VALID)
             p->GetSession()->SendPacket( &data );
     }
 }
@@ -629,7 +629,7 @@ void Group::GroupLoot(WorldObject* object, Loot *loot)
 {
     uint32 maxEnchantingSkill = GetMaxSkillValueForGroup(SKILL_ENCHANTING);
 
-    for (uint8 itemSlot = 0; itemSlot < loot->items.size(); ++itemSlot)
+    for(uint8 itemSlot = 0; itemSlot < loot->items.size(); ++itemSlot)
     {
         LootItem& lootItem = loot->items[itemSlot];
         ItemPrototype const *itemProto = ObjectMgr::GetItemPrototype(lootItem.itemid);
@@ -651,7 +651,7 @@ void Group::NeedBeforeGreed(WorldObject* object, Loot *loot)
 {
     uint32 maxEnchantingSkill = GetMaxSkillValueForGroup(SKILL_ENCHANTING);
 
-    for (uint8 itemSlot = 0; itemSlot < loot->items.size(); ++itemSlot)
+    for(uint8 itemSlot = 0; itemSlot < loot->items.size(); ++itemSlot)
     {
         LootItem& lootItem = loot->items[itemSlot];
         ItemPrototype const *itemProto = ObjectMgr::GetItemPrototype(lootItem.itemid);
@@ -685,7 +685,7 @@ void Group::MasterLoot(WorldObject* object, Loot* loot)
     WorldPacket data(SMSG_LOOT_MASTER_LIST, 330);
     data << uint8(GetMembersCount());
 
-    for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
+    for(GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player *looter = itr->getSource();
         if (!looter->IsInWorld())
@@ -700,7 +700,7 @@ void Group::MasterLoot(WorldObject* object, Loot* loot)
 
     data.put<uint8>(0, real_count);
 
-    for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
+    for(GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player *looter = itr->getSource();
         if (looter->IsWithinDist(object, sWorld.getConfig(CONFIG_FLOAT_GROUP_XP_DISTANCE), false))
@@ -793,10 +793,10 @@ void Group::StartLootRool(WorldObject* lootTarget, LootMethod method, Loot* loot
     Roll* r = new Roll(lootTarget->GetObjectGuid(), method, lootItem);
 
     //a vector is filled with only near party members
-    for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
+    for(GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player *playerToRoll = itr->getSource();
-        if (!playerToRoll || !playerToRoll->GetSession())
+        if(!playerToRoll || !playerToRoll->GetSession())
             continue;
 
         if (lootItem.AllowedForPlayer(playerToRoll))
@@ -845,7 +845,7 @@ void Group::EndRoll()
 void Group::CountTheRoll(Rolls::iterator& rollI)
 {
     Roll* roll = *rollI;
-    if (!roll->isValid())                                    // is loot already deleted ?
+    if(!roll->isValid())                                    // is loot already deleted ?
     {
         rollI = RollId.erase(rollI);
         delete roll;
@@ -855,13 +855,13 @@ void Group::CountTheRoll(Rolls::iterator& rollI)
     //end of the roll
     if (roll->totalNeed > 0)
     {
-        if (!roll->playerVote.empty())
+        if(!roll->playerVote.empty())
         {
             uint8 maxresul = 0;
             ObjectGuid maxguid  = (*roll->playerVote.begin()).first;
             Player *player;
 
-            for (Roll::PlayerVote::const_iterator itr = roll->playerVote.begin(); itr != roll->playerVote.end(); ++itr)
+            for(Roll::PlayerVote::const_iterator itr = roll->playerVote.begin(); itr != roll->playerVote.end(); ++itr)
             {
                 if (itr->second != ROLL_NEED)
                     continue;
@@ -877,7 +877,7 @@ void Group::CountTheRoll(Rolls::iterator& rollI)
             SendLootRollWon(maxguid, maxresul, ROLL_NEED, *roll);
             player = sObjectMgr.GetPlayer(maxguid);
 
-            if (player && player->GetSession())
+            if(player && player->GetSession())
             {
                 player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT, roll->itemid, maxresul);
 
@@ -905,7 +905,7 @@ void Group::CountTheRoll(Rolls::iterator& rollI)
     }
     else if (roll->totalGreed > 0)
     {
-        if (!roll->playerVote.empty())
+        if(!roll->playerVote.empty())
         {
             uint8 maxresul = 0;
             ObjectGuid maxguid = (*roll->playerVote.begin()).first;
@@ -930,13 +930,13 @@ void Group::CountTheRoll(Rolls::iterator& rollI)
             SendLootRollWon(maxguid, maxresul, rollvote, *roll);
             player = sObjectMgr.GetPlayer(maxguid);
 
-            if (player && player->GetSession())
+            if(player && player->GetSession())
             {
                 player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED_ON_LOOT, roll->itemid, maxresul);
 
                 LootItem *item = &(roll->getLoot()->items[roll->itemSlot]);
 
-                if (rollvote == ROLL_GREED)
+                if(rollvote == ROLL_GREED)
                 {
                     ItemPosCountVec dest;
                     InventoryResult msg = player->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, roll->itemid, item->count );
@@ -957,7 +957,7 @@ void Group::CountTheRoll(Rolls::iterator& rollI)
                         player->SendEquipError( msg, NULL, NULL, roll->itemid );
                     }
                 }
-                else if (rollvote == ROLL_DISENCHANT)
+                else if(rollvote == ROLL_DISENCHANT)
                 {
                     item->is_looted = true;
                     roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
@@ -973,7 +973,7 @@ void Group::CountTheRoll(Rolls::iterator& rollI)
     {
         SendLootAllPassed(*roll);
         LootItem *item = &(roll->getLoot()->items[roll->itemSlot]);
-        if (item) item->is_blocked = false;
+        if(item) item->is_blocked = false;
     }
     rollI = RollId.erase(rollI);
     delete roll;
@@ -986,7 +986,7 @@ void Group::SetTargetIcon(uint8 id, ObjectGuid whoGuid, ObjectGuid targetGuid)
 
     // clean other icons
     if (targetGuid)
-        for (int i = 0; i < TARGET_ICON_COUNT; ++i)
+        for(int i = 0; i < TARGET_ICON_COUNT; ++i)
             if (m_targetIcons[i] == targetGuid)
                 SetTargetIcon(i, ObjectGuid(), ObjectGuid());
 
@@ -1003,18 +1003,18 @@ void Group::SetTargetIcon(uint8 id, ObjectGuid whoGuid, ObjectGuid targetGuid)
 static void GetDataForXPAtKill_helper(Player* player, Unit const* victim, uint32& sum_level, Player* & member_with_max_level, Player* & not_gray_member_with_max_level)
 {
     sum_level += player->getLevel();
-    if (!member_with_max_level || member_with_max_level->getLevel() < player->getLevel())
+    if(!member_with_max_level || member_with_max_level->getLevel() < player->getLevel())
         member_with_max_level = player;
 
     uint32 gray_level = MaNGOS::XP::GetGrayLevel(player->getLevel());
-    if ( victim->getLevel() > gray_level && (!not_gray_member_with_max_level
+    if( victim->getLevel() > gray_level && (!not_gray_member_with_max_level
         || not_gray_member_with_max_level->getLevel() < player->getLevel()))
         not_gray_member_with_max_level = player;
 }
 
 void Group::GetDataForXPAtKill(Unit const* victim, uint32& count,uint32& sum_level, Player* & member_with_max_level, Player* & not_gray_member_with_max_level, Player* additional)
 {
-    for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
+    for(GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player* member = itr->getSource();
         if (!member || !member->isAlive())                  // only for alive
@@ -1043,13 +1043,13 @@ void Group::GetDataForXPAtKill(Unit const* victim, uint32& count,uint32& sum_lev
 
 void Group::SendTargetIconList(WorldSession *session)
 {
-    if (!session)
+    if(!session)
         return;
 
     WorldPacket data(MSG_RAID_TARGET_UPDATE, (1+TARGET_ICON_COUNT*9));
     data << uint8(1);                                       // list targets
 
-    for (int i = 0; i < TARGET_ICON_COUNT; ++i)
+    for(int i = 0; i < TARGET_ICON_COUNT; ++i)
     {
         if (!m_targetIcons[i])
             continue;
@@ -1063,10 +1063,10 @@ void Group::SendTargetIconList(WorldSession *session)
 
 void Group::SendUpdate()
 {
-    for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
+    for(member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
         Player* player = sObjectMgr.GetPlayer(citr->guid);
-        if (!player || !player->GetSession() || player->GetGroup() != this )
+        if(!player || !player->GetSession() || player->GetGroup() != this )
             continue;
                                                             // guess size
         WorldPacket data(SMSG_GROUP_LIST, (1+1+1+1+8+4+GetMembersCount()*20));
@@ -1074,7 +1074,7 @@ void Group::SendUpdate()
         data << uint8(citr->group);                         // groupid
         data << uint8(citr->flags);                         // group flags
         data << uint8(citr->roles);                         // roles mask
-        if (isLFGGroup())
+        if(isLFGGroup())
         {
             uint32 dungeonID = GetLFGState()->GetDungeon() ? GetLFGState()->GetDungeon()->ID : 0;
             data << uint8(GetLFGState()->GetState() == LFG_STATE_FINISHED_DUNGEON ? 2 : 0);
@@ -1083,9 +1083,9 @@ void Group::SendUpdate()
         data << GetObjectGuid();                            // group guid
         data << uint32(0);                                  // 3.3, this value increments every time SMSG_GROUP_LIST is sent
         data << uint32(GetMembersCount()-1);
-        for (member_citerator citr2 = m_memberSlots.begin(); citr2 != m_memberSlots.end(); ++citr2)
+        for(member_citerator citr2 = m_memberSlots.begin(); citr2 != m_memberSlots.end(); ++citr2)
         {
-            if (citr->guid == citr2->guid)
+            if(citr->guid == citr2->guid)
                 continue;
             Player* member = sObjectMgr.GetPlayer(citr2->guid);
             uint8 onlineState = (member) ? MEMBER_STATUS_ONLINE : MEMBER_STATUS_OFFLINE;
@@ -1100,7 +1100,7 @@ void Group::SendUpdate()
         }
 
         data << m_leaderGuid;                               // leader guid
-        if (GetMembersCount()-1)
+        if(GetMembersCount()-1)
         {
             data << uint8(m_lootMethod);                    // loot method
             data << m_looterGuid;                           // looter guid
@@ -1115,7 +1115,7 @@ void Group::SendUpdate()
 
 void Group::UpdatePlayerOutOfRange(Player* pPlayer)
 {
-    if (!pPlayer || !pPlayer->IsInWorld())
+    if(!pPlayer || !pPlayer->IsInWorld())
         return;
 
     if (pPlayer->GetGroupUpdateFlag() == GROUP_UPDATE_FLAG_NONE)
@@ -1124,7 +1124,7 @@ void Group::UpdatePlayerOutOfRange(Player* pPlayer)
     WorldPacket data;
     pPlayer->GetSession()->BuildPartyMemberStatsChangedPacket(pPlayer, &data);
 
-    for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
+    for(GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
         if (Player *player = itr->getSource())
             if (player != pPlayer && !player->HaveAtClient(pPlayer))
                 player->GetSession()->SendPacket(&data);
@@ -1132,7 +1132,7 @@ void Group::UpdatePlayerOutOfRange(Player* pPlayer)
 
 void Group::BroadcastPacket(WorldPacket *packet, bool ignorePlayersInBGRaid, int group, ObjectGuid ignore)
 {
-    for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
+    for(GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player *pl = itr->getSource();
         if (!pl || (ignore && pl->GetObjectGuid() == ignore) || (ignorePlayersInBGRaid && pl->GetGroup() != this) )
@@ -1145,7 +1145,7 @@ void Group::BroadcastPacket(WorldPacket *packet, bool ignorePlayersInBGRaid, int
 
 void Group::BroadcastReadyCheck(WorldPacket *packet)
 {
-    for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
+    for(GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player *pl = itr->getSource();
         if (pl && pl->GetSession())
@@ -1156,7 +1156,7 @@ void Group::BroadcastReadyCheck(WorldPacket *packet)
 
 void Group::OfflineReadyCheck()
 {
-    for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
+    for(member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
         Player *pl = sObjectMgr.GetPlayer(citr->guid);
         if (!pl || !pl->GetSession())
@@ -1200,7 +1200,7 @@ bool Group::_addMember(ObjectGuid guid, const char* name)
 
 bool Group::_addMember(ObjectGuid guid, const char* name, uint8 group, GroupFlagMask flags, uint8 roles)
 {
-    if (IsFull())
+    if(IsFull())
         return false;
 
     if (!guid)
@@ -1239,7 +1239,7 @@ bool Group::_addMember(ObjectGuid guid, const char* name, uint8 group, GroupFlag
 
     if (!isRaidGroup())                                     // reset targetIcons for non-raid-groups
     {
-        for (int i = 0; i < TARGET_ICON_COUNT; ++i)
+        for(int i = 0; i < TARGET_ICON_COUNT; ++i)
             m_targetIcons[i].Clear();
     }
 
@@ -1323,11 +1323,11 @@ void Group::_setLeader(ObjectGuid guid)
 
         if (player)
         {
-            for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+            for(uint8 i = 0; i < MAX_DIFFICULTY; ++i)
             {
-                for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end();)
+                for(BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end();)
                 {
-                    if (itr->second.perm)
+                    if(itr->second.perm)
                     {
                         itr->second.state->RemoveGroup(this);
                         m_boundInstances[i].erase(itr++);
@@ -1362,7 +1362,7 @@ void Group::_removeRolls(ObjectGuid guid)
     {
         Roll* roll = *it;
         Roll::PlayerVote::iterator itr2 = roll->playerVote.find(guid);
-        if (itr2 == roll->playerVote.end())
+        if(itr2 == roll->playerVote.end())
         {
             ++it;
             continue;
@@ -1470,9 +1470,8 @@ void Group::SetGroupUniqueFlag(ObjectGuid guid, GroupFlagsAssignment assignment,
 
 bool Group::SameSubGroup(Player const* member1, Player const* member2) const
 {
-    if (!member1 || !member2)
+    if(!member1 || !member2)
         return false;
-		
     if (member1->GetGroup() != this || member2->GetGroup() != this)
         return false;
     else
@@ -1534,7 +1533,7 @@ uint32 Group::GetMaxSkillValueForGroup( SkillType skill )
 {
     uint32 maxvalue = 0;
 
-    for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
+    for(GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player *member = itr->getSource();
         if (!member)
@@ -1577,7 +1576,7 @@ void Group::UpdateLooterGuid( WorldObject* object, bool ifneed )
     // search next after current
     if (guid_itr != m_memberSlots.end())
     {
-        for (member_citerator itr = guid_itr; itr != m_memberSlots.end(); ++itr)
+        for(member_citerator itr = guid_itr; itr != m_memberSlots.end(); ++itr)
         {
             if (Player* pl = ObjectAccessor::FindPlayer(itr->guid))
             {
@@ -1585,11 +1584,11 @@ void Group::UpdateLooterGuid( WorldObject* object, bool ifneed )
                 {
                     bool refresh = pl->GetLootGuid() == object->GetObjectGuid();
 
-                    //if (refresh)                           // update loot for new looter
+                    //if(refresh)                           // update loot for new looter
                     //    pl->GetSession()->DoLootRelease(pl->GetLootGUID());
                     SetLooterGuid(pl->GetObjectGuid());
                     SendUpdate();
-                    if (refresh)                             // update loot for new looter
+                    if(refresh)                             // update loot for new looter
                         pl->SendLoot(object->GetObjectGuid(), LOOT_CORPSE);
                     return;
                 }
@@ -1598,7 +1597,7 @@ void Group::UpdateLooterGuid( WorldObject* object, bool ifneed )
     }
 
     // search from start
-    for (member_citerator itr = m_memberSlots.begin(); itr != guid_itr; ++itr)
+    for(member_citerator itr = m_memberSlots.begin(); itr != guid_itr; ++itr)
     {
         if (Player* pl = ObjectAccessor::FindPlayer(itr->guid))
         {
@@ -1606,11 +1605,11 @@ void Group::UpdateLooterGuid( WorldObject* object, bool ifneed )
             {
                 bool refresh = pl->GetLootGuid() == object->GetObjectGuid();
 
-                //if (refresh)                               // update loot for new looter
+                //if(refresh)                               // update loot for new looter
                 //    pl->GetSession()->DoLootRelease(pl->GetLootGUID());
                 SetLooterGuid(pl->GetObjectGuid());
                 SendUpdate();
-                if (refresh)                                 // update loot for new looter
+                if(refresh)                                 // update loot for new looter
                     pl->SendLoot(object->GetObjectGuid(), LOOT_CORPSE);
                 return;
             }
@@ -1624,27 +1623,27 @@ void Group::UpdateLooterGuid( WorldObject* object, bool ifneed )
 GroupJoinBattlegroundResult Group::CanJoinBattleGroundQueue(BattleGround const* bgOrTemplate, BattleGroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 MaxPlayerCount, bool isRated, uint32 arenaSlot)
 {
     BattlemasterListEntry const* bgEntry = sBattlemasterListStore.LookupEntry(bgOrTemplate->GetTypeID());
-    if (!bgEntry)
+    if(!bgEntry)
         return ERR_GROUP_JOIN_BATTLEGROUND_FAIL;            // shouldn't happen
 
     // check for min / max count
     uint32 memberscount = GetMembersCount();
 
     // only check for MinPlayerCount since MinPlayerCount == MaxPlayerCount for arenas...
-    if (bgOrTemplate->isArena() && memberscount != MinPlayerCount)
+    if(bgOrTemplate->isArena() && memberscount != MinPlayerCount)
         return ERR_ARENA_TEAM_PARTY_SIZE;
 
-    if (memberscount > bgEntry->maxGroupSize)                // no MinPlayerCount for battlegrounds
+    if(memberscount > bgEntry->maxGroupSize)                // no MinPlayerCount for battlegrounds
         return ERR_BATTLEGROUND_NONE;                       // ERR_GROUP_JOIN_BATTLEGROUND_TOO_MANY handled on client side
 
     // get a player as reference, to compare other players' stats to (arena team id, queue id based on level, etc.)
     Player * reference = GetFirstMember()->getSource();
     // no reference found, can't join this way
-    if (!reference)
+    if(!reference)
         return ERR_BATTLEGROUND_JOIN_FAILED;
 
     PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bgOrTemplate->GetMapId(), reference->getLevel());
-    if (!bracketEntry)
+    if(!bracketEntry)
         return ERR_BATTLEGROUND_JOIN_FAILED;
 
     uint32 arenaTeamId = reference->GetArenaTeamId(arenaSlot);
@@ -1655,43 +1654,43 @@ GroupJoinBattlegroundResult Group::CanJoinBattleGroundQueue(BattleGround const* 
     BattleGroundQueueTypeId bgQueueTypeIdRandom = BattleGroundMgr::BGQueueTypeId(BATTLEGROUND_RB, ARENA_TYPE_NONE);
 
     // check every member of the group to be able to join
-    for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
+    for(GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player *member = itr->getSource();
         // offline member? don't let join
-        if (!member)
+        if(!member)
             return ERR_BATTLEGROUND_JOIN_FAILED;
         // don't allow cross-faction join as group
-        if (member->GetTeam() != team)
+        if(member->GetTeam() != team)
             return ERR_BATTLEGROUND_JOIN_TIMED_OUT;
         // not in the same battleground level bracket, don't let join
         PvPDifficultyEntry const* memberBracketEntry = GetBattlegroundBracketByLevel(bracketEntry->mapId, member->getLevel());
-        if (memberBracketEntry != bracketEntry)
+        if(memberBracketEntry != bracketEntry)
             return ERR_BATTLEGROUND_JOIN_RANGE_INDEX;
         // don't let join rated matches if the arena team id doesn't match
-        if (isRated && member->GetArenaTeamId(arenaSlot) != arenaTeamId)
+        if(isRated && member->GetArenaTeamId(arenaSlot) != arenaTeamId)
             return ERR_BATTLEGROUND_JOIN_FAILED;
         // don't let join if someone from the group is already in that bg queue
-        if (member->InBattleGroundQueueForBattleGroundQueueType(bgQueueTypeId))
+        if(member->InBattleGroundQueueForBattleGroundQueueType(bgQueueTypeId))
             return ERR_BATTLEGROUND_JOIN_FAILED;            // not blizz-like
         // don't let join if someone from the group is in bg queue random
-        if (member->InBattleGroundQueueForBattleGroundQueueType(bgQueueTypeIdRandom))
+        if(member->InBattleGroundQueueForBattleGroundQueueType(bgQueueTypeIdRandom))
             return ERR_IN_RANDOM_BG;
         // don't let join to bg queue random if someone from the group is already in bg queue
-        if (bgOrTemplate->GetTypeID() == BATTLEGROUND_RB && member->InBattleGroundQueue())
+        if(bgOrTemplate->GetTypeID() == BATTLEGROUND_RB && member->InBattleGroundQueue())
             return ERR_IN_NON_RANDOM_BG;
         // check for deserter debuff in case not arena queue
-        if (bgOrTemplate->GetTypeID() != BATTLEGROUND_AA && !member->CanJoinToBattleground())
+        if(bgOrTemplate->GetTypeID() != BATTLEGROUND_AA && !member->CanJoinToBattleground())
             return ERR_GROUP_JOIN_BATTLEGROUND_DESERTERS;
         // check if member can join any more battleground queues
-        if (!member->HasFreeBattleGroundQueueId())
+        if(!member->HasFreeBattleGroundQueueId())
             return ERR_BATTLEGROUND_TOO_MANY_QUEUES;        // not blizz-like
 
         ++allowedPlayerCount;
     }
 
-    if (bgOrTemplate->GetTypeID() == BATTLEGROUND_AA)
-        if (allowedPlayerCount < MinPlayerCount || allowedPlayerCount > MaxPlayerCount)
+    if(bgOrTemplate->GetTypeID() == BATTLEGROUND_AA)
+        if(allowedPlayerCount < MinPlayerCount || allowedPlayerCount > MaxPlayerCount)
             return ERR_ARENA_TEAM_PARTY_SIZE;
 
     return GroupJoinBattlegroundResult(bgOrTemplate->GetTypeID());
@@ -1700,13 +1699,13 @@ GroupJoinBattlegroundResult Group::CanJoinBattleGroundQueue(BattleGround const* 
 void Group::SetDungeonDifficulty(Difficulty difficulty)
 {
     m_dungeonDifficulty = difficulty;
-    if (!isBGGroup())
+    if(!isBGGroup())
         CharacterDatabase.PExecute("UPDATE groups SET difficulty = %u WHERE groupId='%u'", m_dungeonDifficulty, m_Guid.GetCounter());
 
-    for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
+    for(GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player *player = itr->getSource();
-        if (!player->GetSession() || player->getLevel() < LEVELREQUIREMENT_HEROIC)
+        if(!player->GetSession() || player->getLevel() < LEVELREQUIREMENT_HEROIC)
             continue;
         player->SetDungeonDifficulty(difficulty);
         player->SendDungeonDifficulty(true);
@@ -1716,13 +1715,13 @@ void Group::SetDungeonDifficulty(Difficulty difficulty)
 void Group::SetRaidDifficulty(Difficulty difficulty)
 {
     m_raidDifficulty = difficulty;
-    if (!isBGGroup())
+    if(!isBGGroup())
         CharacterDatabase.PExecute("UPDATE groups SET raiddifficulty = %u WHERE groupId='%u'", m_raidDifficulty, m_Guid.GetCounter());
 
-    for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
+    for(GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player *player = itr->getSource();
-        if (!player->GetSession() || player->getLevel() < LEVELREQUIREMENT_HEROIC)
+        if(!player->GetSession() || player->getLevel() < LEVELREQUIREMENT_HEROIC)
             continue;
         player->SetRaidDifficulty(difficulty);
         player->SendRaidDifficulty(true);
@@ -1731,10 +1730,10 @@ void Group::SetRaidDifficulty(Difficulty difficulty)
 
 bool Group::InCombatToInstance(uint32 instanceId)
 {
-    for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
+    for(GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player *pPlayer = itr->getSource();
-        if (pPlayer->getAttackers().size() && pPlayer->GetInstanceId() == instanceId)
+        if(pPlayer->getAttackers().size() && pPlayer->GetInstanceId() == instanceId)
             return true;
     }
     return false;
@@ -1742,7 +1741,7 @@ bool Group::InCombatToInstance(uint32 instanceId)
 
 void Group::ResetInstances(InstanceResetMethod method, bool isRaid, Player* SendMsgTo)
 {
-    if (isBGGroup())
+    if(isBGGroup())
         return;
 
     // method can be INSTANCE_RESET_ALL, INSTANCE_RESET_CHANGE_DIFFICULTY, INSTANCE_RESET_GROUP_DISBAND
@@ -1750,7 +1749,7 @@ void Group::ResetInstances(InstanceResetMethod method, bool isRaid, Player* Send
     // we assume that when the difficulty changes, all instances that can be reset will be
     Difficulty diff = GetDifficulty(isRaid);
 
-    for (BoundInstancesMap::iterator itr = m_boundInstances[diff].begin(); itr != m_boundInstances[diff].end();)
+    for(BoundInstancesMap::iterator itr = m_boundInstances[diff].begin(); itr != m_boundInstances[diff].end();)
     {
         DungeonPersistentState *state = itr->second.state;
         const MapEntry *entry = sMapStore.LookupEntry(itr->first);
@@ -1760,7 +1759,7 @@ void Group::ResetInstances(InstanceResetMethod method, bool isRaid, Player* Send
             continue;
         }
 
-        if (method == INSTANCE_RESET_ALL)
+        if(method == INSTANCE_RESET_ALL)
         {
             // the "reset all instances" method can only reset normal maps
             if (entry->map_type == MAP_RAID || diff == DUNGEON_DIFFICULTY_HEROIC)
@@ -1895,7 +1894,7 @@ void Group::_homebindIfInstance(Player *player)
             // leaving the group in an instance, the homebind timer is started
             // unless the player is permanently saved to the instance
             InstancePlayerBind *playerBind = player->GetBoundInstance(map->GetId(), map->GetDifficulty());
-            if (!playerBind || !playerBind->perm)
+            if(!playerBind || !playerBind->perm)
                 player->m_InstanceValid = false;
         }
     }
@@ -1903,15 +1902,15 @@ void Group::_homebindIfInstance(Player *player)
 //Frozen Mod
 void Group::BroadcastGroupUpdate(void)
 {
-    for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
+    for(member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
         Player *pp = sObjectMgr.GetPlayer(citr->guid);
-        if (pp && pp->IsInWorld())
+        if(pp && pp->IsInWorld())
         {
             pp->ForceValuesUpdateAtIndex(UNIT_FIELD_BYTES_2);
             pp->ForceValuesUpdateAtIndex(UNIT_FIELD_FACTIONTEMPLATE);
             DEBUG_LOG("-- Forced group value update for '%s'", pp->GetName());
-            if (pp->GetPet())
+            if(pp->GetPet())
             {
                 GroupPetList m_groupPets = pp->GetPets();
                 if  (!m_groupPets.empty())
@@ -1925,9 +1924,9 @@ void Group::BroadcastGroupUpdate(void)
                 }
                 DEBUG_LOG("-- Forced group value update for '%s' pet '%s'", pp->GetName(), pp->GetPet()->GetName());
             }
-            for (uint32 i = 0; i < MAX_TOTEM_SLOT; ++i)
+            for(uint32 i = 0; i < MAX_TOTEM_SLOT; ++i)
             {
-                if (Unit *totem = pp->GetMap()->GetUnit(pp->GetTotemGuid(TotemSlot(i))))
+                if(Unit *totem = pp->GetMap()->GetUnit(pp->GetTotemGuid(TotemSlot(i))))
                 {
                     totem->ForceValuesUpdateAtIndex(UNIT_FIELD_BYTES_2);
                     totem->ForceValuesUpdateAtIndex(UNIT_FIELD_FACTIONTEMPLATE);
@@ -1946,7 +1945,7 @@ static void RewardGroupAtKill_helper(Player* pGroupGuy, Unit* pVictim, uint32 co
         pGroupGuy->RewardHonor(pVictim,count);
 
     // xp and reputation only in !PvP case
-    if (!PvP)
+    if(!PvP)
     {
         float rate = group_rate * float(pGroupGuy->getLevel()) / sum_level;
 
@@ -1955,22 +1954,22 @@ static void RewardGroupAtKill_helper(Player* pGroupGuy, Unit* pVictim, uint32 co
         pGroupGuy->RewardReputation(pVictim,is_dungeon ? 1.0f : rate);
 
         // XP updated only for alive group member
-        if (pGroupGuy->isAlive() && not_gray_member_with_max_level &&
+        if(pGroupGuy->isAlive() && not_gray_member_with_max_level &&
             pGroupGuy->getLevel() <= not_gray_member_with_max_level->getLevel())
         {
             uint32 itr_xp = (member_with_max_level == not_gray_member_with_max_level) ? uint32(xp*rate) : uint32((xp*rate/2)+1);
 
             pGroupGuy->GiveXP(itr_xp, pVictim);
-            if (Pet* pet = pGroupGuy->GetPet())
+            if(Pet* pet = pGroupGuy->GetPet())
                 pet->GivePetXP(itr_xp/2);
         }
 
         // quest objectives updated only for alive group member or dead but with not released body
-        if (pGroupGuy->isAlive()|| !pGroupGuy->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+        if(pGroupGuy->isAlive()|| !pGroupGuy->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         {
             // normal creature (not pet/etc) can be only in !PvP case
-            if (pVictim->GetTypeId()==TYPEID_UNIT)
-                if (CreatureInfo const* normalInfo = ObjectMgr::GetCreatureTemplate(pVictim->GetEntry()))
+            if(pVictim->GetTypeId()==TYPEID_UNIT)
+                if(CreatureInfo const* normalInfo = ObjectMgr::GetCreatureTemplate(pVictim->GetEntry()))
                     pGroupGuy->KilledMonster(normalInfo, pVictim->GetObjectGuid());
         }
     }
@@ -1997,7 +1996,7 @@ void Group::RewardGroupAtKill(Unit* pVictim, Player* player_tap)
 
     GetDataForXPAtKill(pVictim,count,sum_level,member_with_max_level,not_gray_member_with_max_level,player_tap);
 
-    if (member_with_max_level)
+    if(member_with_max_level)
     {
         /// not get Xp in PvP or no not gray players in group
         xp = (PvP || !not_gray_member_with_max_level) ? 0 : MaNGOS::XP::Gain(not_gray_member_with_max_level, pVictim);
@@ -2007,26 +2006,26 @@ void Group::RewardGroupAtKill(Unit* pVictim, Player* player_tap)
         bool is_dungeon = PvP ? false : sMapStore.LookupEntry(pVictim->GetMapId())->IsDungeon();
         float group_rate = MaNGOS::XP::xp_in_group_rate(count,is_raid);
 
-        for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
+        for(GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
         {
             Player* pGroupGuy = itr->getSource();
-            if (!pGroupGuy)
+            if(!pGroupGuy)
                 continue;
 
             // will proccessed later
-            if (pGroupGuy==player_tap)
+            if(pGroupGuy==player_tap)
                 continue;
 
-            if (!pGroupGuy->IsAtGroupRewardDistance(pVictim))
+            if(!pGroupGuy->IsAtGroupRewardDistance(pVictim))
                 continue;                               // member (alive or dead) or his corpse at req. distance
 
             RewardGroupAtKill_helper(pGroupGuy, pVictim, count, PvP, group_rate, sum_level, is_dungeon, not_gray_member_with_max_level, member_with_max_level, xp);
         }
 
-        if (player_tap)
+        if(player_tap)
         {
             // member (alive or dead) or his corpse at req. distance
-            if (player_tap->IsAtGroupRewardDistance(pVictim))
+            if(player_tap->IsAtGroupRewardDistance(pVictim))
                 RewardGroupAtKill_helper(player_tap, pVictim, count, PvP, group_rate, sum_level, is_dungeon, not_gray_member_with_max_level, member_with_max_level, xp);
         }
     }

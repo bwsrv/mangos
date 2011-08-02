@@ -31,7 +31,7 @@ int
 AggressorAI::Permissible(const Creature *creature)
 {
     // have some hostile factions, it will be selected by IsHostileTo check at MoveInLineOfSight
-    if (!creature->IsCivilian() && !creature->IsNeutralToAll())
+    if( !creature->IsCivilian() && !creature->IsNeutralToAll() )
         return PERMIT_BASE_PROACTIVE;
 
     return PERMIT_BASE_NO;
@@ -45,20 +45,20 @@ void
 AggressorAI::MoveInLineOfSight(Unit *u)
 {
     // Ignore Z for flying creatures
-    if (!m_creature->CanFly() && m_creature->GetDistanceZ(u) > CREATURE_Z_ATTACK_RANGE)
+    if( !m_creature->CanFly() && m_creature->GetDistanceZ(u) > CREATURE_Z_ATTACK_RANGE )
         return;
 
     if (m_creature->CanInitiateAttack() && u->isTargetableForAttack() &&
         m_creature->IsHostileTo(u) && u->isInAccessablePlaceFor(m_creature))
     {
         float attackRadius = m_creature->GetAttackDistance(u);
-        if (m_creature->IsWithinDistInMap(u, attackRadius) && m_creature->IsWithinLOSInMap(u))
+        if(m_creature->IsWithinDistInMap(u, attackRadius) && m_creature->IsWithinLOSInMap(u) )
         {
-            if (!m_creature->getVictim())
+            if(!m_creature->getVictim())
             {
                 AttackStart(u);
             }
-            else if (sMapStore.LookupEntry(m_creature->GetMapId())->IsDungeon())
+            else if(sMapStore.LookupEntry(m_creature->GetMapId())->IsDungeon())
             {
                 m_creature->AddThreat(u);
                 u->SetInCombatWith(m_creature);
@@ -122,7 +122,7 @@ void
 AggressorAI::UpdateAI(const uint32 /*diff*/)
 {
     // update i_victimGuid if m_creature->getVictim() !=0 and changed
-    if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+    if(!m_creature->SelectHostileTarget() || !m_creature->getVictim())
         return;
 
     i_victimGuid = m_creature->getVictim()->GetObjectGuid();
@@ -140,10 +140,10 @@ AggressorAI::IsVisible(Unit *pl) const
 void
 AggressorAI::AttackStart(Unit *u)
 {
-    if (!u)
+    if( !u )
         return;
 
-    if (m_creature->Attack(u,true))
+    if(m_creature->Attack(u,true))
     {
         i_victimGuid = u->GetObjectGuid();
 

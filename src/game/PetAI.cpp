@@ -30,7 +30,7 @@
 
 int PetAI::Permissible(const Creature *creature)
 {
-    if ( creature->IsPet())
+    if( creature->IsPet())
         return PERMIT_BASE_SPECIAL;
 
     return PERMIT_BASE_NO;
@@ -57,7 +57,7 @@ void PetAI::MoveInLineOfSight(Unit *u)
         u->isInAccessablePlaceFor(m_creature))
     {
         float attackRadius = m_creature->GetAttackDistance(u);
-        if (m_creature->IsWithinDistInMap(u, attackRadius) && m_creature->GetDistanceZ(u) <= CREATURE_Z_ATTACK_RANGE)
+        if(m_creature->IsWithinDistInMap(u, attackRadius) && m_creature->GetDistanceZ(u) <= CREATURE_Z_ATTACK_RANGE)
         {
             if (!m_creature->hasUnitState(UNIT_STAT_CAN_NOT_REACT) && m_creature->IsWithinLOSInMap(u))
             {
@@ -70,13 +70,13 @@ void PetAI::MoveInLineOfSight(Unit *u)
 
 void PetAI::AttackStart(Unit *u)
 {
-    if (!u || (m_creature->IsPet() && ((Pet*)m_creature)->getPetType() == MINI_PET))
+    if(!u || (m_creature->IsPet() && ((Pet*)m_creature)->getPetType() == MINI_PET))
         return;
 
     if (!u->isVisibleForOrDetect(m_creature,m_creature,true))
         return;
 
-    if (m_creature->Attack(u,true))
+    if(m_creature->Attack(u,true))
     {
         // TMGs call CreatureRelocation which via MoveInLineOfSight can call this function
         // thus with the following clear the original TMG gets invalidated and crash, doh
@@ -99,10 +99,10 @@ bool PetAI::IsVisible(Unit *pl) const
 bool PetAI::_needToStop() const
 {
     // This is needed for charmed creatures, as once their target was reset other effects can trigger threat
-    if (m_creature->isCharmed() && m_creature->getVictim() == m_creature->GetCharmer())
+    if(m_creature->isCharmed() && m_creature->getVictim() == m_creature->GetCharmer())
         return true;
 
-    if (m_creature->getVictim() == m_creature->GetCharmerOrOwner())
+    if(m_creature->getVictim() == m_creature->GetCharmerOrOwner())
         return true;
 
     if (!m_creature->getVictim()->isVisibleForOrDetect(m_creature, m_creature, false))
@@ -117,7 +117,7 @@ void PetAI::_stopAttack()
 
     Unit* owner = m_creature->GetCharmerOrOwner();
 
-    if (owner && m_creature->GetCharmInfo() && m_creature->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW))
+    if(owner && m_creature->GetCharmInfo() && m_creature->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW))
     {
         m_creature->GetMotionMaster()->MoveFollow(owner,PET_FOLLOW_DIST, m_creature->IsPet() ? ((Pet*)m_creature)->GetPetFollowAngle() : PET_FOLLOW_ANGLE);
     }
@@ -196,7 +196,7 @@ void PetAI::UpdateAI(const uint32 diff)
         {
             AttackStart(owner->getAttackerForHelper());
         }
-        else if (m_creature->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW))
+        else if(m_creature->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW))
         {
             if (!m_creature->hasUnitState(UNIT_STAT_FOLLOW) )
             {
@@ -345,7 +345,7 @@ void PetAI::UpdateAllies()
 void PetAI::AttackedBy(Unit *attacker)
 {
     //when attacked, fight back in case 1)no victim already AND 2)not set to passive AND 3)not set to stay, unless can it can reach attacker with melee attack anyway
-    if (!m_creature->getVictim() && m_creature->GetCharmInfo() && !m_creature->GetCharmInfo()->HasReactState(REACT_PASSIVE) &&
+    if(!m_creature->getVictim() && m_creature->GetCharmInfo() && !m_creature->GetCharmInfo()->HasReactState(REACT_PASSIVE) &&
         (!m_creature->GetCharmInfo()->HasCommandState(COMMAND_STAY) || m_creature->CanReachWithMeleeAttack(attacker)))
         AttackStart(attacker);
 }

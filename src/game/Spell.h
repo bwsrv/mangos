@@ -155,7 +155,7 @@ class SpellCastTargets
         void setTradeItemTarget(Player* caster);
         void updateTradeSlotItem()
         {
-            if (m_itemTarget && (m_targetMask & TARGET_FLAG_TRADE_ITEM))
+            if(m_itemTarget && (m_targetMask & TARGET_FLAG_TRADE_ITEM))
             {
                 m_itemTargetGUID = m_itemTarget->GetObjectGuid();
                 m_itemTargetEntry = m_itemTarget->GetEntry();
@@ -533,7 +533,7 @@ class Spell
         uint8 m_delayAtDamageCount;
         bool isDelayableNoMore()
         {
-            if (m_delayAtDamageCount >= 2)
+            if(m_delayAtDamageCount >= 2)
                 return true;
 
             m_delayAtDamageCount++;
@@ -682,19 +682,19 @@ namespace MaNGOS
 
         void Visit(PlayerMapType &m)
         {
-            if (!i_originalCaster)
+            if(!i_originalCaster)
                 return;
 
-            for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
+            for(PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
             {
                 Player * pPlayer = itr->getSource();
-                if ( !pPlayer->isAlive() || pPlayer->IsTaxiFlying())
+                if( !pPlayer->isAlive() || pPlayer->IsTaxiFlying())
                     continue;
 
-                if ( i_originalCaster->IsFriendlyTo(pPlayer) )
+                if( i_originalCaster->IsFriendlyTo(pPlayer) )
                     continue;
 
-                if ( pPlayer->IsWithinDist3d(i_spell.m_targets.m_destX, i_spell.m_targets.m_destY, i_spell.m_targets.m_destZ,i_radius))
+                if( pPlayer->IsWithinDist3d(i_spell.m_targets.m_destX, i_spell.m_targets.m_destY, i_spell.m_targets.m_destZ,i_radius))
                     i_data.push_back(pPlayer);
             }
         }
@@ -763,7 +763,7 @@ namespace MaNGOS
             if (!i_originalCaster || !i_castingObject)
                 return;
 
-            for (typename GridRefManager<T>::iterator itr = m.begin(); itr != m.end(); ++itr)
+            for(typename GridRefManager<T>::iterator itr = m.begin(); itr != m.end(); ++itr)
             {
                 // there are still more spells which can be casted on dead, but
                 // they are no AOE and don't have such a nice SPELL_ATTR flag
