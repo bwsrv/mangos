@@ -81,9 +81,9 @@ class MANGOS_DLL_SPEC ChatHandler
             FillMessageData( data, session, type, language, NULL, ObjectGuid(), message, NULL);
         }
 
-        void FillSystemMessageData( WorldPacket *data, const char* message)
+        void FillSystemMessageData( WorldPacket *data, const char* message )
         {
-            FillMessageData( data, m_session, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, ObjectGuid(), message);
+            FillMessageData( data, m_session, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, ObjectGuid(), message );
         }
 
         static char* LineFromMessage(char*& pos) { char* start = strtok(pos,"\n"); pos = NULL; return start; }
@@ -96,11 +96,11 @@ class MANGOS_DLL_SPEC ChatHandler
 
         void SendSysMessage(          int32     entry);
         void PSendSysMessage(         const char *format, ...) ATTR_PRINTF(2,3);
-        void PSendSysMessage(         int32     entry, ... );
+        void PSendSysMessage(         int32     entry, ...  );
 
         void SendGlobalSysMessage(const char *str);
         void PSendGlobalSysMessage(const char *format, ...) ATTR_PRINTF(2,3);
-        void PSendGlobalSysMessage(int32 entry, ... );
+        void PSendGlobalSysMessage(int32 entry, ...  );
 
         bool ParseCommands(const char* text);
         ChatCommand const* FindCommand(char const* text);
@@ -663,7 +663,7 @@ class MANGOS_DLL_SPEC ChatHandler
         bool ShowAccountListHelper(QueryResult* result, uint32* limit = NULL, bool title = true, bool error = true);
         void ShowAchievementListHelper(AchievementEntry const * achEntry, LocaleConstant loc, time_t const* date = NULL, Player* target = NULL);
         void ShowAchievementCriteriaListHelper(AchievementCriteriaEntry const* criEntry, AchievementEntry const * achEntry, LocaleConstant loc, Player* target = NULL);
-        void ShowFactionListHelper(FactionEntry const * factionEntry, LocaleConstant loc, FactionState const* repState = NULL, Player * target = NULL);
+        void ShowFactionListHelper(FactionEntry const * factionEntry, LocaleConstant loc, FactionState const* repState = NULL, Player * target = NULL );
         void ShowItemListHelper(uint32 itemId, int loc_idx, Player* target = NULL);
         void ShowQuestListHelper(uint32 questId, int32 loc_idx, Player* target = NULL);
         bool ShowPlayerListHelper(QueryResult* result, uint32* limit = NULL, bool title = true, bool error = true);

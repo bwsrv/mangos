@@ -287,7 +287,7 @@ float GridMap::getHeightFromFloat(float x, float y) const
         if (x > y)
         {
             // 1 triangle (h1, h2, h5 points)
-            float h1 = m_V9[(x_int )*129 + y_int];
+            float h1 = m_V9[(x_int  )*129 + y_int];
             float h2 = m_V9[(x_int+1)*129 + y_int];
             float h5 = 2 * m_V8[x_int*128 + y_int];
             a = h2-h1;
@@ -320,7 +320,7 @@ float GridMap::getHeightFromFloat(float x, float y) const
         else
         {
             // 4 triangle (h3, h4, h5 points)
-            float h3 = m_V9[(x_int )*129 + y_int+1];
+            float h3 = m_V9[(x_int  )*129 + y_int+1];
             float h4 = m_V9[(x_int+1)*129 + y_int+1];
             float h5 = 2 * m_V8[x_int*128 + y_int];
             a = h4 - h3;
@@ -482,7 +482,7 @@ float GridMap::getLiquidLevel(float x, float y)
     if (cx_int < 0 || cx_int >=m_liquid_height)
         return INVALID_HEIGHT_VALUE;
 
-    if (cy_int < 0 || cy_int >=m_liquid_width)
+    if (cy_int < 0 || cy_int >=m_liquid_width )
         return INVALID_HEIGHT_VALUE;
 
     return m_liquid_map[cx_int*m_liquid_width + cy_int];
@@ -530,7 +530,7 @@ GridMapLiquidStatus GridMap::getLiquidStatus(float x, float y, float z, uint8 Re
         return LIQUID_MAP_NO_WATER;
 
     int ly_int = y_int - m_liquid_offX;
-    if (ly_int < 0 || ly_int >=m_liquid_width)
+    if (ly_int < 0 || ly_int >=m_liquid_width )
         return LIQUID_MAP_NO_WATER;
 
     // Get water level
@@ -558,7 +558,7 @@ GridMapLiquidStatus GridMap::getLiquidStatus(float x, float y, float z, uint8 Re
     if (delta > 20)                                         // Under water
         return LIQUID_MAP_UNDER_WATER;
 
-    if (delta > 0)                                         // In water
+    if (delta > 0 )                                         // In water
         return LIQUID_MAP_IN_WATER;
 
     if (delta > -1)                                         // Walk on water
@@ -687,7 +687,7 @@ void TerrainInfo::Unload(const uint32 x, const uint32 y)
 void TerrainInfo::CleanUpGrids(const uint32 diff)
 {
     i_timer.Update(diff);
-    if (!i_timer.Passed())
+    if ( !i_timer.Passed() )
         return;
 
     for (int y = 0; y < MAX_NUMBER_OF_GRIDS; ++y)
@@ -698,7 +698,7 @@ void TerrainInfo::CleanUpGrids(const uint32 diff)
             GridMap * pMap = m_GridMaps[x][y];
 
             //delete those GridMap objects which have refcount = 0
-            if (pMap && iRef == 0)
+            if (pMap && iRef == 0 )
             {
                 m_GridMaps[x][y] = NULL;
                 //delete grid data if reference count == 0
@@ -911,7 +911,7 @@ uint16 TerrainInfo::GetAreaFlag(float x, float y, float z, bool *isOutdoors) con
     return areaflag;
 }
 
-uint8 TerrainInfo::GetTerrainType(float x, float y) const
+uint8 TerrainInfo::GetTerrainType(float x, float y ) const
 {
     if (GridMap *gmap = const_cast<TerrainInfo*>(this)->GetGrid(x, y))
         return gmap->getTerrainType(x, y);
@@ -961,7 +961,7 @@ GridMapLiquidStatus TerrainInfo::getLiquidStatus(float x, float y, float z, uint
             // Get position delta
             if (delta > 20)                   // Under water
                 return LIQUID_MAP_UNDER_WATER;
-            if (delta > 0)                   // In water
+            if (delta > 0 )                   // In water
                 return LIQUID_MAP_IN_WATER;
             if (delta > -1)                   // Walk on water
                 return LIQUID_MAP_WATER_WALK;
@@ -1039,7 +1039,7 @@ float TerrainInfo::GetWaterOrGroundLevel(float x, float y, float z, float* pGrou
     return VMAP_INVALID_HEIGHT_VALUE;
 }
 
-GridMap * TerrainInfo::GetGrid( const float x, const float y)
+GridMap * TerrainInfo::GetGrid( const float x, const float y )
 {
     // half opt method
     int gx=(int)(32-x/SIZE_OF_GRIDS);                       //grid x
@@ -1053,7 +1053,7 @@ GridMap * TerrainInfo::GetGrid( const float x, const float y)
     return pMap;
 }
 
-GridMap * TerrainInfo::LoadMapAndVMap( const uint32 x, const uint32 y)
+GridMap * TerrainInfo::LoadMapAndVMap( const uint32 x, const uint32 y )
 {
     //double checked lock pattern
     if (!m_GridMaps[x][y])
@@ -1166,7 +1166,7 @@ bool TerrainInfo::CheckPath(float srcX, float srcY, float srcZ, float& dstX, flo
     return result;
 }
 
-bool TerrainInfo::CheckPathAccurate(float srcX, float srcY, float srcZ, float& dstX, float& dstY, float& dstZ, Unit* mover) const
+bool TerrainInfo::CheckPathAccurate(float srcX, float srcY, float srcZ, float& dstX, float& dstY, float& dstZ, Unit* mover ) const
 {
 
     float tstX = dstX;
@@ -1364,8 +1364,8 @@ uint32 TerrainManager::GetZoneIdByAreaFlag(uint16 areaflag,uint32 map_id)
 {
     AreaTableEntry const *entry = GetAreaEntryByAreaFlagAndMap(areaflag,map_id);
 
-    if (entry)
-        return ( entry->zone != 0) ? entry->zone : entry->ID;
+    if ( entry )
+        return ( entry->zone != 0 ) ? entry->zone : entry->ID;
     else
         return 0;
 }
@@ -1375,5 +1375,5 @@ void TerrainManager::GetZoneAndAreaIdByAreaFlag(uint32& zoneid, uint32& areaid, 
     AreaTableEntry const *entry = GetAreaEntryByAreaFlagAndMap(areaflag,map_id);
 
     areaid = entry ? entry->ID : 0;
-    zoneid = entry ? (( entry->zone != 0) ? entry->zone : entry->ID) : 0;
+    zoneid = entry ? (( entry->zone != 0 ) ? entry->zone : entry->ID) : 0;
 }

@@ -65,7 +65,7 @@ void Corpse::RemoveFromWorld()
     Object::RemoveFromWorld();
 }
 
-bool Corpse::Create( uint32 guidlow)
+bool Corpse::Create( uint32 guidlow )
 {
     Object::_Create(ObjectGuid(HIGHGUID_CORPSE, guidlow));
     return true;
@@ -119,7 +119,7 @@ void Corpse::SaveToDB()
         << uint32(GetType()) << ", "
         << int(GetInstanceId()) << ", "
         << uint16(GetPhaseMask()) << ")";           // prevent out of range error
-    CharacterDatabase.Execute( ss.str().c_str());
+    CharacterDatabase.Execute( ss.str().c_str() );
     CharacterDatabase.CommitTransaction();
 }
 
@@ -221,8 +221,8 @@ bool Corpse::LoadFromDB(uint32 lowguid, Field *fields)
     uint8 hairstyle  = (uint8)(playerBytes >> 16);
     uint8 haircolor  = (uint8)(playerBytes >> 24);
     uint8 facialhair = (uint8)(playerBytes2);
-    SetUInt32Value( CORPSE_FIELD_BYTES_1, ((0x00) | (race << 8) | (gender << 16) | (skin << 24)));
-    SetUInt32Value( CORPSE_FIELD_BYTES_2, ((face) | (hairstyle << 8) | (haircolor << 16) | (facialhair << 24)));
+    SetUInt32Value( CORPSE_FIELD_BYTES_1, ((0x00) | (race << 8) | (gender << 16) | (skin << 24)) );
+    SetUInt32Value( CORPSE_FIELD_BYTES_2, ((face) | (hairstyle << 8) | (haircolor << 16) | (facialhair << 24)) );
 
     SetUInt32Value(CORPSE_FIELD_GUILD, guildId);
 
@@ -231,7 +231,7 @@ bool Corpse::LoadFromDB(uint32 lowguid, Field *fields)
         flags |= CORPSE_FLAG_HIDE_HELM;
     if (playerFlags & PLAYER_FLAGS_HIDE_CLOAK)
         flags |= CORPSE_FLAG_HIDE_CLOAK;
-    SetUInt32Value( CORPSE_FIELD_FLAGS, flags);
+    SetUInt32Value( CORPSE_FIELD_FLAGS, flags );
 
     // no need to mark corpse as lootable, because corpses are not saved in battle grounds
 
@@ -258,7 +258,7 @@ bool Corpse::isVisibleForInState(Player const* u, WorldObject const* viewPoint, 
     return IsInWorld() && u->IsInWorld() && IsWithinDistInMap(viewPoint, GetMap()->GetVisibilityDistance() + (inVisibleList ? World::GetVisibleObjectGreyDistance() : 0.0f), false);
 }
 
-bool Corpse::IsHostileTo( Unit const* unit) const
+bool Corpse::IsHostileTo( Unit const* unit ) const
 {
     if (Player* owner = sObjectMgr.GetPlayer(GetOwnerGuid()))
         return owner->IsHostileTo(unit);
@@ -266,7 +266,7 @@ bool Corpse::IsHostileTo( Unit const* unit) const
         return false;
 }
 
-bool Corpse::IsFriendlyTo( Unit const* unit) const
+bool Corpse::IsFriendlyTo( Unit const* unit ) const
 {
     if (Player* owner = sObjectMgr.GetPlayer(GetOwnerGuid()))
         return owner->IsFriendlyTo(unit);

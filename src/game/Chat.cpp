@@ -943,19 +943,19 @@ bool ChatHandler::HasLowerSecurityAccount(WorldSession* target, uint32 target_ac
 bool ChatHandler::hasStringAbbr(const char* name, const char* part)
 {
     // non "" command
-    if (*name)
+    if ( *name )
     {
         // "" part from non-"" command
-        if (!*part)
+        if ( !*part )
             return false;
 
         for (;;)
         {
-            if (!*part)
+            if ( !*part )
                 return true;
-            else if (!*name)
+            else if ( !*name )
                 return false;
-            else if (tolower( *name) != tolower( *part))
+            else if ( tolower( *name ) != tolower( *part ) )
                 return false;
             ++name; ++part;
         }
@@ -1047,7 +1047,7 @@ void ChatHandler::PSendSysMessage(const char *format, ...)
     SendSysMessage(str);
 }
 
-void ChatHandler::CheckIntegrity( ChatCommand *table, ChatCommand *parentCommand)
+void ChatHandler::CheckIntegrity( ChatCommand *table, ChatCommand *parentCommand )
 {
     for (uint32 i = 0; table[i].Name != NULL; ++i)
     {
@@ -1557,7 +1557,7 @@ valid examples:
         }
 
         // pipe has always to be followed by at least one char
-        if (reader.peek() == '\0')
+        if ( reader.peek() == '\0')
         {
             DEBUG_LOG("ChatHandler::isValidChatMessage pipe followed by \\0");
             return false;
@@ -2015,7 +2015,7 @@ valid examples:
                                     expectedName += " ";
                                     expectedName += suffix[i];
                                 }
-                                if (expectedName == buffer)
+                                if ( expectedName == buffer)
                                 {
                                     foundName = true;
                                     break;
@@ -2430,7 +2430,7 @@ char* ChatHandler::ExtractLiteralArg(char** args, char const* lit /*= NULL*/)
  * @param asis control save quote string wrappers
  * @return     quote-like string, or NULL if args empty or not appropriate content.
  */
-char* ChatHandler::ExtractQuotedArg( char** args, bool asis /*= false*/)
+char* ChatHandler::ExtractQuotedArg( char** args, bool asis /*= false*/ )
 {
     if (!*args || !**args)
         return NULL;
@@ -2706,7 +2706,7 @@ char* ChatHandler::ExtractLinkArg(char** args, char const* const* linkTypes /*= 
  * @param asis control save quote string wrappers
  * @return     extracted arg string, or NULL if args empty or not appropriate content.
  */
-char* ChatHandler::ExtractArg( char** args, bool asis /*= false*/)
+char* ChatHandler::ExtractArg( char** args, bool asis /*= false*/ )
 {
     if (!*args || !**args)
         return NULL;
@@ -2996,7 +2996,7 @@ ObjectGuid ChatHandler::ExtractGuidFromLink(char** text)
             if (!ExtractUInt32(&idS, lowguid))
                 return ObjectGuid();
 
-            if (GameObjectData const* data = sObjectMgr.GetGOData(lowguid))
+            if (GameObjectData const* data = sObjectMgr.GetGOData(lowguid) )
                 return ObjectGuid(HIGHGUID_GAMEOBJECT, data->id, lowguid);
             else
                 return ObjectGuid();
@@ -3116,7 +3116,7 @@ bool ChatHandler::ExtractLocationFromLink(char** text, uint32& mapid, float& x, 
             if (!ExtractUInt32(&idS, lowguid))
                 return false;
 
-            if (CreatureData const* data = sObjectMgr.GetCreatureData(lowguid))
+            if (CreatureData const* data = sObjectMgr.GetCreatureData(lowguid) )
             {
                 mapid = data->mapid;
                 x = data->posX;
@@ -3133,7 +3133,7 @@ bool ChatHandler::ExtractLocationFromLink(char** text, uint32& mapid, float& x, 
             if (!ExtractUInt32(&idS, lowguid))
                 return false;
 
-            if (GameObjectData const* data = sObjectMgr.GetGOData(lowguid))
+            if (GameObjectData const* data = sObjectMgr.GetGOData(lowguid) )
             {
                 mapid = data->mapid;
                 x = data->posX;

@@ -275,7 +275,7 @@ class MANGOS_DLL_SPEC Item : public Object
 {
     public:
         static Item* CreateItem(uint32 item, uint32 count, Player const* player = NULL, uint32 randomPropertyId = 0);
-        Item* CloneItem( uint32 count, Player const* player = NULL) const;
+        Item* CloneItem( uint32 count, Player const* player = NULL ) const;
 
         Item();
 

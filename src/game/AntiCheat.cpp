@@ -176,7 +176,7 @@ bool AntiCheat::_DoAntiCheatCheck(AntiCheatCheck checktype)
     // Subchecks, if exist
     if (checktype < 100 && _check->active && CheckNeeded(checktype))
     {
-        for (int i=1; i < 99; ++i)
+        for (int i=1; i < 99; ++i )
         {
             uint32 subcheck = checktype * 100 + i;
 
@@ -245,9 +245,9 @@ void AntiCheat::DoAntiCheatAction(AntiCheatCheck checkType, std::string reason)
         namechat.append(name);
         namechat.append("]|h|r ");
         sprintf(buffer," Map %u (%s), Zone %u (%s) Area |cbbdd0000|Harea:%u|h[%s]|h|r ",
-        GetPlayer()->GetMapId(), (mapEntry ? mapEntry->name[sWorld.GetDefaultDbcLocale()] : "<unknown>"),
-        zone_id, (zoneEntry ? zoneEntry->area_name[sWorld.GetDefaultDbcLocale()] : "<unknown>"),
-        area_id, (areaEntry ? areaEntry->area_name[sWorld.GetDefaultDbcLocale()] : "<unknown>"));
+        GetPlayer()->GetMapId(), (mapEntry ? mapEntry->name[sWorld.GetDefaultDbcLocale()] : "<unknown>" ),
+        zone_id, (zoneEntry ? zoneEntry->area_name[sWorld.GetDefaultDbcLocale()] : "<unknown>" ),
+        area_id, (areaEntry ? areaEntry->area_name[sWorld.GetDefaultDbcLocale()] : "<unknown>" ));
 
         if (m_currentspellID)
         {
@@ -259,7 +259,7 @@ void AntiCheat::DoAntiCheatAction(AntiCheatCheck checkType, std::string reason)
 
         namechat.append(buffer);
 
-        for (int i=0; i < ANTICHEAT_ACTIONS; ++i)
+        for (int i=0; i < ANTICHEAT_ACTIONS; ++i )
         {
             AntiCheatAction actionID = AntiCheatAction(config->actionType[i]);
 
@@ -337,7 +337,7 @@ void AntiCheat::DoAntiCheatAction(AntiCheatCheck checkType, std::string reason)
 
     if (config->actionType[0] != ANTICHEAT_ACTION_NULL)
     {
-        if (reason == "")
+        if (reason == "" )
         {
             sLog.outError("AntiCheat action log: Missing Reason parameter!");
             return;
@@ -345,7 +345,7 @@ void AntiCheat::DoAntiCheatAction(AntiCheatCheck checkType, std::string reason)
 
         const char* playerName = GetPlayer()->GetName();
 
-        if (!playerName)
+        if ( !playerName )
         {
            sLog.outError("AntiCheat action log: Player with no name?");
            return;
@@ -383,7 +383,7 @@ bool AntiCheat::CheckNeeded(AntiCheatCheck checktype)
             return false;
             break;
         case CHECK_MOVEMENT:
-            if (  GetPlayer()->GetTransport()
+            if (   GetPlayer()->GetTransport()
                 || GetPlayer()->HasMovementFlag(MOVEFLAG_ONTRANSPORT) 
                 || GetMover()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE
                 || GetPlayer()->IsTaxiFlying())
@@ -409,7 +409,7 @@ bool AntiCheat::CheckNeeded(AntiCheatCheck checktype)
             return false;
     }
 
-    if (checktype < 100)
+    if (checktype < 100 )
         return true;
 
     switch( checktype)
@@ -545,7 +545,7 @@ bool AntiCheat::CheckSpeed()
             mode = "MOVE_RUN";
         }
 
-    if (moveSpeed / speedRate <= m_currentConfig->checkFloatParam[0])
+    if ( moveSpeed / speedRate <= m_currentConfig->checkFloatParam[0] )
         return true;
 
     char buffer[255];
@@ -563,7 +563,7 @@ bool AntiCheat::CheckWaterWalking()
         ||  GetMover()->HasAura(60068)
         ||  GetMover()->HasAura(61081)
         ||  GetMover()->HasAuraType(SPELL_AURA_GHOST)
-       )
+        )
         return true;
 
     m_currentCheckResult.clear();
@@ -591,7 +591,7 @@ bool AntiCheat::CheckMountain()
     if (m_currentmovementInfo->HasMovementFlag(MovementFlags(MOVEFLAG_FLYING | MOVEFLAG_SWIMMING)))
         return true;
 
-    if (m_currentDeltaZ > 0)
+    if ( m_currentDeltaZ > 0 )
         return true;
 
     int  serverDelta = WorldTimer::getMSTimeDiff(m_oldCheckTime[CHECK_MOVEMENT_MOUNTAIN],WorldTimer::getMSTime());
@@ -600,7 +600,7 @@ bool AntiCheat::CheckMountain()
 
     float tg_z = (m_currentDelta > 0.0f) ? (-m_currentDeltaZ / m_currentDelta) : -99999;
 
-    if (tg_z < m_currentConfig->checkFloatParam[1] || zSpeed < m_currentConfig->checkFloatParam[0])
+    if (tg_z < m_currentConfig->checkFloatParam[1] || zSpeed < m_currentConfig->checkFloatParam[0] )
         return true;
 
     char buffer[255];
@@ -884,14 +884,14 @@ bool AntiCheat::CheckMeleeDamage()
 
 bool AntiCheat::isCanFly()
 {
-    if (  GetMover()->HasAuraType(SPELL_AURA_FLY)
+    if (   GetMover()->HasAuraType(SPELL_AURA_FLY)
         || GetMover()->HasAuraType(SPELL_AURA_MOD_FLIGHT_SPEED)
         || GetMover()->HasAuraType(SPELL_AURA_MOD_FLIGHT_SPEED_MOUNTED)
         || GetMover()->HasAuraType(SPELL_AURA_MOD_FLIGHT_SPEED_NOT_STACKING)
         || GetMover()->HasAuraType(SPELL_AURA_MOD_FLIGHT_SPEED_MOUNTED_STACKING)
         || GetMover()->HasAuraType(SPELL_AURA_MOD_FLIGHT_SPEED_NOT_STACKING)
         || GetMover()->HasAuraType(SPELL_AURA_MOD_FLIGHT_SPEED_MOUNTED_NOT_STACKING)
-      )
+       )
         return true;
 
     return false;

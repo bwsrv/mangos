@@ -92,7 +92,7 @@ ObjectAccessor::FindPlayerByName(const char *name)
     HashMapHolder<Player>::ReadGuard g(HashMapHolder<Player>::GetLock());
     HashMapHolder<Player>::MapType& m = sObjectAccessor.GetPlayers();
     for (HashMapHolder<Player>::MapType::iterator iter = m.begin(); iter != m.end(); ++iter)
-        if (iter->second->IsInWorld() && ( ::strcmp(name, iter->second->GetName()) == 0))
+        if (iter->second->IsInWorld() && ( ::strcmp(name, iter->second->GetName()) == 0 ))
             return iter->second;
 
     return NULL;
@@ -147,7 +147,7 @@ ObjectAccessor::RemoveCorpse(Corpse *corpse)
 
     Guard guard(i_corpseGuard);
     Player2CorpsesMapType::iterator iter = i_player2corpse.find(corpse->GetOwnerGuid());
-    if (iter == i_player2corpse.end())
+    if ( iter == i_player2corpse.end() )
         return;
 
     // build mapid*cellid -> guid_set map

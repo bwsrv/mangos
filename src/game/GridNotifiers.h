@@ -549,7 +549,7 @@ namespace MaNGOS
             WorldObject const& GetFocusObject() const { return *i_fobj; }
             bool operator()(Player* u)
             {
-                if (u->isAlive() || u->IsTaxiFlying())
+                if ( u->isAlive() || u->IsTaxiFlying() )
                     return false;
 
                 return i_fobj->IsWithinDistInMap(u, i_range);
@@ -557,8 +557,8 @@ namespace MaNGOS
             bool operator()(Corpse* u);
             bool operator()(Creature* u)
             {
-                if (u->isAlive() || u->IsDeadByDefault() || u->IsTaxiFlying() ||
-                   ( u->GetCreatureTypeMask() & CREATURE_TYPEMASK_HUMANOID_OR_UNDEAD) == 0)
+                if ( u->isAlive() || u->IsDeadByDefault() || u->IsTaxiFlying() ||
+                   ( u->GetCreatureTypeMask() & CREATURE_TYPEMASK_HUMANOID_OR_UNDEAD) == 0 )
                     return false;
 
                 return i_fobj->IsWithinDistInMap(u, i_range);
@@ -576,7 +576,7 @@ namespace MaNGOS
             WorldObject const& GetFocusObject() const { return *i_fobj; }
             bool operator()(Player* u)
             {
-                if (u->isAlive() || u->IsTaxiFlying() || !i_fobj->IsFriendlyTo(u))
+                if ( u->isAlive() || u->IsTaxiFlying() || !i_fobj->IsFriendlyTo(u) )
                     return false;
 
                 return i_fobj->IsWithinDistInMap(u, i_range);
@@ -594,7 +594,7 @@ namespace MaNGOS
             WorldObject const& GetFocusObject() const { return *i_fobj; }
             bool operator()(Player* u)
             {
-                if (i_fobj->IsFriendlyTo(u) || u->isAlive() || u->IsTaxiFlying())
+                if ( i_fobj->IsFriendlyTo(u) || u->isAlive() || u->IsTaxiFlying() )
                     return false;
 
                 return i_fobj->IsWithinDistInMap(u, i_range);
@@ -901,8 +901,8 @@ namespace MaNGOS
             WorldObject const& GetFocusObject() const { return *i_obj; }
             bool operator()(Unit* u)
             {
-                if (u->isTargetableForAttack() && i_obj->IsWithinDistInMap(u, i_range) &&
-                    !i_funit->IsFriendlyTo(u) && u->isVisibleForOrDetect(i_funit,i_funit,false) )
+                if ( u->isTargetableForAttack() && i_obj->IsWithinDistInMap(u, i_range) &&
+                    !i_funit->IsFriendlyTo(u) && u->isVisibleForOrDetect(i_funit,i_funit,false)  )
                 {
                     i_range = i_obj->GetDistance(u);        // use found unit range as new range limit for next check
                     return true;
@@ -974,7 +974,7 @@ namespace MaNGOS
                 if (u->GetTypeId()==TYPEID_UNIT && ((Creature*)u)->IsTotem())
                     return false;
 
-                if (( i_targetForPlayer ? !i_obj->IsFriendlyTo(u) : i_obj->IsHostileTo(u))&& i_obj->IsWithinDistInMap(u, i_range))
+                if (( i_targetForPlayer ? !i_obj->IsFriendlyTo(u) : i_obj->IsHostileTo(u) )&& i_obj->IsWithinDistInMap(u, i_range))
                     return true;
 
                 return false;
@@ -1070,15 +1070,15 @@ namespace MaNGOS
                 if (u == i_funit)
                     return false;
 
-                if (!u->CanAssistTo(i_funit, i_enemy))
+                if ( !u->CanAssistTo(i_funit, i_enemy) )
                     return false;
 
                 // too far
-                if (!i_funit->IsWithinDistInMap(u, i_range))
+                if ( !i_funit->IsWithinDistInMap(u, i_range) )
                     return false;
 
                 // only if see assisted creature
-                if (!i_funit->IsWithinLOSInMap(u))
+                if ( !i_funit->IsWithinLOSInMap(u) )
                     return false;
 
                 return true;
@@ -1274,7 +1274,7 @@ namespace MaNGOS
                 for (size_t i = 0; i < i_data_cache.size(); ++i)
                     delete i_data_cache[i];
             }
-            void operator()( Player* p);
+            void operator()( Player* p );
 
         private:
             Builder& i_builder;
@@ -1295,7 +1295,7 @@ namespace MaNGOS
                     for (size_t j = 0; j < i_data_cache[i].size(); ++j)
                         delete i_data_cache[i][j];
             }
-            void operator()( Player* p);
+            void operator()( Player* p );
 
         private:
             Builder& i_builder;

@@ -212,7 +212,7 @@ bool ObjectPosSelector::NextAngle(float& angle)
  * @return true, if angle found
  *
  */
-bool ObjectPosSelector::NextSideAngle(UsedAreaSide side, float &angle)
+bool ObjectPosSelector::NextSideAngle(UsedAreaSide side, float &angle )
 {
     // next possible angle
     m_stepAngle[side] += (m_searcherHalfSize + 0.01);

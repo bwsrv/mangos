@@ -68,9 +68,9 @@ void MotionMaster::UpdateMotion(uint32 diff)
     if (m_owner->hasUnitState(UNIT_STAT_CAN_NOT_MOVE))
         return;
 
-    if (!empty())
+    if ( !empty() )
     {
-    MANGOS_ASSERT( !empty());
+    MANGOS_ASSERT( !empty() );
     m_cleanFlag |= MMCF_UPDATE;
 
     if (!top()->Update(*m_owner, diff))
@@ -107,7 +107,7 @@ void MotionMaster::UpdateMotion(uint32 diff)
 
 void MotionMaster::DirectClean(bool reset, bool all)
 {
-    while( all ? !empty() : size() > 1)
+    while( all ? !empty() : size() > 1 )
     {
         MovementGenerator *curr = top();
         pop();
@@ -115,7 +115,7 @@ void MotionMaster::DirectClean(bool reset, bool all)
         if (m_owner && m_owner->IsInWorld())
             curr->Finalize(*m_owner);
 
-        if (!isStatic( curr))
+        if (!isStatic( curr ))
             delete curr;
     }
 
@@ -123,7 +123,7 @@ void MotionMaster::DirectClean(bool reset, bool all)
     {
         if (!empty())
         {
-            MANGOS_ASSERT( !empty());
+            MANGOS_ASSERT( !empty() );
             top()->Reset(*m_owner);
         }
     }
@@ -142,7 +142,7 @@ void MotionMaster::DelayedClean(bool reset, bool all)
     if (!m_expList)
         m_expList = new ExpireList();
 
-    while( all ? !empty() : size() > 1)
+    while( all ? !empty() : size() > 1 )
     {
         MovementGenerator *curr = top();
         pop();
@@ -150,7 +150,7 @@ void MotionMaster::DelayedClean(bool reset, bool all)
         if (m_owner && m_owner->IsInWorld())
             curr->Finalize(*m_owner);
 
-        if (!isStatic( curr))
+        if (!isStatic( curr ))
             m_expList->push_back(curr);
     }
 }
@@ -210,7 +210,7 @@ void MotionMaster::DelayedExpire(bool reset)
         MovementGenerator *temp = top();
         pop();
         temp ->Finalize(*m_owner);
-        m_expList->push_back(temp);
+        m_expList->push_back(temp );
     }
 
     curr->Finalize(*m_owner);
@@ -311,7 +311,7 @@ void MotionMaster::MoveFollow(Unit* target, float dist, float angle)
 
 void MotionMaster::MovePoint(uint32 id, float x, float y, float z)
 {
-    DEBUG_FILTER_LOG(LOG_FILTER_AI_AND_MOVEGENSS, "%s targeted point (Id: %u X: %f Y: %f Z: %f)", m_owner->GetGuidStr().c_str(), id, x, y, z);
+    DEBUG_FILTER_LOG(LOG_FILTER_AI_AND_MOVEGENSS, "%s targeted point (Id: %u X: %f Y: %f Z: %f)", m_owner->GetGuidStr().c_str(), id, x, y, z );
 
     if (m_owner->GetTypeId() == TYPEID_PLAYER)
         Mutate(new PointMovementGenerator<Player>(id,x,y,z));
@@ -328,7 +328,7 @@ void MotionMaster::MoveSeekAssistance(float x, float y, float z)
     else
     {
         DEBUG_FILTER_LOG(LOG_FILTER_AI_AND_MOVEGENSS, "%s seek assistance (X: %f Y: %f Z: %f)",
-            m_owner->GetGuidStr().c_str(), x, y, z);
+            m_owner->GetGuidStr().c_str(), x, y, z );
         Mutate(new AssistanceMovementGenerator(x,y,z));
     }
 }
@@ -342,7 +342,7 @@ void MotionMaster::MoveSeekAssistanceDistract(uint32 time)
     else
     {
         DEBUG_FILTER_LOG(LOG_FILTER_AI_AND_MOVEGENSS, "%s is distracted after assistance call (Time: %u)",
-            m_owner->GetGuidStr().c_str(), time);
+            m_owner->GetGuidStr().c_str(), time );
         Mutate(new AssistanceDistractMovementGenerator(time));
     }
 }

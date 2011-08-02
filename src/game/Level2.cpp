@@ -156,7 +156,7 @@ bool ChatHandler::HandleUnmuteCommand(char* args)
     return true;
 }
 
-void ChatHandler::ShowTriggerTargetListHelper( uint32 id, AreaTrigger const* at, bool subpart /*= false*/)
+void ChatHandler::ShowTriggerTargetListHelper( uint32 id, AreaTrigger const* at, bool subpart /*= false*/ )
 {
     if (m_session)
     {
@@ -177,7 +177,7 @@ void ChatHandler::ShowTriggerTargetListHelper( uint32 id, AreaTrigger const* at,
             subpart ? " -> " : "", id, at->target_mapId, at->target_X, at->target_Y, at->target_Z);
 }
 
-void ChatHandler::ShowTriggerListHelper( AreaTriggerEntry const * atEntry)
+void ChatHandler::ShowTriggerListHelper( AreaTriggerEntry const * atEntry )
 {
 
     char const* tavern = sObjectMgr.IsTavernAreaTrigger(atEntry->id) ? GetMangosString(LANG_TRIGGER_TAVERN) : "";
@@ -1229,7 +1229,7 @@ bool ChatHandler::HandleGUIDCommand(char* /*args*/)
     return true;
 }
 
-void ChatHandler::ShowAchievementListHelper(AchievementEntry const * achEntry, LocaleConstant loc, time_t const* date /*= NULL*/, Player* target /*= NULL */)
+void ChatHandler::ShowAchievementListHelper(AchievementEntry const * achEntry, LocaleConstant loc, time_t const* date /*= NULL*/, Player* target /*= NULL */ )
 {
     std::string name = achEntry->name[loc];
 
@@ -1360,7 +1360,7 @@ bool ChatHandler::HandleCharacterAchievementsCommand(char* args)
     return true;
 }
 
-void ChatHandler::ShowFactionListHelper( FactionEntry const * factionEntry, LocaleConstant loc, FactionState const* repState /*= NULL*/, Player * target /*= NULL */)
+void ChatHandler::ShowFactionListHelper( FactionEntry const * factionEntry, LocaleConstant loc, FactionState const* repState /*= NULL*/, Player * target /*= NULL */ )
 {
     std::string name = factionEntry->name[loc];
 
@@ -2974,7 +2974,7 @@ bool ChatHandler::HandleWpAddCommand(char* args)
                 // (0.001) - There is no other way to compare C++ floats with mySQL floats
                 // See also: http://dev.mysql.com/doc/refman/5.0/en/problems-with-float.html
                 const char* maxDIFF = "0.01";
-                result = WorldDatabase.PQuery("SELECT id, point FROM creature_movement WHERE (abs(position_x - %f) <= %s) and (abs(position_y - %f) <= %s) and (abs(position_z - %f) <= %s)",
+                result = WorldDatabase.PQuery("SELECT id, point FROM creature_movement WHERE (abs(position_x - %f) <= %s ) and (abs(position_y - %f) <= %s ) and (abs(position_z - %f) <= %s )",
                     target->GetPositionX(), maxDIFF, target->GetPositionY(), maxDIFF, target->GetPositionZ(), maxDIFF);
                 if (!result)
                 {
@@ -3599,7 +3599,7 @@ bool ChatHandler::HandleWpShowCommand(char* args)
             const char* maxDIFF = "0.01";
             PSendSysMessage(LANG_WAYPOINT_NOTFOUNDSEARCH, target->GetObjectGuid().GetRawValue());
 
-            result = WorldDatabase.PQuery("SELECT id, point, waittime, emote, spell, textid1, textid2, textid3, textid4, textid5, model1, model2 FROM creature_movement WHERE (abs(position_x - %f) <= %s) and (abs(position_y - %f) <= %s) and (abs(position_z - %f) <= %s)",
+            result = WorldDatabase.PQuery("SELECT id, point, waittime, emote, spell, textid1, textid2, textid3, textid4, textid5, model1, model2 FROM creature_movement WHERE (abs(position_x - %f) <= %s ) and (abs(position_y - %f) <= %s ) and (abs(position_z - %f) <= %s )",
                 target->GetPositionX(), maxDIFF, target->GetPositionY(), maxDIFF, target->GetPositionZ(), maxDIFF);
             if (!result)
             {

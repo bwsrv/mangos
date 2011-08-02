@@ -114,7 +114,7 @@ Map* MapManager::CreateMap(uint32 id, const WorldObject* obj)
     {
         //create regular non-instanceable map
         m = FindMap(id);
-        if (m == NULL)
+        if ( m == NULL )
         {
             m = new WorldMap(id, i_gridCleanUpDelay);
             //add map into container
@@ -232,7 +232,7 @@ void
 MapManager::Update(uint32 diff)
 {
     i_timer.Update(diff);
-    if (!i_timer.Passed())
+    if ( !i_timer.Passed())
         return;
 
     for (MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)

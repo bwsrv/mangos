@@ -254,7 +254,7 @@ bool Map::EnsureGridLoaded(const Cell &cell)
     NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
 
     MANGOS_ASSERT(grid != NULL);
-    if (!isGridObjectDataLoaded(cell.GridX(), cell.GridY()))
+    if ( !isGridObjectDataLoaded(cell.GridX(), cell.GridY()) )
     {
         //it's important to set it loaded before loading!
         //otherwise there is a possibility of infinity chain (grid loading will be called many times for the same grid)
@@ -312,7 +312,7 @@ Map::Add(T *obj)
     MANGOS_ASSERT(obj);
 
     CellPair p = MaNGOS::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
-    if (p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
+    if (p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP )
     {
         sLog.outError("Map::Add: Object (GUID: %u TypeId: %u) have invalid coordinates X:%f Y:%f grid cell [%u:%u]", obj->GetGUIDLow(), obj->GetTypeId(), obj->GetPositionX(), obj->GetPositionY(), p.x_coord, p.y_coord);
         return;
@@ -327,7 +327,7 @@ Map::Add(T *obj)
         EnsureGridCreated(GridPair(cell.GridX(), cell.GridY()));
 
     NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
-    MANGOS_ASSERT( grid != NULL);
+    MANGOS_ASSERT( grid != NULL );
 
     AddToGrid(obj,grid,cell);
     obj->AddToWorld();
@@ -345,7 +345,7 @@ void Map::MessageBroadcast(Player *player, WorldPacket *msg, bool to_self)
 {
     CellPair p = MaNGOS::ComputeCellPair(player->GetPositionX(), player->GetPositionY());
 
-    if (p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
+    if (p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP )
     {
         sLog.outError("Map::MessageBroadcast: Player (GUID: %u) have invalid coordinates X:%f Y:%f grid cell [%u:%u]", player->GetGUIDLow(), player->GetPositionX(), player->GetPositionY(), p.x_coord, p.y_coord);
         return;
@@ -354,7 +354,7 @@ void Map::MessageBroadcast(Player *player, WorldPacket *msg, bool to_self)
     Cell cell(p);
     cell.SetNoCreate();
 
-    if (!loaded(GridPair(cell.data.Part.grid_x, cell.data.Part.grid_y)))
+    if ( !loaded(GridPair(cell.data.Part.grid_x, cell.data.Part.grid_y)) )
         return;
 
     MaNGOS::MessageDeliverer post_man(*player, msg, to_self);
@@ -366,7 +366,7 @@ void Map::MessageBroadcast(WorldObject *obj, WorldPacket *msg)
 {
     CellPair p = MaNGOS::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
 
-    if (p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
+    if (p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP )
     {
         sLog.outError("Map::MessageBroadcast: Object (GUID: %u TypeId: %u) have invalid coordinates X:%f Y:%f grid cell [%u:%u]", obj->GetGUIDLow(), obj->GetTypeId(), obj->GetPositionX(), obj->GetPositionY(), p.x_coord, p.y_coord);
         return;
@@ -375,7 +375,7 @@ void Map::MessageBroadcast(WorldObject *obj, WorldPacket *msg)
     Cell cell(p);
     cell.SetNoCreate();
 
-    if (!loaded(GridPair(cell.data.Part.grid_x, cell.data.Part.grid_y)))
+    if ( !loaded(GridPair(cell.data.Part.grid_x, cell.data.Part.grid_y)) )
         return;
 
     //TODO: currently on continents when Visibility.Distance.InFlight > Visibility.Distance.Continents
@@ -389,7 +389,7 @@ void Map::MessageDistBroadcast(Player *player, WorldPacket *msg, float dist, boo
 {
     CellPair p = MaNGOS::ComputeCellPair(player->GetPositionX(), player->GetPositionY());
 
-    if (p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
+    if (p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP )
     {
         sLog.outError("Map::MessageBroadcast: Player (GUID: %u) have invalid coordinates X:%f Y:%f grid cell [%u:%u]", player->GetGUIDLow(), player->GetPositionX(), player->GetPositionY(), p.x_coord, p.y_coord);
         return;
@@ -398,7 +398,7 @@ void Map::MessageDistBroadcast(Player *player, WorldPacket *msg, float dist, boo
     Cell cell(p);
     cell.SetNoCreate();
 
-    if (!loaded(GridPair(cell.data.Part.grid_x, cell.data.Part.grid_y)))
+    if ( !loaded(GridPair(cell.data.Part.grid_x, cell.data.Part.grid_y)) )
         return;
 
     MaNGOS::MessageDistDeliverer post_man(*player, msg, dist, to_self, own_team_only);
@@ -410,7 +410,7 @@ void Map::MessageDistBroadcast(WorldObject *obj, WorldPacket *msg, float dist)
 {
     CellPair p = MaNGOS::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
 
-    if (p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
+    if (p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP )
     {
         sLog.outError("Map::MessageBroadcast: Object (GUID: %u TypeId: %u) have invalid coordinates X:%f Y:%f grid cell [%u:%u]", obj->GetGUIDLow(), obj->GetTypeId(), obj->GetPositionX(), obj->GetPositionY(), p.x_coord, p.y_coord);
         return;
@@ -419,7 +419,7 @@ void Map::MessageDistBroadcast(WorldObject *obj, WorldPacket *msg, float dist)
     Cell cell(p);
     cell.SetNoCreate();
 
-    if (!loaded(GridPair(cell.data.Part.grid_x, cell.data.Part.grid_y)))
+    if ( !loaded(GridPair(cell.data.Part.grid_x, cell.data.Part.grid_y)) )
         return;
 
     MaNGOS::ObjectMessageDistDeliverer post_man(*obj, msg, dist);
@@ -429,7 +429,7 @@ void Map::MessageDistBroadcast(WorldObject *obj, WorldPacket *msg, float dist)
 
 bool Map::loaded(const GridPair &p) const
 {
-    return ( getNGrid(p.x_coord, p.y_coord) && isGridObjectDataLoaded(p.x_coord, p.y_coord));
+    return ( getNGrid(p.x_coord, p.y_coord) && isGridObjectDataLoaded(p.x_coord, p.y_coord) );
 }
 
 void Map::Update(const uint32 &t_diff)
@@ -502,7 +502,7 @@ void Map::Update(const uint32 &t_diff)
     // non-player active objects
     if (!m_activeNonPlayers.empty())
     {
-        for (m_activeNonPlayersIter = m_activeNonPlayers.begin(); m_activeNonPlayersIter != m_activeNonPlayers.end();)
+        for (m_activeNonPlayersIter = m_activeNonPlayers.begin(); m_activeNonPlayersIter != m_activeNonPlayers.end(); )
         {
             // skip not in world
             WorldObject* obj = *m_activeNonPlayersIter;
@@ -545,7 +545,7 @@ void Map::Update(const uint32 &t_diff)
     // This isn't really bother us, since as soon as we have instanced BG-s, the whole map unloads as the BG gets ended
     if (!IsBattleGroundOrArena())
     {
-        for (GridRefManager<NGridType>::iterator i = GridRefManager<NGridType>::begin(); i != GridRefManager<NGridType>::end();)
+        for (GridRefManager<NGridType>::iterator i = GridRefManager<NGridType>::begin(); i != GridRefManager<NGridType>::end(); )
         {
             NGridType *grid = i->getSource();
             GridInfo *info = i->getSource()->getGridInfoRef();
@@ -587,7 +587,7 @@ void Map::Remove(Player *player, bool remove)
         // invalid coordinates
         player->ResetMap();
 
-        if (remove)
+        if ( remove )
             DeleteFromWorld(player);
 
         return;
@@ -595,7 +595,7 @@ void Map::Remove(Player *player, bool remove)
 
     Cell cell(p);
 
-    if (!getNGrid(cell.data.Part.grid_x, cell.data.Part.grid_y))
+    if ( !getNGrid(cell.data.Part.grid_x, cell.data.Part.grid_y) )
     {
         sLog.outError("Map::Remove() i_grids was NULL x:%d, y:%d",cell.data.Part.grid_x,cell.data.Part.grid_y);
         return;
@@ -613,7 +613,7 @@ void Map::Remove(Player *player, bool remove)
     if (!player->GetPlayerbotAI())
         player->ResetMap();
 
-    if (remove)
+    if ( remove )
         DeleteFromWorld(player);
 }
 
@@ -622,19 +622,19 @@ void
 Map::Remove(T *obj, bool remove)
 {
     CellPair p = MaNGOS::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
-    if (p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
+    if (p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP )
     {
         sLog.outError("Map::Remove: Object (GUID: %u TypeId:%u) have invalid coordinates X:%f Y:%f grid cell [%u:%u]", obj->GetGUIDLow(), obj->GetTypeId(), obj->GetPositionX(), obj->GetPositionY(), p.x_coord, p.y_coord);
         return;
     }
 
     Cell cell(p);
-    if (!loaded(GridPair(cell.data.Part.grid_x, cell.data.Part.grid_y)))
+    if ( !loaded(GridPair(cell.data.Part.grid_x, cell.data.Part.grid_y)) )
         return;
 
     DEBUG_LOG("Remove object (GUID: %u TypeId:%u) from grid[%u,%u]", obj->GetGUIDLow(), obj->GetTypeId(), cell.data.Part.grid_x, cell.data.Part.grid_y);
     NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
-    MANGOS_ASSERT( grid != NULL);
+    MANGOS_ASSERT( grid != NULL );
 
     if (obj->isActiveObject())
         RemoveFromActive(obj);
@@ -648,7 +648,7 @@ Map::Remove(T *obj, bool remove)
     RemoveFromGrid(obj,grid,cell);
 
     obj->ResetMap();
-    if (remove)
+    if ( remove )
     {
         // if option set then object already saved at this moment
         if (!sWorld.getConfig(CONFIG_BOOL_SAVE_RESPAWN_TIME_IMMEDIATELY))
@@ -673,13 +673,13 @@ Map::PlayerRelocation(Player *player, float x, float y, float z, float orientati
 
     player->Relocate(x, y, z, orientation);
 
-    if (old_cell.DiffGrid(new_cell) || old_cell.DiffCell(new_cell))
+    if ( old_cell.DiffGrid(new_cell) || old_cell.DiffCell(new_cell) )
     {
         DEBUG_FILTER_LOG(LOG_FILTER_PLAYER_MOVES, "Player %s relocation grid[%u,%u]cell[%u,%u]->grid[%u,%u]cell[%u,%u]", player->GetName(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
 
         NGridType* oldGrid = getNGrid(old_cell.GridX(), old_cell.GridY());
         RemoveFromGrid(player, oldGrid,old_cell);
-        if (!old_cell.DiffGrid(new_cell))
+        if ( !old_cell.DiffGrid(new_cell) )
             AddToGrid(player, oldGrid,new_cell);
         else
             EnsureGridLoadedAtEnter(new_cell, player);
@@ -691,7 +691,7 @@ Map::PlayerRelocation(Player *player, float x, float y, float z, float orientati
     player->OnRelocated();
 
     NGridType* newGrid = getNGrid(new_cell.GridX(), new_cell.GridY());
-    if (!same_cell && newGrid->GetGridState()!= GRID_STATE_ACTIVE)
+    if ( !same_cell && newGrid->GetGridState()!= GRID_STATE_ACTIVE )
     {
         ResetGridExpiry(*newGrid, 0.1f);
         newGrid->SetGridState(GRID_STATE_ACTIVE);
@@ -717,7 +717,7 @@ void Map::CreatureRelocation(Creature *creature, float x, float y, float z, floa
     else if (!CreatureRespawnRelocation(creature))
     {
         // ... or unload (if respawn grid also not loaded)
-        DEBUG_FILTER_LOG(LOG_FILTER_CREATURE_MOVES, "Creature (GUID: %u Entry: %u) can't be move to unloaded respawn grid.",creature->GetGUIDLow(),creature->GetEntry());
+        DEBUG_FILTER_LOG(LOG_FILTER_CREATURE_MOVES, "Creature (GUID: %u Entry: %u ) can't be move to unloaded respawn grid.",creature->GetGUIDLow(),creature->GetEntry());
     }
 
     MANGOS_ASSERT(CheckGridIntegrity(creature,true));
@@ -779,7 +779,7 @@ bool Map::UnloadGrid(const uint32 &x, const uint32 &y, bool pForce)
     MANGOS_ASSERT( grid != NULL);
 
     {
-        if (!pForce && ActiveObjectsNearGrid(x, y))
+        if (!pForce && ActiveObjectsNearGrid(x, y) )
             return false;
 
         DEBUG_LOG("Unloading grid[%u,%u] for map %u", x,y, i_id);
@@ -817,7 +817,7 @@ bool Map::UnloadGrid(const uint32 &x, const uint32 &y, bool pForce)
 
 void Map::UnloadAll(bool pForce)
 {
-    for (GridRefManager<NGridType>::iterator i = GridRefManager<NGridType>::begin(); i != GridRefManager<NGridType>::end();)
+    for (GridRefManager<NGridType>::iterator i = GridRefManager<NGridType>::begin(); i != GridRefManager<NGridType>::end(); )
     {
         NGridType &grid(*i->getSource());
         ++i;
@@ -883,7 +883,7 @@ void Map::UpdateObjectVisibility( WorldObject* obj, Cell cell, CellPair cellpair
     cell.Visit(cellpair, player_notifier, *this, *obj, GetVisibilityDistance());
 }
 
-void Map::SendInitSelf( Player * player)
+void Map::SendInitSelf( Player * player )
 {
     DETAIL_LOG("Creating player data for himself %u", player->GetGUIDLow());
 
@@ -915,7 +915,7 @@ void Map::SendInitSelf( Player * player)
     player->GetSession()->SendPacket(&packet);
 }
 
-void Map::SendInitTransports( Player * player)
+void Map::SendInitTransports( Player * player )
 {
     // Hack to send out transports
     MapManager::TransportMap& tmap = sMapMgr.m_TransportsByMap;
@@ -942,7 +942,7 @@ void Map::SendInitTransports( Player * player)
     player->GetSession()->SendPacket(&packet);
 }
 
-void Map::SendRemoveTransports( Player * player)
+void Map::SendRemoveTransports( Player * player )
 {
     // Hack to send out transports
     MapManager::TransportMap& tmap = sMapMgr.m_TransportsByMap;
@@ -982,7 +982,7 @@ void Map::AddObjectToRemoveList(WorldObject *obj)
     obj->CleanupsBeforeDelete();                            // remove or simplify at least cross referenced links
 
     i_objectsToRemove.insert(obj);
-    //DEBUG_LOG("Object (GUID: %u TypeId: %u) added to removing list.",obj->GetGUIDLow(),obj->GetTypeId());
+    //DEBUG_LOG("Object (GUID: %u TypeId: %u ) added to removing list.",obj->GetGUIDLow(),obj->GetTypeId());
 }
 
 void Map::RemoveAllObjectsInRemoveList()
@@ -1062,8 +1062,8 @@ bool Map::ActiveObjectsNearGrid(uint32 x, uint32 y) const
         Player* plr = iter->getSource();
 
         CellPair p = MaNGOS::ComputeCellPair(plr->GetPositionX(), plr->GetPositionY());
-        if ((cell_min.x_coord <= p.x_coord && p.x_coord <= cell_max.x_coord) &&
-            (cell_min.y_coord <= p.y_coord && p.y_coord <= cell_max.y_coord))
+        if ( (cell_min.x_coord <= p.x_coord && p.x_coord <= cell_max.x_coord) &&
+            (cell_min.y_coord <= p.y_coord && p.y_coord <= cell_max.y_coord) )
             return true;
     }
 
@@ -1072,15 +1072,15 @@ bool Map::ActiveObjectsNearGrid(uint32 x, uint32 y) const
         WorldObject* obj = *iter;
 
         CellPair p = MaNGOS::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
-        if ((cell_min.x_coord <= p.x_coord && p.x_coord <= cell_max.x_coord) &&
-            (cell_min.y_coord <= p.y_coord && p.y_coord <= cell_max.y_coord))
+        if ( (cell_min.x_coord <= p.x_coord && p.x_coord <= cell_max.x_coord) &&
+            (cell_min.y_coord <= p.y_coord && p.y_coord <= cell_max.y_coord) )
             return true;
     }
 
     return false;
 }
 
-void Map::AddToActive( WorldObject* obj)
+void Map::AddToActive( WorldObject* obj )
 {
     m_activeNonPlayers.insert(obj);
 
@@ -1106,7 +1106,7 @@ void Map::AddToActive( WorldObject* obj)
     }
 }
 
-void Map::RemoveFromActive( WorldObject* obj)
+void Map::RemoveFromActive( WorldObject* obj )
 {
     // Map::Update for active object in proccess
     if (m_activeNonPlayersIter != m_activeNonPlayers.end())

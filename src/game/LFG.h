@@ -42,25 +42,25 @@ enum LFGRoleMask
     // unions
     LFG_ROLE_MASK_THD     = ( LFG_ROLE_MASK_TANK   |
                                LFG_ROLE_MASK_HEALER |
-                               LFG_ROLE_MASK_DAMAGE),
+                               LFG_ROLE_MASK_DAMAGE ),
 
     LFG_ROLE_MASK_TH      = ( LFG_ROLE_MASK_TANK |
-                               LFG_ROLE_MASK_HEALER),
+                               LFG_ROLE_MASK_HEALER ),
 
     LFG_ROLE_MASK_TD      = ( LFG_ROLE_MASK_TANK |
-                               LFG_ROLE_MASK_DAMAGE),
+                               LFG_ROLE_MASK_DAMAGE ),
 
     LFG_ROLE_MASK_HD      = ( LFG_ROLE_MASK_DAMAGE |
-                               LFG_ROLE_MASK_HEALER),
+                               LFG_ROLE_MASK_HEALER ),
 
     LFG_ROLE_MASK_LTHD     = ( LFG_ROLE_MASK_THD |
-                               LFG_ROLE_MASK_LEADER),
+                               LFG_ROLE_MASK_LEADER ),
     LFG_ROLE_MASK_LTH      = ( LFG_ROLE_MASK_TH |
-                               LFG_ROLE_MASK_LEADER),
+                               LFG_ROLE_MASK_LEADER ),
     LFG_ROLE_MASK_LTD      = ( LFG_ROLE_MASK_TD |
-                               LFG_ROLE_MASK_LEADER),
+                               LFG_ROLE_MASK_LEADER ),
     LFG_ROLE_MASK_LHD      = ( LFG_ROLE_MASK_HD |
-                               LFG_ROLE_MASK_LEADER),
+                               LFG_ROLE_MASK_LEADER ),
 };
 
 enum LFGMemberFlags

@@ -74,7 +74,7 @@ class MANGOS_DLL_DECL MapManager : public MaNGOS::Singleton<MapManager, MaNGOS::
 
         void SetGridCleanUpDelay(uint32 t)
         {
-            if (t < MIN_GRID_DELAY)
+            if ( t < MIN_GRID_DELAY )
                 i_gridCleanUpDelay = MIN_GRID_DELAY;
             else
                 i_gridCleanUpDelay = t;
@@ -82,7 +82,7 @@ class MANGOS_DLL_DECL MapManager : public MaNGOS::Singleton<MapManager, MaNGOS::
 
         void SetMapUpdateInterval(uint32 t)
         {
-            if (t > MIN_MAP_UPDATE_DELAY)
+            if ( t > MIN_MAP_UPDATE_DELAY )
                 t = MIN_MAP_UPDATE_DELAY;
 
             i_timer.SetInterval(t);

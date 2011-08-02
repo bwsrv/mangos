@@ -52,7 +52,7 @@ bool Totem::Create(uint32 guidlow, CreatureCreatePos& cPos, CreatureInfo const* 
     cPos.SelectFinalPoint(this);
 
     // totem must be at same Z in case swimming caster and etc.
-    if (fabs(cPos.m_pos.z - owner->GetPositionZ()) > 5.0f)
+    if (fabs(cPos.m_pos.z - owner->GetPositionZ() ) > 5.0f)
         cPos.m_pos.z = owner->GetPositionZ();
 
     if (!cPos.Relocate(this))
@@ -69,7 +69,7 @@ bool Totem::Create(uint32 guidlow, CreatureCreatePos& cPos, CreatureInfo const* 
     return true;
 }
 
-void Totem::Update(uint32 update_diff, uint32 time)
+void Totem::Update(uint32 update_diff, uint32 time )
 {
     Unit *owner = GetOwner();
     if (!owner || !owner->isAlive() || !isAlive())
@@ -86,7 +86,7 @@ void Totem::Update(uint32 update_diff, uint32 time)
     else
         m_duration -= update_diff;
 
-    Creature::Update( update_diff, time);
+    Creature::Update( update_diff, time );
 }
 
 void Totem::Summon(Unit* owner)

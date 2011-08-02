@@ -254,7 +254,7 @@ bool ArenaTeam::AddMember(ObjectGuid playerGuid)
 
     m_members.push_back(newmember);
 
-    CharacterDatabase.PExecute("INSERT INTO arena_team_member (arenateamid, guid, personal_rating) VALUES ('%u', '%u', '%u')", m_TeamId, newmember.guid.GetCounter(), newmember.personal_rating);
+    CharacterDatabase.PExecute("INSERT INTO arena_team_member (arenateamid, guid, personal_rating) VALUES ('%u', '%u', '%u')", m_TeamId, newmember.guid.GetCounter(), newmember.personal_rating );
 
     if (pl)
     {
@@ -655,7 +655,7 @@ void ArenaTeam::BroadcastEvent(ArenaTeamEvents event, ObjectGuid guid, char cons
     DEBUG_LOG("WORLD: Sent SMSG_ARENA_TEAM_EVENT");
 }
 
-uint8 ArenaTeam::GetSlotByType(ArenaType type)
+uint8 ArenaTeam::GetSlotByType(ArenaType type )
 {
     switch(type)
     {

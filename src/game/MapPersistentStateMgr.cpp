@@ -37,7 +37,7 @@
 #include "ProgressBar.h"
 #include "LFGMgr.h"
 
-INSTANTIATE_SINGLETON_1( MapPersistentStateManager);
+INSTANTIATE_SINGLETON_1( MapPersistentStateManager );
 
 static uint32 resetEventTypeDelay[MAX_RESET_EVENT_TYPE] = { 0, 3600, 900, 300, 60 };
 
@@ -87,7 +87,7 @@ void MapPersistentState::SaveCreatureRespawnTime(uint32 loguid, time_t t)
 
     if (t > sWorld.GetGameTime())
     {
-        stmt = CharacterDatabase.CreateStatement(insSpawnTime, "INSERT INTO creature_respawn VALUES ( ?, ?, ?)");
+        stmt = CharacterDatabase.CreateStatement(insSpawnTime, "INSERT INTO creature_respawn VALUES ( ?, ?, ? )");
         stmt.PExecute(loguid, uint64(t), m_instanceid);
     }
 
@@ -112,14 +112,14 @@ void MapPersistentState::SaveGORespawnTime(uint32 loguid, time_t t)
 
     if (t > sWorld.GetGameTime())
     {
-        stmt = CharacterDatabase.CreateStatement(insSpawnTime, "INSERT INTO gameobject_respawn VALUES ( ?, ?, ?)");
+        stmt = CharacterDatabase.CreateStatement(insSpawnTime, "INSERT INTO gameobject_respawn VALUES ( ?, ?, ? )");
         stmt.PExecute(loguid, uint64(t), m_instanceid);
     }
 
     CharacterDatabase.CommitTransaction();
 }
 
-void MapPersistentState::SetCreatureRespawnTime( uint32 loguid, time_t t)
+void MapPersistentState::SetCreatureRespawnTime( uint32 loguid, time_t t )
 {
     if (t > sWorld.GetGameTime())
         m_creatureRespawnTimes[loguid] = t;
@@ -130,7 +130,7 @@ void MapPersistentState::SetCreatureRespawnTime( uint32 loguid, time_t t)
     }
 }
 
-void MapPersistentState::SetGORespawnTime( uint32 loguid, time_t t)
+void MapPersistentState::SetGORespawnTime( uint32 loguid, time_t t )
 {
     if (t > sWorld.GetGameTime())
         m_goRespawnTimes[loguid] = t;
@@ -150,7 +150,7 @@ void MapPersistentState::ClearRespawnTimes()
         UnloadIfEmpty();
 }
 
-void MapPersistentState::AddCreatureToGrid( uint32 guid, CreatureData const* data)
+void MapPersistentState::AddCreatureToGrid( uint32 guid, CreatureData const* data )
 {
     CellPair cell_pair = MaNGOS::ComputeCellPair(data->posX, data->posY);
     uint32 cell_id = (cell_pair.y_coord*TOTAL_NUMBER_OF_CELLS_PER_MAP) + cell_pair.x_coord;
@@ -158,7 +158,7 @@ void MapPersistentState::AddCreatureToGrid( uint32 guid, CreatureData const* dat
     m_gridObjectGuids[cell_id].creatures.insert(guid);
 }
 
-void MapPersistentState::RemoveCreatureFromGrid( uint32 guid, CreatureData const* data)
+void MapPersistentState::RemoveCreatureFromGrid( uint32 guid, CreatureData const* data )
 {
     CellPair cell_pair = MaNGOS::ComputeCellPair(data->posX, data->posY);
     uint32 cell_id = (cell_pair.y_coord*TOTAL_NUMBER_OF_CELLS_PER_MAP) + cell_pair.x_coord;
@@ -166,7 +166,7 @@ void MapPersistentState::RemoveCreatureFromGrid( uint32 guid, CreatureData const
     m_gridObjectGuids[cell_id].creatures.erase(guid);
 }
 
-void MapPersistentState::AddGameobjectToGrid( uint32 guid, GameObjectData const* data)
+void MapPersistentState::AddGameobjectToGrid( uint32 guid, GameObjectData const* data )
 {
     CellPair cell_pair = MaNGOS::ComputeCellPair(data->posX, data->posY);
     uint32 cell_id = (cell_pair.y_coord*TOTAL_NUMBER_OF_CELLS_PER_MAP) + cell_pair.x_coord;
@@ -174,7 +174,7 @@ void MapPersistentState::AddGameobjectToGrid( uint32 guid, GameObjectData const*
     m_gridObjectGuids[cell_id].gameobjects.insert(guid);
 }
 
-void MapPersistentState::RemoveGameobjectFromGrid( uint32 guid, GameObjectData const* data)
+void MapPersistentState::RemoveGameobjectFromGrid( uint32 guid, GameObjectData const* data )
 {
     CellPair cell_pair = MaNGOS::ComputeCellPair(data->posX, data->posY);
     uint32 cell_id = (cell_pair.y_coord*TOTAL_NUMBER_OF_CELLS_PER_MAP) + cell_pair.x_coord;
@@ -288,7 +288,7 @@ void DungeonPersistentState::UpdateEncounterState(EncounterCreditType type, uint
         {
             uint32 oldMask = m_completedEncountersMask;
             m_completedEncountersMask |= 1 << (*itr)->dbcEntry->encounterIndex;
-            if (m_completedEncountersMask != oldMask)
+            if ( m_completedEncountersMask != oldMask)
             {
                 CharacterDatabase.PExecute("UPDATE instance SET encountersMask = '%u' WHERE id = '%u'", m_completedEncountersMask, GetInstanceId());
 
@@ -393,7 +393,7 @@ void DungeonResetScheduler::LoadResetTimes()
     InstResetTimeMapDiffType instResetTime;
 
     QueryResult *result = CharacterDatabase.Query("SELECT id, map, difficulty, resettime FROM instance WHERE resettime > 0");
-    if (result)
+    if ( result )
     {
         do
         {
@@ -421,7 +421,7 @@ void DungeonResetScheduler::LoadResetTimes()
 
         // update reset time for normal instances with the max creature respawn time + X hours
         result = CharacterDatabase.Query("SELECT MAX(respawntime), instance FROM creature_respawn WHERE instance > 0 GROUP BY instance");
-        if (result)
+        if ( result )
         {
             do
             {
@@ -749,7 +749,7 @@ void MapPersistentStateManager::_DelHelper(DatabaseType &db, const char *fields,
     va_list ap;
     char szQueryTail [MAX_QUERY_LEN];
     va_start(ap, queryTail);
-    vsnprintf( szQueryTail, MAX_QUERY_LEN, queryTail, ap);
+    vsnprintf( szQueryTail, MAX_QUERY_LEN, queryTail, ap );
     va_end(ap);
 
     QueryResult *result = db.PQuery("SELECT %s FROM %s %s", fields, table, szQueryTail);
@@ -814,7 +814,7 @@ void MapPersistentStateManager::PackInstances()
     // any associations to ids not in this table are assumed to be
     // cleaned already in CleanupInstances
     QueryResult *result = CharacterDatabase.Query("SELECT id FROM instance");
-    if (result)
+    if ( result )
     {
         do
         {
@@ -850,7 +850,7 @@ void MapPersistentStateManager::PackInstances()
         bar.step();
     }
 
-    sLog.outString( ">> Instance numbers remapped, next instance id is %u", InstanceNumber);
+    sLog.outString( ">> Instance numbers remapped, next instance id is %u", InstanceNumber );
     sLog.outString();
 }
 
@@ -962,7 +962,7 @@ void MapPersistentStateManager::GetStatistics(uint32& numStates, uint32& numBoun
     }
 }
 
-void MapPersistentStateManager::_CleanupExpiredInstancesAtTime( time_t t)
+void MapPersistentStateManager::_CleanupExpiredInstancesAtTime( time_t t )
 {
     _DelHelper(CharacterDatabase, "id, map, instance.difficulty", "instance", "LEFT JOIN instance_reset ON mapid = map AND instance.difficulty =  instance_reset.difficulty WHERE (instance.resettime < '"UI64FMTD"' AND instance.resettime > '0') OR (NOT instance_reset.resettime IS NULL AND instance_reset.resettime < '"UI64FMTD"')",  (uint64)t, (uint64)t);
 }

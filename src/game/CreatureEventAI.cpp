@@ -31,7 +31,7 @@
 #include "Chat.h"
 #include "Language.h"
 
-bool CreatureEventAIHolder::UpdateRepeatTimer( Creature* creature, uint32 repeatMin, uint32 repeatMax)
+bool CreatureEventAIHolder::UpdateRepeatTimer( Creature* creature, uint32 repeatMin, uint32 repeatMax )
 {
     if (repeatMin == repeatMax)
         Time = repeatMin;
@@ -49,7 +49,7 @@ bool CreatureEventAIHolder::UpdateRepeatTimer( Creature* creature, uint32 repeat
 
 int CreatureEventAI::Permissible(const Creature *creature)
 {
-    if (creature->GetAIName() == "EventAI")
+    if ( creature->GetAIName() == "EventAI" )
         return PERMIT_BASE_SPECIAL;
     return PERMIT_BASE_NO;
 }
@@ -61,7 +61,7 @@ void CreatureEventAI::GetAIInformation(ChatHandler& reader)
     reader.PSendSysMessage(LANG_NPC_EVENTAI_COMBAT, reader.GetOnOffStr(m_MeleeEnabled));
 }
 
-CreatureEventAI::CreatureEventAI(Creature *c) : CreatureAI(c)
+CreatureEventAI::CreatureEventAI(Creature *c ) : CreatureAI(c)
 {
     // Need make copy for filter unneeded steps and safe in case table reload
     CreatureEventAI_Event_Map::const_iterator creatureEventsItr = sEventAIMgr.GetCreatureEventAIMap().find(m_creature->GetEntry());
@@ -1420,7 +1420,7 @@ void CreatureEventAI::ReceiveEmote(Player* pPlayer, uint32 text_emote)
     }
 }
 
-void CreatureEventAI::DamageTaken( Unit* /*done_by*/, uint32& damage)
+void CreatureEventAI::DamageTaken( Unit* /*done_by*/, uint32& damage )
 {
     if (m_InvinceabilityHpLevel > 0 && m_creature->GetHealth() < m_InvinceabilityHpLevel+damage)
     {

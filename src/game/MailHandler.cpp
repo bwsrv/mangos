@@ -104,7 +104,7 @@ bool WorldSession::CheckMailBox(ObjectGuid guid)
  *
  * @param recv_data the WorldPacket containing the data sent by the client.
  */
-void WorldSession::HandleSendMail(WorldPacket & recv_data)
+void WorldSession::HandleSendMail(WorldPacket & recv_data )
 {
     ObjectGuid mailboxGuid;
     uint64 unk3;
@@ -271,7 +271,7 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data)
 
     pl->SendMailResult(0, MAIL_SEND, MAIL_OK);
 
-    pl->ModifyMoney( -int32(reqmoney));
+    pl->ModifyMoney( -int32(reqmoney) );
     pl->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_MAIL, cost);
 
     bool needItemDelay = false;
@@ -338,7 +338,7 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data)
  * @param recv_data the packet containing information about the mail the player read.
  *
  */
-void WorldSession::HandleMailMarkAsRead(WorldPacket & recv_data)
+void WorldSession::HandleMailMarkAsRead(WorldPacket & recv_data )
 {
     ObjectGuid mailboxGuid;
     uint32 mailId;
@@ -368,7 +368,7 @@ void WorldSession::HandleMailMarkAsRead(WorldPacket & recv_data)
  * @param recv_data The packet containing information about the mail being deleted.
  *
  */
-void WorldSession::HandleMailDelete(WorldPacket & recv_data)
+void WorldSession::HandleMailDelete(WorldPacket & recv_data )
 {
     ObjectGuid mailboxGuid;
     uint32 mailId;
@@ -404,7 +404,7 @@ void WorldSession::HandleMailDelete(WorldPacket & recv_data)
  * @param recv_data The packet containing information about the mail being returned.
  *
  */
-void WorldSession::HandleMailReturnToSender(WorldPacket & recv_data)
+void WorldSession::HandleMailReturnToSender(WorldPacket & recv_data )
 {
     ObjectGuid mailboxGuid;
     uint32 mailId;
@@ -462,7 +462,7 @@ void WorldSession::HandleMailReturnToSender(WorldPacket & recv_data)
 /**
  * Handles the packet sent by the client when taking an item from the mail.
  */
-void WorldSession::HandleMailTakeItem(WorldPacket & recv_data)
+void WorldSession::HandleMailTakeItem(WorldPacket & recv_data )
 {
     ObjectGuid mailboxGuid;
     uint32 mailId;
@@ -493,7 +493,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket & recv_data)
     Item *it = pl->GetMItem(itemId);
 
     ItemPosCountVec dest;
-    InventoryResult msg = _player->CanStoreItem( NULL_BAG, NULL_SLOT, dest, it, false);
+    InventoryResult msg = _player->CanStoreItem( NULL_BAG, NULL_SLOT, dest, it, false );
     if (msg == EQUIP_ERR_OK)
     {
         m->RemoveItem(itemId);
@@ -506,7 +506,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket & recv_data)
 
             uint32 sender_accId = 0;
 
-            if (GetSecurity() > SEC_PLAYER && sWorld.getConfig(CONFIG_BOOL_GM_LOG_TRADE))
+            if ( GetSecurity() > SEC_PLAYER && sWorld.getConfig(CONFIG_BOOL_GM_LOG_TRADE) )
             {
                 std::string sender_name;
                 if (sender)
@@ -536,7 +536,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket & recv_data)
                     .SendMailTo(MailReceiver(sender, sender_guid), _player, MAIL_CHECK_MASK_COD_PAYMENT);
             }
 
-            pl->ModifyMoney( -int32(m->COD));
+            pl->ModifyMoney( -int32(m->COD) );
         }
         m->COD = 0;
         m->state = MAIL_STATE_CHANGED;
@@ -559,7 +559,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket & recv_data)
 /**
  * Handles the packet sent by the client when taking money from the mail.
  */
-void WorldSession::HandleMailTakeMoney(WorldPacket & recv_data)
+void WorldSession::HandleMailTakeMoney(WorldPacket & recv_data )
 {
     ObjectGuid mailboxGuid;
     uint32 mailId;
@@ -596,7 +596,7 @@ void WorldSession::HandleMailTakeMoney(WorldPacket & recv_data)
  * Handles the packet sent by the client when requesting the current mail list.
  * It will send a list of all available mails in the players mailbox to the client.
  */
-void WorldSession::HandleGetMailList(WorldPacket & recv_data)
+void WorldSession::HandleGetMailList(WorldPacket & recv_data )
 {
     ObjectGuid mailboxGuid;
     recv_data >> mailboxGuid;
@@ -722,7 +722,7 @@ void WorldSession::HandleGetMailList(WorldPacket & recv_data)
  * a new item with the text of the mail and store it in the players inventory (if possible).
  *
  */
-void WorldSession::HandleMailCreateTextItem(WorldPacket & recv_data)
+void WorldSession::HandleMailCreateTextItem(WorldPacket & recv_data )
 {
     ObjectGuid mailboxGuid;
     uint32 mailId;
@@ -771,7 +771,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket & recv_data)
     DETAIL_LOG("HandleMailCreateTextItem mailid=%u", mailId);
 
     ItemPosCountVec dest;
-    InventoryResult msg = _player->CanStoreItem( NULL_BAG, NULL_SLOT, dest, bodyItem, false);
+    InventoryResult msg = _player->CanStoreItem( NULL_BAG, NULL_SLOT, dest, bodyItem, false );
     if (msg == EQUIP_ERR_OK)
     {
         m->checked = m->checked | MAIL_CHECK_MASK_COPIED;
@@ -791,11 +791,11 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket & recv_data)
 /**
  * No idea when this is called.
  */
-void WorldSession::HandleQueryNextMailTime(WorldPacket & /**recv_data*/)
+void WorldSession::HandleQueryNextMailTime(WorldPacket & /**recv_data*/ )
 {
     WorldPacket data(MSG_QUERY_NEXT_MAIL_TIME, 8);
 
-    if (_player->unReadMails > 0)
+    if ( _player->unReadMails > 0 )
     {
         data << uint32(0);                                  // float
         data << uint32(0);                                  // count

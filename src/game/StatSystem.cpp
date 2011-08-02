@@ -244,7 +244,7 @@ void Player::ApplyFeralAPBonus(int32 amount, bool apply)
     UpdateAttackPowerAndDamage();
 }
 
-void Player::UpdateAttackPowerAndDamage(bool ranged)
+void Player::UpdateAttackPowerAndDamage(bool ranged )
 {
     float val2 = 0.0f;
     float level = float(getLevel());
@@ -350,7 +350,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     float attPowerMod = GetModifierValue(unitMod, TOTAL_VALUE);
 
     //add dynamic flat mods
-    if (ranged)
+    if ( ranged )
     {
         if ((getClassMask() & CLASSMASK_WAND_USERS)==0)
         {
@@ -946,7 +946,7 @@ void Creature::UpdateDamagePhysical(WeaponAttackType attType)
 
 bool Pet::UpdateStats(Stats stat)
 {
-    if (stat > STAT_SPIRIT || stat < STAT_STRENGTH)
+    if (stat > STAT_SPIRIT || stat < STAT_STRENGTH )
         return false;
 
     // value = ((create_value + base_value * base_pct) + total_value) * total_pct

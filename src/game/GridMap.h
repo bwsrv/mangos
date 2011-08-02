@@ -225,7 +225,7 @@ public:
     GridMapLiquidStatus getLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, GridMapLiquidData *data = 0) const;
 
     uint16 GetAreaFlag(float x, float y, float z, bool *isOutdoors=0) const;
-    uint8 GetTerrainType(float x, float y) const;
+    uint8 GetTerrainType(float x, float y ) const;
 
     uint32 GetAreaId(float x, float y, float z) const;
     uint32 GetZoneId(float x, float y, float z) const;
@@ -236,7 +236,7 @@ public:
 
     bool IsNextZcoordOK(float x, float y, float oldZ, float maxDiff = 5.0f) const;
     bool CheckPath(float srcX, float srcY, float srcZ, float& dstX, float& dstY, float& dstZ) const;
-    bool CheckPathAccurate(float srcX, float srcY, float srcZ, float& dstX, float& dstY, float& dstZ, Unit* mover = NULL) const;
+    bool CheckPathAccurate(float srcX, float srcY, float srcZ, float& dstX, float& dstY, float& dstZ, Unit* mover = NULL ) const;
 
     //this method should be used only by TerrainManager
     //to cleanup unreferenced GridMap objects - they are too heavy
@@ -254,8 +254,8 @@ private:
     TerrainInfo(const TerrainInfo&);
     TerrainInfo& operator=(const TerrainInfo&);
 
-    GridMap * GetGrid( const float x, const float y);
-    GridMap * LoadMapAndVMap(const uint32 x, const uint32 y);
+    GridMap * GetGrid( const float x, const float y );
+    GridMap * LoadMapAndVMap(const uint32 x, const uint32 y );
 
     int RefGrid(const uint32& x, const uint32& y);
     int UnrefGrid(const uint32& x, const uint32& y);

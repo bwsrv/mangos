@@ -106,7 +106,7 @@ class MANGOS_DLL_SPEC HostileReference : public Reference<Unit, ThreatManager>
 
         //=================================================
 
-        HostileReference* next() { return ((HostileReference*) Reference<Unit, ThreatManager>::next()); }
+        HostileReference* next() { return ((HostileReference* ) Reference<Unit, ThreatManager>::next()); }
 
         //=================================================
 

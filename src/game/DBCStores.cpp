@@ -395,8 +395,8 @@ void LoadDBCStores(const std::string& dataPath)
             // fill AreaId->DBC records
             sAreaFlagByAreaID.insert(AreaFlagByAreaID::value_type(uint16(area->ID),area->exploreFlag));
 
-            // fill MapId->DBC records ( skip sub zones and continents)
-            if (area->zone==0 && area->mapid != 0 && area->mapid != 1 && area->mapid != 530 && area->mapid != 571)
+            // fill MapId->DBC records ( skip sub zones and continents )
+            if (area->zone==0 && area->mapid != 0 && area->mapid != 1 && area->mapid != 530 && area->mapid != 571 )
                 sAreaFlagByMapID.insert(AreaFlagByMapID::value_type(area->mapid,area->exploreFlag));
         }
     }
@@ -591,7 +591,7 @@ void LoadDBCStores(const std::string& dataPath)
         // now have all max ranks (and then bit amount used for store talent ranks in inspect)
         for (uint32 talentTabId = 1; talentTabId < sTalentTabStore.GetNumRows(); ++talentTabId)
         {
-            TalentTabEntry const *talentTabInfo = sTalentTabStore.LookupEntry( talentTabId);
+            TalentTabEntry const *talentTabInfo = sTalentTabStore.LookupEntry( talentTabId );
             if (!talentTabInfo)
                 continue;
 
@@ -703,13 +703,13 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sWorldSafeLocsStore,       dbcPath,"WorldSafeLocs.dbc");
 
     // error checks
-    if (bad_dbc_files.size() >= DBCFilesCount)
+    if (bad_dbc_files.size() >= DBCFilesCount )
     {
         sLog.outError("\nIncorrect DataDir value in mangosd.conf or ALL required *.dbc files (%d) not found by path: %sdbc",DBCFilesCount,dataPath.c_str());
         Log::WaitBeforeContinueIfNeed();
         exit(1);
     }
-    else if (!bad_dbc_files.empty())
+    else if (!bad_dbc_files.empty() )
     {
         std::string str;
         for (std::list<std::string>::iterator i = bad_dbc_files.begin(); i != bad_dbc_files.end(); ++i)
@@ -727,7 +727,7 @@ void LoadDBCStores(const std::string& dataPath)
         !sItemStore.LookupEntry(56806)             ||       // last client known item added in 3.3.5a
         !sItemExtendedCostStore.LookupEntry(2997)  ||       // last item extended cost added in 3.3.5a
         !sMapStore.LookupEntry(724)                ||       // last map added in 3.3.5a
-        !sSpellStore.LookupEntry(80864)           )        // last added spell in 3.3.5a
+        !sSpellStore.LookupEntry(80864)            )        // last added spell in 3.3.5a
     {
         sLog.outError("\nYou have mixed version DBC files. Please re-extract DBC files for one from client build: %s",AcceptableClientBuildsListStr().c_str());
         Log::WaitBeforeContinueIfNeed();
@@ -735,7 +735,7 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     sLog.outString();
-    sLog.outString( ">> Initialized %d data stores", DBCFilesCount);
+    sLog.outString( ">> Initialized %d data stores", DBCFilesCount );
 }
 
 SimpleFactionsList const* GetFactionTeamList(uint32 faction)
@@ -802,7 +802,7 @@ AreaTableEntry const* GetAreaEntryByAreaID(uint32 area_id)
     if (areaflag < 0)
         return NULL;
 
-    return sAreaStore.LookupEntry(areaflag);
+    return sAreaStore.LookupEntry(areaflag );
 }
 
 AreaTableEntry const* GetAreaEntryByAreaFlagAndMap(uint32 area_flag,uint32 map_id)
@@ -928,7 +928,7 @@ LFGDungeonExpansionEntry const* GetLFGExpansionEntry(uint32 dungeonId, uint32 ex
     return itr != sLFGDungeonExpansionMap.end() ? itr->second : NULL;
 }
 
-PvPDifficultyEntry const* GetBattlegroundBracketByLevel( uint32 mapid, uint32 level)
+PvPDifficultyEntry const* GetBattlegroundBracketByLevel( uint32 mapid, uint32 level )
 {
     PvPDifficultyEntry const* maxEntry = NULL;              // used for level > max listed level case
     for (uint32 i = 0; i < sPvPDifficultyStore.GetNumRows(); ++i)
@@ -1001,9 +1001,9 @@ bool IsPointInAreaTriggerZone(AreaTriggerEntry const* atEntry, uint32 mapid, flo
         float dz = z - atEntry->z;
         float dx = rotPlayerX - atEntry->x;
         float dy = rotPlayerY - atEntry->y;
-        if ((fabs(dx) > atEntry->box_x/2 + delta) ||
+        if ( (fabs(dx) > atEntry->box_x/2 + delta) ||
             (fabs(dy) > atEntry->box_y/2 + delta) ||
-            (fabs(dz) > atEntry->box_z/2 + delta))
+            (fabs(dz) > atEntry->box_z/2 + delta) )
         {
             return false;
         }

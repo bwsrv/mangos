@@ -146,7 +146,7 @@ struct LFGProposal
     bool IsDecliner(ObjectGuid guid);
 
     LFGProposalState GetState() {return m_state;};
-    void SetState(LFGProposalState _state) { m_state = _state;};
+    void SetState(LFGProposalState _state ) { m_state = _state;};
 
     LFGDungeonEntry const* GetDungeon() { return m_dungeon;};
     LFGType GetType();

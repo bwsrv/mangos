@@ -46,7 +46,7 @@ inline CellArea Cell::CalculateCellArea(float x, float y, float radius)
     (
         MaNGOS::ComputeCellPair(x - radius, y - radius).normalize(),
         MaNGOS::ComputeCellPair(x + radius, y + radius).normalize()
-   );
+    );
 }
 
 template<class T, class CONTAINER>

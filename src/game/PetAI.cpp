@@ -30,7 +30,7 @@
 
 int PetAI::Permissible(const Creature *creature)
 {
-    if (creature->IsPet())
+    if ( creature->IsPet())
         return PERMIT_BASE_SPECIAL;
 
     return PERMIT_BASE_NO;
@@ -53,7 +53,7 @@ void PetAI::MoveInLineOfSight(Unit *u)
     if (!m_creature->GetCharmInfo() || !m_creature->GetCharmInfo()->HasReactState(REACT_AGGRESSIVE))
         return;
 
-    if (u->isTargetableForAttack() && m_creature->IsHostileTo( u) &&
+    if (u->isTargetableForAttack() && m_creature->IsHostileTo( u ) &&
         u->isInAccessablePlaceFor(m_creature))
     {
         float attackRadius = m_creature->GetAttackDistance(u);
@@ -198,7 +198,7 @@ void PetAI::UpdateAI(const uint32 diff)
         }
         else if (m_creature->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW))
         {
-            if (!m_creature->hasUnitState(UNIT_STAT_FOLLOW))
+            if (!m_creature->hasUnitState(UNIT_STAT_FOLLOW) )
             {
                 m_creature->GetMotionMaster()->MoveFollow(owner,PET_FOLLOW_DIST, m_creature->IsPet() ? ((Pet*)m_creature)->GetPetFollowAngle() : PET_FOLLOW_ANGLE);
             }

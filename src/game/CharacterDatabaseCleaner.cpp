@@ -56,7 +56,7 @@ void CharacterDatabaseCleaner::CheckUnique(const char* column, const char* table
     QueryResult* result = CharacterDatabase.PQuery("SELECT DISTINCT %s FROM %s", column, table);
     if (!result)
     {
-        sLog.outString( "Table %s is empty.", table);
+        sLog.outString( "Table %s is empty.", table );
         return;
     }
 
@@ -89,7 +89,7 @@ void CharacterDatabaseCleaner::CheckUnique(const char* column, const char* table
     if (found)
     {
         ss << ")";
-        CharacterDatabase.Execute( ss.str().c_str());
+        CharacterDatabase.Execute( ss.str().c_str() );
     }
 }
 
@@ -125,11 +125,11 @@ void CharacterDatabaseCleaner::CleanCharacterSpell()
 
 bool CharacterDatabaseCleaner::TalentCheck(uint32 talent_id)
 {
-    TalentEntry const *talentInfo = sTalentStore.LookupEntry( talent_id);
+    TalentEntry const *talentInfo = sTalentStore.LookupEntry( talent_id );
     if (!talentInfo)
         return false;
 
-    return sTalentTabStore.LookupEntry( talentInfo->TalentTab);
+    return sTalentTabStore.LookupEntry( talentInfo->TalentTab );
 }
 
 void CharacterDatabaseCleaner::CleanCharacterTalent()
