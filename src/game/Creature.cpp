@@ -1050,6 +1050,7 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     CreatureData& data = sObjectMgr.NewOrExistCreatureData(GetGUIDLow());
 
     uint32 displayId = GetNativeDisplayId();
+    uint32 transGUID = (GetTransport()) ? GetTransport()->GetGUID() : 0;
 
     // check if it's a custom model and if not, use 0 for displayId
     CreatureInfo const *cinfo = GetCreatureInfo();
@@ -1068,16 +1069,26 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
             displayId = 0;
     }
 
+    bool i_transPos;
+    if (GetTransport())
+    {
+        i_transPos = true;
+        mapid = GetTransport()->GetGOInfo()->moTransport.mapID;
+    }
+    else
+        i_transPos = false;
+
     // data->guid = guid don't must be update at save
     data.id = GetEntry();
     data.mapid = mapid;
     data.phaseMask = phaseMask;
     data.modelid_override = displayId;
     data.equipmentId = GetEquipmentId();
-    data.posX = GetPositionX();
-    data.posY = GetPositionY();
-    data.posZ = GetPositionZ();
-    data.orientation = GetOrientation();
+    data.posX = i_transPos ? GetTransOffsetX() : GetPositionX();
+    data.posY = i_transPos ? GetTransOffsetY() : GetPositionY();
+    data.posZ = i_transPos ? GetTransOffsetZ() : GetPositionZ();
+    data.orientation = i_transPos ? GetTransOffsetO() : GetOrientation();
+    data.transguid = transGUID;
     data.spawntimesecs = m_respawnDelay;
     // prevent add data integrity problems
     data.spawndist = GetDefaultMovementType()==IDLE_MOTION_TYPE ? 0 : m_respawnradius;
@@ -1104,10 +1115,11 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
         << uint16(GetPhaseMask()) << ","                    // prevent out of range error
         << displayId <<","
         << GetEquipmentId() <<","
-        << GetPositionX() << ","
-        << GetPositionY() << ","
-        << GetPositionZ() << ","
-        << GetOrientation() << ","
+        << (i_transPos ? GetTransOffsetX() : GetPositionX()) << ","
+        << (i_transPos ? GetTransOffsetY() : GetPositionY()) << ","
+        << (i_transPos ? GetTransOffsetZ() : GetPositionZ()) << ","
+        << (i_transPos ? GetTransOffsetO() : GetOrientation()) << ","
+        << transGUID << ","
         << m_respawnDelay << ","                            //respawn time
         << (float) m_respawnradius << ","                   //spawn distance (float)
         << (uint32) (0) << ","                              //currentwaypoint
@@ -1288,6 +1300,31 @@ bool Creature::LoadFromDB(uint32 guidlow, Map *map)
         return false;
 
 	CreatureCreatePos pos(map, data->posX, data->posY, data->posZ, data->orientation, data->phaseMask);
+
+    if (data->transguid > 0)
+    {
+        m_movementInfo.SetTransportData(ObjectGuid(HIGHGUID_MO_TRANSPORT, data->transguid), data->posX, data->posY, data->posZ, data->orientation, 0, -1);
+        
+        for (MapManager::TransportSet::const_iterator iter = sMapMgr.m_Transports.begin(); iter != sMapMgr.m_Transports.end(); ++iter)
+        {
+            if ((*iter)->GetGUIDLow() == data->transguid)
+            {
+                SetTransport(*iter);
+                GetTransport()->AddPassenger(this);
+
+                SetLocationMapId(GetTransport()->GetMapId());
+                Relocate(GetTransport()->GetPositionX() + data->posX, GetTransport()->GetPositionY() + data->posY, GetTransport()->GetPositionZ() + data->posZ, data->orientation);
+                break;
+            }
+        }
+    }
+    else if (GetTransport())
+    {
+        m_movementInfo.SetTransportData(ObjectGuid(GetTransport()->GetGUID()), GetTransOffsetX(), GetTransOffsetY(), GetTransOffsetZ(), GetTransOffsetO(), 0, -1);
+        GetTransport()->AddPassenger(this);
+        SetLocationMapId(GetTransport()->GetMapId());
+        Relocate(GetTransport()->GetPositionX() + GetTransOffsetX(), GetTransport()->GetPositionY() + GetTransOffsetY(), GetTransport()->GetPositionZ() + GetTransOffsetZ(), GetTransOffsetO());
+    }
 
     if (!Create(guidlow, pos, cinfo, TEAM_NONE, data, eventData))
         return false;

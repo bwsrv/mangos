@@ -1605,19 +1605,7 @@ bool ChatHandler::HandleNpcAddCommand(char* args)
 
     Player *chr = m_session->GetPlayer();
     CreatureCreatePos pos(chr, chr->GetOrientation());
-    float tX = chr->GetTransOffsetX();
-    float tY = chr->GetTransOffsetY();
-    float tZ = chr->GetTransOffsetZ();
-    float tO = chr->GetTransOffsetO();
     Map *map = chr->GetMap();
-
-    if (chr->GetTransport())
-    {
-        if (chr->GetTransport()->AddNPCPassenger(id, tX, tY, tZ, tO))
-            WorldDatabase.PQuery("INSERT INTO creature_transport (npc_entry, transport_entry,  TransOffsetX, TransOffsetY, TransOffsetZ, TransOffsetO) values (%u, %u, %f, %f, %f, %f)", id, chr->GetTransport()->GetEntry(), tX, tY, tZ, tO);
-
-        return true;
-    }
 
     Creature* pCreature = new Creature;
 
@@ -1634,6 +1622,25 @@ bool ChatHandler::HandleNpcAddCommand(char* args)
     {
         delete pCreature;
         return false;
+    }
+
+    if (chr->GetTransport())
+    {
+        pCreature->SetTransport(chr->GetTransport());
+
+        float tX = chr->GetTransOffsetX();
+        float tY = chr->GetTransOffsetY();
+        float tZ = chr->GetTransOffsetZ();
+        float tO = chr->GetTransOffsetO();
+        pCreature->m_movementInfo.SetTransportData(ObjectGuid(chr->GetTransport()->GetGUID()), tX, tY, tZ, tO, 0, -1);
+        map->CreatureRelocation(pCreature, chr->GetTransport()->GetPositionX() + tX, chr->GetTransport()->GetPositionY() + tY, chr->GetTransport()->GetPositionZ() + tZ, chr->GetTransOffsetO());
+        chr->GetTransport()->AddPassenger(pCreature);
+
+        pCreature->SaveToDB(chr->GetTransport()->GetGOInfo()->moTransport.mapID, (1 << map->GetSpawnMode()), chr->GetPhaseMaskForSpawn());
+
+        pCreature->AIM_Initialize();
+        map->Add(pCreature);
+        return true;
     }
 
     pCreature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMaskForSpawn());
