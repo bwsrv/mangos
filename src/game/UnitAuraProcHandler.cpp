@@ -1106,8 +1106,13 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                     if (GetTypeId() != TYPEID_PLAYER)
                         return SPELL_AURA_PROC_FAILED;
 
-                    if (HasAura(71491) || HasAura(71484) || HasAura(71492) || HasAura(71486) || HasAura(71485))
-                        return SPELL_AURA_PROC_FAILED;
+                    uint32 spells[5] = {71491, 71484, 71492, 71486, 71485};
+
+                    for (int i = 0; i < 5; ++i)
+                    {
+                        if (HasAura(spells[i]))
+                            return SPELL_AURA_PROC_FAILED;
+                    }
 
                     // Select class defined buff
                     switch (getClass())
@@ -1157,6 +1162,17 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                         default:
                             return SPELL_AURA_PROC_FAILED;
                     }
+
+                    // cooldown on all spells
+                    if (cooldown)
+                    {
+                        for (int i = 0; i < 5; ++i)
+                        {
+                            if (triggered_spell_id != spells[i]) // this cooldown will be handled below in generic code
+                                ((Player*)this)->AddSpellCooldown(spells[i], 0, time(NULL) + cooldown);
+                        }
+                    }
+
                     break;
                 }
                 // Deathbringer's Will (Item - Icecrown 25 Heroic Melee Trinket)
@@ -1171,8 +1187,13 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                     if (GetTypeId() != TYPEID_PLAYER)
                         return SPELL_AURA_PROC_FAILED;
 
-                    if (HasAura(71559) || HasAura(71561) || HasAura(71560) || HasAura(71556) || HasAura(71558))
-                        return SPELL_AURA_PROC_FAILED;
+                    uint32 spells[5] = {71559, 71561, 71560, 71556, 71558};
+
+                    for (int i = 0; i < 5; ++i)
+                    {
+                        if (HasAura(spells[i]))
+                            return SPELL_AURA_PROC_FAILED;
+                    }
 
                     // Select class defined buff
                     switch (getClass())
@@ -1222,6 +1243,17 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                         default:
                             return SPELL_AURA_PROC_FAILED;
                     }
+
+                    // cooldown on all spells
+                    if (cooldown)
+                    {
+                        for (int i = 0; i < 5; ++i)
+                        {
+                            if (triggered_spell_id != spells[i]) // this cooldown will be handled below in generic code
+                                ((Player*)this)->AddSpellCooldown(spells[i], 0, time(NULL) + cooldown);
+                        }
+                    }
+
                     break;
                 }
                 // Necrotic Touch item 50692
