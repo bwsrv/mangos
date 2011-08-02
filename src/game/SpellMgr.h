@@ -562,6 +562,7 @@ inline bool IsSpellHiddenStackable(SpellEntry const* spellInfo)
         return false;
 
     if (spellInfo->Attributes & SPELL_ATTR_CANT_CANCEL ||
+        spellInfo->Attributes & SPELL_ATTR_NOT_SHAPESHIFT ||
         spellInfo->AttributesEx3 & SPELL_ATTR_EX3_DEATH_PERSISTENT)
         return false;
 
