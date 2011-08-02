@@ -556,6 +556,13 @@ void Pet::Update(uint32 update_diff, uint32 diff)
                 return;
             }
 
+            if (GetCreator() != GetOwner())
+            {
+                // special way for remove elementals, if totem is dead
+                if (!GetCreator() || !GetCreator()->isAlive())
+                    Unsummon(PET_SAVE_NOT_IN_SLOT);
+            }
+
             if ((!IsWithinDistInMap(owner, GetMap()->GetVisibilityDistance()) && !owner->GetCharmGuid().IsEmpty()) || (isControlled() && owner->GetPetGuid().IsEmpty()))
             {
                 DEBUG_LOG("Pet %d lost control, removed. Owner = %d, distance = %d, pet GUID = ", GetObjectGuid().GetCounter(), owner->GetObjectGuid().GetCounter(), GetDistance2d(owner), owner->GetPetGuid().GetCounter());
