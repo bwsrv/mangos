@@ -570,7 +570,7 @@ void WorldSession::HandleMoverRelocation(MovementInfo& movementInfo)
                     if ((*iter)->GetObjectGuid() == movementInfo.GetTransportGuid())
                     {
                         plMover->SetTransport(*iter);
-                        (*iter)->AddPassenger(plMover);
+                        (*iter)->AddPlayerPassenger(plMover);
 
                         if (plMover->GetVehicleKit())
                             plMover->GetVehicleKit()->RemoveAllPassengers();
@@ -582,7 +582,7 @@ void WorldSession::HandleMoverRelocation(MovementInfo& movementInfo)
         }
         else if (plMover->GetTransport())               // if we were on a transport, leave
         {
-            plMover->GetTransport()->RemovePassenger(plMover);
+            plMover->GetTransport()->RemovePlayerPassenger(plMover);
             plMover->SetTransport(NULL);
             movementInfo.ClearTransportData();
         }

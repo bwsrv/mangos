@@ -1624,25 +1624,6 @@ bool ChatHandler::HandleNpcAddCommand(char* args)
         return false;
     }
 
-    if (chr->GetTransport())
-    {
-        pCreature->SetTransport(chr->GetTransport());
-
-        float tX = chr->GetTransOffsetX();
-        float tY = chr->GetTransOffsetY();
-        float tZ = chr->GetTransOffsetZ();
-        float tO = chr->GetTransOffsetO();
-        pCreature->m_movementInfo.SetTransportData(ObjectGuid(chr->GetTransport()->GetGUID()), tX, tY, tZ, tO, 0, -1);
-        map->CreatureRelocation(pCreature, chr->GetTransport()->GetPositionX() + tX, chr->GetTransport()->GetPositionY() + tY, chr->GetTransport()->GetPositionZ() + tZ, chr->GetTransOffsetO());
-        chr->GetTransport()->AddPassenger(pCreature);
-
-        pCreature->SaveToDB(chr->GetTransport()->GetGOInfo()->moTransport.mapID, (1 << map->GetSpawnMode()), chr->GetPhaseMaskForSpawn());
-
-        pCreature->AIM_Initialize();
-        map->Add(pCreature);
-        return true;
-    }
-
     pCreature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMaskForSpawn());
 
     uint32 db_guid = pCreature->GetGUIDLow();

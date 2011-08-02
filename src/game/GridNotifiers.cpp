@@ -43,9 +43,9 @@ VisibleNotifier::Notify()
     Player& player = *i_camera.GetOwner();
     // at this moment i_clientGUIDs have guids that not iterate at grid level checks
     // but exist one case when this possible and object not out of range: transports
-    if (Transport* transport = player.GetTransport())
+    if(Transport* transport = player.GetTransport())
     {
-        for(Transport::UnitSet::const_iterator itr = transport->GetUnitPassengers().begin(); itr != transport->GetUnitPassengers().end(); ++itr)
+        for(Transport::PlayerSet::const_iterator itr = transport->GetPlayerPassengers().begin();itr!=transport->GetPlayerPassengers().end();++itr)
         {
             if ((*itr)->GetTypeId() != TYPEID_PLAYER)
                 return;
@@ -53,10 +53,9 @@ VisibleNotifier::Notify()
             if (i_clientGUIDs.find((*itr)->GetObjectGuid()) != i_clientGUIDs.end())
             {
                 // ignore far sight case
-                Player* passenger = ((Player*)(*itr));
-                passenger->UpdateVisibilityOf(passenger, &player);
-                player.UpdateVisibilityOf(&player, passenger, i_data, i_visibleNow);
-                i_clientGUIDs.erase(passenger->GetObjectGuid());
+                (*itr)->UpdateVisibilityOf(*itr, &player);
+                player.UpdateVisibilityOf(&player, *itr, i_data, i_visibleNow);
+                i_clientGUIDs.erase((*itr)->GetObjectGuid());
             }
         }
     }

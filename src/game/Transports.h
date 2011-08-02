@@ -20,7 +20,6 @@
 #define TRANSPORTS_H
 
 #include "GameObject.h"
-#include "Common.h"
 
 #include <map>
 #include <set>
@@ -33,12 +32,23 @@ class Transport : public GameObject
 
         bool Create(uint32 guidlow, uint32 mapid, float x, float y, float z, float ang, uint8 animprogress, uint16 dynamicHighValue);
         bool GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids);
+<<<<<<< HEAD
         void Update(uint32 update_diff, uint32 p_time) override;
         bool AddPassenger(Unit* passenger);
         bool RemovePassenger(Unit* passenger);
+=======
+        void Update(uint32 update_diff, uint32 p_time);
+        bool AddPlayerPassenger(Player* passenger);
+        bool AddCreaturePassenger(Creature* passenger);
+        bool RemovePlayerPassenger(Player* passenger);
+        bool RemoveCreaturePassenger(Creature* passenger);
+>>>>>>> parent of 2098470... [bws352] Update function npc_on_transport. Transport function merged player & creature to unit function thnx lanc.
 
-        typedef std::set<Unit*> UnitSet;
-        UnitSet const& GetUnitPassengers() const { return _passengers; }
+        typedef std::set<Player*> PlayerSet;
+        typedef std::set<Creature*> CreatureSet;
+
+        PlayerSet const& GetPlayerPassengers() const { return m_player_passengers; }
+        CreatureSet const& GetCreaturePassengers() const { return m_creature_passengers; }
 
         void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target);
 
@@ -68,7 +78,8 @@ class Transport : public GameObject
         uint32 m_pathTime;
         uint32 m_timer;
 
-        UnitSet _passengers;
+        PlayerSet m_player_passengers;
+        CreatureSet m_creature_passengers;
 
     public:
         WayPointMap m_WayPoints;
