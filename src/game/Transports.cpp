@@ -175,14 +175,14 @@ Transport* MapManager::GetTransportByGOMapId(uint32 mapid)
     return NULL;
 }
 
-Transport::Transport() : GameObject(), isStopped(false)
+Transport::Transport() : GameObject()
 {
     m_updateFlag = (UPDATEFLAG_TRANSPORT | UPDATEFLAG_HIGHGUID | UPDATEFLAG_HAS_POSITION | UPDATEFLAG_ROTATION);
 }
 
 bool Transport::Create(uint32 guidlow, uint32 mapid, float x, float y, float z, float ang, uint8 animprogress, uint16 dynamicHighValue)
 {
-    Relocate(x, y, z, ang);
+    Relocate(x,y,z,ang);
     // instance id and phaseMask isn't set to values different from std.
 
     if (!IsPositionValid())
@@ -580,9 +580,6 @@ void Transport::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target
 
 void Transport::Update(uint32 update_diff, uint32 /*p_time*/)
 {
-    if (GetStopped())
-        return;
-
     if (m_WayPoints.size() <= 1)
         return;
 
@@ -693,20 +690,10 @@ void Transport::DoEventIfAny(WayPointMap::value_type const& node, bool departure
     }
 }
 
-void Transport::BuildMovementPacket(Map const* targetMap, bool isMoving /*= false*/)
+void Transport::BuildStartMovePacket(Map const* targetMap)
 {
-    if (isMoving)
-    {
-        SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
-        SetGoState(GO_STATE_ACTIVE);
-        SetStopped(false);
-        UpdateForMap(targetMap);
-    }
-    else
-    {
-        RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
-        SetGoState(GO_STATE_READY);
-        SetStopped(true);
-        UpdateForMap(targetMap);
-    }
+}
+
+void Transport::BuildStopMovePacket(Map const* targetMap)
+{
 }

@@ -1115,10 +1115,10 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
         << uint16(GetPhaseMask()) << ","                    // prevent out of range error
         << displayId <<","
         << GetEquipmentId() <<","
-        << (i_transPos ? GetTransOffsetX() : GetPositionX()) << ","
-        << (i_transPos ? GetTransOffsetY() : GetPositionY()) << ","
-        << (i_transPos ? GetTransOffsetZ() : GetPositionZ()) << ","
-        << (i_transPos ? GetTransOffsetO() : GetOrientation()) << ","
+        << GetPositionX() << ","
+        << GetPositionY() << ","
+        << GetPositionZ() << ","
+        << GetOrientation() << ","
         << transGUID << ","
         << m_respawnDelay << ","                            //respawn time
         << (float) m_respawnradius << ","                   //spawn distance (float)
