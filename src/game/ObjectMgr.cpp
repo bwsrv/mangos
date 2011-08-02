@@ -1274,9 +1274,6 @@ void ObjectMgr::LoadCreatures()
         int16 GuidPoolId        = fields[20].GetInt16();
         int16 EntryPoolId       = fields[21].GetInt16();
 
-        if (data.transActive)
-            continue;
-
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if(!mapEntry)
         {
