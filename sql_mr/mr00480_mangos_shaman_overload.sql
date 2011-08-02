@@ -1,9 +1,3 @@
--- Arcane Potency 
-DELETE FROM spell_chain WHERE spell_ID IN (57529, 57531);
-INSERT INTO spell_chain	(spell_id, prev_spell, first_spell, rank, req_spell) VALUES
-(57529, 0, 57529, 1, 0),
-(57531,57529, 57529, 2,0);
-
 -- Lightning Bolt
 DELETE FROM spell_chain WHERE first_spell = 45284;
 INSERT INTO spell_chain (spell_id, prev_spell, first_spell, rank) VALUES
@@ -22,6 +16,10 @@ INSERT INTO spell_chain (spell_id, prev_spell, first_spell, rank) VALUES
 (49239, 45296, 45284, 13),
 (49240, 49239, 45284, 14);
 
+DELETE FROM spell_bonus_data WHERE entry = 45284;
+INSERT INTO spell_bonus_data (entry, direct_bonus, comments) VALUES
+(45284, 0.3572, 'Shaman - Lightning Bolt Overload Proc');
+
 -- Chain Lightning
 DELETE FROM spell_chain WHERE first_spell = 45297;
 INSERT INTO spell_chain (spell_id, prev_spell, first_spell, rank) VALUES
@@ -33,3 +31,7 @@ INSERT INTO spell_chain (spell_id, prev_spell, first_spell, rank) VALUES
 (45302, 45301, 45297, 6),
 (49268, 45302, 45297, 7),
 (49269, 49268, 45297, 8);
+
+DELETE FROM spell_bonus_data WHERE entry = 45297;
+INSERT INTO spell_bonus_data (entry, direct_bonus, comments) VALUES
+(45297, 0.2857, 'Shaman - Chain Lightning Overload Proc');

@@ -29,9 +29,3 @@ INSERT INTO spell_script_target VALUES
 (61920 ,1,32857),
 (61920 ,1,32927),
 (61920 ,1,32867);
-
--- Vehicle Scaling spells
-DELETE FROM spell_script_target WHERE entry = 66667;
-INSERT INTO spell_script_target VALUES (66667, 1, 27692);
-INSERT INTO spell_script_target VALUES (66667, 1, 27756);
-INSERT INTO spell_script_target VALUES (66667, 1, 27755);

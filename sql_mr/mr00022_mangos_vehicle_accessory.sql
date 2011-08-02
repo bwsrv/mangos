@@ -55,4 +55,4 @@ VALUES
     (36476,36477,0,0,'Krick and Ick'),
     (36661,36658,0,0,'Scourgelord Tyrannus and Rimefang');
     
- UPDATE `creature_template_addon` SET `auras`='' WHERE `entry` IN (32638, 32642);
+ UPDATE `creature_template_addon` SET `auras`='' WHERE `entry` IN (32638,32642);

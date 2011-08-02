@@ -166,7 +166,7 @@ CREATE TABLE `spell_dbc` (
   `Comment` text NOT NULL,
   PRIMARY KEY (`Id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Custom spell.dbc entries';
-	
+
 -- Spell disabled
 -- Commit 70d09c64ce0d3263a7e4
 
@@ -232,9 +232,6 @@ ALTER TABLE `spell_pet_auras`
     DROP PRIMARY KEY,
     ADD PRIMARY KEY (`spell`, `effectId`, `pet`, `aura`);
 
--- Implement creature spells storage
-
--- DROP TABLE IF EXISTS `creature_spell`;
 CREATE TABLE IF NOT EXISTS `creature_spell` (
     `guid`      int(11) unsigned NOT NULL COMMENT 'Unique entry from creature_template',
     `spell`     int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell id from DBC',
@@ -244,8 +241,3 @@ CREATE TABLE IF NOT EXISTS `creature_spell` (
     `flags`     int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell custom flags',
      PRIMARY KEY (`guid`,`index`,`active`)
 ) DEFAULT CHARSET=utf8 PACK_KEYS=0 COMMENT='Creature spells storage';
-
-ALTER TABLE `creature_spell`
-    DROP PRIMARY KEY,
-    ADD PRIMARY KEY (`guid`,`index`,`active`);
-	

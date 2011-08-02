@@ -2,14 +2,10 @@
 -- Lifebloom
 UPDATE `spell_bonus_data` SET `direct_bonus`= 0.8 WHERE `entry`= 33763;
 
-DELETE FROM `spell_bonus_data` WHERE entry IN (30451, 45284, 45297, 51963, 52042, 52752, 54158, 56161, 58621, 64844);
+DELETE FROM `spell_bonus_data` WHERE entry IN (30451, 51963, 52042, 52752, 54158, 56161, 58621, 64844);
 INSERT INTO `spell_bonus_data`
     (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`)
 VALUES
-	-- Lightning Bolt
-    (45284, 0.3572, 0, 0, 0, 'Shaman - Lightning Bolt Overload Proc'),
-	-- Chain Lightning
-	(45297, 0.2857,0, 0, 0, 'Shaman - Chain Lightning Overload Proc'),
     -- Gargoyle Strike
     (51963, 0, 0, 0, 0,'Gargoyle Strike'),
     -- Healing Stream Totem
