@@ -3074,13 +3074,7 @@ DynamicObject* Map::GetDynamicObject(ObjectGuid guid)
  */
 Transport* Map::getTransport(ObjectGuid guid)
 {
-    for (MapManager::TransportSet::iterator itr = sMapMgr.m_Transports.begin(); itr != sMapMgr.m_Transports.end(); ++itr)
-    {
-        Transport* trans = *itr;
-        if (trans->GetObjectGuid() == guid)
-            return trans;
-    }
-    return NULL;
+    return m_objectsStore.find<Transport>(guid, (Transport*)NULL);
 }
 
 /**
