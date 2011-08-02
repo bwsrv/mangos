@@ -138,6 +138,7 @@ class MANGOS_DLL_SPEC Object
             ClearUpdateMask(true);
             m_inWorld = false;
         }
+        bool IsInitialized() const { return (m_uint32Values ? true : false);}
 
         ObjectGuid const& GetObjectGuid() const { return GetGuidValue(OBJECT_FIELD_GUID); }
         const uint64 GetGUID() const { return GetObjectGuid().GetRawValue(); }  // DEPRECATED, not use, will removed soon
