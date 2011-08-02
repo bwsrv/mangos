@@ -41,7 +41,7 @@ class MANGOS_DLL_SPEC Transport : public GameObject
         typedef std::set<Unit*> UnitSet;
         UnitSet const& GetUnitPassengers() const { return _passengers; }
 
-        Creature* AddNPCPassenger(uint32 entry, float x, float y, float z, float o, Team team = TEAM_NONE);
+        Creature* AddNPCPassenger(uint32 entry, float x, float y, float z, float o, Team team = TEAM_NONE, const CreatureData *data = NULL);
 
         void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target);
         void BuildMovementPacket(Map const* targetMap, bool isMoving = false);

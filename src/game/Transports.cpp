@@ -179,7 +179,7 @@ void MapManager::LoadTransportCreatures()
             }
 
             if (transportUse == 1)
-                trans->AddNPCPassenger(data->id, data->posX, data->posY, data->posZ, data->orientation, TEAM_NONE);
+                trans->AddNPCPassenger(data->id, data->posX, data->posY, data->posZ, data->orientation, TEAM_NONE, data);
 
             break;
         }
@@ -669,7 +669,7 @@ void Transport::Update(uint32 update_diff, uint32 /*p_time*/)
     }
 }
 
-Creature* Transport::AddNPCPassenger(uint32 entry, float x, float y, float z, float o, Team team /*= TEAM_NONE*/)
+Creature* Transport::AddNPCPassenger(uint32 entry, float x, float y, float z, float o, Team team /*= TEAM_NONE*/, const CreatureData *data /*= NULL*/)
 {
     CreatureInfo const *cinfo = ObjectMgr::GetCreatureTemplate(entry);
     if (!cinfo)
@@ -680,7 +680,7 @@ Creature* Transport::AddNPCPassenger(uint32 entry, float x, float y, float z, fl
 
     CreatureCreatePos pos(map, x, y, z, o, GetPhaseMask());
 
-    if (!pCreature->Create(map->GenerateLocalLowGuid(HIGHGUID_UNIT), pos, cinfo, team))
+    if (!pCreature->Create(map->GenerateLocalLowGuid(HIGHGUID_UNIT), pos, cinfo, team, data))
     {
         delete pCreature;
         return NULL;
