@@ -788,7 +788,8 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
                                 "expansion, "               //7
                                 "mutetime, "                //8
                                 "locale, "                  //9
-                                "os "                       //10
+                                "os, "                      //10
+                                "premium "                  //11
                                 "FROM account "
                                 "WHERE username = '%s'",
                                 safe_account.c_str());
@@ -853,6 +854,8 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         locale = LOCALE_enUS;
 
     std::string os = fields[10].GetString();
+    // Premium Accounts System
+    uint32 premium = fields[11].GetInt32();
 
     delete result;
 
@@ -927,7 +930,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     stmt.PExecute(address.c_str(), account.c_str());
 
     // NOTE ATM the socket is single-threaded, have this in mind ...
-    ACE_NEW_RETURN(m_Session, WorldSession(id, this, AccountTypes(security), expansion, mutetime, locale), -1);
+    ACE_NEW_RETURN(m_Session, WorldSession(id, this, AccountTypes(security), expansion, mutetime, locale, premium), -1);
 
     m_Crypt.Init(&K);
 
