@@ -18,11 +18,13 @@
 
 #include "MapManager.h"
 #include "MapPersistentStateMgr.h"
+#include "InstanceData.h"
 #include "Policies/SingletonImp.h"
 #include "Database/DatabaseEnv.h"
 #include "Log.h"
 #include "Transports.h"
 #include "GridDefines.h"
+#include "DestinationHolderImp.h"
 #include "World.h"
 #include "CellImpl.h"
 #include "Corpse.h"
@@ -198,13 +200,22 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
             return false;
         }
 
+        if (!player->isGameMaster())
         // TODO: move this to a map dependent location
-        /*if(i_data && i_data->IsEncounterInProgress())
         {
-            DEBUG_LOG("MAP: Player '%s' can't enter instance '%s' while an encounter is in progress.", player->GetName(), GetMapName());
-            player->SendTransferAborted(GetId(), TRANSFER_ABORT_ZONE_IN_COMBAT);
-            return(false);
-        }*/
+            InstanceData* instance_data = ((DungeonMap*)CreateMap(mapid, player))->GetInstanceData();
+            if (instance_data && instance_data->IsEncounterInProgress())
+            {
+                DEBUG_LOG("MAP: Player '%s' can't enter instance '%s' while an encounter is in progress.", player->GetName(), mapName);
+                player->SendTransferAborted(mapid, TRANSFER_ABORT_ZONE_IN_COMBAT);
+                return false;
+            }
+            if (instance_data && instance_data->NoSpecialCriteria(player))
+            {
+                DEBUG_LOG("MAP: Player '%s' can't enter instance '%s' becouse player not have special criteria.", player->GetName(), mapName);
+                return false;
+            }
+        }
     }
 
     return true;
