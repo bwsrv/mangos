@@ -339,6 +339,7 @@ class BattleGroundAV : public BattleGround
         void HandleKillPlayer(Player* player, Player *killer);
         void HandleKillUnit(Creature *creature, Player *killer);
         void HandleQuestComplete(uint32 questid, Player *player);
+        bool IsMineOwnedBy(uint8 mine, uint32 team) { return (m_Mine_Owner[mine] == int8(team)) ? true : false; }
         bool PlayerCanDoMineQuest(int32 GOId, Team team);
 
         void EndBattleGround(Team winner);
@@ -346,6 +347,8 @@ class BattleGroundAV : public BattleGround
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player *plr);
 
         static BattleGroundAVTeamIndex GetAVTeamIndexByTeamId(Team team) { return BattleGroundAVTeamIndex(GetTeamIndexByTeamId(team)); }
+        // achievement Stormpike/Frostwolf Perfection
+        bool PerfectionAV(Team team) const { return m_PerfectionAV[GetTeamIndexByTeamId(team)]; }
     private:
         /* Nodes occupying */
         void EventPlayerAssaultsPoint(Player* player, BG_AV_Nodes node);
@@ -383,6 +386,7 @@ class BattleGroundAV : public BattleGround
         uint32 m_Mine_Reclaim_Timer[BG_AV_MAX_MINES];
 
         bool m_IsInformedNearLose[BG_TEAMS_COUNT];
+        bool m_captainAlive[BG_TEAMS_COUNT];
 
         uint32 m_HonorMapComplete;
         uint32 m_RepTowerDestruction;
@@ -392,6 +396,9 @@ class BattleGroundAV : public BattleGround
         uint32 m_RepOwnedMine;
         uint32 m_RepSurviveCaptain;
         uint32 m_RepSurviveTower;
+
+        bool   m_PerfectionAV[BG_TEAMS_COUNT];
+
 };
 
 #endif

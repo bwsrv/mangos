@@ -152,6 +152,8 @@ class BattleGroundWS : public BattleGround
         void AddPoint(Team team, uint32 Points = 1)     { m_TeamScores[GetTeamIndexByTeamId(team)] += Points; }
         void SetTeamPoint(Team team, uint32 Points = 0) { m_TeamScores[GetTeamIndexByTeamId(team)] = Points; }
         void RemovePoint(Team team, uint32 Points = 1)  { m_TeamScores[GetTeamIndexByTeamId(team)] -= Points; }
+        // For Achievement "capture flag for 75 sec"
+        uint32 GetFlagCaptureTime(Team team) const      { return m_FlagCaptureTime[GetTeamIndexByTeamId(team)]; }
     private:
         ObjectGuid m_FlagKeepers[BG_TEAMS_COUNT];
 
@@ -164,6 +166,7 @@ class BattleGroundWS : public BattleGround
         uint32 m_HonorWinKills;
         uint32 m_HonorEndKills;
         uint32 m_EndTimer;
+        uint32 m_FlagCaptureTime[BG_TEAMS_COUNT];
 
         Team   m_LastCapturedFlagTeam;
         Team   m_FirstCapturedFlagTeam;

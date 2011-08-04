@@ -37,7 +37,9 @@
 #include "MapManager.h"
 #include "BattleGround.h"
 #include "BattleGroundAB.h"
+#include "BattleGroundAV.h"
 #include "BattleGroundSA.h"
+#include "BattleGroundWS.h"
 #include "Map.h"
 #include "InstanceData.h"
 
@@ -101,7 +103,11 @@ bool AchievementCriteriaRequirement::IsValid(AchievementCriteriaEntry const* cri
         case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2:
         case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET:
         case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2:
+        case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL:
+        case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
         case ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN:
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST:    // only Children's Week achievements
+        case ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM:                // only Children's Week achievements
             break;
         default:
             sLog.outErrorDb( "Table `achievement_criteria_requirement` have data for not supported criteria type (Entry: %u Type: %u), ignore.", criteria->ID, criteria->requiredType);
@@ -447,8 +453,42 @@ void AchievementMgr::ResetAchievementCriteria(AchievementCriteriaTypes type, uin
         if (!achievement)
             continue;
 
-        // don't update already completed criteria
-        if (IsCompletedCriteria(achievementCriteria,achievement))
+        if (!IsCompletedAchievement(achievement))
+        {
+            switch(achievementCriteria->referredAchievement) // All achievements that should reset its progress.
+                    {
+                        case 73:
+                        case 204:
+                        case 203:
+                        case 213:
+                        case 216:
+                        case 229:
+                        case 231:
+                        case 582:
+                        case 583:
+                        case 584:
+                        case 587:
+                        case 872:
+                        case 1153:
+                        case 1251:
+                        case 1765:
+                        case 2193:
+                        case 2189:
+                        case 2190:
+                        case 1766:
+                        case 3845:
+                        case 3848:
+                        case 3849:
+                        case 3853:
+                            break;
+                        default:
+                            {
+                                if (IsCompletedCriteria(achievementCriteria,achievement))
+                                    continue;
+                            }
+                    }
+        }
+        else
             continue;
 
         switch (type)
@@ -464,6 +504,44 @@ void AchievementMgr::ResetAchievementCriteria(AchievementCriteriaTypes type, uin
                 if (achievementCriteria->win_rated_arena.flag == miscvalue1)
                     SetCriteriaProgress(achievementCriteria, achievement, 0, PROGRESS_SET);
                 break;
+            case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
+            case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL:
+            case ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL:
+            case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
+            case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
+            case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET:
+            case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL:
+            case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE:
+            {
+                switch(achievementCriteria->referredAchievement) // All achievements that should reset its progress.
+                {
+                    case 73:
+                    case 204:
+                    case 203:
+                    case 213:
+                    case 216:
+                    case 229:
+                    case 231:
+                    case 582:
+                    case 583:
+                    case 584:
+                    case 587:
+                    case 872:
+                    case 1153:
+                    case 1251:
+                    case 1765:
+                    case 2193:
+                    case 2189:
+                    case 2190:
+                    case 1766:
+                    case 3845:
+                    case 3848:
+                    case 3849:
+                    case 3853:
+                        SetCriteriaProgress(achievementCriteria, achievement, 0, PROGRESS_SET);
+                    default: continue; // Do not reset progress for other achievements.
+                }
+            }
             default:                                        // reset all cases
                 break;
         }
@@ -845,7 +923,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
         switch (type)
         {
             // std. case: increment at 1
-            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST:
             case ACHIEVEMENT_CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS:
             case ACHIEVEMENT_CRITERIA_TYPE_LOSE_DUEL:
             case ACHIEVEMENT_CRITERIA_TYPE_CREATE_AUCTION:
@@ -893,7 +970,25 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 break;
 
             // specialized cases
+            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST:
+            {
+                // AchievementMgr::UpdateAchievementCriteria might also be called on login - skip in this case
+                if (!miscvalue1)
+                    continue;
+ 
+                if (achievement->categoryId == CATEGORY_CHILDRENS_WEEK)
+                {
+                    AchievementCriteriaRequirementSet const* data = sAchievementMgr.GetCriteriaRequirementSet(achievementCriteria);
+                    if (!data || !data->Meets(GetPlayer(),unit))
+                        continue;
+                    if(!GetPlayer()->HasOrphan())
+                        continue;
+                }
 
+                change = 1;
+                progressType = PROGRESS_ACCUMULATE;
+                break;
+            }
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:
             {
                 // AchievementMgr::UpdateAchievementCriteria might also be called on login - skip in this case
@@ -902,20 +997,60 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if (achievementCriteria->win_bg.bgMapID != GetPlayer()->GetMapId())
                     continue;
 
+                BattleGround* bg = GetPlayer()->GetBattleGround();
+                if (!bg)
+                    continue;
+
                 if (achievementCriteria->win_bg.additionalRequirement1_type || achievementCriteria->win_bg.additionalRequirement2_type)
                 {
-                    // those requirements couldn't be found in the dbc
-                    AchievementCriteriaRequirementSet const* data = sAchievementMgr.GetCriteriaRequirementSet(achievementCriteria);
-                    if (!data || !data->Meets(GetPlayer(),unit))
-                        continue;
+                    // some hardcoded requirements
+                    switch(achievementCriteria->referredAchievement)
+                    {
+                        case 214:              // EY, win under 6 minutes
+                        case 226:              // AV, win under 6 minutes
+                        case 159:              // AB, win under 6 minutes
+                        {
+                            // set 8 minutes because there is 2 minutes long preparation
+                            if(bg->GetStartTime() > (8 * MINUTE * IN_MILLISECONDS))
+                                continue;
+                            break;
+                        }
+                        case 201:              // WS, win under 7 minutes
+                        {
+                            // set 9 minutes because there is 2 minutes long preparation
+                            if(bg->GetStartTime() > (9 * MINUTE * IN_MILLISECONDS))
+                                continue;
+                            break;
+                        }
+                        case 1164:             // AV, own both mines (horde)
+                        case 225:              // AV, own both mines (alliance)
+                        {
+
+                            int8 team = bg->GetTeamIndexByTeamId(GetPlayer()->GetTeam());
+                            if(!((BattleGroundAV*)bg)->IsMineOwnedBy(BG_AV_NORTH_MINE,team) || !((BattleGroundAV*)bg)->IsMineOwnedBy(BG_AV_SOUTH_MINE,team))
+                                continue;
+                            break;
+                        }
+                        case 873:              // AV, Frostwolf Perfection
+                        case 220:              // AV, Stormpike Perfection
+                        {
+                            if(!((BattleGroundAV*)bg)->PerfectionAV(GetPlayer()->GetTeam()))
+                                continue;
+                            break;
+                        }
+                        default:
+                        {
+                            // those requirements couldn't be found in the dbc
+                            AchievementCriteriaRequirementSet const* data = sAchievementMgr.GetCriteriaRequirementSet(achievementCriteria);
+                            if (!data || !data->Meets(GetPlayer(),unit))
+                                continue;
+                            break;
+                        }
+                    }
                 }
                 // some hardcoded requirements
                 else
                 {
-                    BattleGround* bg = GetPlayer()->GetBattleGround();
-                    if (!bg)
-                        continue;
-
                     switch(achievementCriteria->referredAchievement)
                     {
                         case 161:                           // AB, Overcome a 500 resource disadvantage
@@ -958,10 +1093,23 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if(achievementCriteria->kill_creature.creatureID != miscvalue1)
                     continue;
 
-                // those requirements couldn't be found in the dbc
-                AchievementCriteriaRequirementSet const* data = sAchievementMgr.GetCriteriaRequirementSet(achievementCriteria);
-                if(!data || !data->Meets(GetPlayer(),unit))
-                    continue;
+                switch(achievement->ID)                    //this is hack for kill vehicle on SA
+                {
+                    case 1763:
+                    case 2189:
+                        if(miscvalue1 == 28781)
+                            if(GetPlayer()->GetVehicle())
+                                break;
+                        else
+                            continue;
+                    default:
+                        {
+                            // those requirements couldn't be found in the dbc
+                            AchievementCriteriaRequirementSet const* data = sAchievementMgr.GetCriteriaRequirementSet(achievementCriteria);
+                            if(!data || !data->Meets(GetPlayer(),unit))
+                                continue;
+                        }
+                }
 
                 change = miscvalue2;
                 progressType = PROGRESS_ACCUMULATE;
@@ -1244,7 +1392,83 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if (!miscvalue1 || miscvalue1 != achievementCriteria->be_spell_target.spellID)
                     continue;
 
-                // those requirements couldn't be found in the dbc
+                switch(achievement->ID)
+                {
+                    case 2193:
+                    case 1761:
+                    case 409:
+                        if(miscvalue1 == 60937)            //this is hack for damage from bomb
+                            break;                         //this is not such spell in dbc
+                        else if(miscvalue1 == 26549)       //this is hack for Last man standing
+                            break;
+                        else
+                            continue;
+                    case 1757:
+                    case 2200:                            //this is hack for win SA with all walls
+                        if(miscvalue1 == 52459)
+                        {
+                            BattleGround* bg = GetPlayer()->GetBattleGround();
+                            if (!bg)
+                                continue;
+
+                            if(((BattleGroundSA*)bg)->winSAwithAllWalls(GetPlayer()->GetTeam()))
+                                break;
+                            else
+                                continue;
+                        }
+                        else
+                            continue;
+                    case 1310:                                         // SA, win under 4 minutes
+                        if(miscvalue1 == 65246)
+                        {
+                            BattleGround* bg = GetPlayer()->GetBattleGround();
+                            if (!bg)
+                                continue;
+
+                            if(((BattleGroundSA*)bg)->Round_timer > (4 * MINUTE * IN_MILLISECONDS))
+                                continue;
+                            break;
+                        }
+                    default:
+                        {
+                            // those requirements couldn't be found in the dbc
+                            AchievementCriteriaRequirementSet const* data = sAchievementMgr.GetCriteriaRequirementSet(achievementCriteria);
+                            if(!data)
+                            continue;
+
+                            if(!data->Meets(GetPlayer(),unit))
+                            continue;
+                        }
+                }
+
+                change = 1;
+                progressType = PROGRESS_ACCUMULATE;
+                break;
+            }
+            case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL:
+            {
+                if (!miscvalue1 || miscvalue1 != achievementCriteria->cast_spell.spellID)
+                    continue;
+
+                switch(achievement->ID)                    //this is hack for kill bomb SA
+                {
+                    case 1765:
+                        if(miscvalue1 == 1843)
+                            break;
+                        else
+                            continue;
+                    default:
+                        {
+                            // those requirements couldn't be found in the dbc
+                            AchievementCriteriaRequirementSet const* data = sAchievementMgr.GetCriteriaRequirementSet(achievementCriteria);
+                            if(!data)
+                            continue;
+
+                            if(!data->Meets(GetPlayer(),unit))
+                            continue;
+                        }
+                }
+
                 AchievementCriteriaRequirementSet const* data = sAchievementMgr.GetCriteriaRequirementSet(achievementCriteria);
                 if(!data)
                     continue;
@@ -1252,11 +1476,15 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if(!data->Meets(GetPlayer(),unit))
                     continue;
 
+                //Home Alone requires Orphan
+                if (achievementCriteria->cast_spell.spellID == 8690)
+                    if(!GetPlayer()->HasOrphan())
+                        continue;
+
                 change = 1;
                 progressType = PROGRESS_ACCUMULATE;
                 break;
             }
-            case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL:
             case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2:
             {
                 if (!miscvalue1 || miscvalue1 != achievementCriteria->cast_spell.spellID)
@@ -1350,6 +1578,16 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     continue;
                 if(achievementCriteria->use_item.itemID != miscvalue1)
                     continue;
+                // Children's Week achievements have extra requirements
+                if (achievement->categoryId == CATEGORY_CHILDRENS_WEEK)
+                {
+                    if(!GetPlayer()->HasOrphan())
+                        continue;
+
+                    AchievementCriteriaRequirementSet const* data = sAchievementMgr.GetCriteriaRequirementSet(achievementCriteria);
+                    if (!data || !data->Meets(GetPlayer(), NULL))
+                        continue;
+                }
                 change = 1;
                 progressType = PROGRESS_ACCUMULATE;
                 break;
@@ -1658,6 +1896,104 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 change = GetPlayer()->GetMoney();
                 progressType = PROGRESS_HIGHEST;
                 break;
+            case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL:
+            case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
+            {
+                if (!miscvalue1)
+                    continue;
+
+                // those requirements couldn't be found in the dbc
+                AchievementCriteriaRequirementSet const* data = sAchievementMgr.GetCriteriaRequirementSet(achievementCriteria);
+
+                if(achievementCriteria->healing_done.flag != 0)
+                {
+                    if(GetPlayer()->GetMapId() != achievementCriteria->healing_done.mapid)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        if(data && !data->Meets(GetPlayer(),unit))
+                            continue;
+                    }
+                }
+                else
+                {
+                    if(!data)
+                        continue;
+
+                    if(!data->Meets(GetPlayer(),unit))
+                        continue;
+                }
+
+                BattleGround* bg = GetPlayer()->GetBattleGround();
+                // some hardcoded requirements
+                switch(achievementCriteria->referredAchievement)
+                {
+                    case 231:                   // Wrecking Ball
+                    {
+                        if(!bg || bg->GetPlayerScore(GetPlayer(),SCORE_DEATHS) != 0)
+                            continue;
+                        break;
+                    }
+                }
+                SetCriteriaProgress(achievementCriteria, achievement, miscvalue1, PROGRESS_ACCUMULATE);
+                break;
+            }
+            case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
+            {
+                if(GetPlayer()->GetAreaId() != achievementCriteria->honorable_kill_at_area.areaID)
+                    continue;
+
+                SetCriteriaProgress(achievementCriteria, achievement, miscvalue1, PROGRESS_ACCUMULATE);
+                break;
+            }
+            case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
+            {
+                BattleGround* bg = GetPlayer()->GetBattleGround();
+                if (!miscvalue1 || !miscvalue2 || !bg)
+                    continue;
+
+                uint32 time;
+
+                if(achievementCriteria->objective_capture.captureID != miscvalue2)
+                    continue;
+
+                // some hardcoded requirements
+                switch(achievementCriteria->referredAchievement)
+                {
+                    case 204:                   // WS, capture 3 flags without dying
+                    {
+                        if(bg->GetPlayerScore(GetPlayer(),SCORE_DEATHS) != 0)
+                            continue;
+                        break;
+                    }
+                    case 211:                   // EY, capture flag while controling all 4 bases
+                    {
+                        if(!bg->IsAllNodesConrolledByTeam(GetPlayer()->GetTeam()))
+                            continue;
+                        break;
+                    }
+                    case 216:                    // EY, capture 3 flags without dying
+                    {
+                        if(bg->GetPlayerScore(GetPlayer(),SCORE_DEATHS) != 0)
+                            continue;
+                        break;
+                    }
+                    case 202:                    // WS, capture flag for 75 sec, ally
+                    case 1502:                   // WS, capture flag for 75 sec, horde
+                    {
+                        time = ((BattleGroundWS*)bg)->GetStartTime() - ((BattleGroundWS*)bg)->GetFlagCaptureTime(GetPlayer()->GetTeam());
+                        if(time > 75 * IN_MILLISECONDS)
+                            continue;
+                        miscvalue1 = time;
+                        break;
+                    }
+                }
+
+                SetCriteriaProgress(achievementCriteria, achievement, miscvalue1, PROGRESS_ACCUMULATE);
+                break;
+            }
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING:
             {
                 if(!miscvalue1 || achievementCriteria->highest_team_rating.teamtype != miscvalue1)
@@ -1685,10 +2021,36 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if (!miscvalue1)
                     continue;
 
-                // They have no proper requirements in dbc
-                AchievementCriteriaRequirementSet const* data = sAchievementMgr.GetCriteriaRequirementSet(achievementCriteria);
-                if (!data || !data->Meets(GetPlayer(), NULL))
-                    continue;
+                //title achievement of arena
+                switch(achievementCriteria->referredAchievement)
+                {
+                    case 2090:
+                        if(GetPlayer()->GetAchievementMgr().HasAchievement(2093))
+                            break;
+                        else if(GetPlayer()->GetAchievementMgr().HasAchievement(2092))
+                            break;
+                        else if(GetPlayer()->GetAchievementMgr().HasAchievement(2091))
+                            break;
+                        //there is no break!
+                    case 2093:
+                        if(GetPlayer()->GetAchievementMgr().HasAchievement(2092))
+                            break;
+                        else if(GetPlayer()->GetAchievementMgr().HasAchievement(2091))
+                            break;
+                        //there is no break!
+                    case 2092:
+                        if(GetPlayer()->GetAchievementMgr().HasAchievement(2091))
+                            break;
+                        //there is no break!
+                    default:
+                        {
+                            // They have no proper requirements in dbc
+                            AchievementCriteriaRequirementSet const* data = sAchievementMgr.GetCriteriaRequirementSet(achievementCriteria);
+                            if (!data || !data->Meets(GetPlayer(), NULL))
+                                continue;
+                        }
+
+                }
 
                 change = 1;
                 progressType = PROGRESS_ACCUMULATE;
@@ -1714,12 +2076,8 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             // FIXME: not triggered in code as result, need to implement
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST_DAILY:
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_RAID:
-            case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
-            case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
             case ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA:
-            case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL:
             case ACHIEVEMENT_CRITERIA_TYPE_OWN_RANK:
-            case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
             case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE:
             case ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS:
                 break;                                   // Not implemented yet :(
@@ -1750,6 +2108,8 @@ uint32 AchievementMgr::GetCriteriaProgressMaxCounter(AchievementCriteriaEntry co
         case ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE:
         case ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE:
             return achievementCriteria->healing_done.count;
+        case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
+        case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL:
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST:
             return achievementCriteria->complete_daily_quest.questCount;
         case ACHIEVEMENT_CRITERIA_TYPE_FALL_WITHOUT_DYING:
@@ -1821,6 +2181,10 @@ uint32 AchievementMgr::GetCriteriaProgressMaxCounter(AchievementCriteriaEntry co
             return achievementCriteria->learn_skill_line.spellCount;
         case ACHIEVEMENT_CRITERIA_TYPE_EARN_HONORABLE_KILL:
             return achievementCriteria->honorable_kill.killCount;
+        case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
+            return achievementCriteria->honorable_kill_at_area.killCount;
+        case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
+            return achievementCriteria->objective_capture.captureCount;
         case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_PERSONAL_RATING:
             return achievementCriteria->highest_personal_rating.teamrating;
         case ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS:
@@ -2403,7 +2767,6 @@ void AchievementGlobalMgr::LoadAchievementCriteriaRequirements()
                     //case 1276:
                     //case 1277:
                     case 1282:
-                    case 1789:
                         break;
                     default:
                         continue;
@@ -2433,6 +2796,16 @@ void AchievementGlobalMgr::LoadAchievementCriteriaRequirements()
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2:     // any cases
                 break;
+            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST:
+            case ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM:        // only Children's Week achievements
+            {
+                AchievementEntry const* achievement = sAchievementStore.LookupEntry(criteria->referredAchievement);
+                if (!achievement)
+                    continue;
+                if (achievement->categoryId != CATEGORY_CHILDRENS_WEEK)
+                    continue;
+                break;
+            }
             case ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE:       // need skip generic cases
                 if(criteria->loot_type.lootTypeCount!=1)
                     continue;
