@@ -2878,6 +2878,13 @@ bool Pet::Summon()
             SetNeedSave(true);
             owner->SetPet(this);
             setFaction(owner->getFaction());
+            // generate new name for first summon pet (not for tempsummoned)
+            if (!isTemporarySummoned())
+            {
+                std::string new_name = sObjectMgr.GeneratePetName(GetEntry());
+                if (!new_name.empty())
+                    SetName(new_name);
+            }
             break;
         }
         case HUNTER_PET:  // Called only if new tamed pet created
