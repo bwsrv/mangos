@@ -8839,6 +8839,14 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     return;
                 }
+                case 61832:                                  // Rifle the Bodies: Create Magehunter Personal Effects Cover
+                {
+                    if (m_caster->GetTypeId() != TYPEID_UNIT)
+                        return;
+                 
+                    ((Creature*)m_caster)->ForcedDespawn(1000);
+                    return;
+                }
                 case 62482:                             // Grab Crate
                 {
                     if (unitTarget)
@@ -10458,6 +10466,15 @@ void Spell::EffectLeapBack(SpellEffectIndex eff_idx)
         return;
 
     m_caster->KnockBackFrom(unitTarget,float(m_spellInfo->EffectMiscValue[eff_idx])/10,float(damage)/10);
+    // Disengage - combat stop
+    if (m_spellInfo->Id == 781)
+    {
+        m_caster->CombatStop();
+        // prevent interrupt message
+        m_caster->FinishSpell(CURRENT_GENERIC_SPELL,false);
+        m_caster->InterruptNonMeleeSpells(true);
+        m_caster->getHostileRefManager().deleteReferences();
+    }
 }
 
 void Spell::EffectReputation(SpellEffectIndex eff_idx)
