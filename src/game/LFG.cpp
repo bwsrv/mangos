@@ -26,6 +26,7 @@
 
 void LFGPlayerState::Clear()
 {
+    LFGMgr::WriteGuard Guard(sLFGMgr.GetLock());
     rolesMask = LFG_ROLE_MASK_NONE;
     update = true;
     m_state = LFG_STATE_NONE;
@@ -83,9 +84,6 @@ LFGRoleMask LFGPlayerState::GetRoles()
 
 LFGType LFGPlayerState::GetDungeonType()
 {
-    if (update)
-        return LFG_TYPE_NONE;
-
     return GetType();
 };
 
@@ -117,6 +115,7 @@ void LFGPlayerState::SetComment(std::string comment)
 
 LFGType LFGPlayerState::GetType()
 {
+    LFGMgr::ReadGuard Guard(sLFGMgr.GetLock());
     if (m_DungeonsList.empty())
         return LFG_TYPE_NONE;
     else
@@ -125,6 +124,7 @@ LFGType LFGPlayerState::GetType()
 
 void LFGGroupState::Clear()
 {
+    LFGMgr::WriteGuard Guard(sLFGMgr.GetLock());
     queued = false;
     update = true;
     m_status = LFG_STATUS_NOT_SAVED;
@@ -147,6 +147,7 @@ void LFGGroupState::Clear()
 
 LFGType LFGGroupState::GetType()
 {
+    LFGMgr::ReadGuard Guard(sLFGMgr.GetLock());
     if (m_DungeonsList.empty())
         return LFG_TYPE_NONE;
     else
@@ -185,10 +186,7 @@ bool LFGGroupState::IsRoleCheckActive()
 
 LFGType LFGGroupState::GetDungeonType()
 {
-    if (!GetDungeons() || GetDungeons()->empty())
-        return LFG_TYPE_NONE;
-
-    return LFGType((*GetDungeons()->begin())->type);
+    return GetType();
 };
 
 bool LFGGroupState::IsBootActive()
