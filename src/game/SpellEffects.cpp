@@ -2793,6 +2793,18 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(m_caster, 57912, true);
                     return;
                 }
+                case 55965:                                 // Shadowstep (Ahn'Kahet dummy)
+                {
+                    if (!unitTarget)
+                        return;
+
+                    m_caster->CastSpell(m_caster, 55964, false);  // set Vanish
+                    m_caster->DeleteThreatList();                 // delete threat list
+                    m_caster->AddThreat(unitTarget);              // add new target to threat list
+                    m_caster->CastSpell(unitTarget, 55966, true); // cast Shadowstep
+                    m_caster->RemoveAurasDueToSpell(55964);       // remove Vanish auras
+                return;
+                }
                 case 58418:                                 // Portal to Orgrimmar
                 case 58420:                                 // Portal to Stormwind
                     return;                                 // implemented in EffectScript[0]
@@ -8691,6 +8703,18 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(unitTarget, 58919, true);
                     return;
                 }
+                case 59910:                                 // Summon Minions
+                {
+                    if (!unitTarget)
+                        return;
+                                                            // Summon Fetid Troll (1-5)
+                    unitTarget->CastSpell(unitTarget, 59935, true);
+                    unitTarget->CastSpell(unitTarget, 59938, true);
+                    unitTarget->CastSpell(unitTarget, 59939, true);
+                    unitTarget->CastSpell(unitTarget, 59940, true);
+                    unitTarget->CastSpell(unitTarget, 59943, true);
+                    return;
+                }
                 case 62428:                                 // Load into Catapult
                 {
                     if (VehicleKit *seat = m_caster->GetVehicleKit())
@@ -8812,6 +8836,26 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     }
                     else
                         ((TemporarySummon*)m_caster)->UnSummon();
+
+                    return;
+                }
+                case 62482:                             // Grab Crate
+                {
+                    if (unitTarget)
+                    {
+                        if (VehicleKit *seat = m_caster->GetVehicleKit())
+                        {
+                            if (Creature *oldContainer = dynamic_cast<Creature*>(seat->GetPassenger(1)))
+                            {
+                                if (oldContainer->isAlive())
+                                oldContainer->SetDeathState(JUST_DIED);
+                                oldContainer->RemoveCorpse();
+                            }
+                            // TODO: a hack, range = 11, should after some time cast, otherwise too far
+                            unitTarget->CastSpell(seat->GetBase(), 62496, true);
+                            unitTarget->EnterVehicle(seat, 1);
+                        }
+                    }
 
                     return;
                 }
