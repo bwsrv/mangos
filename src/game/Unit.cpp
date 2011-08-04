@@ -9129,9 +9129,59 @@ float Unit::ApplyTotalThreatModifier(float threat, SpellSchoolMask schoolMask)
 
 void Unit::AddThreat(Unit* pVictim, float threat /*= 0.0f*/, bool crit /*= false*/, SpellSchoolMask schoolMask /*= SPELL_SCHOOL_MASK_NONE*/, SpellEntry const *threatSpell /*= NULL*/)
 {
-    // Only mobs can manage threat lists
-    if (CanHaveThreatList())
-        m_ThreatManager.addThreat(pVictim, threat, crit, schoolMask, threatSpell);
+   // Only mobs can manage threat lists
+   if (CanHaveThreatList())
+   {
+    if (threatSpell && pVictim && pVictim->GetTypeId() == TYPEID_PLAYER)
+    {
+       float bonus = 1.0f;
+
+       switch (threatSpell->SpellFamilyName)
+       {
+        case SPELLFAMILY_WARRIOR:
+            {
+                // Heroic Throw
+                if (threatSpell->Id == 57755)
+                    bonus = 1.5f;
+
+                // Thunder Clap
+                if (threatSpell->SpellFamilyFlags.test<CF_WARRIOR_THUNDER_CLAP>())
+                    bonus = 1.85f;
+
+                // Devastate
+                if (threatSpell->SpellFamilyFlags.test<CF_WARRIOR_DEVASTATE>())
+                    bonus = 5.0f;
+            };
+            break;
+        case SPELLFAMILY_DEATHKNIGHT:
+            {
+                // Rune Strike
+                if (threatSpell->SpellFamilyFlags.test<CF_DEATHKNIGHT_RUNE_STRIKE>())
+                    bonus = 1.75f;
+
+                // Death and Decay
+                if (threatSpell->Id == 52212)
+                    bonus = 1.9f;
+
+                // Icy Touch
+                if (pVictim->HasAura(48263) && threatSpell->SpellFamilyFlags.test<CF_DEATHKNIGHT_ICY_TOUCH_TALONS>())
+                    bonus = 7.0f;
+            };
+            break;
+        case SPELLFAMILY_DRUID:
+            {   
+                // Swipe (bear)
+                if (threatSpell->SpellFamilyFlags.test<CF_DRUID_SWIPE>())
+                    bonus = 1.5f;
+            };
+            break;
+        };
+        threat*=bonus;
+    }
+
+    m_ThreatManager.addThreat(pVictim, threat, crit, schoolMask, threatSpell);
+
+   }
 }
 
 //======================================================================
