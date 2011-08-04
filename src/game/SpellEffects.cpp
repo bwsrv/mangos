@@ -1041,6 +1041,15 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(unitTarget, spell_id, true);
                     return;
                 }
+                case 7669:                                   // Belthor's Potion
+                {
+                    SpellAuraHolder* hexOfRavenclaw = m_caster->GetSpellAuraHolder(7656);
+                    if (hexOfRavenclaw)
+                    {
+                       m_caster->RemoveAurasDueToSpell(7656);
+                    }
+                    return;
+                }
                 case 7671:                                  // Transformation (human<->worgen)
                 {
                     if (!unitTarget)
@@ -7410,6 +7419,14 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     else
                         unitTarget->CastSpell(unitTarget, 26655, false);
 
+                    return;
+                }
+                case 54097:                                 // Widow's Embrace (Naxxramas Worshipper)
+                {                                           // kill worshipper after using
+                    if (m_caster->GetTypeId() != TYPEID_UNIT || !m_caster->isAlive())
+                        return;
+
+                    m_caster->DealDamage(m_caster, m_caster->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                     return;
                 }
                 case 26678:                                 //Heart Candy
