@@ -416,21 +416,37 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                         damage = 0;
                         break;
                     }
-                    // Cataclysmic Bolt
-                    case 38441:
+                    case 38441:                              // Cataclysmic Bolt
+                    case 66316:                              // Spinning Pain Spike (Trial Of Crusader, Lord Jaraxxus encounter, all difficult)
+                    case 67100:
+                    case 67101:
+                    case 67102:
                     {
                         damage = unitTarget->GetMaxHealth() / 2;
                         break;
                     }
-                    // Ymiron Dark Slash
-                    case 48292:
+                    case 48292:                              // Ymiron Dark Slash
                     {
                         damage = unitTarget->GetHealth() / 2;
                         break;
                     }
-                    case 51132: // Urom Clocking Bomb Damage
+                    case 51132:                              // Urom Clocking Bomb Damage
                     {
                         damage = m_caster->GetMaxHealth() - m_caster->GetHealth();
+                        break;
+                    }
+                    case 52942:                              // Loken Pulsing Shock Wave N
+                    case 59837:                              // Loken Pulsing Shock Wave H
+                    case 52924:                              // Loken Arc Lightning Shock Effect
+                    {
+                        float dist = m_caster->GetDistance(unitTarget);
+                        if (dist < 1.0f)
+                            dist = 1.0f;
+
+                        if (unitTarget->HasAura(59414))      // Temp Huck Aura Mod Percent Damage not work
+                            damage += damage * 0.25;
+
+                        damage = dist*damage;
                         break;
                     }
                     // Explode
