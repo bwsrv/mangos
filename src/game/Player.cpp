@@ -23068,14 +23068,14 @@ void Player::UpdateFallInformationIfNeed( MovementInfo const& minfo,uint16 opcod
         SetFallInformation(minfo.GetFallTime(), minfo.GetPos()->z);
 }
 
-void Player::UnsummonPetTemporaryIfAny()
+void Player::UnsummonPetTemporaryIfAny(bool full)
 {
     if (!GetMap())
         return;
 
     Pet* minipet = GetMiniPet();
 
-    if (minipet)
+    if (full && minipet)
         minipet->Unsummon(PET_SAVE_AS_DELETED, this);
 
     Pet* pet = GetPet();
@@ -23091,7 +23091,8 @@ void Player::UnsummonPetTemporaryIfAny()
             if (!_pet->isTemporarySummoned())
                 _pet->Unsummon(PET_SAVE_AS_CURRENT, this);
             else
-                _pet->Unsummon(PET_SAVE_NOT_IN_SLOT, this);
+                if (full)
+                    _pet->Unsummon(PET_SAVE_NOT_IN_SLOT, this);
         }
     }
 
