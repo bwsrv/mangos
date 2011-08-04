@@ -721,6 +721,10 @@ void AreaAura::Update(uint32 diff)
                 // flag for seelction is need apply aura to current iteration target
                 bool apply = true;
 
+                // The Might of Mograine must not affect scourge soldiers, must affect only players and DK bosses
+                if (GetSpellProto()->Id == 53642 && ((*tIter)->GetEntry() == 29186 || (*tIter)->GetEntry() == 29190 || (*tIter)->GetEntry() == 29219 || (*tIter)->GetEntry() == 29206))
+                    apply = false;
+
                 // we need ignore present caster self applied are auras sometime
                 // in cases if this only auras applied for spell effect
                 Unit::SpellAuraHolderBounds spair = (*tIter)->GetSpellAuraHolderBounds(GetId());
@@ -2233,6 +2237,21 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                             target->CastSpell(target, 51581, true, NULL, this);
                         return;
                     }
+                    case 43351:                             // Cleansing Soul
+                        if(Unit* pCaster = GetCaster())
+                        {
+                            if(pCaster->GetTypeId() == TYPEID_PLAYER)
+                            {
+                                Player* pPlayer = (Player*)pCaster;
+
+                                if(!pPlayer)
+                                    return;
+
+                                pPlayer->SetStandState(UNIT_STAND_STATE_SIT);
+                                pPlayer->SetClientControl(pPlayer, 0);
+                            }
+                        }
+                        return;
                     case 43873:                             // Headless Horseman Laugh
                         target->PlayDistanceSound(11965);
                         return;
@@ -2358,6 +2377,18 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         // Teach Learn Talent Specialization Switches, remove
                         if (target->GetTypeId() == TYPEID_PLAYER)
                             ((Player*)target)->removeSpell(63680);
+                        return;
+                    case 65921:                             // Anub'arak Spikes (TotC10)
+                        // expected to tick with 0.5 sec period (tick part see in Aura::PeriodicTick)
+                        m_isPeriodic = true;
+                        m_modifier.periodictime = 500;
+                        m_periodicTimer = m_modifier.periodictime;
+                        return;
+                    case 67574:                             // Anub'arak Aggro Spike (TotC10)
+                        // expected to tick with 0.5 sec period (tick part see in Aura::PeriodicTick)
+                        m_isPeriodic = true;
+                        m_modifier.periodictime = 500;
+                        m_periodicTimer = m_modifier.periodictime;
                         return;
                     case 68645:
                         // Rocket Pack
@@ -2701,6 +2732,18 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
             {
                 if (target->HasAura(29660))
                     target->RemoveAurasDueToSpell(29660);
+                return;
+            }
+            case 39088:                                     // Positive Charge (Capacitus)
+            {
+                if (target->HasAura(39089))
+                    target->RemoveAurasDueToSpell(39089);
+                return;
+            }
+            case 39091:                                     // Negative Charge (Capacitus)
+            {
+                if (target->HasAura(39092))
+                    target->RemoveAurasDueToSpell(39092);
                 return;
             }
             case 28169:                                     // Mutating Injection
