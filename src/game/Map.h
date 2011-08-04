@@ -36,6 +36,7 @@
 #include "MapRefManager.h"
 #include "Utilities/TypeList.h"
 #include "ScriptMgr.h"
+#include "Weather.h"
 
 #include <bitset>
 #include <list>
@@ -258,6 +259,9 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
         void MonsterYellToMap(ObjectGuid guid, int32 textId, uint32 language, Unit* target);
         void MonsterYellToMap(CreatureInfo const* cinfo, int32 textId, uint32 language, Unit* target, uint32 senderLowGuid = 0);
         void PlayDirectSoundToMap(uint32 soundId);
+        
+        // Weather
+        void SetMapWeather(WeatherState state, float grade);
 
     private:
         void LoadMapAndVMap(int gx, int gy);

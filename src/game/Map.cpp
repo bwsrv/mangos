@@ -3252,3 +3252,21 @@ void Map::PlayDirectSoundToMap(uint32 soundId)
     for (PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
         itr->getSource()->SendDirectMessage(&data);
 }
+
+void Map::SetMapWeather(WeatherState state, float grade)
+{
+    //Weather is OFF
+    if (!sWorld.getConfig(CONFIG_BOOL_WEATHER))
+        return;
+
+    if (grade < 0.0f || grade > 1.0f)
+        return;
+
+    if (!IsDungeon())
+        return;
+
+    WorldPacket data(SMSG_WEATHER, (4+4+4));
+    data << uint32(state) << (float)grade << uint8(0);
+
+    ((DungeonMap*)this)->SendToPlayers(&data);
+}
