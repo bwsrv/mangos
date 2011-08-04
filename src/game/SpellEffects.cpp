@@ -3004,6 +3004,15 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(m_caster, spell_id, true);
                     return;
                 }
+                case 68576:                                 // Eject All Passengers
+                {
+                    if (!unitTarget)
+                        return;
+
+                    if (VehicleKit* vehicle = unitTarget->GetVehicleKit())
+                        vehicle->RemoveAllPassengers();
+                    return;
+                }
                 case 67366:                                 // C-14 Gauss Rifle
                 {
                     if (!unitTarget)
@@ -4035,6 +4044,15 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
         sScriptMgr.OnEffectDummy(m_caster, m_spellInfo->Id, eff_idx, (Creature*)unitTarget);
     else if (itemTarget)
         sScriptMgr.OnEffectDummy(m_caster, m_spellInfo->Id, eff_idx, itemTarget);
+
+    // DB Scripting related check
+    if (!unitTarget)
+        return;
+
+    sLog.outDebug("Spell ScriptStart spellid %u in EffectDummy ", m_spellInfo->Id);
+    if(m_caster->IsInWorld())
+        m_caster->GetMap()->ScriptsStart(sSpellScripts, m_spellInfo->Id, m_caster, unitTarget);
+
 }
 
 void Spell::EffectTriggerSpellWithValue(SpellEffectIndex eff_idx)
@@ -4115,6 +4133,12 @@ void Spell::EffectForceCast(SpellEffectIndex eff_idx)
     if (!spellInfo)
     {
         sLog.outError("EffectForceCast of spell %u: triggering unknown spell id %i", m_spellInfo->Id, triggered_spell_id);
+        return;
+    }
+
+    if (m_spellInfo->Id == 66285)                           // Spinning Pain Spike (Trial Of Crusader, Lord Jaraxxus encounter)
+    {
+        unitTarget->CastSpell(m_caster, spellInfo, true);
         return;
     }
 
@@ -4298,6 +4322,12 @@ void Spell::EffectTriggerMissileSpell(SpellEffectIndex effect_idx)
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
         ((Player*)m_caster)->RemoveSpellCooldown(triggered_spell_id);
+
+    if (m_spellInfo->Id == 66283)                           // Spinning Pain Spike (Trial Of Crusader, Lord Jaraxxus encounter)
+    {
+        m_caster->CastSpell(unitTarget, triggered_spell_id, true);
+        return;
+    }
 
     m_caster->CastSpell(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, spellInfo, true, m_CastItem, 0, m_originalCasterGUID);
 }
@@ -4580,6 +4610,25 @@ void Spell::EffectApplyAura(SpellEffectIndex eff_idx)
                duration *= 2.0f;
                aur->GetModifier()->m_amount *= 1.3f;
             }
+        }
+    }
+
+    // Arcane Overload - Reduce protection aura radius (Malygos - triggered by 56432)
+    if(m_spellInfo->Id == 56438 && m_caster->HasAura(56435))
+    {
+        if(Aura* sizeAur = m_caster->GetAura(56435, EFFECT_INDEX_0))
+        {
+            uint8 stackAmount = sizeAur->GetStackAmount();
+            float reduceRadius = stackAmount * 0.267; // radius 12.0 -> reduction at 1 tick per sec for duration of 45 secs ~ 0.267
+
+            float newRadius = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[eff_idx])) - reduceRadius;
+            
+            // prevent negative radius
+            if (newRadius < 0.0)
+                newRadius = 0.0;
+
+            if (!unitTarget->IsWithinDist(m_caster, newRadius, true))
+                return;
         }
     }
 
@@ -7805,7 +7854,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     return;
                 }
-                case 44876:                                 // Force Cast - Portal Effect: Sunwell Isle
+                 case 44876:                                 // Force Cast - Portal Effect: Sunwell Isle
                 {
                     if (!unitTarget)
                         return;
@@ -7833,7 +7882,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                 }
                 case 45668:                                 // Ultra-Advanced Proto-Typical Shortening Blaster
                 {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT || m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
 
                     if (roll_chance_i(25))                  // chance unknown, using 25
@@ -8105,6 +8154,17 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, spellId, true);
                     return;
                 }
+                 case 48769:                                 // A Fall from Grace: Quest Completion Script
+                {
+                    if (!unitTarget)
+                        return;
+
+                    if (unitTarget->HasAura(48761))
+                        unitTarget->RemoveAurasDueToSpell(48761);
+                    if (unitTarget->HasAura(48763))
+                        unitTarget->RemoveAurasDueToSpell(48763);
+                    return;
+                }
                 case 48810:                                 // Death's Door
                 {
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -8162,9 +8222,17 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, 32756, true);
                     return;
                 }
-                case 49380:                                 // Consume: Spell of Trollgore nonhero
+                case 49380:                                // Consume (normal mode Trollgore - Drak'Tharok Keep)
                 {
-                    m_caster->CastSpell(m_caster,49381,true);
+                    if (!unitTarget)
+                        return;
+
+                    // apply Consume buff
+                    unitTarget->CastSpell(m_caster, 49381, false);
+
+                    // Corpse Explode (prepare corpse to explode)
+                    m_caster->CastSpell(m_caster, 49555, false);
+
                     return;
                 }
                 case 49405:                                 // Taunt Invider Trigger (Trollgore - Drak'Tharon Keep)
@@ -8265,6 +8333,18 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         return;
 
                     ((Player*)caster)->RemoveSpellCategoryCooldown(82, true);
+                    return;
+                }
+                case 59803:                                 // Consume (heroic mode Trollgore - Drak'Tharok Keep)
+                {
+                    if (!unitTarget)
+                        return;
+
+                    // apply Consume buff
+                    unitTarget->CastSpell(m_caster, 59805, false);
+
+                    // Corpse Explode (prepare corpse to explode)
+                    m_caster->CastSpell(m_caster, 59807, false);
                     return;
                 }
                 case 50810:                                 // Shatter (Krystallus)
@@ -8609,11 +8689,6 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         return;
 
                     m_caster->CastSpell(unitTarget, 58919, true);
-                    return;
-                }
-                case 59803:                                 // Consume: Spell of Trollgore hero
-                {
-                    m_caster->CastSpell(m_caster,59805,true);
                     return;
                 }
                 case 62428:                                 // Load into Catapult
