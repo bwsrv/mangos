@@ -2473,9 +2473,12 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             break;
         case TARGET_CASTER_COORDINATES:
         {
-            // Check original caster is GO - set its coordinates as dst cast
-            if (WorldObject *caster = GetCastingObject())
-                m_targets.setDestination(caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ());
+            if (WorldObject *caster = GetCastingObject()) //Becouse with SetDest Spell Animation under caster, need on target!
+            {
+                m_targets.m_destX = caster->GetPositionX();
+                m_targets.m_destY = caster->GetPositionY();
+                m_targets.m_destZ = caster->GetPositionZ();
+            }
             break;
         }
         case TARGET_ALL_HOSTILE_UNITS_AROUND_CASTER:
