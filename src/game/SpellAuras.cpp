@@ -4462,6 +4462,11 @@ void Aura::HandleModPossess(bool apply, bool Real)
 
         if (target->GetTypeId() == TYPEID_UNIT)
         {
+            // Add threat to the caster after possess expires
+            target->CombatStop();
+            target->getHostileRefManager().deleteReferences();
+            target->getThreatManager().addThreat(p_caster, 9999999.0f);
+
             ((Creature*)target)->AIM_Initialize();
             target->AttackedBy(caster);
         }
@@ -5697,6 +5702,44 @@ void Aura::HandlePeriodicTriggerSpell(bool apply, bool /*Real*/)
                         pCaster->CastSpell(target, spellId, true);
                 }
 
+                return;
+            case 65920:                                     // Anub'arak remove spike trigger
+                if (m_removeMode == AURA_REMOVE_BY_EXPIRE)
+                {
+                    Unit* pCaster = GetCaster();
+                    if (pCaster && pCaster->GetTypeId() != TYPEID_PLAYER)
+                    {
+                        Unit* pVictim = pCaster->getVictim();
+                        if (pVictim && pVictim->HasAura(67574))
+                            pVictim->RemoveAurasDueToSpell(67574);
+                        pCaster->CastSpell(pCaster, 65922, true);
+                    }
+                }
+                return;
+            case 65922:                                     // Pursuing Spikes
+                if (m_removeMode == AURA_REMOVE_BY_EXPIRE)
+                {
+                    Unit* pCaster = GetCaster();
+                    if (pCaster && pCaster->GetTypeId() != TYPEID_PLAYER)
+                    {
+                        Unit* pVictim = pCaster->getVictim();
+                        if (pVictim && pVictim->HasAura(67574))
+                            pVictim->RemoveAurasDueToSpell(67574);
+                        pCaster->CastSpell(pCaster, 65923, true);
+                    }
+                }
+                return;
+            case 65923:
+                if (m_removeMode == AURA_REMOVE_BY_EXPIRE)
+                {
+                    Unit* pCaster = GetCaster();
+                    if (pCaster && pCaster->GetTypeId() != TYPEID_PLAYER)
+                    {
+                        Unit* pVictim = pCaster->getVictim();
+                        if (pVictim && pVictim->HasAura(67574))
+                            pVictim->RemoveAurasDueToSpell(67574);
+                    }
+                }
                 return;
             case 66083:                                     // Lightning Arrows (Trial of the Champion encounter)
                 if (m_removeMode == AURA_REMOVE_BY_EXPIRE)
