@@ -2294,7 +2294,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         // Temporarily removed pet cache
         uint32 GetTemporaryUnsummonedPetNumber() const { return m_temporaryUnsummonedPetNumber; }
         void SetTemporaryUnsummonedPetNumber(uint32 petnumber) { m_temporaryUnsummonedPetNumber = petnumber; }
-        void UnsummonPetTemporaryIfAny();
+        void UnsummonPetTemporaryIfAny(bool full = true);
         void ResummonPetTemporaryUnSummonedIfAny();
         bool IsPetNeedBeTemporaryUnsummoned() const { return !IsInWorld() || !isAlive() || IsMounted() /*+in flight*/; }
 
