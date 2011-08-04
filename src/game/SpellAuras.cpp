@@ -6203,6 +6203,15 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
         // Parasitic Shadowfiend - handle summoning of two Shadowfiends on DoT expire
         if (spellProto->Id == 41917)
             target->CastSpell(target, 41915, true);
+
+        // Deathbloom (Naxxramas - Loatheb normal)
+        if (spellProto->Id == 29865)
+            target->CastSpell(target, 55594, true);
+
+        // Deathbloom (Naxxramas - Loatheb heroic)
+        if (spellProto->Id == 55053)
+            target->CastSpell(target, 55601, true);
+
         else if (spellProto->Id == 74562) // SPELL_FIERY_COMBUSTION - Ruby sanctum boss Halion
             target->CastSpell(target, 74607, true, NULL, NULL, GetCasterGuid());
         else if (spellProto->Id == 74792) // SPELL_SOUL_CONSUMPTION - Ruby sanctum boss Halion
@@ -7916,6 +7925,16 @@ void Aura::PeriodicTick()
                         target->CastSpell(target, 74795, true, NULL, NULL, GetCasterGuid());
                         break;
                     };
+                    case 31803: // Holy Vengeance
+                    case 53742: // Blood Corruption should not tick if paladin haven't Seal of Corruption up
+                    {
+                        if (!pCaster->HasAura((GetId()==53742) ? 53736 : 31801))
+                        {
+                            target->RemoveAurasDueToSpell(GetId());
+                            return;
+                        }
+                        break;
+                    }
                     case 67297:
                     case 65950:
                         pCaster->CastSpell(target, 65951, true);
@@ -8913,6 +8932,45 @@ void Aura::PeriodicDummyTick()
                     {
                         if (Creature* pSpike = target->GetMap()->GetCreature(data->GetData64(34660)))
                             pSpike->AddThreat(target, 1000000.0f);
+                    }
+                    return;
+                }
+                case 66149:                                 // Bullet Controller Periodic (Trial of the Crusader, ->
+                case 68396:                                 // -> Twin Valkyr encounter, 10 and 25)
+                {
+                    if (GetAuraTicks() % 10 == 0)
+                        target->CastSpell(target, 66077, true);
+                    else
+                    {
+                        target->CastSpell(target, 66152, true);
+                        target->CastSpell(target, 66153, true);
+                    }
+                    return;
+                }
+                case 65921:                                // Trial Of Crusader (Spike Aura - Anub'arak)
+                {
+                    uint32 Tick = GetAuraTicks();
+                    if (Tick == 1)
+                    {
+                        target->CastSpell(target, 66339, true);  //anub Summon Scarab Aura
+                        target->CastSpell(target, 65981, false); //Submerged
+                    }
+                    if (Tick == 6)
+                        target->CastSpell(target, 66169, true); //Summon Spike
+                    if (Tick % 130 == 0)
+                    {
+                        target->RemoveAurasDueToSpell(65981);
+                        target->RemoveAurasDueToSpell(65921);
+                        target->RemoveAurasDueToSpell(66339);
+                        target->CastSpell(target, 65982, true); // Birth
+                    }
+                    else
+                    {
+                        if (Tick > 5)
+                        {
+                            target->CastSpell(target, 67470, true); //Check Aura Spell
+                            target->CastSpell(target, 66170, true); //Anub Teleport
+                        }
                     }
                     return;
                 }
