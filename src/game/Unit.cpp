@@ -7012,18 +7012,6 @@ uint32 Unit::SpellDamageBonusTaken(Unit *pCaster, SpellEntry const *spellProto, 
                 TakenTotalMod *= (mod+100.0f)/100.0f;
                 break;
             }
-            // Ebon Plague
-            case 1933:
-            {
-                if ((*itr)->GetMiscValue() & (spellProto ? GetSpellSchoolMask(spellProto) : 0))
-                {
-                    if (spellProto && spellProto->Dispel == DISPEL_DISEASE)
-                        TakenTotalMod *= ((*itr)->GetSpellProto()->CalculateSimpleValue(EFFECT_INDEX_0) + 100.0f) / 100.0f;
-                    else
-                        TakenTotalMod *= ((*itr)->GetModifier()->m_amount + 100.0f) / 100.0f;
-                }
-                break;
-            }
             default:
                 break;
         }

@@ -9229,6 +9229,8 @@ void Aura::HandleAuraLinked(bool apply, bool Real)
 
     uint32 linkedSpell = GetSpellProto()->EffectTriggerSpell[m_effIndex];
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(linkedSpell);
+    Unit *pTarget = GetTarget();
+
     if (!spellInfo)
     {
         sLog.outError("HandleAuraLinked for spell %u effect %u: triggering unknown spell %u", GetSpellProto()->Id, m_effIndex, linkedSpell);
@@ -9239,8 +9241,8 @@ void Aura::HandleAuraLinked(bool apply, bool Real)
     {
         if (GetCaster() &&
             GetCaster()->GetTypeId() == TYPEID_PLAYER &&
-            GetTarget() &&
-            GetTarget()->GetTypeId() != TYPEID_PLAYER &&
+            pTarget &&
+            pTarget->GetTypeId() != TYPEID_PLAYER &&
             spellInfo->AttributesEx  &  SPELL_ATTR_EX_HIDDEN_AURA &&
             spellInfo->Attributes &  SPELL_ATTR_UNK8)
         {
@@ -9258,14 +9260,22 @@ void Aura::HandleAuraLinked(bool apply, bool Real)
             int32 bp1 = int32((spellInfo->EffectBasePoints[EFFECT_INDEX_1] + damageBonus) * 100);
             int32 bp2 = int32((spellInfo->EffectBasePoints[EFFECT_INDEX_2] + healthBonus) * 100);
 
-            GetTarget()->CastCustomSpell(GetTarget(), spellInfo, &bp0, &bp1, &bp2, true, NULL, this, GetCasterGuid(), GetSpellProto());
-            GetTarget()->SetHealth(GetTarget()->GetMaxHealth());
+            pTarget->CastCustomSpell(pTarget, spellInfo, &bp0, &bp1, &bp2, true, NULL, this, GetCasterGuid(), GetSpellProto());
+            pTarget->SetHealth(pTarget->GetMaxHealth());
+        }
+        // Ebon Plague and Crypt Fever - set basepoints for linked aura increasing disease damage taken
+        else if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT &&
+            GetSpellProto()->SpellIconID == 264 || GetSpellProto()->SpellIconID == 1933)
+        {
+            int32 bp0 = GetModifier()->m_amount;
+            if (GetCaster())
+                GetCaster()->CastCustomSpell(pTarget, spellInfo, &bp0, NULL, NULL, true, NULL, this, GetCasterGuid(), GetSpellProto());
         }
         else
-            GetTarget()->CastSpell(GetTarget(), spellInfo, true, NULL, this);
+            pTarget->CastSpell(pTarget, spellInfo, true, NULL, this);
     }
     else
-        GetTarget()->RemoveAurasByCasterSpell(linkedSpell, GetCasterGuid());
+        pTarget->RemoveAurasByCasterSpell(linkedSpell, GetCasterGuid());
 }
 
 void Aura::HandleAuraAddMechanicAbilities(bool apply, bool Real)
