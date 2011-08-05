@@ -4602,9 +4602,10 @@ SpellAuraProcResult Unit::HandleMendingAuraProc( Unit* /*pVictim*/, uint32 /*dam
         {
             caster->ApplySpellMod(spellProto->Id, SPELLMOD_RADIUS, radius, NULL);
 
+            SpellAuraHolder* holder = GetSpellAuraHolder(spellProto->Id, caster->GetObjectGuid());
+
             if (Player* target = ((Player*)this)->GetNextRandomRaidMember(radius))
             {
-                SpellAuraHolder *holder = GetSpellAuraHolder(spellProto->Id, caster->GetObjectGuid());
                 SpellAuraHolder *new_holder = CreateSpellAuraHolder(spellProto, target, caster);
 
                 for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)
@@ -4625,6 +4626,8 @@ SpellAuraProcResult Unit::HandleMendingAuraProc( Unit* /*pVictim*/, uint32 /*dam
                 target->AddSpellAuraHolder(new_holder);
                 triggeredByAura->SetInUse(false);
             }
+            else
+                holder->SetAuraCharges(1,false);
         }
     }
 
