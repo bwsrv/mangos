@@ -219,5 +219,5 @@ WHERE `Id` = 51735;
 
 -- Update DBC value for Crypt Fever
 UPDATE `spell_dbc` SET
-`AttributesEx6` = 8388608,
+`AttributesEx6` = 8388608
 WHERE `Id` = 65142;
