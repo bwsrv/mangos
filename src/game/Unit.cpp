@@ -6203,7 +6203,7 @@ Unit* Unit::SelectMagnetTarget(Unit *victim, Spell* spell, SpellEffectIndex eff)
         return NULL;
 
     // Magic case
-    if (spell && (spell->m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_NONE || spell->m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC))
+    if (spell && spell->m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC)
     {
         Unit::AuraList const& magnetAuras = victim->GetAurasByType(SPELL_AURA_SPELL_MAGNET);
         for(Unit::AuraList::const_iterator itr = magnetAuras.begin(); itr != magnetAuras.end(); ++itr)
@@ -6211,12 +6211,7 @@ Unit* Unit::SelectMagnetTarget(Unit *victim, Spell* spell, SpellEffectIndex eff)
             if (Unit* magnet = (*itr)->GetCaster())
             {
                 if (magnet->isAlive() && magnet->IsWithinLOSInMap(this) && spell->CheckTarget(magnet, eff))
-                {
-                    if (SpellAuraHolder *holder = (*itr)->GetHolder())
-                        if (holder->DropAuraCharge())
-                            victim->RemoveSpellAuraHolder(holder);
                     return magnet;
-                }
             }
         }
     }
@@ -6231,12 +6226,7 @@ Unit* Unit::SelectMagnetTarget(Unit *victim, Spell* spell, SpellEffectIndex eff)
                 if (magnet->isAlive() && magnet->IsWithinLOSInMap(this) && (!spell || spell->CheckTarget(magnet, eff)))
                 {
                     if (roll_chance_i((*i)->GetModifier()->m_amount))
-                    {
-                        if (SpellAuraHolder *holder = (*i)->GetHolder())
-                            if (holder->DropAuraCharge())
-                                victim->RemoveSpellAuraHolder(holder);
                         return magnet;
-                    }
                 }
             }
         }
@@ -9791,7 +9781,7 @@ uint32 createProcExtendMask(SpellNonMeleeDamage *damageInfo, SpellMissInfo missC
 void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, SpellEntry const * procSpell, uint32 damage )
 {
     // For melee/ranged based attack need update skills and set some Aura states
-    if (procFlag & MELEE_BASED_TRIGGER_MASK)
+    if (!(procExtra & PROC_EX_CAST_END) && procFlag & MELEE_BASED_TRIGGER_MASK)
     {
         // Update skills here for players
         if (GetTypeId() == TYPEID_PLAYER)
@@ -9901,8 +9891,6 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
             if (!triggeredByAura)
                 continue;
 
-            Modifier *auraModifier = triggeredByAura->GetModifier();
-
             if (procSpell)
             {
                 if (spellProcEvent)
@@ -9912,10 +9900,16 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
                         if (!procSpell->IsFitToFamilyMask(spellProcEvent->spellFamilyMask[i]))
                             continue;
 
-                        // modifier aura procs by default are not active and only allowed with non zero charges
-                        // procEx == PROC_EX_NORMAL_HIT only for real "on cast" cases
-                        if (!useCharges && damage == 0 && procExtra == PROC_EX_NORMAL_HIT && (procFlag & SPELL_CAST_TRIGGER_MASK))
+                        // don't allow proc from cast end for non modifier spells
+                        // unless they have proc ex defined for that
+                        if (IsCastEndProcModifierAura(triggeredByHolder->GetSpellProto(), SpellEffectIndex(i), procSpell))
+                        {
+                            if (useCharges && procExtra != PROC_EX_CAST_END && spellProcEvent->procEx == PROC_EX_NONE)
+                                continue;
+                        }
+                        else if (spellProcEvent->procEx == PROC_EX_NONE && procExtra == PROC_EX_CAST_END)
                             continue;
+
                     }
                     // don't check dbc FamilyFlags if schoolMask exists
                     else if (!triggeredByAura->CanProcFrom(procSpell, procFlag, spellProcEvent->procEx, procExtra, damage != 0, !spellProcEvent->schoolMask))
@@ -9925,7 +9919,7 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
                     continue;
             }
 
-            SpellAuraProcResult procResult = (*this.*AuraProcHandler[auraModifier->m_auraname])(pTarget, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown);
+            SpellAuraProcResult procResult = (*this.*AuraProcHandler[triggeredByHolder->GetSpellProto()->EffectApplyAuraName[i]])(pTarget, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown);
             switch (procResult)
             {
                 case SPELL_AURA_PROC_CANT_TRIGGER:
@@ -10658,10 +10652,9 @@ void Unit::KnockBackFrom(Unit* target, float horizontalSpeed, float verticalSpee
     float vsin = sin(angle);
     float vcos = cos(angle);
 
-    // Effect properly implemented only for players
-    if(GetTypeId()==TYPEID_PLAYER)
+    if (GetTypeId() == TYPEID_PLAYER)
     {
-        WorldPacket data(SMSG_MOVE_KNOCK_BACK, 8+4+4+4+4+4);
+        WorldPacket data(SMSG_MOVE_KNOCK_BACK, 9+4+4+4+4+4);
         data << GetPackGUID();
         data << uint32(0);                                  // Sequence
         data << float(vcos);                                // x direction
@@ -10672,15 +10665,15 @@ void Unit::KnockBackFrom(Unit* target, float horizontalSpeed, float verticalSpee
     }
     else
     {
-        float dis = horizontalSpeed;
+        float moveTimeHalf = verticalSpeed / Movement::gravity;
+        float max_height = -Movement::computeFallElevation(moveTimeHalf,false,-verticalSpeed);
 
+        float dis = 2 * moveTimeHalf * horizontalSpeed;
         float ox, oy, oz;
         GetPosition(ox, oy, oz);
-
         float fx = ox + dis * vcos;
         float fy = oy + dis * vsin;
         float fz = oz;
-
         float fx2, fy2, fz2;                                // getObjectHitPos overwrite last args in any result case
         if(VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(GetMapId(), ox,oy,oz+0.5f, fx,fy,oz+0.5f,fx2,fy2,fz2, -0.5f))
         {
@@ -10688,12 +10681,8 @@ void Unit::KnockBackFrom(Unit* target, float horizontalSpeed, float verticalSpee
             fy = fy2;
             fz = fz2;
         }
-
         UpdateAllowedPositionZ(fx, fy, fz);
-
-        //FIXME: this mostly hack, must exist some packet for proper creature move at client side
-        //       with CreatureRelocation at server side
-        NearTeleportTo(fx, fy, fz, GetOrientation(), this == target);
+        GetMotionMaster()->MoveJump(fx,fy,fz,horizontalSpeed,max_height);
     }
 }
 
