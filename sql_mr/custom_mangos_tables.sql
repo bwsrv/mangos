@@ -87,7 +87,7 @@ CREATE TABLE `spell_dbc` (
   `CastingTimeIndex` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `RecoveryTime` int(10) unsigned NOT NULL DEFAULT '0',
   `CategoryRecoveryTime` int(10) unsigned NOT NULL DEFAULT '0',
-  `InterruptFlags` int(10) unsigned NOT NULL DEFAULT '0';
+  `InterruptFlags` int(10) unsigned NOT NULL DEFAULT '0',
   `AuraInterruptFlags` int(10) unsigned NOT NULL DEFAULT '0',
   `ProcFlags` int(10) unsigned NOT NULL DEFAULT '0',
   `ProcChance` tinyint(3) unsigned NOT NULL DEFAULT '0',
