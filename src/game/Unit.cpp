@@ -5106,6 +5106,9 @@ void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase)
 
 void Unit::RemoveSpellAuraHolder(SpellAuraHolder *holder, AuraRemoveMode mode)
 {
+    if (!holder)
+        return;
+
     if (mode != AURA_REMOVE_BY_DELETE)
         holder->HandleSpellSpecificBoostsForward(false);
 
