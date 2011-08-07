@@ -226,7 +226,7 @@ void GameObject::Update(uint32 update_diff, uint32 diff)
             if (m_CapturePlayersSet.empty())
                 return;
 
-            for (std::set<ObjectGuid>::iterator itr = m_CapturePlayersSet.begin(); itr != m_CapturePlayersSet.end(); ++itr)
+            for (std::set<ObjectGuid>::iterator itr = m_CapturePlayersSet.begin(); itr != m_CapturePlayersSet.end();)
             {
                 if (Player* p_captor = GetMap()->GetPlayer(*itr))
                 {
@@ -234,7 +234,7 @@ void GameObject::Update(uint32 update_diff, uint32 diff)
                     if (!p_captor->IsWithinDistInMap(this, radius))
                     {
                         p_captor->SendUpdateWorldState(info->capturePoint.worldState1, 0);
-                        m_CapturePlayersSet.erase(p_captor->GetObjectGuid());
+                        m_CapturePlayersSet.erase(itr++);
 
                         // also erase from faction sets
                         if (p_captor->GetTeam() == ALLIANCE)
@@ -263,8 +263,11 @@ void GameObject::Update(uint32 update_diff, uint32 diff)
                         // if conditions are ok, then use the button
                         // further checks and calculations will be done in the use function
                         Use(p_captor);
+                        ++itr;
                     }
                 }
+                else
+                    m_CapturePlayersSet.erase(itr++);
             }
             m_captureTime = 1000;
         }
