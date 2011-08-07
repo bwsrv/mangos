@@ -111,8 +111,9 @@ void Player::UpdateSpellDamageAndHealingBonus()
     // Get healing bonus for all schools
     SetStatInt32Value(PLAYER_FIELD_MOD_HEALING_DONE_POS, SpellBaseHealingBonusDone(SPELL_SCHOOL_MASK_ALL));
     // Get damage bonus for all schools
+    // PLAYER_FIELD_MOD_DAMAGE_DONE_NEG field handled in Aura::HandleModDamageDone
     for(int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
-        SetStatInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS+i, SpellBaseDamageBonusDone(SpellSchoolMask(1 << i)));
+        SetStatInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS+i, SpellBaseDamageBonusDone(SpellSchoolMask(1 << i)) - GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG+i));
 
     CallForAllControlledUnits(ApplyScalingBonusWithHelper(SCALING_TARGET_ATTACKPOWER, 0, false),CONTROLLED_PET|CONTROLLED_GUARDIANS);
     CallForAllControlledUnits(ApplyScalingBonusWithHelper(SCALING_TARGET_SPELLDAMAGE, 0, false),CONTROLLED_PET|CONTROLLED_GUARDIANS);
@@ -1066,7 +1067,6 @@ void Pet::UpdateAttackPowerAndDamage(bool ranged)
         unitMod  = UNIT_MOD_ATTACK_POWER_RANGED;
         baseAP = (CalculateScalingData()->APBaseScale / 100.0f) * (GetStat(STAT_AGILITY) - CalculateScalingData()->APBasepoint);
     }
-
 
     if ((baseAP) < 0.0f)
         baseAP = 0.0f;
