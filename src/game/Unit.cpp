@@ -7555,7 +7555,7 @@ uint32 Unit::SpellCriticalDamageBonus(SpellEntry const *spellProto, uint32 damag
 
     uint32 base_dmg = damage;
     damage += crit_bonus;
-    sLog.outDebug(" ============== critPctDamageMod = %d =====================", critPctDamageMod);
+
     if (critPctDamageMod!=0)
         damage += int32(damage) * critPctDamageMod / 100;
 
