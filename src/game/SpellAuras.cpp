@@ -3273,7 +3273,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     return;
                 case 40131:
                 case 27978:
-                case 10848:                                 // Shroud of Death
                     if (apply)
                         target->m_AuraFlags |= UNIT_AURAFLAG_ALIVE_INVISIBLE;
                     else
