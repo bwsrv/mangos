@@ -9377,6 +9377,7 @@ void Aura::HandleAuraLinked(bool apply, bool Real)
     uint32 linkedSpell = GetSpellProto()->EffectTriggerSpell[m_effIndex];
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(linkedSpell);
     Unit *pTarget = GetTarget();
+    Unit *pCaster = GetCaster();
 
     if (!spellInfo)
     {
@@ -9386,20 +9387,18 @@ void Aura::HandleAuraLinked(bool apply, bool Real)
 
     if (apply)
     {
-        if (GetCaster() &&
-            GetCaster()->GetTypeId() == TYPEID_PLAYER &&
-            pTarget &&
+        if (pCaster && pCaster->GetTypeId() == TYPEID_PLAYER &&
             pTarget->GetTypeId() != TYPEID_PLAYER &&
             spellInfo->AttributesEx  &  SPELL_ATTR_EX_HIDDEN_AURA &&
             spellInfo->Attributes &  SPELL_ATTR_UNK8)
         {
-            float healBonus   = float(GetCaster()->GetTotalAuraModifier(SPELL_AURA_MOD_HEALING_PCT))/100.0;
+            float healBonus   = float(pCaster->GetTotalAuraModifier(SPELL_AURA_MOD_HEALING_PCT))/100.0;
             if (healBonus < 0.0)
                 healBonus = 0.0;
-            float damageBonus = float(GetCaster()->CalculateDamage(BASE_ATTACK, false)/GetCaster()->GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE)) - 1.0;
+            float damageBonus = float(pCaster->CalculateDamage(BASE_ATTACK, false)/pCaster->GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE)) - 1.0;
             if (damageBonus < 0.0)
                 damageBonus = 0.0;
-            float healthBonus = float(GetCaster()->GetMaxHealth()/(GetCaster()->GetModifierValue(UNIT_MOD_HEALTH, BASE_VALUE) + GetCaster()->GetCreateHealth())) - 1.0;
+            float healthBonus = float(pCaster->GetMaxHealth()/(pCaster->GetModifierValue(UNIT_MOD_HEALTH, BASE_VALUE) + pCaster->GetCreateHealth())) - 1.0;
             if (healthBonus < 0)
                 healthBonus = 0.0;
 
@@ -9412,11 +9411,11 @@ void Aura::HandleAuraLinked(bool apply, bool Real)
         }
         // Ebon Plague and Crypt Fever - set basepoints for linked aura increasing disease damage taken
         else if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT &&
-            GetSpellProto()->SpellIconID == 264 || GetSpellProto()->SpellIconID == 1933)
+            (GetSpellProto()->SpellIconID == 264 || GetSpellProto()->SpellIconID == 1933))
         {
             int32 bp0 = GetModifier()->m_amount;
-            if (GetCaster())
-                GetCaster()->CastCustomSpell(pTarget, spellInfo, &bp0, NULL, NULL, true, NULL, this, GetCasterGuid(), GetSpellProto());
+            if (pCaster)
+                pCaster->CastCustomSpell(pTarget, spellInfo, &bp0, NULL, NULL, true, NULL, this, GetCasterGuid(), GetSpellProto());
         }
         else
             pTarget->CastSpell(pTarget, spellInfo, true, NULL, this);

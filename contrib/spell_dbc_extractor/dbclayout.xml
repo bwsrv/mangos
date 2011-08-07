@@ -32,9 +32,9 @@
     <field type="uint" name="ExcludeCasterAuraSpell" method="read" />
     <field type="uint" name="ExcludeTargetAuraSpell" method="read" />
     <field type="uint" name="CastingTimeIndex" method="read" />
-    <field type="uint" name="mrecoveryTime" method="skip" />
-    <field type="uint" name="mcategoryRecoveryTime" method="skip" />
-    <field type="uint" name="minterruptFlags" method="skip" />
+    <field type="uint" name="RecoveryTime" method="read" />
+    <field type="uint" name="CategoryRecoveryTime" method="read" />
+    <field type="uint" name="InterruptFlags" method="read" />
     <field type="uint" name="AuraInterruptFlags" method="read" />
     <field type="uint" name="mchannelInterruptFlags" method="skip" />
     <field type="uint" name="ProcFlags" method="read" />
@@ -139,15 +139,15 @@
     <field type="uint" name="SpellIconID" method="read" />
     <field type="uint" name="mactiveIconID" method="skip" />
     <field type="uint" name="mspellPriority" method="skip" />
-    <field type="string" name="Comment" method="skip" />
-    <field type="string" name="Comment" method="skip" />
-    <field type="string" name="Comment" method="skip" />
-    <field type="string" name="Comment" method="skip" />
-    <field type="string" name="Comment" method="skip" />
-    <field type="string" name="Comment" method="skip" />
-    <field type="string" name="Comment" method="skip" />
-    <field type="string" name="Comment" method="skip" />
     <field type="comment" name="Comment" method="read" />
+    <field type="string" name="Comment" method="skip" />
+    <field type="string" name="Comment" method="skip" />
+    <field type="string" name="Comment" method="skip" />
+    <field type="string" name="Comment" method="skip" />
+    <field type="string" name="Comment" method="skip" />
+    <field type="string" name="Comment" method="skip" />
+    <field type="string" name="Comment" method="skip" />
+    <field type="string" name="Comment" method="skip" />
     <field type="string" name="Comment" method="skip" />
     <field type="string" name="Comment" method="skip" />
     <field type="string" name="Comment" method="skip" />
