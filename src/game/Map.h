@@ -262,6 +262,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
         
         // Weather
         void SetMapWeather(WeatherState state, float grade);
+        bool SetZoneWeather(uint32 zoneId, WeatherType type, float grade);
 
     private:
         void LoadMapAndVMap(int gx, int gy);
