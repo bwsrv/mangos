@@ -2012,6 +2012,13 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 (spellInfo_2->Id == 57055 && spellInfo_1->Id == 56648))
                 return true;
 
+            // Blessing of Forgotten Kings and (Greater) Blessing of Kings
+            if (spellInfo_1->Id == 72586)
+            {
+                if (spellInfo_2->SpellFamilyFlags.test<CF_PALADIN_BLESSING_OF_KINGS>())
+                    return true;
+            }
+
             break;
         }
         case SPELLFAMILY_WARLOCK:
@@ -2053,12 +2060,16 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 // Repentance removes Righteous Vengeance
                 if (spellInfo_1->Id == 20066 && spellInfo_2->Id == 61840)
                     return true;
-
-                // Swift Retribution / Improved Devotion Aura (talents) and Paladin Auras
-                if ((spellInfo_1->SpellFamilyFlags.test<CF_PALADIN_AURAS>() && (spellInfo_2->SpellIconID == 291 || spellInfo_2->SpellIconID == 3028)) ||
-                    (spellInfo_2->SpellFamilyFlags.test<CF_PALADIN_AURAS>() && (spellInfo_1->SpellIconID == 291 || spellInfo_1->SpellIconID == 3028)))
-                    return false;
             }
+
+            // Blessing of Forgotten Kings and (Greater) Blessing of Kings
+            if (spellInfo_1->SpellFamilyFlags.test<CF_PALADIN_BLESSING_OF_KINGS>())
+            {
+                if (spellInfo_2->Id == 72586)
+                    return true;
+            }
+
+            break;
         case SPELLFAMILY_DEATHKNIGHT:
             if (spellInfo_2->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT)
             {
