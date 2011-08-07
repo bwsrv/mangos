@@ -2105,6 +2105,9 @@ bool SpellMgr::IsStackableSpellAuraHolder(SpellEntry const* spellInfo)
     if (spellInfo->AttributesEx3 & SPELL_ATTR_EX3_STACK_FOR_DIFF_CASTERS)
         return true;
 
+    if (GetSpellSpecific(spellInfo->Id) == SPELL_JUDGEMENT)
+        return false;
+
     // some more (custom) checks. e.g. Insect Swarm doesn't have the attribute, we depend on aura types in holder
     for (int i = 0; i < MAX_EFFECT_INDEX; ++i)
     {
