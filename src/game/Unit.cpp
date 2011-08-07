@@ -4379,9 +4379,10 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
         // take out same spell
         for (SpellAuraHolderMap::iterator iter = spair.first; iter != spair.second; ++iter)
         {
-            SpellAuraHolder *foundHolder = iter->second;
-            if (foundHolder->GetCasterGuid() == holder->GetCasterGuid() ||
-                foundHolder->GetCasterGuid().IsPet() && holder->GetCasterGuid().IsPet())
+            SpellAuraHolder* foundHolder = iter->second;
+            if (foundHolder && !foundHolder->IsDeleted() &&
+               (foundHolder->GetCasterGuid() == holder->GetCasterGuid() ||
+                foundHolder->GetCasterGuid().IsPet() && holder->GetCasterGuid().IsPet()))
             {
                 // Aura can stack on self -> Stack it;
                 if (aurSpellInfo->StackAmount)
