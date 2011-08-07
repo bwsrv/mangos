@@ -6715,14 +6715,20 @@ void Aura::HandleAuraModIncreaseEnergyPercent(bool apply, bool /*Real*/)
 
 void Aura::HandleAuraModIncreaseHealthPercent(bool apply, bool /*Real*/)
 {
-    Unit *unitTarget = GetTarget();
+    Unit *target = GetTarget();
 
-    unitTarget->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_PCT, float(m_modifier.m_amount), apply);
+    target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_PCT, float(m_modifier.m_amount), apply);
 
-    // Molten Fury (Sartharion encounter)
-    if (GetId() == 60430)
+    // spell special cases when current health set to max value at apply
+    switch (GetId())
     {
-        unitTarget->SetHealthPercent(unitTarget->GetHealth() * 100.0f / (unitTarget->GetMaxHealth() / (1.0f + float(m_modifier.m_amount) / 100.0f)));
+        case 60430:                                         // Molten Fury
+        case 64193:                                         // Heartbreak
+        case 65737:                                         // Heartbreak
+            target->SetHealth(target->GetMaxHealth());
+            break;
+        default:
+            break;
     }
 }
 
