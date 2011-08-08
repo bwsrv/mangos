@@ -12346,17 +12346,63 @@ bool Unit::HasMorePoweredBuff(uint32 spellId)
     for (uint8 i = 0; i < MAX_EFFECT_INDEX; ++i)
     {
         if ( spellInfo->Effect[i] != SPELL_EFFECT_APPLY_AURA  &&
-            spellInfo->Effect[i] != SPELL_EFFECT_PERSISTENT_AREA_AURA )
+             spellInfo->Effect[i] != SPELL_EFFECT_APPLY_AREA_AURA_PARTY &&
+             spellInfo->Effect[i] != SPELL_EFFECT_APPLY_AREA_AURA_RAID
+            )
             continue;
 
-        Unit::AuraList const& auras = GetAurasByType(AuraType(spellInfo->EffectApplyAuraName[SpellEffectIndex(i)]));
+        AuraList auras = GetAurasByType(AuraType(spellInfo->EffectApplyAuraName[SpellEffectIndex(i)]));
         if (auras.empty())
             continue;
 
-        for (Unit::AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
-            if ((*itr) && (*itr)->GetHolder() && !(*itr)->GetHolder()->IsDeleted() && (*itr)->GetSpellProto()->AttributesEx7 & SPELL_ATTR_EX7_REPLACEABLE_AURA)
-                if (spellInfo->CalculateSimpleValue(SpellEffectIndex(i)) < (*itr)->GetModifier()->m_amount)
+        for (AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+        {
+            Aura* aura = *itr;
+            if (!aura)
+                continue;
+
+            SpellAuraHolder* holder = aura->GetHolder();
+
+            if (!holder || holder->IsDeleted())
+                continue;
+
+            SpellEntry const* foundSpellInfo = holder->GetSpellProto();
+
+            ObjectGuid foundCaster = holder->GetCasterGuid();
+
+            if (!foundSpellInfo || !foundCaster.IsPlayerOrPet())
+                continue;
+
+            if (foundSpellInfo == spellInfo)
+                continue;
+
+            if (!(foundSpellInfo->AttributesEx7 & SPELL_ATTR_EX7_REPLACEABLE_AURA))
+                continue;
+
+// not may detect, need check for SchoolMask, or not?
+//            if (GetSpellSchoolMask(foundSpellInfo) != GetSpellSchoolMask(spellInfo))
+//                continue;
+
+            for (uint8 j = 0; j < MAX_EFFECT_INDEX; ++j)
+            {
+                if (foundSpellInfo->Effect[j] != spellInfo->Effect[i])
+                    continue;
+
+                if (foundSpellInfo->EffectApplyAuraName[j] != spellInfo->EffectApplyAuraName[i])
+                    continue;
+
+                if (foundSpellInfo->EffectMiscValue[j] != spellInfo->EffectMiscValue[i])
+                    continue;
+
+                if (spellInfo->CalculateSimpleValue(SpellEffectIndex(i)) < foundSpellInfo->CalculateSimpleValue(SpellEffectIndex(j)))
                     return true;
+                else
+                    return false;
+            }
+
+            if (itr == auras.end())
+                break;
+        }
     }
 
     return false;
