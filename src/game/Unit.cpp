@@ -4374,7 +4374,8 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
     // passive and persistent auras can stack with themselves any number of times
     if ((!holder->IsPassive() && !holder->IsPersistent() && !IsSpellHiddenStackable(aurSpellInfo)) || holder->IsAreaAura())
     {
-        SpellAuraHolderBounds spair = GetSpellAuraHolderBounds(aurSpellInfo->Id);
+        SpellAuraHolderMap tmpMap = GetSpellAuraHolderMap();
+        SpellAuraHolderBounds spair = tmpMap.equal_range(aurSpellInfo->Id);
 
         // take out same spell
         for (SpellAuraHolderMap::iterator iter = spair.first; iter != spair.second; ++iter)
@@ -5152,13 +5153,11 @@ void Unit::RemoveSpellAuraHolder(SpellAuraHolder *holder, AuraRemoveMode mode)
 
     // If holder in use (removed from code that plan access to it data after return)
     // store it in holder list with delayed deletion
-    if (holder->IsInUse())
+    if (holder && !holder->IsDeleted())
     {
         holder->SetDeleted();
         m_deletedHolders.push_back(holder);
     }
-    else
-        delete holder;
 
     if (mode != AURA_REMOVE_BY_EXPIRE && IsChanneledSpell(AurSpellInfo) && !IsAreaOfEffectSpell(AurSpellInfo) &&
         caster && caster->GetObjectGuid() != GetObjectGuid())
