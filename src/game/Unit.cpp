@@ -6132,7 +6132,7 @@ bool Unit::Attack(Unit *victim, bool meleeAttack)
         addUnitState(UNIT_STAT_MELEE_ATTACKING);
 
     m_attacking = victim;
-    m_attacking->_addAttacker(this);
+    m_attacking->_addAttacker(GetObjectGuid());
 
     if (GetTypeId() == TYPEID_UNIT)
     {
@@ -6176,7 +6176,7 @@ bool Unit::AttackStop(bool targetSwitch /*=false*/)
 
     Unit* victim = m_attacking;
 
-    m_attacking->_removeAttacker(this);
+    m_attacking->_removeAttacker(GetObjectGuid());
     m_attacking = NULL;
 
     // Clear our target
