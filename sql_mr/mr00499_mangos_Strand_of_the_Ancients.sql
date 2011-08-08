@@ -1,4 +1,4 @@
-﻿-- Strand of the Ancients 
+-- Strand of the Ancients 
 DELETE FROM battleground_template WHERE id = 9;
 INSERT INTO battleground_template (id, MinPlayersPerTeam, MaxPlayersPerTeam, AllianceStartLoc, AllianceStartO, HordeStartLoc, HordeStartO) VALUES (9, 8, 15, 1367, 0, 1368, 0);
 -- Rigger Sparklight
