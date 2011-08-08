@@ -212,9 +212,9 @@ void GameObject::Update(uint32 update_diff, uint32 diff)
                 else
                 {
                     // each faction in its list
-                    if (((Player*)(*itr))->GetTeam() == ALLIANCE)
+                    if ((*itr)->GetTeam() == ALLIANCE)
                         m_AlliancePlayersSet.insert((*itr)->GetObjectGuid());
-                    else if (((Player*)(*itr))->GetTeam() == HORDE)
+                    else if ((*itr)->GetTeam() == HORDE)
                         m_HordePlayersSet.insert((*itr)->GetObjectGuid());
 
                     // also use a general list to make things easy for now
@@ -226,7 +226,7 @@ void GameObject::Update(uint32 update_diff, uint32 diff)
             if (m_CapturePlayersSet.empty())
                 return;
 
-            for (std::set<ObjectGuid>::iterator itr = m_CapturePlayersSet.begin(); itr != m_CapturePlayersSet.end();)
+            for (GuidsSet::iterator itr = m_CapturePlayersSet.begin(); itr != m_CapturePlayersSet.end(); )
             {
                 if (Player* p_captor = GetMap()->GetPlayer(*itr))
                 {
@@ -234,7 +234,8 @@ void GameObject::Update(uint32 update_diff, uint32 diff)
                     if (!p_captor->IsWithinDistInMap(this, radius))
                     {
                         p_captor->SendUpdateWorldState(info->capturePoint.worldState1, 0);
-                        m_CapturePlayersSet.erase(itr++);
+                        GuidsSet::iterator temp = itr++;
+                        m_CapturePlayersSet.erase(temp);
 
                         // also erase from faction sets
                         if (p_captor->GetTeam() == ALLIANCE)
@@ -267,7 +268,10 @@ void GameObject::Update(uint32 update_diff, uint32 diff)
                     }
                 }
                 else
-                    m_CapturePlayersSet.erase(itr++);
+                {
+                    GuidsSet::iterator temp = itr++;
+                    m_CapturePlayersSet.erase(temp);
+                }
             }
             m_captureTime = 1000;
         }
