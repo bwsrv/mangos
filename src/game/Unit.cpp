@@ -6060,7 +6060,7 @@ Unit* Unit::getAttackerForHelper()
             ObjectGuid guid = *i;
             Unit* attacker = GetMap()->GetUnit(guid);
             if (!attacker || !attacker->isAlive())
-                m_attackers.erase(i);
+                m_attackers.erase(guid);
             else
                 return attacker;
         }
@@ -6257,11 +6257,12 @@ void Unit::RemoveAllAttackers()
     while (!m_attackers.empty())
     {
         AttackerSet::iterator iter = m_attackers.begin();
-        Unit* attacker = GetMap()->GetUnit(*iter);
+        ObjectGuid guid = *iter;
+        Unit* attacker = GetMap()->GetUnit(guid);
         if(!attacker || !attacker->AttackStop())
         {
             sLog.outError("WORLD: Unit has an attacker that isn't attacking it!");
-            m_attackers.erase(iter);
+            m_attackers.erase(guid);
         }
     }
 }
