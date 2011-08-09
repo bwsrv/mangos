@@ -12135,7 +12135,7 @@ public:
             MaNGOS::PlayerRelocationNotifier notify((Player&)m_owner);
             Cell::VisitAllObjects(&m_owner,notify,radius);
         }
-        else //if (m_owner.GetTypeId() == TYPEID_UNIT)
+        else //if(m_owner.GetTypeId() == TYPEID_UNIT)
         {
             MaNGOS::CreatureRelocationNotifier notify((Creature&)m_owner);
             Cell::VisitAllObjects(&m_owner,notify,radius);
