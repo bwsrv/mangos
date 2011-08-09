@@ -4240,25 +4240,28 @@ float Unit::GetTotalAuraMultiplierByMiscValueForMask(AuraType auratype, uint32 m
         return 1.0f;
 
     float multiplier = 1.0f;
-    float nonStackingPos = 1.0f;
-    float nonStackingNeg = 1.0f;
+
+    int32 nonStackingPos = 0;
+    int32 nonStackingNeg = 0;
 
     AuraList const& mTotalAuraList = GetAurasByType(auratype);
     for(AuraList::const_iterator i = mTotalAuraList.begin();i != mTotalAuraList.end(); ++i)
     {
         Modifier* mod = (*i)->GetModifier();
 
-        if((*i)->IsStacking())
+        if (mask & (1 << (mod->m_miscvalue -1)))
         {
-            if (mask & (1 << (mod->m_miscvalue -1)))
+            if((*i)->IsStacking())
+            {
                 multiplier *= (100.0f + mod->m_amount)/100.0f;
-        }
-        else
-        {
-            if(mod->m_amount > nonStackingPos)
-                nonStackingPos = mod->m_amount;
-            else if(mod->m_amount < nonStackingNeg)
-                nonStackingNeg = mod->m_amount;
+            }
+            else
+            {
+                if(mod->m_amount > nonStackingPos)
+                    nonStackingPos = mod->m_amount;
+                else if(mod->m_amount < nonStackingNeg)
+                    nonStackingNeg = mod->m_amount;
+            }
         }
     }
 
@@ -6130,7 +6133,7 @@ bool Unit::Attack(Unit *victim, bool meleeAttack)
         addUnitState(UNIT_STAT_MELEE_ATTACKING);
 
     m_attacking = victim;
-    m_attacking->_addAttacker(this);
+    m_attacking->_addAttacker(GetObjectGuid());
 
     if (GetTypeId() == TYPEID_UNIT)
     {
@@ -6174,7 +6177,7 @@ bool Unit::AttackStop(bool targetSwitch /*=false*/)
 
     Unit* victim = m_attacking;
 
-    m_attacking->_removeAttacker(this);
+    m_attacking->_removeAttacker(GetObjectGuid());
     m_attacking = NULL;
 
     // Clear our target

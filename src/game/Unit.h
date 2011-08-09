@@ -1208,21 +1208,21 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         bool CanReachWithMeleeAttack(Unit* pVictim, float flat_mod = 0.0f) const;
         uint32 m_extraAttacks;
 
-        void _addAttacker(Unit* pAttacker)                  // must be called only from Unit::Attack(Unit*)
+        void _addAttacker(ObjectGuid attackerGuid)                  // must be called only from Unit::Attack(Unit*)
         {
-            if (!pAttacker)
+            if (attackerGuid.IsEmpty())
                 return;
 
-            AttackerSet::const_iterator itr = m_attackers.find(pAttacker->GetObjectGuid());
-            if (itr == m_attackers.end())
-                m_attackers.insert(pAttacker->GetObjectGuid());
+            if (m_attackers.find(attackerGuid) == m_attackers.end())
+                m_attackers.insert(attackerGuid);
         }
-        void _removeAttacker(Unit* pAttacker)               // must be called only from Unit::AttackStop()
+        void _removeAttacker(ObjectGuid attackerGuid)               // must be called only from Unit::AttackStop()
         {
-            if (!pAttacker)
+            if (attackerGuid.IsEmpty())
                 return;
 
-            m_attackers.erase(pAttacker->GetObjectGuid());
+            if (m_attackers.find(attackerGuid) != m_attackers.end())
+                m_attackers.erase(attackerGuid);
         }
         Unit* getAttackerForHelper();                       // If someone wants to help, who to give them
         bool Attack(Unit *victim, bool meleeAttack);

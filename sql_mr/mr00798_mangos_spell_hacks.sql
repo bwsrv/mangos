@@ -193,19 +193,19 @@ VALUES
 
 UPDATE `spell_dbc` SET
 `AttributesEx6` = 8388608,
-`EffectApplyAuraName1` = 87,
+`EffectApplyAuraName2` = 87,
 `Comment` = 'Ebon Plague rank 1 - auraname to 87 and stacking attributeEx6'
 WHERE `Id` = 51726;
 
 UPDATE `spell_dbc` SET
 `AttributesEx6` = 8388608,
-`EffectApplyAuraName1` = 87,
+`EffectApplyAuraName2` = 87,
 `Comment` = 'Ebon Plague rank 2 - auraname to 87 and stacking attributeEx6'
 WHERE `Id` = 51734;
 
 UPDATE `spell_dbc` SET
 `AttributesEx6` = 8388608,
-`EffectApplyAuraName1` = 87,
+`EffectApplyAuraName2` = 87,
 `Comment` = 'Ebon Plague rank 3 - auraname to 87 and stacking attributeEx6'
 WHERE `Id` = 51735;
 
