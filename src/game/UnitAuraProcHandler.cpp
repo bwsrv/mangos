@@ -970,8 +970,19 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                         owner->RemoveAuraHolderFromStack(34027);
 
                     // Remove only single aura from stack
-                    if (triggeredByAura->GetStackAmount() > 1 && !triggeredByAura->GetHolder()->ModStackAmount(-1))
-                        return SPELL_AURA_PROC_CANT_TRIGGER;
+                    SpellAuraHolder* holder = triggeredByAura->GetHolder();
+                    if (holder && !holder->IsDeleted())
+                    {
+                        if (holder->GetStackAmount() > 1)
+                        {
+                            holder->ModStackAmount(-1);
+                            return SPELL_AURA_PROC_CANT_TRIGGER;
+                        }
+                        else
+                            return SPELL_AURA_PROC_OK;
+                    }
+                    else
+                        return SPELL_AURA_PROC_FAILED;
                     break;
                 }
                 // Swift Hand of Justice
