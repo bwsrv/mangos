@@ -2453,6 +2453,12 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 
                     return;
                 }
+                case 52480:                                 // Salram Explode Ghoul N
+                case 58825:                                 // Salram Explode Ghoul H
+                {
+                    unitTarget->SetDisplayId(11686);
+                    return;
+                }
                 case 52238:                                 // Volkhan Temper, Summon Golems
                 {
                     if (!unitTarget)
