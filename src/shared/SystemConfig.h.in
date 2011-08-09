@@ -27,10 +27,14 @@
 
 #ifndef _VERSION
 #if PLATFORM == PLATFORM_WINDOWS
-# define _VERSION(REVD,REVT,REVN,REVH) "0.17.0-DEV" " (" REVD " " REVT " Revision " REVN " - " REVH ")"
+# define _VERSION(REVN) "0.17.0-DEV" " (Revision " REVN ")"
 #else
-# define _VERSION(REVD,REVT,REVN,REVH) "${MANGOS_VERSION}" " (" REVD " " REVT " Revision " REVN " - " REVH ")"
+# define _VERSION(REVN) "${MANGOS_VERSION}" " (Revision " REVN ")"
 #endif
+#endif
+
+#ifndef _R2VERSION
+# define _R2VERSION(REVD,REVT,REVN,REVH) "mangosR2 branch" " (" REVD " " REVT " R2 Revision " REVN " commit " REVH ")"
 #endif
 
 // Format is YYYYMMDDRR where RR is the change in the conf file
@@ -93,7 +97,8 @@
 # define _AUCTIONHOUSEBOT_CONFIG   SYSCONFDIR"ahbot.conf"
 #endif
 
-#define _FULLVERSION(REVD,REVT,REVN,REVH) _PACKAGENAME "/" _VERSION(REVD,REVT,REVN,REVH) " for " _ENDIAN_PLATFORM
+#define _FULLVERSION(REVN) _PACKAGENAME "/" _VERSION(REVN)
+#define _R2FULLVERSION(REVD,REVT,REVN,REVH) _R2VERSION(REVD,REVT,REVN,REVH) " for " _ENDIAN_PLATFORM
 
 #define DEFAULT_PLAYER_LIMIT 100
 #define DEFAULT_WORLDSERVER_PORT 8085                       //8129
