@@ -4686,23 +4686,20 @@ SpellAuraProcResult Unit::HandleAddFlatModifierAuraProc(Unit* pVictim, uint32 /*
 
     switch (spellInfo->Id)
     {
+                                                // Remove only single aura from stack
         case 53257:                             // Cobra strike
-            // Remove only single aura from stack
-            if (triggeredByAura->GetStackAmount() < 1)
-                return SPELL_AURA_PROC_CANT_TRIGGER;
-
-            if (triggeredByAura->GetHolder()->ModStackAmount(-1))
-            {
-                triggeredByAura->SetInUse(true);
-                RemoveAurasByCasterSpell(triggeredByAura->GetSpellProto()->Id, triggeredByAura->GetCasterGuid());
-                triggeredByAura->SetInUse(false);
-            }
-            break;
         case 55166:                             // Tidal Force
-            // Remove only single aura from stack
-            if (triggeredByAura->GetStackAmount() > 1 && !triggeredByAura->GetHolder()->ModStackAmount(-1))
-                return SPELL_AURA_PROC_CANT_TRIGGER;
-            break;
+        {
+                SpellAuraHolder* holder = triggeredByAura->GetHolder();
+                if (!holder || holder->IsDeleted() || holder->GetStackAmount() < 1)
+                    return SPELL_AURA_PROC_FAILED;
+
+                if (holder->ModStackAmount(-1))
+                    return SPELL_AURA_PROC_OK;
+                else
+                    return SPELL_AURA_PROC_CANT_TRIGGER;
+                break;
+        }
         case 53695:
         case 53696:                             // Judgements of the Just
         {
