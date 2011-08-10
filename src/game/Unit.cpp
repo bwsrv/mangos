@@ -10539,6 +10539,9 @@ void Unit::DoPetAction( Player* owner, uint8 flag, uint32 spellid, ObjectGuid pe
             if (!targetGuid.IsEmpty())
                 unit_target = owner->GetMap()->GetUnit(targetGuid);
 
+            if (IsNonMeleeSpellCasted(false))
+                InterruptNonMeleeSpells(false);
+
             DoPetCastSpell(unit_target, spellid);
 
         }

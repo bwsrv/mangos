@@ -487,6 +487,9 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
     if (!pet->HasSpell(spellid) || IsPassiveSpell(spellInfo))
         return;
 
+    if (pet->IsNonMeleeSpellCasted(false))
+        pet->InterruptNonMeleeSpells(false);
+
     SpellCastTargets* targets = new SpellCastTargets;
 
     recvPacket >> targets->ReadForCaster(pet);
