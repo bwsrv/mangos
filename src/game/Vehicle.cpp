@@ -174,6 +174,13 @@ bool VehicleKit::AddPassenger(Unit *passenger, int8 seatId)
         passenger->SendMessageToSet(&data, true);
     }
 
+    switch (m_pBase->GetEntry())
+    {
+        case 28817:
+            passenger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            break;
+    }
+
     if (seat->second.seatInfo->m_flags & SEAT_FLAG_UNATTACKABLE || seat->second.seatInfo->m_flags & SEAT_FLAG_CAN_CONTROL)
     {
         switch (m_pBase->GetEntry())
@@ -303,6 +310,13 @@ void VehicleKit::RemovePassenger(Unit *passenger)
 
         if(!(((Creature*)m_pBase)->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_KEEP_AI))
             ((Creature*)m_pBase)->AIM_Initialize();
+    }
+
+    switch (m_pBase->GetEntry())
+    {
+        case 28817:
+            passenger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            break;
     }
 
     if (passenger->GetTypeId() == TYPEID_PLAYER)
