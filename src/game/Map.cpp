@@ -570,8 +570,8 @@ void Map::Remove(Player *player, bool remove)
 
     if(remove)
         player->CleanupsBeforeDelete();
-
-    player->RemoveFromWorld();
+    else
+        player->RemoveFromWorld();
 
     // this may be called during Map::Update
     // after decrement+unlink, ++m_mapRefIter will continue correctly

@@ -6179,9 +6179,7 @@ bool Unit::AttackStop(bool targetSwitch /*=false*/)
 
     Unit* victim = m_attacking;
 
-    if (m_attacking->IsInWorld())
-        m_attacking->_removeAttacker(GetObjectGuid());
-
+    m_attacking->_removeAttacker(GetObjectGuid());
     m_attacking = NULL;
 
     // Clear our target
@@ -6266,7 +6264,7 @@ void Unit::RemoveAllAttackers()
         Unit* attacker = GetMap()->GetUnit(guid);
         if(!attacker || !attacker->AttackStop())
         {
-            DEBUG_LOG("WORLD: Unit has an attacker that isn't attacking it!");
+            sLog.outError("WORLD: Unit has an attacker that isn't attacking it!");
             m_attackers.erase(guid);
         }
     }
