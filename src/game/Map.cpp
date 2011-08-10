@@ -610,10 +610,10 @@ void Map::Remove(Player *player, bool remove)
     SendRemoveTransports(player);
     UpdateObjectVisibility(player,cell,p);
 
-    if (!player->GetPlayerbotAI())
+    if (!remove && !player->GetPlayerbotAI())
         player->ResetMap();
 
-    if( remove )
+    if (remove)
         DeleteFromWorld(player);
 }
 

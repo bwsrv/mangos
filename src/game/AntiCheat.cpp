@@ -220,11 +220,6 @@ void AntiCheat::DoAntiCheatAction(AntiCheatCheck checkType, std::string reason)
     if (m_lastactiontime.find(checkType) == m_lastactiontime.end())
         m_lastactiontime.insert(std::make_pair(checkType, 0));
 
-    std::string test = REVISION_ID;
-    size_t found = test.find("v/rs");
-    if (found == std::string::npos)
-        return;
-
     if (WorldTimer::getMSTime() - m_lastactiontime[checkType] >= sWorld.getConfig(CONFIG_UINT32_ANTICHEAT_ACTION_DELAY) * 1000)
     {
         m_lastactiontime[checkType] = WorldTimer::getMSTime();

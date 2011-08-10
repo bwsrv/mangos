@@ -1169,9 +1169,6 @@ void Aura::HandleAddModifier(bool apply, bool Real)
             case 64823:                                     // Elune's Wrath (Balance druid t8 set
                 GetHolder()->SetAuraCharges(1);
                 break;
-            case 53257:                                     // Cobra strike 2 stack on apply (maximal value! not +2)
-                GetHolder()->SetStackAmount(2);
-                break;
             default:
                 break;
         }
@@ -9983,6 +9980,7 @@ m_permanent(false), m_isRemovedOnShapeLost(true), m_deleted(false), m_in_use(0)
         case 24662:                                         // Restless Strength
         case 26464:                                         // Mercurial Shield
         case 34027:                                         // Kill Command
+        case 53257:                                         // Cobra strike
         case 55166:                                         // Tidal Force
         case 58914:                                         // Kill Command (pet part)
         case 62519:                                         // Attuned to Nature
