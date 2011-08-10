@@ -125,6 +125,9 @@ bool CreatureAI::AttackByType(WeaponAttackType attType)
     {
         m_creature->AttackerStateUpdate(m_creature->getVictim(), attType);
         m_creature->resetAttackTimer(attType);
+        WeaponAttackType attTypeTwo = (attType == BASE_ATTACK ? OFF_ATTACK : BASE_ATTACK);
+        if (m_creature->getAttackTimer(attTypeTwo) < 500)
+            m_creature->setAttackTimer(attTypeTwo, 500);
         return true;
     }
 
