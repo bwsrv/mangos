@@ -96,7 +96,7 @@ bool ChatHandler::HandleServerInfoCommand(char* /*args*/)
     uint32 maxQueuedClientsNum = sWorld.GetMaxQueuedSessionCount();
     std::string str = secsToTimeString(sWorld.GetUptime());
 
-    char const* full;
+    /*char const* full;
     char const* fullR2;
     if(m_session)
     {
@@ -123,7 +123,8 @@ bool ChatHandler::HandleServerInfoCommand(char* /*args*/)
         SendSysMessage(LANG_USING_SCRIPT_LIB_NONE);
 
     PSendSysMessage(LANG_USING_WORLD_DB,sWorld.GetDBVersion());
-    PSendSysMessage(LANG_USING_EVENT_AI,sWorld.GetCreatureEventAIVersion());
+    PSendSysMessage(LANG_USING_EVENT_AI,sWorld.GetCreatureEventAIVersion());*/
+    PSendSysMessage("Welcome to BRIDGE World of Warcraft Server");
     PSendSysMessage(LANG_CONNECTED_USERS, activeClientsNum, maxActiveClientsNum, queuedClientsNum, maxQueuedClientsNum);
     PSendSysMessage(LANG_UPTIME, str.c_str());
 
