@@ -1237,6 +1237,8 @@ void BattleGround::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
             plr->SpawnCorpseBones();
         }
     }
+    else
+        sObjectAccessor.ConvertCorpseForPlayer(guid);
 
     RemovePlayer(plr, guid);                                // BG subclass specific code
 

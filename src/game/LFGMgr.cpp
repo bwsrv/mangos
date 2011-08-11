@@ -598,7 +598,8 @@ LFGJoinResult LFGMgr::GetPlayerJoinResult(Player* player)
    if (player->HasAura(LFG_SPELL_DUNGEON_DESERTER))
         return  ERR_LFG_DESERTER_PLAYER;
 
-    if (player->HasAura(LFG_SPELL_DUNGEON_COOLDOWN))
+    if (player->HasAura(LFG_SPELL_DUNGEON_COOLDOWN)
+        && (!player->GetGroup() || player->GetGroup()->GetLFGState()->GetStatus() != LFG_STATUS_OFFER_CONTINUE))
         return ERR_LFG_RANDOM_COOLDOWN_PLAYER;
 
     LFGDungeonSet* dungeons = player->GetLFGState()->GetDungeons();
@@ -1159,8 +1160,8 @@ uint32 LFGMgr::CreateProposal(LFGDungeonEntry const* dungeon, Group* group, LFGQ
             {
                 member->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_PROPOSAL_BEGIN, LFGType(dungeon->type));
                 member->GetSession()->SendLfgUpdateProposal(GetProposal(ID));
-                if (!sWorld.getConfig(CONFIG_BOOL_LFG_DEBUG_ENABLE))
-                    member->CastSpell(member,LFG_SPELL_DUNGEON_COOLDOWN,true);
+                member->GetLFGState()->SetState(LFG_STATE_PROPOSAL);
+                member->GetLFGState()->SetAnswer(LFG_ANSWER_PENDING);
             }
         }
         if (guids && !guids->empty())
@@ -1206,9 +1207,6 @@ bool LFGMgr::SendProposal(uint32 ID, ObjectGuid guid)
 
     player->GetSession()->SendLfgUpdateProposal(pProposal);
 
-    if (!sWorld.getConfig(CONFIG_BOOL_LFG_DEBUG_ENABLE))
-        player->CastSpell(player,LFG_SPELL_DUNGEON_COOLDOWN,true);
-
     if (pProposal->GetGroup())
     {
         pProposal->GetGroup()->GetLFGState()->SetState(LFG_STATE_PROPOSAL);
@@ -1253,6 +1251,8 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
     // Remove member that didn't accept
     if (accept == LFG_ANSWER_DENY)
     {
+        if (!sWorld.getConfig(CONFIG_BOOL_LFG_DEBUG_ENABLE))
+            _player->CastSpell(_player,LFG_SPELL_DUNGEON_COOLDOWN,true);
         RemoveProposal(_player, ID);
         return;
     }
@@ -1380,6 +1380,8 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
                     {
                         AddMemberToLFDGroup(member->GetObjectGuid());
                         member->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_GROUP_FOUND, group->GetLFGState()->GetDungeonType());
+                        if (!sWorld.getConfig(CONFIG_BOOL_LFG_DEBUG_ENABLE))
+                            member->CastSpell(member,LFG_SPELL_DUNGEON_COOLDOWN,true);
                     }
                 }
             }
@@ -1411,6 +1413,8 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
             pProposal->RemoveMember(player->GetObjectGuid());
 //            player->GetSession()->SendLfgUpdateProposal(pProposal);
             player->GetLFGState()->SetProposal(NULL);
+            if (!sWorld.getConfig(CONFIG_BOOL_LFG_DEBUG_ENABLE))
+                player->CastSpell(player,LFG_SPELL_DUNGEON_COOLDOWN,true);
         }
     }
 
