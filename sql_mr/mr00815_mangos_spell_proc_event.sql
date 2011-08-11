@@ -633,3 +633,6 @@ INSERT INTO spell_proc_event VALUES (71585, 127, 0x00, 0x00000000, 0x00000000, 0
 -- (71845) Item - Icecrown 25 Normal Caster Weapon Proc
 DELETE FROM spell_proc_event WHERE entry = 71845;
 INSERT INTO spell_proc_event VALUES (71845, 0x3F, 0x00, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0, 0, 0);
+
+-- 33151 Surge of Light (Rank 1)
+DELETE FROM spell_proc_event WHERE entry = 33151;
