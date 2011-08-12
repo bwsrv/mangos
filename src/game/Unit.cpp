@@ -10619,7 +10619,7 @@ void Unit::DoPetCastSpell(Player *owner, uint8 cast_count, SpellCastTargets* tar
         result = SPELL_CAST_OK;
     }
 
-    if (unit_target && targets)
+    if (targets)
         spell->m_targets = *targets;
 
     clearUnitState(UNIT_STAT_MOVING);
