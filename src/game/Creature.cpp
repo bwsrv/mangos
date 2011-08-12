@@ -166,6 +166,7 @@ m_regenHealth(true), m_AI_locked(false), m_isDeadByDefault(false),
 m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL), m_originalEntry(0), m_temporaryFactionFlags(TEMPFACTION_NONE),
 m_creatureInfo(NULL)
 {
+    SetWalk(true);
     m_regenTimer = 200;
     m_valuesCount = UNIT_END;
 
@@ -1498,6 +1499,8 @@ void Creature::SetDeathState(DeathState s)
 
         SetHealth(GetMaxHealth());
         SetLootRecipient(NULL);
+
+        SetWalk(true);
 
         if (GetTemporaryFactionFlags() & TEMPFACTION_RESTORE_RESPAWN)
             ClearTemporaryFaction();
