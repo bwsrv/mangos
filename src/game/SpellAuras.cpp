@@ -10532,6 +10532,13 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                     if (caster->HasAura(56370))
                         m_target->RemoveAurasByCasterSpell(GetId(), caster->GetObjectGuid());
             }
+            else if (!apply && m_spellProto->SpellFamilyFlags.test<CF_MAGE_ARCANE_MISSILES_CHANNEL>())
+            {
+                // Remove missile barrage
+                if (Unit * caster = GetCaster())
+                    if (caster->HasAura(44401))
+                        caster->RemoveAurasByCasterSpell(44401, caster->GetObjectGuid());
+            }
 
             switch(GetId())
             {

@@ -636,3 +636,6 @@ INSERT INTO spell_proc_event VALUES (71845, 0x3F, 0x00, 0x00000000, 0x00000000, 
 
 -- 33151 Surge of Light (Rank 1)
 DELETE FROM spell_proc_event WHERE entry = 33151;
+
+-- 44401 Missile Barrage
+DELETE FROM spell_proc_event WHERE entry = 44401;
