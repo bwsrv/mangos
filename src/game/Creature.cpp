@@ -172,6 +172,8 @@ m_creatureInfo(NULL)
 
     m_CreatureSpellCooldowns.clear();
     m_CreatureCategoryCooldowns.clear();
+
+    SetWalk(true);
 }
 
 Creature::~Creature()
@@ -1499,6 +1501,7 @@ void Creature::SetDeathState(DeathState s)
 
         SetHealth(GetMaxHealth());
         SetLootRecipient(NULL);
+        SetWalk(true);
 
         SetWalk(true);
 

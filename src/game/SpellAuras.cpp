@@ -10141,7 +10141,7 @@ void SpellAuraHolder::_RemoveSpellAuraHolder()
     if (m_target->GetTypeId() == TYPEID_PLAYER && m_removeMode != AURA_REMOVE_BY_DEFAULT && m_removeMode != AURA_REMOVE_BY_DELETE)
         if (ObjectGuid castItemGuid = GetCastItemGuid())
             if (Item* castItem = ((Player*)m_target)->GetItemByGuid(castItemGuid))
-                ((Player*)m_target)->DestroyItemWithOnStoreSpell(castItem);
+                ((Player*)m_target)->DestroyItemWithOnStoreSpell(castItem, GetId());
 
     //passive auras do not get put in slots - said who? ;)
     // Note: but totem can be not accessible for aura target in time remove (to far for find in grid)
@@ -10686,6 +10686,13 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                 if (Unit * caster = GetCaster())
                     if (caster->HasAura(56370))
                         m_target->RemoveAurasByCasterSpell(GetId(), caster->GetObjectGuid());
+            }
+            else if (!apply && m_spellProto->SpellFamilyFlags.test<CF_MAGE_ARCANE_MISSILES_CHANNEL>())
+            {
+                // Remove missile barrage
+                if (Unit * caster = GetCaster())
+                    if (caster->HasAura(44401))
+                        caster->RemoveAurasByCasterSpell(44401, caster->GetObjectGuid());
             }
 
             switch(GetId())
