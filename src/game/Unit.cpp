@@ -4367,7 +4367,7 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
     }
 
     // passive and persistent auras can stack with themselves any number of times
-    if ((!holder->IsPassive() && !holder->IsPersistent() && !IsSpellHiddenStackable(aurSpellInfo)) || holder->IsAreaAura())
+    if ((!holder->IsPassive() && !holder->IsPersistent()) || holder->IsAreaAura())
     {
         SpellAuraHolderMap tmpMap = GetSpellAuraHolderMap();
         SpellAuraHolderBounds spair = tmpMap.equal_range(aurSpellInfo->Id);
@@ -4433,7 +4433,7 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
     }
 
     // passive auras not stackable with other ranks
-    if (!IsPassiveSpellStackableWithRanks(aurSpellInfo) && !IsSpellHiddenStackable(aurSpellInfo))
+    if (!IsPassiveSpellStackableWithRanks(aurSpellInfo))
     {
         if (!RemoveNoStackAurasDueToAuraHolder(holder))
         {
