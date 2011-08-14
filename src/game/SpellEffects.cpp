@@ -4357,16 +4357,6 @@ void Spell::EffectTriggerMissileSpell(SpellEffectIndex effect_idx)
         return;
     }
 
-    // Init dest coordinates
-    float x,y,z;
-    x = m_targets.m_destX;
-    y = m_targets.m_destY;
-    z = m_targets.m_destZ;
-
-    MaNGOS::NormalizeMapCoord(x);
-    MaNGOS::NormalizeMapCoord(y);
-    m_caster->UpdateGroundPositionZ(x,y,z);
-
     m_caster->CastSpell(x, y, z, spellInfo, true, m_CastItem, 0, m_originalCasterGUID);
 }
 
