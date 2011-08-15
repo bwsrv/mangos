@@ -1118,6 +1118,8 @@ bool Aura::IsEffectStacking()
                 return false;
             }
             break;
+        case SPELL_AURA_CONTROL_VEHICLE:
+            return true;
 
         default:
             break;
