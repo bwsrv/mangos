@@ -6462,14 +6462,13 @@ void Unit::SetPet(Pet* pet)
     if (pet)
     {
         SetPetGuid(pet->GetObjectGuid()) ;  //Using last pet guid for player
-
         AddPetToList(pet);
-
-        if (!pet->GetPetCounter() && GetTypeId() == TYPEID_PLAYER)
-            ((Player*)this)->SendPetGUIDs();
     }
     else
         SetPetGuid(ObjectGuid());
+
+    if ((!pet || !pet->GetPetCounter()) && GetTypeId() == TYPEID_PLAYER)
+        ((Player*)this)->SendPetGUIDs();
 }
 
 void Unit::SetCharm(Unit* pet)
@@ -6503,7 +6502,7 @@ void Unit::AddGuardian( Pet* pet )
 
 void Unit::RemoveGuardian( Pet* pet )
 {
-    if (GetTypeId() == TYPEID_PLAYER && ((Player*)this)->GetTemporaryUnsummonedPetNumber() != pet->GetCharmInfo()->GetPetNumber())
+    if (GetTypeId() == TYPEID_PLAYER)
     {
         uint32 SpellID = pet->GetCreateSpellID();
         SpellEntry const *spellInfo = sSpellStore.LookupEntry(SpellID);
@@ -6526,8 +6525,8 @@ void Unit::RemoveGuardians()
 
         if (Pet* pet = GetMap()->GetPet(guid))
             pet->Unsummon(PET_SAVE_AS_DELETED, this); // can remove pet guid from m_guardianPets
-
-        m_guardianPets.erase(guid);
+        else
+            m_guardianPets.erase(guid);
     }
 
 }

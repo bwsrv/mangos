@@ -841,6 +841,11 @@ LexicsCutterNoActionOnGM = 1
 #                 0 - unsummon only for flying mounts
 #        Default: 1 - unsummon for any mount
 #
+#    PetSaveAllInDB
+#        Persmanent pet state saving in database
+#        Default: 0 - default mangos style, only permanent pets saved in DB
+#                 1 - all pets (including multipets and temporary summoned pets) saved in DB.
+#
 #    RaidFlags.Unique
 #        Set raid flags (assistant, main assistant, main tank) unique in raid
 #        Default: 0 - flags not unique
@@ -955,6 +960,7 @@ SkillChance.Prospecting = 0
 SkillChance.Milling = 0
 OffhandCheckAtTalentsReset = 0
 PetUnsummonAtMount = 1
+PetSaveAllInDB = 0
 RaidFlags.Unique = 0
 AllowFlightOnOldMaps = 0
 WOWArmorySupport = 0
