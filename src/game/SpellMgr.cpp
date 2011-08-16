@@ -699,6 +699,9 @@ bool IsPositiveEffect(SpellEntry const *spellproto, SpellEffectIndex effIndex)
         case 57511:                                         // Volazj Insanity Phase 4
         case 57512:                                         // Volazj Insanity Phase 5
         case 55126:                                         // Sladran Snake Trap
+        case 39288:                                         // Kargath's Executioner
+        case 39289:                                         // Kargath's Executioner
+        case 39290:                                         // Kargath's Executioner
             return false;
         case 552:                                           // Abolish Disease
         case 12042:                                         // Arcane Power
