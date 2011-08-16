@@ -6525,8 +6525,8 @@ void Unit::RemoveGuardians()
 
         if (Pet* pet = GetMap()->GetPet(guid))
             pet->Unsummon(PET_SAVE_AS_DELETED, this); // can remove pet guid from m_guardianPets
-        else
-            m_guardianPets.erase(guid);
+
+        m_guardianPets.erase(guid);
     }
 
 }
