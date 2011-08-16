@@ -4215,6 +4215,9 @@ void Spell::SendSpellGo()
 
     Unit *caster = m_triggeredByAuraSpell && IsChanneledSpell(m_triggeredByAuraSpell) ? GetAffectiveCaster() : m_caster;
 
+    if (!caster)
+        caster = m_caster;                                  // temporary. TODO - need find source of problem.
+
     WorldPacket data(SMSG_SPELL_GO, 50);                    // guess size
 
     if (m_CastItem)
