@@ -509,7 +509,7 @@ void Unit::resetAttackTimer(WeaponAttackType type)
 
 bool Unit::CanReachWithMeleeAttack(Unit* pVictim, float flat_mod /*= 0.0f*/) const
 {
-    if (!pVictim)
+    if (!pVictim || !pVictim->IsInWorld())
         return false;
 
     // The measured values show BASE_MELEE_OFFSET in (1.3224, 1.342)
