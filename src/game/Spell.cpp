@@ -3689,15 +3689,15 @@ void Spell::handle_immediate()
         SendChannelStart(m_duration);
     }
 
-    for(TargetList::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+    for(TargetList::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end();)
     {
-        TargetInfo buffer = *ihit;
+        TargetInfo buffer = *ihit++;
         DoAllEffectOnTarget(&buffer);
     }
 
-    for(GOTargetList::iterator ihit = m_UniqueGOTargetInfo.begin(); ihit != m_UniqueGOTargetInfo.end(); ++ihit)
+    for(GOTargetList::iterator ihit = m_UniqueGOTargetInfo.begin(); ihit != m_UniqueGOTargetInfo.end();)
     {
-        GOTargetInfo buffer = *ihit;
+        GOTargetInfo buffer = *ihit++;
         DoAllEffectOnTarget(&buffer);
     }
 
