@@ -557,19 +557,6 @@ inline bool IsSpellReduceThreat(SpellEntry const* spellInfo)
     return false;
 }
 
-inline bool IsSpellHiddenStackable(SpellEntry const* spellInfo)
-{
-    if (!spellInfo || !(spellInfo->AttributesEx & SPELL_ATTR_EX_HIDDEN_AURA))
-        return false;
-
-    if (spellInfo->Attributes & SPELL_ATTR_CANT_CANCEL ||
-        spellInfo->Attributes & SPELL_ATTR_NOT_SHAPESHIFT ||
-        spellInfo->AttributesEx3 & SPELL_ATTR_EX3_DEATH_PERSISTENT)
-        return false;
-
-    return true;
-}
-
 inline bool IsSpellAllowDeadTarget(SpellEntry const* spellInfo)
 {
     return spellInfo ? spellInfo->AttributesEx2 & SPELL_ATTR2_ALLOW_DEAD_TARGET : false;

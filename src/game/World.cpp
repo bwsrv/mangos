@@ -820,6 +820,8 @@ void World::LoadConfigSettings(bool reload)
 
     setConfig(CONFIG_BOOL_PET_UNSUMMON_AT_MOUNT,      "PetUnsummonAtMount", true);
 
+    setConfig(CONFIG_BOOL_PET_SAVE_ALL,      "PetSaveAllInDB", false);
+
     setConfig(CONFIG_BOOL_RAID_FLAGS_UNIQUE,      "RaidFlags.Unique", false);
 
     setConfig(CONFIG_BOOL_ALLOW_FLIGHT_ON_OLD_MAPS, "AllowFlightOnOldMaps", false);

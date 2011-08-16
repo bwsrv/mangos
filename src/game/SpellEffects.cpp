@@ -3943,8 +3943,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 }
                 else
                 {
-                    int32 bp = m_caster->SpellDamageBonusDone(unitTarget, m_spellInfo, uint32(damage), SPELL_DIRECT_DAMAGE);
-                          bp = unitTarget->SpellDamageBonusTaken(m_caster, m_spellInfo, uint32(bp), SPELL_DIRECT_DAMAGE);
+                    int32 bp = damage;
                     m_caster->CastCustomSpell(unitTarget, 47632, &bp, NULL, NULL, true);
                 }
                 return;
@@ -7303,7 +7302,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
 
-                    if (((Player*)m_caster)->GetTemporaryUnsummonedPetNumber() != 0 )
+                    if (((Player*)m_caster)->GetTemporaryUnsummonedPetCount())
                         ((Player*)m_caster)->ResummonPetTemporaryUnSummonedIfAny();
                     else
                         ((Player*)m_caster)->LoadPet();

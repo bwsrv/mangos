@@ -148,6 +148,7 @@ struct ScalingAction
 
 typedef UNORDERED_MAP<uint32, PetSpell> PetSpellMap;
 typedef std::vector<uint32> AutoSpellList;
+typedef std::map<uint8, uint32> PetNumberList;
 
 #define HAPPINESS_LEVEL_SIZE        333000
 

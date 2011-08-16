@@ -313,9 +313,10 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     if (owner->GetTypeId() == TYPEID_PLAYER)
     {
         CleanupActionBar();                                     // remove unknown spells from action bar after load
+        if (isControlled())
+            SetNeedSave(true);
         if (isControlled() && !GetPetCounter())
         {
-            SetNeedSave(true);
             ((Player*)owner)->PetSpellInitialize();
             ((Player*)owner)->SendTalentsInfoData(true);
         }
@@ -367,8 +368,8 @@ void Pet::SavePetToDB(PetSaveMode mode)
         if (mode == PET_SAVE_REAGENTS)
             mode = PET_SAVE_NOT_IN_SLOT;
         // not save pet as current if another pet temporary unsummoned
-        else if (mode == PET_SAVE_AS_CURRENT && pOwner->GetTemporaryUnsummonedPetNumber() &&
-            pOwner->GetTemporaryUnsummonedPetNumber() != m_charmInfo->GetPetNumber())
+        else if (mode == PET_SAVE_AS_CURRENT && pOwner->GetTemporaryUnsummonedPetCount() &&
+            pOwner->GetTemporaryUnsummonedPetNumber(GetPetCounter()) != m_charmInfo->GetPetNumber())
         {
             // pet will lost anyway at restore temporary unsummoned
             if(getPetType()==HUNTER_PET)
@@ -708,8 +709,8 @@ void Pet::Unsummon(PetSaveMode mode, Unit* owner /*= NULL*/)
         {
 
             // not save secondary permanent pet as current
-            if (mode == PET_SAVE_AS_CURRENT && p_owner->GetTemporaryUnsummonedPetNumber() &&
-                p_owner->GetTemporaryUnsummonedPetNumber() != GetCharmInfo()->GetPetNumber())
+            if (mode == PET_SAVE_AS_CURRENT && p_owner->GetTemporaryUnsummonedPetCount() &&
+                p_owner->GetTemporaryUnsummonedPetNumber(GetPetCounter()) != m_charmInfo->GetPetNumber())
                 mode = PET_SAVE_NOT_IN_SLOT;
 
             SpellEntry const *spellInfo = sSpellStore.LookupEntry(GetCreateSpellID());
@@ -746,7 +747,7 @@ void Pet::Unsummon(PetSaveMode mode, Unit* owner /*= NULL*/)
 
                 // Special way for remove cooldown if SPELL_ATTR_DISABLED_WHILE_ACTIVE
                 if (spellInfo && spellInfo->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE)
-                    if (p_owner->GetTemporaryUnsummonedPetNumber() != GetCharmInfo()->GetPetNumber())
+                    if (p_owner->GetTemporaryUnsummonedPetNumber(GetPetCounter()) != m_charmInfo->GetPetNumber())
                         p_owner->SendCooldownEvent(spellInfo);
             }
         }
@@ -2971,7 +2972,7 @@ bool Pet::Summon()
         if(((Player*)owner)->GetGroup())
             ((Player*)owner)->SetGroupUpdateFlag(GROUP_UPDATE_PET);
 
-        if (!GetPetCounter() && getPetType() == HUNTER_PET)
+        if (getPetType() == HUNTER_PET)
             SavePetToDB(PET_SAVE_AS_CURRENT);
         else if (getPetType() == SUMMON_PET)
             SavePetToDB(PET_SAVE_NOT_IN_SLOT);
