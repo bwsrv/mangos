@@ -33,6 +33,9 @@ void CreatureAI::AttackedBy( Unit* attacker )
 
 CanCastResult CreatureAI::CanCastSpell(Unit* pTarget, const SpellEntry *pSpell, bool isTriggered)
 {
+    if (!pTarget)
+        return CAST_FAIL_OTHER;
+
     // If not triggered, we check
     if (!isTriggered)
     {
@@ -79,6 +82,9 @@ CanCastResult CreatureAI::DoCastSpellIfCan(Unit* pTarget, uint32 uiSpell, uint32
 
     if (uiCastFlags & CAST_FORCE_TARGET_SELF)
         pCaster = pTarget;
+
+    if (!pTarget)
+        return CAST_FAIL_OTHER;
 
     // Allowed to cast only if not casting (unless we interrupt ourself) or if spell is triggered
     if (!pCaster->IsNonMeleeSpellCasted(false) || (uiCastFlags & (CAST_TRIGGERED | CAST_INTERRUPT_PREVIOUS)))

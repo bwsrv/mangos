@@ -509,7 +509,7 @@ void Unit::resetAttackTimer(WeaponAttackType type)
 
 bool Unit::CanReachWithMeleeAttack(Unit* pVictim, float flat_mod /*= 0.0f*/) const
 {
-    if (!pVictim)
+    if (!pVictim || !pVictim->IsInWorld())
         return false;
 
     // The measured values show BASE_MELEE_OFFSET in (1.3224, 1.342)
@@ -6523,8 +6523,8 @@ void Unit::RemoveGuardians()
 
         if (Pet* pet = GetMap()->GetPet(guid))
             pet->Unsummon(PET_SAVE_AS_DELETED, this); // can remove pet guid from m_guardianPets
-        else
-            m_guardianPets.erase(guid);
+
+        m_guardianPets.erase(guid);
     }
 
 }

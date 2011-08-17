@@ -1382,11 +1382,7 @@ bool DungeonMap::Add(Player *player)
             else
             {
                 // cannot jump to a different instance without resetting it
-                //MANGOS_ASSERT(playerBind->state == GetPersistentState());
-                player->RemoveFromGroup();
-                player->RepopAtGraveyard();
-                player->GetSession()->KickPlayer();
-                return false;
+                MANGOS_ASSERT(playerBind->state == GetPersistentState());
             }
         }
     }

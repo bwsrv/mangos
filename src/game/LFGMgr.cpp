@@ -1393,7 +1393,7 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
     group->SendUpdate();
 
     // move players from proposal to group
-    for (LFGQueueSet::const_iterator itr = pProposal->playerGuids.begin(); itr != pProposal->playerGuids.end(); ++itr )
+    for (LFGQueueSet::const_iterator itr = pProposal->playerGuids.begin(); itr != pProposal->playerGuids.end();)
     {
         Player* player = sObjectMgr.GetPlayer(*itr);
         if (player && player->IsInWorld())
@@ -1410,7 +1410,8 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
                 player->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_GROUP_FOUND, player->GetLFGState()->GetType());
 
             group->AddMember(player->GetObjectGuid(), player->GetName());
-            pProposal->RemoveMember(player->GetObjectGuid());
+            LFGQueueSet::const_iterator temp = itr++;
+            pProposal->RemoveMember(*temp);
 //            player->GetSession()->SendLfgUpdateProposal(pProposal);
             player->GetLFGState()->SetProposal(NULL);
             if (!sWorld.getConfig(CONFIG_BOOL_LFG_DEBUG_ENABLE))
