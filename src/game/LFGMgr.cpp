@@ -1417,6 +1417,11 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
             if (!sWorld.getConfig(CONFIG_BOOL_LFG_DEBUG_ENABLE))
                 player->CastSpell(player,LFG_SPELL_DUNGEON_COOLDOWN,true);
         }
+        else
+        {
+            LFGQueueSet::const_iterator temp = itr++;
+            pProposal->RemoveMember(*temp);
+        }
     }
 
     // Update statistics for dungeon/roles/etc
