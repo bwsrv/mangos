@@ -1698,7 +1698,11 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 68950:                                 // Fear (ICC: Forge of Souls)
                 case 69057:                                 // Bone Spike Graveyard (Icecrown Citadel, Lord Marrowgar encounter, 10N)
                 case 69140:                                 // Coldflame (Icecrown Citadel, Lord Marrowgar encounter)
+                case 69674:                                 // Mutated Infection
+                case 71224:
                 case 72378:                                 // Blood Nova
+                case 73022:                                 // Mutated Infection (heroic)
+                case 73023:                                 // Mutated Infection (heroic)
                 case 72088:                                 // Bone Spike Graveyard (Icecrown Citadel, Lord Marrowgar encounter, 10H)
                 case 73058:                                 // Blood Nova
                 case 73142:                                 // Bone Spike Graveyard (during Bone Storm) (Icecrown Citadel, Lord Marrowgar encounter, 10N)
