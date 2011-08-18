@@ -82,9 +82,22 @@ LFGRoleMask LFGPlayerState::GetRoles()
     return rolesMask;
 };
 
-LFGType LFGPlayerState::GetDungeonType()
+void LFGPlayerState::SetDungeons(LFGDungeonSet* dungeons)
 {
-    return GetType();
+    LFGMgr::WriteGuard Guard(sLFGMgr.GetLock());
+    m_DungeonsList = *dungeons;
+};
+
+void LFGPlayerState::RemoveDungeon(LFGDungeonEntry const* dungeon)
+{
+    LFGMgr::WriteGuard Guard(sLFGMgr.GetLock());
+    m_DungeonsList.erase(dungeon);
+};
+
+void LFGPlayerState::AddDungeon(LFGDungeonEntry const* dungeon)
+{
+    LFGMgr::WriteGuard Guard(sLFGMgr.GetLock());
+    m_DungeonsList.insert(dungeon);
 };
 
 void LFGPlayerState::SetJoined()
@@ -184,9 +197,22 @@ bool LFGGroupState::IsRoleCheckActive()
     return false;
 }
 
-LFGType LFGGroupState::GetDungeonType()
+void LFGGroupState::SetDungeons(LFGDungeonSet* dungeons)
 {
-    return GetType();
+    LFGMgr::WriteGuard Guard(sLFGMgr.GetLock());
+    m_DungeonsList = *dungeons;
+};
+
+void LFGGroupState::RemoveDungeon(LFGDungeonEntry const* dungeon)
+{
+    LFGMgr::WriteGuard Guard(sLFGMgr.GetLock());
+    m_DungeonsList.erase(dungeon);
+};
+
+void LFGGroupState::AddDungeon(LFGDungeonEntry const* dungeon)
+{
+    LFGMgr::WriteGuard Guard(sLFGMgr.GetLock());
+    m_DungeonsList.insert(dungeon);
 };
 
 bool LFGGroupState::IsBootActive()

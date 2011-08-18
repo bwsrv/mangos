@@ -219,10 +219,14 @@ struct LFGPlayerState
     public:
     void Clear();
     void Update(bool _update = true) { update = _update; };
-    LFGDungeonSet* GetDungeons()   { return &m_DungeonsList; };
+    LFGDungeonSet const* GetDungeons() const  { return &m_DungeonsList; };
+    void SetDungeons(LFGDungeonSet* dungeons);
+    void RemoveDungeon(LFGDungeonEntry const* dungeon);
+    void AddDungeon(LFGDungeonEntry const* dungeon);
+
     LFGLockStatusMap* GetLockMap();
 
-    LFGType GetDungeonType();
+    LFGType        GetType();
 
     std::string    GetComment()    { return m_comment; };
     void SetComment(std::string comment);
@@ -252,7 +256,6 @@ struct LFGPlayerState
     void           SetAnswer(LFGAnswer _accept) { accept = _accept;};
     LFGAnswer      GetAnswer() { return accept;};
 
-    LFGType        GetType();
 
     private:
     LFGRoleMask   rolesMask;
@@ -282,9 +285,12 @@ public:
     void Clear();
     void Update(bool _update = true) { update = _update; };
 
-    LFGDungeonSet* GetDungeons()   { return &m_DungeonsList; };
+    LFGDungeonSet const* GetDungeons() const { return &m_DungeonsList; };
+    void SetDungeons(LFGDungeonSet* dungeons);
+    void RemoveDungeon(LFGDungeonEntry const* dungeon);
+    void AddDungeon(LFGDungeonEntry const* dungeon);
 
-    LFGType GetDungeonType();
+    LFGType       GetType();
 
     LFGDungeonEntry const* GetDungeon()   { return m_realdungeon; };
     void SetDungeon(LFGDungeonEntry const* _dungeon)   { m_realdungeon = _dungeon; };
@@ -304,7 +310,6 @@ public:
     void          SetProposal(LFGProposal* proposal)   { m_proposal = proposal; };
 
     uint32*       GetFlags()  { return &m_flags;};
-    LFGType       GetType();
 
     // Boot system
     LFGAnswerMap*  GetBootMap() { return &m_bootVotes; };
