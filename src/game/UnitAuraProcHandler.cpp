@@ -966,20 +966,23 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 case 58914:
                 {
                     // also decrease owner buff stack
-                    if (Unit* owner = GetOwner())
-                        owner->RemoveAuraHolderFromStack(34027);
+                    Unit* owner = GetOwner();
+                    if (!owner)
+                        return SPELL_AURA_PROC_FAILED;
+
+                    owner->RemoveAuraHolderFromStack(34027);
 
                     // Remove only single aura from stack
                     SpellAuraHolder* holder = triggeredByAura->GetHolder();
                     if (holder && !holder->IsDeleted())
                     {
-                        if (holder->GetStackAmount() > 1)
+                        if (holder->ModStackAmount(-1))
                         {
-                            holder->ModStackAmount(-1);
-                            return SPELL_AURA_PROC_CANT_TRIGGER;
+                            owner->RemoveAurasDueToSpell(34026);
+                            return SPELL_AURA_PROC_OK;
                         }
                         else
-                            return SPELL_AURA_PROC_OK;
+                            return SPELL_AURA_PROC_CANT_TRIGGER;
                     }
                     else
                         return SPELL_AURA_PROC_FAILED;
@@ -2241,6 +2244,11 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 target = this;
                 break;
             }
+            else if (dummySpell->Id == 37483)               // Improved Kill Command - Item set bonus
+            {
+                triggered_spell_id = 37482;                 // Exploited Weakness
+                break;
+            }
             // Guard Dog
             else if (dummySpell->SpellIconID == 201 && procSpell->SpellIconID == 201)
             {
@@ -2251,6 +2259,7 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 break;
             }
             break;
+
         }
         case SPELLFAMILY_PALADIN:
         {

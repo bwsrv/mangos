@@ -1,6 +1,6 @@
 -- Arcane Potency 
 DELETE FROM spell_chain WHERE spell_ID IN (57529, 57531);
-INSERT INTO spell_chain	(spell_id, prev_spell, first_spell, rank, req_spell) VALUES
+INSERT INTO spell_chain (spell_id, prev_spell, first_spell, rank, req_spell) VALUES
 (57529, 0, 57529, 1, 0),
 (57531,57529, 57529, 2,0);
 
@@ -28,3 +28,7 @@ INSERT INTO spell_proc_event VALUES (56636, 0x00, 0x04, 0x00000020, 0x00000020, 
 -- (588) Inner Fire
 DELETE FROM spell_proc_event WHERE entry = 588;
 INSERT INTO spell_proc_event VALUES (588, 0x00, 0x06, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00100000, 0, 0, 0);
+
+-- (37483) Improved Kill Command
+DELETE FROM `spell_proc_event` WHERE `entry` IN (37483);
+INSERT INTO `spell_proc_event` VALUES (37483, 0x00, 0x09, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00004000, 0x00000000, 0, 101, 0);

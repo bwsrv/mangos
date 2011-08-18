@@ -10410,14 +10410,6 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                         return;
                     break;
                 }
-                case 58914:                                     // Kill Command, pet aura
-                {
-                    // Removal is needed here because the dummy aura handler is applied / removed at stacks change
-                    if (!apply)
-                        if (Unit* caster = GetCaster())
-                            caster->RemoveAurasDueToSpell(34027);
-                    return;
-                }
                 case 62619:                                 // Potent Pheromones (Freya encounter)
                 case 64321:                                 // Potent Pheromones (Freya encounter) heroic
                 {
@@ -10838,23 +10830,12 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                 }
                 case 34027:                                 // Kill Command, owner aura (spellmods)
                 {
-                    if (apply)
-                    {
-                        if (m_target->HasAura(35029))       // Focused Fire, rank 1
-                            spellId1 = 60110;               // Kill Command, Focused Fire rank 1 bonus
-                        else if (m_target->HasAura(35030))  // Focused Fire, rank 2
-                            spellId1 = 60113;               // Kill Command, Focused Fire rank 2 bonus
-                        else
-                            return;
-                    }
+                    if (m_target->HasAura(35029))       // Focused Fire, rank 1
+                        spellId1 = 60110;               // Kill Command, Focused Fire rank 1 bonus
+                    else if (m_target->HasAura(35030))  // Focused Fire, rank 2
+                        spellId1 = 60113;               // Kill Command, Focused Fire rank 2 bonus
                     else
-                    {
-                        spellId1 = 34026;                   // Kill Command, owner casting aura
-                        spellId2 = 60110;                   // Kill Command, Focused Fire rank 1 bonus
-                        spellId3 = 60113;                   // Kill Command, Focused Fire rank 2 bonus
-                        if (Unit* pet = m_target->GetPet())
-                            pet->RemoveAurasDueToSpell(58914); // Kill Command, pet aura
-                    }
+                        return;
                     break;
                 }
                 case 34074:                                 // Aspect of the Viper
@@ -10874,22 +10855,6 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                 case 34460:
                     spellId1 = 75447;
                     break;
-                case 35029:                                 // Focused Fire, rank 1
-                {
-                    if (apply && !m_target->HasAura(34027)) // Kill Command, owner casting aura
-                        return;
-
-                    spellId1 = 60110;                       // Kill Command, Focused Fire rank 1 bonus
-                    break;
-                }
-                case 35030:                                 // Focused Fire, rank 2
-                {
-                    if (apply && !m_target->HasAura(34027)) // Kill Command, owner casting aura
-                        return;
-
-                    spellId1 = 60113;                       // Kill Command, Focused Fire rank 2 bonus
-                    break;
-                }
                 default:
                     // Freezing Trap Effect
                     if (m_spellProto->SpellFamilyFlags.test<CF_HUNTER_FREEZING_TRAP_EFFECT>())
