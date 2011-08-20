@@ -1146,7 +1146,7 @@ void WorldSession::SendLfgRoleCheckUpdate()
 
     if (dungeons->size())
     {
-        for (LFGDungeonSet::iterator itr = dungeons->begin(); itr != dungeons->end(); ++itr)
+        for (LFGDungeonSet::const_iterator itr = dungeons->begin(); itr != dungeons->end(); ++itr)
         {
             data << uint32(*itr ? (*itr)->Entry() : 0); // Dungeon Entry
         }
