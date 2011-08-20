@@ -3584,11 +3584,12 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     Unit::AttackerSet attackers = friendTarget->getAttackers();
 
                     // selected from list 3
-                    for(uint32 i = 0; i < std::min(size_t(3),attackers.size()); ++i)
+                    for(uint32 i = 0; i < std::min(size_t(3), attackers.size()); ++i)
                     {
                         Unit::AttackerSet::iterator aItr = attackers.begin();
                         std::advance(aItr, rand() % attackers.size());
-                        AddUnitTarget((*aItr), EFFECT_INDEX_1);
+                        if (Unit* nTarget = friendTarget->GetMap()->GetUnit(*aItr))
+                            AddUnitTarget(nTarget, EFFECT_INDEX_1);
                         attackers.erase(aItr);
                     }
 
