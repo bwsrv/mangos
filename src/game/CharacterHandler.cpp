@@ -1260,6 +1260,7 @@ void WorldSession::HandleCharFactionOrRaceChangeOpcode(WorldPacket& recv_data)
     CharacterDatabase.BeginTransaction();
     CharacterDatabase.PExecute("UPDATE characters set name = '%s', race = '%u', at_login = at_login & ~ %u WHERE guid ='%u'", newname.c_str(), race, uint32(used_loginFlag), guid.GetCounter());
     CharacterDatabase.PExecute("DELETE FROM character_declinedname WHERE guid ='%u'", guid.GetCounter());
+    uint32 deletedGuild = 0;
 
     if (recv_data.GetOpcode() == CMSG_CHAR_FACTION_CHANGE)
     {
@@ -1271,10 +1272,8 @@ void WorldSession::HandleCharFactionOrRaceChangeOpcode(WorldPacket& recv_data)
         if (uint32 guildId = Player::GetGuildIdFromDB(guid))
             if (Guild* guild = sGuildMgr.GetGuildById(guildId))
                 if (guild->DelMember(guid))
-                {
-                    guild->Disband();
-                    delete guild;
-                }
+                    deletedGuild = guildId;
+
         // Delete Friend List
         // Cleanup friends for online players
         if (QueryResult *resultFriend = CharacterDatabase.PQuery("SELECT DISTINCT guid FROM character_social WHERE friend = '%u'", guid.GetCounter()))
@@ -1416,6 +1415,15 @@ void WorldSession::HandleCharFactionOrRaceChangeOpcode(WorldPacket& recv_data)
         }
     }
     CharacterDatabase.CommitTransaction();
+
+    if (deletedGuild)
+    {
+        if (Guild* guild = sGuildMgr.GetGuildById(deletedGuild))
+        {
+            guild->Disband();
+            delete guild;
+        }
+    }
 
     std::string IP_str = GetRemoteAddress();
     sLog.outChar("Account: %d (IP: %s), Character guid: %u Change Race/Faction to: %s", GetAccountId(), IP_str.c_str(), guid.GetCounter(), newname.c_str());
