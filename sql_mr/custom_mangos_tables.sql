@@ -282,5 +282,5 @@ CREATE TABLE IF NOT EXISTS  `player_factionchange_spells` (
     `race_H` int(8) NOT NULL DEFAULT '0',
     `horde_id` int(8) NOT NULL,
     `commentH` varchar(255) DEFAULT NULL,
-    PRIMARY KEY (`alliance_id`,`horde_id`)
+    PRIMARY KEY (`race_A`,`alliance_id`,`race_H`,`horde_id`)
 ) DEFAULT CHARSET=UTF8;
