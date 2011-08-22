@@ -257,7 +257,7 @@ Unit::Unit() :
     for (int i = 0; i < MAX_STATS; ++i)
         m_createStats[i] = 0.0f;
 
-    m_attacking = NULL;
+    m_attackingGuid.Clear();
     m_modMeleeHitChance = 0.0f;
     m_modRangedHitChance = 0.0f;
     m_modSpellHitChance = 0.0f;
@@ -6048,14 +6048,18 @@ Unit* Unit::getAttackerForHelper()
     if (getVictim())
         return getVictim();
 
-    if (!m_attackers.empty())
+    if (!IsInCombat())
+        return NULL;
+
+    ObjectGuidSet attackers = GetMap()->GetAttackersFor(GetObjectGuid());
+    if (!attackers.empty())
     {
-        for(AttackerSet::iterator i = m_attackers.begin(); i != m_attackers.end();)
+        for(ObjectGuidSet::const_iterator itr = attackers.begin(); itr != attackers.end();)
         {
-            ObjectGuid guid = *i;
+            ObjectGuid guid = *itr++;
             Unit* attacker = GetMap()->GetUnit(guid);
             if (!attacker || !attacker->isAlive())
-                m_attackers.erase(guid);
+                GetMap()->RemoveAttackerFor(GetObjectGuid(),guid);
             else
                 return attacker;
         }
@@ -6095,9 +6099,9 @@ bool Unit::Attack(Unit *victim, bool meleeAttack)
         RemoveSpellsCausingAura(SPELL_AURA_MOD_UNATTACKABLE);
 
     // in fighting already
-    if (m_attacking)
+    if (m_attackingGuid)
     {
-        if (m_attacking == victim)
+        if (m_attackingGuid == victim->GetObjectGuid())
         {
             // switch to melee attack from ranged/magic
             if ( meleeAttack && !hasUnitState(UNIT_STAT_MELEE_ATTACKING) )
@@ -6126,8 +6130,9 @@ bool Unit::Attack(Unit *victim, bool meleeAttack)
     if (meleeAttack)
         addUnitState(UNIT_STAT_MELEE_ATTACKING);
 
-    m_attacking = victim;
-    m_attacking->_addAttacker(GetObjectGuid());
+    m_attackingGuid = victim->GetObjectGuid();
+
+    GetMap()->AddAttackerFor(m_attackingGuid,GetObjectGuid());
 
     if (GetTypeId() == TYPEID_UNIT)
     {
@@ -6166,13 +6171,12 @@ void Unit::AttackedBy(Unit *attacker)
 
 bool Unit::AttackStop(bool targetSwitch /*=false*/)
 {
-    if (!m_attacking)
+    if (!m_attackingGuid || !GetMap())
         return false;
 
-    Unit* victim = m_attacking;
-
-    m_attacking->_removeAttacker(GetObjectGuid());
-    m_attacking = NULL;
+    Unit* victim = GetMap()->GetUnit(m_attackingGuid);
+    GetMap()->RemoveAttackerFor(m_attackingGuid,GetObjectGuid());
+    m_attackingGuid.Clear();
 
     // Clear our target
     SetTargetGuid(ObjectGuid());
@@ -6249,17 +6253,18 @@ void Unit::RemoveAllAttackers()
     if (!GetMap())
         return;
 
-    while (!m_attackers.empty())
+    ObjectGuidSet attackers = GetMap()->GetAttackersFor(GetObjectGuid());
+
+    for (ObjectGuidSet::const_iterator itr = attackers.begin(); itr != attackers.end(); ++itr)
     {
-        AttackerSet::iterator iter = m_attackers.begin();
-        ObjectGuid guid = *iter;
-        Unit* attacker = GetMap()->GetUnit(guid);
+        Unit* attacker = GetMap()->GetUnit(*itr);
         if(!attacker || !attacker->AttackStop())
         {
             sLog.outError("WORLD: Unit has an attacker that isn't attacking it!");
-            m_attackers.erase(guid);
+            GetMap()->RemoveAttackerFor(GetObjectGuid(),*itr);
         }
     }
+    GetMap()->RemoveAllAttackersFor(GetObjectGuid());
 }
 
 bool Unit::HasAuraStateForCaster(AuraState flag, ObjectGuid casterGuid) const
@@ -8811,7 +8816,7 @@ bool Unit::isVisibleForOrDetect(Unit const* u, WorldObject const* viewPoint, boo
     // Special cases
 
     // If is attacked then stealth is lost, some creature can use stealth too
-    if ( !getAttackers().empty() )
+    if (IsInCombat())
         return true;
 
     // If there is collision rogue is seen regardless of level difference
@@ -9424,7 +9429,9 @@ bool Unit::SelectHostileTarget()
     // Note: creature not have targeted movement generator but have attacker in this case
     if (GetMotionMaster()->GetCurrentMovementGeneratorType() != CHASE_MOTION_TYPE)
     {
-        for(AttackerSet::const_iterator itr = m_attackers.begin(); itr != m_attackers.end(); ++itr)
+        ObjectGuidSet attackers = GetMap()->GetAttackersFor(GetObjectGuid());
+
+        for (ObjectGuidSet::const_iterator itr = attackers.begin(); itr != attackers.end(); ++itr)
         {
             Unit* attacker = GetMap()->GetUnit(*itr);
             if (attacker && attacker->IsInMap(this) && attacker->isTargetableForAttack() && attacker->isInAccessablePlaceFor((Creature*)this))
@@ -11979,6 +11986,9 @@ struct StopAttackFactionHelper
 
 void Unit::StopAttackFaction(uint32 faction_id)
 {
+    if (!GetMap())
+        return;
+
     if (Unit* victim = getVictim())
     {
         if (victim->getFactionTemplateEntry()->faction==faction_id)
@@ -11993,17 +12003,19 @@ void Unit::StopAttackFaction(uint32 faction_id)
         }
     }
 
-    AttackerSet const& attackers = getAttackers();
-    for(AttackerSet::const_iterator itr = attackers.begin(); itr != attackers.end();)
+    ObjectGuidSet attackers = GetMap()->GetAttackersFor(GetObjectGuid());
+
+    for (ObjectGuidSet::iterator itr = attackers.begin(); itr != attackers.end(); ++itr)
     {
         Unit* attacker = GetMap()->GetUnit(*itr);
-        if (attacker && attacker->getFactionTemplateEntry()->faction==faction_id)
+
+        if (attacker)
         {
-            attacker->AttackStop();
-            itr = attackers.begin();
+            if (attacker->getFactionTemplateEntry()->faction == faction_id)
+                attacker->AttackStop();
         }
         else
-            ++itr;
+            GetMap()->RemoveAttackerFor(GetObjectGuid(),*itr);
     }
 
     getHostileRefManager().deleteReferencesForFaction(faction_id);

@@ -29,6 +29,7 @@
 #include "GridDefines.h"
 #include "Cell.h"
 #include "Object.h"
+#include "ObjectGuid.h"
 #include "Timer.h"
 #include "SharedDefines.h"
 #include "GridMap.h"
@@ -89,6 +90,8 @@ enum LevelRequirementVsMode
 #endif
 
 #define MIN_UNLOAD_DELAY      1                             // immediate unload
+
+typedef std::map<ObjectGuid,ObjectGuidSet>  AttackersMap;
 
 class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
 {
@@ -259,6 +262,20 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
         void MonsterYellToMap(CreatureInfo const* cinfo, int32 textId, uint32 language, Unit* target, uint32 senderLowGuid = 0);
         void PlayDirectSoundToMap(uint32 soundId);
 
+        // Attacker per-map storage operations
+        void AddAttackerFor(ObjectGuid targetGuid, ObjectGuid attackerGuid);
+        void RemoveAttackerFor(ObjectGuid targetGuid, ObjectGuid attackerGuid);
+        void RemoveAllAttackersFor(ObjectGuid targetGuid);
+        ObjectGuidSet GetAttackersFor(ObjectGuid targetGuid);
+        void CreateAttackersStorageFor(ObjectGuid targetGuid);
+        void RemoveAttackersStorageFor(ObjectGuid targetGuid);
+
+        // multithread locking
+        typedef   ACE_RW_Thread_Mutex          LockType;
+        typedef   ACE_Read_Guard<LockType>     ReadGuard;
+        typedef   ACE_Write_Guard<LockType>    WriteGuard;
+        LockType& GetLock() { return i_lock; }
+
     private:
         void LoadMapAndVMap(int gx, int gy);
 
@@ -347,6 +364,10 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
 
         template<class T>
             void RemoveFromGrid(T*, NGridType *, Cell const&);
+
+        LockType            i_lock;
+        AttackersMap        m_attackersMap;
+
 };
 
 class MANGOS_DLL_SPEC WorldMap : public Map

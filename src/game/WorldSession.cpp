@@ -397,25 +397,27 @@ void WorldSession::LogoutPlayer(bool Save)
 
         ///- If the player just died before logging out, make him appear as a ghost
         //FIXME: logout must be delayed in case lost connection with client in time of combat
-        if (_player->GetDeathTimer())
+        if (GetPlayer()->GetDeathTimer())
         {
-            _player->getHostileRefManager().deleteReferences();
-            _player->BuildPlayerRepop();
-            _player->RepopAtGraveyard();
+            GetPlayer()->getHostileRefManager().deleteReferences();
+            GetPlayer()->BuildPlayerRepop();
+            GetPlayer()->RepopAtGraveyard();
         }
-        else if (!_player->getAttackers().empty())
+        else if (GetPlayer()->IsInCombat() && GetPlayer()->GetMap())
         {
-            _player->CombatStop();
-            _player->getHostileRefManager().setOnlineOfflineState(false);
-            _player->RemoveAllAurasOnDeath();
+            GetPlayer()->CombatStop();
+            GetPlayer()->getHostileRefManager().setOnlineOfflineState(false);
+            GetPlayer()->RemoveAllAurasOnDeath();
 
             // build set of player who attack _player or who have pet attacking of _player
             std::set<Player*> aset;
-            for(Unit::AttackerSet::const_iterator itr = _player->getAttackers().begin(); itr != _player->getAttackers().end(); ++itr)
+            ObjectGuidSet attackers = GetPlayer()->GetMap()->GetAttackersFor(GetPlayer()->GetObjectGuid());
+
+            for (ObjectGuidSet::const_iterator itr = attackers.begin(); itr != attackers.end();)
             {
-                Unit* attacker = _player->GetMap()->GetUnit(*itr);
-                   if (!attacker)
-                       continue;
+                Unit* attacker = GetPlayer()->GetMap()->GetUnit(*itr++);
+                if (!attacker)
+                    continue;
 
                 Unit* owner = attacker->GetOwner();           // including player controlled case
                 if(owner)
@@ -428,59 +430,59 @@ void WorldSession::LogoutPlayer(bool Save)
                         aset.insert((Player*)(attacker));
             }
 
-            _player->SetPvPDeath(!aset.empty());
-            _player->KillPlayer();
-            _player->BuildPlayerRepop();
-            _player->RepopAtGraveyard();
+            GetPlayer()->SetPvPDeath(!aset.empty());
+            GetPlayer()->KillPlayer();
+            GetPlayer()->BuildPlayerRepop();
+            GetPlayer()->RepopAtGraveyard();
 
             // give honor to all attackers from set like group case
             for(std::set<Player*>::const_iterator itr = aset.begin(); itr != aset.end(); ++itr)
-                (*itr)->RewardHonor(_player,aset.size());
+                (*itr)->RewardHonor(GetPlayer(),aset.size());
 
             // give bg rewards and update counters like kill by first from attackers
             // this can't be called for all attackers.
             if(!aset.empty())
-                if(BattleGround *bg = _player->GetBattleGround())
-                    bg->HandleKillPlayer(_player,*aset.begin());
+                if(BattleGround *bg = GetPlayer()->GetBattleGround())
+                    bg->HandleKillPlayer(GetPlayer(),*aset.begin());
         }
-        else if(_player->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
+        else if(GetPlayer()->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
         {
             // this will kill character by SPELL_AURA_SPIRIT_OF_REDEMPTION
-            _player->RemoveSpellsCausingAura(SPELL_AURA_MOD_SHAPESHIFT);
-            //_player->SetDeathPvP(*); set at SPELL_AURA_SPIRIT_OF_REDEMPTION apply time
-            _player->KillPlayer();
-            _player->BuildPlayerRepop();
-            _player->RepopAtGraveyard();
+            GetPlayer()->RemoveSpellsCausingAura(SPELL_AURA_MOD_SHAPESHIFT);
+            //GetPlayer()->SetDeathPvP(*); set at SPELL_AURA_SPIRIT_OF_REDEMPTION apply time
+            GetPlayer()->KillPlayer();
+            GetPlayer()->BuildPlayerRepop();
+            GetPlayer()->RepopAtGraveyard();
         }
-        else if (_player->HasPendingBind())
+        else if (GetPlayer()->HasPendingBind())
         {
-            _player->RepopAtGraveyard();
-            _player->SetPendingBind(NULL, 0);
+            GetPlayer()->RepopAtGraveyard();
+            GetPlayer()->SetPendingBind(NULL, 0);
         }
 
         //drop a flag if player is carrying it
-        if(BattleGround *bg = _player->GetBattleGround())
-            bg->EventPlayerLoggedOut(_player);
+        if(BattleGround *bg = GetPlayer()->GetBattleGround())
+            bg->EventPlayerLoggedOut(GetPlayer());
 
         ///- Teleport to home if the player is in an invalid instance
-        if(!_player->m_InstanceValid && !_player->isGameMaster())
+        if(!GetPlayer()->m_InstanceValid && !GetPlayer()->isGameMaster())
         {
-            _player->TeleportToHomebind();
+            GetPlayer()->TeleportToHomebind();
             //this is a bad place to call for far teleport because we need player to be in world for successful logout
             //maybe we should implement delayed far teleport logout?
         }
 
         // FG: finish pending transfers after starting the logout
         // this should fix players beeing able to logout and login back with full hp at death position
-        while(_player->IsBeingTeleportedFar())
+        while(GetPlayer()->IsBeingTeleportedFar())
             HandleMoveWorldportAckOpcode();
 
         for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
         {
-            if(BattleGroundQueueTypeId bgQueueTypeId = _player->GetBattleGroundQueueTypeId(i))
+            if(BattleGroundQueueTypeId bgQueueTypeId = GetPlayer()->GetBattleGroundQueueTypeId(i))
             {
-                _player->RemoveBattleGroundQueueId(bgQueueTypeId);
-                sBattleGroundMgr.m_BattleGroundQueues[ bgQueueTypeId ].RemovePlayer(_player->GetObjectGuid(), true);
+                GetPlayer()->RemoveBattleGroundQueueId(bgQueueTypeId);
+                sBattleGroundMgr.m_BattleGroundQueues[ bgQueueTypeId ].RemovePlayer(GetPlayer()->GetObjectGuid(), true);
             }
         }
 
@@ -496,48 +498,48 @@ void WorldSession::LogoutPlayer(bool Save)
         }
 
         ///- If the player is in a guild, update the guild roster and broadcast a logout message to other guild members
-        if (Guild* guild = sGuildMgr.GetGuildById(_player->GetGuildId()))
+        if (Guild* guild = sGuildMgr.GetGuildById(GetPlayer()->GetGuildId()))
         {
-            if (MemberSlot* slot = guild->GetMemberSlot(_player->GetObjectGuid()))
+            if (MemberSlot* slot = guild->GetMemberSlot(GetPlayer()->GetObjectGuid()))
             {
-                slot->SetMemberStats(_player);
+                slot->SetMemberStats(GetPlayer());
                 slot->UpdateLogoutTime();
             }
 
-            guild->BroadcastEvent(GE_SIGNED_OFF, _player->GetObjectGuid(), _player->GetName());
+            guild->BroadcastEvent(GE_SIGNED_OFF, GetPlayer()->GetObjectGuid(), GetPlayer()->GetName());
         }
 
         ///- Remove pet
-        _player->RemovePet(PET_SAVE_AS_CURRENT);
+        GetPlayer()->RemovePet(PET_SAVE_AS_CURRENT);
 
-        _player->InterruptNonMeleeSpells(true);
+        GetPlayer()->InterruptNonMeleeSpells(true);
 
         ///- empty buyback items and save the player in the database
         // some save parts only correctly work in case player present in map/player_lists (pets, etc)
         if(Save)
-            _player->SaveToDB();
+            GetPlayer()->SaveToDB();
 
         ///- Leave all channels before player delete...
-        _player->CleanupChannels();
+        GetPlayer()->CleanupChannels();
 
         // LFG cleanup
-        sLFGMgr.Leave(_player);
+        sLFGMgr.Leave(GetPlayer());
 
         ///- If the player is in a group (or invited), remove him. If the group if then only 1 person, disband the group.
-        _player->UninviteFromGroup();
+        GetPlayer()->UninviteFromGroup();
 
         // remove player from the group if he is:
         // a) in group; b) not in raid group; c) logging out normally (not being kicked or disconnected)
-        if(_player->GetGroup() && !_player->GetGroup()->isRaidGroup() && m_Socket)
-            _player->RemoveFromGroup();
+        if(GetPlayer()->GetGroup() && !GetPlayer()->GetGroup()->isRaidGroup() && m_Socket)
+            GetPlayer()->RemoveFromGroup();
 
         ///- Send update to group
-        if(_player->GetGroup())
-            _player->GetGroup()->SendUpdate();
+        if(GetPlayer()->GetGroup())
+            GetPlayer()->GetGroup()->SendUpdate();
 
         ///- Broadcast a logout message to the player's friends
-        sSocialMgr.SendFriendStatus(_player, FRIEND_OFFLINE, _player->GetObjectGuid(), true);
-        sSocialMgr.RemovePlayerSocial (_player->GetGUIDLow ());
+        sSocialMgr.SendFriendStatus(GetPlayer(), FRIEND_OFFLINE, GetPlayer()->GetObjectGuid(), true);
+        sSocialMgr.RemovePlayerSocial (GetPlayer()->GetGUIDLow ());
 
         // Playerbot - remember player GUID for update SQL below
         uint32 guid = GetPlayer()->GetGUIDLow();
@@ -546,15 +548,15 @@ void WorldSession::LogoutPlayer(bool Save)
         // the player may not be in the world when logging out
         // e.g if he got disconnected during a transfer to another map
         // calls to GetMap in this case may cause crashes
-        if (_player->IsInWorld())
+        if (GetPlayer()->IsInWorld())
         {
-            Map* _map = _player->GetMap();
-            _map->Remove(_player, true);
+            Map* _map = GetPlayer()->GetMap();
+            _map->Remove(GetPlayer(), true);
         }
         else
         {
-            _player->CleanupsBeforeDelete();
-            Map::DeleteFromWorld(_player);
+            GetPlayer()->CleanupsBeforeDelete();
+            Map::DeleteFromWorld(GetPlayer());
         }
 
         SetPlayer(NULL);                                    // deleted in Remove/DeleteFromWorld call

@@ -1152,7 +1152,6 @@ class  VehicleKit;
 class MANGOS_DLL_SPEC Unit : public WorldObject
 {
     public:
-        typedef std::set<ObjectGuid> AttackerSet;
         typedef std::multimap< uint32, SpellAuraHolder*> SpellAuraHolderMap;
         typedef std::pair<SpellAuraHolderMap::iterator, SpellAuraHolderMap::iterator> SpellAuraHolderBounds;
         typedef std::pair<SpellAuraHolderMap::const_iterator, SpellAuraHolderMap::const_iterator> SpellAuraHolderConstBounds;
@@ -1208,31 +1207,16 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         bool CanReachWithMeleeAttack(Unit* pVictim, float flat_mod = 0.0f) const;
         uint32 m_extraAttacks;
 
-        void _addAttacker(ObjectGuid attackerGuid)                  // must be called only from Unit::Attack(Unit*)
-        {
-            if (attackerGuid.IsEmpty())
-                return;
-
-            if (m_attackers.find(attackerGuid) == m_attackers.end())
-                m_attackers.insert(attackerGuid);
-        }
-        void _removeAttacker(ObjectGuid attackerGuid)               // must be called only from Unit::AttackStop()
-        {
-            if (attackerGuid.IsEmpty())
-                return;
-
-            if (m_attackers.find(attackerGuid) != m_attackers.end())
-                m_attackers.erase(attackerGuid);
-        }
+        ObjectGuidSet const& getAttackers() const { return GetMap() ? GetMap()->GetAttackersFor(GetObjectGuid()) : ObjectGuidSet(); }
+        bool const IsInCombat() const { return GetMap() ? bool(GetMap()->GetAttackersFor(GetObjectGuid()).size() > 0) : false; }
         Unit* getAttackerForHelper();                       // If someone wants to help, who to give them
         bool Attack(Unit *victim, bool meleeAttack);
         void AttackedBy(Unit *attacker);
         void CastStop(uint32 except_spellid = 0);
         bool AttackStop(bool targetSwitch = false);
         void RemoveAllAttackers();
-        AttackerSet const& getAttackers() const { return m_attackers; }
         bool isAttackingPlayer() const;
-        Unit* getVictim() const { return m_attacking; }
+        Unit* getVictim() const { return GetMap() ? GetMap()->GetUnit(m_attackingGuid) : NULL; }
         void CombatStop(bool includingCast = false);
         void CombatStopWithPets(bool includingCast = false);
         void StopAttackFaction(uint32 faction_id);
@@ -2090,8 +2074,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 
         float m_createStats[MAX_STATS];
 
-        AttackerSet m_attackers;
-        Unit* m_attacking;
+        ObjectGuid m_attackingGuid;
 
         DeathState m_deathState;
 

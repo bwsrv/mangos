@@ -285,6 +285,7 @@ bool Map::Add(Player *player)
 {
     player->GetMapRef().link(this, player);
     player->SetMap(this);
+    CreateAttackersStorageFor(player->GetObjectGuid());
 
     // update player state for other player and visa-versa
     CellPair p = MaNGOS::ComputeCellPair(player->GetPositionX(), player->GetPositionY());
@@ -319,6 +320,8 @@ Map::Add(T *obj)
     }
 
     obj->SetMap(this);
+    if (obj->GetTypeId() == TYPEID_UNIT)
+        CreateAttackersStorageFor(obj->GetObjectGuid());
 
     Cell cell(p);
     if(obj->isActiveObject())
@@ -573,6 +576,7 @@ void Map::Remove(Player *player, bool remove)
     else
         player->RemoveFromWorld();
 
+    RemoveAttackersStorageFor(player->GetObjectGuid());
     // this may be called during Map::Update
     // after decrement+unlink, ++m_mapRefIter will continue correctly
     // when the first element of the list is being removed
@@ -646,6 +650,9 @@ Map::Remove(T *obj, bool remove)
 
     UpdateObjectVisibility(obj,cell,p);                     // i think will be better to call this function while object still in grid, this changes nothing but logically is better(as for me)
     RemoveFromGrid(obj,grid,cell);
+
+    if (obj->GetTypeId() == TYPEID_UNIT)
+        RemoveAttackersStorageFor(obj->GetObjectGuid());
 
     obj->ResetMap();
     if( remove )
@@ -3261,4 +3268,93 @@ void Map::PlayDirectSoundToMap(uint32 soundId)
     Map::PlayerList const& pList = GetPlayers();
     for (PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
         itr->getSource()->SendDirectMessage(&data);
+}
+
+/**
+ * Function to operations with attackers per-map storage
+ *
+ * @param targetGuid (attackerGuid)
+ */
+
+void Map::AddAttackerFor(ObjectGuid targetGuid, ObjectGuid attackerGuid)
+{
+    if (targetGuid.IsEmpty() || attackerGuid.IsEmpty())
+        return;
+
+    WriteGuard Guard(GetLock());
+    AttackersMap::iterator itr = m_attackersMap.find(targetGuid);
+    if (itr != m_attackersMap.end())
+    {
+        itr->second.insert(attackerGuid);
+    }
+    else
+    {
+        CreateAttackersStorageFor(targetGuid);
+        m_attackersMap[targetGuid].insert(attackerGuid);
+    }
+}
+
+void Map::RemoveAttackerFor(ObjectGuid targetGuid, ObjectGuid attackerGuid)
+{
+    if (targetGuid.IsEmpty() || attackerGuid.IsEmpty())
+        return;
+
+    WriteGuard Guard(GetLock());
+    AttackersMap::iterator itr = m_attackersMap.find(targetGuid);
+    if (itr != m_attackersMap.end())
+    {
+        itr->second.erase(attackerGuid);
+    }
+}
+
+void Map::RemoveAllAttackersFor(ObjectGuid targetGuid)
+{
+    if (targetGuid.IsEmpty())
+        return;
+
+    WriteGuard Guard(GetLock());
+    AttackersMap::iterator itr = m_attackersMap.find(targetGuid);
+    if (itr != m_attackersMap.end())
+    {
+        itr->second.clear();
+    }
+}
+
+ObjectGuidSet Map::GetAttackersFor(ObjectGuid targetGuid)
+{
+    if (!targetGuid.IsEmpty())
+    {
+        ReadGuard Guard(GetLock());
+        AttackersMap::const_iterator itr = m_attackersMap.find(targetGuid);
+        if (itr != m_attackersMap.end())
+            return itr->second;
+    }
+
+    return ObjectGuidSet();
+}
+
+void Map::CreateAttackersStorageFor(ObjectGuid targetGuid)
+{
+    if (targetGuid.IsEmpty())
+        return;
+
+    AttackersMap::iterator itr = m_attackersMap.find(targetGuid);
+    if (itr == m_attackersMap.end())
+    {
+        m_attackersMap.insert(std::make_pair(targetGuid,ObjectGuidSet()));
+    }
+
+}
+
+void Map::RemoveAttackersStorageFor(ObjectGuid targetGuid)
+{
+    if (targetGuid.IsEmpty())
+        return;
+
+    WriteGuard Guard(GetLock());
+    AttackersMap::iterator itr = m_attackersMap.find(targetGuid);
+    if (itr != m_attackersMap.end())
+    {
+        m_attackersMap.erase(itr);
+    }
 }
