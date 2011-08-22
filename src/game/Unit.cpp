@@ -12387,33 +12387,24 @@ bool Unit::HasMorePoweredBuff(uint32 spellId)
         if (auras.empty())
             continue;
 
-        for (AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+        for (AuraList::const_iterator itr = auras.begin(); itr != auras.end();)
         {
-            Aura* aura = *itr;
+            Aura* aura = *itr++;
             if (!aura)
                 continue;
 
-            SpellAuraHolder* holder = aura->GetHolder();
+            uint32 foundSpellId = aura->GetId();
 
-            if (!holder || holder->IsDeleted())
+            if (!foundSpellId || foundSpellId == spellId)
                 continue;
 
-            SpellEntry const* foundSpellInfo = holder->GetSpellProto();
+            SpellEntry const* foundSpellInfo = sSpellStore.LookupEntry(foundSpellId);;
 
-            ObjectGuid foundCaster = holder->GetCasterGuid();
-
-            if (!foundSpellInfo || !foundCaster.IsPlayerOrPet())
-                continue;
-
-            if (foundSpellInfo == spellInfo)
+            if (!foundSpellInfo)
                 continue;
 
             if (!(foundSpellInfo->AttributesEx7 & SPELL_ATTR_EX7_REPLACEABLE_AURA))
                 continue;
-
-// not may detect, need check for SchoolMask, or not?
-//            if (GetSpellSchoolMask(foundSpellInfo) != GetSpellSchoolMask(spellInfo))
-//                continue;
 
             for (uint8 j = 0; j < MAX_EFFECT_INDEX; ++j)
             {
@@ -12431,9 +12422,6 @@ bool Unit::HasMorePoweredBuff(uint32 spellId)
                 else
                     return false;
             }
-
-            if (itr == auras.end())
-                break;
         }
     }
 
