@@ -244,3 +244,43 @@ CREATE TABLE IF NOT EXISTS `creature_spell` (
     `flags`     int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell custom flags',
      PRIMARY KEY (`guid`,`index`,`active`)
 ) DEFAULT CHARSET=utf8 PACK_KEYS=0 COMMENT='Creature spells storage';
+
+-- Player race/faction change tables
+
+CREATE TABLE IF NOT EXISTS `player_factionchange_achievements` (
+    `alliance_id` int(8) NOT NULL,
+    `horde_id` int(8) NOT NULL,
+    `CommentA` varchar(255) NOT NULL,
+    `CommentH` varchar(255) NOT NULL,
+    PRIMARY KEY (`alliance_id`,`horde_id`)
+) DEFAULT CHARSET=UTF8;
+
+CREATE TABLE IF NOT EXISTS `player_factionchange_items` (
+    `race_A` int(8) NOT NULL DEFAULT '0',
+    `alliance_id` int(8) NOT NULL,
+    `commentA` varchar(255) DEFAULT NULL,
+    `race_H` int(8) NOT NULL DEFAULT '0',
+    `horde_id` int(8) NOT NULL,
+    `commentH` varchar(255) DEFAULT NULL,
+    PRIMARY KEY (`alliance_id`,`horde_id`)
+) DEFAULT CHARSET=UTF8;
+
+CREATE TABLE IF NOT EXISTS `player_factionchange_reputations` (
+    `race_A` int(8) NOT NULL DEFAULT '0',
+    `alliance_id` int(8) NOT NULL,
+    `commentA` varchar(255) DEFAULT NULL,
+    `race_H` int(8) NOT NULL DEFAULT '0',
+    `horde_id` int(8) NOT NULL,
+    `commentH` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`alliance_id`,`horde_id`)
+) DEFAULT CHARSET=UTF8;
+
+CREATE TABLE IF NOT EXISTS  `player_factionchange_spells` (
+    `race_A` int(8) NOT NULL DEFAULT '0',
+    `alliance_id` int(8) NOT NULL,
+    `commentA` varchar(255) DEFAULT NULL,
+    `race_H` int(8) NOT NULL DEFAULT '0',
+    `horde_id` int(8) NOT NULL,
+    `commentH` varchar(255) DEFAULT NULL,
+    PRIMARY KEY (`race_A`,`alliance_id`,`race_H`,`horde_id`)
+) DEFAULT CHARSET=UTF8;

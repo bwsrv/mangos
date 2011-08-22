@@ -474,6 +474,8 @@ void WorldSession::HandleBattleFieldPortOpcode( WorldPacket &recv_data )
             // set the destination team
             _player->SetBGTeam(ginfo.GroupTeam);
             // bg->HandleBeforeTeleportToBattleGround(_player);
+            _player->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
+            _player->RemoveSpellsCausingAura(SPELL_AURA_FLY);
             sBattleGroundMgr.SendToBattleGround(_player, ginfo.IsInvitedToBGInstanceGUID, bgTypeId);
             // add only in HandleMoveWorldPortAck()
             // bg->AddPlayer(_player,team);
