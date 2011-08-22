@@ -3764,15 +3764,14 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     unitTarget->CastCustomSpell(unitTarget,47496,&bp,NULL,NULL,true);
                     unitTarget->CastSpell(unitTarget, 53730, true, NULL, NULL, m_caster->GetObjectGuid());
                     unitTarget->CastSpell(unitTarget,43999,true);
-                    if (unitTarget->getDeathState() == CORPSE)
-                        unitTarget->RemoveFromWorld();
+                    ((Pet*)unitTarget)->Unsummon(PET_SAVE_AS_DELETED);
                 }
                 else if (!unitTarget->isAlive())
                 {
                     m_caster->CastSpell(unitTarget, 50444, true, NULL, NULL, m_caster->GetObjectGuid());
                     m_caster->CastSpell(unitTarget, 53730, true, NULL, NULL, m_caster->GetObjectGuid());
-                    if (unitTarget->getDeathState() == CORPSE)
-                        unitTarget->RemoveFromWorld();
+                    if (unitTarget->GetTypeId() == TYPEID_UNIT && unitTarget->getDeathState() == CORPSE)
+                        ((Creature*)unitTarget)->RemoveCorpse();
                 }
                 return;
             }
@@ -8474,8 +8473,8 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         return;
 
                     m_caster->CastSpell(unitTarget, 58915, true);
-
-                    unitTarget->RemoveFromWorld();
+                    if (unitTarget->GetTypeId() == TYPEID_UNIT)
+                        ((Creature*)unitTarget)->RemoveCorpse();
 
                     if (Unit* master = m_caster->GetCharmerOrOwner())
                         master->CastSpell(master, 58987, true);
@@ -9553,7 +9552,8 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     if (unitTarget != (Unit*)m_caster)
                     {
                         m_caster->CastSpell(unitTarget->GetPositionX(),unitTarget->GetPositionY(),unitTarget->GetPositionZ(),triggered_spell_id, true, NULL, NULL, m_caster->GetObjectGuid(), m_spellInfo);
-                        unitTarget->RemoveFromWorld();
+                        if (unitTarget->GetTypeId() == TYPEID_UNIT)
+                            ((Creature*)unitTarget)->RemoveCorpse();
                     }
                     else if (m_caster->HasAura(60200))
                     {
