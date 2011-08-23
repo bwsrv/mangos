@@ -451,6 +451,10 @@ INSERT INTO spell_proc_event VALUES (19184, 0x00, 0x09, 0x00000000, 0x00000000, 
 DELETE FROM spell_proc_event WHERE entry = 53257;
 INSERT INTO spell_proc_event VALUES (53257, 0x00, 0x09, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00011010, 0x00000002, 0, 100, 0);
 
+-- (61680) Culling the Herd
+DELETE FROM spell_proc_event WHERE entry = 61680;
+INSERT INTO spell_proc_event VALUES (61680, 0x00000000, 0x00, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002, 0, 0, 0);
+
 -- Trinkets, rings, weapon procs, enchants etc.
 -- Information about procchance and procflag undertakes with DBC.
 -- (55640) Lightweave Embroidery
