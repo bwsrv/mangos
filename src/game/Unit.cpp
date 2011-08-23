@@ -12384,14 +12384,19 @@ bool Unit::HasMorePoweredBuff(uint32 spellId)
             )
             continue;
 
-        AuraList auras = GetAurasByType(AuraType(spellInfo->EffectApplyAuraName[SpellEffectIndex(i)]));
+        AuraType auraType = AuraType(spellInfo->EffectApplyAuraName[SpellEffectIndex(i)]);
+        if (!auraType || auraType >= TOTAL_AURAS)
+            continue;
+
+        AuraList const& auras = GetAurasByType(auraType);
+
         if (auras.empty())
             continue;
 
-        for (AuraList::const_iterator itr = auras.begin(); itr != auras.end();)
+        for (AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
         {
-            Aura* aura = *itr++;
-            if (!aura)
+            Aura* aura = *itr;
+            if (!aura || !aura->GetHolder() || aura->GetHolder()->IsDeleted())
                 continue;
 
             uint32 foundSpellId = aura->GetId();
