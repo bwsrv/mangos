@@ -3303,32 +3303,15 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 if (m_caster->hasUnitState(UNIT_STAT_NO_FREE_MOVE))
                     return;
 
-                uint32 triggeredSpell = 0;
-
                 switch(m_spellInfo->Id)
                 {
-                    case 50286: triggeredSpell = 50288; break;
-                    case 53196: triggeredSpell = 53191; break;
-                    case 53197: triggeredSpell = 53194; break;
-                    case 53198: triggeredSpell = 53195; break;
+                    case 50286: m_caster->CastSpell(unitTarget, 50288, true); return;
+                    case 53196: m_caster->CastSpell(unitTarget, 53191, true); return;
+                    case 53197: m_caster->CastSpell(unitTarget, 53194, true); return;
+                    case 53198: m_caster->CastSpell(unitTarget, 53195, true); return;
                     default:
                         sLog.outError("Spell::EffectDummy: Unhandeled Starfall spell rank %u",m_spellInfo->Id);
                         return;
-                }
-
-                if (triggeredSpell)
-                    m_caster->CastSpell(unitTarget, triggeredSpell , true);
-
-                // max 20 stars
-                if (Aura *aura = m_caster->GetAura(m_triggeredByAuraSpell->Id, EFFECT_INDEX_0))
-                {
-                    aura->GetModifier()->m_amount += 1;
-
-                    if (aura->GetModifier()->m_amount >= 20)
-                    {
-                        m_caster->RemoveSpellAuraHolder(aura->GetHolder());
-                        return;
-                    }
                 }
             }
             break;
