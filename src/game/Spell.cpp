@@ -1790,13 +1790,6 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     EffectChainTarget = 2;
             break;
         }
-        case SPELLFAMILY_DRUID:
-        {
-            // Starfall
-            if (m_spellInfo->SpellFamilyFlags.test<CF_DRUID_STARFALL2>())
-                unMaxTargets = 2;
-            break;
-        }
         case SPELLFAMILY_DEATHKNIGHT:
         {
             if (m_spellInfo->SpellIconID == 1737)           // Corpse Explosion
