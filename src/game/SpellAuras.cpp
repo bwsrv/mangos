@@ -11313,6 +11313,12 @@ SpellAuraHolder::~SpellAuraHolder()
 
 void SpellAuraHolder::Update(uint32 diff)
 {
+    if (!m_spellProto)
+    {
+        DEBUG_LOG("SpellAuraHolder::Update attempt call Update on holder, but holder not have spellproto!");
+        return;
+    }
+
     if (m_duration > 0)
     {
         m_duration -= diff;
