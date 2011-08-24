@@ -10440,7 +10440,7 @@ void CharmInfo::SetSpellAutocast( uint32 spell_id, bool state )
 
 void Unit::DoPetAction( Player* owner, uint8 flag, uint32 spellid, ObjectGuid petGuid, ObjectGuid targetGuid)
 {
-    if ((((Creature*)this)->IsPet() && !((Pet*)this)->IsInWorld()) || !GetCharmInfo())
+    if (GetTypeId() != TYPEID_UNIT || !IsInWorld() || (((Creature*)this)->IsPet() && !((Pet*)this)->IsInWorld()) || !GetCharmInfo())
         return;
 
     switch(flag)
@@ -10665,7 +10665,7 @@ void Unit::DoPetCastSpell(Player *owner, uint8 cast_count, SpellCastTargets* tar
                 pet->SendPetAIReaction();
         }
 
-        if ( unit_target && !owner->IsFriendlyTo(unit_target) && !HasAuraType(SPELL_AURA_MOD_POSSESS))
+        if ( unit_target && owner && !owner->IsFriendlyTo(unit_target) && !HasAuraType(SPELL_AURA_MOD_POSSESS))
         {
             // This is true if pet has no target or has target but targets differs.
             if (getVictim() != unit_target)
