@@ -3955,6 +3955,7 @@ void ObjectMgr::LoadGroups()
             if (resetTime < uint64(time(NULL)))
             {
                 DEBUG_LOG("ObjectMgr::Loading extended instance for player: %d", leaderGuidLow);
+/*
                 bool isExtended = false;
                 QueryResult* result1 = CharacterDatabase.PQuery("SELECT COUNT(guid) FROM character_instance WHERE instance = '%u' AND extend = 1 ", fields[1].GetUInt32());
                 if (result1)
@@ -3973,6 +3974,7 @@ void ObjectMgr::LoadGroups()
                 }
                 else
                     sLog.outErrorDb("ObjectMgr::Loaded instance %d with expired resetTime %u, but his not extended.", fields[2].GetUInt32(), resetTime);
+*/
             }
             else
             {
