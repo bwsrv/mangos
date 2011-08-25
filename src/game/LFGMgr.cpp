@@ -2298,7 +2298,8 @@ void LFGMgr::TryCompleteGroups(LFGType type)
             continue;
 
 //            DEBUG_LOG("LFGMgr:TryCompleteGroups: Try complete group %u  type %u state %u", group->GetObjectGuid().GetCounter(), type, group->GetLFGState()->GetState());
-        if (group->GetLFGState()->GetState() != LFG_STATE_QUEUED)
+        if (group->GetLFGState()->GetState() != LFG_STATE_QUEUED
+            && !(group->GetLFGState()->GetState() == LFG_STATE_QUEUED && group->GetLFGState()->GetStatus() == LFG_STATUS_NOT_SAVED))
             continue;
 
         if (IsGroupCompleted(group))
