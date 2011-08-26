@@ -1960,6 +1960,17 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                     triggered_spell_id = 32747;
                     break;
                 }
+                // Glyph of Rejuvenation
+                case 54754:
+                {
+                   if (pVictim && pVictim->GetHealth() > pVictim->GetMaxHealth() / 2)
+                        return SPELL_AURA_PROC_FAILED;
+
+                    target = pVictim;
+                    triggered_spell_id = 54755;
+                    basepoints[0] = int32(damage * triggerAmount  / 100);
+                    break;
+                }
                 // Glyph of Starfire
                 case 54845:
                 {

@@ -647,3 +647,7 @@ DELETE FROM spell_proc_event WHERE entry = 33151;
 
 -- 44401 Missile Barrage
 DELETE FROM spell_proc_event WHERE entry = 44401;
+
+-- (54754) Glyph of Rejuvenation
+DELETE FROM `spell_proc_event` WHERE `entry` IN (54754);
+INSERT INTO `spell_proc_event` VALUES (54754, 0x00, 0x07, 0x00000010, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00040000, 0, 0, 0);
