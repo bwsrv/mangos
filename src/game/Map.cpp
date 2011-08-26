@@ -1507,7 +1507,10 @@ void DungeonMap::UnloadAll(bool pForce)
     }
 
     if(m_resetAfterUnload == true)
-        GetPersistanceState()->DeleteRespawnTimes();
+    {
+        if (DungeonPersistentState* state = GetPersistanceState())
+            state->DeleteRespawnTimes();
+    }
 
     Map::UnloadAll(pForce);
 }
