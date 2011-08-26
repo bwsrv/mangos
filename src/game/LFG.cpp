@@ -320,6 +320,7 @@ void LFGProposal::RemoveMember(ObjectGuid guid)
     if (guid.IsEmpty())
         return;
 
+    LFGMgr::WriteGuard Guard(sLFGMgr.GetLock());
     LFGQueueSet::iterator itr = playerGuids.find(guid);
     if (itr != playerGuids.end())
         playerGuids.erase(itr);

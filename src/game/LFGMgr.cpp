@@ -1474,7 +1474,12 @@ void LFGMgr::RemoveProposal(Player* decliner, uint32 ID)
         {
             for (LFGQueueSet::const_iterator itr = pProposal->playerGuids.begin(); itr != pProposal->playerGuids.end(); ++itr )
             {
-                if (Player* player = sObjectMgr.GetPlayer(*itr))
+                ObjectGuid guid = *itr;
+
+                if (guid.IsEmpty())
+                    continue;
+
+                if (Player* player = sObjectMgr.GetPlayer(guid))
                     player->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_PROPOSAL_DECLINED, LFGType(pProposal->GetDungeon()->type));
             }
         }
