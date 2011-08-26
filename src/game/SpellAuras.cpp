@@ -9794,6 +9794,11 @@ m_permanent(false), m_isRemovedOnShapeLost(true), m_deleted(false), m_in_use(0)
         m_casterGuid = caster->GetObjectGuid();
     }
 
+    m_auras.reserve(MAX_EFFECT_INDEX);
+
+    for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)
+        RemoveAura(SpellEffectIndex(i));
+
     m_applyTime      = time(NULL);
     m_isPassive      = IsPassiveSpell(spellproto);
     m_isDeathPersist = IsDeathPersistentSpell(spellproto);
@@ -9837,8 +9842,6 @@ m_permanent(false), m_isRemovedOnShapeLost(true), m_deleted(false), m_in_use(0)
             break;
     }
 
-    for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)
-        m_auras[i] = NULL;
 }
 
 void SpellAuraHolder::AddAura(Aura *aura, SpellEffectIndex index)
