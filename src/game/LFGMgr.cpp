@@ -411,14 +411,13 @@ void LFGMgr::Leave(Player* player)
     ObjectGuid guid;
     Group* group = player->GetGroup();
 
-    LFGType type = player->GetLFGState()->GetType();
+    LFGType type;
     if (group)
     {
         if (player->GetObjectGuid() != group->GetLeaderGuid())
             return;
         else
             guid = group->GetObjectGuid();
-        type = group->GetLFGState()->GetType();
     }
     else
         guid = player->GetObjectGuid();
@@ -453,6 +452,7 @@ void LFGMgr::Leave(Player* player)
             }
         }
 
+        type = group->GetLFGState()->GetType();
         for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             Player* member = itr->getSource();
@@ -470,6 +470,7 @@ void LFGMgr::Leave(Player* player)
     }
     else
     {
+        type = player->GetLFGState()->GetType();
         player->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_REMOVED_FROM_QUEUE, type);
         player->GetLFGState()->Clear();
         if(sWorld.getConfig(CONFIG_BOOL_RESTRICTED_LFG_CHANNEL) && player->GetSession()->GetSecurity() == SEC_PLAYER )
@@ -1466,14 +1467,23 @@ void LFGMgr::RemoveProposal(Player* decliner, uint32 ID)
                 if (member->IsInWorld())
                     member->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_PROPOSAL_DECLINED, LFGType(pProposal->GetDungeon()->type));
     }
-    for (LFGQueueSet::const_iterator itr = pProposal->playerGuids.begin(); itr != pProposal->playerGuids.end(); ++itr )
+
     {
-        if (Player* player = sObjectMgr.GetPlayer(*itr))
+        ReadGuard Guard(GetLock());
+        if (!pProposal->playerGuids.empty())
         {
-            player->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_PROPOSAL_DECLINED, LFGType(pProposal->GetDungeon()->type));
+            for (LFGQueueSet::const_iterator itr = pProposal->playerGuids.begin(); itr != pProposal->playerGuids.end(); ++itr )
+            {
+                ObjectGuid guid = *itr;
+
+                if (guid.IsEmpty())
+                    continue;
+
+                if (Player* player = sObjectMgr.GetPlayer(guid))
+                    player->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_PROPOSAL_DECLINED, LFGType(pProposal->GetDungeon()->type));
+            }
         }
     }
-
     RemoveProposal(ID);
 }
 
@@ -2293,7 +2303,8 @@ void LFGMgr::TryCompleteGroups(LFGType type)
             continue;
 
 //            DEBUG_LOG("LFGMgr:TryCompleteGroups: Try complete group %u  type %u state %u", group->GetObjectGuid().GetCounter(), type, group->GetLFGState()->GetState());
-        if (group->GetLFGState()->GetState() != LFG_STATE_QUEUED)
+        if (group->GetLFGState()->GetState() != LFG_STATE_QUEUED
+            && !(group->GetLFGState()->GetState() == LFG_STATE_QUEUED && group->GetLFGState()->GetStatus() == LFG_STATUS_NOT_SAVED))
             continue;
 
         if (IsGroupCompleted(group))

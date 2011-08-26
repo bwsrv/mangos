@@ -213,7 +213,7 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket &/*recv_data
     uint32 rsize = 0;
     uint32 lsize = 0;
     LFGDungeonSet    randomlist = sLFGMgr.GetRandomDungeonsForPlayer(GetPlayer());
-    LFGLockStatusMap*   lockSet = GetPlayer()->GetLFGState()->GetLockMap();
+    LFGLockStatusMap const* lockSet = GetPlayer()->GetLFGState()->GetLockMap();
 
     rsize = randomlist.size();
 
@@ -287,7 +287,7 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket &/*recv_data
     else
     {
         data << uint32(lockSet->size());                             // Size of lock dungeons
-        for (LFGLockStatusMap::iterator itr = lockSet->begin(); itr != lockSet->end(); ++itr)
+        for (LFGLockStatusMap::const_iterator itr = lockSet->begin(); itr != lockSet->end(); ++itr)
         {
             data << uint32((*itr->first).Entry());                   // Dungeon entry + type
             data << uint32(itr->second);                             // Lock status
@@ -316,7 +316,7 @@ void WorldSession::HandleLfgPartyLockInfoRequestOpcode(WorldPacket & /*recv_data
     }
     else
     {
-        std::map<ObjectGuid,LFGLockStatusMap*> lockMap;
+        std::map<ObjectGuid,LFGLockStatusMap const*> lockMap;
         lockMap.clear();
         uint8 membersCount = 0;
 
@@ -327,7 +327,7 @@ void WorldSession::HandleLfgPartyLockInfoRequestOpcode(WorldPacket & /*recv_data
             if (!player->IsInWorld())
                 continue;
 
-            LFGLockStatusMap* lockSet = player->GetLFGState()->GetLockMap();
+            LFGLockStatusMap const* lockSet = player->GetLFGState()->GetLockMap();
 
             size += 8 + 4 + lockSet->size() * (4 + 4);
 
@@ -339,11 +339,11 @@ void WorldSession::HandleLfgPartyLockInfoRequestOpcode(WorldPacket & /*recv_data
 
         data << membersCount;
 
-        for (std::map<ObjectGuid,LFGLockStatusMap*>::const_iterator  itr1 = lockMap.begin(); itr1 != lockMap.end(); ++itr1)
+        for (std::map<ObjectGuid,LFGLockStatusMap const*>::const_iterator  itr1 = lockMap.begin(); itr1 != lockMap.end(); ++itr1)
         {
 
             data << itr1->first;
-            for (LFGLockStatusMap::iterator itr2 = itr1->second->begin(); itr2 != itr1->second->end(); ++itr2)
+            for (LFGLockStatusMap::const_iterator itr2 = itr1->second->begin(); itr2 != itr1->second->end(); ++itr2)
             {
                 data << uint32((*itr2->first).Entry());                   // Dungeon entry + type
                 data << uint32(itr2->second);                             // Lock status
@@ -377,7 +377,7 @@ void WorldSession::SendLfgJoinResult(LFGJoinResult checkResult, uint8 checkValue
 
     Group* group = GetPlayer()->GetGroup();
     uint8 membersCount = 0;
-    std::map<ObjectGuid,LFGLockStatusMap*> lockMap;
+    std::map<ObjectGuid,LFGLockStatusMap const*> lockMap;
     lockMap.clear();
 
     if (group && withLockMap)
@@ -390,7 +390,7 @@ void WorldSession::SendLfgJoinResult(LFGJoinResult checkResult, uint8 checkValue
             if (!player->IsInWorld())
                 continue;
 
-            LFGLockStatusMap* lockSet = player->GetLFGState()->GetLockMap();
+            LFGLockStatusMap const* lockSet = player->GetLFGState()->GetLockMap();
 
             size += 8 + 4 + lockSet->size() * (4 + 4);
 
@@ -410,11 +410,11 @@ void WorldSession::SendLfgJoinResult(LFGJoinResult checkResult, uint8 checkValue
     {
         data << membersCount;
 
-        for (std::map<ObjectGuid,LFGLockStatusMap*>::const_iterator  itr1 = lockMap.begin(); itr1 != lockMap.end(); ++itr1)
+        for (std::map<ObjectGuid,LFGLockStatusMap const*>::const_iterator  itr1 = lockMap.begin(); itr1 != lockMap.end(); ++itr1)
         {
 
             data << itr1->first;
-            for (LFGLockStatusMap::iterator itr2 = itr1->second->begin(); itr2 != itr1->second->end(); ++itr2)
+            for (LFGLockStatusMap::const_iterator itr2 = itr1->second->begin(); itr2 != itr1->second->end(); ++itr2)
             {
                 data << uint32((*itr2->first).Entry());                   // Dungeon entry + type
                 data << uint32(itr2->second);                             // Lock status

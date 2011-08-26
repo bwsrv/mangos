@@ -210,42 +210,64 @@ typedef std::map<LFGDungeonEntry const*, LFGLockStatusType> LFGLockStatusMap;
 
 struct LFGProposal;
 
-struct LFGPlayerState
+struct LFGStateStructure
 {
-    LFGPlayerState(Player* player) : m_player(player)
-    {
-        Clear();
-    };
-    public:
-    void Clear();
+public:
+    virtual ~LFGStateStructure() {};
+    virtual void Clear() {};
+
     void Update(bool _update = true) { update = _update; };
     LFGDungeonSet const* GetDungeons() const  { return &m_DungeonsList; };
     void SetDungeons(LFGDungeonSet* dungeons);
     void RemoveDungeon(LFGDungeonEntry const* dungeon);
     void AddDungeon(LFGDungeonEntry const* dungeon);
 
-    LFGLockStatusMap* GetLockMap();
 
-    LFGType        GetType();
-
-    std::string    GetComment()    { return m_comment; };
-    void SetComment(std::string comment);
+    LFGType const& GetType() const { return m_type;};
 
     void SetState(LFGState _state) { m_state = _state; };
     LFGState GetState() { return m_state; };
 
-    LFGRoleMask    GetRoles();
-    void SetRoles(uint8 roles);
-    void AddRole(LFGRoles role) { rolesMask = LFGRoleMask( rolesMask | (1 << role)); };
-    void RemoveRole(LFGRoles role) { rolesMask = LFGRoleMask( rolesMask & ~(1 << role)); };
-    bool IsSingleRole();
-
-    LFGProposal*  GetProposal()   { return m_proposal; };
-    void          SetProposal(LFGProposal* proposal)   { m_proposal = proposal; };
+    LFGProposal*   GetProposal()   { return m_proposal; };
+    void           SetProposal(LFGProposal* proposal)   { m_proposal = proposal; };
 
     uint32         GetFlags()                { return m_flags;};
     void           AddFlags(uint32 flags)    { m_flags = m_flags | flags;};
     void           RemoveFlags(uint32 flags) { m_flags = m_flags & ~flags;};
+
+protected:
+    LFGStateStructure()
+        : m_state(LFG_STATE_NONE), m_type(LFG_TYPE_NONE), m_proposal(NULL) {};
+    LFGType          m_type;
+    uint32           m_flags;
+    bool             update;
+    LFGState         m_state;
+    LFGDungeonSet    m_DungeonsList;                   // Dungeons the player have applied for
+    LFGLockStatusMap m_LockMap;                        // Dungeons lock map
+    LFGProposal*     m_proposal;
+
+};
+
+
+struct LFGPlayerState : public LFGStateStructure
+{
+public:
+    explicit LFGPlayerState(Player* player) : m_player(player)
+    {
+        Clear();
+    };
+    ~LFGPlayerState() {};
+
+    void Clear();
+    LFGLockStatusMap const* GetLockMap();
+    std::string    GetComment()    { return m_comment; };
+    void           SetComment(std::string comment);
+
+    LFGRoleMask    GetRoles();
+    void           SetRoles(uint8 roles);
+    void           AddRole(LFGRoles role) { rolesMask = LFGRoleMask( rolesMask | (1 << role)); };
+    void           RemoveRole(LFGRoles role) { rolesMask = LFGRoleMask( rolesMask & ~(1 << role)); };
+    bool           IsSingleRole();
 
     void           SetJoined();
     time_t         GetJoinTime() { return m_jointime;};
@@ -257,59 +279,38 @@ struct LFGPlayerState
     LFGAnswer      GetAnswer() { return accept;};
 
 
-    private:
-    LFGRoleMask   rolesMask;
-    uint32        m_flags;
-    bool          update;
-    bool          m_teleported;
-    Player*       m_player;
-    LFGState      m_state;
-    time_t        m_jointime;
-    LFGDungeonSet m_DungeonsList;                   // Dungeons the player have applied for
-    LFGLockStatusMap m_LockMap;                     // Dungeons lock map
-    std::string   m_comment;
-    LFGAnswer     accept;                           ///< Accept status (-1 not answer | 0 Not agree | 1 agree)
-    LFGProposal*  m_proposal;
+private:
+    LFGRoleMask    rolesMask;
+    bool           m_teleported;
+    Player*        m_player;
+    time_t         m_jointime;
+    std::string    m_comment;
+    LFGAnswer      accept;                           ///< Accept status (-1 not answer | 0 Not agree | 1 agree)
 };
 
 typedef std::map<ObjectGuid, LFGAnswer> LFGAnswerMap;
 
-struct LFGGroupState
+struct LFGGroupState : public LFGStateStructure
 {
-    LFGGroupState(Group* group) : m_group(group)
+
+public:
+    explicit LFGGroupState(Group* group) : m_group(group)
     {
         Clear();
     };
+    ~LFGGroupState() {};
 
-public:
     void Clear();
-    void Update(bool _update = true) { update = _update; };
-
-    LFGDungeonSet const* GetDungeons() const { return &m_DungeonsList; };
-    void SetDungeons(LFGDungeonSet* dungeons);
-    void RemoveDungeon(LFGDungeonEntry const* dungeon);
-    void AddDungeon(LFGDungeonEntry const* dungeon);
-
-    LFGType       GetType();
-
     LFGDungeonEntry const* GetDungeon()   { return m_realdungeon; };
     void SetDungeon(LFGDungeonEntry const* _dungeon)   { m_realdungeon = _dungeon; };
 
     // Current state operations
-    void          SetState(LFGState _state) { m_state = _state; };
-    LFGState      GetState() { return m_state; };
     void          SaveState() { m_savedstate = m_state; };
     void          RestoreState() { m_state = m_savedstate; };
 
     // Group status
-    void          SetStatus(LFGDungeonStatus _status) { m_status = _status; };
+    void                  SetStatus(LFGDungeonStatus _status) { m_status = _status; };
     LFGDungeonStatus      GetStatus() { return m_status; };
-
-    // Proposal system
-    LFGProposal*  GetProposal()   { return m_proposal; };
-    void          SetProposal(LFGProposal* proposal)   { m_proposal = proposal; };
-
-    uint32*       GetFlags()  { return &m_flags;};
 
     // Boot system
     LFGAnswerMap*  GetBootMap() { return &m_bootVotes; };
@@ -337,27 +338,22 @@ public:
     void  SetRandomPlayersCount(uint8 _count) { m_randomPlayersCount = _count; };
 
 private:
-    bool          queued;
-    bool          update;
-    Group*        m_group;
-    uint32        m_flags;
-    LFGState      m_state;
-    LFGState      m_savedstate;
+    bool           queued;
+    Group*         m_group;
+    LFGState       m_savedstate;
     LFGDungeonStatus     m_status;
-    LFGDungeonSet    m_DungeonsList;                           // Dungeons the group have applied for
-    LFGProposal*  m_proposal;
     LFGDungeonEntry const* m_realdungeon;                       // real dungeon entry (if random or list)
     // Role check
-    time_t        m_roleCheckCancelTime;                       // Time when the rolecheck will fail
-    LFGRoleCheckState m_roleCheckState;                        // State of the rolecheck
+    time_t         m_roleCheckCancelTime;                       // Time when the rolecheck will fail
+    LFGRoleCheckState m_roleCheckState;                         // State of the rolecheck
     // Boot
-    time_t        m_bootCancelTime;                            // Time left to vote
-    uint8         m_votesNeeded;                               // Votes need to kick success
-    uint8         m_kicksLeft;                                 // Number of kicks left
-    uint8         m_randomPlayersCount;                        // Count of random players in this group
-    LFGAnswerMap  m_bootVotes;                                 // Player votes (-1 not answer | 0 Not agree | 1 agree)
-    ObjectGuid    m_bootVictim;                                // Player guid to be kicked (can't vote)
-    std::string   m_bootReason;                                // kick reason
+    time_t         m_bootCancelTime;                            // Time left to vote
+    uint8          m_votesNeeded;                               // Votes need to kick success
+    uint8          m_kicksLeft;                                 // Number of kicks left
+    uint8          m_randomPlayersCount;                        // Count of random players in this group
+    LFGAnswerMap   m_bootVotes;                                 // Player votes (-1 not answer | 0 Not agree | 1 agree)
+    ObjectGuid     m_bootVictim;                                // Player guid to be kicked (can't vote)
+    std::string    m_bootReason;                                // kick reason
 
 };
 
