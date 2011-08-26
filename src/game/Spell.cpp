@@ -8064,7 +8064,7 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
 
                     for (GuardianPetList::const_iterator itr = petList->begin(); itr != petList->end(); ++itr)
                         if (Unit* ghoul = m_caster->GetMap()->GetUnit(*itr))
-                            if (ghoul->GetEntry() == 24207)
+                            if (ghoul->GetEntry() == 24207 || ghoul->GetEntry() == 26125)
                                 targetUnitMap.push_back(ghoul);
 
                     if (targetUnitMap.size() > 1)
