@@ -170,6 +170,10 @@ INSERT INTO spell_proc_event VALUES (54845, 0x00, 0x07, 0x00000004, 0x00000004, 
 DELETE FROM spell_proc_event WHERE entry = 64752;
 INSERT INTO spell_proc_event VALUES (64752, 0x00, 0x07, 0x00801000, 0x00801000, 0x00801000, 0x00000100, 0x00000100, 0x00000100, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0, 0, 0);
 
+-- (54754) Glyph of Rejuvenation
+DELETE FROM spell_proc_event WHERE entry = 54754;
+INSERT INTO spell_proc_event VALUES (54754, 0x00, 0x07, 0x00000010, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00040000, 0, 0, 0);
+
 -- Warrior 
 -- (12317) Enrage
 DELETE FROM spell_proc_event WHERE entry = 12317;
@@ -365,6 +369,9 @@ INSERT INTO spell_proc_event VALUES (11213, 0x00, 0x03, 0x00000000, 0x00000000, 
 DELETE FROM spell_proc_event WHERE entry = 57761;
 INSERT INTO spell_proc_event VALUES (57761, 0x00, 0x03, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00010000, 0x00080000, 0, 0, 0);
 
+-- (44401) Missile Barrage
+DELETE FROM spell_proc_event WHERE entry = 44401;
+
 -- Warlock
 -- (63156) Decimation
 DELETE FROM spell_proc_event WHERE entry = 63156;
@@ -393,6 +400,9 @@ INSERT INTO spell_proc_event VALUES (59907, 0x00, 0x06, 0x00000000, 0x00000000, 
 
 -- (32409) Shadow Word: Death
 DELETE FROM spell_proc_event WHERE entry = 32409;
+
+-- (33151) Surge of Light (Rank 1)
+DELETE FROM spell_proc_event WHERE entry = 33151;
 
 -- Rogue
 -- (51698) Honored Among Thieves
@@ -650,12 +660,6 @@ INSERT INTO spell_proc_event VALUES (71585, 127, 0x00, 0x00000000, 0x00000000, 0
 DELETE FROM spell_proc_event WHERE entry = 71845;
 INSERT INTO spell_proc_event VALUES (71845, 0x3F, 0x00, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0, 0, 0);
 
--- 33151 Surge of Light (Rank 1)
-DELETE FROM spell_proc_event WHERE entry = 33151;
-
--- 44401 Missile Barrage
-DELETE FROM spell_proc_event WHERE entry = 44401;
-
--- (54754) Glyph of Rejuvenation
-DELETE FROM `spell_proc_event` WHERE `entry` IN (54754);
-INSERT INTO `spell_proc_event` VALUES (54754, 0x00, 0x07, 0x00000010, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00040000, 0, 0, 0);
+-- (72419) Item - Icecrown Reputation Ring Healer Trigger
+DELETE FROM spell_proc_event WHERE entry = 72419;
+INSERT INTO spell_proc_event VALUES (72419, 127, 0x00, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0, 0, 0);
