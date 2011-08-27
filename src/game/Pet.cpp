@@ -70,6 +70,8 @@ void Pet::AddToWorld()
     ///- Register the pet for guid lookup
     if (!((Creature*)this)->IsInWorld())
         GetMap()->GetObjectsStore().insert<Pet>(GetObjectGuid(), (Pet*)this);
+    else
+        DEBUG_LOG("Pet::AddToWorld called, but pet (guid %u) already in world!", GetObjectGuid().GetCounter());
 
     Unit::AddToWorld();
 }
@@ -510,8 +512,8 @@ void Pet::SetDeathState(DeathState s)                       // overwrite virtual
             if(!mapEntry || (mapEntry->map_type != MAP_ARENA && mapEntry->map_type != MAP_BATTLEGROUND))
                 ModifyPower(POWER_HAPPINESS, -HAPPINESS_LEVEL_SIZE);
 
-            if (HasSpell(55709))
-                CastSpell(this, 55709, true);
+//            if (HasSpell(55709))
+//                CastSpell(this, 55709, true);
 
             SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
         }
@@ -525,7 +527,7 @@ void Pet::SetDeathState(DeathState s)                       // overwrite virtual
 
 void Pet::Update(uint32 update_diff, uint32 diff)
 {
-    if (!IsInWorld())                               // pet already removed, just wait in remove queue, no updates
+    if (m_removed)                               // pet already removed, just wait in remove queue, no updates
         return;
 
     switch( m_deathState )
@@ -544,9 +546,16 @@ void Pet::Update(uint32 update_diff, uint32 diff)
         {
             // unsummon pet that lost owner
             Unit* owner = GetOwner();
-            if (!owner)
+            if (!owner || !owner->IsInWorld())
             {
                 sLog.outError("Pet %d lost owner, removed. ", GetObjectGuid().GetCounter());
+                Unsummon(PET_SAVE_NOT_IN_SLOT);
+                return;
+            }
+
+            if (owner->GetMap() != GetMap())
+            {
+                sLog.outError("Pet %d on other map then owner, removed. Crush possible later! ", GetObjectGuid().GetCounter());
                 Unsummon(PET_SAVE_NOT_IN_SLOT);
                 return;
             }
@@ -571,7 +580,7 @@ void Pet::Update(uint32 update_diff, uint32 diff)
             if ((!IsWithinDistInMap(owner, GetMap()->GetVisibilityDistance()) && !owner->GetCharmGuid().IsEmpty()) || (isControlled() && owner->GetPetGuid().IsEmpty()))
             {
                 DEBUG_LOG("Pet %d lost control, removed. Owner = %d, distance = %d, pet GUID = ", GetObjectGuid().GetCounter(), owner->GetObjectGuid().GetCounter(), GetDistance2d(owner), owner->GetPetGuid().GetCounter());
-                Unsummon(PET_SAVE_REAGENTS);
+                Unsummon(PET_SAVE_REAGENTS, owner);
                 return;
             }
 
@@ -606,21 +615,20 @@ void Pet::Update(uint32 update_diff, uint32 diff)
             }
             RegenerateAll(update_diff);
 
+            // Update scaling auras from queue
+            while (!m_scalingQueue.empty())
+            {
+                ApplyScalingBonus(&m_scalingQueue.front());
+                m_scalingQueue.pop();
+            };
+
             break;
         }
         default:
             break;
     }
-    // Update scaling auras from queue
-    while (!m_scalingQueue.empty())
-    {
-        ApplyScalingBonus(&m_scalingQueue.front());
-        m_scalingQueue.pop();
-    };
 
-    if (IsInWorld())
-        Creature::Update(update_diff, diff);
-
+    Creature::Update(update_diff, diff);
 }
 
 void Pet::RegenerateAll( uint32 update_diff )
@@ -694,10 +702,12 @@ bool Pet::CanTakeMoreActiveSpells(uint32 spellid)
 void Pet::Unsummon(PetSaveMode mode, Unit* owner /*= NULL*/)
 {
 
+    if (m_removed)
+        return;
+
     if (!owner)
         owner = GetOwner();
 
-    m_removed = true;
 
     CombatStop();
 
@@ -778,7 +788,7 @@ void Pet::Unsummon(PetSaveMode mode, Unit* owner /*= NULL*/)
     }
 
     AddObjectToRemoveList();
-
+    m_removed = true;
 }
 
 void Pet::GivePetXP(uint32 xp)

@@ -10440,14 +10440,14 @@ void CharmInfo::SetSpellAutocast( uint32 spell_id, bool state )
 
 void Unit::DoPetAction( Player* owner, uint8 flag, uint32 spellid, ObjectGuid petGuid, ObjectGuid targetGuid)
 {
-    if (GetTypeId() != TYPEID_UNIT || !IsInWorld() || (((Creature*)this)->IsPet() && !((Pet*)this)->IsInWorld()) || !GetCharmInfo())
+    if (GetTypeId() != TYPEID_UNIT || !IsInWorld() || !isAlive() || (((Creature*)this)->IsPet() && !((Pet*)this)->IsInWorld()) || !GetCharmInfo())
         return;
 
     switch(flag)
     {
         case ACT_COMMAND:                                   //0x07
         {
-       // Maybe exists some flag that disable it at client side
+        // Maybe exists some flag that disable it at client side
             if (petGuid.IsVehicle())
                 return;
 
@@ -10569,6 +10569,9 @@ void Unit::DoPetAction( Player* owner, uint8 flag, uint32 spellid, ObjectGuid pe
 
 void Unit::DoPetCastSpell(Unit* target, uint32 spellId)
 {
+    if (!IsInWorld() || !isAlive())
+        return;
+
     // do not cast unknown spells
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
     if(!spellInfo)
@@ -10593,15 +10596,19 @@ void Unit::DoPetCastSpell(Unit* target, uint32 spellId)
 
 void Unit::DoPetCastSpell(Player *owner, uint8 cast_count, SpellCastTargets* targets, SpellEntry const* spellInfo )
 {
+    if (!IsInWorld() || !isAlive())
+        return;
+
     if (!spellInfo)
         return;
 
     if (GetCharmInfo() && GetCharmInfo()->GetGlobalCooldownMgr().HasGlobalCooldown(spellInfo))
         return;
 
-    // do not cast not learned spells
+    // do not cast passive and not learned spells
     if (IsPassiveSpell(spellInfo->Id))
         return;
+
     if((GetObjectGuid().IsPet() && !((Pet*)this)->HasSpell(spellInfo->Id)))
         return;
     else if ((GetObjectGuid().IsCreatureOrVehicle() && !((Creature*)this)->HasSpell(spellInfo->Id)))
