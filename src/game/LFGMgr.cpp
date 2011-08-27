@@ -1392,7 +1392,7 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
     for (LFGQueueSet::const_iterator itr = pProposal->playerGuids.begin(); itr != pProposal->playerGuids.end();)
     {
         Player* player = sObjectMgr.GetPlayer(*itr);
-        if (player && player->IsInWorld())
+        if (player && player->IsInWorld() && player->GetMap())
         {
             if (player->GetGroup() && player->GetGroup() != group)
             {
@@ -1469,10 +1469,11 @@ void LFGMgr::RemoveProposal(Player* decliner, uint32 ID)
     }
 
     {
-        ReadGuard Guard(GetLock());
-        if (!pProposal->playerGuids.empty())
+//        ReadGuard Guard(GetLock());
+        LFGQueueSet const playersSet = pProposal->playerGuids;
+        if (!playersSet.empty())
         {
-            for (LFGQueueSet::const_iterator itr = pProposal->playerGuids.begin(); itr != pProposal->playerGuids.end(); ++itr )
+            for (LFGQueueSet::const_iterator itr = playersSet.begin(); itr != playersSet.end(); ++itr)
             {
                 ObjectGuid guid = *itr;
 
