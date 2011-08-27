@@ -577,7 +577,7 @@ void Pet::Update(uint32 update_diff, uint32 diff)
                 }
             }
 
-            if ((!IsWithinDistInMap(owner, GetMap()->GetVisibilityDistance()) && !owner->GetCharmGuid().IsEmpty()) || (isControlled() && owner->GetPetGuid().IsEmpty()))
+            if ((!IsWithinDistInMap(owner, GetMap()->GetVisibilityDistance()) && !owner->GetCharmGuid().IsEmpty()))
             {
                 DEBUG_LOG("Pet %d lost control, removed. Owner = %d, distance = %d, pet GUID = ", GetObjectGuid().GetCounter(), owner->GetObjectGuid().GetCounter(), GetDistance2d(owner), owner->GetPetGuid().GetCounter());
                 Unsummon(PET_SAVE_REAGENTS, owner);
@@ -609,7 +609,10 @@ void Pet::Update(uint32 update_diff, uint32 diff)
                 else
                 {
                     DEBUG_LOG("Pet %d removed with duration expired.", GetObjectGuid().GetCounter());
-                    Unsummon(PET_SAVE_AS_DELETED, owner);
+                    if (sWorld.getConfig(CONFIG_BOOL_PET_SAVE_ALL))
+                        Unsummon( bool(GetPetCounter()) ? PET_SAVE_NOT_IN_SLOT : PET_SAVE_AS_CURRENT, owner);
+                    else
+                        Unsummon(PET_SAVE_AS_DELETED, owner);
                     return;
                 }
             }
