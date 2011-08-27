@@ -1322,11 +1322,11 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 target = this;
                 switch (dummySpell->Id)
                 {
-                    case 31571: 
-                        triggered_spell_id = 57529; 
+                    case 31571:
+                        triggered_spell_id = 57529;
                         break;
-                    case 31572: 
-                        triggered_spell_id = 57531; 
+                    case 31572:
+                        triggered_spell_id = 57531;
                         break;
                     default:
                         sLog.outError("Unit::HandleDummyAuraProc: non handled spell id: %u",dummySpell->Id);
@@ -1504,14 +1504,14 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
 
                 switch (dummySpell->Id)
                 {
-                    case 29838: 
-                        triggered_spell_id=29842; 
+                    case 29838:
+                        triggered_spell_id=29842;
                         break;
-                    case 29834: 
-                        triggered_spell_id=29841; 
+                    case 29834:
+                        triggered_spell_id=29841;
                         break;
-                    case 42770: 
-                        triggered_spell_id=42771; 
+                    case 42770:
+                        triggered_spell_id=42771;
                         break;
                     default:
                         sLog.outError("Unit::HandleDummyAuraProc: non handled spell id: %u (SW)",dummySpell->Id);
@@ -1963,7 +1963,7 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 // Glyph of Rejuvenation
                 case 54754:
                 {
-                   if (pVictim && pVictim->GetHealth() > pVictim->GetMaxHealth() / 2)
+                   if (!pVictim || pVictim->GetHealthPercent() >= 50.0f)
                         return SPELL_AURA_PROC_FAILED;
 
                     target = pVictim;
@@ -2617,17 +2617,17 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
 
                     switch (this->getPowerType())
                     {
-                        case POWER_ENERGY: 
-                            triggered_spell_id = 71882; 
+                        case POWER_ENERGY:
+                            triggered_spell_id = 71882;
                             break;
-                        case POWER_RAGE:   
-                            triggered_spell_id = 71883; 
+                        case POWER_RAGE:
+                            triggered_spell_id = 71883;
                             break;
-                        case POWER_MANA:   
-                            triggered_spell_id = 71881; 
+                        case POWER_MANA:
+                            triggered_spell_id = 71881;
                             break;
-                        case POWER_RUNIC_POWER:   
-                            triggered_spell_id = 71884; 
+                        case POWER_RUNIC_POWER:
+                            triggered_spell_id = 71884;
                             break;
                         default:
                             return SPELL_AURA_PROC_FAILED;
@@ -2642,17 +2642,17 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
 
                     switch (this->getPowerType())
                     {
-                        case POWER_ENERGY:        
-                            triggered_spell_id = 71887; 
+                        case POWER_ENERGY:
+                            triggered_spell_id = 71887;
                             break;
-                        case POWER_RAGE:          
-                            triggered_spell_id = 71886; 
+                        case POWER_RAGE:
+                            triggered_spell_id = 71886;
                             break;
-                        case POWER_MANA:          
-                            triggered_spell_id = 71888; 
+                        case POWER_MANA:
+                            triggered_spell_id = 71888;
                             break;
-                        case POWER_RUNIC_POWER:   
-                            triggered_spell_id = 71885; 
+                        case POWER_RUNIC_POWER:
+                            triggered_spell_id = 71885;
                             break;
                         default:
                             return SPELL_AURA_PROC_FAILED;
