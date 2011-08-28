@@ -7429,6 +7429,11 @@ void Aura::HandleShapeshiftBoosts(bool apply)
         case FORM_GHOSTWOLF:
             spellId1 = 67116;
             break;
+        case FORM_AMBIENT:
+        case FORM_GHOUL:
+        case FORM_STEALTH:
+        case FORM_CREATURECAT:
+        case FORM_CREATUREBEAR:
         default:
             break;
     }

@@ -189,7 +189,8 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     if (!Create(guid, *pos, creatureInfo, pet_number, owner))
     {
         delete result;
-        delete temp_pos;
+        if (temp_pos)
+            delete temp_pos;
         return false;
     }
 
@@ -210,10 +211,13 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
         AIM_Initialize();
         pos->GetMap()->Add((Creature*)this);
         delete result;
-        delete temp_pos;
+        if (temp_pos)
+            delete temp_pos;
         return true;
     }
-    delete temp_pos;
+
+    if (temp_pos)
+        delete temp_pos;
 
     switch (getPetType())
     {

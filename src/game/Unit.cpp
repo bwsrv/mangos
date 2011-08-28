@@ -734,6 +734,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
 
                 break;
             }
+            case RANGED_ATTACK:
             default:
                 break;
         }
