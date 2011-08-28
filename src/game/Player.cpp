@@ -22518,6 +22518,9 @@ void Player::AutoStoreLoot(Loot& loot, bool broadcast, uint8 bag, uint8 slot)
     {
         LootItem* lootItem = loot.LootItemInSlot(i,this);
 
+        if (!lootItem)
+            continue;
+
         ItemPosCountVec dest;
         InventoryResult msg = CanStoreNewItem(bag,slot,dest,lootItem->itemid,lootItem->count);
         if (msg != EQUIP_ERR_OK && slot != NULL_SLOT)
