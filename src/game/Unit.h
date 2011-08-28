@@ -1712,7 +1712,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         int32 m_baseSpellCritChance;
 
         float m_threatModifier[MAX_SPELL_SCHOOL];
-        float m_modAttackSpeedPct[MAX_ATTACK + 2];
+        float m_modAttackSpeedPct[MAX_ATTACK_MOD];
         float m_modSpellSpeedPctNeg;
         float m_modSpellSpeedPctPos;
 

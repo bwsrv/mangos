@@ -218,8 +218,8 @@ void ChatLog::PartyMsg(Player *player, std::string &msg)
         // obtain group information
         log_str.append("[");
 
-        uint8 gm_count = group->GetMembersCount();
-        uint8 gm_count_m1 = gm_count - 1;
+        //uint8 gm_count = group->GetMembersCount();
+        //uint8 gm_count_m1 = gm_count - 1;
         ObjectGuid gm_leader_GUID = group->GetLeaderGuid();
         Player *gm_member;
 
@@ -418,8 +418,8 @@ void ChatLog::RaidMsg(Player *player, std::string &msg, uint32 type)
         // obtain group information
         log_str.append("[");
 
-        uint8 gm_count = group->GetMembersCount();
-        uint8 gm_count_m1 = gm_count - 1;
+        //uint8 gm_count = group->GetMembersCount();
+        //uint8 gm_count_m1 = gm_count - 1;
         ObjectGuid gm_leader_GUID = group->GetLeaderGuid();
         Player *gm_member;
 
@@ -496,8 +496,8 @@ void ChatLog::BattleGroundMsg(Player *player, std::string &msg, uint32 type)
         // obtain group information
         log_str.append("[");
 
-        uint8 gm_count = group->GetMembersCount();
-        uint8 gm_count_m1 = gm_count - 1;
+        //uint8 gm_count = group->GetMembersCount();
+        //uint8 gm_count_m1 = gm_count - 1;
         ObjectGuid gm_leader_GUID = group->GetLeaderGuid();
         Player *gm_member;
 

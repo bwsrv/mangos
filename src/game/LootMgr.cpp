@@ -400,7 +400,7 @@ void LootItem::AddAllowedLooter(const Player *player)
 LootSlotType LootItem::GetSlotTypeForSharedLoot(PermissionTypes permission, Player* viewer, bool condition_ok /*= false*/) const
 {
     // ignore looted, FFA (each player get own copy) and not allowed items
-    if (is_looted || freeforall || conditionId && !condition_ok || !AllowedForPlayer(viewer))
+    if (is_looted || freeforall || (conditionId && !condition_ok) || !AllowedForPlayer(viewer))
         return MAX_LOOT_SLOT_TYPE;
 
     switch (permission)
@@ -413,6 +413,8 @@ LootSlotType LootItem::GetSlotTypeForSharedLoot(PermissionTypes permission, Play
             return LOOT_SLOT_OWNER;
         case MASTER_PERMISSION:
             return !is_underthreshold ? LOOT_SLOT_MASTER : LOOT_SLOT_NORMAL;
+        case NONE_PERMISSION:
+            break;
     }
 
     return MAX_LOOT_SLOT_TYPE;

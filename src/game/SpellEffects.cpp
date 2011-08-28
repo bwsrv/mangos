@@ -5149,7 +5149,7 @@ void Spell::SendLoot(ObjectGuid guid, LootType loottype, LockType lockType)
                 sLog.outError("Spell::SendLoot unhandled locktype %u for GameObject trap (entry %u) for spell %u.", lockType, gameObjTarget->GetEntry(), m_spellInfo->Id);
                 return;
             default:
-                sLog.outError("Spell::SendLoot unhandled GameObject type %u (entry %u).", gameObjTarget->GetGoType(), gameObjTarget->GetEntry(), m_spellInfo->Id);
+                sLog.outError("Spell::SendLoot unhandled GameObject type %u (entry %u) for spell %u.", gameObjTarget->GetGoType(), gameObjTarget->GetEntry(), m_spellInfo->Id);
                 return;
         }
     }
@@ -5471,7 +5471,7 @@ void Spell::DoSummonGroupPets(SpellEffectIndex eff_idx)
         return;
     }
 
-    uint32 level = m_caster->getLevel();
+    //uint32 level = m_caster->getLevel();
 
     if (pet_entry == 37994)    // Mage: Water Elemental from Glyph
         m_duration = 86400000; // 24 hours
@@ -5523,7 +5523,7 @@ void Spell::DoSummonGroupPets(SpellEffectIndex eff_idx)
                     pet->SetDuration(m_duration);
                     pet->SetCreateSpellID(originalSpellID);
                     pet->SetPetCounter(amount-1);
-                    bool _summoned = false;
+                    //bool _summoned = false;
 
                     if (pet->LoadPetFromDB((Player*)m_caster,pet_entry, petnumber[i], false, &pos))
                     {
@@ -5603,7 +5603,7 @@ void Spell::EffectSummonPossessed(SpellEffectIndex eff_idx)
     {
         summon->SetLevel(m_caster->getLevel());
 
-        if (CreatureAI* scriptedAI = sScriptMgr.GetCreatureAI(summon))
+        if (sScriptMgr.GetCreatureAI(summon))
         {
             // Prevent from ScriptedAI reinitialized
             summon->LockAI(true);
@@ -6715,7 +6715,7 @@ void Spell::EffectWeaponDmg(SpellEffectIndex eff_idx)
                 // and no need to cast over max stack amount
                 if (!sunder || sunder->GetStackAmount() < sunder->GetSpellProto()->StackAmount)
                     m_caster->CastSpell(unitTarget, 58567, true);
-                    if (Aura *aura = m_caster->GetDummyAura(58388))
+                    if (m_caster->GetDummyAura(58388))
                         m_caster->CastSpell (unitTarget, 58567, true);
             }
             break;

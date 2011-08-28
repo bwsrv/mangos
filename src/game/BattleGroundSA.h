@@ -25,12 +25,6 @@ class BattleGround;
 #define BG_SA_GATE_MAX 6
 #define BG_SA_MAX_WS 3
 
-const uint32 BG_SA_GateStatus[6] = {3849, 3623, 3620, 3614, 3617, 3638};
-const uint32 BG_SA_WorldStatusA[3] = {3630, 3627, 3626};
-const uint32 BG_SA_WorldStatusH[3] = {3631, 3628, 3629};
-const uint32 BG_IC_TEAM[BG_TEAMS_COUNT] = {84,83};
-
-
 enum BG_SA_WorldStates
 {
     BG_SA_TIMER_MINUTES = 3559,
@@ -68,13 +62,6 @@ enum BG_SA_WorldStates
     BG_SA_ENABLE_TIMER = 3564,
 };
 
-static int32 GrraveYardWS[3][2]=
-{
-    {3636, 3632},
-    {3635, 3633},
-    {3637, 3634},
-};
-
 enum BG_SA_Sounds
 {
     BG_SA_SOUND_GYD_CLAIMED = 8192,
@@ -94,10 +81,6 @@ enum BG_SA_GraveYardStatus
     BG_SA_GARVE_STATUS_ALLY_OCCUPIED = 3,
     BG_SA_GARVE_STATUS_HORDE_OCCUPIED = 4
 };
-
-// WorldSafeLocs ids for 5 gyd, and for ally, and horde starting location
-const uint32 BG_SA_GraveyardIdsPhase[3] = {1347, 1346, 1348};
-const uint32 BG_SA_GraveyardIds[2] = {1349, 1350};
 
 enum BG_SA_GraveYard
 {
@@ -211,17 +194,6 @@ enum VehicleTypes
     VEHICLE_SA_CANNON = 2
 };
 
-static float BG_SA_START_LOCATIONS[7][4] = {
-    {1804.10f, -168.46f, 60.55f, 2.65f},                    // Pillar 1 - don't used now
-    {1803.71f, 118.61f, 59.83f, 3.56f},                     // Pillar 2 - don't used now
-    {1597.64f, -106.35f, 8.89f, 4.13f},                     // Dock 1
-    {1606.61f, 50.13f, 7.58f, 2.39f},                       // Dock 2
-    {1209.70f, -65.16f, 70.10f, 0.00f},                     // Defenders start loc
-    //Ships
-    {2679.696777f, -826.891235f, 3.712860f, 5.78367f},     //rot2 1 rot3 0.0002f
-    {2574.003662f, 981.261475f, 2.603424f, 0.807696f}
-};
-
 enum BG_SA_Phase
 {
     SA_ROUND_ONE = 1,
@@ -325,4 +297,5 @@ class BattleGroundSA : public BattleGround
         bool GateRedSunDamaged;
         bool GateYellowMoonDamaged;
 };
+
 #endif

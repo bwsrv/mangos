@@ -170,6 +170,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Summons(bool check_entry_use)
             CreatureEventAI_Summon temp;
 
             uint32 i = fields[0].GetUInt32();
+            temp.id = i;
             temp.position_x = fields[1].GetFloat();
             temp.position_y = fields[2].GetFloat();
             temp.position_z = fields[3].GetFloat();

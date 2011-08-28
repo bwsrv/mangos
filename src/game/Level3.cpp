@@ -4250,7 +4250,7 @@ bool ChatHandler::HandleNpcInfoCommand(char* /*args*/)
     else
         PSendSysMessage(LANG_NPCINFO_CHAR, target->GetGuidStr().c_str(), faction, npcflags, Entry, displayid, nativeid);
 
-    PSendSysMessage("VehicleId: %u", cInfo->vehicleId);
+    PSendSysMessage("VehicleId: %u", VehicleId);
     PSendSysMessage("difficulty_entry_1: %u, difficulty_entry_2: %u, difficulty_entry_3: %u", difficulty_entry_1, difficulty_entry_2, difficulty_entry_3);
 
     PSendSysMessage(LANG_NPCINFO_LEVEL, target->getLevel());
@@ -4718,7 +4718,7 @@ bool ChatHandler::HandleAuctionItemCommand(char* args)
         return false;
     }
 
-    Player* pl = m_session ? m_session->GetPlayer() : NULL;
+    //Player* pl = m_session ? m_session->GetPlayer() : NULL;
 
     do
     {

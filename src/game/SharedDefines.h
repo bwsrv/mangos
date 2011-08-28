@@ -1196,6 +1196,7 @@ enum WeaponAttackType
 };
 
 #define MAX_ATTACK  3
+#define MAX_ATTACK_MOD  (MAX_ATTACK + 3)
 
 enum Targets
 {

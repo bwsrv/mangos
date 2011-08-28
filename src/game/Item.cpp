@@ -1104,7 +1104,7 @@ Item* Item::CreateItem( uint32 item, uint32 count, Player const* player, uint32 
                     std::ostringstream ss;
                     sLog.outDetail("WoWArmory: write feed log (guid: %u, type: 2, data: %u)", player->GetGUIDLow(), item);
                     ss << "REPLACE INTO armory_character_feed_log (guid, type, data, date, counter, item_guid) VALUES (" << player->GetGUIDLow() << ", 2, " << item << ", UNIX_TIMESTAMP(NOW()), 1," << pItem->GetGUIDLow()  << ")";
-                    CharacterDatabase.PExecute( ss.str().c_str() );
+                    CharacterDatabase.Execute( ss.str().c_str() );
                 }
             }
             /** World of Warcraft Armory **/

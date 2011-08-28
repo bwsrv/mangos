@@ -172,7 +172,7 @@ void WorldSession::HandleLfgSetRolesOpcode(WorldPacket &recv_data)
     if (group)
     {
         bool isChanged = sLFGMgr.RoleChanged(GetPlayer(), roles);
-        DEBUG_LOG("CMSG_LFG_SET_ROLES: Group %u, Player %u, Roles: %u %", group->GetObjectGuid().GetCounter(), GetPlayer()->GetObjectGuid().GetCounter(), roles, isChanged ? "changed" : "not changed");
+        DEBUG_LOG("CMSG_LFG_SET_ROLES: Group %u, Player %u, Roles: %u %s", group->GetObjectGuid().GetCounter(), GetPlayer()->GetObjectGuid().GetCounter(), roles, isChanged ? "changed" : "not changed");
         sLFGMgr.UpdateRoleCheck(group);
     }
     else
@@ -461,6 +461,8 @@ void WorldSession::SendLfgUpdateParty(LFGUpdateType updateType, LFGType type)
             extrainfo = true;
             join = true;
             break;
+        default:
+            break;
     }
 
     LFGDungeonSet const* dungeons = GetPlayer()->GetLFGState()->GetDungeons();
@@ -514,6 +516,8 @@ void WorldSession::SendLfgUpdatePlayer(LFGUpdateType updateType, LFGType type)
         //case LFG_UPDATETYPE_CLEAR_LOCK_LIST: // TODO: Sometimes has extrainfo - Check ocurrences...
         case LFG_UPDATETYPE_PROPOSAL_BEGIN:
             extrainfo = true;
+            break;
+        default:
             break;
     }
     LFGDungeonSet const* dungeons = GetPlayer()->GetLFGState()->GetDungeons();
@@ -1136,7 +1140,7 @@ void WorldSession::SendLfgRoleCheckUpdate()
     if (!dungeons)
         return;
 
-    DEBUG_LOG("SMSG_LFG_ROLE_CHECK_UPDATE %u, dugeons size %u", GetPlayer()->GetObjectGuid().GetCounter(), dungeons->size());
+    DEBUG_LOG("SMSG_LFG_ROLE_CHECK_UPDATE %u, dugeons size " SIZEFMTD, GetPlayer()->GetObjectGuid().GetCounter(), dungeons->size());
 
     WorldPacket data(SMSG_LFG_ROLE_CHECK_UPDATE, 4 + 1 + 1 + dungeons->size() * 4 + 1 + group->GetMembersCount() * (8 + 1 + 4 + 1));
 

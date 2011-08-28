@@ -2726,7 +2726,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                         if ( pTarget->IsWithinDistInMap(Target, radius) )
                             targetUnitMap.push_back(Target);
 
-                        if (Pet* pet = Target->GetPet())
+                        if (Target->GetPet())
                         {
                             GroupPetList m_groupPets = Target->GetPets();
                             if (!m_groupPets.empty())
@@ -6261,7 +6261,7 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
                 if(!target)
                 {
                     return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
-                    DEBUG_LOG("Charmed creature attempt to cast spell %d, but no required target",m_spellInfo->Id);
+                    DEBUG_LOG("Charmed creature attempt to cast spell %u, but no required target",m_spellInfo->Id);
                 }
                 break;
             }
@@ -6277,13 +6277,13 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
             {
                 if (m_caster->IsHostileTo(_target))
                 {
-                    DEBUG_LOG("Charmed creature attempt to cast positive spell %d, but target (guid %u) is hostile",m_spellInfo->Id, target->GetObjectGuid().GetRawValue());
+                    DEBUG_LOG("Charmed creature attempt to cast positive spell %u, but target (guid %s) is hostile",m_spellInfo->Id, target->GetObjectGuid().GetString().c_str());
                     return SPELL_FAILED_BAD_TARGETS;
                 }
             }
             else if (!_target->isTargetableForAttack() || (!_target->isVisibleForOrDetect(m_caster,m_caster,true) && !m_IsTriggeredSpell))
             {
-                DEBUG_LOG("Charmed creature attempt to cast spell %d, but target (guid %u) is not targetable or not detectable",m_spellInfo->Id,target->GetObjectGuid().GetRawValue());
+                DEBUG_LOG("Charmed creature attempt to cast spell %u, but target (guid %s) is not targetable or not detectable",m_spellInfo->Id,target->GetObjectGuid().GetString().c_str());
                 return SPELL_FAILED_BAD_TARGETS;            // guessed error
             }
             else
@@ -6303,20 +6303,20 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
                 {
                     if (!m_caster->IsHostileTo(_target) && (m_caster->GetCharmerOrOwner() && m_caster->GetCharmerOrOwner()->IsFriendlyTo(_target)))
                     {
-                        DEBUG_LOG("Charmed creature attempt to cast negative spell %d, but target (guid %u) is friendly",m_spellInfo->Id, target->GetObjectGuid().GetRawValue());
+                        DEBUG_LOG("Charmed creature attempt to cast negative spell %u, but target (guid %s) is friendly",m_spellInfo->Id, target->GetObjectGuid().GetString().c_str());
                         return SPELL_FAILED_BAD_TARGETS;
                     }
                 }
                 else if (!m_caster->GetVehicleKit() && m_caster->IsFriendlyTo(_target) && !(!m_caster->GetCharmerOrOwner() || !m_caster->GetCharmerOrOwner()->IsFriendlyTo(_target))
                      && !dualEffect && !IsDispelSpell(m_spellInfo))
                 {
-                    DEBUG_LOG("Charmed creature attempt to cast spell %d, but target (guid %u) is not valid",m_spellInfo->Id,_target->GetObjectGuid().GetRawValue());
+                    DEBUG_LOG("Charmed creature attempt to cast spell %u, but target (guid %s) is not valid",m_spellInfo->Id,_target->GetObjectGuid().GetString().c_str());
                     return SPELL_FAILED_BAD_TARGETS;
                 }
 
                 if (m_caster->GetObjectGuid() == _target->GetObjectGuid() && dualEffect && !IsPositiveSpell(m_spellInfo->Id))
                 {
-                    DEBUG_LOG("Charmed creature %u attempt to cast negative spell %d on self",_target->GetObjectGuid().GetRawValue(),m_spellInfo->Id);
+                    DEBUG_LOG("Charmed creature %s attempt to cast negative spell %u on self",_target->GetObjectGuid().GetString().c_str(), m_spellInfo->Id);
 //                    return SPELL_FAILED_BAD_TARGETS;
                 }
             }
@@ -7716,7 +7716,7 @@ void Spell::FillRaidOrPartyTargets(UnitList &targetUnitMap, Unit* member, Unit* 
                     targetUnitMap.push_back(Target);
 
                 if (withPets)
-                    if (Pet* pet = Target->GetPet())
+                    if (Target->GetPet())
                     {
                         GroupPetList m_groupPets = Target->GetPets();
                         if (!m_groupPets.empty())
@@ -7912,7 +7912,7 @@ void Spell::DoSummonSnakes(SpellEffectIndex eff_idx)
         if (!pSummon->IsPositionValid())
         {
             sLog.outError("EffectSummonSnakes failed to summon snakes for Unit %s (GUID: %u) bacause of invalid position (x = %f, y = %f, z = %f map = %u)"
-                ,m_caster->GetName(), m_caster->GetObjectGuid().GetCounter(), position_x, position_y, position_z, m_caster->GetMap());
+                ,m_caster->GetName(), m_caster->GetObjectGuid().GetCounter(), position_x, position_y, position_z, m_caster->GetMapId());
             delete pSummon;
             continue;
         }

@@ -180,7 +180,7 @@ bool AntiCheat::_DoAntiCheatCheck(AntiCheatCheck checktype)
         {
             uint32 subcheck = checktype * 100 + i;
 
-            if (AntiCheatConfig const* config = _FindConfig(AntiCheatCheck(subcheck)))
+            if (_FindConfig(AntiCheatCheck(subcheck)))
             {
                 checkpassed |= _DoAntiCheatCheck(AntiCheatCheck(subcheck));
             }
@@ -837,8 +837,8 @@ bool AntiCheat::CheckSpellDamage()
     if (m_currentDamage < m_currentConfig->checkParam[1])
         return true;
 
-    uint32 calcdamage = 0;
 /*
+    uint32 calcdamage = 0;
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(m_currentspellID);
     if (spellInfo)
     {
@@ -851,7 +851,7 @@ bool AntiCheat::CheckSpellDamage()
 */
 
     char buffer[255];
-    sprintf(buffer," Spell %d deal damage is %d, but allowed %d",
+    sprintf(buffer," Spell %d damage dealt is %d, but allowed %g",
                  m_currentspellID, m_currentDamage, m_currentConfig->checkFloatParam[1]);
 
     m_currentspellID = 0;
@@ -869,7 +869,7 @@ bool AntiCheat::CheckMeleeDamage()
         return true;
 
     char buffer[255];
-    sprintf(buffer," Dealed melee damage %d, but allowed %d",
+    sprintf(buffer," Dealt melee damage %d, but allowed %g",
                  m_currentDamage, m_currentConfig->checkFloatParam[1]);
 
     m_currentCheckResult.clear();

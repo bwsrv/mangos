@@ -186,8 +186,8 @@ void WorldSession::HandleBattlemasterJoinOpcode( WorldPacket & recv_data )
     BattleGroundQueue& bgQueue = sBattleGroundMgr.m_BattleGroundQueues[bgQueueTypeId];
     if (joinAsGroup)
     {
-        GroupQueueInfo * ginfo;
-        uint32 avgTime;
+        GroupQueueInfo *ginfo = NULL;
+        uint32 avgTime = 0;
 
         if(err > 0)
         {
@@ -757,7 +757,7 @@ void WorldSession::HandleBattlemasterJoinArena( WorldPacket & recv_data )
     BattleGroundQueue &bgQueue = sBattleGroundMgr.m_BattleGroundQueues[bgQueueTypeId];
     if (asGroup)
     {
-        uint32 avgTime;
+        uint32 avgTime = 0;
 
         if(err > 0)
         {

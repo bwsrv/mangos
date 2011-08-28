@@ -5033,7 +5033,7 @@ bool Unit::IsTriggeredAtCustomProcEvent(Unit *pVictim, SpellAuraHolder* holder, 
 
     for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)
     {
-        if (Aura* aura = holder->GetAuraByEffectIndex(SpellEffectIndex(i)))
+        if (holder->GetAuraByEffectIndex(SpellEffectIndex(i)))
         {
             AuraType auraName = AuraType(spellProto->EffectApplyAuraName[i]);
 

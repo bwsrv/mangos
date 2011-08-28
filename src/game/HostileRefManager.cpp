@@ -40,8 +40,8 @@ HostileRefManager::~HostileRefManager()
 
 void HostileRefManager::threatAssist(Unit *pVictim, float pThreat, SpellEntry const *pThreatSpell, bool pSingleTarget)
 {
-    float redirectedMod = pVictim->getHostileRefManager().GetThreatRedirectionMod();
-    Unit* redirectedTarget = redirectedMod ? pVictim->getHostileRefManager().GetThreatRedirectionTarget() : NULL;
+    //float redirectedMod = pVictim->getHostileRefManager().GetThreatRedirectionMod();
+    //Unit* redirectedTarget = redirectedMod ? pVictim->getHostileRefManager().GetThreatRedirectionTarget() : NULL;
 
     uint32 size = pSingleTarget ? 1 : getSize();            // if pSingleTarget do not devide threat
     float threat = pThreat/size;

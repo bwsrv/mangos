@@ -237,7 +237,7 @@ public:
 
 protected:
     LFGStateStructure()
-        : m_state(LFG_STATE_NONE), m_type(LFG_TYPE_NONE), m_proposal(NULL) {};
+        : m_type(LFG_TYPE_NONE), m_flags(0), update(false), m_state(LFG_STATE_NONE), m_proposal(NULL) {};
     LFGType          m_type;
     uint32           m_flags;
     bool             update;

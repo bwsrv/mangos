@@ -1880,7 +1880,7 @@ uint8 PlayerbotAI::GetFreeBagSpace() const
 
 void PlayerbotAI::DoLoot()
 {
-    bool looted = false;
+    //bool looted = false;
 
     if (m_lootCurrent.IsEmpty() && m_lootTargets.empty())
     {
@@ -2799,7 +2799,7 @@ void PlayerbotAI::TellMaster(const char *fmt, ...) const
     char temp_buf[1024];
     va_list ap;
     va_start(ap, fmt);
-    size_t temp_len = vsnprintf(temp_buf, 1024, fmt, ap);
+    vsnprintf(temp_buf, 1024, fmt, ap);
     va_end(ap);
     std::string str = temp_buf;
     TellMaster(str);

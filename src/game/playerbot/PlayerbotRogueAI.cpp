@@ -95,6 +95,8 @@ void PlayerbotRogueAI::DoNextCombatManeuver(Unit *pTarget)
             if (SINISTER_STRIKE > 0)
                 ai->CastSpell(SINISTER_STRIKE);
             return;
+        default:
+            break;
     }
 
     ai->SetInFront(pTarget);

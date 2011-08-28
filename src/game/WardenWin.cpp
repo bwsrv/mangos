@@ -373,7 +373,7 @@ void WardenWin::HandleData(ByteBuffer &buff)
 
     WardenDataResult *rs;
     WardenData *rd;
-    uint8 type;
+    uint8 type = 0;
     uint32 checkNum = 0;
 
     for (std::vector<uint32>::iterator itr = SendDataId.begin(); itr != SendDataId.end(); ++itr)
