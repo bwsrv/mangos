@@ -73,8 +73,8 @@ namespace Movement
             Mask_Unused = No_Spline|Enter_Cycle|Frozen|Unknown5|Unknown6|Unknown7|Unknown8|Unknown10|Unknown11|Unknown12|Unknown13,
         };
 
-        inline uint32& raw() { return (uint32&)*this;}
-        inline const uint32& raw() const { return (const uint32&)*this;}
+        inline uint32& raw() { return *reinterpret_cast<uint32*>(this); }
+        inline const uint32& raw() const { return *reinterpret_cast<uint32 const*>(this); }
 
         MoveSplineFlag() { raw() = 0; }
         MoveSplineFlag(uint32 f) { raw() = f; }
@@ -97,14 +97,14 @@ namespace Movement
         void operator &= (uint32 f) { raw() &= f;}
         void operator |= (uint32 f) { raw() |= f;}
 
-        void EnableAnimation(uint8 anim) { raw() = raw() & ~(Mask_Animations|Falling|Parabolic|Knockback) | Animation|anim;}
-        void EnableParabolic() { raw() = raw() & ~(Mask_Animations|Falling|Animation) | Parabolic;}
-        void EnableFalling() { raw() = raw() & ~(Mask_Animations|Parabolic|Knockback|Animation) | Falling;}
-        void EnableFlying() { raw() = raw() & ~Catmullrom | Flying; }
-        void EnableCatmullRom() { raw() = raw() & ~Flying | Catmullrom; }
-        void EnableFacingPoint() { raw() = raw() & ~Mask_Final_Facing | Final_Point;}
-        void EnableFacingAngle() { raw() = raw() & ~Mask_Final_Facing | Final_Angle;}
-        void EnableFacingTarget() { raw() = raw() & ~Mask_Final_Facing | Final_Target;}
+        void EnableAnimation(uint8 anim) { raw() = (raw() & ~(Mask_Animations|Falling|Parabolic|Knockback)) | Animation|anim;}
+        void EnableParabolic() { raw() = (raw() & ~(Mask_Animations|Falling|Animation)) | Parabolic;}
+        void EnableFalling() { raw() = (raw() & ~(Mask_Animations|Parabolic|Knockback|Animation)) | Falling;}
+        void EnableFlying() { raw() = (raw() & ~Catmullrom) | Flying; }
+        void EnableCatmullRom() { raw() = (raw() & ~Flying) | Catmullrom; }
+        void EnableFacingPoint() { raw() = (raw() & ~Mask_Final_Facing) | Final_Point;}
+        void EnableFacingAngle() { raw() = (raw() & ~Mask_Final_Facing) | Final_Angle;}
+        void EnableFacingTarget() { raw() = (raw() & ~Mask_Final_Facing) | Final_Target;}
 
         uint8 animId       : 8;
         bool done          : 1;

@@ -345,6 +345,9 @@ void VehicleKit::RemovePassenger(Unit *passenger)
             ((Creature*)m_pBase)->AI()->PassengerBoarded(passenger, seat->first, false);
     }
 
+    // only for flyable vehicles
+    if (m_pBase->m_movementInfo.HasMovementFlag(MOVEFLAG_FLYING))
+        m_pBase->CastSpell(passenger, 45472, true);    // Parachute
 }
 
 void VehicleKit::Reset()

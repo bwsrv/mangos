@@ -194,7 +194,7 @@ bool RaiseDeadObjectCheck::operator()(Corpse* u)
     // ignore bones
     if(u->GetType() == CORPSE_BONES)
         return false;
-    if (Player* owner = ObjectAccessor::FindPlayer(u->GetOwnerGuid()))
+    if (ObjectAccessor::FindPlayer(u->GetOwnerGuid()))
         return i_fobj->IsWithinDistInMap(u, i_range);
     else return false;
 }

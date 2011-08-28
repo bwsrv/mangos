@@ -1392,7 +1392,7 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
     for (LFGQueueSet::const_iterator itr = pProposal->playerGuids.begin(); itr != pProposal->playerGuids.end();)
     {
         Player* player = sObjectMgr.GetPlayer(*itr);
-        if (player && player->IsInWorld())
+        if (player && player->IsInWorld() && player->GetMap())
         {
             if (player->GetGroup() && player->GetGroup() != group)
             {
@@ -1469,10 +1469,11 @@ void LFGMgr::RemoveProposal(Player* decliner, uint32 ID)
     }
 
     {
-        ReadGuard Guard(GetLock());
-        if (!pProposal->playerGuids.empty())
+//        ReadGuard Guard(GetLock());
+        LFGQueueSet const playersSet = pProposal->playerGuids;
+        if (!playersSet.empty())
         {
-            for (LFGQueueSet::const_iterator itr = pProposal->playerGuids.begin(); itr != pProposal->playerGuids.end(); ++itr )
+            for (LFGQueueSet::const_iterator itr = playersSet.begin(); itr != playersSet.end(); ++itr)
             {
                 ObjectGuid guid = *itr;
 
@@ -2077,7 +2078,7 @@ bool LFGMgr::CheckRoles(LFGRolesMap* rolesMap)
             --dps;
     }
 
-    DEBUG_LOG("LFGMgr::CheckRoles healers %u tanks %u dps %u map size %u", healers, tanks, dps, rolesMap->size());
+    DEBUG_LOG("LFGMgr::CheckRoles healers %u tanks %u dps %u map size " SIZEFMTD, healers, tanks, dps, rolesMap->size());
 
 //    if (sWorld.getConfig(CONFIG_BOOL_LFG_DEBUG_ENABLE))
 //        return true;
@@ -2382,13 +2383,13 @@ bool LFGMgr::TryAddMembersToGroup(Group* group, LFGQueueSet* players)
 
         if (HasIgnoreState(group, player->GetObjectGuid()))
            return false;
-
+        /*
         if (LFGProposal* pProposal = group->GetLFGState()->GetProposal())
         {
-//            if (pProposal->IsDecliner(player->GetObjectGuid()))
-//               return false;
+            if (pProposal->IsDecliner(player->GetObjectGuid()))
+               return false;
         }
-
+        */
         if (!CheckRoles(group, player))
            return false;
 
@@ -2409,7 +2410,7 @@ bool LFGMgr::TryAddMembersToGroup(Group* group, LFGQueueSet* players)
 void LFGMgr::CompleteGroup(Group* group, LFGQueueSet* players)
 {
 
-    DEBUG_LOG("LFGMgr:CompleteGroup: Try complete group %u with %u players", group->GetObjectGuid().GetCounter(), players ? players->size() : 0);
+    DEBUG_LOG("LFGMgr:CompleteGroup: Try complete group %u with %lu players", group->GetObjectGuid().GetCounter(), players ? players->size() : 0);
 
     LFGDungeonSet const* groupDungeons = group->GetLFGState()->GetDungeons();
     LFGDungeonSet  intersection  = *groupDungeons;
@@ -2437,7 +2438,7 @@ void LFGMgr::CompleteGroup(Group* group, LFGQueueSet* players)
     SetGroupRoles(group, players);
     LFGDungeonEntry const* dungeon = SelectRandomDungeonFromList(intersection);
     uint32 ID = CreateProposal(dungeon,group,players);
-    DEBUG_LOG("LFGMgr:CompleteGroup: dungeons for group %u with %u players found, created proposal %u", group->GetObjectGuid().GetCounter(),players ? players->size() : 0, ID);
+    DEBUG_LOG("LFGMgr:CompleteGroup: dungeons for group %u with %lu players found, created proposal %u", group->GetObjectGuid().GetCounter(), players ? players->size() : 0, ID);
 }
 
 bool LFGMgr::TryCreateGroup(LFGType type)
@@ -2510,11 +2511,11 @@ bool LFGMgr::TryCreateGroup(LFGType type)
                 break;
             }
         }
-        DEBUG_LOG("LFGMgr:TryCreateGroup: Try create group to dungeon %u from %u players. result is %u", itr->first->ID, itr->second.size(), uint8(groupCreated));
+        DEBUG_LOG("LFGMgr:TryCreateGroup: Try create group to dungeon %u from " SIZEFMTD " players. result is %u", itr->first->ID, itr->second.size(), uint8(groupCreated));
         if (groupCreated)
         {
             LFGDungeonEntry const* dungeon = SelectRandomDungeonFromList(intersection);
-            uint32 ID = CreateProposal(dungeon, NULL, &newGroup);
+            CreateProposal(dungeon, NULL, &newGroup);
             return true;
         }
     }
@@ -2674,7 +2675,7 @@ void LFGMgr::AddToSearchMatrix(ObjectGuid guid, bool inBegin)
 
     LFGDungeonSet const* dungeons = player->GetLFGState()->GetDungeons();
 
-    DEBUG_LOG("LFGMgr::AddToSearchMatrix %u added, dungeons size %u", guid.GetCounter(),dungeons->size());
+    DEBUG_LOG("LFGMgr::AddToSearchMatrix %u added, dungeons size " SIZEFMTD, guid.GetCounter(),dungeons->size());
 
     if (dungeons->empty())
         return;
@@ -2714,7 +2715,7 @@ void LFGMgr::RemoveFromSearchMatrix(ObjectGuid guid)
 
     LFGDungeonSet const* dungeons = player->GetLFGState()->GetDungeons();
 
-    DEBUG_LOG("LFGMgr::RemoveFromSearchMatrix %u removed, dungeons size %u", guid.GetCounter(),dungeons->size());
+    DEBUG_LOG("LFGMgr::RemoveFromSearchMatrix %u removed, dungeons size " SIZEFMTD, guid.GetCounter(),dungeons->size());
 
     if (dungeons->empty())
         return;

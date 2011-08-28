@@ -193,7 +193,13 @@ void Creature::AddToWorld()
     if (!IsInWorld() && GetObjectGuid().IsCreatureOrVehicle())
         GetMap()->GetObjectsStore().insert<Creature>(GetObjectGuid(), (Creature*)this);
 
-    Unit::AddToWorld();
+    if (IsInWorld() && GetObjectGuid().IsPet())
+    {
+        DEBUG_LOG("Creature::AddToWorld called, but creature (guid %u) is pet! Crush possible later.", GetObjectGuid().GetCounter());
+        ((Pet*)this)->AddToWorld();
+    }
+    else
+        Unit::AddToWorld();
 
     if (GetVehicleKit())
         GetVehicleKit()->Reset();
@@ -205,7 +211,13 @@ void Creature::RemoveFromWorld()
     if (IsInWorld() && GetObjectGuid().IsCreatureOrVehicle())
         GetMap()->GetObjectsStore().erase<Creature>(GetObjectGuid(), (Creature*)NULL);
 
-    Unit::RemoveFromWorld();
+    if (IsInWorld() && GetObjectGuid().IsPet())
+    {
+        DEBUG_LOG("Creature::RemoveFromWorld called, but creature (guid %u) is pet! Crush possible later.", GetObjectGuid().GetCounter());
+        ((Pet*)this)->RemoveFromWorld();
+    }
+    else
+        Unit::RemoveFromWorld();
 }
 
 void Creature::RemoveCorpse()
@@ -1166,6 +1178,8 @@ void Creature::SelectLevel(const CreatureInfo *cinfo, float percentHealth, float
             maxPower = uint32(GetCreatePowers(powerType) * cinfo->power_mod);
             break;
         }
+        default:
+            break;
     }
 
     SetMaxPower(powerType, maxPower);

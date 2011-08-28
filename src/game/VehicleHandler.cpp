@@ -179,7 +179,7 @@ void WorldSession::HandleEnterPlayerVehicle(WorldPacket &recv_data)
         GetPlayer()->EnterVehicle(pVehicle);
 }
 
-void WorldSession::HandleEjectPasenger(WorldPacket &recv_data)
+void WorldSession::HandleEjectPassenger(WorldPacket &recv_data)
 {
     DEBUG_LOG("WORLD: Received CMSG_EJECT_PASSENGER");
     recv_data.hexlike();

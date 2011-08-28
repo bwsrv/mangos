@@ -818,7 +818,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
                 MapDifficultyEntry const* mapDiff = GetMapDifficultyData(targetMapEntry->MapID,GetPlayer()->GetDifficulty(targetMapEntry->IsRaid()));
                 if (mapDiff && mapDiff->mapDifficultyFlags & MAP_DIFFICULTY_FLAG_CONDITION)
                 {
-                    SendAreaTriggerMessage(mapDiff->areaTriggerText[GetSessionDbcLocale()]);
+                    SendAreaTriggerMessage("%s", mapDiff->areaTriggerText[GetSessionDbcLocale()]);
                 }
                 // do not report anything for quest areatriggers
                 DEBUG_LOG("HandleAreaTriggerOpcode:  LockAreaStatus %u, do action", uint8(GetPlayer()->GetAreaTriggerLockStatus(at, GetPlayer()->GetDifficulty(targetMapEntry->IsRaid()))));

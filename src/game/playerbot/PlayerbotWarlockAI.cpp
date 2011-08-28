@@ -89,6 +89,8 @@ void PlayerbotWarlockAI::DoNextCombatManeuver(Unit *pTarget)
             if (SHADOW_BOLT > 0)
                 ai->CastSpell(SHADOW_BOLT);
             return;
+        default:
+            break;
     }
 
     // ------- Non Duel combat ----------

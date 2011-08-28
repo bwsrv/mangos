@@ -169,7 +169,7 @@ void WardenBase::EncryptData(uint8 *Buffer, uint32 Len)
 
 void WardenBase::PrintHexArray(const char *Before, const uint8 *Buffer, uint32 Len, bool BreakWithNewline)
 {
-    printf(Before);
+    printf("%s", Before);
     for (uint32 i = 0; i < Len; ++i)
         printf("%02X ", Buffer[i]);
     if (BreakWithNewline)
@@ -207,7 +207,7 @@ void WorldSession::HandleWardenDataOpcode(WorldPacket & recv_data)
     m_Warden->DecryptData(const_cast<uint8*>(recv_data.contents()), recv_data.size());
     uint8 Opcode;
     recv_data >> Opcode;
-    DEBUG_LOG("WARDEN: Got packet, opcode %02X, size %u", Opcode, recv_data.size());
+    DEBUG_LOG("WARDEN: Got packet, opcode %02X, size " SIZEFMTD, Opcode, recv_data.size());
     recv_data.hexlike();
 
     switch(Opcode)
@@ -232,7 +232,7 @@ void WorldSession::HandleWardenDataOpcode(WorldPacket & recv_data)
             sLog.outError("WARDEN: NYI WARDEN_CMSG_MODULE_FAILED received!");
             break;
         default:
-            DEBUG_LOG("WARDEN: Got unknown warden opcode %02X of size %u.", Opcode, recv_data.size() - 1);
+            DEBUG_LOG("WARDEN: Got unknown warden opcode %02X of size " SIZEFMTD, Opcode, recv_data.size() - 1);
             break;
     }
 }

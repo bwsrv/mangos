@@ -135,6 +135,8 @@ void PlayerbotWarriorAI::DoNextCombatManeuver(Unit *pTarget)
             if (HEROIC_STRIKE > 0)
                 ai->CastSpell(HEROIC_STRIKE);
             return;
+        default:
+            break;
     }
     // ------- Non Duel combat ----------
 
@@ -145,16 +147,20 @@ void PlayerbotWarriorAI::DoNextCombatManeuver(Unit *pTarget)
     ai->SetInFront(pTarget);
     Player *m_bot = GetPlayerBot();
     Unit* pVictim = pTarget->getVictim();
-    float fTargetDist = m_bot->GetDistance(pTarget);
+    //float fTargetDist = m_bot->GetDistance(pTarget);
     PlayerbotAI::CombatOrderType co = ai->GetCombatOrder();
 
     // decide what stance to use
     if ((co & PlayerbotAI::ORDERS_TANK) && !m_bot->HasAura(DEFENSIVE_STANCE, EFFECT_INDEX_0) && ai->CastSpell(DEFENSIVE_STANCE))
+    {
         if (ai->GetManager()->m_confDebugWhisper)
             ai->TellMaster("Stance > Defensive");
         else if (!(co & PlayerbotAI::ORDERS_TANK) && !m_bot->HasAura(BATTLE_STANCE, EFFECT_INDEX_0) && ai->CastSpell(BATTLE_STANCE))
+        {
             if (ai->GetManager()->m_confDebugWhisper)
                 ai->TellMaster("Stance > Battle");
+        }
+    }
 
     // get spell sequence
     if (pTarget->IsNonMeleeSpellCasted(true))
@@ -168,14 +174,20 @@ void PlayerbotWarriorAI::DoNextCombatManeuver(Unit *pTarget)
 
     // do shouts, berserker rage, etc...
     if (BERSERKER_RAGE > 0 && !m_bot->HasAura(BERSERKER_RAGE, EFFECT_INDEX_0) && ai->CastSpell(BERSERKER_RAGE))
+    {
         if (ai->GetManager()->m_confDebugWhisper)
             ai->TellMaster("Pre > Berseker Rage");
         else if (DEMORALIZING_SHOUT > 0 && ai->GetRageAmount() >= 10 && !pTarget->HasAura(DEMORALIZING_SHOUT, EFFECT_INDEX_0) && ai->CastSpell(DEMORALIZING_SHOUT))
+        {
             if (ai->GetManager()->m_confDebugWhisper)
                 ai->TellMaster("Pre > Demoralizing Shout");
             else if (BATTLE_SHOUT > 0 && ai->GetRageAmount() >= 10 && !m_bot->HasAura(BATTLE_SHOUT, EFFECT_INDEX_0) && ai->CastSpell(BATTLE_SHOUT))
+            {
                 if (ai->GetManager()->m_confDebugWhisper)
                     ai->TellMaster("Pre > Battle Shout");
+            }
+        }
+    }
 
     std::ostringstream out;
     switch (SpellSequence)

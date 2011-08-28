@@ -80,6 +80,8 @@ void PlayerbotDeathKnightAI::DoNextCombatManeuver(Unit *pTarget)
         case PlayerbotAI::SCENARIO_DUEL:
             ai->CastSpell(PLAGUE_STRIKE);
             return;
+        default:
+            break;
     }
 
     // ------- Non Duel combat ----------

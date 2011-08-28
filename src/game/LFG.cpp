@@ -338,6 +338,7 @@ void LFGProposal::RemoveMember(ObjectGuid guid)
 
 void LFGProposal::AddMember(ObjectGuid guid)
 {
+    LFGMgr::WriteGuard Guard(sLFGMgr.GetLock());
     playerGuids.insert(guid);
 };
 

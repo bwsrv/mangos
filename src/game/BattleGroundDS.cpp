@@ -48,38 +48,31 @@ void BattleGroundDS::Update(uint32 diff)
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
         // push people from the tubes
-        if (pushbackCheck)
+        //if (pushbackCheck)
 
         // knockback
         if (m_uiKnockback < diff)
         {
             for (BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
             {
-                if (Player *plr = sObjectMgr.GetPlayer(itr->first))
-                    {
-                        if (GameObject* obj = plr->GetGameObject(48018))                         // Remove Demonic Circle
-                            obj->Delete();
+                Player *plr = sObjectMgr.GetPlayer(itr->first);
+                if (!plr)
+                    continue;
 
-                        if (plr->GetPositionZ() < 11.0f)
-                            continue;
+                if (GameObject* obj = plr->GetGameObject(48018))                         // Remove Demonic Circle
+                    obj->Delete();
 
-                        float angle = (plr->GetBGTeam() == ALLIANCE /*gold*/) ? plr->GetAngle(1259.58f, 764.43f) : plr->GetAngle(1325.84f, 817.304f);
+                if (plr->GetPositionZ() < 11.0f)
+                    continue;
 
-                        WorldPacket data(SMSG_MOVE_KNOCK_BACK, 8+4+4+4+4+4);
-                        data << plr->GetPackGUID();
-                        data << uint32(0);                                  // Sequence
-                        data << float(cos(angle));                          // x direction
-                        data << float(sin(angle));                          // y direction
-                        data << float(45);                                  // Horizontal speed
-                        data << float(-7);                                  // Z Movement speed (vertical)
-                        plr->GetSession()->SendPacket(&data);
-                    }
+                float angle = (plr->GetBGTeam() == ALLIANCE /*gold*/) ? plr->GetAngle(1259.58f, 764.43f) : plr->GetAngle(1325.84f, 817.304f);
 
-                Player * plr = sObjectMgr.GetPlayer(itr->first);
-                if (plr && plr->IsWithinLOS(1214,765,14) && plr->GetDistance2d(1214,765) <= 50)
+                plr->KnockBackPlayerWithAngle(angle, 45, 7);
+
+                if (plr->IsWithinDist2d(1214, 765, 50) && plr->IsWithinLOS(1214, 765, 14))
                     plr->KnockBackPlayerWithAngle(6.40f,55,7);
 
-                if (plr && plr->IsWithinLOS(1369,817,14) && plr->GetDistance2d(1369,817) <= 50)
+                if (plr->IsWithinDist2d(1369, 817, 50) && plr->IsWithinLOS(1369, 817, 14))
                     plr->KnockBackPlayerWithAngle(3.03f,55,7);
             }
             pushbackCheck = false;
@@ -90,6 +83,7 @@ void BattleGroundDS::Update(uint32 diff)
 
         // in case pushback failed
         if (teleportCheck)
+        {
             if (m_uiTeleport < diff)
             {
                 for (BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
@@ -121,6 +115,7 @@ void BattleGroundDS::Update(uint32 diff)
             }
             else
                 m_uiTeleport -= diff;
+        }
 
         // Waterfall
         if (m_uiWaterfall < diff)

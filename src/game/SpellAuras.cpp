@@ -611,7 +611,7 @@ void AreaAura::Update(uint32 diff)
                             {
                                 if (caster->IsWithinDistInMap(Target, m_radius))
                                     targets.push_back(Target);
-                                if (Pet *pet = Target->GetPet())
+                                if (Target->GetPet())
                                 {
                                     GroupPetList m_groupPets = Target->GetPets();
                                     if (!m_groupPets.empty())
@@ -631,7 +631,7 @@ void AreaAura::Update(uint32 diff)
                         if ( owner != caster && caster->IsWithinDistInMap(owner, m_radius) )
                             targets.push_back(owner);
                         // add caster's pet
-                        if (Pet *pet = caster->GetPet())
+                        if (caster->GetPet())
                         {
                             GroupPetList m_groupPets = caster->GetPets();
                             if (!m_groupPets.empty())
@@ -661,7 +661,7 @@ void AreaAura::Update(uint32 diff)
                             {
                                 if (caster->IsWithinDistInMap(Target, m_radius))
                                     targets.push_back(Target);
-                                if (Pet *pet = Target->GetPet())
+                                if (Target->GetPet())
                                 {
                                     GroupPetList m_groupPets = Target->GetPets();
                                     if (!m_groupPets.empty())
@@ -681,7 +681,7 @@ void AreaAura::Update(uint32 diff)
                         if ( owner != caster && caster->IsWithinDistInMap(owner, m_radius) )
                             targets.push_back(owner);
                         // add caster's pet
-                        if (Pet *pet = caster->GetPet())
+                        if (caster->GetPet())
                         {
                             GroupPetList m_groupPets = caster->GetPets();
                             if (!m_groupPets.empty())
@@ -3152,10 +3152,12 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
         if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_MAGE && GetSpellProto()->SpellFamilyFlags.test<CF_MAGE_LIVING_BOMB>())
         {
             if (m_removeMode == AURA_REMOVE_BY_EXPIRE || m_removeMode == AURA_REMOVE_BY_DISPEL)
+            {
                 if (this->GetCaster())
                     GetCaster()->CastSpell(target,m_modifier.m_amount,true,NULL,this);
                 else
                     target->CastSpell(target,m_modifier.m_amount,true,NULL,this);
+            }
             return;
         }
     }
@@ -5789,7 +5791,7 @@ void Aura::HandlePeriodicTriggerSpell(bool apply, bool /*Real*/)
                 return;
             case 63018:                                     // Searing Light (Ulduar: XT-002)
             case 65121:                                     // Searing Light (h) (Ulduar: XT-002)
-                if (Unit *pCaster = pCaster = GetCaster())
+                if (Unit *pCaster = GetCaster())
                 {
                     if (pCaster->HasAura(GetModifier()->m_amount))
                         pCaster->CastSpell(target, 64210, true);
@@ -5798,7 +5800,7 @@ void Aura::HandlePeriodicTriggerSpell(bool apply, bool /*Real*/)
                 return;
             case 63024:                                     // Gravity Bomb (Ulduar: XT-002)
             case 64234:                                     // Gravity Bomb (h) (Ulduar: XT-002)
-                if (Unit *pCaster = pCaster = GetCaster())
+                if (Unit *pCaster = GetCaster())
                 {
                     uint32 spellId = GetId() == 63024 ? 64203 : 64235;
                     if (pCaster->HasAura(GetModifier()->m_amount))
@@ -6404,7 +6406,7 @@ void Aura::HandleAuraModResistanceExclusive(bool apply, bool /*Real*/)
 
     for(int8 x = SPELL_SCHOOL_NORMAL; x < MAX_SPELL_SCHOOL;x++)
     {
-        int32 oldMaxValue = 0;
+        //int32 oldMaxValue = 0;
         if (m_modifier.m_miscvalue & int32(1<<x))
         {
             float change = target->CheckAuraStackingAndApply(this, UnitMods(UNIT_MOD_RESISTANCE_START + x), TOTAL_VALUE, float(m_modifier.m_amount), apply, int32(1<<x));
@@ -7538,6 +7540,7 @@ void Aura::HandleShapeshiftBoosts(bool apply)
         case FORM_STEALTH:
         case FORM_CREATURECAT:
         case FORM_CREATUREBEAR:
+        default:
             break;
     }
 
@@ -8604,7 +8607,7 @@ void Aura::PeriodicTick()
 
                 target->AddThreat(pCaster, float(gain) * 0.5f, pInfo.critical, GetSpellSchoolMask(spellProto), spellProto);
                 if (pCaster->GetTypeId() == TYPEID_PLAYER && spellProto->Id == 5138 && pCaster->HasSpell(30326))
-                    if (Pet* pPet = pCaster->GetPet())
+                    if (pCaster->GetPet())
                     {
                         GroupPetList m_groupPets = pCaster->GetPets();
                         if (!m_groupPets.empty())
@@ -9935,7 +9938,7 @@ SpellAuraHolder::SpellAuraHolder(SpellEntry const* spellproto, Unit *target, Wor
 m_spellProto(spellproto), m_target(target), m_castItemGuid(castItem ? castItem->GetObjectGuid() : ObjectGuid()),
 m_auraSlot(MAX_AURAS), m_auraFlags(AFLAG_NONE), m_auraLevel(1), m_procCharges(0),
 m_stackAmount(1), m_removeMode(AURA_REMOVE_BY_DEFAULT), m_AuraDRGroup(DIMINISHING_NONE), m_timeCla(1000),
-m_permanent(false), m_isRemovedOnShapeLost(true), m_deleted(false), m_in_use(0)
+m_permanent(false), m_isRemovedOnShapeLost(true), m_deleted(false), m_in_use(0), m_auras(MAX_EFFECT_INDEX, NULL)
 {
     MANGOS_ASSERT(target);
     MANGOS_ASSERT(spellproto && spellproto == sSpellStore.LookupEntry( spellproto->Id ) && "`info` must be pointer to sSpellStore element");
@@ -9948,8 +9951,6 @@ m_permanent(false), m_isRemovedOnShapeLost(true), m_deleted(false), m_in_use(0)
         MANGOS_ASSERT(caster->isType(TYPEMASK_UNIT))
         m_casterGuid = caster->GetObjectGuid();
     }
-
-    m_auras.reserve(MAX_EFFECT_INDEX);
 
     for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)
         RemoveAura(SpellEffectIndex(i));
@@ -11380,7 +11381,7 @@ void SpellAuraHolder::HandleSpellSpecificBoostsForward(bool apply)
                     // Glyph of Power Word: Shield
                     if (Aura* glyph = caster->GetAura(55672, EFFECT_INDEX_0))
                     {
-                        int32 remainingDamage = 0;
+                        //int32 remainingDamage = 0;
                         if (Aura* shield = GetAuraByEffectIndex(EFFECT_INDEX_0))
                         {
                             int32 remainingDamage = shield->GetModifier()->m_baseamount;
@@ -11631,7 +11632,7 @@ void Aura::HandleAuraModReflectSpells(bool Apply, bool Real)
     if (!Real)
         return;
 
-    Unit* target = GetTarget();
+    //Unit* target = GetTarget();
     Unit* caster = GetCaster();
 
     if (Apply)

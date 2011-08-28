@@ -709,7 +709,7 @@ void WorldSession::HandleAuctionListPendingSales(WorldPacket & recv_data)
         return;
 
     // always return pointer
-    AuctionHouseObject* auctionHouse = sAuctionMgr.GetAuctionsMap(auctionHouseEntry);
+    //AuctionHouseObject* auctionHouse = sAuctionMgr.GetAuctionsMap(auctionHouseEntry);
 
     uint32 count = 0;
 
