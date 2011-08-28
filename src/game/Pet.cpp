@@ -568,6 +568,14 @@ void Pet::Update(uint32 update_diff, uint32 diff)
                 return;
             }
 
+            // special way for unsummon falled under map pets. need remove ater solving problem with vmaps.
+            if (GetPositionZ() <= INVALID_HEIGHT)
+            {
+                sLog.outError("Pet %u falled under map, removed. Crush possible later! ", GetObjectGuid().GetCounter());
+                Unsummon(PET_SAVE_NOT_IN_SLOT);
+                return;
+            }
+
             if (!owner->isAlive())
             {
                 DEBUG_LOG("Pet's %u owner died, removed. ", GetObjectGuid().GetCounter());
