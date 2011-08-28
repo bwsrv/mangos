@@ -7751,15 +7751,8 @@ uint32 Unit::SpellHealingBonusDone(Unit *pVictim, SpellEntry const *spellProto, 
  */
 uint32 Unit::SpellHealingBonusTaken(Unit *pCaster, SpellEntry const *spellProto, int32 healamount, DamageEffectType damagetype, uint32 stack)
 {
-    float  TakenTotalMod = 1.0f;
-
     // Healing taken percent
-    TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_PCT);
-
-    float maxval = float(GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HEALING_PCT));
-    // no SPELL_AURA_MOD_PERIODIC_HEAL positive cases
-    if (maxval)
-        TakenTotalMod *= (100.0f + maxval) / 100.0f;
+    float  TakenTotalMod = GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_PCT);
 
     // No heal amount for this class spells
     if (spellProto->DmgClass == SPELL_DAMAGE_CLASS_NONE)
