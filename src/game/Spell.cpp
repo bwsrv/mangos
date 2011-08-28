@@ -4723,6 +4723,20 @@ void Spell::TakePower()
         return;
     }
 
+    bool needApplyMod = false;
+    for (TargetList::const_iterator itr = m_UniqueTargetInfo.begin(); itr != m_UniqueTargetInfo.end(); ++itr)
+    {
+        if (itr->missCondition != SPELL_MISS_NONE)
+        {
+            needApplyMod = true;
+            break;
+        }
+    }
+
+    if (needApplyMod)
+        if (Player* modOwner = m_caster->GetSpellModOwner())
+            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_COST_ON_HIT_FAIL, m_powerCost, this);
+
     m_caster->ModifyPower(powerType, -(int32)m_powerCost);
 
     // Set the five second timer
