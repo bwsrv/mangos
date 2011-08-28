@@ -8072,7 +8072,7 @@ void Aura::PeriodicTick()
                     {
                         target->CastSpell(target, 74795, true, NULL, NULL, GetCasterGuid());
                         break;
-                    };
+                    }
                     case 67297:
                     case 65950:
                         pCaster->CastSpell(target, 65951, true);
