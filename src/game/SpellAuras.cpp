@@ -9783,7 +9783,7 @@ SpellAuraHolder::SpellAuraHolder(SpellEntry const* spellproto, Unit *target, Wor
 m_spellProto(spellproto), m_target(target), m_castItemGuid(castItem ? castItem->GetObjectGuid() : ObjectGuid()),
 m_auraSlot(MAX_AURAS), m_auraFlags(AFLAG_NONE), m_auraLevel(1), m_procCharges(0),
 m_stackAmount(1), m_removeMode(AURA_REMOVE_BY_DEFAULT), m_AuraDRGroup(DIMINISHING_NONE), m_timeCla(1000),
-m_permanent(false), m_isRemovedOnShapeLost(true), m_deleted(false), m_in_use(0), m_auras(MAX_EFFECT_INDEX, (Aura*)NULL)
+m_permanent(false), m_isRemovedOnShapeLost(true), m_deleted(false), m_in_use(0)
 {
     MANGOS_ASSERT(target);
     MANGOS_ASSERT(spellproto && spellproto == sSpellStore.LookupEntry( spellproto->Id ) && "`info` must be pointer to sSpellStore element");
@@ -9796,9 +9796,6 @@ m_permanent(false), m_isRemovedOnShapeLost(true), m_deleted(false), m_in_use(0),
         MANGOS_ASSERT(caster->isType(TYPEMASK_UNIT))
         m_casterGuid = caster->GetObjectGuid();
     }
-
-    for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)
-        RemoveAura(SpellEffectIndex(i));
 
     m_applyTime      = time(NULL);
     m_isPassive      = IsPassiveSpell(spellproto);
@@ -9843,6 +9840,8 @@ m_permanent(false), m_isRemovedOnShapeLost(true), m_deleted(false), m_in_use(0),
             break;
     }
 
+    for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)
+        RemoveAura(SpellEffectIndex(i));
 }
 
 void SpellAuraHolder::AddAura(Aura *aura, SpellEffectIndex index)
@@ -9853,7 +9852,7 @@ void SpellAuraHolder::AddAura(Aura *aura, SpellEffectIndex index)
 
 void SpellAuraHolder::RemoveAura(SpellEffectIndex index)
 {
-    m_auras[index] = NULL;
+    m_auras[index] = (Aura*)NULL;
     m_auraFlags &= ~(1 << index);
 }
 
