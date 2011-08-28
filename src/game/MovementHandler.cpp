@@ -103,13 +103,12 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     if (GetPlayer()->m_InstanceValid == false && !mInstance)
         GetPlayer()->m_InstanceValid = true;
 
-    GetPlayer()->SetSemaphoreTeleportFar(false);
-
     // relocate the player to the teleport destination
     if (!map)
         map = sMapMgr.CreateMap(loc.mapid, GetPlayer());
 
     GetPlayer()->SetMap(map);
+    GetPlayer()->SetSemaphoreTeleportFar(false);
     GetPlayer()->Relocate(loc.coord_x, loc.coord_y, loc.coord_z, loc.orientation);
 
     GetPlayer()->SendInitialPacketsBeforeAddToMap();
