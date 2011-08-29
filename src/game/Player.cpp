@@ -17199,36 +17199,51 @@ void Player::LoadPet()
     // just not added to the map
     if (IsInWorld())
     {
-        Pet* pet = new Pet;
-        pet->SetPetCounter(0);
-        if(!pet->LoadPetFromDB(this, 0, 0, true))
+        if (!sWorld.getConfig(CONFIG_BOOL_PET_SAVE_ALL))
         {
-            delete pet;
-            return;
+            Pet* pet = new Pet;
+            pet->SetPetCounter(0);
+            if(!pet->LoadPetFromDB(this, 0, 0, true))
+            {
+                delete pet;
+                return;
+            }
         }
-
-        if (sWorld.getConfig(CONFIG_BOOL_PET_SAVE_ALL))
+        else
         {
-            uint32 pet_entry = pet->GetEntry();
-            uint32 pet_num = pet->GetCharmInfo()->GetPetNumber();
-            QueryResult* result = CharacterDatabase.PQuery("SELECT id FROM character_pet WHERE owner = '%u' AND entry = '%u' AND id != '%u'",
-                GetGUIDLow(), pet_entry, pet_num);
+
+            QueryResult* result = CharacterDatabase.PQuery("SELECT id, PetType, CreatedBySpell FROM character_pet WHERE owner = '%u' AND entry = (SELECT entry FROM character_pet WHERE owner = '%u' AND slot = '%u') ORDER BY slot ASC",
+                GetGUIDLow(), GetGUIDLow(),PET_SAVE_AS_CURRENT);
 
             std::vector<uint32> petnumber;
+            uint32 _PetType = 0;
+            uint32 _CreatedBySpell = 0;
+
             if (result)
             {
                 do
                 {
                     Field* fields = result->Fetch();
                     uint32 petnum = fields[0].GetUInt32();
-                    if (petnum && petnum != pet_num)
+                    if (petnum)
                         petnumber.push_back(petnum);
+                    if (!_PetType)
+                        _PetType = fields[1].GetUInt32();
+                    if (!_CreatedBySpell)
+                        _CreatedBySpell = fields[2].GetUInt32();
                 }
                 while (result->NextRow());
                 delete result;
             }
             else
                 return;
+
+            if (petnumber.empty())
+                return;
+
+            // temporary fix for count of pets (need correct size by spell basepoints)
+            if ((_PetType != SUMMON_PET) || (_CreatedBySpell != 51533 && _CreatedBySpell != 33831))
+                petnumber.resize(1);
 
             if (!petnumber.empty())
             {
@@ -17238,8 +17253,8 @@ void Player::LoadPet()
                         continue;
 
                     Pet* _pet = new Pet;
-                    _pet->SetPetCounter(i+1);
-                    if (!_pet->LoadPetFromDB(this, pet_entry, petnumber[i], true))
+                    _pet->SetPetCounter(petnumber.size() - i - 1);
+                    if (!_pet->LoadPetFromDB(this, 0, petnumber[i], true))
                         delete _pet;
                 }
             }

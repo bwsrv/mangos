@@ -158,8 +158,13 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
 
     SpellEntry const* spellInfo = sSpellStore.LookupEntry(GetCreateSpellID());
 
+    uint32 timediff = uint32(time(NULL) - fields[14].GetUInt64());
+
     if (spellInfo && GetSpellDuration(spellInfo) > 0 )
-        SetDuration(GetSpellDuration(spellInfo));
+    {
+        uint32 duration = (GetSpellDuration(spellInfo) > timediff*IN_MILLISECONDS) ? GetSpellDuration(spellInfo) - timediff*IN_MILLISECONDS : GetSpellDuration(spellInfo);
+        SetDuration(duration);
+    }
 
     if (current && owner->IsPetNeedBeTemporaryUnsummoned())
     {
@@ -282,7 +287,6 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     // load action bar, if data broken will fill later by default spells.
     m_charmInfo->LoadPetActionBar(fields[13].GetCppString());
     // since last save (in seconds)
-    uint32 timediff = uint32(time(NULL) - fields[14].GetUInt64());
 
     delete result;
 
@@ -455,7 +459,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
         };
         savePet.addString(ss);
 
-        savePet.addUInt64(uint64(time(NULL)));
+        savePet.addUInt64((m_duration == 0) ? uint64(time(NULL)) : uint64(time(NULL) - (GetSpellDuration(sSpellStore.LookupEntry(GetCreateSpellID())) - m_duration)/IN_MILLISECONDS));
         savePet.addUInt32(GetCreateSpellID());
         savePet.addUInt32(uint32(getPetType()));
 
@@ -559,6 +563,7 @@ void Pet::Update(uint32 update_diff, uint32 diff)
             break;
         }
         case ALIVE:
+        case GHOULED:
         {
             // unsummon pet that lost owner
             Unit* owner = GetOwner();
@@ -572,7 +577,7 @@ void Pet::Update(uint32 update_diff, uint32 diff)
             if (owner->GetMap() != GetMap())
             {
                 sLog.outError("Pet %u on other map then owner, removed. Crush possible later! ", GetObjectGuid().GetCounter());
-                Unsummon(PET_SAVE_NOT_IN_SLOT);
+                Unsummon(PET_SAVE_NOT_IN_SLOT,owner);
                 return;
             }
 
@@ -580,7 +585,7 @@ void Pet::Update(uint32 update_diff, uint32 diff)
             if (GetPositionZ() <= INVALID_HEIGHT)
             {
                 sLog.outError("Pet %u falled under map, removed. Crush possible later! ", GetObjectGuid().GetCounter());
-                Unsummon(PET_SAVE_NOT_IN_SLOT);
+                Unsummon(PET_SAVE_NOT_IN_SLOT,owner);
                 return;
             }
 
@@ -601,7 +606,7 @@ void Pet::Update(uint32 update_diff, uint32 diff)
                 }
             }
 
-            if ((!IsWithinDistInMap(owner, GetMap()->GetVisibilityDistance()) && !owner->GetCharmGuid().IsEmpty()))
+            if (!IsWithinDistInMap(owner, GetMap()->GetVisibilityDistance()) && !owner->GetCharmGuid().IsEmpty())
             {
                 DEBUG_LOG("Pet %u lost control, removed. Owner = %u, distance = %g, pet GUID = %u", GetObjectGuid().GetCounter(), owner->GetObjectGuid().GetCounter(), GetDistance2d(owner), owner->GetPetGuid().GetCounter());
                 Unsummon(PET_SAVE_REAGENTS, owner);
