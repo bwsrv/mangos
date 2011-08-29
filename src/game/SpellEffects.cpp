@@ -8298,7 +8298,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         m_caster->CastSpell(m_caster, spellId, true);
                     break;
                 }
-                case 53110:									// Devour Humanoid
+                case 53110:                                 // Devour Humanoid
                 {
                     unitTarget->CastSpell(m_caster, m_spellInfo->CalculateSimpleValue(eff_idx),true, NULL, NULL, m_caster->GetObjectGuid());
                     return;
@@ -8611,12 +8611,12 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     switch(entry)
                     {
-                        case 31897: spellID = 7001; break;   // Lightwell Renew	Rank 1
-                        case 31896: spellID = 27873; break;  // Lightwell Renew	Rank 2
-                        case 31895: spellID = 27874; break;  // Lightwell Renew	Rank 3
-                        case 31894: spellID = 28276; break;  // Lightwell Renew	Rank 4
-                        case 31893: spellID = 48084; break;  // Lightwell Renew	Rank 5
-                        case 31883: spellID = 48085; break;  // Lightwell Renew	Rank 6
+                        case 31897: spellID = 7001; break;   // Lightwell Renew Rank 1
+                        case 31896: spellID = 27873; break;  // Lightwell Renew Rank 2
+                        case 31895: spellID = 27874; break;  // Lightwell Renew Rank 3
+                        case 31894: spellID = 28276; break;  // Lightwell Renew Rank 4
+                        case 31893: spellID = 48084; break;  // Lightwell Renew Rank 5
+                        case 31883: spellID = 48085; break;  // Lightwell Renew Rank 6
                         default:
                             sLog.outError("Unknown Lightwell spell caster %u", m_caster->GetEntry());
                             return;
@@ -10147,6 +10147,11 @@ void Spell::EffectResurrect(SpellEffectIndex /*eff_idx*/)
                 m_caster->CastSpell(m_caster, 23055, true, m_CastItem);
                 return;
             }
+            break;
+        // Defibrillate (Gnomish Army Knife) has 67% chance of success
+        case 54732:
+            if (roll_chance_i(33))
+                return;
             break;
         default:
             break;
