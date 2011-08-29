@@ -38,8 +38,6 @@ struct ProcTriggerSpell;
 // forward decl
 class Aura;
 
-typedef std::vector<Aura*> AuraStorage;
-
 // internal helper
 struct ReapplyAffectedPassiveAurasHelper;
 
@@ -47,7 +45,7 @@ class MANGOS_DLL_SPEC SpellAuraHolder
 {
     public:
         SpellAuraHolder (SpellEntry const* spellproto, Unit *target, WorldObject *caster, Item *castItem);
-        AuraStorage m_auras;
+        Aura* m_auras[MAX_EFFECT_INDEX];
 
         void AddAura(Aura *aura, SpellEffectIndex index);
         void RemoveAura(SpellEffectIndex index);

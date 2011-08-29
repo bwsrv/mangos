@@ -1198,7 +1198,7 @@ void Player::SetDrunkValue(uint16 newDrunkenValue, uint32 itemId)
 
 void Player::Update( uint32 update_diff, uint32 p_time )
 {
-    if(!IsInWorld())
+    if(!IsInWorld() || IsBeingTeleported())
         return;
 
     // remove failed timed Achievements
@@ -22518,6 +22518,9 @@ void Player::AutoStoreLoot(Loot& loot, bool broadcast, uint8 bag, uint8 slot)
     for(uint32 i = 0; i < max_slot; ++i)
     {
         LootItem* lootItem = loot.LootItemInSlot(i,this);
+
+        if (!lootItem)
+            continue;
 
         ItemPosCountVec dest;
         InventoryResult msg = CanStoreNewItem(bag,slot,dest,lootItem->itemid,lootItem->count);

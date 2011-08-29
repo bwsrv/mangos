@@ -303,6 +303,7 @@ class MANGOS_DLL_SPEC Pet : public Creature
         DeclinedName const* GetDeclinedNames() const { return m_declinedname; }
 
         bool    m_removed;                                  // prevent overwrite pet state in DB at next Pet::Update if pet already removed(saved)
+        bool    m_updated;                                  // pet updated now
     protected:
         uint32  m_happinessTimer;
         PetType m_petType;

@@ -32,7 +32,7 @@ Pet::Pet(PetType type) :
 Creature(CREATURE_SUBTYPE_PET),
 m_usedTalentCount(0),
 m_removed(false), m_happinessTimer(7500), m_petType(type), m_duration(0),
-m_auraUpdateMask(0), m_loading(true),
+m_auraUpdateMask(0), m_loading(true), m_updated(false),
 m_declinedname(NULL), m_petModeFlags(PET_MODE_DEFAULT),
 m_petFollowAngle(PET_FOLLOW_ANGLE), m_needSave(true), m_petCounter(0), m_PetScalingData(NULL), m_createSpellID(0),m_HappinessState(0)
 {
@@ -535,8 +535,16 @@ void Pet::SetDeathState(DeathState s)                       // overwrite virtual
 
 void Pet::Update(uint32 update_diff, uint32 diff)
 {
-    if (m_removed)                               // pet already removed, just wait in remove queue, no updates
+    if (m_removed)                                          // pet already removed, just wait in remove queue, no updates
         return;
+
+    if (m_updated)                                          // pet now already upated (in other thread?)
+    {
+        DEBUG_LOG("Pet::Update called, but pet %u already in update stage now!",GetObjectGuid().GetCounter());
+        return;
+    }
+
+    m_updated = true;
 
     switch( m_deathState )
     {
@@ -564,6 +572,14 @@ void Pet::Update(uint32 update_diff, uint32 diff)
             if (owner->GetMap() != GetMap())
             {
                 sLog.outError("Pet %u on other map then owner, removed. Crush possible later! ", GetObjectGuid().GetCounter());
+                Unsummon(PET_SAVE_NOT_IN_SLOT);
+                return;
+            }
+
+            // special way for unsummon falled under map pets. need remove ater solving problem with vmaps.
+            if (GetPositionZ() <= INVALID_HEIGHT)
+            {
+                sLog.outError("Pet %u falled under map, removed. Crush possible later! ", GetObjectGuid().GetCounter());
                 Unsummon(PET_SAVE_NOT_IN_SLOT);
                 return;
             }
@@ -640,6 +656,8 @@ void Pet::Update(uint32 update_diff, uint32 diff)
     }
 
     Creature::Update(update_diff, diff);
+
+    m_updated = false;
 }
 
 void Pet::RegenerateAll( uint32 update_diff )

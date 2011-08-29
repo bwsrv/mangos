@@ -657,7 +657,7 @@ void AreaAura::Update(uint32 diff)
                         for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
                         {
                             Player* Target = itr->getSource();
-                            if (Target && Target->isAlive() && caster->IsFriendlyTo(Target))
+                            if (Target && Target->IsInWorld() && Target->isAlive() && caster->IsInWorld() && caster->IsFriendlyTo(Target))
                             {
                                 if (caster->IsWithinDistInMap(Target, m_radius))
                                     targets.push_back(Target);
@@ -668,7 +668,7 @@ void AreaAura::Update(uint32 diff)
                                     {
                                         for (GroupPetList::const_iterator itr = m_groupPets.begin(); itr != m_groupPets.end(); ++itr)
                                             if (Pet* _pet = caster->GetMap()->GetPet(*itr))
-                                                if (_pet && caster->IsWithinDistInMap(_pet, m_radius))
+                                                if (_pet && _pet->IsInWorld() && caster->IsWithinDistInMap(_pet, m_radius))
                                                     targets.push_back(_pet);
                                     }
                                 }
@@ -2679,13 +2679,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     // return after loop to make sure all rogues with Honor Among Thieves get the benefit of this proc rather than only first
                     return;
                 }
-                break;
-            }
-            case SPELLFAMILY_MAGE:
-            {
-                // Fingers of Frost stacks set to max at apply
-                if (GetId() == 74396)
-                    GetHolder()->SetAuraCharges(GetSpellProto()->StackAmount);
                 break;
             }
             case SPELLFAMILY_HUNTER:
@@ -5955,30 +5948,30 @@ void Aura::HandleAuraPeriodicDummy(bool apply, bool Real)
         {
             switch(spell->Id)
             {
-                    case 49555:                             // Corpse Explode (Trollgore - Drak'Tharon Keep Normal)
-                        if (!apply)
+                case 49555:                             // Corpse Explode (Trollgore - Drak'Tharon Keep Normal)
+                    if (!apply)
+                    {
+                        if (target)
                         {
-                            if (target)
-                            {
-                                target->CastSpell(target, 49618, true);
-                                target->CastSpell(target, 51270, true);
-                                target->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);
-                                target->SetDeathState(JUST_DIED);
-                            }
+                            target->CastSpell(target, 49618, true);
+                            target->CastSpell(target, 51270, true);
+                            target->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);
+                            target->SetDeathState(JUST_DIED);
                         }
-                        break;
-                    case 59807:                             // Corpse Explode (Trollgore - Drak'Tharon Keep Hero)
-                        if (!apply)
+                    }
+                    break;
+                case 59807:                             // Corpse Explode (Trollgore - Drak'Tharon Keep Hero)
+                    if (!apply)
+                    {
+                        if (target)
                         {
-                            if (target)
-                            {
-                                target->CastSpell(target, 59809, true);
-                                target->CastSpell(target, 51270, true);
-                                target->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);
-                                target->SetDeathState(JUST_DIED);
-                            }
+                            target->CastSpell(target, 59809, true);
+                            target->CastSpell(target, 51270, true);
+                            target->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);
+                            target->SetDeathState(JUST_DIED);
                         }
-                        break;
+                    }
+                    break;
                 case 55093:                                   // Grip of Slad'ran
                 case 61474:                                   // Grip of Slad'ran (h)
                 {
@@ -8185,7 +8178,7 @@ void Aura::PeriodicTick()
                     {
                         target->CastSpell(target, 74795, true, NULL, NULL, GetCasterGuid());
                         break;
-                    };
+                    }
                     case 31803: // Holy Vengeance
                     case 53742: // Blood Corruption should not tick if paladin haven't Seal of Corruption up
                     {
@@ -9938,7 +9931,7 @@ SpellAuraHolder::SpellAuraHolder(SpellEntry const* spellproto, Unit *target, Wor
 m_spellProto(spellproto), m_target(target), m_castItemGuid(castItem ? castItem->GetObjectGuid() : ObjectGuid()),
 m_auraSlot(MAX_AURAS), m_auraFlags(AFLAG_NONE), m_auraLevel(1), m_procCharges(0),
 m_stackAmount(1), m_removeMode(AURA_REMOVE_BY_DEFAULT), m_AuraDRGroup(DIMINISHING_NONE), m_timeCla(1000),
-m_permanent(false), m_isRemovedOnShapeLost(true), m_deleted(false), m_in_use(0), m_auras(MAX_EFFECT_INDEX, NULL)
+m_permanent(false), m_isRemovedOnShapeLost(true), m_deleted(false), m_in_use(0)
 {
     MANGOS_ASSERT(target);
     MANGOS_ASSERT(spellproto && spellproto == sSpellStore.LookupEntry( spellproto->Id ) && "`info` must be pointer to sSpellStore element");
@@ -9951,9 +9944,6 @@ m_permanent(false), m_isRemovedOnShapeLost(true), m_deleted(false), m_in_use(0),
         MANGOS_ASSERT(caster->isType(TYPEMASK_UNIT))
         m_casterGuid = caster->GetObjectGuid();
     }
-
-    for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)
-        RemoveAura(SpellEffectIndex(i));
 
     m_applyTime      = time(NULL);
     m_isPassive      = IsPassiveSpell(spellproto);
@@ -9994,10 +9984,13 @@ m_permanent(false), m_isRemovedOnShapeLost(true), m_deleted(false), m_in_use(0),
         case 62519:                                         // Attuned to Nature
         case 64455:                                         // Feral Essence
         case 71564:                                         // Deadly Precision
+        case 74396:                                         // Fingers of Frost
             m_stackAmount = m_spellProto->StackAmount;
             break;
     }
 
+    for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)
+        RemoveAura(SpellEffectIndex(i));
 }
 
 void SpellAuraHolder::AddAura(Aura *aura, SpellEffectIndex index)
@@ -10008,7 +10001,7 @@ void SpellAuraHolder::AddAura(Aura *aura, SpellEffectIndex index)
 
 void SpellAuraHolder::RemoveAura(SpellEffectIndex index)
 {
-    m_auras[index] = NULL;
+    m_auras[index] = (Aura*)NULL;
     m_auraFlags &= ~(1 << index);
 }
 

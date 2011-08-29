@@ -325,7 +325,7 @@ public:
     uint8 GetVotesNeeded() const;
     void  SetVotesNeeded(uint8 votes);
     uint8 GetKicksLeft() const;
-    void  DecreaseKicksLeft() {--m_kicksLeft;};
+    bool  DecreaseKicksLeft() { if (m_kicksLeft > 0) --m_kicksLeft; return bool(m_kicksLeft);};
 
     // Role checks
     LFGRoleCheckState GetRoleCheckState() const { return m_roleCheckState;};
