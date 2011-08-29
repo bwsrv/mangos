@@ -133,14 +133,14 @@ struct LFGProposal
     LFGProposal(LFGDungeonEntry const* _dungeon);
     public:
     uint32 ID;                                               // Proposal id
-    LFGQueueSet playerGuids;                                 // Players in this proposal
-    LFGQueueSet declinerGuids;                               // Decliners in this proposal
 
     // helpers
     Group* GetGroup();
     void SetGroup(Group* group);
     void AddMember(ObjectGuid guid);
     void RemoveMember(ObjectGuid guid);
+    bool IsMember(ObjectGuid guid);
+    LFGQueueSet const GetMembers();
 
     void RemoveDecliner(ObjectGuid guid);
     bool IsDecliner(ObjectGuid guid);
@@ -159,6 +159,8 @@ struct LFGProposal
     LFGProposalState m_state;                                // State of the proposal
     ObjectGuid m_groupGuid;                                  // Proposal group (empty if not created)
     time_t m_cancelTime;                                     // Time when we will cancel this proposal
+    LFGQueueSet playerGuids;                                 // Players in this proposal
+    LFGQueueSet declinerGuids;                               // Decliners in this proposal
 };
 
 // Event manager

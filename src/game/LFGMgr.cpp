@@ -1246,8 +1246,7 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
         return;
 
     // check player in proposal
-    LFGQueueSet::const_iterator itr = pProposal->playerGuids.find(guid);
-    if ( itr == pProposal->playerGuids.end() && pProposal->GetGroup() && (pProposal->GetGroup() != _player->GetGroup()) )
+    if (!pProposal->IsMember(guid) && pProposal->GetGroup() && (pProposal->GetGroup() != _player->GetGroup()) )
         return;
 
     _player->GetLFGState()->SetAnswer(LFGAnswer(accept));
@@ -1263,7 +1262,8 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
 
     // check if all have answered and reorder players (leader first)
     bool allAnswered = true;
-    for (LFGQueueSet::const_iterator itr = pProposal->playerGuids.begin(); itr != pProposal->playerGuids.end(); ++itr )
+    LFGQueueSet const proposalGuids = pProposal->GetMembers();
+    for (LFGQueueSet::const_iterator itr = proposalGuids.begin(); itr != proposalGuids.end(); ++itr )
     {
         Player* player = sObjectMgr.GetPlayer(*itr);
         if(player && player->IsInWorld())
@@ -1316,7 +1316,9 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
                         if (player->IsInWorld())
                             tmpSet.insert(player->GetObjectGuid());
             }
-            for (LFGQueueSet::const_iterator itr = pProposal->playerGuids.begin(); itr != pProposal->playerGuids.end(); ++itr )
+
+            LFGQueueSet const proposalGuids = pProposal->GetMembers();
+            for (LFGQueueSet::const_iterator itr = proposalGuids.begin(); itr != proposalGuids.end(); ++itr )
             {
                  Player* player = sObjectMgr.GetPlayer(*itr);
                     if (player && player->IsInWorld())
@@ -1338,7 +1340,8 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
 
     if (!group)
     {
-        Player* leader = LeaderElection(&pProposal->playerGuids);
+        LFGQueueSet proposalGuidsTmp = pProposal->GetMembers();
+        Player* leader = LeaderElection(&proposalGuidsTmp);
 
         if (leader->GetGroup())
             leader->RemoveFromGroup();
@@ -1389,7 +1392,7 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
     group->SendUpdate();
 
     // move players from proposal to group
-    for (LFGQueueSet::const_iterator itr = pProposal->playerGuids.begin(); itr != pProposal->playerGuids.end();)
+    for (LFGQueueSet::const_iterator itr = proposalGuids.begin(); itr != proposalGuids.end(); ++itr)
     {
         Player* player = sObjectMgr.GetPlayer(*itr);
         if (player && player->IsInWorld() && player->GetMap())
@@ -1406,8 +1409,7 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
                 player->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_GROUP_FOUND, player->GetLFGState()->GetType());
 
             group->AddMember(player->GetObjectGuid(), player->GetName());
-            LFGQueueSet::const_iterator temp = itr++;
-            pProposal->RemoveMember(*temp);
+            pProposal->RemoveMember(*itr);
 //            player->GetSession()->SendLfgUpdateProposal(pProposal);
             player->GetLFGState()->SetProposal(NULL);
             if (!sWorld.getConfig(CONFIG_BOOL_LFG_DEBUG_ENABLE))
@@ -1415,8 +1417,7 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
         }
         else
         {
-            LFGQueueSet::const_iterator temp = itr++;
-            pProposal->RemoveMember(*temp);
+            pProposal->RemoveMember(*itr);
         }
     }
 
@@ -1469,8 +1470,7 @@ void LFGMgr::RemoveProposal(Player* decliner, uint32 ID)
     }
 
     {
-//        ReadGuard Guard(GetLock());
-        LFGQueueSet const playersSet = pProposal->playerGuids;
+        LFGQueueSet const playersSet = pProposal->GetMembers();
         if (!playersSet.empty())
         {
             for (LFGQueueSet::const_iterator itr = playersSet.begin(); itr != playersSet.end(); ++itr)
@@ -1497,7 +1497,8 @@ void LFGMgr::RemoveProposal(uint32 ID, bool success)
 
     if (!success)
     {
-        for (LFGQueueSet::const_iterator itr2 = pProposal->playerGuids.begin(); itr2 != pProposal->playerGuids.end(); ++itr2 )
+        LFGQueueSet const proposalGuids = pProposal->GetMembers();
+        for (LFGQueueSet::const_iterator itr2 = proposalGuids.begin(); itr2 != proposalGuids.end(); ++itr2 )
         {
             if (Player* player = sObjectMgr.GetPlayer(*itr2))
             {

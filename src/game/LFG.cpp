@@ -322,6 +322,7 @@ void LFGProposal::RemoveDecliner(ObjectGuid guid)
 
     RemoveMember(guid);
 
+    LFGMgr::WriteGuard Guard(sLFGMgr.GetLock());
     declinerGuids.insert(guid);
 };
 
@@ -342,14 +343,28 @@ void LFGProposal::AddMember(ObjectGuid guid)
     playerGuids.insert(guid);
 };
 
+bool LFGProposal::IsMember(ObjectGuid guid)
+{
+    LFGMgr::ReadGuard Guard(sLFGMgr.GetLock());
+    LFGQueueSet::const_iterator itr = playerGuids.find(guid);
+    if (itr == playerGuids.end())
+        return false;
+    else
+        return true;
+};
+
+LFGQueueSet const LFGProposal::GetMembers()
+{
+    LFGMgr::ReadGuard Guard(sLFGMgr.GetLock());
+    return playerGuids;
+};
+
 bool LFGProposal::IsDecliner(ObjectGuid guid)
 {
-    if (guid.IsEmpty())
-        return true;
-
     if (declinerGuids.empty())
         return false;
 
+    LFGMgr::ReadGuard Guard(sLFGMgr.GetLock());
     LFGQueueSet::iterator itr = declinerGuids.find(guid);
     if (itr != declinerGuids.end())
         return true;
