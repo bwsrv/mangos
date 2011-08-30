@@ -308,6 +308,7 @@ LFGProposal::LFGProposal(LFGDungeonEntry const* _dungeon)
     m_cancelTime = 0;
     declinerGuids.clear();
     playerGuids.clear();
+    m_deleted = false;
 }
 
 void LFGProposal::Start()
@@ -356,7 +357,8 @@ bool LFGProposal::IsMember(ObjectGuid guid)
 LFGQueueSet const LFGProposal::GetMembers()
 {
     LFGMgr::ReadGuard Guard(sLFGMgr.GetLock());
-    return playerGuids;
+    LFGQueueSet tmpGuids = playerGuids;
+    return tmpGuids;
 };
 
 bool LFGProposal::IsDecliner(ObjectGuid guid)

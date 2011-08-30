@@ -1444,14 +1444,16 @@ void LFGMgr::RemoveProposal(Player* decliner, uint32 ID)
 
     LFGProposal* pProposal = GetProposal(ID);
 
-    if (!pProposal)
+    if (!pProposal || pProposal->IsDeleted())
         return;
+
+    pProposal->SetDeleted();
 
     decliner->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_PROPOSAL_DECLINED, LFGType(pProposal->GetDungeon()->type));
 
     if (pProposal->GetGroup() && pProposal->GetGroup() == decliner->GetGroup())
     {
-            Leave(decliner->GetGroup());
+        Leave(decliner->GetGroup());
     }
     else
     {
@@ -1492,8 +1494,11 @@ void LFGMgr::RemoveProposal(uint32 ID, bool success)
 {
 
     LFGProposal* pProposal = GetProposal(ID);
+
     if (!pProposal)
         return;
+
+    pProposal->SetDeleted();
 
     if (!success)
     {
