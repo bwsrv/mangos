@@ -1439,11 +1439,20 @@ bool DungeonMap::Reset(InstanceResetMethod method)
 
     if(HavePlayers())
     {
-        if(method == INSTANCE_RESET_ALL || method == INSTANCE_RESET_CHANGE_DIFFICULTY)
+        if (method == INSTANCE_RESET_ALL)
         {
             // notify the players to leave the instance so it can be reset
             for(MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
                 itr->getSource()->SendResetFailedNotify(GetId());
+        }
+        else if (method == INSTANCE_RESET_CHANGE_DIFFICULTY)
+        {
+            // notify the players to leave the instance so it can be reset
+            for(MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
+                itr->getSource()->SendResetFailedNotify(GetId());
+
+            m_unloadWhenEmpty = true;
+            m_resetAfterUnload = true;
         }
         else
         {
