@@ -324,8 +324,8 @@ public:
     time_t GetBootCancelTime() { return m_bootCancelTime; };
     uint8 GetVotesNeeded() const;
     void  SetVotesNeeded(uint8 votes);
-    uint8 GetKicksLeft() const;
-    bool  DecreaseKicksLeft() { if (m_kicksLeft > 0) --m_kicksLeft; return bool(m_kicksLeft);};
+    uint8 const GetKicksLeft() const;
+    void  DecreaseKicksLeft() { if (m_kicksLeft > 0) --m_kicksLeft;};
 
     // Role checks
     LFGRoleCheckState GetRoleCheckState() const { return m_roleCheckState;};
