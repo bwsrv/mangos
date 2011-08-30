@@ -1198,7 +1198,7 @@ void Player::SetDrunkValue(uint16 newDrunkenValue, uint32 itemId)
 
 void Player::Update( uint32 update_diff, uint32 p_time )
 {
-    if(!IsInWorld() || IsBeingTeleported())
+    if(!IsInWorld())
         return;
 
     // remove failed timed Achievements
