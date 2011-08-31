@@ -589,10 +589,10 @@ void Map::Remove(Player *player, bool remove)
     if(p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
     {
         // invalid coordinates
-        player->ResetMap();
-
         if( remove )
             DeleteFromWorld(player);
+        else
+            player->TeleportToHomebind();
 
         return;
     }
