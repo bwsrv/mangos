@@ -2602,6 +2602,28 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, 48275, true);    // Target Summon Banshee
                     return;
                 }
+                case 54245:                                 // Enough - Drakuru Overlord, Kill Trolls
+                {
+                    m_caster->DealDamage(unitTarget, unitTarget->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    return;
+                }
+                case 54250:                                 // Skull Missile - Drakuru Overlord
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->CastSpell(unitTarget, 54253, true);    // Summon Skull
+                    return;
+                }
+                case 54209:                                 // Portal Missile - Drakuru Overlord
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->CastSpell(unitTarget, 51807, true);    // Cast Portal Visual
+                    return;
+                }
+
                 case 54577:                                 // Throw U.D.E.D.
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
@@ -8312,6 +8334,20 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     // Remove aura (Mojo of Rhunok) given at quest accept / gossip
                     unitTarget->RemoveAurasDueToSpell(51967);
+                    return;
+                }
+                case 54248:                                 // Drakuru Overlord Death
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->CastSpell(unitTarget, 52578, true); // Meat
+                    unitTarget->CastSpell(unitTarget, 52580, true); // Bones
+                    unitTarget->CastSpell(unitTarget, 52575, true); // Bones II
+                    unitTarget->CastSpell(unitTarget, 52578, true); // Meat
+                    unitTarget->CastSpell(unitTarget, 52580, true); // Bones
+                    unitTarget->CastSpell(unitTarget, 52575, true); // Bones II
+                    unitTarget->CastSpell(unitTarget, 54250, true); // Skull Missile
                     return;
                 }
                 case 54581:                                 // Mammoth Explosion Spell Spawner
