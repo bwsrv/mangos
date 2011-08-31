@@ -2870,20 +2870,14 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     m_caster->RemoveSpellsCausingAura(SPELL_AURA_MOD_FLIGHT_SPEED_MOUNTED);
                     return;
                 }
-                case 58689:                                 // Rock Shards
-                {                                           // (Archavon the Stone Watcher: Left Hand)
-                    if (!unitTarget || roll_chance_i(90))   // only 10% of spikes `proc` dmg (about 1 spike per sec)
-                        return;
-
-                    m_caster->CastSpell(unitTarget, m_caster->GetMap()->IsRegularDifficulty() ? 58695 : 60883, true);
+                case 58689:                                 // Rock Shards (Vault of Archavon, Archavon)
+                {
+                    m_caster->CastSpell(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, m_caster->GetMap()->IsRegularDifficulty() ? 58696 : 60884, true);
                     return;
                 }
-                case 58692:                                 // Rock Shards
-                {                                           // (Archavon the Stone Watcher: Right Hand)
-                    if (!unitTarget || roll_chance_i(90))   // only 10% of spikes `proc` dmg (about 1 spike per sec)
-                        return;
-
-                    m_caster->CastSpell(unitTarget, m_caster->GetMap()->IsRegularDifficulty() ? 58696 : 60884, true);
+                case 58692:                                 // Rock Shards (Vault of Archavon, Archavon)
+                {
+                    m_caster->CastSpell(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, m_caster->GetMap()->IsRegularDifficulty() ? 58695 : 60883, true);
                     return;
                 }
                 case 59640:                                 // Underbelly Elixir
@@ -8725,13 +8719,16 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         unitTarget->CastSpell(unitTarget, spellID, true);
                     return;
                 }
-                case 58941:                                 // Rock Shards
+                case 58941:                                 // Rock Shards (Vault of Archavon, Archavon)
                 {
-                    if (!unitTarget)
-                        return;
-
-                    m_originalCaster->CastSpell(unitTarget, 58689, true); // Left hand dummy visual
-                    m_originalCaster->CastSpell(unitTarget, 58692, true); // Right hand dummy visual
+                    if (Unit* pTarget = m_caster->GetMap()->GetUnit(m_caster->GetChannelObjectGuid()))
+                    {
+                        for (uint8 i = 0; i < 3; ++i)   // Trigger three spikes from each hand
+                        {
+                            m_caster->CastSpell(pTarget, 58689, true);
+                            m_caster->CastSpell(pTarget, 58692, true);
+                        }
+                    }
                     return;
                 }
                 case 59317:                                 // Teleporting
