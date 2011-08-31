@@ -2120,6 +2120,12 @@ void Aura::TriggerSpell()
                 // original caster must be target
                 target->CastSpell(target, trigger_spell_id, true, NULL, this, target->GetObjectGuid());
                 return;
+            case 58678:                                     // Rock Shards (Vault of Archavon, Archavon)
+            {
+                if (GetAuraTicks() != 1 && GetAuraTicks()%7)
+                    return;
+                break;
+            }
             case 56654:                                     // Rapid Recuperation (triggered energize have baspioints == 0)
             case 58882:
             {
