@@ -324,7 +324,7 @@ bool FlightPathMovementGenerator::Update(Player &player, const uint32 &diff)
             DoEventIfAny(player,(*i_path)[i_currentNode],true);
             DoEventIfAny(player,(*i_path)[i_currentNode],false);
         }
-}
+    }
     
     return MovementInProgress();
 }
