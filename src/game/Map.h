@@ -83,6 +83,13 @@ enum LevelRequirementVsMode
     LEVELREQUIREMENT_HEROIC = 70
 };
 
+enum MapLockType
+{
+    MAP_LOCK_TYPE_DEFAULT,
+    MAP_LOCK_TYPE_AURAS,
+    MAP_LOCK_TYPE_MAX,
+};
+
 #if defined( __GNUC__ )
 #pragma pack()
 #else
@@ -274,7 +281,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
         typedef   ACE_RW_Thread_Mutex          LockType;
         typedef   ACE_Read_Guard<LockType>     ReadGuard;
         typedef   ACE_Write_Guard<LockType>    WriteGuard;
-        LockType& GetLock() { return i_lock; }
+        LockType& GetLock(MapLockType _locktype = MAP_LOCK_TYPE_DEFAULT) { return i_lock[_locktype]; }
 
     private:
         void LoadMapAndVMap(int gx, int gy);
@@ -365,7 +372,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
         template<class T>
             void RemoveFromGrid(T*, NGridType *, Cell const&);
 
-        LockType            i_lock;
+        LockType            i_lock[MAP_LOCK_TYPE_MAX];
         AttackersMap        m_attackersMap;
 
 };
