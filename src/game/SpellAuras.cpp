@@ -607,7 +607,7 @@ void AreaAura::Update(uint32 diff)
                         for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
                         {
                             Player* Target = itr->getSource();
-                            if (Target && Target->isAlive() && Target->GetSubGroup()==subgroup && caster->IsFriendlyTo(Target))
+                            if (Target && Target->IsInWorld() && Target->isAlive() && Target->GetSubGroup()==subgroup && caster->IsInWorld() && caster->IsFriendlyTo(Target))
                             {
                                 if (caster->IsWithinDistInMap(Target, m_radius))
                                     targets.push_back(Target);

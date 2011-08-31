@@ -5221,10 +5221,7 @@ void Unit::RemoveAura(Aura *Aur, AuraRemoveMode mode)
 
     // If aura in use (removed from code that plan access to it data after return)
     // store it in aura list with delayed deletion
-    if (Aur->IsInUse())
-        m_deletedAuras.push_back(Aur);
-    else
-        delete Aur;
+    m_deletedAuras.push_back(Aur);
 }
 
 void Unit::RemoveAllAuras(AuraRemoveMode mode /*= AURA_REMOVE_BY_DEFAULT*/)

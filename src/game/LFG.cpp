@@ -153,7 +153,7 @@ void LFGGroupState::Clear()
     update = true;
     m_status = LFG_STATUS_NOT_SAVED;
     m_votesNeeded = 3;
-    m_kicksLeft = 5;
+    m_kicksLeft = sWorld.getConfig(CONFIG_UINT32_LFG_MAXKICKS);
     m_flags = LFG_MEMBER_FLAG_NONE |
               LFG_MEMBER_FLAG_COMMENT |
               LFG_MEMBER_FLAG_ROLES |
@@ -181,7 +181,7 @@ void LFGGroupState::SetVotesNeeded(uint8 votes)
     m_votesNeeded = votes;
 }
 
-uint8 LFGGroupState::GetKicksLeft() const
+uint8 const LFGGroupState::GetKicksLeft() const
 {
     return m_kicksLeft;
 }
@@ -308,6 +308,7 @@ LFGProposal::LFGProposal(LFGDungeonEntry const* _dungeon)
     m_cancelTime = 0;
     declinerGuids.clear();
     playerGuids.clear();
+    m_deleted = false;
 }
 
 void LFGProposal::Start()
@@ -322,6 +323,7 @@ void LFGProposal::RemoveDecliner(ObjectGuid guid)
 
     RemoveMember(guid);
 
+    LFGMgr::WriteGuard Guard(sLFGMgr.GetLock());
     declinerGuids.insert(guid);
 };
 
@@ -342,14 +344,29 @@ void LFGProposal::AddMember(ObjectGuid guid)
     playerGuids.insert(guid);
 };
 
+bool LFGProposal::IsMember(ObjectGuid guid)
+{
+    LFGMgr::ReadGuard Guard(sLFGMgr.GetLock());
+    LFGQueueSet::const_iterator itr = playerGuids.find(guid);
+    if (itr == playerGuids.end())
+        return false;
+    else
+        return true;
+};
+
+LFGQueueSet const LFGProposal::GetMembers()
+{
+    LFGMgr::ReadGuard Guard(sLFGMgr.GetLock());
+    LFGQueueSet tmpGuids = playerGuids;
+    return tmpGuids;
+};
+
 bool LFGProposal::IsDecliner(ObjectGuid guid)
 {
-    if (guid.IsEmpty())
-        return true;
-
     if (declinerGuids.empty())
         return false;
 
+    LFGMgr::ReadGuard Guard(sLFGMgr.GetLock());
     LFGQueueSet::iterator itr = declinerGuids.find(guid);
     if (itr != declinerGuids.end())
         return true;
