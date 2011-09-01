@@ -288,6 +288,13 @@ LFGAnswer LFGGroupState::GetBootResult()
     return LFG_ANSWER_PENDING;
 }
 
+void  LFGGroupState::DecreaseKicksLeft()
+{ 
+    LFGMgr::WriteGuard Guard(sLFGMgr.GetLock());
+    if (m_kicksLeft > 0) 
+        --m_kicksLeft;
+};
+
 LFGQueueInfo::LFGQueueInfo(ObjectGuid _guid, LFGType type)
 {
     guid = _guid;
