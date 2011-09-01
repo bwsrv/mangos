@@ -484,7 +484,16 @@ void WorldSession::SendLfgUpdateParty(LFGUpdateType updateType, LFGType type)
         data << uint8(size);
 
         for (LFGDungeonSet::const_iterator itr = dungeons->begin(); itr != dungeons->end(); ++itr)
-            data << uint32((*itr)->Entry());
+        {
+            if (!*itr)
+                continue;
+
+            LFGDungeonEntry const* dungeon = *itr;
+            if (!dungeon)
+                data << uint32(0);
+            else
+                data << uint32((*itr)->Entry());
+        }
 
         data << comment.c_str();
     }

@@ -4199,10 +4199,14 @@ void Spell::EffectForceCast(SpellEffectIndex eff_idx)
         return;
     }
 
-    if (m_spellInfo->Id == 66285)                           // Spinning Pain Spike (Trial Of Crusader, Lord Jaraxxus encounter)
+    // if triggered spell has SPELL_AURA_CONTROL_VEHICLE, it must be casted on caster
+    for (uint8 i = EFFECT_INDEX_0; i <= EFFECT_INDEX_2; ++i)
     {
-        unitTarget->CastSpell(m_caster, spellInfo, true);
-        return;
+        if (spellInfo->EffectApplyAuraName[i] == SPELL_AURA_CONTROL_VEHICLE)
+        {
+            unitTarget->CastSpell(m_caster, spellInfo, true, NULL, NULL, NULL, m_spellInfo);
+            return;
+        }
     }
 
     unitTarget->CastSpell(unitTarget, spellInfo, true, NULL, NULL, m_originalCasterGUID, m_spellInfo);
