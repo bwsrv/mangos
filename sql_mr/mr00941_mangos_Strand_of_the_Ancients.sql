@@ -37,6 +37,11 @@ DELETE FROM npc_spellclick_spells WHERE npc_entry IN (28781, 32796);
 INSERT INTO npc_spellclick_spells VALUES
 (28781, 60968, 0, 0, 0, 0),
 (32796, 60968, 0, 0, 0, 0);
+-- Demolisher not must heal's
+DELETE FROM creature_template_addon WHERE entry IN (28781, 32796);
+INSERT INTO creature_template_addon  VALUES 
+(28781, 0, 0, 0, 0, 0, 0, 52455),
+(32796, 0, 0, 0, 0, 0, 0, 52455);
 
 -- Antipersonnel Cannon
 UPDATE creature_template SET npcflag = 1, minlevel = 70, maxlevel = 70, unit_flags=4, minhealth = 44910, maxhealth = 44910, faction_A = 35, faction_H = 35, spell1 = 49872, RegenHealth=0, ScriptName = 'npc_sa_cannon' WHERE entry = 27894;
