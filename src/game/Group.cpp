@@ -1733,6 +1733,10 @@ bool Group::InCombatToInstance(uint32 instanceId)
     for(GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player *pPlayer = itr->getSource();
+
+        if (!pPlayer || !pPlayer->IsInWorld())
+            continue;
+
         if(pPlayer->GetMap() && pPlayer->GetInstanceId() == instanceId && pPlayer->IsInCombat())
             return true;
     }

@@ -390,7 +390,7 @@ class MANGOS_DLL_SPEC Aura
         int32 GetMiscBValue() const { return m_spellAuraHolder->GetSpellProto()->EffectMiscValueB[m_effIndex]; }
 
         SpellEntry const* GetSpellProto() const { return ( GetHolder() ? GetHolder()->GetSpellProto() : NULL); }
-        uint32 GetId() const{ return ( GetHolder() ? GetHolder()->GetSpellProto()->Id : 0 ); }
+        uint32 GetId() const { return ( (GetHolder() && GetHolder()->GetSpellProto()) ? GetHolder()->GetSpellProto()->Id : 0 ); }
         ObjectGuid const& GetCastItemGuid() const { return GetHolder()->GetCastItemGuid(); }
         ObjectGuid const& GetCasterGuid() const { return GetHolder()->GetCasterGuid(); }
         Unit* GetCaster() const { return ( GetHolder() ? GetHolder()->GetCaster() : NULL); }
@@ -425,7 +425,7 @@ class MANGOS_DLL_SPEC Aura
         bool IsPersistent() const { return m_isPersistent; }
         bool IsAreaAura() const { return m_isAreaAura; }
         bool IsPeriodic() const { return m_isPeriodic; }
-        bool IsInUse() const { return m_in_use; }
+        bool IsInUse() const { return (m_in_use > 0); }
         bool IsStacking() const { return m_stacking;}
 
         void SetInUse(bool state)
@@ -496,7 +496,7 @@ class MANGOS_DLL_SPEC Aura
         bool m_isPersistent:1;
         bool m_stacking:1;                                  // Aura is not overwritten, but effects are not cumulative with similar effects
 
-        uint32 m_in_use;                                    // > 0 while in Aura::ApplyModifier call/Aura::Update/etc
+        int32 m_in_use;                                     // > 0 while in Aura::ApplyModifier call/Aura::Update/etc
 
         bool IsEffectStacking();
 
