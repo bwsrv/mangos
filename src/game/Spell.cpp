@@ -5133,6 +5133,10 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     if (Unit *target = m_targets.getUnitTarget())
     {
+        if (!target->IsInWorld() || !target->GetMap())
+            return SPELL_FAILED_DONT_REPORT;
+
+        MAPLOCK_READ(target,MAP_LOCK_TYPE_AURAS);
         // target state requirements (not allowed state), apply to self also
         // This check not need - checked in CheckTarget()
         // if (m_spellInfo->TargetAuraStateNot && target->HasAuraState(AuraState(m_spellInfo->TargetAuraStateNot)))
