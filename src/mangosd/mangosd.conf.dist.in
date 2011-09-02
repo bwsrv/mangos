@@ -1141,6 +1141,11 @@ AutoBroadcast.Timer = 30000
 #        in game from other side
 #        Default: 100
 #
+#    Player.GSCalculationBase
+#        default (base) player Gear Score (GS) for calculate additional bonus for vehicles, scaled by GS.
+#        default: 190
+#        range: 1 - 384
+#
 ###################################################################################################################
 
 ThreatRadius = 100
@@ -1177,7 +1182,7 @@ ListenRange.TextEmote = 40
 ListenRange.Yell = 300
 GuidReserveSize.Creature = 100
 GuidReserveSize.GameObject = 100
-
+Player.GSCalculationBase = 190
 
 ###################################################################################################################
 # CHAT SETTINGS
