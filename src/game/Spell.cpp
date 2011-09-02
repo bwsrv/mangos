@@ -3438,6 +3438,8 @@ void Spell::cast(bool skipCheck)
                 AddTriggeredSpell(74800);                  // Soul consumption
             else if (m_spellInfo->Id == 61968)             // Flash Freeze (Hodir: Ulduar)
                 AddTriggeredSpell(62148);                  // visual effect
+            else if (m_spellInfo->Id == 58672)             // Impale, damage and loose threat effect (Vault of Archavon, Archavon the Stone Watcher)
+                AddPrecastSpell(m_caster->GetMap()->IsRegularDifficulty() ? 58666 : 60882);
             break;
         }
         case SPELLFAMILY_MAGE:
