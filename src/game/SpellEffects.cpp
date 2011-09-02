@@ -4200,7 +4200,7 @@ void Spell::EffectForceCast(SpellEffectIndex eff_idx)
     }
 
     // if triggered spell has SPELL_AURA_CONTROL_VEHICLE, it must be casted on caster
-    for (uint8 i = EFFECT_INDEX_0; i <= EFFECT_INDEX_2; ++i)
+    for (uint32 i = 0; i < MAX_EFFECT_INDEX; ++i)
     {
         if (spellInfo->EffectApplyAuraName[i] == SPELL_AURA_CONTROL_VEHICLE)
         {
@@ -11035,7 +11035,7 @@ void Spell::EffectTransmitted(SpellEffectIndex eff_idx)
             m_caster->GetNearPoint2D(fx, fy, dis, m_caster->GetOrientation() + angle_offset);
 
             GridMapLiquidData liqData;
-            if (!m_caster->GetTerrain()->IsInWater(fx, fy, m_caster->GetPositionZ() + 1.f, &liqData))
+            if (!m_caster->GetTerrain()->IsInWater(fx, fy, m_caster->GetPositionZ() - 1.0f, &liqData))
             {
                 SendCastResult(SPELL_FAILED_NOT_FISHABLE);
                 SendChannelUpdate(0);

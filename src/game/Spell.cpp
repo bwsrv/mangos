@@ -5387,6 +5387,9 @@ SpellCastResult Spell::CheckCast(bool strict)
             return SPELL_FAILED_TARGET_AFFECTING_COMBAT;
     }
     // zone check
+    if (!m_caster->GetMap() || !m_caster->GetTerrain())
+        return SPELL_FAILED_DONT_REPORT;
+
     uint32 zone, area;
     m_caster->GetZoneAndAreaId(zone, area);
 
