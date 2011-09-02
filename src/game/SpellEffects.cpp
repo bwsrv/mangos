@@ -2604,6 +2604,9 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 }
                 case 54245:                                 // Enough - Drakuru Overlord, Kill Trolls
                 {
+                    if (!unitTarget)
+                        return;
+
                     m_caster->DealDamage(unitTarget, unitTarget->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                     return;
                 }
