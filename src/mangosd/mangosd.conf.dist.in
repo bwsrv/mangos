@@ -219,7 +219,7 @@ UpdateUptimeInterval = 10
 MaxCoreStuckTime = 0
 AddonChannel = 1
 CleanCharacterDB = 1
-MapUpdate.Threads = 2
+MapUpdate.Threads = 1
 
 ###################################################################################################################
 # SERVER LOGGING
