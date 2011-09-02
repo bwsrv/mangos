@@ -446,10 +446,7 @@ void LFGMgr::Leave(Player* player)
         {
             LFGProposal* pProposal = group->GetLFGState()->GetProposal();
             if (pProposal)
-            {
-                uint32 ID = pProposal->ID;
-                RemoveProposal(ID);
-            }
+                pProposal->SetDeleted();
         }
 
         type = group->GetLFGState()->GetType();
@@ -1330,7 +1327,7 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
             if (!realdungeon)
             {
                 DEBUG_LOG("LFGMgr::UpdateProposal:%u cannot set real dungeon! no compatible list.", pProposal->ID);
-                RemoveProposal(ID, false);
+                pProposal->SetDeleted();
                 return;
             }
         }
@@ -1487,7 +1484,6 @@ void LFGMgr::RemoveProposal(Player* decliner, uint32 ID)
             }
         }
     }
-    RemoveProposal(ID);
 }
 
 void LFGMgr::RemoveProposal(uint32 ID, bool success)
@@ -1574,7 +1570,10 @@ void LFGMgr::CleanupProposals(LFGType type)
 
         if (itr->second.IsExpired())
             expiredProposals.insert(itr->second.ID);
+        else if (itr->second.IsDeleted())
+            expiredProposals.insert(itr->second.ID);
     }
+
     if (!expiredProposals.empty())
     {
         for(std::set<uint32>::const_iterator itr = expiredProposals.begin(); itr != expiredProposals.end(); ++itr)
