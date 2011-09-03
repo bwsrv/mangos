@@ -45,7 +45,6 @@
 #include "MapPersistentStateMgr.h"
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
-#include "Vehicle.h"
 #include "Transports.h"
 #include "VMapFactory.h"
 #include "MovementGenerator.h"
