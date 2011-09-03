@@ -1790,7 +1790,8 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         DEBUG_LOG("Player %s using client without required expansion tried teleport to non accessible map %u", GetName(), mapid);
 
         if (GetTransport())
-            RepopAtGraveyard();                             // teleport to near graveyard if on transport, looks blizz like :)
+//            RepopAtGraveyard();                             // teleport to near graveyard if on transport, looks blizz like :)
+            TeleportToHomebind();                             // teleport to homebind instead of graveyard if on transport, not fully blizzlike, but not may cause teleport cycle.
 
         SendTransferAborted(mapid, TRANSFER_ABORT_INSUF_EXPAN_LVL, mEntry->Expansion());
 
