@@ -1147,7 +1147,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellInfo->SpellIconID == 3172 &&
             m_spellInfo->SpellFamilyFlags.test<CF_WARLOCK_HAUNT>())
             if (Aura* dummy = unitTarget->GetDummyAura(m_spellInfo->Id))
-                dummy->GetModifier()->m_amount = damageInfo.damage;
+                dummy->GetModifier()->m_amount = damageInfo.damage + damageInfo.absorb;
 
         /* process anticheat check */
         if (caster->GetObjectGuid().IsPlayer())
