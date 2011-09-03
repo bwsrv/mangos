@@ -6818,26 +6818,27 @@ uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, u
     AuraList const& mModDamagePercentDone = GetAurasByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
     for(AuraList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
     {
-        if (!*i)
+        Aura* aura = *i;
+        if (!aura)
             continue;
 
-        SpellAuraHolder* holder = (*i)->GetHolder();
+        SpellAuraHolder* holder = aura->GetHolder();
         if (!holder || holder->IsDeleted())
             continue;
 
-        if ( ((*i)->GetModifier()->m_miscvalue & GetSpellSchoolMask(spellProto)) &&
-            (*i)->GetSpellProto()->EquippedItemClass == -1 &&
+        if ( (aura->GetModifier()->m_miscvalue & GetSpellSchoolMask(spellProto)) &&
+            aura->GetSpellProto()->EquippedItemClass == -1 &&
                                                             // -1 == any item class (not wand then)
-            (*i)->GetSpellProto()->EquippedItemInventoryTypeMask == 0 )
+            aura->GetSpellProto()->EquippedItemInventoryTypeMask == 0 )
                                                             // 0 == any inventory type (not wand then)
         {
-            float calculatedBonus = (*i)->GetModifier()->m_amount;
+            float calculatedBonus = aura->GetModifier()->m_amount;
 
             // bonus stored in another auras basepoints
             if (calculatedBonus == 0)
             {
                 // Clearcasting - bonus from Elemental Oath
-                if ((*i)->GetSpellProto()->Id == 16246)
+                if (aura->GetSpellProto()->Id == 16246)
                 {
                     AuraList const& aurasCrit = GetAurasByType(SPELL_AURA_MOD_SPELL_CRIT_CHANCE);
                     for (AuraList::const_iterator itr = aurasCrit.begin(); itr != aurasCrit.end(); itr++)
@@ -6851,7 +6852,7 @@ uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, u
                 }
             }
 
-            if ((*i)->IsStacking())
+            if (aura->IsStacking())
                 DoneTotalMod *= (calculatedBonus+100.0f)/100.0f;
             else
             {
