@@ -357,6 +357,12 @@ bool IsNoStackAuraDueToAura(uint32 spellId_1, uint32 spellId_2)
     return false;
 }
 
+bool IsSpellAffectedBySpellMods(SpellEntry const* spellInfo)
+{
+    return !(IsPassiveSpell(spellInfo) && spellInfo->AttributesEx3 & SPELL_ATTR_EX3_CAN_PROC_WITH_TRIGGERED);
+}
+
+
 int32 CompareAuraRanks(uint32 spellId_1, uint32 spellId_2)
 {
     SpellEntry const*spellInfo_1 = sSpellStore.LookupEntry(spellId_1);

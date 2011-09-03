@@ -10726,14 +10726,6 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                         return;
                     break;
                 }
-                case 74396:                                 // Fingers of Frost (remove main aura)
-                {
-                    if (!apply)
-                        spellId1 = 44544;
-                    else
-                        return;
-                    break;
-                }
                 default:
                     return;
             }
