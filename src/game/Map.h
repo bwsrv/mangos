@@ -37,6 +37,7 @@
 #include "MapRefManager.h"
 #include "Utilities/TypeList.h"
 #include "ScriptMgr.h"
+#include "CreatureLinkingMgr.h"
 
 #include <bitset>
 #include <list>
@@ -283,6 +284,10 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
         typedef   ACE_Write_Guard<LockType>    WriteGuard;
         LockType& GetLock(MapLockType _locktype = MAP_LOCK_TYPE_DEFAULT) { return i_lock[_locktype]; }
 
+
+        // Get Holder for Creature Linking
+        CreatureLinkingHolder* GetCreatureLinkingHolder() { return &m_creatureLinkingHolder; }
+
     private:
         void LoadMapAndVMap(int gx, int gy);
 
@@ -371,6 +376,9 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
 
         template<class T>
             void RemoveFromGrid(T*, NGridType *, Cell const&);
+
+        // Holder for information about linked mobs
+        CreatureLinkingHolder m_creatureLinkingHolder;
 
         LockType            i_lock[MAP_LOCK_TYPE_MAX];
         AttackersMap        m_attackersMap;
