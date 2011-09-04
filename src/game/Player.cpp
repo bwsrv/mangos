@@ -2466,13 +2466,13 @@ void Player::SetGameMaster(bool on)
     }
     else
     {
-        // restore phase
-        AuraList const& phases = GetAurasByType(SPELL_AURA_PHASE);
-        SetPhaseMask(!phases.empty() ? phases.front()->GetMiscValue() : PHASEMASK_NORMAL,false);
-
         m_ExtraFlags &= ~ PLAYER_EXTRA_GM_ON;
         setFactionForRace(getRace());
         RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_GM);
+
+        // restore phase
+        AuraList const& phases = GetAurasByType(SPELL_AURA_PHASE);
+        SetPhaseMask(!phases.empty() ? phases.front()->GetMiscValue() : PHASEMASK_NORMAL,false);
 
         CallForAllControlledUnits(SetGameMasterOffHelper(getFaction()), CONTROLLED_PET|CONTROLLED_TOTEMS|CONTROLLED_GUARDIANS|CONTROLLED_CHARM);
 
