@@ -37,7 +37,10 @@
 #include "Policies/SingletonImp.h"
 #include "ProgressBar.h"
 #include "SharedDefines.h"
+#include "Creature.h"
 #include "CreatureAI.h"
+#include "ObjectMgr.h"
+
 
 INSTANTIATE_SINGLETON_1(CreatureLinkingMgr);
 

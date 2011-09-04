@@ -36,7 +36,11 @@
 #define CREATURE_LINKING_MGR_H
 
 #include "Common.h"
+#include "ObjectGuid.h"
 #include "Policies/Singleton.h"
+
+class Creature;
+class Unit;
 
 // enum on which Events an action for linked NPCs can trigger
 enum CreatureLinkingEvent
