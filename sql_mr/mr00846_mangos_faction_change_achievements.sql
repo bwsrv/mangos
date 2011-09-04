@@ -4,7 +4,9 @@ SET FOREIGN_KEY_CHECKS=0;
 -- ----------------------------
 -- Table structure for `player_factionchange_achievements`
 -- ----------------------------
-CREATE TABLE IF NOT EXISTS `player_factionchange_achievements` (
+DROP TABLE IF EXISTS `player_factionchange_achievements`;
+
+CREATE TABLE `player_factionchange_achievements` (
     `alliance_id` int(8) NOT NULL,
     `horde_id` int(8) NOT NULL,
     `CommentA` varchar(255) NOT NULL,

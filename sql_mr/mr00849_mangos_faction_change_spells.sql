@@ -6,7 +6,7 @@ SET FOREIGN_KEY_CHECKS=0;
 -- ----------------------------
 DROP TABLE IF EXISTS  `player_factionchange_spells`;
 
-CREATE TABLE IF NOT EXISTS  `player_factionchange_spells` (
+CREATE TABLE `player_factionchange_spells` (
     `race_A` int(8) NOT NULL DEFAULT '0',
     `alliance_id` int(8) NOT NULL,
     `commentA` varchar(255) DEFAULT NULL,
