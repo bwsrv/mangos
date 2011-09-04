@@ -195,6 +195,9 @@ void Map::RemoveFromGrid(Creature* obj, NGridType *grid, Cell const& cell)
 void Map::DeleteFromWorld(Player* pl)
 {
     sObjectAccessor.RemoveObject(pl);
+
+    WriteGuard Guard(GetLock(MAP_LOCK_TYPE_AURAS));
+
     delete pl;
 }
 
@@ -654,7 +657,6 @@ Map::Remove(T *obj, bool remove)
     if (obj->GetTypeId() == TYPEID_UNIT)
         RemoveAttackersStorageFor(obj->GetObjectGuid());
 
-    obj->ResetMap();
     if( remove )
     {
         // if option set then object already saved at this moment
@@ -662,6 +664,7 @@ Map::Remove(T *obj, bool remove)
             obj->SaveRespawnTime();
 
         // Note: In case resurrectable corpse and pet its removed from global lists in own destructor
+        WriteGuard Guard(GetLock(MAP_LOCK_TYPE_AURAS));
         delete obj;
     }
 }

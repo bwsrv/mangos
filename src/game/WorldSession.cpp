@@ -556,7 +556,13 @@ void WorldSession::LogoutPlayer(bool Save)
         else
         {
             GetPlayer()->CleanupsBeforeDelete();
-            Map::DeleteFromWorld(GetPlayer());
+            if (GetPlayer()->GetMap())
+                GetPlayer()->GetMap()->DeleteFromWorld(GetPlayer());
+            else
+            {
+                sObjectAccessor.RemoveObject(GetPlayer());
+                delete GetPlayer();
+            }
         }
 
         SetPlayer(NULL);                                    // deleted in Remove/DeleteFromWorld call

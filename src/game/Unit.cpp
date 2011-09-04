@@ -308,10 +308,10 @@ Unit::~Unit()
         }
     }
 
-    delete m_charmInfo;
-    delete m_vehicleInfo;
     CleanupDeletedAuras();
 
+    delete m_charmInfo;
+    delete m_vehicleInfo;
     delete movespline;
 
     // those should be already removed at "RemoveFromWorld()" call
@@ -10199,7 +10199,7 @@ void Unit::RemoveFromWorld()
         UnsummonAllTotems();
         RemoveAllGameObjects();
         RemoveAllDynObjects();
-        CleanupDeletedAuras();
+//        CleanupDeletedAuras();
         GetViewPoint().Event_RemovedFromWorld();
     }
 

@@ -126,7 +126,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
         template<class T> void Add(T *);
         template<class T> void Remove(T *, bool);
 
-        static void DeleteFromWorld(Player* player);        // player object will deleted at call
+        void DeleteFromWorld(Player* player);                   // player object will deleted at call
 
         virtual void Update(const uint32&);
 
