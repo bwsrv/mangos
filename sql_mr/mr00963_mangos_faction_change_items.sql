@@ -4,7 +4,9 @@ SET FOREIGN_KEY_CHECKS=0;
 -- ----------------------------
 -- Table structure for `player_factionchange_items`
 -- ----------------------------
-CREATE TABLE IF NOT EXISTS `player_factionchange_items` (
+DROP TABLE IF EXISTS `player_factionchange_items`;
+
+CREATE TABLE `player_factionchange_items` (
     `race_A` int(8) NOT NULL DEFAULT '0',
     `alliance_id` int(8) NOT NULL,
     `commentA` varchar(255) DEFAULT NULL,
@@ -58,6 +60,7 @@ INSERT INTO `player_factionchange_items` VALUES ('0', '38589', 'Medallion of the
 INSERT INTO `player_factionchange_items` VALUES ('0', '42123', 'Medallion of the Alliance(200)', '0', '42122', 'Medallion of the Horde(200)');
 INSERT INTO `player_factionchange_items` VALUES ('0', '42124', 'Medallion of the Alliance(226)', '0', '42126', 'Medallion of the Horde(226)');
 INSERT INTO `player_factionchange_items` VALUES ('0', '44413', 'Mekgineer\'s Chopper', '0', '41508', 'Mechano-hog');
+INSERT INTO `player_factionchange_items` VALUES ('0', '44503', 'Schematic: Mekgineers Chopper', '0', '44502', 'Schematic: Mechano-Hog');
 INSERT INTO `player_factionchange_items` VALUES ('0', '45011', 'Stormwind Banner', '0', '45014', 'Orgrimmar Banner');
 INSERT INTO `player_factionchange_items` VALUES ('0', '45018', 'Ironforge Banner', '0', '45015', 'Sen\'jin Banner');
 INSERT INTO `player_factionchange_items` VALUES ('0', '45019', 'Gnomeregan Banner', '0', '45013', 'Thunder Bluff Banner');
@@ -128,6 +131,7 @@ INSERT INTO `player_factionchange_items` VALUES ('0', '46999', 'Bloodbath Belt(2
 INSERT INTO `player_factionchange_items` VALUES ('0', '47000', 'Cuirass of Calamitous Fate(245)', '0', '47270', 'Vest of Calamitous Fate(245)');
 INSERT INTO `player_factionchange_items` VALUES ('0', '47001', 'Lionhead Slasher(258)', '0', '47427', 'Blood Fury(258)');
 INSERT INTO `player_factionchange_items` VALUES ('0', '47002', 'Bloodbath Belt(258)', '0', '47429', 'Bloodbath Girdle(258)');
+INSERT INTO `player_factionchange_items` VALUES ('0', '47003', 'Dawnbreaker Greaves', '0', '47430', 'Dawnbreaker Sabatons');
 INSERT INTO `player_factionchange_items` VALUES ('0', '47004', 'Cuirass of Calamitous Fate(258)', '0', '47431', 'Vest of Calamitous Fate(258)');
 INSERT INTO `player_factionchange_items` VALUES ('0', '47041', 'Solace of the Defeated(245)', '0', '47271', 'Solace of the Fallen(245)');
 INSERT INTO `player_factionchange_items` VALUES ('0', '47042', 'Pride of the Eredar(245)', '0', '47275', 'Pride of the Demon Lord(245)');

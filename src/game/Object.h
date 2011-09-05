@@ -651,19 +651,19 @@ class MANGOS_DLL_SPEC WorldObject : public Object
         WorldUpdateCounter m_updateTracker;
 };
 
-#ifndef MAPLOCK_READ(OBJ,TYPE)
+#ifndef MAPLOCK_READ
 #  define MAPLOCK_READ(OBJ,TYPE) Map::ReadGuard Guard((OBJ)->GetMap()->GetLock(TYPE));
 #endif
 
-#ifndef MAPLOCK_READ1(OBJ,TYPE)
+#ifndef MAPLOCK_READ1
 #  define MAPLOCK_READ1(OBJ,TYPE) Map::ReadGuard Guard1((OBJ)->GetMap()->GetLock(TYPE));
 #endif
 
-#ifndef MAPLOCK_READ2(OBJ,TYPE)
+#ifndef MAPLOCK_READ2
 #  define MAPLOCK_READ2(OBJ,TYPE) Map::ReadGuard Guard2((OBJ)->GetMap()->GetLock(TYPE));
 #endif
 
-#ifndef MAPLOCK_WRITE(OBJ,TYPE)
+#ifndef MAPLOCK_WRITE
 #  define MAPLOCK_WRITE(OBJ,TYPE) Map::WriteGuard Guard((OBJ)->GetMap()->GetLock(TYPE));
 #endif
 

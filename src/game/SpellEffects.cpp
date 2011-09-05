@@ -3210,19 +3210,8 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     }
                     return;
                 }
-                default:                                   // DBC encounters main check
-                {
-                    if (unitTarget && unitTarget->GetTypeId() == TYPEID_PLAYER)
-                    {
-                        if (m_caster->GetMap()->IsDungeon())
-                        {
-                            Player* creditedPlayer = unitTarget->GetCharmerOrOwnerPlayerOrPlayerItself();
-                            DungeonMap* dungeon = (DungeonMap*)m_caster->GetMap();;
-                            if (DungeonPersistentState* state = dungeon->GetPersistanceState())
-                                state->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, m_spellInfo->Id, creditedPlayer);
-                        }
-                    }
-                }
+                default:
+                    break;
             }
             break;
         }
@@ -11033,7 +11022,7 @@ void Spell::EffectTransmitted(SpellEffectIndex eff_idx)
             m_caster->GetNearPoint2D(fx, fy, dis, m_caster->GetOrientation() + angle_offset);
             float waterZ = m_caster->GetTerrain()->GetWaterOrGroundLevel(fx, fy, m_caster->GetPositionZ());
             GridMapLiquidData liqData;
-            if (!m_caster->GetTerrain()->IsInWater(fx, fy, waterZ - 1.0f, &liqData))
+            if (!m_caster->GetTerrain()->IsInWater(fx, fy, waterZ, &liqData))
             {
                 SendCastResult(SPELL_FAILED_NOT_FISHABLE);
                 SendChannelUpdate(0);

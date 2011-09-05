@@ -50,6 +50,7 @@
 #include "MovementGenerator.h"
 #include "movement/MoveSplineInit.h"
 #include "movement/MoveSpline.h"
+#include "CreatureLinkingMgr.h"
 
 #include <math.h>
 #include <stdarg.h>
@@ -281,6 +282,9 @@ Unit::Unit() :
     for(int i=0; i < MAX_REACTIVE; ++i)
         m_reactiveTimer[i] = 0;
 
+    m_isCreatureLinkingTrigger = false;
+    m_isSpawningLinked = false;
+
     m_transport = NULL;
 
     m_pVehicleKit = NULL;
@@ -308,10 +312,10 @@ Unit::~Unit()
         }
     }
 
-    delete m_charmInfo;
-    delete m_vehicleInfo;
     CleanupDeletedAuras();
 
+    delete m_charmInfo;
+    delete m_vehicleInfo;
     delete movespline;
 
     // those should be already removed at "RemoveFromWorld()" call
@@ -951,6 +955,9 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             if (InstanceData* mapInstance = cVictim->GetInstanceData())
                 mapInstance->OnCreatureDeath(cVictim);
 
+            if (m_isCreatureLinkingTrigger)
+                cVictim->GetMap()->GetCreatureLinkingHolder()->DoCreatureLinkingEvent(LINKING_EVENT_DIE, cVictim);
+
             // Dungeon specific stuff, only applies to players killing creatures
             if (cVictim->GetInstanceId())
             {
@@ -981,8 +988,8 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
                             save->SetResetTime(resettime);
                     }
 
-                    if (DungeonPersistentState* state = ((DungeonMap*)m)->GetPersistanceState())
-                        state->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, ((Creature*)cVictim)->GetEntry(), creditedPlayer);
+                    // update encounter state if needed
+                    ((DungeonMap*)m)->GetPersistanceState()->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, ((Creature*)cVictim)->GetEntry());
                 }
             }
         }
@@ -6819,7 +6826,7 @@ uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, u
     for(AuraList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
     {
         Aura* aura = *i;
-        if (!aura)
+        if (!aura || !aura->GetModifier())
             continue;
 
         SpellAuraHolder* holder = aura->GetHolder();
@@ -8026,15 +8033,16 @@ uint32 Unit::MeleeDamageBonusDone(Unit *pVictim, uint32 pdamage,WeaponAttackType
         AuraList const mModDamagePercentDone = GetAurasByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
         for(AuraList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
         {
-            if (!(*i)->GetHolder() || (*i)->GetHolder()->IsDeleted())
+            Aura* aura = *i;
+            if (!aura || aura->GetHolder() || aura->GetHolder()->IsDeleted() || !aura->GetModifier())
                 continue;
 
-            if ((*i)->GetModifier()->m_miscvalue & schoolMask &&                         // schoolmask has to fit with the intrinsic spell school
-                (*i)->GetModifier()->m_miscvalue & GetMeleeDamageSchoolMask() &&         // AND schoolmask has to fit with weapon damage school (essential for non-physical spells)
-                (((*i)->GetSpellProto()->EquippedItemClass == -1) ||                     // general, weapon independent
-                (pWeapon && pWeapon->IsFitToSpellRequirements((*i)->GetSpellProto()))))  // OR used weapon fits aura requirements
+            if (aura->GetModifier()->m_miscvalue & schoolMask &&                         // schoolmask has to fit with the intrinsic spell school
+                aura->GetModifier()->m_miscvalue & GetMeleeDamageSchoolMask() &&         // AND schoolmask has to fit with weapon damage school (essential for non-physical spells)
+                ((aura->GetSpellProto()->EquippedItemClass == -1) ||                     // general, weapon independent
+                (pWeapon && pWeapon->IsFitToSpellRequirements(aura->GetSpellProto()))))  // OR used weapon fits aura requirements
             {
-                DonePercent *= ((*i)->GetModifier()->m_amount+100.0f) / 100.0f;
+                DonePercent *= (aura->GetModifier()->m_amount+100.0f) / 100.0f;
             }
         }
 
@@ -8561,6 +8569,9 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
 
         if (InstanceData* mapInstance = GetInstanceData())
             mapInstance->OnCreatureEnterCombat(pCreature);
+
+        if (m_isCreatureLinkingTrigger)
+            GetMap()->GetCreatureLinkingHolder()->DoCreatureLinkingEvent(LINKING_EVENT_AGGRO, pCreature, enemy);
     }
 }
 
@@ -9415,6 +9426,9 @@ void Unit::TauntFadeOut(Unit *taunter)
         if (InstanceData* mapInstance = GetInstanceData())
             mapInstance->OnCreatureEvade((Creature*)this);
 
+        if (m_isCreatureLinkingTrigger)
+            GetMap()->GetCreatureLinkingHolder()->DoCreatureLinkingEvent(LINKING_EVENT_EVADE, (Creature*)this);
+
         return;
     }
 
@@ -9510,6 +9524,9 @@ bool Unit::SelectHostileTarget()
 
     if (InstanceData* mapInstance = GetInstanceData())
         mapInstance->OnCreatureEvade((Creature*)this);
+
+    if (m_isCreatureLinkingTrigger)
+        GetMap()->GetCreatureLinkingHolder()->DoCreatureLinkingEvent(LINKING_EVENT_EVADE, (Creature*)this);
 
     return false;
 }
@@ -10249,7 +10266,7 @@ void Unit::RemoveFromWorld()
         UnsummonAllTotems();
         RemoveAllGameObjects();
         RemoveAllDynObjects();
-        CleanupDeletedAuras();
+//        CleanupDeletedAuras();
         GetViewPoint().Event_RemovedFromWorld();
     }
 

@@ -204,7 +204,7 @@ class MANGOS_DLL_SPEC Pet : public Creature
         bool InitStatsForLevel(uint32 level, Unit* owner = NULL);
         bool HaveInDiet(ItemPrototype const* item) const;
         uint32 GetCurrentFoodBenefitLevel(uint32 itemlevel);
-        void SetDuration(int32 dur) { m_duration = dur; }
+        void SetDuration(uint32 dur) { m_duration = dur; }
 
         bool UpdateStats(Stats stat);
         bool UpdateAllStats();

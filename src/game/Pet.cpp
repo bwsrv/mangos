@@ -56,6 +56,8 @@ m_petFollowAngle(PET_FOLLOW_ANGLE), m_needSave(true), m_petCounter(0), m_PetScal
 
 Pet::~Pet()
 {
+    CleanupsBeforeDelete();
+
     delete m_declinedname;
 
     if (m_PetScalingData)
