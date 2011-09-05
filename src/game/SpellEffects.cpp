@@ -5707,9 +5707,7 @@ void Spell::EffectDispel(SpellEffectIndex eff_idx)
                 if (unitTarget->HasAura(50536))
                     continue;
 
-            if (holder->GetSpellProto()->AttributesEx7 & SPELL_ATTR_EX7_DISPEL_CHARGES && holder->GetAuraCharges() > 0)
-                dispel_list.push_back(std::pair<SpellAuraHolder* ,uint32>(holder, 1));
-            else if (holder->GetAuraCharges() > 1)
+            if (holder->GetAuraCharges() > 1)
                 dispel_list.push_back(std::pair<SpellAuraHolder* ,uint32>(holder, holder->GetAuraCharges()));
             else
                 dispel_list.push_back(std::pair<SpellAuraHolder* ,uint32>(holder, holder->GetStackAmount()));
@@ -5784,7 +5782,14 @@ void Spell::EffectDispel(SpellEffectIndex eff_idx)
                 SpellAuraHolder* dispelledHolder = j->first;
                 data << uint32(dispelledHolder->GetId());   // Spell Id
                 data << uint8(0);                           // 0 - dispelled !=0 cleansed
-                unitTarget->RemoveAuraHolderDueToSpellByDispel(dispelledHolder->GetId(), j->second, dispelledHolder->GetCasterGuid(), m_caster);
+
+                if (dispelledHolder->GetSpellProto()->AttributesEx7 & SPELL_ATTR_EX7_DISPEL_CHARGES && dispelledHolder->GetAuraCharges() > 1)
+                {
+                    if (dispelledHolder->DropAuraCharge())
+                        unitTarget->RemoveSpellAuraHolder(dispelledHolder, AURA_REMOVE_BY_DISPEL);
+                }
+                else
+                    unitTarget->RemoveAuraHolderDueToSpellByDispel(dispelledHolder->GetId(), j->second, dispelledHolder->GetCasterGuid(), m_caster);
             }
             m_caster->SendMessageToSet(&data, true);
 
