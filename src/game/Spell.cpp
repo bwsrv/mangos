@@ -4055,8 +4055,8 @@ void Spell::finish(bool ok)
         m_caster->AttackStop();
 
     // update encounter state if needed
-    Map *map = m_caster->GetMap();
-    if (map->IsDungeon())
+    Map* map = m_caster->GetMap();
+    if (map && map->IsDungeon())
         ((DungeonMap*)map)->GetPersistanceState()->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, m_spellInfo->Id);
 }
 
