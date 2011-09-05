@@ -87,7 +87,7 @@ class MANGOS_DLL_SPEC SpellAuraHolder
         bool IsWeaponBuffCoexistableWith(SpellAuraHolder const* ref) const;
         bool IsNeedVisibleSlot(Unit const* caster) const;
         bool IsRemovedOnShapeLost() const { return m_isRemovedOnShapeLost; }
-        bool IsInUse() const { return m_in_use;}
+        bool IsInUse() const { return (m_in_use > 0);}
         bool IsDeleted() const { return m_deleted;}
         bool IsEmptyHolder() const;
 
@@ -99,7 +99,7 @@ class MANGOS_DLL_SPEC SpellAuraHolder
                 ++m_in_use;
             else
             {
-                if (m_in_use)
+                if (m_in_use > 0)
                     --m_in_use;
             }
         }
@@ -188,7 +188,7 @@ class MANGOS_DLL_SPEC SpellAuraHolder
         bool m_isSingleTarget:1;                            // true if it's a single target spell and registered at caster - can change at spell steal for example
         bool m_deleted:1;
 
-        uint32 m_in_use;                                    // > 0 while in SpellAuraHolder::ApplyModifiers call/SpellAuraHolder::Update/etc
+        int32 m_in_use;                                     // > 0 while in SpellAuraHolder::ApplyModifiers call/SpellAuraHolder::Update/etc
 };
 
 typedef void(Aura::*pAuraHandler)(bool Apply, bool Real);
@@ -409,7 +409,7 @@ class MANGOS_DLL_SPEC Aura
             return maxDuration > 0 && m_modifier.periodictime > 0 ? maxDuration / m_modifier.periodictime : 0;
         }
 
-        void SetAuraPeriodicTimer(int32 timer) { if (IsInUse()) return; SetInUse(true); m_modifier.periodictime = timer; SetInUse(false);}
+        void SetAuraPeriodicTimer(int32 timer) { SetInUse(true); m_modifier.periodictime = timer; SetInUse(false);}
 
         uint32 GetStackAmount() const { return GetHolder()->GetStackAmount(); }
         void SetLoadedState(int32 damage, uint32 periodicTime)
@@ -434,13 +434,13 @@ class MANGOS_DLL_SPEC Aura
                 ++m_in_use;
             else
             {
-                if (m_in_use)
+                if (m_in_use > 0)
                     --m_in_use;
             }
         }
         void ApplyModifier(bool apply, bool Real = false);
 
-        void UpdateAura(uint32 diff) { if (IsInUse()) return;  SetInUse(true); Update(diff); SetInUse(false); }
+        void UpdateAura(uint32 diff) { SetInUse(true); Update(diff); SetInUse(false); }
 
         void SetRemoveMode(AuraRemoveMode mode) { m_removeMode = mode; }
 
