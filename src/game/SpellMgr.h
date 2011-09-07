@@ -256,6 +256,15 @@ inline bool IsDeathOnlySpell(SpellEntry const *spellInfo)
         || spellInfo->Id == 2584;
 }
 
+inline bool IsCrowdControlAura(AuraType aura)
+{
+    return (aura == SPELL_AURA_MOD_CONFUSE ||
+            aura == SPELL_AURA_MOD_FEAR    ||
+            aura == SPELL_AURA_MOD_STUN    ||
+            aura == SPELL_AURA_MOD_ROOT    ||
+            aura == SPELL_AURA_TRANSFORM   );
+}
+
 inline bool IsDeathPersistentSpell(SpellEntry const *spellInfo)
 {
     return spellInfo->AttributesEx3 & SPELL_ATTR_EX3_DEATH_PERSISTENT;

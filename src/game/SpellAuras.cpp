@@ -11549,23 +11549,29 @@ void Aura::HandleAuraFactionChange(bool apply, bool real)
 
 }
 
-int32 Aura::CalculateCrowdControlAuraAmount(Unit * caster)
+uint32 Aura::CalculateCrowdControlBreakDamage()
 {
     // Damage cap for CC effects
-    if (!GetSpellProto()->procFlags || !GetTarget())
+    if (!GetTarget())
         return 0;
 
-    if (m_modifier.m_auraname !=SPELL_AURA_MOD_CONFUSE &&
-        m_modifier.m_auraname !=SPELL_AURA_MOD_FEAR &&
-        m_modifier.m_auraname !=SPELL_AURA_MOD_STUN &&
-        m_modifier.m_auraname !=SPELL_AURA_MOD_ROOT &&
-        m_modifier.m_auraname !=SPELL_AURA_TRANSFORM)
+    if (!IsCrowdControlAura(m_modifier.m_auraname))
         return 0;
 
-    int32 damageCap = (int32)(GetTarget()->GetMaxHealth()*0.10f);
+    // The chance to dispel an aura depends on the damage taken with respect to the casters level.
+    // uint32 damageCap = getLevel() > 8 ? 25 * getLevel() - 150 : 50;
+
+    uint32 damageCap = (int32)((float)GetTarget()->GetCreateHealth() * 0.20f);
+
+    if (damageCap < 50)
+        damageCap = 50;
+
+    Unit* caster = GetCaster();
 
     if (!caster)
         return damageCap;
+
+    MAPLOCK_READ(caster,MAP_LOCK_TYPE_AURAS);
 
     // Glyphs increasing damage cap
     Unit::AuraList const& overrideClassScripts = caster->GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
@@ -11576,7 +11582,7 @@ int32 Aura::CalculateCrowdControlAuraAmount(Unit * caster)
             // Glyph of Fear, Glyph of Frost nova and similar auras
             if ((*itr)->GetMiscValue() == 7801)
             {
-                damageCap += (int32)(damageCap*(*itr)->GetModifier()->m_amount/100.0f);
+                damageCap += (int32)(damageCap * (*itr)->GetModifier()->m_amount / 100.0f);
                 break;
             }
         }

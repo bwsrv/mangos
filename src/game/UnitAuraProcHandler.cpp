@@ -5179,9 +5179,15 @@ SpellAuraProcResult Unit::HandleDropChargeByDamageProc(Unit* pVictim, uint32 dam
 SpellAuraProcResult Unit::HandleRemoveByDamageChanceProc(Unit* pVictim, uint32 damage, Aura* triggeredByAura, SpellEntry const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown)
 {
     // The chance to dispel an aura depends on the damage taken with respect to the casters level.
-    uint32 max_dmg = getLevel() > 8 ? 25 * getLevel() - 150 : 50;
-    float chance = float(damage) / max_dmg * 100.0f;
-    if (roll_chance_f(chance))
+    uint32 CCDamageCap = triggeredByAura->CalculateCrowdControlBreakDamage();
+
+    // use parabolic chance progression instead of default linear (more blizzlike) - /dev/rsa
+    int32 chance = (CCDamageCap > 0) ? int32(float(damage*damage) / float(CCDamageCap*CCDamageCap) * 100.0f) : 100;
+
+    if (chance > 100)
+        chance = 100;
+
+    if (roll_chance_i(chance))
     {
         triggeredByAura->SetInUse(true);
         RemoveAurasByCasterSpell(triggeredByAura->GetId(), triggeredByAura->GetCasterGuid());
