@@ -2743,7 +2743,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     MaNGOS::NormalizeMapCoord(x);
                     MaNGOS::NormalizeMapCoord(y);
                     m_caster->UpdateGroundPositionZ(x,y,z);
-                    printf("position: {0%f} {1%f} {2%f}", x, y, z); 
 
                     m_caster->CastSpell(x, y, z, spellInfo, false, NULL, NULL, m_originalCasterGUID);
 
