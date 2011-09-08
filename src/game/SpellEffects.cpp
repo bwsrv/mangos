@@ -2726,6 +2726,29 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(m_caster, 57561, true);
                     return;
                 }
+                case 57385:                                 // Argent Cannon
+                case 57412:                                 // Reckoning Bomb
+                {
+                    if (!unitTarget || gameObjTarget)
+                        return;
+
+                    SpellEntry const* spellInfo = sSpellStore.LookupEntry(m_spellInfo->CalculateSimpleValue(eff_idx));
+
+                    // Init dest coordinates
+                    float x,y,z;
+                    x = m_targets.m_destX;
+                    y = m_targets.m_destY;
+                    z = m_targets.m_destZ;
+
+                    MaNGOS::NormalizeMapCoord(x);
+                    MaNGOS::NormalizeMapCoord(y);
+                    m_caster->UpdateGroundPositionZ(x,y,z);
+                    printf("position: {0%f} {1%f} {2%f}", x, y, z); 
+
+                    m_caster->CastSpell(x, y, z, spellInfo, false, NULL, NULL, m_originalCasterGUID);
+
+                    return;
+                }
                 case 57908:                                 // Stain Cloth
                 {
                     // nothing do more
