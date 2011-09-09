@@ -5345,8 +5345,9 @@ SpellCastResult Spell::CheckCast(bool strict)
             if (target->IsImmuneToSpell(m_spellInfo))
                 return SPELL_FAILED_TARGET_AURASTATE;
 
-            if (target->HasMorePoweredBuff(m_spellInfo->Id))
-                return m_IsTriggeredSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_AURA_BOUNCED;
+            if (target->IsInWorld() && target->IsInMap(m_caster))
+                if (target->HasMorePoweredBuff(m_spellInfo->Id))
+                    return m_IsTriggeredSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_AURA_BOUNCED;
         }
 
         //Must be behind the target.
