@@ -1707,6 +1707,14 @@ void LFGMgr::UpdateBoot(Player* player, bool accept)
                 }
                 Player::RemoveFromGroup(group, victim->GetObjectGuid());
                 victim->GetLFGState()->Clear();
+
+                // group may be disbanded after Player::RemoveFromGroup!
+                group = player->GetGroup();
+                if (!group)
+                    return;
+                if (!group->GetLFGState()->IsBootActive())
+                    return;
+
                 group->GetLFGState()->DecreaseKicksLeft();
                 group->GetLFGState()->StopBoot();
                 OfferContinue(group);
