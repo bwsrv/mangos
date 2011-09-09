@@ -1415,6 +1415,7 @@ void Pet::_LoadAuras(uint32 timediff)
 
 void Pet::_SaveAuras()
 {
+    MAPLOCK_READ(this,MAP_LOCK_TYPE_AURAS);
     static SqlStatementID delAuras ;
     static SqlStatementID insAuras ;
 

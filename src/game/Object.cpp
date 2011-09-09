@@ -1001,6 +1001,11 @@ void WorldObject::_Create(ObjectGuid guid, uint32 phaseMask)
     m_phaseMask = phaseMask;
 }
 
+ObjectLockType& WorldObject::GetLock(MapLockType _lockType)
+{
+    return GetMap() ? GetMap()->GetLock(_lockType) : sWorld.GetLock(_lockType);
+}
+
 void WorldObject::Relocate(float x, float y, float z, float orientation)
 {
     m_position.x = x;

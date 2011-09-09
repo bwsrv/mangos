@@ -25,6 +25,7 @@
 #include "UpdateData.h"
 #include "ObjectGuid.h"
 #include "Camera.h"
+#include "ObjectLock.h"
 
 #include <set>
 #include <string>
@@ -585,6 +586,8 @@ class MANGOS_DLL_SPEC WorldObject : public Object
         //used to check all object's GetMap() calls when object is not in world!
         void ResetMap() { m_currMap = NULL; }
 
+        ObjectLockType& GetLock(MapLockType _locktype = MAP_LOCK_TYPE_DEFAULT);
+
         //obtain terrain data for map where this object belong...
         TerrainInfo const* GetTerrain() const;
 
@@ -615,7 +618,6 @@ class MANGOS_DLL_SPEC WorldObject : public Object
         bool isActiveObject() const { return m_isActiveObject || m_viewPoint.hasViewers(); }
 
         ViewPoint& GetViewPoint() { return m_viewPoint; }
-
 
         // ASSERT print helper
         bool PrintCoordinatesError(float x, float y, float z, char const* descr) const;
@@ -650,21 +652,5 @@ class MANGOS_DLL_SPEC WorldObject : public Object
 
         WorldUpdateCounter m_updateTracker;
 };
-
-#ifndef MAPLOCK_READ
-#  define MAPLOCK_READ(OBJ,TYPE) Map::ReadGuard Guard((OBJ)->GetMap()->GetLock(TYPE));
-#endif
-
-#ifndef MAPLOCK_READ1
-#  define MAPLOCK_READ1(OBJ,TYPE) Map::ReadGuard Guard1((OBJ)->GetMap()->GetLock(TYPE));
-#endif
-
-#ifndef MAPLOCK_READ2
-#  define MAPLOCK_READ2(OBJ,TYPE) Map::ReadGuard Guard2((OBJ)->GetMap()->GetLock(TYPE));
-#endif
-
-#ifndef MAPLOCK_WRITE
-#  define MAPLOCK_WRITE(OBJ,TYPE) Map::WriteGuard Guard((OBJ)->GetMap()->GetLock(TYPE));
-#endif
 
 #endif

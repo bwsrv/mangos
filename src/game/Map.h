@@ -22,8 +22,6 @@
 #include "Common.h"
 #include "Platform/Define.h"
 #include "Policies/ThreadingModel.h"
-#include "ace/RW_Thread_Mutex.h"
-#include "ace/Thread_Mutex.h"
 
 #include "DBCStructure.h"
 #include "GridDefines.h"
@@ -38,6 +36,7 @@
 #include "Utilities/TypeList.h"
 #include "ScriptMgr.h"
 #include "CreatureLinkingMgr.h"
+#include "ObjectLock.h"
 
 #include <bitset>
 #include <list>
@@ -82,13 +81,6 @@ struct WorldTemplate
 enum LevelRequirementVsMode
 {
     LEVELREQUIREMENT_HEROIC = 70
-};
-
-enum MapLockType
-{
-    MAP_LOCK_TYPE_DEFAULT,
-    MAP_LOCK_TYPE_AURAS,
-    MAP_LOCK_TYPE_MAX,
 };
 
 #if defined( __GNUC__ )
@@ -279,11 +271,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
         void RemoveAttackersStorageFor(ObjectGuid targetGuid);
 
         // multithread locking
-        typedef   ACE_RW_Thread_Mutex          LockType;
-        typedef   ACE_Read_Guard<LockType>     ReadGuard;
-        typedef   ACE_Write_Guard<LockType>    WriteGuard;
-        LockType& GetLock(MapLockType _locktype = MAP_LOCK_TYPE_DEFAULT) { return i_lock[_locktype]; }
-
+        ObjectLockType& GetLock(MapLockType _locktype = MAP_LOCK_TYPE_DEFAULT) { return i_lock[_locktype]; }
 
         // Get Holder for Creature Linking
         CreatureLinkingHolder* GetCreatureLinkingHolder() { return &m_creatureLinkingHolder; }
@@ -380,7 +368,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
         // Holder for information about linked mobs
         CreatureLinkingHolder m_creatureLinkingHolder;
 
-        LockType            i_lock[MAP_LOCK_TYPE_MAX];
+        ObjectLockType      i_lock[MAP_LOCK_TYPE_MAX];
         AttackersMap        m_attackersMap;
 
 };

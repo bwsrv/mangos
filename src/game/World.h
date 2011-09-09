@@ -27,6 +27,7 @@
 #include "Timer.h"
 #include "Policies/Singleton.h"
 #include "SharedDefines.h"
+#include "ObjectLock.h"
 
 #include <map>
 #include <set>
@@ -619,6 +620,9 @@ class World
         char const* GetDBVersion() { return m_DBVersion.c_str(); }
         char const* GetCreatureEventAIVersion() { return m_CreatureEventAIVersion.c_str(); }
 
+        // multithread locking (World locking used only if object map == NULL)
+        ObjectLockType& GetLock(MapLockType _locktype = MAP_LOCK_TYPE_DEFAULT) { return i_lock[_locktype]; }
+
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters
@@ -716,6 +720,10 @@ class World
         //used versions
         std::string m_DBVersion;
         std::string m_CreatureEventAIVersion;
+
+        // World locking for global (not-in-map) objects.
+        ObjectLockType   i_lock[MAP_LOCK_TYPE_MAX];
+
 };
 
 extern uint32 realmID;
