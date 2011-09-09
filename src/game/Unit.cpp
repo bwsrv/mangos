@@ -8910,7 +8910,7 @@ void Unit::UpdateVisibilityAndView()
     static const AuraType auratypes[] = {SPELL_AURA_BIND_SIGHT, SPELL_AURA_FAR_SIGHT, SPELL_AURA_NONE};
     for (AuraType const* type = &auratypes[0]; *type != SPELL_AURA_NONE; ++type)
     {
-        AuraList& alist = m_modAuras[*type];
+        AuraList alist = m_modAuras[*type];
         if (alist.empty())
             continue;
 
@@ -10182,6 +10182,7 @@ void Unit::ApplyMaxPowerMod(Powers power, uint32 val, bool apply)
 
 void Unit::ApplyAuraProcTriggerDamage( Aura* aura, bool apply )
 {
+    MAPLOCK_WRITE(this,MAP_LOCK_TYPE_AURAS);
     AuraList& tAuraProcTriggerDamage = m_modAuras[SPELL_AURA_PROC_TRIGGER_DAMAGE];
     if (apply)
         tAuraProcTriggerDamage.push_back(aura);
