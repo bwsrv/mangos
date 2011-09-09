@@ -24,6 +24,7 @@
 #include "Player.h"
 #include "Vehicle.h"
 #include "ObjectMgr.h"
+#include "SpellAuras.h"
 
 void WorldSession::HandleDismissControlledVehicle(WorldPacket &recv_data)
 {

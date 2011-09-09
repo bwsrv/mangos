@@ -61,6 +61,7 @@
 #include "AchievementMgr.h"
 #include "Mail.h"
 #include "AccountMgr.h"
+#include "SpellAuras.h"
 
 #include <cmath>
 
@@ -18258,6 +18259,8 @@ void Player::_SaveAuras()
     static SqlStatementID deleteAuras ;
     static SqlStatementID insertAuras ;
 
+    MAPLOCK_READ(this,MAP_LOCK_TYPE_AURAS);
+
     SqlStatement stmt = CharacterDatabase.CreateStatement(deleteAuras, "DELETE FROM character_aura WHERE guid = ?");
     stmt.PExecute(GetGUIDLow());
 
@@ -19517,6 +19520,49 @@ void Player::AddSpellMod(Aura* aura, bool apply)
     else
         m_spellMods[mod->m_miscvalue].remove(aura);
 }
+
+template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell const* spell)
+{
+    SpellEntry const* spellInfo = sSpellStore.LookupEntry(spellId);
+    if (!spellInfo)
+        return 0;
+
+    int32 totalpct = 0;
+    int32 totalflat = 0;
+    for (AuraList::iterator itr = m_spellMods[op].begin(); itr != m_spellMods[op].end(); ++itr)
+    {
+        Aura *aura = *itr;
+
+        Modifier const* mod = aura->GetModifier();
+
+        if (!aura->isAffectedOnSpell(spellInfo))
+            continue;
+
+        if (mod->m_auraname == SPELL_AURA_ADD_FLAT_MODIFIER)
+            totalflat += mod->m_amount;
+        else
+        {
+            // skip percent mods for null basevalue (most important for spell mods with charges )
+            if (basevalue == T(0))
+                continue;
+
+            // special case (skip >10sec spell casts for instant cast setting)
+            if (mod->m_miscvalue == SPELLMOD_CASTING_TIME
+                && basevalue >= T(10*IN_MILLISECONDS) && mod->m_amount <= -100)
+                continue;
+
+            totalpct += mod->m_amount;
+        }
+    }
+
+    float diff = (float)basevalue*(float)totalpct/100.0f + (float)totalflat;
+    basevalue = T((float)basevalue + diff);
+    return T(diff);
+}
+
+template int32 Player::ApplySpellMod<int32>(uint32 spellId, SpellModOp op, int32 &basevalue, Spell const* spell);
+template uint32 Player::ApplySpellMod<uint32>(uint32 spellId, SpellModOp op, uint32 &basevalue, Spell const* spell);
+template float Player::ApplySpellMod<float>(uint32 spellId, SpellModOp op, float &basevalue, Spell const* spell);
 
 // send Proficiency
 void Player::SendProficiency(ItemClass itemClass, uint32 itemSubclassMask)

@@ -3710,7 +3710,6 @@ void Unit::_UpdateSpells( uint32 time )
         ++m_spellAuraHoldersUpdateIterator;                            // need shift to next for allow update if need into aura update
         if (i_holder && !i_holder->IsDeleted() && !i_holder->IsEmptyHolder() && !i_holder->IsInUse())
         {
-            MAPLOCK_READ(this,MAP_LOCK_TYPE_AURAS);
             i_holder->UpdateHolder(time);
         }
     }
@@ -4502,7 +4501,10 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
 
     // add aura, register in lists and arrays
     holder->_AddSpellAuraHolder();
-    m_spellAuraHolders.insert(SpellAuraHolderMap::value_type(holder->GetId(), holder));
+    {
+        MAPLOCK_WRITE(this,MAP_LOCK_TYPE_AURAS);
+        m_spellAuraHolders.insert(SpellAuraHolderMap::value_type(holder->GetId(), holder));
+    }
 
     for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)
         if (Aura *aur = holder->GetAuraByEffectIndex(SpellEffectIndex(i)))
@@ -4523,6 +4525,7 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
 
 void Unit::AddAuraToModList(Aura *aura)
 {
+    MAPLOCK_WRITE(this,MAP_LOCK_TYPE_AURAS);
     if (aura->GetModifier()->m_auraname < TOTAL_AURAS)
         m_modAuras[aura->GetModifier()->m_auraname].push_back(aura);
 }
@@ -5148,6 +5151,7 @@ void Unit::RemoveSpellAuraHolder(SpellAuraHolder *holder, AuraRemoveMode mode)
     {
         if (itr->second == holder)
         {
+            MAPLOCK_WRITE(this,MAP_LOCK_TYPE_AURAS);
             m_spellAuraHolders.erase(itr);
             break;
         }
@@ -5202,6 +5206,7 @@ void Unit::RemoveAura(Aura *Aur, AuraRemoveMode mode)
     // remove from list before mods removing (prevent cyclic calls, mods added before including to aura list - use reverse order)
     if (Aur->GetModifier()->m_auraname < TOTAL_AURAS)
     {
+        MAPLOCK_WRITE(this,MAP_LOCK_TYPE_AURAS);
         m_modAuras[Aur->GetModifier()->m_auraname].remove(Aur);
     }
 
@@ -6800,7 +6805,7 @@ uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, u
     if (spellProto->IsFitToFamily<SPELLFAMILY_WARLOCK, CF_WARLOCK_CONFLAGRATE>())
         return pdamage;
 
-    if (!IsInWorld() || !GetMap())
+    if (!IsInWorld())
         return pdamage;
 
     MAPLOCK_READ(this,MAP_LOCK_TYPE_AURAS);

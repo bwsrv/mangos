@@ -5159,7 +5159,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     }
 
     Unit *target = m_targets.getUnitTarget();
-    if (target && target->IsInWorld() && target->GetMap())
+    if (target && target->IsInWorld())
     {
         MAPLOCK_READ(target,MAP_LOCK_TYPE_AURAS);
         // target state requirements (not allowed state), apply to self also

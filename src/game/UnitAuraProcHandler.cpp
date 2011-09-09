@@ -2025,8 +2025,23 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 // Glyph of Shred
                 case 54815:
                 {
-                    triggered_spell_id = 63974;
-                    break;
+                    if (Aura* aura = target->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DRUID, CF_DRUID_SHRED, 0, GetObjectGuid()))
+                    {
+                        uint32 countMin = aura->GetAuraMaxDuration();
+                        uint32 countMax = GetSpellMaxDuration(aura->GetSpellProto());
+                        countMax += 3 * triggerAmount * 1000;       
+                        countMax += HasAura(54818) ? 4 * 1000 : 0; 
+                        countMax += HasAura(60141) ? 4 * 1000 : 0;
+
+                        if (countMin < countMax)
+                        {
+                            aura->GetHolder()->SetAuraDuration(aura->GetAuraDuration() + triggerAmount * 1000);
+                            aura->GetHolder()->SetAuraDuration(countMin + triggerAmount * 1000);
+                            aura->GetHolder()->SendAuraUpdate(false);
+                            return SPELL_AURA_PROC_OK;
+                        }
+                    }
+                    return SPELL_AURA_PROC_FAILED;
                 }
                 // Glyph of Rake
                 case 54821:
@@ -2482,7 +2497,7 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 case 31878:
                 {
                     // triggered only at casted Judgement spells, not at additional Judgement effects
-                    if(!procSpell || !procSpell->SpellFamilyFlags.test<CF_PALADIN_JUDGEMENT_ACTIVATE>())
+                    if(!procSpell || procSpell->Category != 1210)
                         return SPELL_AURA_PROC_FAILED;
 
                     target = this;
@@ -5191,9 +5206,15 @@ SpellAuraProcResult Unit::HandleDropChargeByDamageProc(Unit* pVictim, uint32 dam
 SpellAuraProcResult Unit::HandleRemoveByDamageChanceProc(Unit* pVictim, uint32 damage, Aura* triggeredByAura, SpellEntry const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown)
 {
     // The chance to dispel an aura depends on the damage taken with respect to the casters level.
-    uint32 max_dmg = getLevel() > 8 ? 25 * getLevel() - 150 : 50;
-    float chance = float(damage) / max_dmg * 100.0f;
-    if (roll_chance_f(chance))
+    uint32 CCDamageCap = triggeredByAura->CalculateCrowdControlBreakDamage();
+
+    // use parabolic chance progression instead of default linear (more blizzlike) - /dev/rsa
+    int32 chance = (CCDamageCap > 0) ? int32(float(damage*damage) / float(CCDamageCap*CCDamageCap) * 100.0f) : 100;
+
+    if (chance > 100)
+        chance = 100;
+
+    if (roll_chance_i(chance))
     {
         triggeredByAura->SetInUse(true);
         RemoveAurasByCasterSpell(triggeredByAura->GetId(), triggeredByAura->GetCasterGuid());
