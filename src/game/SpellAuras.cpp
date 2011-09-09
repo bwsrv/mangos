@@ -1070,6 +1070,13 @@ bool Aura::IsEffectStacking()
     {
         // these effects never stack
         case SPELL_AURA_MOD_MELEE_HASTE:
+            if (spellProto->SpellFamilyName == SPELLFAMILY_GENERIC)
+                return true;
+            // Icy Talons
+            if (spellProto->IsFitToFamily(SPELLFAMILY_DEATHKNIGHT, UI64LIT(0x0000000000000002)))
+                return true;
+            
+            break;
         case SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE:
         case SPELL_AURA_MOD_PARTY_MAX_HEALTH:                                                  // Commanding Shout / Blood Pact
         case SPELL_AURA_MOD_HEALING_PCT:                                                       // Mortal Strike / Wound Poison / Aimed Shot / Furious Attacks
