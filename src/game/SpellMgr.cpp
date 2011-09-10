@@ -2055,8 +2055,8 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             if (spellInfo_2->SpellFamilyName == SPELLFAMILY_DRUID)
             {
                 // Mark/Gift of the Wild
-                if (spellInfo_1->SpellFamilyName == SPELLFAMILY_DRUID && spellInfo_1->SpellFamilyFlags & UI64LIT(0x0000000000040000) &&
-                    spellInfo_2->SpellFamilyName == SPELLFAMILY_DRUID && spellInfo_2->SpellFamilyFlags & UI64LIT(0x0000000000040000))
+                if (spellInfo_1->IsFitToFamily<SPELLFAMILY_DRUID, CF_DRUID_MARK_OF_THE_WILD>() &&
+                    spellInfo_2->IsFitToFamily<SPELLFAMILY_DRUID, CF_DRUID_MARK_OF_THE_WILD>())
                     return true;
             }
             break;
