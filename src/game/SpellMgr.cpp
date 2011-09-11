@@ -4270,7 +4270,6 @@ DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group)
         case DIMINISHING_CYCLONE:
         case DIMINISHING_TRIGGER_STUN:
         case DIMINISHING_CONTROL_STUN:
-        case DIMINISHING_TAUNT:
             return DRTYPE_ALL;
         case DIMINISHING_CONTROL_ROOT:
         case DIMINISHING_TRIGGER_ROOT:
@@ -4283,6 +4282,8 @@ DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group)
         case DIMINISHING_BANISH:
         case DIMINISHING_CHEAPSHOT_POUNCE:
             return DRTYPE_PLAYER;
+        case DIMINISHING_TAUNT:
+            return DRTYPE_TAUNT;
         default:
             break;
     }

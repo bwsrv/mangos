@@ -1334,7 +1334,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, uint32 effectMask)
         m_diminishLevel = unit->GetDiminishing(m_diminishGroup);
         // Increase Diminishing on unit, current informations for actually casts will use values above
         if ((GetDiminishingReturnsGroupType(m_diminishGroup) == DRTYPE_PLAYER && unit->GetCharmerOrOwnerPlayerOrPlayerItself()) ||
-            GetDiminishingReturnsGroupType(m_diminishGroup) == DRTYPE_ALL)
+            GetDiminishingReturnsGroupType(m_diminishGroup) >= DRTYPE_ALL)
             unit->IncrDiminishing(m_diminishGroup);
     }
 
