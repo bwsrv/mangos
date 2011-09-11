@@ -44,7 +44,7 @@ pAuraProcHandler AuraProcHandler[TOTAL_AURAS]=
     &Unit::HandleNULLProc,                                  //  9 SPELL_AURA_MOD_ATTACKSPEED
     &Unit::HandleNULLProc,                                  // 10 SPELL_AURA_MOD_THREAT
     &Unit::HandleNULLProc,                                  // 11 SPELL_AURA_MOD_TAUNT
-    &Unit::HandleNULLProc,                                  // 12 SPELL_AURA_MOD_STUN
+    &Unit::HandleRemoveByDamageProc,                        // 12 SPELL_AURA_MOD_STUN
     &Unit::HandleNULLProc,                                  // 13 SPELL_AURA_MOD_DAMAGE_DONE
     &Unit::HandleNULLProc,                                  // 14 SPELL_AURA_MOD_DAMAGE_TAKEN
     &Unit::HandleDamageShieldAuraProc,                      // 15 SPELL_AURA_DAMAGE_SHIELD
@@ -1083,6 +1083,59 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                     CastSpell(triggeredByAura->GetCaster(), 71203, true);
                     return SPELL_AURA_PROC_OK;
                 }
+                // Item - Deathbringer's Will
+                case 71519:
+                case 71562:
+                {
+                    uint32 const normal_spells[MAX_CLASSES*3] =
+                    {
+                        0, 0, 0,                // (unused)
+                        71491, 71484, 71492,    // Warrior
+                        71491, 71484, 71492,    // Paladin
+                        71485, 71491, 71486,    // Hunter
+                        71485, 71486, 71492,    // Rogue
+                        71492, 71492, 71492,    // Priest
+                        71491, 71484, 71492,    // Death Knight
+                        71485, 71486, 71492,    // Shaman
+                        71492, 71492, 71492,    // Mage
+                        71492, 71492, 71492,    // Warlock
+                        0, 0, 0,                // (unused)
+                        71485, 71484, 71492     // Druid
+                    };
+                    uint32 const heroic_spells[MAX_CLASSES*3] =
+                    {
+                        0, 0, 0,                // (unused)
+                        71559, 71561, 71560,    // Warrior
+                        71559, 71561, 71560,    // Paladin
+                        71556, 71559, 71558,    // Hunter
+                        71556, 71558, 71560,    // Rogue
+                        71560, 71560, 71560,    // Priest
+                        71559, 71561, 71560,    // Death Knight
+                        71556, 71558, 71560,    // Shaman
+                        71560, 71560, 71560,    // Mage
+                        71560, 71560, 71560,    // Warlock
+                        0, 0, 0,                // (unused)
+                        71556, 71561, 71560     // Druid
+                    };
+
+                    if (cooldown && GetTypeId() == TYPEID_PLAYER && static_cast<Player*>(this)->HasSpellCooldown(dummySpell->Id))
+                        return SPELL_AURA_PROC_FAILED;
+
+                    uint32 const *proc_spells = NULL;
+                    switch (dummySpell->Id)
+                    {
+                        case 71519: proc_spells = normal_spells; break;
+                        case 71562: proc_spells = heroic_spells; break;
+                        default: return SPELL_AURA_PROC_FAILED;
+                    }
+
+                    CastSpell(this, proc_spells[getClass()*3 + urand(0,2)], true, castItem, triggeredByAura);
+
+                    if (cooldown && GetTypeId() == TYPEID_PLAYER)
+                        static_cast<Player*>(this)->AddSpellCooldown(dummySpell->Id, 0, time(NULL) + cooldown);
+
+                    return SPELL_AURA_PROC_OK;
+                }
                 // Item - Shadowmourne Legendary
                 case 71903:
                 {
@@ -1106,168 +1159,6 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                         CastSpell(this, 71904, true);       // Chaos Bane
                         return SPELL_AURA_PROC_OK;
                     }
-                    break;
-                }
-                // Deathbringer's Will (Item - Icecrown 25 Normal Melee Trinket)
-                //=====================================================
-                // 71492 Speed of the Vrykul: +600 haste rating (Death Knight, Druid, Paladin, Rogue, Warrior, Shaman)
-                // 71485 Agility of the Vrykul: +600 agility (Druid, Hunter, Rogue, Shaman)
-                // 71486 Power of the Taunka: +1200 attack power (Hunter, Rogue, Shaman)
-                // 71484 Strength of the Taunka: +600 strength (Death Knight, Druid, Paladin, Warrior)
-                // 71491 Aim of the Iron Dwarves: +600 critical strike rating (Death Knight, Hunter, Paladin, Warrior)
-                case 71519:
-                {
-                    if (GetTypeId() != TYPEID_PLAYER)
-                        return SPELL_AURA_PROC_FAILED;
-
-                    uint32 spells[5] = {71491, 71484, 71492, 71486, 71485};
-
-                    for (int i = 0; i < 5; ++i)
-                    {
-                        if (HasAura(spells[i]))
-                            return SPELL_AURA_PROC_FAILED;
-                    }
-
-                    // Select class defined buff
-                    switch (getClass())
-                    {
-                        case CLASS_PALADIN:
-                        {
-                            uint32 RandomSpell[]={71492,71484,71491};
-                            triggered_spell_id = RandomSpell[ irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
-                            break;
-                        }
-                        case CLASS_DRUID:
-                        {
-                            uint32 RandomSpell[]={71492,71485,71484};
-                            triggered_spell_id = RandomSpell[ irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
-                            break;
-                        }
-                        case CLASS_ROGUE:
-                        {
-                            uint32 RandomSpell[]={71492,71485,71486};
-                            triggered_spell_id = RandomSpell[ irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
-                            break;
-                        }
-                        case CLASS_WARRIOR:
-                        {
-                            uint32 RandomSpell[]={71492,71484,71491};
-                            triggered_spell_id = RandomSpell[ irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
-                            break;
-                        }
-                        case CLASS_SHAMAN:
-                        {
-                            uint32 RandomSpell[]={71485,71486,71492};
-                            triggered_spell_id = RandomSpell[ irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
-                            break;
-                        }
-                        case CLASS_HUNTER:
-                        {
-                            uint32 RandomSpell[]={71485,71486,71491};
-                            triggered_spell_id = RandomSpell[ irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
-                            break;
-                        }
-                        case CLASS_DEATH_KNIGHT:
-                        {
-                            uint32 RandomSpell[]={71484,71492,71491};
-                            triggered_spell_id = RandomSpell[ irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
-                            break;
-                        }
-                        default:
-                            return SPELL_AURA_PROC_FAILED;
-                    }
-
-                    // cooldown on all spells
-                    if (cooldown)
-                    {
-                        for (int i = 0; i < 5; ++i)
-                        {
-                            if (triggered_spell_id != spells[i]) // this cooldown will be handled below in generic code
-                                ((Player*)this)->AddSpellCooldown(spells[i], 0, time(NULL) + cooldown);
-                        }
-                    }
-
-                    break;
-                }
-                // Deathbringer's Will (Item - Icecrown 25 Heroic Melee Trinket)
-                //=====================================================
-                // 71560 Speed of the Vrykul: +700 haste rating (Death Knight, Druid, Paladin, Rogue, Warrior, Shaman)
-                // 71556 Agility of the Vrykul: +700 agility (Druid, Hunter, Rogue, Shaman)
-                // 71558 Power of the Taunka: +1400 attack power (Hunter, Rogue, Shaman)
-                // 71561 Strength of the Taunka: +700 strength (Death Knight, Druid, Paladin, Warrior)
-                // 71559 Aim of the Iron Dwarves: +700 critical strike rating (Death Knight, Hunter, Paladin, Warrior)
-                case 71562:
-                {
-                    if (GetTypeId() != TYPEID_PLAYER)
-                        return SPELL_AURA_PROC_FAILED;
-
-                    uint32 spells[5] = {71559, 71561, 71560, 71556, 71558};
-
-                    for (int i = 0; i < 5; ++i)
-                    {
-                        if (HasAura(spells[i]))
-                            return SPELL_AURA_PROC_FAILED;
-                    }
-
-                    // Select class defined buff
-                    switch (getClass())
-                    {
-                        case CLASS_PALADIN:
-                        {
-                            uint32 RandomSpell[]={71560,71561,71559};
-                            triggered_spell_id = RandomSpell[ irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
-                            break;
-                        }
-                        case CLASS_DRUID:
-                        {
-                            uint32 RandomSpell[]={71560,71556,71561};
-                            triggered_spell_id = RandomSpell[ irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
-                            break;
-                        }
-                        case CLASS_ROGUE:
-                        {
-                            uint32 RandomSpell[]={71560,71556,71558,};
-                            triggered_spell_id = RandomSpell[ irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
-                            break;
-                        }
-                        case CLASS_WARRIOR:
-                        {
-                            uint32 RandomSpell[]={71560,71561,71559,};
-                            triggered_spell_id = RandomSpell[ irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
-                            break;
-                        }
-                        case CLASS_SHAMAN:
-                        {
-                            uint32 RandomSpell[]={71556,71558,71560};
-                            triggered_spell_id = RandomSpell[ irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
-                            break;
-                        }
-                        case CLASS_HUNTER:
-                        {
-                            uint32 RandomSpell[]={71556,71558,71559};
-                            triggered_spell_id = RandomSpell[ irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
-                            break;
-                        }
-                        case CLASS_DEATH_KNIGHT:
-                        {
-                            uint32 RandomSpell[]={71561,71560,71559};
-                            triggered_spell_id = RandomSpell[ irand(0, sizeof(RandomSpell)/sizeof(uint32) - 1) ];
-                            break;
-                        }
-                        default:
-                            return SPELL_AURA_PROC_FAILED;
-                    }
-
-                    // cooldown on all spells
-                    if (cooldown)
-                    {
-                        for (int i = 0; i < 5; ++i)
-                        {
-                            if (triggered_spell_id != spells[i]) // this cooldown will be handled below in generic code
-                                ((Player*)this)->AddSpellCooldown(spells[i], 0, time(NULL) + cooldown);
-                        }
-                    }
-
                     break;
                 }
                 // Necrotic Touch item 50692
