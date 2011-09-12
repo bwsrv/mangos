@@ -832,7 +832,9 @@ enum DiminishingLevels
     DIMINISHING_LEVEL_1             = 0,
     DIMINISHING_LEVEL_2             = 1,
     DIMINISHING_LEVEL_3             = 2,
-    DIMINISHING_LEVEL_IMMUNE        = 3
+    DIMINISHING_LEVEL_4             = 3,
+    DIMINISHING_LEVEL_5             = 4,
+    DIMINISHING_LEVEL_IMMUNE        = 5
 };
 
 struct DiminishingReturn
@@ -2081,7 +2083,6 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 
         SpellAuraHolderMap m_spellAuraHolders;
         SpellAuraHolderMap::iterator m_spellAuraHoldersUpdateIterator; // != end() in Unit::m_spellAuraHolders update and point to next element
-        AuraList m_deletedAuras;                                       // auras removed while in ApplyModifier and waiting deleted
         SpellAuraHolderList m_deletedHolders;
 
         SingleCastSpellTargetMap m_singleCastSpellTargets;  // casted by unit single per-caster auras

@@ -2640,7 +2640,8 @@ enum DiminishingReturnsType
 {
     DRTYPE_NONE         = 0,                                // this spell is not diminished, but may have limited it's duration to 10s
     DRTYPE_PLAYER       = 1,                                // this spell is diminished only when applied on players
-    DRTYPE_ALL          = 2                                 // this spell is diminished in every case
+    DRTYPE_ALL          = 2,                                // this spell is diminished in every case
+    DRTYPE_TAUNT        = 3,                                // this spell is diminished as Taunt Diminishing Returns (http://eu.battle.net/wow/en/game/patch-notes/3-3-0)
 };
 
 // Diminishing Return Groups

@@ -4018,8 +4018,7 @@ bool ChatHandler::HandleAuraCommand(char* args)
             eff == SPELL_EFFECT_APPLY_AURA  ||
             eff == SPELL_EFFECT_PERSISTENT_AREA_AURA)
         {
-            Aura *aur = CreateAura(spellInfo, SpellEffectIndex(i), NULL, holder, target);
-            holder->AddAura(aur, SpellEffectIndex(i));
+            holder->CreateAura(spellInfo, SpellEffectIndex(i), NULL, target, NULL, NULL);
         }
     }
     target->AddSpellAuraHolder(holder);
