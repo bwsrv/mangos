@@ -2005,7 +2005,7 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
         return false;
 
     // Specific spell family spells
-	// also some SpellIconID exceptions related to late checks (isModifier)
+    // also some SpellIconID exceptions related to late checks (isModifier)
     switch(spellInfo_1->SpellFamilyName)
     {
         case SPELLFAMILY_GENERIC:
@@ -2024,6 +2024,10 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             if ((spellInfo_1->Id == 57055 && spellInfo_2->Id == 56648) ||
                 (spellInfo_2->Id == 57055 && spellInfo_1->Id == 56648))
                 return true;
+
+            // Mirrored Soul (FoS - Devourer) - and other Boss spells
+            if (spellInfo_1->SpellIconID == 3176 && spellInfo_2->SpellIconID == 3176)
+                return false;
 
             // Blessing of Forgotten Kings and (Greater) Blessing of Kings
             if (spellInfo_1->Id == 72586)

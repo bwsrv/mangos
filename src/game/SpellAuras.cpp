@@ -2461,11 +2461,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         if (target->GetTypeId() == TYPEID_PLAYER)
                             ((Player*)target)->learnSpell(63680, false);
                         return;
-                    case 63651:                             // Revert to One Talent Specialization
-                        // Teach Learn Talent Specialization Switches, remove
-                        if (target->GetTypeId() == TYPEID_PLAYER)
-                            ((Player*)target)->removeSpell(63680);
-                        return;
                     case 68645:
                         // Rocket Pack
                         if (target->GetTypeId() == TYPEID_PLAYER)
@@ -2474,6 +2469,21 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                             target->CastSpell(target, 69192, true, NULL, this);
                             // Rocket Pack - causing damage
                             target->CastSpell(target, 69193, true, NULL, this);
+                            return;
+                        }
+                        return;
+                    case 63651:                             // Revert to One Talent Specialization
+                        // Teach Learn Talent Specialization Switches, remove
+                        if (target->GetTypeId() == TYPEID_PLAYER)
+                            ((Player*)target)->removeSpell(63680);
+                        return;
+                    case 68912:                             // Wailing Souls
+                        if (Unit* caster = GetCaster())
+                        {
+                            caster->SetTargetGuid(target->GetObjectGuid());
+
+                            // TODO - this is confusing, it seems the boss should channel this aura, and start casting the next spell
+                            caster->CastSpell(caster, 68899, false);
                         }
                         return;
                     case 71342:                             // Big Love Rocket
@@ -9111,6 +9121,20 @@ void Aura::PeriodicDummyTick()
                     target->CastCustomSpell(target, 66240, &damage, NULL, NULL, true, NULL, this);
                     if (Unit* caster = GetCaster())
                         target->CastCustomSpell(caster, 66125, &heal, NULL, NULL, true, NULL, this);
+                    return;
+                }
+                case 68875:                                 // Wailing Souls
+                case 68876:                                 // Wailing Souls
+                {
+                    // Sweep around
+                    float newAngle = target->GetOrientation() + (spell->Id == 68875 ? 0.09f : 2*M_PI_F - 0.09f);
+                    if (newAngle > 2*M_PI_F)
+                        newAngle -= 2*M_PI_F;
+
+                    target->SetFacingTo(newAngle);
+
+                    // Should actually be SMSG_SPELL_START, too
+                    target->CastSpell(target, 68873, true);
                     return;
                 }
 // Exist more after, need add later
