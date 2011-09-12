@@ -167,6 +167,7 @@ class MANGOS_DLL_SPEC SpellAuraHolder
         bool HasMechanic(uint32 mechanic) const;
         bool HasMechanicMask(uint32 mechanicMask) const;
 
+        void CleanupsBeforeDelete();
         ~SpellAuraHolder();
 
     private:
