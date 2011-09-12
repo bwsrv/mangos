@@ -4507,7 +4507,7 @@ void Spell::EffectApplyAura(SpellEffectIndex eff_idx)
 
     DEBUG_FILTER_LOG(LOG_FILTER_SPELL_CAST, "Spell: Aura is: %u", m_spellInfo->EffectApplyAuraName[eff_idx]);
 
-    Aura* aur = CreateAura(m_spellInfo, eff_idx, &m_currentBasePoints[eff_idx], m_spellAuraHolder, unitTarget, caster, m_CastItem);
+    Aura* aur = m_spellAuraHolder->CreateAura(m_spellInfo, eff_idx, &m_currentBasePoints[eff_idx], unitTarget, caster, m_CastItem);
 
     // Now Reduce spell duration using data received at spell hit
     int32 duration = aur->GetAuraMaxDuration();
@@ -4532,8 +4532,6 @@ void Spell::EffectApplyAura(SpellEffectIndex eff_idx)
         m_spellAuraHolder->SetAuraMaxDuration(duration);
         m_spellAuraHolder->SetAuraDuration(duration);
     }
-
-    m_spellAuraHolder->AddAura(aur, eff_idx);
 }
 
 void Spell::EffectUnlearnSpecialization(SpellEffectIndex eff_idx)
@@ -5362,8 +5360,7 @@ void Spell::EffectApplyAreaAura(SpellEffectIndex eff_idx)
     if (!unitTarget->isAlive())
         return;
 
-    AreaAura* Aur = new AreaAura(m_spellInfo, eff_idx, &m_currentBasePoints[eff_idx], m_spellAuraHolder, unitTarget, m_caster, m_CastItem);
-    m_spellAuraHolder->AddAura(Aur, eff_idx);
+    m_spellAuraHolder->CreateAreaAura(m_spellInfo, eff_idx, &m_currentBasePoints[eff_idx], unitTarget, m_caster, m_CastItem);
 }
 
 void Spell::EffectSummonType(SpellEffectIndex eff_idx)

@@ -321,7 +321,6 @@ Unit::~Unit()
     // those should be already removed at "RemoveFromWorld()" call
     MANGOS_ASSERT(m_gameObj.size() == 0);
     MANGOS_ASSERT(m_dynObjGUIDs.size() == 0);
-    MANGOS_ASSERT(m_deletedAuras.size() == 0);
     MANGOS_ASSERT(m_deletedHolders.size() == 0);
 }
 
@@ -4417,14 +4416,14 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolder *holder)
                 {
                     for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)
                     {
-                        if (Aura *aur = holder->GetAuraByEffectIndex(SpellEffectIndex(i)))
+                        if (Aura* aur = holder->GetAuraByEffectIndex(SpellEffectIndex(i)))
                         {
                             // m_auraname can be modified to SPELL_AURA_NONE for area auras, use original
                             AuraType aurNameReal = AuraType(aurSpellInfo->EffectApplyAuraName[i]);
 
                             if (aurNameReal == SPELL_AURA_PERIODIC_DAMAGE && aur->GetAuraDuration() > 0)
                             {
-                                if (Aura *existing = foundHolder->GetAuraByEffectIndex(SpellEffectIndex(i)))
+                                if (Aura* existing = foundHolder->GetAuraByEffectIndex(SpellEffectIndex(i)))
                                 {
                                     int32 remainingTicks = existing->GetAuraMaxTicks() - existing->GetAuraTicks();
                                     int32 remainingDamage = existing->GetModifier()->m_amount * remainingTicks;
@@ -4727,7 +4726,7 @@ void Unit::RemoveAura(uint32 spellId, SpellEffectIndex effindex, Aura* except)
     SpellAuraHolderBounds spair = GetSpellAuraHolderBounds(spellId);
     for(SpellAuraHolderMap::iterator iter = spair.first; iter != spair.second; )
     {
-        Aura *aur = iter->second->m_auras[effindex];
+        Aura* aur = iter->second->GetAuraByEffectIndex(effindex);
         if (aur && aur != except)
         {
             RemoveSingleAuraFromSpellAuraHolder(iter->second, effindex);
@@ -4777,7 +4776,7 @@ void Unit::RemoveSingleAuraFromSpellAuraHolder(uint32 spellId, SpellEffectIndex 
     SpellAuraHolderBounds spair = GetSpellAuraHolderBounds(spellId);
     for(SpellAuraHolderMap::iterator iter = spair.first; iter != spair.second; )
     {
-        Aura *aur = iter->second->m_auras[effindex];
+        Aura* aur = iter->second->GetAuraByEffectIndex(effindex);
         if (aur && aur->GetCasterGuid() == casterGuid)
         {
             RemoveSingleAuraFromSpellAuraHolder(iter->second, effindex, mode);
@@ -4906,14 +4905,11 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGuid, U
         int32 basePoints = aur->GetBasePoints();
         // construct the new aura for the attacker - will never return NULL, it's just a wrapper for
         // some different constructors
-        Aura * new_aur = CreateAura(spellProto, aur->GetEffIndex(), &basePoints, new_holder, stealer, this);
+        Aura* new_aur = new_holder->CreateAura(spellProto, aur->GetEffIndex(), &basePoints, stealer, this, NULL);
 
         // set periodic to do at least one tick (for case when original aura has been at last tick preparing)
         int32 periodic = aur->GetModifier()->periodictime;
         new_aur->GetModifier()->periodictime = periodic < new_max_dur ? periodic : new_max_dur;
-
-        // add the new aura to stealer
-        new_holder->AddAura(new_aur, new_aur->GetEffIndex());
     }
 
     if (holder->GetSpellProto()->AttributesEx7 & SPELL_ATTR_EX7_DISPEL_CHARGES)
@@ -5160,7 +5156,7 @@ void Unit::RemoveSpellAuraHolder(SpellAuraHolder *holder, AuraRemoveMode mode)
 
     for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)
     {
-        if (Aura *aura = holder->m_auras[i])
+        if (Aura* aura = holder->GetAuraByEffectIndex(SpellEffectIndex(i)))
             RemoveAura(aura, mode);
     }
 
@@ -5239,9 +5235,6 @@ void Unit::RemoveAura(Aura *Aur, AuraRemoveMode mode)
     else
         Aur->ApplyModifier(false,true);
 
-    // If aura in use (removed from code that plan access to it data after return)
-    // store it in aura list with delayed deletion
-    m_deletedAuras.push_back(Aur);
 }
 
 void Unit::RemoveAllAuras(AuraRemoveMode mode /*= AURA_REMOVE_BY_DEFAULT*/)
@@ -6837,7 +6830,7 @@ uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, u
 
         int32 calculatedBonus = aura->GetModifier()->m_amount;
 
-        SpellAuraHolder* holder = aura->GetHolder();
+        SpellAuraHolder* const holder = aura->GetHolder();
 
         if (!holder || holder->IsDeleted())
             continue;
@@ -7119,10 +7112,10 @@ uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, u
             else if (spellProto->SpellFamilyFlags.test<CF_PRIEST_SHADOW_WORD_DEATH_TARGET>())
             {
                 // Glyph of Shadow word: Death
-                if (SpellAuraHolder const* glyph = GetSpellAuraHolder(55682))
+                if (SpellAuraHolder* glyph = GetSpellAuraHolder(55682))
                 {
-                    Aura const* hpPct = glyph->GetAuraByEffectIndex(EFFECT_INDEX_0);
-                    Aura const* dmPct = glyph->GetAuraByEffectIndex(EFFECT_INDEX_1);
+                    Aura* hpPct = glyph->GetAuraByEffectIndex(EFFECT_INDEX_0);
+                    Aura* dmPct = glyph->GetAuraByEffectIndex(EFFECT_INDEX_1);
                     if (hpPct && dmPct && pVictim->GetHealth() * 100 <= pVictim->GetMaxHealth() * hpPct->GetModifier()->m_amount)
                         DoneTotalMod *= (dmPct->GetModifier()->m_amount + 100.0f) / 100.0f;
                 }
@@ -12120,11 +12113,6 @@ void Unit::CleanupDeletedAuras()
     for (SpellAuraHolderList::const_iterator iter = m_deletedHolders.begin(); iter != m_deletedHolders.end(); ++iter)
         delete *iter;
     m_deletedHolders.clear();
-
-    // really delete auras "deleted" while processing its ApplyModify code
-    for(AuraList::const_iterator itr = m_deletedAuras.begin(); itr != m_deletedAuras.end(); ++itr)
-        delete *itr;
-    m_deletedAuras.clear();
 }
 
 bool Unit::CheckAndIncreaseCastCounter()
@@ -12177,8 +12165,7 @@ void Unit::_AddAura(uint32 spellID, uint32 duration)
                     spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA  ||
                     spellInfo->Effect[i] == SPELL_EFFECT_PERSISTENT_AREA_AURA )
                 {
-                    Aura *aura = CreateAura(spellInfo, SpellEffectIndex(i), NULL, holder, this);
-                    holder->AddAura(aura, SpellEffectIndex(i));
+                    Aura *aura = holder->CreateAura(spellInfo, SpellEffectIndex(i), NULL, this, NULL, NULL);
                     holder->SetAuraDuration(duration);
                     DEBUG_FILTER_LOG(LOG_FILTER_SPELL_CAST, "Manually adding aura of spell %u, index %u, duration %u ms", spellID, i, duration);
                 }

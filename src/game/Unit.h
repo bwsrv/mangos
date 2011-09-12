@@ -2083,7 +2083,6 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 
         SpellAuraHolderMap m_spellAuraHolders;
         SpellAuraHolderMap::iterator m_spellAuraHoldersUpdateIterator; // != end() in Unit::m_spellAuraHolders update and point to next element
-        AuraList m_deletedAuras;                                       // auras removed while in ApplyModifier and waiting deleted
         SpellAuraHolderList m_deletedHolders;
 
         SingleCastSpellTargetMap m_singleCastSpellTargets;  // casted by unit single per-caster auras

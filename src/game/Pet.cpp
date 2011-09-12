@@ -1394,12 +1394,11 @@ void Pet::_LoadAuras(uint32 timediff)
                 if ((effIndexMask & (1 << i)) == 0)
                     continue;
 
-                Aura* aura = CreateAura(spellproto, SpellEffectIndex(i), NULL, holder, this);
+                Aura* aura = holder->CreateAura(spellproto, SpellEffectIndex(i), NULL, (Unit*)this, NULL, NULL);
                 if (!damage[i])
                     damage[i] = aura->GetModifier()->m_amount;
 
                 aura->SetLoadedState(damage[i], periodicTime[i]);
-                holder->AddAura(aura, SpellEffectIndex(i));
             }
 
             if (!holder->IsEmptyHolder())
@@ -3089,8 +3088,7 @@ bool Pet::ReapplyScalingAura(SpellAuraHolder* holder, SpellEntry const *spellpro
         RemoveAura(oldaura, AURA_REMOVE_BY_STACK);
     }
 
-    Aura* aura = CreateAura(spellproto, index, &basePoints, holder, this, this, NULL);
-    holder->AddAura(aura, index);
+    Aura* aura = holder->CreateAura(spellproto, index, &basePoints, this, this, NULL);
     holder->SetAuraDuration(aura->GetAuraMaxDuration());
     AddAuraToModList(aura);
     aura->ApplyModifier(true,true);
