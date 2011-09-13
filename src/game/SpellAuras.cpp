@@ -372,8 +372,8 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
 
 static AuraType const frozenAuraTypes[] = { SPELL_AURA_MOD_ROOT, SPELL_AURA_MOD_STUN, SPELL_AURA_NONE };
 
-Aura::Aura(SpellEntry const* spellproto, SpellEffectIndex eff, int32 *currentBasePoints, SpellAuraHolder *holder, Unit *target, Unit *caster, Item* castItem) :
-m_periodicTimer(0), m_periodicTick(0), m_removeMode(AURA_REMOVE_BY_DEFAULT),
+Aura::Aura(AuraClassType type, SpellEntry const* spellproto, SpellEffectIndex eff, int32 *currentBasePoints, SpellAuraHolder *holder, Unit *target, Unit *caster, Item* castItem) :
+m_classType(type),m_periodicTimer(0), m_periodicTick(0), m_removeMode(AURA_REMOVE_BY_DEFAULT),
 m_effIndex(eff), m_positive(false), m_isPeriodic(false), m_isAreaAura(false),
 m_isPersistent(false), m_in_use(0), m_spellAuraHolder(holder)
 {
@@ -441,14 +441,35 @@ m_isPersistent(false), m_in_use(0), m_spellAuraHolder(holder)
         m_periodicTimer = m_modifier.periodictime;
 
     m_stacking = IsEffectStacking();
+
+    switch (type)
+    {
+        case AURA_CLASS_AREA_AURA:
+        {
+            AreaAura(spellproto, eff, currentBasePoints, holder, target, caster, castItem);
+            break;
+        }
+        case AURA_CLASS_PERSISTENT_AREA_AURA:
+        {
+            PersistentAreaAura(spellproto, eff, currentBasePoints, holder, target, caster, castItem);
+            break;
+        }
+        case AURA_CLASS_SINGLE_ENEMY_AURA:
+        {
+            SingleEnemyTargetAura(spellproto, eff, currentBasePoints, holder, target, caster, castItem);
+            break;
+        }
+        case AURA_CLASS_AURA:
+        default:
+            break;
+    }
 }
 
 Aura::~Aura()
 {
 }
 
-AreaAura::AreaAura(SpellEntry const* spellproto, SpellEffectIndex eff, int32 *currentBasePoints, SpellAuraHolder *holder, Unit *target,
-Unit *caster, Item* castItem) : Aura(spellproto, eff, currentBasePoints, holder, target, caster, castItem)
+void Aura::AreaAura(SpellEntry const* spellproto, SpellEffectIndex eff, int32 *currentBasePoints, SpellAuraHolder *holder, Unit *target,Unit *caster, Item* castItem)
 {
     m_isAreaAura = true;
 
@@ -497,33 +518,22 @@ Unit *caster, Item* castItem) : Aura(spellproto, eff, currentBasePoints, holder,
         m_modifier.m_auraname = SPELL_AURA_NONE;
 }
 
-AreaAura::~AreaAura()
-{
-}
-
-PersistentAreaAura::PersistentAreaAura(SpellEntry const* spellproto, SpellEffectIndex eff, int32 *currentBasePoints, SpellAuraHolder *holder, Unit *target,
-Unit *caster, Item* castItem) : Aura(spellproto, eff, currentBasePoints, holder, target, caster, castItem)
+void Aura::PersistentAreaAura(SpellEntry const* spellproto, SpellEffectIndex eff, int32 *currentBasePoints, SpellAuraHolder *holder, Unit *target,Unit *caster, Item* castItem)
 {
     m_isPersistent = true;
 }
 
-PersistentAreaAura::~PersistentAreaAura()
-{
-}
-
-SingleEnemyTargetAura::SingleEnemyTargetAura(SpellEntry const* spellproto, SpellEffectIndex eff, int32 *currentBasePoints, SpellAuraHolder *holder, Unit *target,
-Unit *caster, Item* castItem) : Aura(spellproto, eff, currentBasePoints, holder, target, caster, castItem)
+void Aura::SingleEnemyTargetAura(SpellEntry const* spellproto, SpellEffectIndex eff, int32 *currentBasePoints, SpellAuraHolder *holder, Unit *target, Unit *caster, Item* castItem)
 {
     if (caster)
         m_castersTargetGuid = caster->GetTypeId()==TYPEID_PLAYER ? ((Player*)caster)->GetSelectionGuid() : caster->GetTargetGuid();
 }
 
-SingleEnemyTargetAura::~SingleEnemyTargetAura()
+Unit* Aura::GetTriggerTarget() const
 {
-}
+    if (GetAuraClassType() != AURA_CLASS_SINGLE_ENEMY_AURA)
+        return m_spellAuraHolder->GetTarget();
 
-Unit* SingleEnemyTargetAura::GetTriggerTarget() const
-{
     // search for linked dummy aura with the correct target
     for (int i = 0; i < MAX_EFFECT_INDEX; ++i)
         if (i != GetEffIndex())
@@ -536,11 +546,13 @@ Unit* SingleEnemyTargetAura::GetTriggerTarget() const
 
 Aura* SpellAuraHolder::CreateAura(SpellEntry const* spellproto, SpellEffectIndex eff, int32* currentBasePoints, Unit *target, Unit *caster, Item* castItem)
 {
+    if (!spellproto || spellproto != m_spellProto)
+        return (Aura*)NULL;
+
     uint32 triggeredSpellId = spellproto->EffectTriggerSpell[eff];
     if (IsAreaAuraEffect(spellproto->Effect[eff]))
     {
-        AddAura((Aura)AreaAura(spellproto, eff, currentBasePoints, this, target, caster, castItem), eff);
-        return GetAuraByEffectIndex(eff);
+        return CreateAura(AURA_CLASS_AREA_AURA, eff, currentBasePoints, target, caster, castItem);
     }
     else if (SpellEntry const* triggeredSpellInfo = sSpellStore.LookupEntry(triggeredSpellId))
     {
@@ -548,30 +560,20 @@ Aura* SpellAuraHolder::CreateAura(SpellEntry const* spellproto, SpellEffectIndex
         {
             if (triggeredSpellInfo->EffectImplicitTargetA[i] == TARGET_SINGLE_ENEMY)
             {
-                AddAura((Aura)SingleEnemyTargetAura(spellproto, eff, currentBasePoints, this, target, caster, castItem),eff);
-                return GetAuraByEffectIndex(eff);
+                return CreateAura(AURA_CLASS_SINGLE_ENEMY_AURA, eff, currentBasePoints, target, caster, castItem);
             }
         }
     }
     // else - normal aura
 
-    AddAura(Aura(spellproto, eff, currentBasePoints, this, target, caster, castItem),eff);
+    return CreateAura(AURA_CLASS_AURA, eff, currentBasePoints, target, caster, castItem);
+}
+
+Aura* SpellAuraHolder::CreateAura(AuraClassType type, SpellEffectIndex eff, int32* currentBasePoints, Unit* target, Unit* caster, Item* castItem)
+{
+    AddAura(Aura(type, m_spellProto, eff, currentBasePoints, this, target, caster, castItem),eff);
 
     return GetAuraByEffectIndex(eff);
-}
-
-PersistentAreaAura* SpellAuraHolder::CreatePersistentAreaAura(SpellEntry const* spellproto, SpellEffectIndex eff, int32* currentBasePoints, Unit* target, Unit* caster, Item* castItem)
-{
-    AddAura((Aura)PersistentAreaAura(spellproto, eff, currentBasePoints, this, target, caster, castItem),eff);
-
-    return ((PersistentAreaAura*)GetAuraByEffectIndex(eff));
-}
-
-AreaAura* SpellAuraHolder::CreateAreaAura(SpellEntry const* spellproto, SpellEffectIndex eff, int32* currentBasePoints, Unit* target, Unit* caster, Item* castItem)
-{
-    AddAura((Aura)AreaAura(spellproto, eff, currentBasePoints, this, target, caster, castItem),eff);
-
-    return ((AreaAura*)GetAuraByEffectIndex(eff));
 }
 
 SpellAuraHolder* CreateSpellAuraHolder(SpellEntry const* spellproto, Unit *target, WorldObject *caster, Item *castItem)
@@ -586,6 +588,28 @@ void Aura::SetModifier(AuraType t, int32 a, uint32 pt, int32 miscValue)
     m_modifier.m_miscvalue = miscValue;
     m_modifier.periodictime = pt;
     m_modifier.m_baseamount = a;
+}
+
+void Aura::UpdateAura(uint32 diff)
+{
+    SetInUse(true);
+    switch(GetAuraClassType())
+    {
+        case AURA_CLASS_AREA_AURA:
+            AreaAuraUpdate(diff);
+            break;
+        case AURA_CLASS_PERSISTENT_AREA_AURA:
+        {
+            PersistentAreaAuraUpdate(diff);
+            break;
+        }
+        case AURA_CLASS_SINGLE_ENEMY_AURA:
+        case AURA_CLASS_AURA:
+        default:
+            Update(diff);
+            break;
+    }
+    SetInUse(false);
 }
 
 void Aura::Update(uint32 diff)
@@ -603,7 +627,7 @@ void Aura::Update(uint32 diff)
     }
 }
 
-void AreaAura::Update(uint32 diff)
+void Aura::AreaAuraUpdate(uint32 diff)
 {
     // update for the caster of the aura
     if (GetCasterGuid() == GetTarget()->GetObjectGuid())
@@ -808,7 +832,7 @@ void AreaAura::Update(uint32 diff)
 
                     holder->SetAuraDuration(GetAuraDuration());
 
-                    AreaAura* aur = holder->CreateAreaAura(actualSpellInfo, m_effIndex, &actualBasePoints, (*tIter), caster, NULL);
+                    Aura* aur = holder->CreateAura(AURA_CLASS_AREA_AURA, m_effIndex, &actualBasePoints, (*tIter), caster, NULL);
 
                     if (addedToExisting)
                     {
@@ -822,14 +846,14 @@ void AreaAura::Update(uint32 diff)
                 }
             }
         }
-        Aura::Update(diff);
+        Update(diff);
     }
     else                                                    // aura at non-caster
     {
         Unit* caster = GetCaster();
         Unit* target = GetTarget();
 
-        Aura::Update(diff);
+        Update(diff);
 
         // remove aura if out-of-range from caster (after teleport for example)
         // or caster is isolated or caster no longer has the aura
@@ -887,7 +911,7 @@ void AreaAura::Update(uint32 diff)
     }
 }
 
-void PersistentAreaAura::Update(uint32 diff)
+void Aura::PersistentAreaAuraUpdate(uint32 diff)
 {
     bool remove = false;
 
@@ -910,7 +934,7 @@ void PersistentAreaAura::Update(uint32 diff)
     else
         remove = true;
 
-    Aura::Update(diff);
+    Update(diff);
 
     if (remove)
         GetTarget()->RemoveAura(GetId(), GetEffIndex());
