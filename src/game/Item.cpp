@@ -1293,7 +1293,7 @@ void Item::SetLootState(ItemLootUpdateState state)
         SetState(ITEM_CHANGED);
 }
 
-// "Stackable items (such as Frozen Orbs and gems) and 
+// "Stackable items (such as Frozen Orbs and gems) and
 // charged items that can be purchased with an alternate currency are not eligible. "
 bool Item::IsEligibleForRefund()
 {

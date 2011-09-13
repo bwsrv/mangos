@@ -891,7 +891,7 @@ class MANGOS_DLL_SPEC WorldSession
         uint32 _accountId;
         uint8 m_expansion;
 
-        // Warden 
+        // Warden
         WardenBase *m_Warden;
 
         time_t _logoutTime;

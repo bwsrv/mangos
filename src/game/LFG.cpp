@@ -289,9 +289,9 @@ LFGAnswer LFGGroupState::GetBootResult()
 }
 
 void  LFGGroupState::DecreaseKicksLeft()
-{ 
+{
     LFGMgr::WriteGuard Guard(sLFGMgr.GetLock());
-    if (m_kicksLeft > 0) 
+    if (m_kicksLeft > 0)
         --m_kicksLeft;
 };
 

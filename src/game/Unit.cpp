@@ -4039,7 +4039,7 @@ float Unit::GetTotalAuraMultiplier(AuraType auratype) const
                 nonStackingNeg = (*i)->GetModifier()->m_amount;
         }
     }
- 
+
     return multiplier * (100.0f + nonStackingPos)/100.0f * (100.0f + nonStackingNeg)/100.0f;
 }
 
@@ -6888,7 +6888,7 @@ uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, u
 
     // done scripted mod (take it from owner)
     Unit *owner = GetOwner();
-    if (!owner) 
+    if (!owner)
         owner = this;
 
     MAPLOCK_READ1(owner,MAP_LOCK_TYPE_AURAS);

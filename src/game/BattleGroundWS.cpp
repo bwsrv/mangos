@@ -96,7 +96,7 @@ void BattleGroundWS::Update(uint32 diff)
                     if(!carrier)
                         continue;
 
-                    if((!carrier->HasAura(BG_WS_SPELL_FOCUSED_ASSAULT) && !carrier->HasAura(BG_WS_SPELL_BRUTAL_ASSAULT)) || 
+                    if((!carrier->HasAura(BG_WS_SPELL_FOCUSED_ASSAULT) && !carrier->HasAura(BG_WS_SPELL_BRUTAL_ASSAULT)) ||
                         (m_FocusedAssaultExtra && m_FocusedAssault < diff))
                         carrier->CastSpell(carrier, (m_FocusedAssault < diff) ? BG_WS_SPELL_BRUTAL_ASSAULT : BG_WS_SPELL_FOCUSED_ASSAULT, true);
                 }

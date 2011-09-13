@@ -165,7 +165,7 @@ bool Group::Create(ObjectGuid guid, const char * name)
             m_targetIcons[6].GetRawValue(), m_targetIcons[7].GetRawValue(),
             uint8(m_groupType), uint32(m_dungeonDifficulty), uint32(m_raidDifficulty));
     }
-    else 
+    else
         m_Guid =  ObjectGuid(HIGHGUID_GROUP,uint32(0));
 
     if (!AddMember(guid, name))

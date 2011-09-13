@@ -359,7 +359,7 @@ bool IsNoStackAuraDueToAura(uint32 spellId_1, uint32 spellId_2)
 
 bool IsSpellAffectedBySpellMods(SpellEntry const* spellInfo)
 {
-    return !(IsPassiveSpell(spellInfo) && 
+    return !(IsPassiveSpell(spellInfo) &&
             !(spellInfo->Attributes & SPELL_ATTR_ABILITY) &&
             spellInfo->AttributesEx3 & SPELL_ATTR_EX3_CAN_PROC_WITH_TRIGGERED
             );
