@@ -5360,7 +5360,7 @@ void Spell::EffectApplyAreaAura(SpellEffectIndex eff_idx)
     if (!unitTarget->isAlive())
         return;
 
-    m_spellAuraHolder->CreateAreaAura(m_spellInfo, eff_idx, &m_currentBasePoints[eff_idx], unitTarget, m_caster, m_CastItem);
+    m_spellAuraHolder->CreateAura(AURA_CLASS_AREA_AURA, eff_idx, &m_currentBasePoints[eff_idx], unitTarget, m_caster, m_CastItem);
 }
 
 void Spell::EffectSummonType(SpellEffectIndex eff_idx)

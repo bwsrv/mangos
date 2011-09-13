@@ -22,6 +22,14 @@
 #include "DBCEnums.h"
 #include "ObjectGuid.h"
 
+enum AuraClassType
+{
+    AURA_CLASS_AURA,
+    AURA_CLASS_SINGLE_ENEMY_AURA,
+    AURA_CLASS_AREA_AURA,
+    AURA_CLASS_PERSISTENT_AREA_AURA,
+};
+
 struct Modifier
 {
     AuraType m_auraname;
@@ -37,8 +45,6 @@ struct ProcTriggerSpell;
 
 // forward decl
 class Aura;
-class AreaAura;
-class PersistentAreaAura;
 
 typedef std::map<SpellEffectIndex,Aura> AuraStorage;
 
@@ -50,9 +56,8 @@ class MANGOS_DLL_SPEC SpellAuraHolder
     public:
         SpellAuraHolder (SpellEntry const* spellproto, Unit *target, WorldObject *caster, Item *castItem);
 
-        Aura* CreateAura(SpellEntry const* spellproto, SpellEffectIndex eff, int32* currentBasePoints, Unit *target, Unit *caster, Item* castItem);
-        PersistentAreaAura* CreatePersistentAreaAura(SpellEntry const* spellproto, SpellEffectIndex eff, int32 *currentBasePoints, Unit *target, Unit *caster = NULL, Item* castItem = NULL);
-        AreaAura* CreateAreaAura(SpellEntry const* spellproto, SpellEffectIndex eff, int32 *currentBasePoints, Unit *target, Unit *caster = NULL, Item* castItem = NULL);
+        Aura* CreateAura(SpellEntry const* spellproto, SpellEffectIndex eff, int32* currentBasePoints, Unit *target, Unit *caster = NULL, Item* castItem = NULL);
+        Aura* CreateAura(AuraClassType type, SpellEffectIndex eff, int32* currentBasePoints, Unit *target, Unit *caster = NULL, Item* castItem = NULL);
 
         void RemoveAura(SpellEffectIndex index);
         void ApplyAuraModifiers(bool apply, bool real = false);
@@ -452,11 +457,11 @@ class MANGOS_DLL_SPEC Aura
         }
         void ApplyModifier(bool apply, bool Real = false);
 
-        void UpdateAura(uint32 diff) { SetInUse(true); Update(diff); SetInUse(false); }
+        void UpdateAura(uint32 diff);
 
         void SetRemoveMode(AuraRemoveMode mode) { m_removeMode = mode; }
 
-        virtual Unit* GetTriggerTarget() const { return m_spellAuraHolder->GetTarget(); }
+        Unit* GetTriggerTarget() const;
 
         uint32 CalculateCrowdControlBreakDamage();
 
@@ -473,15 +478,21 @@ class MANGOS_DLL_SPEC Aura
         //SpellAuraHolder const* GetHolder() const { return m_spellHolder; }
         SpellAuraHolder* GetHolder() { return m_spellAuraHolder; }
         SpellAuraHolder* const GetHolder() const { return m_spellAuraHolder; }
+        AuraClassType const GetAuraClassType() const { return m_classType; }
 
         bool IsLastAuraOnHolder();
 
         bool HasMechanic(uint32 mechanic) const;
     protected:
-        Aura(SpellEntry const* spellproto, SpellEffectIndex eff, int32 *currentBasePoints, SpellAuraHolder *holder, Unit *target, Unit *caster = NULL, Item* castItem = NULL);
+        Aura(AuraClassType type,SpellEntry const* spellproto, SpellEffectIndex eff, int32 *currentBasePoints, SpellAuraHolder *holder, Unit *target, Unit *caster = NULL, Item* castItem = NULL);
+        void AreaAura(SpellEntry const* spellproto, SpellEffectIndex eff, int32 *currentBasePoints, SpellAuraHolder *holder, Unit *target, Unit *caster = NULL, Item* castItem = NULL);
+        void PersistentAreaAura(SpellEntry const* spellproto, SpellEffectIndex eff, int32 *currentBasePoints, SpellAuraHolder *holder, Unit *target, Unit *caster = NULL, Item* castItem = NULL);
+        void SingleEnemyTargetAura(SpellEntry const* spellproto, SpellEffectIndex eff, int32 *currentBasePoints, SpellAuraHolder *holder, Unit *target, Unit *caster = NULL, Item* castItem = NULL);
 
         // must be called only from Aura::UpdateAura
-        virtual void Update(uint32 diff);
+        void Update(uint32 diff);
+        void AreaAuraUpdate(uint32 diff);
+        void PersistentAreaAuraUpdate(uint32 diff);
 
         // must be called only from Aura*::Update
         void PeriodicTick();
@@ -513,42 +524,14 @@ class MANGOS_DLL_SPEC Aura
         bool IsEffectStacking();
 
         SpellAuraHolder* const m_spellAuraHolder;
+        AuraClassType const m_classType;
+
+        ObjectGuid m_castersTargetGuid;
+
     private:
         void ReapplyAffectedPassiveAuras(Unit* target, bool owner_mode);
-};
-
-class MANGOS_DLL_SPEC AreaAura : public Aura
-{
-    public:
-        AreaAura(SpellEntry const* spellproto, SpellEffectIndex eff, int32 *currentBasePoints, SpellAuraHolder *holder, Unit *target, Unit *caster = NULL, Item* castItem = NULL);
-        ~AreaAura();
-    protected:
-        void Update(uint32 diff);
-    private:
         float m_radius;
         AreaAuraType m_areaAuraType;
-};
-
-class MANGOS_DLL_SPEC PersistentAreaAura : public Aura
-{
-    public:
-        PersistentAreaAura(SpellEntry const* spellproto, SpellEffectIndex eff, int32 *currentBasePoints, SpellAuraHolder *holder, Unit *target, Unit *caster = NULL, Item* castItem = NULL);
-        ~PersistentAreaAura();
-    protected:
-        void Update(uint32 diff);
-};
-
-class MANGOS_DLL_SPEC SingleEnemyTargetAura : public Aura
-{
-    friend class SpellAuraHolder;
-
-    public:
-        ~SingleEnemyTargetAura();
-        Unit* GetTriggerTarget() const;
-
-    protected:
-        SingleEnemyTargetAura(SpellEntry const* spellproto, SpellEffectIndex eff, int32 *currentBasePoints, SpellAuraHolder *holder, Unit *target, Unit *caster  = NULL, Item* castItem = NULL);
-        ObjectGuid m_castersTargetGuid;
 };
 
 MANGOS_DLL_SPEC SpellAuraHolder* CreateSpellAuraHolder(SpellEntry const* spellproto, Unit *target, WorldObject *caster, Item *castItem = NULL);
