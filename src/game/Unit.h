@@ -568,6 +568,7 @@ enum UnitFlags2
     UNIT_FLAG2_UNK9                 = 0x00000200,
     UNIT_FLAG2_DISARM_RANGED        = 0x00000400,           // disarm or something
     UNIT_FLAG2_REGENERATE_POWER     = 0x00000800,
+    UNIT_FLAG2_GM_MODE              = 0x00040000,           // allows casting spells with AttributesEx7 & SPELL_ATTR_EX7_GM_ONLY
 };
 
 /// Non Player Character flags
