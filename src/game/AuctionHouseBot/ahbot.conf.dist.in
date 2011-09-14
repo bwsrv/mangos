@@ -60,6 +60,10 @@ ConfVersion=2010102201
 #        Enable or not lockbox in auctionhouse
 #    Default 0 (Disabled)
 #
+#    AuctionHouseBot.Pets.Enabled
+#        Enable or not pets in auctionhouse
+#    Default 0 (Disabled)
+#
 #    AuctionHouseBot.ItemsPerCycle.Boost
 #        This value is used to fill DB faster than normal when there is more than this value missed items.
 #        Normaly this value is used only first start of the server with empty auction table.
@@ -171,6 +175,7 @@ AuctionHouseBot.Bind.Equip = 1
 AuctionHouseBot.Bind.Use = 1
 AuctionHouseBot.Bind.Quest = 0
 AuctionHouseBot.LockBox.Enabled = 0
+AuctionHouseBot.Pets.Enabled = 0
 
 AuctionHouseBot.ItemsPerCycle.Boost = 75
 AuctionHouseBot.ItemsPerCycle.Normal = 20

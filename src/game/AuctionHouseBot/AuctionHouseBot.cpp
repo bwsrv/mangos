@@ -326,6 +326,7 @@ void AuctionBotConfig::GetConfigFromFile()
     setConfig(CONFIG_BOOL_AHBOT_BIND_USE                     , "AuctionHouseBot.Bind.Use"                    , true);
     setConfig(CONFIG_BOOL_AHBOT_BIND_QUEST                   , "AuctionHouseBot.Bind.Quest"                  , false);
     setConfig(CONFIG_BOOL_AHBOT_LOCKBOX_ENABLED              , "AuctionHouseBot.LockBox.Enabled"             , false);
+    setConfig(CONFIG_BOOL_AHBOT_PETS_ENABLED                 , "AuctionHouseBot.Pets.Enabled"                , false);
 
     setConfig(CONFIG_BOOL_AHBOT_BUYPRICE_SELLER              , "AuctionHouseBot.BuyPrice.Seller"             , true);
 
@@ -1123,6 +1124,7 @@ bool AuctionBotSeller::Initialize()
                 break;
             }
             case ITEM_CLASS_MISC:
+            {
                 if (prototype->SubClass==ITEM_SUBCLASS_JUNK_MOUNT)
                 {
                     if (uint32 value = sAuctionBotConfig.getConfig(CONFIG_UINT32_AHBOT_CLASS_MISC_MOUNT_MIN_REQ_LEVEL))
@@ -1149,7 +1151,15 @@ bool AuctionBotSeller::Initialize()
                         continue;
                 }
 
+                if (prototype->BagFamily & BAG_FAMILY_MASK_VANITY_PETS)
+                {
+                    // skip pets if disabled
+                    if (!sAuctionBotConfig.getConfig(CONFIG_BOOL_AHBOT_PETS_ENABLED))
+                        continue;
+                }
+
                 break;
+            }
             case ITEM_CLASS_GLYPH:
             {
                 if (uint32 value = sAuctionBotConfig.getConfig(CONFIG_UINT32_AHBOT_CLASS_GLYPH_MIN_REQ_LEVEL))
