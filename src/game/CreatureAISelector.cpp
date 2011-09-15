@@ -37,6 +37,9 @@ namespace FactorySelector
             if (CreatureAI* scriptedAI = sScriptMgr.GetCreatureAI(creature))
                 return scriptedAI;
 
+        if (creature->IsVehicle() && creature->isCharmed())
+            return (new NullCreatureAI(creature));
+
         CreatureAIRegistry &ai_registry(CreatureAIRepository::Instance());
 
         const CreatureAICreator *ai_factory = NULL;

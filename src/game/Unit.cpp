@@ -1525,7 +1525,7 @@ void Unit::DealSpellDamage(SpellNonMeleeDamage *damageInfo, bool durabilityLoss)
     CleanDamage cleanDamage(0, damageInfo->absorb, BASE_ATTACK, damageInfo->HitInfo & SPELL_HIT_TYPE_CRIT ? MELEE_HIT_CRIT : MELEE_HIT_NORMAL);
     DealDamage(pVictim, damageInfo->damage, &cleanDamage, SPELL_DIRECT_DAMAGE, damageInfo->schoolMask, spellProto, durabilityLoss);
     // Check if effect can trigger anything actually (is this a right ATTR ?)
-    if ( spellProto->AttributesEx3 & SPELL_ATTR_EX3_UNK16 )
+    if ( spellProto->AttributesEx3 & SPELL_ATTR_EX3_CANT_TRIGGER_PROC)
         return;
 
     bool hasWeaponDmgEffect = false;
@@ -4039,7 +4039,7 @@ float Unit::GetTotalAuraMultiplier(AuraType auratype) const
                 nonStackingNeg = (*i)->GetModifier()->m_amount;
         }
     }
- 
+
     return multiplier * (100.0f + nonStackingPos)/100.0f * (100.0f + nonStackingNeg)/100.0f;
 }
 
@@ -6888,7 +6888,7 @@ uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, u
 
     // done scripted mod (take it from owner)
     Unit *owner = GetOwner();
-    if (!owner) 
+    if (!owner)
         owner = this;
 
     MAPLOCK_READ1(owner,MAP_LOCK_TYPE_AURAS);

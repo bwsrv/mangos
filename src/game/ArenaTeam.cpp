@@ -344,7 +344,7 @@ bool ArenaTeam::LoadMembersFromDB(QueryResult *arenaTeamMembersResult)
             {
                 CharacterDatabase.PExecute("INSERT INTO hidden_rating (guid, rating2, rating3, rating5) VALUES""('%u', '%u', '%u', '%u')", fields[1].GetUInt32(), 1500, 1500, 1500);
                 newmember.matchmaker_rating = 1500;
-            }  
+            }
             else
             {
                 newmember.matchmaker_rating = (*result)[0].GetUInt32();
@@ -761,7 +761,7 @@ int32 ArenaTeam::LostAgainst(uint32 againstRating)
     // calculate the rating modification (ELO system with k=32 or k=48 if rating<1000)
     int32 mod = (int32)ceil(K * (0.0f - chance));
     // modify the team stats accordingly
-    
+
     if(againstRating <= sWorld.getConfig(CONFIG_UINT32_LOSERNOCHANGE) || m_stats.rating <= sWorld.getConfig(CONFIG_UINT32_LOSERNOCHANGE))
         mod = 0;
     else if (m_stats.rating <= sWorld.getConfig(CONFIG_UINT32_LOSERHALFCHANGE))
@@ -785,7 +785,7 @@ void ArenaTeam::MemberLost(Player * plr, uint32 againstRating)
             float K = (itr->personal_rating < 1000) ? 48.0f : 32.0f;
             // calculate the rating modification (ELO system with k=32 or k=48 if rating<1000)
             int32 mod = (int32)ceil(K * (0.0f - chance));
-            
+
             if(againstRating <= sWorld.getConfig(CONFIG_UINT32_LOSERNOCHANGE) || itr->personal_rating <= sWorld.getConfig(CONFIG_UINT32_LOSERNOCHANGE))
                 mod = 0;
             else if (itr->personal_rating <= sWorld.getConfig(CONFIG_UINT32_LOSERHALFCHANGE))
@@ -793,7 +793,7 @@ void ArenaTeam::MemberLost(Player * plr, uint32 againstRating)
 
             itr->ModifyPersonalRating(plr, mod, GetSlot());
 
-            // update matchmaker rating 
+            // update matchmaker rating
             chance = GetChanceAgainst(itr->matchmaker_rating, againstRating);
             K = (itr->matchmaker_rating < 1000) ? 48.0f : 32.0f;
             // calculate the rating modification (ELO system with k=32 or k=48 if rating<1000)
@@ -834,14 +834,14 @@ void ArenaTeam::OfflineMemberLost(ObjectGuid guid, uint32 againstRating)
             mod = (int32)ceil(K * (0.0f - chance));
             if (int32(itr->matchmaker_rating) + mod < 0)
                 itr->matchmaker_rating = 0;
-            else 
+            else
                 itr->matchmaker_rating += mod;
 
             if(GetType() == ARENA_TYPE_2v2)
                 CharacterDatabase.PExecute("UPDATE hidden_rating SET rating2 = '%u' WHERE guid = '%u'", itr->matchmaker_rating, guid.GetCounter());
-            if(GetType() == ARENA_TYPE_3v3) 
+            if(GetType() == ARENA_TYPE_3v3)
                 CharacterDatabase.PExecute("UPDATE hidden_rating SET rating3 = '%u' WHERE guid = '%u'", itr->matchmaker_rating, guid.GetCounter());
-            if(GetType() == ARENA_TYPE_5v5) 
+            if(GetType() == ARENA_TYPE_5v5)
                 CharacterDatabase.PExecute("UPDATE hidden_rating SET rating5 = '%u' WHERE guid = '%u'", itr->matchmaker_rating, guid.GetCounter());
 
             // update personal played stats

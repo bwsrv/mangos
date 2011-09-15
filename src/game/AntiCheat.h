@@ -104,7 +104,7 @@ class AntiCheat
         // Check selectors
         bool DoAntiCheatCheck(AntiCheatCheck checkType, MovementInfo& movementInfo, uint32 opcode = 0)
             {
-                m_currentmovementInfo = &movementInfo; 
+                m_currentmovementInfo = &movementInfo;
                 m_currentOpcode = opcode;
                 return _DoAntiCheatCheck(checkType);
             }

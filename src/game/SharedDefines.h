@@ -272,7 +272,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_CASTABLE_WHILE_SITTING         0x08000000            // 27 castable while sitting
 #define SPELL_ATTR_CANT_USED_IN_COMBAT            0x10000000            // 28 Cannot be used in combat
 #define SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY  0x20000000            // 29 unaffected by invulnerability (hmm possible not...)
-#define SPELL_ATTR_UNK30                          0x40000000            // 30 breakable by damage?
+#define SPELL_ATTR_BREAKABLE_BY_DAMAGE            0x40000000            // 30 breakable by damage?
 #define SPELL_ATTR_CANT_CANCEL                    0x80000000            // 31 positive aura can't be canceled
 
 #define SPELL_ATTR_EX_UNK0                        0x00000001            // 0
@@ -357,7 +357,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX3_UNK13                      0x00002000            // 13
 #define SPELL_ATTR_EX3_UNK14                      0x00004000            // 14 "Honorless Target" only this spells have this flag
 #define SPELL_ATTR_EX3_UNK15                      0x00008000            // 15 Auto Shoot, Shoot, Throw,  - this is autoshot flag
-#define SPELL_ATTR_EX3_UNK16                      0x00010000            // 16 no triggers effects that trigger on casting a spell??
+#define SPELL_ATTR_EX3_CANT_TRIGGER_PROC          0x00010000            // 16 no triggers effects that trigger on casting a spell??
 #define SPELL_ATTR_EX3_NO_INITIAL_AGGRO           0x00020000            // 17 Causes no aggro if not missed
 #define SPELL_ATTR_EX3_CANT_MISS                  0x00040000            // 18 Spell should always hit its target
 #define SPELL_ATTR_EX3_UNK19                      0x00080000            // 19
@@ -370,8 +370,8 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX3_CAN_PROC_WITH_TRIGGERED    0x04000000            // 26 auras with this attribute can proc from triggered spell casts (?)
 #define SPELL_ATTR_EX3_UNK27                      0x08000000            // 27
 #define SPELL_ATTR_EX3_UNK28                      0x10000000            // 28
-#define SPELL_ATTR_EX3_UNK29                      0x20000000            // 29 Ignore caster spellbonus?
-#define SPELL_ATTR_EX3_UNK30                      0x40000000            // 30
+#define SPELL_ATTR_EX3_DISABLE_MODS               0x20000000            // 29 Client doesn't apply spellmods for those spells (mostly mounting and like this spells)
+#define SPELL_ATTR_EX3_DONT_DISPLAY_RANGE         0x40000000            // 30 client doesn't display range in tooltip for those spells
 #define SPELL_ATTR_EX3_UNK31                      0x80000000            // 31
 
 #define SPELL_ATTR_EX4_UNK0                       0x00000001            // 0
@@ -381,7 +381,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX4_UNK4                       0x00000010            // 4 This will no longer cause guards to attack on use??
 #define SPELL_ATTR_EX4_UNK5                       0x00000020            // 5
 #define SPELL_ATTR_EX4_NOT_STEALABLE              0x00000040            // 6 although such auras might be dispellable, they cannot be stolen
-#define SPELL_ATTR_EX4_UNK7                       0x00000080            // 7 forc ed triggered?
+#define SPELL_ATTR_EX4_FORCE_TRIGGERED            0x00000080            // 7 forced triggered?
 #define SPELL_ATTR_EX4_STACK_DOT_MODIFIER         0x00000100            // 8 no effect on non DoTs?
 #define SPELL_ATTR_EX4_UNK9                       0x00000200            // 9
 #define SPELL_ATTR_EX4_SPELL_VS_EXTEND_COST       0x00000400            // 10 Rogue Shiv have this flag
@@ -452,8 +452,8 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX6_UNK9                       0x00000200            // 9
 #define SPELL_ATTR_EX6_UNK10                      0x00000400            // 10
 #define SPELL_ATTR_EX6_NOT_IN_RAID_INSTANCE       0x00000800            // 11 not usable in raid instance
-#define SPELL_ATTR_EX6_UNK12                      0x00001000            // 12 for auras SPELL_AURA_TRACK_CREATURES, SPELL_AURA_TRACK_RESOURCES and SPELL_AURA_TRACK_STEALTHED select non-stacking tracking spells
-#define SPELL_ATTR_EX6_UNK13                      0x00002000            // 13
+#define SPELL_ATTR_EX6_CASTABLE_ON_VEHICLE        0x00001000            // 12 for auras SPELL_AURA_TRACK_CREATURES, SPELL_AURA_TRACK_RESOURCES and SPELL_AURA_TRACK_STEALTHED select non-stacking tracking spells
+#define SPELL_ATTR_EX6_CAN_TARGET_INVISIBLE       0x00002000            // 13 ignore visibility requirement for spell target (phases, invisibility, etc.)
 #define SPELL_ATTR_EX6_UNK14                      0x00004000            // 14
 #define SPELL_ATTR_EX6_UNK15                      0x00008000            // 15 not set in 3.0.3
 #define SPELL_ATTR_EX6_UNK16                      0x00010000            // 16
@@ -476,7 +476,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX7_UNK0                       0x00000001            // 0
 #define SPELL_ATTR_EX7_UNK1                       0x00000002            // 1
 #define SPELL_ATTR_EX7_PALADIN_AURA               0x00000004            // 2
-#define SPELL_ATTR_EX7_UNK3                       0x00000008            // 3
+#define SPELL_ATTR_EX7_GM_ONLY                    0x00000008            // 3 Cannot cast if caster doesn't have UnitFlag2 & UNIT_FLAG2_GM_MODE
 #define SPELL_ATTR_EX7_UNK4                       0x00000010            // 4
 #define SPELL_ATTR_EX7_TOTEM_SPELL                0x00000020            // 5  shaman summon totem spells
 #define SPELL_ATTR_EX7_UNK6                       0x00000040            // 6

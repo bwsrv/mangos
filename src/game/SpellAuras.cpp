@@ -1127,7 +1127,7 @@ bool Aura::IsEffectStacking()
             // Icy Talons
             if (spellProto->IsFitToFamily<SPELLFAMILY_DEATHKNIGHT, CF_DEATHKNIGHT_ICY_TOUCH_TALONS>())
                 return true;
-            
+
             break;
         case SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE:
         case SPELL_AURA_MOD_PARTY_MAX_HEALTH:                                                  // Commanding Shout / Blood Pact
@@ -4403,7 +4403,7 @@ void Aura::HandleForceReaction(bool apply, bool Real)
                         bg->EventPlayerDroppedFlag(player);
                 break;
             default:
-                break; 
+                break;
         }
     }
 }
@@ -10122,7 +10122,7 @@ Aura* SpellAuraHolder::GetAuraByEffectIndex(SpellEffectIndex index)
         if (itr != m_aurasStorage.end())
             return &itr->second;
     }
-    return (Aura*)NULL; 
+    return (Aura*)NULL;
 }
 
 Aura const* SpellAuraHolder::GetAura(SpellEffectIndex index) const
@@ -10133,7 +10133,7 @@ Aura const* SpellAuraHolder::GetAura(SpellEffectIndex index) const
         if (itr != m_aurasStorage.end())
             return &itr->second;
     }
-    return (Aura*)NULL; 
+    return (Aura*)NULL;
 }
 
 void SpellAuraHolder::ApplyAuraModifiers(bool apply, bool real)
@@ -10157,6 +10157,7 @@ void SpellAuraHolder::_AddSpellAuraHolder()
     // Lookup free slot
     if (m_target->GetVisibleAurasCount() < MAX_AURAS)
     {
+        MAPLOCK_READ(m_target,MAP_LOCK_TYPE_AURAS);
         Unit::VisibleAuraMap const& visibleAuras = m_target->GetVisibleAuras();
         for(uint8 i = 0; i < MAX_AURAS; ++i)
         {
@@ -10283,8 +10284,11 @@ void SpellAuraHolder::_RemoveSpellAuraHolder()
     if (slot >= MAX_AURAS)                                   // slot not set
         return;
 
-    if (m_target->GetVisibleAura(slot) == 0)
-        return;
+    {
+        MAPLOCK_READ(m_target,MAP_LOCK_TYPE_AURAS);
+        if (m_target->GetVisibleAura(slot) == 0)
+            return;
+    }
 
     // unregister aura diminishing (and store last time)
     if (getDiminishGroup() != DIMINISHING_NONE )

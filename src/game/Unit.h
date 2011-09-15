@@ -568,6 +568,7 @@ enum UnitFlags2
     UNIT_FLAG2_UNK9                 = 0x00000200,
     UNIT_FLAG2_DISARM_RANGED        = 0x00000400,           // disarm or something
     UNIT_FLAG2_REGENERATE_POWER     = 0x00000800,
+    UNIT_FLAG2_GM_MODE              = 0x00040000,           // allows casting spells with AttributesEx7 & SPELL_ATTR_EX7_GM_ONLY
 };
 
 /// Non Player Character flags
@@ -1791,6 +1792,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         }
         void SetVisibleAura(uint8 slot, uint32 spellid)
         {
+            MAPLOCK_WRITE(this,MAP_LOCK_TYPE_AURAS);
             if (spellid == 0)
                 m_visibleAuras.erase(slot);
             else

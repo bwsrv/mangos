@@ -111,7 +111,7 @@ public:
     index_type getPointCount() const { return points.size();}
     const Vector3& getPoint(index_type i) const { return points[i];}
 
-    /**	Initializes spline. Don't call other methods while spline not initialized. */
+    /** Initializes spline. Don't call other methods while spline not initialized. */
     void init_spline(const Vector3 * controls, index_type count, EvaluationMode m);
     void init_cyclic_spline(const Vector3 * controls, index_type count, EvaluationMode m, index_type cyclic_point);
 
@@ -167,7 +167,7 @@ public:
     index_type computeIndexInBounds(float t) const;
     void computeIndex(float t, index_type& out_idx, float& out_u) const;
 
-    /**	Initializes spline. Don't call other methods while spline not initialized. */
+    /** Initializes spline. Don't call other methods while spline not initialized. */
     void init_spline(const Vector3 * controls, index_type count, EvaluationMode m) { SplineBase::init_spline(controls,count,m);}
     void init_cyclic_spline(const Vector3 * controls, index_type count, EvaluationMode m, index_type cyclic_point) { SplineBase::init_cyclic_spline(controls,count,m,cyclic_point);}
 

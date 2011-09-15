@@ -374,7 +374,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
 
     Unit* mover = NULL;
 
-    if (spellInfo->AttributesEx6 & SPELL_ATTR_EX6_UNK12 && _mover->IsCharmerOrOwnerPlayerOrPlayerItself())
+    if (spellInfo->AttributesEx6 & SPELL_ATTR_EX6_CASTABLE_ON_VEHICLE && _mover->IsCharmerOrOwnerPlayerOrPlayerItself())
         mover = _mover->GetCharmerOrOwnerPlayerOrPlayerItself();
     else
         mover = _mover;
