@@ -1743,7 +1743,7 @@ SpellEntry const *Creature::ReachWithSpellCure(Unit *pVictim)
     for(uint32 i = 0; i <= GetSpellMaxIndex(); ++i)
     {
         uint32 spellID = GetSpell(i);
-        if (spellID)
+        if (!spellID)
             continue;
 
         SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellID);
