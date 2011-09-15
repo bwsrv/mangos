@@ -113,6 +113,7 @@ enum BG_AB_Nodes
 };
 
 #define BG_AB_NODES_MAX   5
+#define BG_AB_EVENT_START_BATTLE 9158
 
 enum BG_AB_NodeStatus
 {
