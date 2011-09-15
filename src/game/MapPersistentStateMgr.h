@@ -216,6 +216,8 @@ class DungeonPersistentState : public MapPersistentState
            for raid/heroic instances this caches the global respawn time for the map */
         time_t GetResetTime() const { return m_resetTime; }
         void SetResetTime(time_t resetTime) { m_resetTime = resetTime; }
+        time_t GetResetTimeForDB() const;
+        time_t GetRealResetTime() const;
 
         /* instances cannot be reset (except at the global reset time)
            if there are players permanently bound to it
