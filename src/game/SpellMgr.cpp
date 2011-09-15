@@ -2096,6 +2096,29 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     return true;
             }
             break;
+        case SPELLFAMILY_MAGE:
+            if (spellInfo_2->SpellFamilyName == SPELLFAMILY_MAGE)
+            {
+                // Dampen / Amplify Magic
+                if (spellInfo_1->IsFitToFamily<SPELLFAMILY_MAGE, CF_MAGE_D_A_MAGIC>() &&
+                    spellInfo_2->IsFitToFamily<SPELLFAMILY_MAGE, CF_MAGE_D_A_MAGIC>())
+                    return true;
+            }
+            break;
+        case SPELLFAMILY_PRIEST:
+            if (spellInfo_2->SpellFamilyName == SPELLFAMILY_PRIEST)
+            {
+                // Power Word / Prayer of Fortitude
+                if (spellInfo_1->IsFitToFamily<SPELLFAMILY_PRIEST, CF_PRIEST_POWER_WORD_FORTITUDE>() &&
+                    spellInfo_2->IsFitToFamily<SPELLFAMILY_PRIEST, CF_PRIEST_POWER_WORD_FORTITUDE>())
+                    return true;
+
+                // Shadow Protection / Prayer of Shadow Protection
+                if (spellInfo_1->IsFitToFamily<SPELLFAMILY_PRIEST, CF_PRIEST_SHADOW_PROTECTION>() &&
+                    spellInfo_2->IsFitToFamily<SPELLFAMILY_PRIEST, CF_PRIEST_SHADOW_PROTECTION>())
+                    return true;
+            }
+            break;
         default:
             break;
     }
