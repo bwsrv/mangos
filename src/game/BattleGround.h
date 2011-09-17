@@ -324,7 +324,6 @@ class BattleGround
         /* achievement req. */
         virtual bool IsAllNodesConrolledByTeam(Team /*team*/) const { return false; }
         bool IsTeamScoreInRange(Team team, uint32 minScore, uint32 maxScore) const;
-        void StartTimedAchievement(AchievementCriteriaTypes type, uint32 entry);
 
         /* Battleground */
         // Get methods:
@@ -415,6 +414,8 @@ class BattleGround
         uint32 GetPlayerScore(Player *Source, uint32 type);
 
         void StartBattleGround();
+
+        void StartTimedAchievement(AchievementCriteriaTypes type, uint32 entry);
 
         /* Location */
         void SetMapId(uint32 MapID) { m_MapId = MapID; }
