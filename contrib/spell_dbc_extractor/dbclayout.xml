@@ -110,7 +110,7 @@
     <field type="uint" name="EffectChainTargets1" method="skip" />
     <field type="uint" name="EffectChainTargets2" method="skip" />
     <field type="uint" name="EffectChainTargets3" method="skip" />
-    <field type="uint" name="EffectItemType1" method="skip" />
+    <field type="uint" name="EffectItemType1" method="read" />
     <field type="uint" name="EffectItemType2" method="skip" />
     <field type="uint" name="EffectItemType3" method="skip" />
     <field type="int" name="EffectMiscValue1" method="read" />

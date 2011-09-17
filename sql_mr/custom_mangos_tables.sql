@@ -134,6 +134,7 @@ CREATE TABLE `spell_dbc` (
   `EffectMultipleValue1` float NOT NULL DEFAULT '0',
   `EffectMultipleValue2` float NOT NULL DEFAULT '0',
   `EffectMultipleValue3` float NOT NULL DEFAULT '0',
+  `EffectItemType1` int(11) NOT NULL DEFAULT '0',
   `EffectMiscValue1` int(11) NOT NULL DEFAULT '0',
   `EffectMiscValue2` int(11) NOT NULL DEFAULT '0',
   `EffectMiscValue3` int(11) NOT NULL DEFAULT '0',
