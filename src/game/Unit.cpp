@@ -2705,7 +2705,7 @@ void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool ex
     if (hasUnitState(UNIT_STAT_CAN_NOT_REACT) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED) )
         return;
 
-    if (!pVictim->isAlive())
+    if (!pVictim || !pVictim->isAlive())
         return;
 
     if (IsNonMeleeSpellCasted(false))
