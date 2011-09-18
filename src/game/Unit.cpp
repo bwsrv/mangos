@@ -302,6 +302,8 @@ Unit::Unit() :
 
 Unit::~Unit()
 {
+    MAPLOCK_WRITE(this, MAP_LOCK_TYPE_DEFAULT);
+    MAPLOCK_WRITE1(this, MAP_LOCK_TYPE_AURAS);
     // set current spells as deletable
     for (uint32 i = 0; i < CURRENT_MAX_SPELL; ++i)
     {
@@ -9353,6 +9355,7 @@ void Unit::DeleteThreatList()
     if (CanHaveThreatList() && !m_ThreatManager.isThreatListEmpty())
         SendThreatClear();
 
+    MAPLOCK_WRITE(this, MAP_LOCK_TYPE_DEFAULT);
     m_ThreatManager.clearReferences();
 }
 

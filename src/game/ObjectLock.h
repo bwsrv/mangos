@@ -52,4 +52,8 @@ typedef   ACE_Write_Guard<ObjectLockType>    WriteGuard;
 #  define MAPLOCK_WRITE(OBJ,TYPE) WriteGuard Guard((OBJ)->GetLock(TYPE));
 #endif
 
+#ifndef MAPLOCK_WRITE1
+#  define MAPLOCK_WRITE1(OBJ,TYPE) WriteGuard Guard1((OBJ)->GetLock(TYPE));
+#endif
+
 #endif
