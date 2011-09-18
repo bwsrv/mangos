@@ -7680,9 +7680,16 @@ void Aura::HandleAuraEmpathy(bool apply, bool /*Real*/)
 void Aura::HandleAuraUntrackable(bool apply, bool /*Real*/)
 {
     if (apply)
-        GetTarget()->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_UNTRACKABLE);
+        GetTarget()->SetByteFlag(UNIT_FIELD_BYTES_1, 2, UNIT_STAND_FLAGS_UNTRACKABLE);
     else
-        GetTarget()->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_UNTRACKABLE);
+    {
+        // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
+        Unit::AuraList const& auras = GetTarget()->GetAurasByType(SPELL_AURA_UNTRACKABLE);
+        if ( auras.size() > 1)
+            return;
+
+        GetTarget()->RemoveByteFlag(UNIT_FIELD_BYTES_1, 2, UNIT_STAND_FLAGS_UNTRACKABLE);
+    }
 }
 
 void Aura::HandleAuraModPacify(bool apply, bool /*Real*/)
@@ -10921,6 +10928,19 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
         {
             switch (GetId())
             {
+                case 13161:                                 // Aspect of the Beast
+                {
+                    if (Pet* pet = m_target->GetPet())
+                    {
+                        spellId1 = 61669;                   // Aspect of the Beast - pet part
+                        if (!apply)
+                        {
+                            pet->RemoveAurasDueToSpell(spellId1);
+                            return;
+                        }
+                    }
+                    break;
+                }
                 case 19574:                                 // Bestial Wrath - immunity
                 case 34471:                                 // The Beast Within - immunity
                 {
