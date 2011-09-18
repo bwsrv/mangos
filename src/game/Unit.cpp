@@ -6191,6 +6191,9 @@ bool Unit::Attack(Unit *victim, bool meleeAttack)
             ((Creature*)this)->SetCombatStartPosition(GetPositionX(), GetPositionY(), GetPositionZ());
     }
 
+    if (!GetMap())
+        return false;
+
     // Set our target
     SetTargetGuid(victim->GetObjectGuid());
 
