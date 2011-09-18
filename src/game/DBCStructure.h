@@ -208,6 +208,13 @@ struct AchievementCriteriaEntry
             uint32  castCount;                              // 4
         } cast_spell;
 
+        // ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE = 30
+        struct
+        {
+            uint32 captureID;                               // 3
+            uint32 captureCount;                            // 4
+        } objective_capture;
+
         // ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA = 31
         struct
         {
