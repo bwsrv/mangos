@@ -2995,10 +2995,11 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
             {
                 if (m_removeMode == AURA_REMOVE_BY_EXPIRE)
                 {
-                    Unit* caster = GetCaster();
-
-                    caster->CastSpell(caster, 61611, true);
-                    ((Player*)caster)->KilledMonsterCredit(26902);
+                    if (Unit* caster = GetCaster())
+                    {
+                        caster->CastSpell(caster, 61611, true);
+                        ((Player*)caster)->KilledMonsterCredit(26902);
+                    }
                     return;
                 }
             }
@@ -3049,17 +3050,21 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
             }
             case 49356:                                     // Flesh Decay - Tharonja
             {
-                Unit* caster = GetCaster();
-                caster->SetDisplayId(27073);            // Set Skeleton Model
-                caster->CastSpell(caster, 52509, true); // Cast Gift Of Tharonja
-                caster->CastSpell(caster, 52582, true); // Cast Transform Visual
+                if (Unit* caster = GetCaster())
+                {
+                    caster->SetDisplayId(27073);            // Set Skeleton Model
+                    caster->CastSpell(caster, 52509, true); // Cast Gift Of Tharonja
+                    caster->CastSpell(caster, 52582, true); // Cast Transform Visual
+                }
                 return;
             }
             case 53463:                                     // Flesh Return - Tharonja
             {
-                Unit* caster = GetCaster();
-                caster->SetDisplayId(27072);            // Set Basic Model
-                caster->CastSpell(caster, 52582, true); // Cast Transform Visual
+                if (Unit* caster = GetCaster())
+                {
+                    caster->SetDisplayId(27072);            // Set Basic Model
+                    caster->CastSpell(caster, 52582, true); // Cast Transform Visual
+                }
                 return;
             }
             case 50141:                                     // Blood Oath
