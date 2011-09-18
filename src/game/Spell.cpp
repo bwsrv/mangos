@@ -8237,6 +8237,7 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
         case 54148: //Svala Choose Only Player
         {
             UnitList tmpUnitMap;
+            UnitList playerUnitMap;
             FillAreaTargets(tmpUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
 
             if (tmpUnitMap.empty())
@@ -8244,11 +8245,27 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
 
             for (UnitList::const_iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end(); ++itr)
             {
-                 if (!*itr) continue;
+                if (!*itr) continue;
 
-                 if ((*itr)->GetTypeId() == TYPEID_PLAYER)
-                     targetUnitMap.push_back(*itr);
+                if ((*itr)->GetTypeId() == TYPEID_PLAYER)
+                    playerUnitMap.push_back(*itr);
             }
+
+            if (playerUnitMap.empty())
+                break;
+
+            uint32 t = 0;
+            UnitList::iterator iter = playerUnitMap.begin();
+            while (iter != playerUnitMap.end())
+            {
+                ++t;
+                ++iter;
+            }
+
+            iter = playerUnitMap.begin();
+            std::advance(iter, urand(0, t-1));
+            if (*iter)
+                targetUnitMap.push_back(*iter);
 
             break;
         }
