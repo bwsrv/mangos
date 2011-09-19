@@ -32,7 +32,7 @@
 // only arena event
 // cause this buff apears 90sec after start in every bg i implement it here
 #define ARENA_BUFF_EVENT 253
-#define MAX_BG_START_ACHI  5
+
 
 class Creature;
 class GameObject;
@@ -276,35 +276,6 @@ enum GroupJoinBattlegroundResult
     ERR_IN_NON_RANDOM_BG                    = -15,          // Can't queue for Random Battleground while in another Battleground queue.
 };
 
-enum BattleGroundStartAchi
-{
-    BG_WS_START_WIN         = 8563,
-    BG_AB_START_WIN         = 9158,
-    BG_AV_START_WIN         = 9166,
-    BG_SA_START_WIN         = 23748,
-    BG_EY_START_WIN         = 13180,
-    BG_SA_START_CAP_FLAG_H  = 61265,
-    BG_SA_START_CAP_FLAG_A  = 61266,
-};
-
-enum BattleGroundAchi
-{
-    BATTLEGROUND_WS_ACHI = 0,
-    BATTLEGROUND_AB_ACHI = 1,
-    BATTLEGROUND_AV_ACHI = 2,
-    BATTLEGROUND_SA_ACHI = 3,
-    BATTLEGROUND_EY_ACHI = 4,
-};
-
-const uint32 BG_ACHI_START[5][2] =
-{
-    {BATTLEGROUND_WS_ACHI, BG_WS_START_WIN},
-    {BATTLEGROUND_AB_ACHI, BG_AB_START_WIN},
-    {BATTLEGROUND_AV_ACHI, BG_AV_START_WIN},
-    {BATTLEGROUND_SA_ACHI, BG_SA_START_WIN},
-    {BATTLEGROUND_EY_ACHI, BG_EY_START_WIN}
-};
-
 class BattleGroundScore
 {
     public:
@@ -440,6 +411,7 @@ class BattleGround
         BattleGroundScoreMap::const_iterator GetPlayerScoresBegin() const { return m_PlayerScores.begin(); }
         BattleGroundScoreMap::const_iterator GetPlayerScoresEnd() const { return m_PlayerScores.end(); }
         uint32 GetPlayerScoresSize() const { return m_PlayerScores.size(); }
+        uint32 GetPlayerScore(Player *Source, uint32 type);
 
         void StartBattleGround();
 
@@ -506,7 +478,6 @@ class BattleGround
         void SetBgRaid(Team team, Group *bg_raid);
 
         virtual void UpdatePlayerScore(Player *Source, uint32 type, uint32 value);
-        uint32 GetPlayerScore(Player *Source, uint32 type);
 
         static BattleGroundTeamIndex GetTeamIndexByTeamId(Team team) { return team == ALLIANCE ? BG_TEAM_ALLIANCE : BG_TEAM_HORDE; }
         uint32 GetPlayersCountByTeam(Team team) const { return m_PlayersCount[GetTeamIndexByTeamId(team)]; }

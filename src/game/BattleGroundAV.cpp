@@ -75,7 +75,6 @@ void BattleGroundAV::HandleKillUnit(Creature *creature, Player *killer)
                 return;
             RewardReputationToTeam(BG_AV_FACTION_H, m_RepCaptain, HORDE);
             RewardHonorToTeam(GetBonusHonorFromKill(BG_AV_KILL_CAPTAIN), HORDE);
-            RewardXpToTeam(0, 0.91f, HORDE);
             UpdateScore(BG_TEAM_ALLIANCE, (-1) * BG_AV_RES_CAPTAIN);
             // spawn destroyed aura
             SpawnEvent(BG_AV_NodeEventCaptainDead_A, 0, true);
@@ -85,7 +84,6 @@ void BattleGroundAV::HandleKillUnit(Creature *creature, Player *killer)
                 return;
             RewardReputationToTeam(BG_AV_FACTION_A, m_RepCaptain, ALLIANCE);
             RewardHonorToTeam(GetBonusHonorFromKill(BG_AV_KILL_CAPTAIN), ALLIANCE);
-            RewardXpToTeam(0, 0.91f, ALLIANCE);
             UpdateScore(BG_TEAM_HORDE, (-1) * BG_AV_RES_CAPTAIN);
             // spawn destroyed aura
             SpawnEvent(BG_AV_NodeEventCaptainDead_H, 0, true);
@@ -300,10 +298,6 @@ void BattleGroundAV::EndBattleGround(Team winner)
     uint32 tower_survived[BG_TEAMS_COUNT]  = {0, 0};
     uint32 graves_owned[BG_TEAMS_COUNT]    = {0, 0};
     uint32 mines_owned[BG_TEAMS_COUNT]     = {0, 0};
-
-        for (uint32 i = 0; i < BG_TEAMS_COUNT; ++i)
-        m_PerfectionAV[i] = false;
-
     // towers all not destroyed:
     for(BG_AV_Nodes i = BG_AV_NODES_DUNBALDAR_SOUTH; i <= BG_AV_NODES_STONEHEART_BUNKER; ++i)
         if (m_Nodes[i].State == POINT_CONTROLLED)
@@ -323,21 +317,6 @@ void BattleGroundAV::EndBattleGround(Team winner)
         if (m_Mine_Owner[i] != BG_AV_TEAM_NEUTRAL)
             ++mines_owned[m_Mine_Owner[i]];
 
-    // achievement Stormpike/Frostwolf Perfection
-    if(winner == ALLIANCE)
-        if(tower_survived[BG_TEAM_ALLIANCE]==4)
-            if(tower_survived[BG_TEAM_HORDE]==0)
-                if(!IsActiveEvent(BG_AV_NodeEventCaptainDead_A, 0))
-                    if (IsActiveEvent(BG_AV_BOSS_A, 0))
-                        m_PerfectionAV[BG_TEAM_ALLIANCE] = true;
-
-    if(winner == HORDE)
-        if(tower_survived[BG_TEAM_HORDE]==4)
-            if(tower_survived[BG_TEAM_ALLIANCE]==0)
-                if(!IsActiveEvent(BG_AV_NodeEventCaptainDead_H, 0))
-                    if (IsActiveEvent(BG_AV_BOSS_H, 0))
-                        m_PerfectionAV[BG_TEAM_HORDE] = true;
-
     // now we have the values give the honor/reputation to the teams:
     Team team[BG_TEAMS_COUNT]      = { ALLIANCE, HORDE };
     uint32 faction[BG_TEAMS_COUNT]   = { BG_AV_FACTION_A, BG_AV_FACTION_H };
@@ -347,7 +326,6 @@ void BattleGroundAV::EndBattleGround(Team winner)
         {
             RewardReputationToTeam(faction[i], tower_survived[i] * m_RepSurviveTower, team[i]);
             RewardHonorToTeam(GetBonusHonorFromKill(tower_survived[i] * BG_AV_KILL_SURVIVING_TOWER), team[i]);
-            RewardXpToTeam(0, 0.6f, team[i]);
         }
         DEBUG_LOG("BattleGroundAV: EndbattleGround: bgteam: %u towers:%u honor:%u rep:%u", i, tower_survived[i], GetBonusHonorFromKill(tower_survived[i] * BG_AV_KILL_SURVIVING_TOWER), tower_survived[i] * BG_AV_REP_SURVIVING_TOWER);
         if (graves_owned[i])
@@ -460,7 +438,6 @@ void BattleGroundAV::EventPlayerDestroyedPoint(BG_AV_Nodes node)
         UpdateScore(GetOtherTeamIndex(ownerTeamIdx), (-1) * BG_AV_RES_TOWER);
         RewardReputationToTeam((ownerTeam == ALLIANCE) ? BG_AV_FACTION_A : BG_AV_FACTION_H, m_RepTowerDestruction, ownerTeam);
         RewardHonorToTeam(GetBonusHonorFromKill(BG_AV_KILL_TOWER), ownerTeam);
-        RewardXpToTeam(0, 0.91f, ownerTeam);
         SendYell2ToAll(LANG_BG_AV_TOWER_TAKEN, LANG_UNIVERSAL, GetSingleCreatureGuid(BG_AV_HERALD, 0), GetNodeName(node), (ownerTeam == ALLIANCE) ? LANG_BG_ALLY : LANG_BG_HORDE);
     }
     else
@@ -588,7 +565,6 @@ void BattleGroundAV::EventPlayerDefendsPoint(Player* player, BG_AV_Nodes node)
             GetNodeName(node),
             ( teamIdx == BG_TEAM_ALLIANCE ) ? LANG_BG_ALLY:LANG_BG_HORDE);
         UpdatePlayerScore(player, SCORE_TOWERS_DEFENDED, 1);
-        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE,1,64);
         PlaySoundToAll(BG_AV_SOUND_BOTH_TOWER_DEFEND);
     }
     else
@@ -597,7 +573,6 @@ void BattleGroundAV::EventPlayerDefendsPoint(Player* player, BG_AV_Nodes node)
             GetNodeName(node),
             ( teamIdx == BG_TEAM_ALLIANCE ) ? LANG_BG_ALLY:LANG_BG_HORDE);
         UpdatePlayerScore(player, SCORE_GRAVEYARDS_DEFENDED, 1);
-        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE,1,65);
     // update the statistic for the defending player
         PlaySoundToAll((teamIdx == BG_TEAM_ALLIANCE)?BG_AV_SOUND_ALLIANCE_GOOD:BG_AV_SOUND_HORDE_GOOD);
     }
@@ -621,7 +596,6 @@ void BattleGroundAV::EventPlayerAssaultsPoint(Player* player, BG_AV_Nodes node)
             GetNodeName(node),
             ( teamIdx == BG_TEAM_ALLIANCE ) ? LANG_BG_ALLY:LANG_BG_HORDE);
         UpdatePlayerScore(player, SCORE_TOWERS_ASSAULTED, 1);
-        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE,1,61);
     }
     else
     {
@@ -630,7 +604,6 @@ void BattleGroundAV::EventPlayerAssaultsPoint(Player* player, BG_AV_Nodes node)
             ( teamIdx == BG_TEAM_ALLIANCE ) ? LANG_BG_ALLY:LANG_BG_HORDE);
         // update the statistic for the assaulting player
         UpdatePlayerScore(player, SCORE_GRAVEYARDS_ASSAULTED, 1);
-        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE,1,63);
     }
 
     PlaySoundToAll((teamIdx == BG_TEAM_ALLIANCE) ? BG_AV_SOUND_ALLIANCE_ASSAULTS : BG_AV_SOUND_HORDE_ASSAULTS);

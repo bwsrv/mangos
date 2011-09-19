@@ -887,24 +887,6 @@ void BattleGround::EndBattleGround(Team winner)
             SetArenaTeamRatingChangeForTeam(HORDE, 0);
         }
     }
-    //for achievement Last man standing
-    bool isAlive5v5 = false;
-    if (isArena() && isRated() && winner_arena_team && loser_arena_team && GetArenaType() == ARENA_TYPE_5v5)
-    {
-        bool norepeat = true;
-        for(BattleGroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-        {
-             Player *player = sObjectMgr.GetPlayer(itr->first);
-             if (player->isAlive() && norepeat)
-                 if(!isAlive5v5)
-                     isAlive5v5 = true;
-                 else
-                 {
-                     isAlive5v5 = false;
-                     norepeat = false;
-                 }
-        }
-    }
 
     for(BattleGroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
@@ -928,15 +910,6 @@ void BattleGround::EndBattleGround(Team winner)
         {
             sLog.outError("BattleGround:EndBattleGround %s not found!", itr->first.GetString().c_str());
             continue;
-        }
-
-        if(isArena() && isRated() && isAlive5v5 && GetArenaType() == ARENA_TYPE_5v5)
-        {
-            if (plr->isAlive())
-            {
-                plr->CastSpell(plr, 26549, false);
-                plr->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 26549);
-            }
         }
 
         // should remove spirit of redemption
@@ -999,8 +972,7 @@ void BattleGround::EndBattleGround(Team winner)
 
             if (IsRandom() || BattleGroundMgr::IsBGWeekend(GetTypeID()))
             {
-				UpdatePlayerScore(plr, SCORE_BONUS_HONOR, GetBonusHonorFromKill(win_kills*4));
-				plr->ModifyHonorPoints(GetBonusHonorFromKill(win_kills*4));
+                UpdatePlayerScore(plr, SCORE_BONUS_HONOR, GetBonusHonorFromKill(win_kills*4));
                 plr->ModifyArenaPoints(win_arena);
                 if(!plr->GetRandomWinner())
                     plr->SetRandomWinner(true);
@@ -1012,10 +984,7 @@ void BattleGround::EndBattleGround(Team winner)
         {
             RewardMark(plr,ITEM_LOSER_COUNT);
             if (IsRandom() || BattleGroundMgr::IsBGWeekend(GetTypeID()))
-            {
                 UpdatePlayerScore(plr, SCORE_BONUS_HONOR, GetBonusHonorFromKill(loos_kills*4));
-                plr->ModifyHonorPoints(GetBonusHonorFromKill(loos_kills*4));
-            }
         }
 
         plr->CombatStopWithPets(true);
@@ -1442,24 +1411,10 @@ void BattleGround::AddPlayer(Player *plr)
             plr->CastSpell(plr, SPELL_PREPARATION, true);   // reduces all mana cost of spells.
 
         plr->CastSpell(plr, SPELL_BATTLEGROUND_DAMPENING, true);
-
-        BattleGround* bg = plr->GetBattleGround();
-        //start time achievement
-        for (uint32 i = 0; i < MAX_BG_START_ACHI; ++i)
-            if(BG_ACHI_START[i][0] == bg->GetTypeID(true))
-                plr->GetAchievementMgr().StartTimedAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, BG_ACHI_START[i][1]);
     }
 
     plr->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE, ACHIEVEMENT_CRITERIA_CONDITION_MAP, GetMapId());
     plr->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE, ACHIEVEMENT_CRITERIA_CONDITION_MAP, GetMapId());
-    plr->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS);
-    plr->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL);
-    plr->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL);
-    plr->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE);
-    plr->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA);
-    plr->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET);
-    plr->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL);
-    plr->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE);
 
     // setup BG group membership
     PlayerAddedToBGCheckIfBGIsRunning(plr);
@@ -1777,19 +1732,6 @@ void BattleGround::OpenDoorEvent(uint8 event1, uint8 event2 /*=0*/)
     BGObjects::const_iterator itr = m_EventObjects[MAKE_PAIR32(event1, event2)].gameobjects.begin();
     for(; itr != m_EventObjects[MAKE_PAIR32(event1, event2)].gameobjects.end(); ++itr)
         DoorOpen(*itr);
-
-    //start time achievement
-    for (BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-    {
-        if (Player *plr = sObjectMgr.GetPlayer(itr->first))
-        {
-            BattleGround* bg = plr->GetBattleGround();
-
-            for (uint32 i = 0; i < MAX_BG_START_ACHI; ++i)
-                if(BG_ACHI_START[i][0] == bg->GetTypeID(true))
-                    plr->GetAchievementMgr().StartTimedAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, BG_ACHI_START[i][1]);
-        }
-    }
 }
 
 void BattleGround::SpawnEvent(uint8 event1, uint8 event2, bool spawn)
@@ -1815,22 +1757,6 @@ void BattleGround::SpawnEvent(uint8 event1, uint8 event2, bool spawn)
     BGObjects::const_iterator itr2 = m_EventObjects[MAKE_PAIR32(event1, event2)].gameobjects.begin();
     for(; itr2 != m_EventObjects[MAKE_PAIR32(event1, event2)].gameobjects.end(); ++itr2)
         SpawnBGObject(*itr2, (spawn) ? RESPAWN_IMMEDIATELY : RESPAWN_ONE_DAY);
-
-    //start time achievement
-    if (event1 == BG_EVENT_DOOR && spawn == false)
-    {
-        for (BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-        {
-            if (Player *plr = sObjectMgr.GetPlayer(itr->first))
-            {
-                BattleGround* bg = plr->GetBattleGround();
-
-                for (uint32 i = 0; i < MAX_BG_START_ACHI; ++i)
-                    if(BG_ACHI_START[i][0] == bg->GetTypeID(true))
-                        plr->GetAchievementMgr().StartTimedAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, BG_ACHI_START[i][1]);
-            }
-        }
-    }
 }
 
 void BattleGround::SpawnBGObject(ObjectGuid guid, uint32 respawntime)
@@ -2021,10 +1947,6 @@ void BattleGround::HandleKillPlayer( Player *player, Player *killer )
     {
         UpdatePlayerScore(killer, SCORE_HONORABLE_KILLS, 1);
         UpdatePlayerScore(killer, SCORE_KILLING_BLOWS, 1);
-        killer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS,1);
-        killer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL,1);
-        killer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA,1);
-
 
         for(BattleGroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
         {
@@ -2034,12 +1956,7 @@ void BattleGround::HandleKillPlayer( Player *player, Player *killer )
                 continue;
 
             if (plr->GetTeam() == killer->GetTeam() && plr->IsAtGroupRewardDistance(player))
-            {
                 UpdatePlayerScore(plr, SCORE_HONORABLE_KILLS, 1);
-                plr->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL,1);
-                plr->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL,1);
-                plr->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA,1);
-            }
         }
     }
 
@@ -2158,10 +2075,6 @@ uint32 BattleGround::GetPlayerScore(Player *Source, uint32 type)
             return itr->second->KillingBlows;
         case SCORE_DEATHS:                                  // Deaths
             return itr->second->Deaths;
-        case SCORE_DAMAGE_DONE:                             // Damage Done
-            return itr->second->DamageDone;
-        case SCORE_HEALING_DONE:                            // Healing Done
-            return itr->second->HealingDone;
         default:
             sLog.outError("BattleGround: Unknown player score type %u", type);
             return 0;
