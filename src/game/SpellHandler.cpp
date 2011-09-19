@@ -121,6 +121,14 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
         return;
     }
 
+    if (proto->Area && proto->Area != pUser->GetAreaId() ||
+        proto->Map && proto->Map != pUser->GetMapId())
+    {
+        if (SpellEntry const* spellInfo = sSpellStore.LookupEntry(spellid))
+            Spell::SendCastResult(pUser, spellInfo, cast_count, SPELL_FAILED_INCORRECT_AREA);
+        return;
+    }
+
     if (pUser->isInCombat())
     {
         for(int i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)

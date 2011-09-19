@@ -302,6 +302,8 @@ Unit::Unit() :
 
 Unit::~Unit()
 {
+    MAPLOCK_WRITE(this, MAP_LOCK_TYPE_DEFAULT);
+    MAPLOCK_WRITE1(this, MAP_LOCK_TYPE_AURAS);
     // set current spells as deletable
     for (uint32 i = 0; i < CURRENT_MAX_SPELL; ++i)
     {
@@ -1524,28 +1526,6 @@ void Unit::DealSpellDamage(SpellNonMeleeDamage *damageInfo, bool durabilityLoss)
     // Call default DealDamage (send critical in hit info for threat calculation)
     CleanDamage cleanDamage(0, damageInfo->absorb, BASE_ATTACK, damageInfo->HitInfo & SPELL_HIT_TYPE_CRIT ? MELEE_HIT_CRIT : MELEE_HIT_NORMAL);
     DealDamage(pVictim, damageInfo->damage, &cleanDamage, SPELL_DIRECT_DAMAGE, damageInfo->schoolMask, spellProto, durabilityLoss);
-    // Check if effect can trigger anything actually (is this a right ATTR ?)
-    if ( spellProto->AttributesEx3 & SPELL_ATTR_EX3_CANT_TRIGGER_PROC)
-        return;
-
-    bool hasWeaponDmgEffect = false;
-
-    for (uint32 i = 0; i < 3; ++i)
-    {
-        if (spellProto->Effect[i] == SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL || spellProto->Effect[i] == SPELL_EFFECT_WEAPON_PERCENT_DAMAGE || spellProto->Effect[i] == SPELL_EFFECT_WEAPON_DAMAGE || spellProto->Effect[i] == SPELL_EFFECT_NORMALIZED_WEAPON_DMG)
-        {
-            hasWeaponDmgEffect = true;
-            break;
-        }
-    }
-
-    if (!(damageInfo->HitInfo & HITINFO_MISS) && hasWeaponDmgEffect)
-    {
-        WeaponAttackType attType = GetWeaponAttackType(spellProto);
-        // on weapon hit casts
-        if (GetTypeId() == TYPEID_PLAYER && pVictim->isAlive())
-            ((Player*)this)->CastItemCombatSpell(pVictim, attType);
-    }
 }
 
 //TODO for melee need create structure as in
@@ -2705,7 +2685,7 @@ void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool ex
     if (hasUnitState(UNIT_STAT_CAN_NOT_REACT) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED) )
         return;
 
-    if (!pVictim->isAlive())
+    if (!pVictim || !pVictim->isAlive())
         return;
 
     if (IsNonMeleeSpellCasted(false))
@@ -4993,6 +4973,11 @@ void Unit::RemoveAuraHolderFromStack(uint32 spellId, uint32 stackAmount, ObjectG
 
 void Unit::RemoveAurasDueToSpell(uint32 spellId, SpellAuraHolder* except, AuraRemoveMode mode)
 {
+    SpellEntry const* spellEntry = sSpellStore.LookupEntry(spellId);
+    if (spellEntry && spellEntry->SpellDifficultyId && IsInWorld() && GetMap()->IsDungeon())
+        if (SpellEntry const* spellDiffEntry = GetSpellEntryByDifficulty(spellEntry->SpellDifficultyId, GetMap()->GetDifficulty(), GetMap()->IsRaid()))
+            spellId = spellDiffEntry->Id;
+
     SpellAuraHolderBounds bounds = GetSpellAuraHolderBounds(spellId);
     for (SpellAuraHolderMap::iterator iter = bounds.first; iter != bounds.second; )
     {
@@ -5268,6 +5253,56 @@ void Unit::RemoveArenaAuras(bool onleave)
     }
 }
 
+void Unit::HandleArenaPreparation(bool apply)
+{
+    ApplyModFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PREPARATION, apply);
+
+    if (apply)
+    {
+        // max regen powers at start preparation
+        SetHealth(GetMaxHealth());
+        SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
+        SetPower(POWER_ENERGY, GetMaxPower(POWER_ENERGY));
+    }
+    else
+    {
+        // reset originally 0 powers at start/leave
+        SetPower(POWER_RAGE, 0);
+        SetPower(POWER_RUNIC_POWER, 0);
+        SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
+        SetPower(POWER_ENERGY, GetMaxPower(POWER_ENERGY));
+
+        // Remove all buffs with duration < 25 sec.
+        for(SpellAuraHolderMap::iterator iter = m_spellAuraHolders.begin(); iter != m_spellAuraHolders.end();)
+        {
+            if (!(iter->second->GetSpellProto()->AttributesEx4 & SPELL_ATTR_EX4_UNK21) &&
+                                                            // don't remove stances, shadowform, pally/hunter auras
+            !iter->second->IsPassive() &&                   // don't remove passive auras
+            iter->second->GetAuraMaxDuration() > 0 &&
+            iter->second->GetAuraMaxDuration() <= 25000)
+            {
+                RemoveSpellAuraHolder(iter->second, AURA_REMOVE_BY_CANCEL);
+                iter = m_spellAuraHolders.begin();
+            }
+            else
+                ++iter;
+        }
+    }
+
+    if (GetObjectGuid().IsPet())
+    {
+        Pet* pet = ((Pet*)this);
+        if (pet)
+        {
+            Unit* owner = pet->GetOwner();
+            if (owner && (owner->GetTypeId() == TYPEID_PLAYER) && ((Player*)owner)->GetGroup())
+                ((Player*)owner)->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_AURAS);
+        }
+    }
+    else
+        CallForAllControlledUnits(ApplyArenaPreparationWithHelper(apply),CONTROLLED_PET|CONTROLLED_GUARDIANS);
+}
+
 void Unit::RemoveAllAurasOnDeath()
 {
     // used just after dieing to remove all visible auras
@@ -5366,6 +5401,16 @@ bool Unit::HasAura(uint32 spellId, SpellEffectIndex effIndex) const
             return true;
 
     return false;
+}
+
+bool Unit::HasAuraOfDifficulty(uint32 spellId) const
+{
+    SpellEntry const* spellEntry = sSpellStore.LookupEntry(spellId);
+    if (spellEntry && spellEntry->SpellDifficultyId && IsInWorld() && GetMap()->IsDungeon())
+        if (SpellEntry const* spellDiffEntry = GetSpellEntryByDifficulty(spellEntry->SpellDifficultyId, GetMap()->GetDifficulty(), GetMap()->IsRaid()))
+            spellId = spellDiffEntry->Id;
+
+    return m_spellAuraHolders.find(spellId) != m_spellAuraHolders.end();
 }
 
 void Unit::AddDynObject(DynamicObject* dynObj)
@@ -6140,6 +6185,9 @@ bool Unit::Attack(Unit *victim, bool meleeAttack)
         if (GetTypeId()==TYPEID_UNIT)
             ((Creature*)this)->SetCombatStartPosition(GetPositionX(), GetPositionY(), GetPositionZ());
     }
+
+    if (!GetMap())
+        return false;
 
     // Set our target
     SetTargetGuid(victim->GetObjectGuid());
@@ -9372,6 +9420,7 @@ void Unit::DeleteThreatList()
     if (CanHaveThreatList() && !m_ThreatManager.isThreatListEmpty())
         SendThreatClear();
 
+    MAPLOCK_WRITE(this, MAP_LOCK_TYPE_DEFAULT);
     m_ThreatManager.clearReferences();
 }
 

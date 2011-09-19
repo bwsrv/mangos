@@ -346,6 +346,14 @@ struct ApplyScalingBonusWithHelper
     bool apply;
 };
 
+struct ApplyArenaPreparationWithHelper
+{
+    explicit ApplyArenaPreparationWithHelper(bool _apply ) : apply(_apply)
+    {}
+    void operator()(Unit* unit) const;
+    bool apply;
+};
+
 struct DoPetActionWithHelper
 {
     explicit DoPetActionWithHelper( Player* _owner, uint8 _flag, uint32 _spellid, ObjectGuid _petGuid, ObjectGuid _targetGuid) :

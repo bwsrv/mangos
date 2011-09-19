@@ -267,7 +267,6 @@ class AchievementMgr
         void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscvalue1=0, uint32 miscvalue2=0, Unit *unit=NULL, uint32 time=0);
         void CheckAllAchievementCriteria();
         void SendAllAchievementData();
-        void CompletedAchievement(AchievementEntry const* entry);
         void SendRespondInspectAchievements(Player* player);
 
         Player* GetPlayer() const { return m_player;}
@@ -293,13 +292,14 @@ class AchievementMgr
         // Use PROGRESS_SET only for reset/downgrade criteria progress
         enum ProgressType { PROGRESS_SET, PROGRESS_ACCUMULATE, PROGRESS_HIGHEST };
         void SetCriteriaProgress(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement, uint32 changeValue, ProgressType ptype);
+        void CompletedAchievement(AchievementEntry const* entry);
+        bool IsCompletedAchievement(AchievementEntry const* entry);
 
     private:
         void SendAchievementEarned(AchievementEntry const* achievement);
         void SendCriteriaUpdate(uint32 id, CriteriaProgress const* progress);
         void CompletedCriteriaFor(AchievementEntry const* achievement);
         void IncompletedAchievement(AchievementEntry const* entry);
-        bool IsCompletedAchievement(AchievementEntry const* entry);
         void CompleteAchievementsWithRefs(AchievementEntry const* entry);
         void BuildAllDataPacket(WorldPacket *data);
 

@@ -113,6 +113,7 @@ enum BG_AB_Nodes
 };
 
 #define BG_AB_NODES_MAX   5
+#define BG_AB_EVENT_START_BATTLE 9158
 
 enum BG_AB_NodeStatus
 {
@@ -139,6 +140,7 @@ enum BG_AB_Sounds
 #define BG_AB_ABBGWeekendHonorTicks         200
 #define BG_AB_NotABBGWeekendReputationTicks 200
 #define BG_AB_ABBGWeekendReputationTicks    150
+#define BG_AB_EVENT_START_BATTLE            9158
 
 // Tick intervals and given points: case 0,1,2,3,4,5 captured nodes
 const uint32 BG_AB_TickIntervals[6] = {0, 12000, 9000, 6000, 3000, 1000};

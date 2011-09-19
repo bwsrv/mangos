@@ -620,6 +620,7 @@ enum ClassFlag
     CF_PALADIN_UNK67                        = 67,   // CM2 00000008
     CF_PALADIN_UNK68                        = 68,   // CM2 00000010
     CF_PALADIN_AURAS                        = 69,   // CM2 00000020 something to do with auras...
+    CF_PALADIN_JUDGEMENT_OF_JUST            = 70,   // CM2 00000040 Judgements of the Just target aura
 
     // -- Shaman (11)
     CF_SHAMAN_LIGHTNING_BOLT                = 0,    // CM0 00000001

@@ -17691,7 +17691,8 @@ void Player::_LoadBoundInstances(QueryResult *result)
 
             // since non permanent binds are always solo bind, they can always be reset
             DungeonPersistentState *state = (DungeonPersistentState*)sMapPersistentStateMgr.AddPersistentState(mapEntry, instanceId, Difficulty(difficulty), resetTime, !perm, true);
-            if (state || extend) BindToInstance(state, perm, true, extend);
+            if (state) 
+                BindToInstance(state, perm, true, extend);
         } while(result->NextRow());
         delete result;
     }
@@ -17824,9 +17825,9 @@ void Player::SendRaidInfo()
                 data << uint32(state->GetMapId());              // map id
                 data << uint32(state->GetDifficulty());         // difficulty
                 data << ObjectGuid(state->GetInstanceGuid());   // instance guid
-                data << uint8((state->GetResetTime() > now) ? 1 : 0 );   // expired = 0
+                data << uint8((state->GetRealResetTime() > now) ? 1 : 0 );   // expired = 0
                 data << uint8(itr->second.extend ? 1 : 0);      // extended = 1
-                data << uint32(state->GetResetTime() > now ? state->GetResetTime() - now
+                data << uint32(state->GetRealResetTime() > now ? state->GetRealResetTime() - now
                     : DungeonResetScheduler::CalculateNextResetTime(GetMapDifficultyData(state->GetMapId(), state->GetDifficulty()), now));    // reset time
                 ++counter;
             }

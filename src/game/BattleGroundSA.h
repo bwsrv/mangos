@@ -206,6 +206,9 @@ struct BG_SA_RoundScore
     uint32 time;
 };
 
+#define BG_SA_EVENT_START_BATTLE_1      23748       // Ally / Horde likely
+#define BG_SA_EVENT_START_BATTLE_2      21702
+
 class BattleGroundSAScore : public BattleGroundScore
 {
     public:

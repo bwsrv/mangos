@@ -316,6 +316,7 @@ HostileReference* ThreatContainer::selectNextVictim(Creature* pAttacker, Hostile
         Unit* pTarget = pCurrentRef->getTarget();
         MANGOS_ASSERT(pTarget);                             // if the ref has status online the target must be there!
 
+        MAPLOCK_READ(pTarget, MAP_LOCK_TYPE_DEFAULT);
         // some units are prefered in comparison to others
         if (!bNoPriorityTargetFound && IsSecondChoiceTarget(pAttacker, pTarget, pCurrentRef == pCurrentVictim, bIsAttackerStationary))
         {
@@ -467,6 +468,7 @@ void ThreatManager::addThreatDirectly(Unit* pVictim, float threat)
 
     if(!ref)                                                // there was no ref => create a new one
     {
+        MAPLOCK_READ(pVictim, MAP_LOCK_TYPE_DEFAULT);
         // threat has to be 0 here
         HostileReference* hostileReference = new HostileReference(pVictim, this, 0);
         iThreatContainer.addReference(hostileReference);

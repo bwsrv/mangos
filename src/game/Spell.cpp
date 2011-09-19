@@ -6578,7 +6578,9 @@ SpellCastResult Spell::CheckRange(bool strict)
     switch(m_spellInfo->rangeIndex)
     {
         // self cast doesn't need range checking -- also for Starshards fix
+        // spells that can be cast anywhere also need no check
         case SPELL_RANGE_IDX_SELF_ONLY:
+        case SPELL_RANGE_IDX_ANYWHERE:
             return SPELL_CAST_OK;
         // combat range spells are treated differently
         case SPELL_RANGE_IDX_COMBAT:
@@ -8385,6 +8387,7 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             targetUnitMap.remove(m_caster); // exclude caster
             break;
         }
+        case 65044: // Flames
         case 65045: // Flame of demolisher
         {
             FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);

@@ -21,7 +21,7 @@
     <field type="ulong" name="StancesNot" method="read" />
     <field type="uint" name="Targets" method="read" />
     <field type="uint" name="mtargetCreatureType" method="skip" />
-    <field type="uint" name="mrequiresSpellFocus" method="skip" />
+    <field type="uint" name="RequiresSpellFocus" method="read" />
     <field type="uint" name="mfacingCasterFlags" method="skip" />
     <field type="uint" name="mcasterAuraState" method="skip" />
     <field type="uint" name="mtargetAuraState" method="skip" />
@@ -110,8 +110,8 @@
     <field type="uint" name="EffectChainTargets1" method="skip" />
     <field type="uint" name="EffectChainTargets2" method="skip" />
     <field type="uint" name="EffectChainTargets3" method="skip" />
-    <field type="uint" name="EffectItemType1" method="skip" />
-    <field type="uint" name="EffectItemType2" method="skip" />
+    <field type="uint" name="EffectItemType1" method="read" />
+    <field type="uint" name="EffectItemType2" method="read" />
     <field type="uint" name="EffectItemType3" method="skip" />
     <field type="int" name="EffectMiscValue1" method="read" />
     <field type="int" name="EffectMiscValue2" method="read" />
