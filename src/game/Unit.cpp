@@ -12507,21 +12507,16 @@ bool Unit::HasMorePoweredBuff(uint32 spellId)
         if (!auraType || auraType >= TOTAL_AURAS)
             continue;
 
-        AuraList const& auras = GetAurasByType(auraType);
-
-        if (auras.empty())
-            continue;
-
-        for (AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+        SpellAuraHolderMap const& holders = GetSpellAuraHolderMap();
+        for (SpellAuraHolderMap::const_iterator itr = holders.begin(); itr != holders.end(); ++itr)
         {
-            Aura* aura = *itr;
-            if (!aura || !aura->GetHolder() || aura->GetHolder()->IsDeleted())
-                continue;
-            SpellAuraHolderPtr holder = aura->GetHolder();
+
+            SpellAuraHolderPtr holder = itr->second;
+
             if (!holder || holder->IsDeleted())
                 continue;
 
-            uint32 foundSpellId = holder->GetId();
+            uint32 foundSpellId = itr->first;
 
             if (!foundSpellId || foundSpellId == spellId)
                 continue;
@@ -12536,6 +12531,12 @@ bool Unit::HasMorePoweredBuff(uint32 spellId)
 
             for (uint8 j = 0; j < MAX_EFFECT_INDEX; ++j)
             {
+                if ( foundSpellInfo->Effect[j] != SPELL_EFFECT_APPLY_AURA  &&
+                     foundSpellInfo->Effect[j] != SPELL_EFFECT_APPLY_AREA_AURA_PARTY &&
+                     foundSpellInfo->Effect[j] != SPELL_EFFECT_APPLY_AREA_AURA_RAID
+                    )
+                    continue;
+
                 if (foundSpellInfo->Effect[j] != spellInfo->Effect[i])
                     continue;
 
