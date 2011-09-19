@@ -54,7 +54,6 @@ class MANGOS_DLL_SPEC InstanceData
         //Used by the map's CanEnter function.
         //This is to prevent players from entering during boss encounters.
         virtual bool IsEncounterInProgress() const { return false; };
-        virtual bool NoSpecialCriteria(Player* player) const { return false; };
 
         //Called when a player successfully enters the instance (after really added to map)
         virtual void OnPlayerEnter(Player *) {}
