@@ -4121,19 +4121,24 @@ void Spell::EffectTriggerSpell(SpellEffectIndex effIndex)
         // Cloak of Shadows
         case 35729:
         {
+            std::set<uint32> toRemoveSpellList;
             Unit::SpellAuraHolderMap& Auras = unitTarget->GetSpellAuraHolderMap();
             for(Unit::SpellAuraHolderMap::iterator iter = Auras.begin(); iter != Auras.end(); ++iter)
             {
+                SpellAuraHolderPtr holder = iter->second;
+                if (!holder || holder->IsDeleted())
+                    continue;
                 // Remove all harmful spells on you except positive/passive/physical auras
-                if (!iter->second->IsPositive() &&
-                    !iter->second->IsPassive() &&
-                    !iter->second->IsDeathPersistent() &&
-                    (GetSpellSchoolMask(iter->second->GetSpellProto()) & SPELL_SCHOOL_MASK_NORMAL) == 0)
+                if (!holder->IsPositive() &&
+                    !holder->IsPassive() &&
+                    !holder->IsDeathPersistent() &&
+                    (GetSpellSchoolMask(holder->GetSpellProto()) & SPELL_SCHOOL_MASK_NORMAL) == 0)
                 {
-                    m_caster->RemoveAurasDueToSpell(iter->second->GetSpellProto()->Id);
-                    iter = Auras.begin();
+                    toRemoveSpellList.insert(holder->GetId());
                 }
             }
+            for (std::set<uint32>::iterator i = toRemoveSpellList.begin(); i != toRemoveSpellList.end(); ++i)
+                m_caster->RemoveAurasDueToSpell(*i);
             return;
         }
         // Priest Shadowfiend (34433) need apply mana gain trigger aura on pet
