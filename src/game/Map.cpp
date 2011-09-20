@@ -3095,6 +3095,22 @@ DynamicObject* Map::GetDynamicObject(ObjectGuid guid)
 }
 
 /**
+ * Function return transport object that in world at CURRENT map
+ *
+ * @param guid must be transport object guid (HIGHGUID_MOTRANSPORT)
+ */
+Transport* Map::GetTransport(ObjectGuid guid)
+{
+    for (MapManager::TransportSet::iterator itr = sMapMgr.m_Transports.begin(); itr != sMapMgr.m_Transports.end(); ++itr)
+    {
+        Transport* trans = *itr;
+        if (trans->GetObjectGuid() == guid)
+            return trans;
+    }
+    return NULL;
+}
+
+/**
  * Function return unit in world at CURRENT map
  *
  * Note: in case player guid not always expected need player at current map only.

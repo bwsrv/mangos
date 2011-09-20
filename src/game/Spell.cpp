@@ -252,14 +252,18 @@ void SpellCastTargets::read( ByteBuffer& data, Unit *caster )
     {
         data >> m_destTransportGUID.ReadAsPacked();
         data >> m_destX >> m_destY >> m_destZ;
-        if (Transport* trans = caster->GetMap()->getTransport(m_destTransportGUID))
+        error_log("%f, %f, %f", m_destX, m_destY, m_destZ);
+        if (Transport* trans = caster->GetMap()->GetTransport(m_destTransportGUID))
         {
             float o = trans->GetOrientation() - 1.0f + 3 * M_PI / 2;
-            m_destX = trans->GetPositionX() + ((m_destX*sin(o) + (m_destY*cos(o))));
-            m_destY = trans->GetPositionY() + ((m_destY*sin(o) + (m_destX*cos(o + M_PI))));
+            float x = trans->GetPositionX() - ((m_destX*sin(o) + (m_destY*cos(o))));
+            float y = trans->GetPositionY() - ((m_destY*sin(o) + (m_destX*cos(o + M_PI))));
+            m_destX = x;
+            m_destY = y;
             m_destZ += trans->GetPositionZ();
-            //error_log("%f, %f, %f, %f", trans->GetPositionX(), trans->GetPositionY(), trans->GetPositionZ(), trans->GetOrientation());
-            //error_log("%f, %f, %f", m_destX, m_destY, m_destZ);
+            error_log("%s", trans->GetName());
+            error_log("%f, %f, %f, %f", trans->GetPositionX(), trans->GetPositionY(), trans->GetPositionZ(), trans->GetOrientation());
+            error_log("%f, %f, %f", m_destX, m_destY, m_destZ);
         }
         if(!MaNGOS::IsValidMapCoord(m_destX, m_destY, m_destZ))
             throw ByteBufferException(false, data.rpos(), 0, data.size());
