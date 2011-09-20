@@ -1195,11 +1195,11 @@ void ObjectMgr::LoadCreatures()
     uint32 count = 0;
     //                                                0                       1   2    3
     QueryResult *result = WorldDatabase.Query("SELECT creature.guid, creature.id, map, modelid,"
-    //   4             5           6           7           8            9              10         11
-        "equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, currentwaypoint,"
-    //   12         13       14          15            16         17         18
-        "curhealth, curmana, DeathState, MovementType, spawnMask, phaseMask, event,"
-    //   19                        20
+     //   4             5           6           7           8            9            10             11         12
+         "equipment_id, position_x, position_y, position_z, orientation, transMap, spawntimesecs, spawndist, currentwaypoint,"
+     //   13         14       15          16            17         18         19        
+         "curhealth, curmana, DeathState, MovementType, spawnMask, phaseMask, event,"
+     //   20                        21
         "pool_creature.pool_entry, pool_creature_template.pool_entry "
         "FROM creature "
         "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
@@ -1220,18 +1220,30 @@ void ObjectMgr::LoadCreatures()
     // build single time for check creature data
     std::set<uint32> difficultyCreatures[MAX_DIFFICULTY - 1];
     for (uint32 i = 0; i < sCreatureStorage.MaxEntry; ++i)
+    {
         if (CreatureInfo const* cInfo = sCreatureStorage.LookupEntry<CreatureInfo>(i))
+        {
             for (uint32 diff = 0; diff < MAX_DIFFICULTY - 1; ++diff)
+            {
                 if (cInfo->DifficultyEntry[diff])
                     difficultyCreatures[diff].insert(cInfo->DifficultyEntry[diff]);
+            }
+        }
+    }
 
     // build single time for check spawnmask
     std::map<uint32,uint32> spawnMasks;
     for(uint32 i = 0; i < sMapStore.GetNumRows(); ++i)
+    {
         if(sMapStore.LookupEntry(i))
+        {
             for(int k = 0; k < MAX_DIFFICULTY; ++k)
+            {
                 if (GetMapDifficultyData(i,Difficulty(k)))
                     spawnMasks[i] |= (1 << k);
+            }
+        }
+    }
 
     BarGoLink bar(result->GetRowCount());
 
@@ -1260,18 +1272,22 @@ void ObjectMgr::LoadCreatures()
         data.posY               = fields[ 6].GetFloat();
         data.posZ               = fields[ 7].GetFloat();
         data.orientation        = fields[ 8].GetFloat();
-        data.spawntimesecs      = fields[ 9].GetUInt32();
-        data.spawndist          = fields[10].GetFloat();
-        data.currentwaypoint    = fields[11].GetUInt32();
-        data.curhealth          = fields[12].GetUInt32();
-        data.curmana            = fields[13].GetUInt32();
-        data.is_dead            = fields[14].GetBool();
-        data.movementType       = fields[15].GetUInt8();
-        data.spawnMask          = fields[16].GetUInt8();
-        data.phaseMask          = fields[17].GetUInt16();
-        int16 gameEvent         = fields[18].GetInt16();
-        int16 GuidPoolId        = fields[19].GetInt16();
-        int16 EntryPoolId       = fields[20].GetInt16();
+        data.transMap           = fields[ 9].GetUInt32();
+        data.spawntimesecs      = fields[10].GetUInt32();
+        data.spawndist          = fields[11].GetFloat();
+        data.currentwaypoint    = fields[12].GetUInt32();
+        data.curhealth          = fields[13].GetUInt32();
+        data.curmana            = fields[14].GetUInt32();
+        data.is_dead            = fields[15].GetBool();
+        data.movementType       = fields[16].GetUInt8();
+        data.spawnMask          = fields[17].GetUInt8();
+        data.phaseMask          = fields[18].GetUInt16();
+        int16 gameEvent         = fields[19].GetInt16();
+        int16 GuidPoolId        = fields[20].GetInt16();
+        int16 EntryPoolId       = fields[21].GetInt16();
+
+        if (data.transMap)
+            continue;
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if(!mapEntry)

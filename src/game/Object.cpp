@@ -1143,6 +1143,36 @@ bool WorldObject::_IsWithinDist(WorldObject const* obj, float dist2compare, bool
     return distsq < maxdist * maxdist;
 }
 
+bool WorldObject::_IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D, Unit * unit, Player * plr) const
+{
+    float sizefactor = GetObjectBoundingRadius() + obj->GetObjectBoundingRadius();
+    float maxdist = dist2compare + sizefactor;
+
+    if (unit->GetTransport() && plr->GetTransport() &&  plr->GetTransport()->GetGUIDLow() == unit->GetTransport()->GetGUIDLow())
+    {
+        float dtx = unit->m_movementInfo.GetTransportPos()->x - plr->m_movementInfo.GetTransportPos()->x;
+        float dty = unit->m_movementInfo.GetTransportPos()->y - plr->m_movementInfo.GetTransportPos()->y;
+        float disttsq = dtx * dtx + dty * dty;
+        if (is3D)
+        {
+            float dtz = unit->m_movementInfo.GetTransportPos()->z - plr->m_movementInfo.GetTransportPos()->z;
+            disttsq += dtz * dtz;
+        }
+        return disttsq < (maxdist * maxdist);
+    }
+
+    float dx = GetPositionX() - obj->GetPositionX();
+    float dy = GetPositionY() - obj->GetPositionY();
+    float distsq = dx*dx + dy*dy;
+    if(is3D)
+    {
+        float dz = GetPositionZ() - obj->GetPositionZ();
+        distsq += dz*dz;
+    }
+
+    return distsq < maxdist * maxdist;
+}
+
 bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
 {
     if (!IsInMap(obj))

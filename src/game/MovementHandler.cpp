@@ -548,7 +548,7 @@ void WorldSession::HandleMoverRelocation(MovementInfo& movementInfo)
                 {
                     if ((*iter)->GetObjectGuid() == movementInfo.GetTransportGuid())
                     {
-                        plMover->m_transport = (*iter);
+                        plMover->SetTransport(*iter);
                         (*iter)->AddPassenger(plMover);
 
                         if (plMover->GetVehicleKit())

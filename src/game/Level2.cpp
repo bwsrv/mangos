@@ -42,6 +42,7 @@
 #include "GMTicketMgr.h"
 #include "WaypointManager.h"
 #include "Util.h"
+#include "Transports.h"
 #include <cctype>
 #include <iostream>
 #include <fstream>
@@ -1603,35 +1604,73 @@ bool ChatHandler::HandleNpcAddCommand(char* args)
 
     Player *chr = m_session->GetPlayer();
     CreatureCreatePos pos(chr, chr->GetOrientation());
+    float tX = chr->GetTransOffsetX();
+    float tY = chr->GetTransOffsetY();
+    float tZ = chr->GetTransOffsetZ();
+    float tO = chr->GetTransOffsetO();
     Map *map = chr->GetMap();
 
-    Creature* pCreature = new Creature;
-
-    // used guids from specially reserved range (can be 0 if no free values)
-    uint32 lowguid = sObjectMgr.GenerateStaticCreatureLowGuid();
-    if (!lowguid)
+    if (chr->GetTransport())
     {
-        SendSysMessage(LANG_NO_FREE_STATIC_GUID_FOR_SPAWN);
-        SetSentErrorMessage(true);
-        return false;
-    }
+        float wX, wY;
+        wX = (tX*cos(chr->GetTransport()->GetOrientation()) + tY*sin(chr->GetTransport()->GetOrientation() + M_PI));
+        wY = (tY*cos(chr->GetTransport()->GetOrientation()) + tX*sin(chr->GetTransport()->GetOrientation()));
+        CreatureCreatePos pos(map, chr->GetTransport()->GetPositionX() + wX, chr->GetTransport()->GetPositionY() + wY, chr->GetTransport()->GetPositionZ() + tZ, chr->GetTransport()->GetOrientation() + tO, chr->GetTransport()->GetPhaseMask());
 
-    if (!pCreature->Create(lowguid, pos, cinfo))
+        Creature* pCreature = new Creature;
+
+        if (!pCreature->Create(map->GenerateLocalLowGuid(HIGHGUID_UNIT), pos, cinfo))
+        {
+            delete pCreature;
+            return false;
+        }
+
+        pCreature->Relocate(chr->GetTransport()->GetPositionX() + wX, wY + chr->GetTransport()->GetPositionY(), chr->GetTransport()->GetPositionZ() + tZ, chr->GetTransport()->GetOrientation() + tO);
+
+        if(!pCreature->IsPositionValid())
+        {
+            sLog.outError("Creature (guidlow %d, entry %d) not created. Suggested coordinates isn't valid (X: %f Y: %f)",pCreature->GetGUIDLow(),pCreature->GetEntry(),pCreature->GetPositionX(),pCreature->GetPositionY());
+            delete pCreature;
+            return false;
+        }
+
+        pCreature->AIM_Initialize();
+
+        map->Add(pCreature);
+        chr->GetTransport()->EnterThisTransport(pCreature, tX, tY, tZ, tO);
+        pCreature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMaskForSpawn());
+        return true;
+    }
+    else
     {
-        delete pCreature;
-        return false;
+        Creature* pCreature = new Creature;
+
+        // used guids from specially reserved range (can be 0 if no free values)
+        uint32 lowguid = sObjectMgr.GenerateStaticCreatureLowGuid();
+        if (!lowguid)
+        {
+            SendSysMessage(LANG_NO_FREE_STATIC_GUID_FOR_SPAWN);
+            SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (!pCreature->Create(lowguid, pos, cinfo))
+        {
+            delete pCreature;
+            return false;
+        }
+
+        pCreature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMaskForSpawn());
+
+        uint32 db_guid = pCreature->GetGUIDLow();
+
+        // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
+        pCreature->LoadFromDB(db_guid, map);
+
+        map->Add(pCreature);
+        sObjectMgr.AddCreatureToGrid(db_guid, sObjectMgr.GetCreatureData(db_guid));
+        return true;
     }
-
-    pCreature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMaskForSpawn());
-
-    uint32 db_guid = pCreature->GetGUIDLow();
-
-    // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
-    pCreature->LoadFromDB(db_guid, map);
-
-    map->Add(pCreature);
-    sObjectMgr.AddCreatureToGrid(db_guid, sObjectMgr.GetCreatureData(db_guid));
-    return true;
 }
 
 //add item in vendorlist
@@ -1948,10 +1987,16 @@ bool ChatHandler::HandleNpcMoveCommand(char* args)
     else
         lowguid = pCreature->GetGUIDLow();
 
-    float x = m_session->GetPlayer()->GetPositionX();
-    float y = m_session->GetPlayer()->GetPositionY();
-    float z = m_session->GetPlayer()->GetPositionZ();
-    float o = m_session->GetPlayer()->GetOrientation();
+    Player* chr = m_session->GetPlayer();
+
+    uint32 TransMap = 0;
+    if (chr->GetTransport())
+        TransMap = chr->GetTransport()->GetGOInfo()->moTransport.mapID;
+
+    float x = chr->GetTransport() ? chr->GetTransOffsetX() : chr->GetPositionX();
+    float y = chr->GetTransport() ? chr->GetTransOffsetY() : chr->GetPositionY();
+    float z = chr->GetTransport() ? chr->GetTransOffsetZ() : chr->GetPositionZ();
+    float o = chr->GetTransport() ? chr->GetTransOffsetO() : chr->GetOrientation();
 
     if (pCreature)
     {
@@ -1962,7 +2007,16 @@ bool ChatHandler::HandleNpcMoveCommand(char* args)
             const_cast<CreatureData*>(data)->posZ = z;
             const_cast<CreatureData*>(data)->orientation = o;
         }
-        pCreature->GetMap()->CreatureRelocation(pCreature,x, y, z,o);
+        if (chr->GetTransport())
+        {
+            if (pCreature->GetTransport() && chr->GetTransport() != pCreature->GetTransport())
+                pCreature->GetTransport()->LeaveThisTransport(pCreature);
+
+            chr->GetTransport()->EnterThisTransport(pCreature, x, y, z, o);
+        }
+        else
+            pCreature->GetMap()->CreatureRelocation(pCreature,x, y, z,o);
+
         pCreature->GetMotionMaster()->Initialize();
         if (pCreature->isAlive())                            // dead creature will reset movement generator at respawn
         {

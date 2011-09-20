@@ -35,6 +35,7 @@
 #include "MapRefManager.h"
 #include "Utilities/TypeList.h"
 #include "ScriptMgr.h"
+#include "Transports.h"
 #include "Weather.h"
 #include "CreatureLinkingMgr.h"
 #include "ObjectLock.h"
@@ -280,6 +281,10 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
 
         // Get Holder for Creature Linking
         CreatureLinkingHolder* GetCreatureLinkingHolder() { return &m_creatureLinkingHolder; }
+
+        // Loading Transport
+        Transport* LoadTransportInMap(uint32 transportEntry, uint32 pointId = 0, uint32 period = 0, bool IsStoped = false, float orientation = 1.0f);
+        Transport* GetTransportFromStorage(uint32 entry);
 
     private:
         void LoadMapAndVMap(int gx, int gy);

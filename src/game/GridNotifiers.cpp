@@ -45,13 +45,15 @@ VisibleNotifier::Notify()
     // but exist one case when this possible and object not out of range: transports
     if(Transport* transport = player.GetTransport())
     {
-        for(Transport::PlayerSet::const_iterator itr = transport->GetPassengers().begin();itr!=transport->GetPassengers().end();++itr)
+        for(Transport::UnitSet::const_iterator itr = transport->GetUnitPassengers().begin(); itr != transport->GetUnitPassengers().end(); ++itr)
         {
             if (i_clientGUIDs.find((*itr)->GetObjectGuid()) != i_clientGUIDs.end())
             {
+                if ((*itr)->GetTypeId() != TYPEID_PLAYER)
+                    continue;
+
                 // ignore far sight case
-                (*itr)->UpdateVisibilityOf(*itr, &player);
-                player.UpdateVisibilityOf(&player, *itr, i_data, i_visibleNow);
+                ((Player*)(*itr))->UpdateVisibilityOf(*itr, &player);
                 i_clientGUIDs.erase((*itr)->GetObjectGuid());
             }
         }

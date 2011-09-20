@@ -911,7 +911,7 @@ void Map::SendInitSelf( Player * player )
     // build other passengers at transport also (they always visible and marked as visible and will not send at visibility update at add to map
     if(Transport* transport = player->GetTransport())
     {
-        for(Transport::PlayerSet::const_iterator itr = transport->GetPassengers().begin();itr!=transport->GetPassengers().end();++itr)
+        for(Transport::UnitSet::const_iterator itr = transport->GetUnitPassengers().begin(); itr != transport->GetUnitPassengers().end(); ++itr)
         {
             if(player!=(*itr) && player->HaveAtClient(*itr))
             {
@@ -3282,6 +3282,70 @@ void Map::PlayDirectSoundToMap(uint32 soundId)
     Map::PlayerList const& pList = GetPlayers();
     for (PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
         itr->getSource()->SendDirectMessage(&data);
+}
+
+Transport* Map::LoadTransportInMap(uint32 transportEntry, uint32 pointId, uint32 period, bool IsStoped /* = false*/, float orientation)
+{
+    Transport* trans = new Transport;
+    const GameObjectInfo *goinfo = ObjectMgr::GetGameObjectInfo(transportEntry);
+    if (!goinfo)
+        return NULL;
+
+    std::set<uint32> mapsUse;
+    trans->m_onePeriod = true;
+    trans->m_period = period;
+    trans->m_waypointTimer = 1000;
+    trans->m_microPointTimer = 1000;
+
+    if (!trans->GenerateWaypoints(goinfo->moTransport.taxiPathId, mapsUse))
+    {
+        delete trans;
+        return NULL;
+    }
+
+    uint32 mapid = trans->m_WayPoints[pointId].mapid;
+    float x = trans->m_WayPoints[pointId].x;
+    float y = trans->m_WayPoints[pointId].y;
+    float z = trans->m_WayPoints[pointId].z;
+    float o = orientation;
+
+    if (!trans->Create(transportEntry, mapid, x, y, z, o, GO_ANIMPROGRESS_DEFAULT, 0))
+    {
+        delete trans;
+        return NULL;
+    }
+
+    sMapMgr.m_Transports.insert(trans);
+
+    for (std::set<uint32>::const_iterator i = mapsUse.begin(); i != mapsUse.end(); ++i)
+        sMapMgr.m_TransportsByMap[*i].insert(trans);
+
+    Add(trans);
+
+    trans->SetWayPoint(pointId);
+    trans->LoadTransportAccessory();
+
+    if (IsStoped)
+        trans->BuildMovementPacket(this);
+    else
+        trans->BuildMovementPacket(this, true);
+
+    error_log("%s with Entry = %u LOADED in dX = %f, dY = %f, dZ = %f", trans->GetName(), trans->GetEntry(), x, y, z);
+
+    return trans;
+}
+
+/** ##### WARNING! USE THIS ONLY IF TRANSPORT ON WORLD MAP, NOT ON INSTANCE MAP! ##### */
+Transport* Map::GetTransportFromStorage(uint32 entry)
+{
+    for (MapManager::TransportSet::iterator itr = sMapMgr.m_Transports.begin(); itr != sMapMgr.m_Transports.end(); ++itr)
+    {
+        Transport* trans = *itr;
+        if (trans->GetEntry() == entry && this == trans->GetMap())
+            return trans;
+    }
+
+    return NULL;
 }
 
 void Map::SetMapWeather(WeatherState state, float grade)
