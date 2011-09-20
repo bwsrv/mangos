@@ -302,8 +302,10 @@ Unit::Unit() :
 
 Unit::~Unit()
 {
+#ifndef WIN32
     MAPLOCK_WRITE(this, MAP_LOCK_TYPE_DEFAULT);
     MAPLOCK_WRITE1(this, MAP_LOCK_TYPE_AURAS);
+#endif
     // set current spells as deletable
     for (uint32 i = 0; i < CURRENT_MAX_SPELL; ++i)
     {
