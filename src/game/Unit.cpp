@@ -538,27 +538,46 @@ bool Unit::CanReachWithMeleeAttack(Unit* pVictim, float flat_mod /*= 0.0f*/) con
 
 void Unit::RemoveSpellsCausingAura(AuraType auraType)
 {
-    for (AuraList::const_iterator iter = m_modAuras[auraType].begin(); iter != m_modAuras[auraType].end();)
+    std::set<uint32> toRemoveSpellList;
+    for (AuraList::const_iterator iter = m_modAuras[auraType].begin(); iter != m_modAuras[auraType].end(); ++iter)
     {
-        RemoveAurasDueToSpell((*iter)->GetId());
-        iter = m_modAuras[auraType].begin();
+        Aura* aura = *iter;
+        if (!aura)
+            continue;
+
+        SpellAuraHolderPtr holder = aura->GetHolder();
+        if (!holder || holder->IsDeleted())
+            continue;
+
+        toRemoveSpellList.insert(holder->GetId());
     }
+
+    for (std::set<uint32>::iterator i = toRemoveSpellList.begin(); i != toRemoveSpellList.end(); ++i)
+        RemoveAurasDueToSpell(*i);
 }
 
 void Unit::RemoveSpellsCausingAura(AuraType auraType, SpellAuraHolderPtr except)
 {
-    for (AuraList::const_iterator iter = m_modAuras[auraType].begin(); iter != m_modAuras[auraType].end();)
+    std::set<uint32> toRemoveSpellList;
+    for (AuraList::const_iterator iter = m_modAuras[auraType].begin(); iter != m_modAuras[auraType].end(); ++iter)
     {
-        // skip `except` aura
-        if ((*iter)->GetHolder() == except)
-        {
-            ++iter;
+        Aura* aura = *iter;
+        if (!aura)
             continue;
-        }
 
-        RemoveAurasDueToSpell((*iter)->GetId(), except);
-        iter = m_modAuras[auraType].begin();
+        SpellAuraHolderPtr holder = aura->GetHolder();
+        if (!holder || holder->IsDeleted())
+            continue;
+
+        // skip `except` holder
+        if (holder == except)
+            continue;
+
+        toRemoveSpellList.insert(holder->GetId());
     }
+
+    for (std::set<uint32>::iterator i = toRemoveSpellList.begin(); i != toRemoveSpellList.end(); ++i)
+        RemoveAurasDueToSpell(*i, except);
 }
 
 void Unit::DealDamageMods(Unit *pVictim, uint32 &damage, uint32* absorb)
