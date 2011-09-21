@@ -3773,10 +3773,19 @@ void Aura::HandleAuraModShapeshift(bool apply, bool Real)
         {
             // remove movement affects
             target->RemoveSpellsCausingAura(SPELL_AURA_MOD_ROOT, GetHolder());
+            std::set<uint32> toRemoveSpellList;
             Unit::AuraList const& slowingAuras = target->GetAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
-            for (Unit::AuraList::const_iterator iter = slowingAuras.begin(); iter != slowingAuras.end();)
+            for (Unit::AuraList::const_iterator iter = slowingAuras.begin(); iter != slowingAuras.end(); ++iter)
             {
-                SpellEntry const* aurSpellInfo = (*iter)->GetSpellProto();
+                Aura* aura = *iter;
+                if (!aura)
+                    continue;
+
+                SpellAuraHolderPtr holder = aura->GetHolder();
+                if (!holder || holder->IsDeleted())
+                    continue;
+
+                SpellEntry const* aurSpellInfo = holder->GetSpellProto();
 
                 uint32 aurMechMask = GetAllSpellMechanicMask(aurSpellInfo);
 
@@ -3789,14 +3798,15 @@ void Aura::HandleAuraModShapeshift(bool apply, bool Real)
                     (aurSpellInfo->SpellIconID == 15 && aurSpellInfo->Dispel == 0 &&
                     (aurMechMask & (1 << (MECHANIC_SNARE-1))) == 0))
                 {
-                    ++iter;
                     continue;
                 }
 
                 // All OK, remove aura now
-                target->RemoveAurasDueToSpellByCancel(aurSpellInfo->Id);
-                iter = slowingAuras.begin();
+                toRemoveSpellList.insert(aurSpellInfo->Id);
             }
+
+            for (std::set<uint32>::iterator i = toRemoveSpellList.begin(); i != toRemoveSpellList.end(); ++i)
+                target->RemoveAurasDueToSpellByCancel(*i);
 
             // and polymorphic affects
             if (target->IsPolymorphed())
