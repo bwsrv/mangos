@@ -5281,7 +5281,7 @@ void Unit::HandleArenaPreparation(bool apply)
                                                             // don't remove stances, shadowform, pally/hunter auras
             !iter->second->IsPassive() &&                   // don't remove passive auras
             iter->second->GetAuraMaxDuration() > 0 &&
-            iter->second->GetAuraMaxDuration() <= 25000)
+            iter->second->GetAuraDuration() <= sWorld.getConfig(CONFIG_UINT32_ARENA_AURAS_DURATION)*IN_MILLISECONDS)
             {
                 RemoveSpellAuraHolder(iter->second, AURA_REMOVE_BY_CANCEL);
                 iter = m_spellAuraHolders.begin();

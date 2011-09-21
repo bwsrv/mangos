@@ -1713,6 +1713,12 @@ BattleGround.Random.ResetHour = 6
 #        Default: 0 (disable)
 #                 1500
 #
+#    Arena.RemoveAurasWithDurationLess = 30
+#    At start arena remove auras with duration, less then this value (in seconds)
+#        Default: 30s. (wowwiki reports at 25 s., patchnotes 3.0.2 reports on 30s.)
+#        min:      0s. (not remove)
+#        max:     60s.
+#
 ###################################################################################################################
 
 Arena.MaxRatingDifference = 150
@@ -1728,6 +1734,7 @@ Arena.StartRating = -1
 Arena.StartPersonalRating = -1
 Arena.LoserNoChange = 0
 Arena.LoserHalfChange = 0
+Arena.RemoveAurasWithDurationLess = 30
 
 ###################################################################################################################
 # NETWORK CONFIG
