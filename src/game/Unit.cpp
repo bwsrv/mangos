@@ -5409,6 +5409,50 @@ Aura* Unit::GetAura(AuraType type, SpellFamily family, ClassFamilyMask const& cl
     return NULL;
 }
 
+Aura* Unit::GetScalingAura(AuraType type, uint32 stat)
+{
+    MAPLOCK_READ(this, MAP_LOCK_TYPE_AURAS);
+    AuraList const& auras = GetAurasByType(type);
+    for (AuraList::const_iterator i = auras.begin(); i != auras.end(); ++i)
+    {
+        Aura* aura = (*i);
+        if (!aura)
+            continue;
+
+        SpellAuraHolderPtr holder = aura->GetHolder();
+        if (!holder || holder->IsDeleted() || holder->IsEmptyHolder() || holder->GetCasterGuid() != GetObjectGuid())
+            continue;
+
+        if (holder->GetSpellProto()->AttributesEx4 & SPELL_ATTR_EX4_PET_SCALING_AURA)
+        {
+            switch(type)
+            {
+                case SPELL_AURA_MOD_ATTACK_POWER:
+                case SPELL_AURA_MOD_POWER_REGEN:
+                case SPELL_AURA_MOD_HIT_CHANCE:
+                case SPELL_AURA_MOD_SPELL_HIT_CHANCE:
+                case SPELL_AURA_MOD_EXPERTISE:
+                    return aura;
+                case SPELL_AURA_MOD_DAMAGE_DONE:
+                    if (aura->GetModifier()->m_miscvalue == SpellSchoolMask(stat))
+                        return aura;
+                    break;
+                case SPELL_AURA_MOD_RESISTANCE:
+                    if (aura->GetModifier()->m_miscvalue & (1 << SpellSchools(stat)))
+                        return aura;
+                    break;
+                case SPELL_AURA_MOD_STAT:
+                    if (aura->GetModifier()->m_miscvalue == Stats(stat))
+                        return aura;
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+    return NULL;
+}
+
 bool Unit::HasAura(uint32 spellId, SpellEffectIndex effIndex) const
 {
     SpellAuraHolderConstBounds spair = GetSpellAuraHolderBounds(spellId);
