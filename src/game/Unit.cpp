@@ -10768,17 +10768,17 @@ void Unit::DoPetCastSpell(Player *owner, uint8 cast_count, SpellCastTargets* tar
 
     clearUnitState(UNIT_STAT_MOVING);
 
-    if (result == SPELL_CAST_OK)
+    if (pet && result == SPELL_CAST_OK)
     {
         pet->AddCreatureSpellCooldown(spellInfo->Id);
-        if (pet->IsPet())
+        if (GetObjectGuid().IsPet())
         {
             //10% chance to play special pet attack talk, else growl
             //actually this only seems to happen on special spells, fire shield for imp, torment for voidwalker, but it's stupid to check every spell
-            if(((Pet*)pet)->getPetType() == SUMMON_PET && (urand(0, 100) < 10))
-                pet->SendPetTalk((uint32)PET_TALK_SPECIAL_SPELL);
+            if(((Pet*)this)->getPetType() == SUMMON_PET && (urand(0, 100) < 10))
+                SendPetTalk((uint32)PET_TALK_SPECIAL_SPELL);
             else
-                pet->SendPetAIReaction();
+                SendPetAIReaction();
         }
 
         if ( unit_target && owner && !owner->IsFriendlyTo(unit_target) && !HasAuraType(SPELL_AURA_MOD_POSSESS))
@@ -10798,7 +10798,7 @@ void Unit::DoPetCastSpell(Player *owner, uint8 cast_count, SpellCastTargets* tar
 
         spell->prepare(&(spell->m_targets));
     }
-    else
+    else if (pet)
     {
         if (owner && HasAuraType(SPELL_AURA_MOD_POSSESS))
             Spell::SendCastResult(owner,spellInfo,0,result);
@@ -10808,6 +10808,11 @@ void Unit::DoPetCastSpell(Player *owner, uint8 cast_count, SpellCastTargets* tar
         if (owner && !((Creature*)this)->HasSpellCooldown(spellInfo->Id))
             owner->SendClearCooldown(spellInfo->Id, pet);
 
+        spell->finish(false);
+        delete spell;
+    }
+    else
+    {
         spell->finish(false);
         delete spell;
     }
