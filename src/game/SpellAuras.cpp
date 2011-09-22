@@ -10225,6 +10225,9 @@ void SpellAuraHolder::_RemoveSpellAuraHolder()
 
 void SpellAuraHolder::CleanupTriggeredSpells()
 {
+    if (!m_spellProto)
+        return;
+
     for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)
     {
         if (!m_spellProto->EffectApplyAuraName[i])
