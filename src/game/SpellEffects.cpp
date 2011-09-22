@@ -1724,6 +1724,17 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     unitTarget->RemoveAurasDueToSpell(6606);
                     return;
                 }
+                case 43498:                                 // Siphon Soul
+                {
+                    if (!unitTarget)
+                        return;
+
+                    // Cast Siphon Soul channeling spell
+                    if (unitTarget->GetTypeId() == TYPEID_PLAYER)
+                        m_caster->CastSpell(unitTarget, 43501, false);
+
+                    return;
+                }
                 case 43572:                                 // Send Them Packing: On /Raise Emote Dummy to Player
                 {
                     if (!unitTarget)
@@ -7652,6 +7663,23 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     unitTarget->CastSpell(unitTarget, 42285, true);
                     return;
+                }
+                case 42577:                                 // Zap
+                {
+                    if (!unitTarget)
+                        return;
+
+                    if (unitTarget->getVictim())
+                    {
+                        // Cast Zap damage spell
+                        unitTarget->CastSpell(unitTarget->getVictim(), 43137, true);
+
+                        // Attack a new target
+                        if (unitTarget->GetTypeId() == TYPEID_UNIT)
+                            if (Unit* target = ((Creature*)unitTarget)->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+                                ((Creature*)unitTarget)->AI()->AttackStart(target);
+                    }
+                    break;
                 }
                 case 43365:                                 // The Cleansing: Shrine Cast
                 {
