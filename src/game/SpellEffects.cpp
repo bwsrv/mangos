@@ -7678,7 +7678,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         if (unitTarget->GetTypeId() == TYPEID_UNIT)
                         {
                             Creature* cre = (Creature*)unitTarget;
-                            if (cre && cre->AI()
+                            if (cre && cre->AI())
                             {
                                 if (Unit* target = cre->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                                     cre->AI()->AttackStart(target);
