@@ -10362,6 +10362,9 @@ void SpellAuraHolder::SetStackAmount(uint32 stackAmount)
 
 Unit* SpellAuraHolder::GetCaster() const
 {
+    if (!m_target)
+        return NULL;
+
     if (GetCasterGuid() == m_target->GetObjectGuid())
         return m_target;
 

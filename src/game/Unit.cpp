@@ -3719,7 +3719,7 @@ void Unit::_UpdateSpells( uint32 time )
     {
         SpellAuraHolderPtr holder = iter->second;
 
-        if (!(holder->IsPermanent() || holder->IsPassive()) && holder->GetAuraDuration() == 0)
+        if (holder && !(holder->IsPermanent() || holder->IsPassive()) && holder->GetAuraDuration() == 0)
         {
             RemoveSpellAuraHolder(holder, AURA_REMOVE_BY_EXPIRE);
             iter = m_spellAuraHolders.begin();
