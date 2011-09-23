@@ -40,7 +40,6 @@
 static uint32 const BG_SA_GateStatus[6] = {3849, 3623, 3620, 3614, 3617, 3638};
 static uint32 const BG_SA_WorldStatusA[3] = {3630, 3627, 3626};
 static uint32 const BG_SA_WorldStatusH[3] = {3631, 3628, 3629};
-static uint32 const BG_IC_TEAM[BG_TEAMS_COUNT] = {84, 83};
 
 // WorldSafeLocs ids for 5 gyd, and for ally, and horde starting location
 static uint32 const BG_SA_GraveyardIdsPhase[3] = {1347, 1346, 1348};
@@ -458,9 +457,6 @@ void BattleGroundSA::Reset()
     m_ActiveEvents[SA_EVENT_ADD_NPC] = BG_EVENT_NONE;
     m_ActiveEvents[SA_EVENT_ADD_SPIR] = BG_EVENT_NONE;
     m_ActiveEvents[SA_EVENT_ADD_BOMB] = BG_EVENT_NONE;
-    m_ActiveEvents[SA_EVENT_ADD_BOMB1] = BG_EVENT_NONE;
-    m_ActiveEvents[SA_EVENT_ADD_BOMB2] = BG_EVENT_NONE;
-    m_ActiveEvents[SA_EVENT_ADD_BOMB3] = BG_EVENT_NONE;
     m_ActiveEvents[SA_EVENT_ADD_VECH_E] = BG_EVENT_NONE;
     m_ActiveEvents[SA_EVENT_ADD_VECH_W] = BG_EVENT_NONE;
     // spiritguides and flags not spawned at beginning
@@ -475,12 +471,6 @@ void BattleGroundSA::UpdatePhase()
         SpawnEvent(SA_EVENT_ADD_VECH_W, 0, false);
         SpawnEvent(SA_EVENT_ADD_BOMB, 0, false);
         SpawnEvent(SA_EVENT_ADD_BOMB, 1, false);
-        SpawnEvent(SA_EVENT_ADD_BOMB1, 0, false);
-        SpawnEvent(SA_EVENT_ADD_BOMB1, 1, false);
-        SpawnEvent(SA_EVENT_ADD_BOMB2, 0, false);
-        SpawnEvent(SA_EVENT_ADD_BOMB2, 1, false);
-        SpawnEvent(SA_EVENT_ADD_BOMB3, 0, false);
-        SpawnEvent(SA_EVENT_ADD_BOMB3, 1, false);
         SpawnEvent(SA_EVENT_ADD_NPC, 0, false);
         SpawnEvent(BG_EVENT_DOOR, 0, true);
 
