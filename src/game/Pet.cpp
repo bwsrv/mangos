@@ -1386,7 +1386,7 @@ void Pet::_LoadAuras(uint32 timediff)
             else if (!stackcount)
                 stackcount = 1;
 
-            SpellAuraHolder *holder = CreateSpellAuraHolder(spellproto, this, NULL);
+            SpellAuraHolderPtr holder = CreateSpellAuraHolder(spellproto, this, NULL);
             holder->SetLoadedState(casterGuid, ObjectGuid(HIGHGUID_ITEM, item_lowguid), stackcount, remaincharges, maxduration, remaintime);
 
             for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)
@@ -1394,7 +1394,7 @@ void Pet::_LoadAuras(uint32 timediff)
                 if ((effIndexMask & (1 << i)) == 0)
                     continue;
 
-                Aura* aura = holder->CreateAura(spellproto, SpellEffectIndex(i), NULL, (Unit*)this, NULL, NULL);
+                Aura* aura = holder->CreateAura(spellproto, SpellEffectIndex(i), NULL, holder, (Unit*)this, NULL, NULL);
                 if (!damage[i])
                     damage[i] = aura->GetModifier()->m_amount;
 
@@ -1403,8 +1403,6 @@ void Pet::_LoadAuras(uint32 timediff)
 
             if (!holder->IsEmptyHolder())
                 AddSpellAuraHolder(holder);
-            else
-                delete holder;
         }
         while( result->NextRow() );
 
@@ -1432,7 +1430,7 @@ void Pet::_SaveAuras()
 
     for(SpellAuraHolderMap::const_iterator itr = auraHolders.begin(); itr != auraHolders.end(); ++itr)
     {
-        SpellAuraHolder *holder = itr->second;
+        SpellAuraHolderPtr holder = itr->second;
 
         bool save = true;
         for (int32 j = 0; j < MAX_EFFECT_INDEX; ++j)
@@ -2246,7 +2244,7 @@ void Pet::ApplyStatScalingBonus(Stats stat, bool apply)
         if (!_aura || _aura->IsInUse())
             continue;
 
-        SpellAuraHolder* holder = _aura->GetHolder();
+        SpellAuraHolderPtr holder = _aura->GetHolder();
 
         if (!holder || holder->IsDeleted() || holder->IsEmptyHolder() || holder->GetCasterGuid() != GetObjectGuid())
             continue;
@@ -2310,7 +2308,7 @@ void Pet::ApplyResistanceScalingBonus(uint32 school, bool apply)
         if (!_aura || _aura->IsInUse())
             continue;
 
-        SpellAuraHolder* holder = _aura->GetHolder();
+        SpellAuraHolderPtr holder = _aura->GetHolder();
 
         if (!holder || holder->IsDeleted() || holder->IsEmptyHolder() || holder->GetCasterGuid() != GetObjectGuid())
             continue;
@@ -2424,7 +2422,7 @@ void Pet::ApplyAttackPowerScalingBonus(bool apply)
         if (!_aura || _aura->IsInUse())
             continue;
 
-        SpellAuraHolder* holder = _aura->GetHolder();
+        SpellAuraHolderPtr holder = _aura->GetHolder();
 
         if (!holder || holder->IsDeleted() || holder->IsEmptyHolder() || holder->GetCasterGuid() != GetObjectGuid())
             continue;
@@ -2514,7 +2512,7 @@ void Pet::ApplyDamageScalingBonus(bool apply)
         if (!_aura || _aura->IsInUse())
             continue;
 
-        SpellAuraHolder* holder = _aura->GetHolder();
+        SpellAuraHolderPtr holder = _aura->GetHolder();
 
         if (!holder || holder->IsDeleted() || holder->IsEmptyHolder() || holder->GetCasterGuid() != GetObjectGuid())
             continue;
@@ -2622,7 +2620,7 @@ void Pet::ApplySpellDamageScalingBonus(bool apply)
         if (!_aura || _aura->IsInUse())
             continue;
 
-        SpellAuraHolder* holder = _aura->GetHolder();
+        SpellAuraHolderPtr holder = _aura->GetHolder();
 
         if (!holder || holder->IsDeleted() || holder->IsEmptyHolder() || holder->GetCasterGuid() != GetObjectGuid())
             continue;
@@ -2697,7 +2695,7 @@ void Pet::ApplyHitScalingBonus(bool apply)
         if (!_aura || _aura->IsInUse())
             continue;
 
-        SpellAuraHolder* holder = _aura->GetHolder();
+        SpellAuraHolderPtr holder = _aura->GetHolder();
 
         if (!holder || holder->IsDeleted() || holder->IsEmptyHolder() || holder->GetCasterGuid() != GetObjectGuid())
             continue;
@@ -2751,7 +2749,7 @@ void Pet::ApplySpellHitScalingBonus(bool apply)
         if (!_aura || _aura->IsInUse())
             continue;
 
-        SpellAuraHolder* holder = _aura->GetHolder();
+        SpellAuraHolderPtr holder = _aura->GetHolder();
 
         if (!holder || holder->IsDeleted() || holder->IsEmptyHolder() || holder->GetCasterGuid() != GetObjectGuid())
             continue;
@@ -2803,7 +2801,7 @@ void Pet::ApplyExpertizeScalingBonus(bool apply)
         if (!_aura || _aura->IsInUse())
             continue;
 
-        SpellAuraHolder* holder = _aura->GetHolder();
+        SpellAuraHolderPtr holder = _aura->GetHolder();
 
         if (!holder || holder->IsDeleted() || holder->IsEmptyHolder() || holder->GetCasterGuid() != GetObjectGuid())
             continue;
@@ -2857,7 +2855,7 @@ void Pet::ApplyPowerregenScalingBonus(bool apply)
         if (!_aura || _aura->IsInUse())
             continue;
 
-        SpellAuraHolder* holder = _aura->GetHolder();
+        SpellAuraHolderPtr holder = _aura->GetHolder();
 
         if (!holder || holder->IsDeleted() || holder->IsEmptyHolder() || holder->GetCasterGuid() != GetObjectGuid())
             continue;
@@ -3073,7 +3071,7 @@ Unit* Pet::GetOwner() const
 }
 
 
-bool Pet::ReapplyScalingAura(SpellAuraHolder* holder, SpellEntry const *spellproto, SpellEffectIndex index, int32 basePoints)
+bool Pet::ReapplyScalingAura(SpellAuraHolderPtr holder, SpellEntry const *spellproto, SpellEffectIndex index, int32 basePoints)
 {
     if (!holder || holder->IsDeleted() || holder->IsEmptyHolder() || holder->IsInUse())
         return false;
@@ -3088,7 +3086,7 @@ bool Pet::ReapplyScalingAura(SpellAuraHolder* holder, SpellEntry const *spellpro
         RemoveAura(oldaura, AURA_REMOVE_BY_STACK);
     }
 
-    Aura* aura = holder->CreateAura(spellproto, index, &basePoints, this, this, NULL);
+    Aura* aura = holder->CreateAura(spellproto, index, &basePoints, holder, this, this, NULL);
     holder->SetAuraDuration(aura->GetAuraMaxDuration());
     AddAuraToModList(aura);
     aura->ApplyModifier(true,true);

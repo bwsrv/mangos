@@ -4007,7 +4007,7 @@ bool ChatHandler::HandleAuraCommand(char* args)
         return false;
     }
 
-    SpellAuraHolder *holder = CreateSpellAuraHolder(spellInfo, target, m_session->GetPlayer());
+    SpellAuraHolderPtr holder = CreateSpellAuraHolder(spellInfo, target, m_session->GetPlayer());
 
     for(uint32 i = 0; i < MAX_EFFECT_INDEX; ++i)
     {
@@ -4018,7 +4018,7 @@ bool ChatHandler::HandleAuraCommand(char* args)
             eff == SPELL_EFFECT_APPLY_AURA  ||
             eff == SPELL_EFFECT_PERSISTENT_AREA_AURA)
         {
-            holder->CreateAura(spellInfo, SpellEffectIndex(i), NULL, target, NULL, NULL);
+            holder->CreateAura(spellInfo, SpellEffectIndex(i), NULL, holder, target, NULL, NULL);
         }
     }
     target->AddSpellAuraHolder(holder);
@@ -4876,7 +4876,7 @@ bool ChatHandler::HandleListAurasCommand (char* /*args*/)
     {
         bool talent = GetTalentSpellCost(itr->second->GetId()) > 0;
 
-        SpellAuraHolder *holder = itr->second;
+        SpellAuraHolderPtr holder = itr->second;
         char const* name = holder->GetSpellProto()->SpellName[GetSessionDbcLocale()];
 
         for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)

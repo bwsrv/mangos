@@ -1348,7 +1348,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, uint32 effectMask)
         m_spellAuraHolder->SetInUse(true);
     }
     else
-        m_spellAuraHolder = NULL;
+        m_spellAuraHolder = SpellAuraHolderPtr(NULL);
 
     for(int effectNumber = 0; effectNumber < MAX_EFFECT_INDEX; ++effectNumber)
     {
@@ -1375,7 +1375,6 @@ void Spell::DoSpellHitOnUnit(Unit *unit, uint32 effectMask)
                 // Fully diminished
                 if (duration == 0)
                 {
-                    delete m_spellAuraHolder;
                     return;
                 }
             }
@@ -1403,8 +1402,6 @@ void Spell::DoSpellHitOnUnit(Unit *unit, uint32 effectMask)
                 m_spellAuraHolder->SetDeleted();
                 unit->AddSpellAuraHolderToRemoveList(m_spellAuraHolder);
             }
-            else
-                delete m_spellAuraHolder;
         }
     }
 }
@@ -2177,7 +2174,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
             if (m_spellInfo->Id == 62240 || m_spellInfo->Id == 62920)      // Solar Flare
             {
-                if (SpellAuraHolder *holder = m_caster->GetSpellAuraHolder(62239))
+                if (SpellAuraHolderPtr holder = m_caster->GetSpellAuraHolder(62239))
                     unMaxTargets = holder->GetStackAmount();
                 else
                     unMaxTargets = 1;
@@ -6457,7 +6454,7 @@ SpellCastResult Spell::CheckCasterAuras() const
             Unit::SpellAuraHolderMap const& auras = m_caster->GetSpellAuraHolderMap();
             for(Unit::SpellAuraHolderMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
             {
-                SpellAuraHolder *holder = itr->second;
+                SpellAuraHolderPtr holder = itr->second;
                 SpellEntry const * pEntry = holder->GetSpellProto();
 
                 if ((GetSpellSchoolMask(pEntry) & school_immune) && !(pEntry->AttributesEx & SPELL_ATTR_EX_UNAFFECTED_BY_SCHOOL_IMMUNE))

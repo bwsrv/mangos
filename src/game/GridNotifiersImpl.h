@@ -160,13 +160,13 @@ inline void MaNGOS::DynamicObjectUpdater::VisitHelper(Unit* target)
 
     // Apply PersistentAreaAura on target
     // in case 2 dynobject overlap areas for same spell, same holder is selected, so dynobjects share holder
-    SpellAuraHolder *holder = target->GetSpellAuraHolder(spellInfo->Id, i_dynobject.GetCasterGuid());
+    SpellAuraHolderPtr holder = target->GetSpellAuraHolder(spellInfo->Id, i_dynobject.GetCasterGuid());
 
     if (holder)
     {
         if (!holder->GetAuraByEffectIndex(eff_index))
         {
-            Aura* Aur = holder->CreateAura(AURA_CLASS_PERSISTENT_AREA_AURA, eff_index, NULL, target, i_dynobject.GetCaster(), NULL);
+            Aura* Aur = holder->CreateAura(AURA_CLASS_PERSISTENT_AREA_AURA, eff_index, NULL, holder, target, i_dynobject.GetCaster(), NULL);
             target->AddAuraToModList(Aur);
             holder->SetInUse(true);
             Aur->ApplyModifier(true,true);
@@ -181,7 +181,7 @@ inline void MaNGOS::DynamicObjectUpdater::VisitHelper(Unit* target)
     else
     {
         holder = CreateSpellAuraHolder(spellInfo, target, i_dynobject.GetCaster());
-        holder->CreateAura(AURA_CLASS_PERSISTENT_AREA_AURA, eff_index, NULL, target, i_dynobject.GetCaster(),NULL);
+        holder->CreateAura(AURA_CLASS_PERSISTENT_AREA_AURA, eff_index, NULL, holder, target, i_dynobject.GetCaster(),NULL);
         target->AddSpellAuraHolder(holder);
     }
 
