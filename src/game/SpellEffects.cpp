@@ -7676,10 +7676,16 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                         // Attack a new target
                         if (unitTarget->GetTypeId() == TYPEID_UNIT)
-                            if (Unit* target = ((Creature*)unitTarget)->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-                                ((Creature*)unitTarget)->AI()->AttackStart(target);
+                        {
+                            Creature* cre = (Creature*)unitTarget;
+                            if (cre && cre->AI()
+                            {
+                                if (Unit* target = cre->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+                                    cre->AI()->AttackStart(target);
+                            }
+                        }
                     }
-                    break;
+                    return;
                 }
                 case 43365:                                 // The Cleansing: Shrine Cast
                 {
