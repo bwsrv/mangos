@@ -6936,11 +6936,11 @@ uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, u
         if (!aura || !aura->GetModifier() || !(aura->GetModifier()->m_miscvalue & GetSpellSchoolMask(spellProto)))
             continue;
 
-        int32 calculatedBonus = aura->GetModifier()->m_amount;
-        SpellAuraHolderPtr holder = (*i)->GetHolder();
-
+        SpellAuraHolderPtr holder = aura->GetHolder();
         if (!holder || holder->IsDeleted())
             continue;
+
+        int32 calculatedBonus = aura->GetModifier()->m_amount;
 
         if (holder->GetSpellProto()->EquippedItemClass != -1 ||
                                                             // -1 == any item class (not wand then)
