@@ -1726,12 +1726,25 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 }
                 case 43498:                                 // Siphon Soul
                 {
-                    if (!unitTarget)
+                    // This spell should cast the next spell only for one (player)target, however it should hit multiple targets, hence this kind of implementation
+                    if (!unitTarget || m_UniqueTargetInfo.rbegin()->targetGUID != unitTarget->GetObjectGuid())
                         return;
 
+                    std::vector<Unit*> possibleTargets;
+                    possibleTargets.reserve(m_UniqueTargetInfo.size());
+                    for (std::list<TargetInfo>::const_iterator itr = m_UniqueTargetInfo.begin(); itr != m_UniqueTargetInfo.end(); itr++)
+                    {
+                        // Skip Non-Players
+                        if (!itr->targetGUID.IsPlayer())
+                            continue;
+
+                        if (Unit* target = m_caster->GetMap()->GetPlayer(itr->targetGUID))
+                            possibleTargets.push_back(target);
+                    }
+
                     // Cast Siphon Soul channeling spell
-                    if (unitTarget->GetTypeId() == TYPEID_PLAYER)
-                        m_caster->CastSpell(unitTarget, 43501, false);
+                    if (!possibleTargets.empty())
+                        m_caster->CastSpell(possibleTargets[urand(0, possibleTargets.size()-1)], 43501, false);
 
                     return;
                 }
@@ -2351,6 +2364,30 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     }
 
                     ((Creature*)unitTarget)->ForcedDespawn(5000);
+                    return;
+                }
+                case 51858: // Siphon of Acherus
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
+                    return;
+
+                    static uint32 const spellCredit[4] =
+                    {
+                        51974,                              // Forge Credit
+                        51980,                              // Scarlet Hold Credit
+                        51977,                              // Town Hall Credit
+                        51982,                              // Chapel Credit
+                    };
+                    for (int i = 0; i < 4; ++i)
+                    {
+                        const SpellEntry *pSpell = sSpellStore.LookupEntry(spellCredit[i]);
+                        if (pSpell->EffectMiscValue[EFFECT_INDEX_0] == unitTarget->GetEntry())
+                        {
+                            m_caster->RemoveAurasDueToSpell(52006);   // Remove Stealth from Eye of Acherus upon cast
+                            m_caster->CastSpell(unitTarget, spellCredit[i], true);
+                            break;
+                        }
+                    }
                     return;
                 }
                 case 51866:                                 // Kick Nass
@@ -3061,30 +3098,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 
                     unitTarget->CastSpell(unitTarget, 72195, true);
                     break;
-                }
-                case 51858: // Siphon of Acherus
-                {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
-                    return;
-
-                    static uint32 const spellCredit[4] =
-                    {
-                        51974,                              // Forge Credit
-                        51980,                              // Scarlet Hold Credit
-                        51977,                              // Town Hall Credit
-                        51982,                              // Chapel Credit
-                    };
-                    for (int i = 0; i < 4; ++i)
-                    {
-                        const SpellEntry *pSpell = sSpellStore.LookupEntry(spellCredit[i]);
-                        if (pSpell->EffectMiscValue[EFFECT_INDEX_0] == unitTarget->GetEntry())
-                        {
-                            m_caster->RemoveAurasDueToSpell(52006);   // Remove Stealth from Eye of Acherus upon cast
-                            m_caster->CastSpell(unitTarget, spellCredit[i], true);
-                            break;
-                        }
-                    }
-                    return;
                 }
                 default:
                     break;
