@@ -822,26 +822,35 @@ void Aura::AreaAuraUpdate(uint32 diff)
 
                     SpellAuraHolderPtr holder = (*tIter)->GetSpellAuraHolder(actualSpellInfo->Id, GetCasterGuid());
 
-                    bool addedToExisting = true;
-                    if (!holder)
+                    if (!holder || holder->IsDeleted())
                     {
-                        holder = CreateSpellAuraHolder(actualSpellInfo, (*tIter), caster);
-                        addedToExisting = false;
-                    }
-
-                    holder->SetAuraDuration(GetAuraDuration());
-
-                    Aura* aur = holder->CreateAura(AURA_CLASS_AREA_AURA, m_effIndex, &actualBasePoints, holder, (*tIter), caster, NULL);
-
-                    if (addedToExisting)
-                    {
-                        (*tIter)->AddAuraToModList(aur);
-                        holder->SetInUse(true);
-                        aur->ApplyModifier(true,true);
-                        holder->SetInUse(false);
+                        SpellAuraHolderPtr newholder = CreateSpellAuraHolder(actualSpellInfo, (*tIter), caster);
+                        newholder->SetAuraDuration(GetAuraDuration());
+                        Aura* aura = newholder->CreateAura(AURA_CLASS_AREA_AURA, m_effIndex, &actualBasePoints, newholder, (*tIter), caster, NULL);
+                        (*tIter)->AddSpellAuraHolder(newholder);
                     }
                     else
-                        (*tIter)->AddSpellAuraHolder(holder);
+                    {
+
+                        holder->SetAuraDuration(GetAuraDuration());
+                        Aura* aura = holder->GetAuraByEffectIndex(m_effIndex);
+                        if (aura)
+                        {
+                            holder->SetInUse(true);
+                            aura->ApplyModifier(false,true);
+                            aura->GetModifier()->m_amount = actualBasePoints;
+                            aura->ApplyModifier(true,true);
+                            holder->SetInUse(false);
+                        }
+                        else
+                        {
+                            Aura* aura = holder->CreateAura(AURA_CLASS_AREA_AURA, m_effIndex, &actualBasePoints, holder, (*tIter), caster, NULL);
+                            (*tIter)->AddAuraToModList(aura);
+                            holder->SetInUse(true);
+                            aura->ApplyModifier(true,true);
+                            holder->SetInUse(false);
+                        }
+                    }
                 }
             }
         }
