@@ -1129,7 +1129,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             }
         }
 
-        if (damagetype != NODAMAGE && pVictim->GetTypeId() == TYPEID_PLAYER)
+        if (damage && damagetype != NODAMAGE && pVictim->GetTypeId() == TYPEID_PLAYER)
         {
             if (damagetype != DOT)
             {
