@@ -11371,6 +11371,10 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
 
 void SpellAuraHolder::HandleSpellSpecificBoostsForward(bool apply)
 {
+    // in fact, possible call of this method for not fully created holder...
+    if (!GetSpellProto())
+        return;
+
     uint32 spellId1 = 0;
     uint32 spellId2 = 0;
     uint32 spellId3 = 0;
