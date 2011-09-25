@@ -4997,9 +4997,10 @@ void Unit::RemoveAurasDueToSpell(uint32 spellId, SpellAuraHolderPtr except, Aura
     SpellAuraHolderBounds bounds = GetSpellAuraHolderBounds(spellId);
     for (SpellAuraHolderMap::iterator iter = bounds.first; iter != bounds.second; )
     {
-        if (iter->second != except)
+        SpellAuraHolderPtr holder = iter->second;
+        if (holder && holder != except)
         {
-            RemoveSpellAuraHolder(iter->second, mode);
+            RemoveSpellAuraHolder(holder, mode);
             bounds = GetSpellAuraHolderBounds(spellId);
             iter = bounds.first;
         }
@@ -5013,7 +5014,8 @@ void Unit::RemoveAurasDueToItemSpell(Item* castItem,uint32 spellId)
     SpellAuraHolderBounds bounds = GetSpellAuraHolderBounds(spellId);
     for (SpellAuraHolderMap::iterator iter = bounds.first; iter != bounds.second; )
     {
-        if (iter->second->GetCastItemGuid() == castItem->GetObjectGuid())
+        SpellAuraHolderPtr holder = iter->second;
+        if (holder && holder->GetCastItemGuid() == castItem->GetObjectGuid())
         {
             RemoveSpellAuraHolder(iter->second);
             bounds = GetSpellAuraHolderBounds(spellId);
@@ -5028,9 +5030,10 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flags)
 {
     for (SpellAuraHolderMap::iterator iter = m_spellAuraHolders.begin(); iter != m_spellAuraHolders.end(); )
     {
-        if (iter->second->GetSpellProto()->AuraInterruptFlags & flags)
+        SpellAuraHolderPtr holder = iter->second;
+        if (holder && holder->GetSpellProto()->AuraInterruptFlags & flags)
         {
-            RemoveSpellAuraHolder(iter->second);
+            RemoveSpellAuraHolder(holder);
             iter = m_spellAuraHolders.begin();
         }
         else
@@ -5042,9 +5045,10 @@ void Unit::RemoveAurasWithAttribute(uint32 flags)
 {
     for (SpellAuraHolderMap::iterator iter = m_spellAuraHolders.begin(); iter != m_spellAuraHolders.end(); )
     {
-        if (iter->second->GetSpellProto()->Attributes & flags)
+        SpellAuraHolderPtr holder = iter->second;
+        if (holder && holder->GetSpellProto()->Attributes & flags)
         {
-            RemoveSpellAuraHolder(iter->second);
+            RemoveSpellAuraHolder(holder);
             iter = m_spellAuraHolders.begin();
         }
         else
