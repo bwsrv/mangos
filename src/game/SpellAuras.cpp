@@ -1866,8 +1866,25 @@ void Aura::TriggerSpell()
                         break;
 //                    // Ice Tomb
 //                    case 70157: break;
-//                    // Mana Barrier
-//                    case 70842: break;
+                    case 70842:                             // Mana Barrier
+                    {
+                        if (!triggerTarget || triggerTarget->getPowerType() != POWER_MANA)
+                            return;
+
+                        int32 damage = triggerTarget->GetHealth() - triggerTarget->GetMaxHealth();
+                        if (damage >= 0)
+                            return;
+
+                        if (triggerTarget->GetPower(POWER_MANA) < -damage)
+                        {
+                            damage = -triggerTarget->GetPower(POWER_MANA);
+                            triggerTarget->RemoveAurasDueToSpell(auraId);
+                        }
+
+                        triggerTarget->DealHeal(triggerTarget, -damage, auraSpellInfo);
+                        triggerTarget->ModifyPower(POWER_MANA, damage);
+                        break;
+                    }
 //                    // Summon Timer: Suppresser
 //                    case 70912: break;
 //                    // Aura of Darkness
