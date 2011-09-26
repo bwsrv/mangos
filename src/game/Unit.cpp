@@ -2422,16 +2422,17 @@ void Unit::CalculateDamageAbsorbAndResist(Unit *pCaster, SpellSchoolMask schoolM
     // Remove all expired absorb auras
     if (existExpired)
     {
-        for(AuraList::const_iterator i = vSchoolAbsorb.begin(); i != vSchoolAbsorb.end();)
+        std::set<uint32> toRemoveSpellList;
+        for(AuraList::const_iterator i = vSchoolAbsorb.begin(); i != vSchoolAbsorb.end(); ++i)
         {
-            if ((*i)->GetModifier()->m_amount<=0)
+            SpellAuraHolderPtr _holder = (*i)->GetHolder();
+            if (_holder && !_holder->IsDeleted() && (*i)->GetModifier()->m_amount <= 0)
             {
-                RemoveAurasDueToSpell((*i)->GetId(), SpellAuraHolderPtr(NULL), AURA_REMOVE_BY_SHIELD_BREAK);
-                i = vSchoolAbsorb.begin();
+                toRemoveSpellList.insert(_holder->GetId());
             }
-            else
-                ++i;
         }
+        for (std::set<uint32>::iterator _i = toRemoveSpellList.begin(); _i != toRemoveSpellList.end(); ++_i)
+            RemoveAurasDueToSpell(*_i, SpellAuraHolderPtr(NULL), AURA_REMOVE_BY_SHIELD_BREAK);
     }
 
     // Cast back reflect damage spell
