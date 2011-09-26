@@ -417,7 +417,7 @@ void Object::BuildMovementUpdate(ByteBuffer * data, uint16 updateFlags) const
     // 0x200
     if (updateFlags & UPDATEFLAG_ROTATION)
     {
-        *data << int64(((GameObject*)this)->GetRotation());
+        *data << int64(((GameObject*)this)->GetPackedWorldRotation());
     }
 }
 
@@ -1687,7 +1687,7 @@ GameObject* WorldObject::SummonGameobject(uint32 id, float x, float y, float z, 
         return NULL;
 
     if(!pGameObj->Create(map->GenerateLocalLowGuid(HIGHGUID_GAMEOBJECT), id, map,
-        GetPhaseMask(), x, y, z, angle, 0.0f, 0.0f, 0.0f, 0.0f, 100, GO_STATE_READY))
+        GetPhaseMask(), x, y, z, angle))
     {
         delete pGameObj;
         return NULL;
