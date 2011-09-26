@@ -6838,7 +6838,7 @@ void Unit::SendEnergizeSpellLog(Unit *pVictim, uint32 SpellID, uint32 Damage, Po
     SendMessageToSet(&data, true);
 }
 
-void Unit::EnergizeBySpell(Unit *pVictim, uint32 SpellID, uint32 Damage, Powers powertype)
+void Unit::EnergizeBySpell(Unit *pVictim, uint32 SpellID, int32 Damage, Powers powertype)
 {
     // don't energize isolated units (banished)
     if (pVictim->hasUnitState(UNIT_STAT_ISOLATED))
