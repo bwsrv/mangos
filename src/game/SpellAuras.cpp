@@ -11410,7 +11410,7 @@ void SpellAuraHolder::HandleSpellSpecificBoostsForward(bool apply)
             {
                 Unit* caster = GetCaster();
 
-                if (caster && !apply)
+                if (caster && apply)
                 {
                     // Glyph of Power Word: Shield
                     if (Aura* glyph = caster->GetAura(55672, EFFECT_INDEX_0))
@@ -11418,13 +11418,8 @@ void SpellAuraHolder::HandleSpellSpecificBoostsForward(bool apply)
                         //int32 remainingDamage = 0;
                         if (Aura* shield = GetAuraByEffectIndex(EFFECT_INDEX_0))
                         {
-                            int32 remainingDamage = shield->GetModifier()->m_baseamount;
-                            if (shield->GetModifier()->m_amount > 0)
-                                remainingDamage -= shield->GetModifier()->m_amount;
-
-                            int32 heal = (glyph->GetModifier()->m_amount * remainingDamage)/100;
-                            if (heal > 0)
-                                caster->CastCustomSpell(m_target, 56160, &heal, NULL, NULL, true, 0, shield);
+                            int32 heal = (glyph->GetModifier()->m_amount * shield->GetModifier()->m_baseamount)/100;
+                            caster->CastCustomSpell(m_target, 56160, &heal, NULL, NULL, true, 0, shield);
                         }
                     }
                 }
