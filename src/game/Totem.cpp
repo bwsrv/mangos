@@ -97,10 +97,6 @@ void Totem::Summon(Unit* owner)
     if (owner->GetTypeId() == TYPEID_UNIT && ((Creature*)owner)->AI())
         ((Creature*)owner)->AI()->JustSummoned((Creature*)this);
 
-    // Check if no spells (why? may be DB error, but safe)
-    if (!GetSpellMaxIndex())
-        return;
-
     switch(m_type)
     {
         case TOTEM_PASSIVE:
@@ -129,7 +125,7 @@ void Totem::UnSummon()
 
     uint32 maxIdx = GetSpellMaxIndex();
 
-    for (uint32 i = maxIdx; i >= 0; --i)
+    for (int32 i = maxIdx; i >= 0; --i)
     {
         if (uint32 spellId = GetSpell(i))
             RemoveAurasDueToSpell(spellId);
@@ -139,7 +135,7 @@ void Totem::UnSummon()
     {
         owner->_RemoveTotem(this);
 
-        for (uint32 i = maxIdx; i >= 0; --i)
+        for (int32 i = maxIdx; i >= 0; --i)
         {
             if (uint32 spellId = GetSpell(i))
                 owner->RemoveAurasDueToSpell(spellId);
@@ -158,7 +154,7 @@ void Totem::UnSummon()
                     Player* Target = itr->getSource();
                     if (Target && pGroup->SameSubGroup((Player*)owner, Target))
                     {
-                        for (uint32 i = maxIdx; i >= 0; --i)
+                        for (int32 i = maxIdx; i >= 0; --i)
                         {
                             if (uint32 spellId = GetSpell(i))
                                 Target->RemoveAurasDueToSpell(spellId);
