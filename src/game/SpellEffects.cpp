@@ -8987,6 +8987,22 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, 66747, true);
                     return;
                 }
+                case 67009:                                 // Nether Power (ToC25: Lord Jaraxxus)
+                {
+                    if (!unitTarget)
+                        return;
+                    uint32 count = 0;
+
+                    if (unitTarget->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL || unitTarget->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_HEROIC)
+                        count = 5;
+                    else
+                        count = 10;
+
+                    for (uint8 i = 0; i < count; ++i)
+                        unitTarget->CastSpell(unitTarget, m_spellInfo->CalculateSimpleValue(eff_idx), true);
+
+                    return;
+                }
                 case 67398:                                 // Zergling Periodic Effect (Called by Zergling Passive)
                 {
                     if (!unitTarget || !unitTarget->isAlive())
