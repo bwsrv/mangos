@@ -10869,6 +10869,22 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                 else
                     return;
             }
+            // Power Word: Shield 
+            else if (apply && m_spellProto->SpellFamilyFlags.test<CF_PRIEST_POWER_WORD_SHIELD>() && m_spellProto->Mechanic == MECHANIC_SHIELD)
+            {
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
+                // Glyph of Power Word: Shield
+                if (Aura* glyph = caster->GetAura(55672, EFFECT_INDEX_0))
+                {
+                    Aura *shield = GetAuraByEffectIndex(EFFECT_INDEX_0);
+                    int32 heal = (glyph->GetModifier()->m_amount * shield->GetModifier()->m_amount)/100;
+                    caster->CastCustomSpell(m_target, 56160, &heal, NULL, NULL, true, 0, shield);
+                }
+                return;
+            }
 
             switch(GetId())
             {
@@ -11403,30 +11419,6 @@ void SpellAuraHolder::HandleSpellSpecificBoostsForward(bool apply)
 
     switch(GetSpellProto()->SpellFamilyName)
     {
-        case SPELLFAMILY_PRIEST:
-        {
-            // Power Word: Shield
-            if (GetSpellProto()->SpellFamilyFlags.test<CF_PRIEST_POWER_WORD_SHIELD>() && GetSpellProto()->Mechanic == MECHANIC_SHIELD)
-            {
-                Unit* caster = GetCaster();
-
-                if (caster && apply)
-                {
-                    // Glyph of Power Word: Shield
-                    if (Aura* glyph = caster->GetAura(55672, EFFECT_INDEX_0))
-                    {
-                        //int32 remainingDamage = 0;
-                        if (Aura* shield = GetAuraByEffectIndex(EFFECT_INDEX_0))
-                        {
-                            int32 heal = (glyph->GetModifier()->m_amount * shield->GetModifier()->m_baseamount)/100;
-                            caster->CastCustomSpell(m_target, 56160, &heal, NULL, NULL, true, 0, shield);
-                        }
-                    }
-                }
-                return;
-            }
-            break;
-        }
         case SPELLFAMILY_WARLOCK:
         {
             // Shadow embrace (healing reduction part)
