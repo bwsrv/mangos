@@ -13649,6 +13649,9 @@ void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId)
                     canSeeQuests = false;
                 continue;
             }
+
+            if (itr->second.option_id == GOSSIP_OPTION_AUTOSCRIPT)
+                GetMap()->ScriptsStart(sGossipScripts, itr->second.action_script_id, this, pSource);
         }
 
         if (pSource->GetTypeId() == TYPEID_UNIT)

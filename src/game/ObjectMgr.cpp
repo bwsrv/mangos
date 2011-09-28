@@ -9178,9 +9178,9 @@ void ObjectMgr::LoadGossipMenuItems()
 
         if (gMenuItem.action_script_id)
         {
-            if (gMenuItem.option_id != GOSSIP_OPTION_GOSSIP)
+            if (gMenuItem.option_id != GOSSIP_OPTION_GOSSIP && gMenuItem.option_id != GOSSIP_OPTION_AUTOSCRIPT)
             {
-                sLog.outErrorDb("Table gossip_menu_option for menu %u, id %u have action_script_id %u but option_id is not GOSSIP_OPTION_GOSSIP, ignoring", gMenuItem.menu_id, gMenuItem.id, gMenuItem.action_script_id);
+                sLog.outErrorDb("Table gossip_menu_option for menu %u, id %u have action_script_id %u but option_id is not GOSSIP_OPTION_GOSSIP and is not GOSSIP_OPTION_AUTOSCRIPT, ignoring", gMenuItem.menu_id, gMenuItem.id, gMenuItem.action_script_id);
                 continue;
             }
 
