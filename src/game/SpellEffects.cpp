@@ -1055,7 +1055,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 }
                 case 7669:                                   // Belthor's Potion
                 {
-                    SpellAuraHolder* hexOfRavenclaw = m_caster->GetSpellAuraHolder(7656);
+                    SpellAuraHolderPtr hexOfRavenclaw = m_caster->GetSpellAuraHolder(7656);
                     if (hexOfRavenclaw)
                     {
                        m_caster->RemoveAurasDueToSpell(7656);
@@ -11823,7 +11823,7 @@ void Spell::EffectSuspendGravity(SpellEffectIndex eff_idx)
         float dh = verticalSpeed * verticalSpeed / (2 * 19.23f);
         float time = sqrtf(dh / (0.124976 * verticalSpeed));
         float speed = dist / time;
-        if (SpellAuraHolder* holder = unitTarget->GetSpellAuraHolder(68721))
+        if (SpellAuraHolderPtr holder = unitTarget->GetSpellAuraHolder(68721))
         {
             holder->SetAuraMaxDuration(uint32(time+0.25f)*IN_MILLISECONDS);
             holder->RefreshHolder();
