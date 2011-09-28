@@ -2159,6 +2159,19 @@ Player* LFGMgr::LeaderElection(LFGQueueSet* playerGuids)
             }
         }
     }
+
+    if (!leader)
+    {
+        for (LFGQueueSet::const_iterator itr = playerGuids->begin(); itr != playerGuids->end(); ++itr)
+        {
+            Player* member  = sObjectMgr.GetPlayer(*itr);
+            if (member && member->IsInWorld())
+            {
+                leader = member;
+                break;
+            }
+        }
+    }
     MANGOS_ASSERT(leader);
     leader->GetLFGState()->AddRole(ROLE_LEADER);
     return leader;

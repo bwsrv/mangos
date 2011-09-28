@@ -97,31 +97,49 @@ void Totem::Summon(Unit* owner)
     if (owner->GetTypeId() == TYPEID_UNIT && ((Creature*)owner)->AI())
         ((Creature*)owner)->AI()->JustSummoned((Creature*)this);
 
-    // there are some totems, which exist just for their visual appeareance
-    if (!GetSpell())
-        return;
-
     switch(m_type)
     {
         case TOTEM_PASSIVE:
-            CastSpell(this, GetSpell(), true);
+        {
+            for (uint32 i = 0; i <= GetSpellMaxIndex(); ++i)
+            {
+                if (uint32 spellId = GetSpell(i))
+                    CastSpell(this, spellId, true);
+            }
             break;
+        }
         case TOTEM_STATUE:
-            CastSpell(GetOwner(), GetSpell(), true);
+        {
+            if (GetSpell(0))
+                CastSpell(GetOwner(), GetSpell(0), true);
             break;
-        default: break;
+        }
+        default:
+            break;
     }
 }
 
 void Totem::UnSummon()
 {
     CombatStop();
-    RemoveAurasDueToSpell(GetSpell());
 
-    if (Unit *owner = GetOwner())
+    uint32 maxIdx = GetSpellMaxIndex();
+
+    for (int32 i = maxIdx; i >= 0; --i)
+    {
+        if (uint32 spellId = GetSpell(i))
+            RemoveAurasDueToSpell(spellId);
+    }
+
+    if (Unit* owner = GetOwner())
     {
         owner->_RemoveTotem(this);
-        owner->RemoveAurasDueToSpell(GetSpell());
+
+        for (int32 i = maxIdx; i >= 0; --i)
+        {
+            if (uint32 spellId = GetSpell(i))
+                owner->RemoveAurasDueToSpell(spellId);
+        }
 
         //remove aura all party members too
         if (owner->GetTypeId() == TYPEID_PLAYER)
@@ -129,13 +147,19 @@ void Totem::UnSummon()
             ((Player*)owner)->SendAutoRepeatCancel(this);
 
             // Not only the player can summon the totem (scripted AI)
-            if (Group *pGroup = ((Player*)owner)->GetGroup())
+            if (Group* pGroup = ((Player*)owner)->GetGroup())
             {
-                for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+                for (GroupReference* itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
                 {
                     Player* Target = itr->getSource();
-                    if(Target && pGroup->SameSubGroup((Player*)owner, Target))
-                        Target->RemoveAurasDueToSpell(GetSpell());
+                    if (Target && pGroup->SameSubGroup((Player*)owner, Target))
+                    {
+                        for (int32 i = maxIdx; i >= 0; --i)
+                        {
+                            if (uint32 spellId = GetSpell(i))
+                                Target->RemoveAurasDueToSpell(spellId);
+                        }
+                    }
                 }
             }
         }

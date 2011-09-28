@@ -32,7 +32,6 @@
 /*
 * BattleGround Strand of the Ancients:
 * TODO:
-*   - Put Seaforium charges also in last zone, just before last door. But when?
 *   - Move all the harcoded variables such coords to header BattleGroundSA.h
 *   - Cosmetics & avoid hacks.
 */
@@ -40,7 +39,6 @@
 static uint32 const BG_SA_GateStatus[6] = {3849, 3623, 3620, 3614, 3617, 3638};
 static uint32 const BG_SA_WorldStatusA[3] = {3630, 3627, 3626};
 static uint32 const BG_SA_WorldStatusH[3] = {3631, 3628, 3629};
-static uint32 const BG_IC_TEAM[BG_TEAMS_COUNT] = {84, 83};
 
 // WorldSafeLocs ids for 5 gyd, and for ally, and horde starting location
 static uint32 const BG_SA_GraveyardIdsPhase[3] = {1347, 1346, 1348};
@@ -153,16 +151,10 @@ void BattleGroundSA::ToggleTimer()
 
 void BattleGroundSA::EndBattleGround(Team winner)
 {
-    if (RoundScores[0].time == RoundScores[1].time) // Noone got in time
-        winner = TEAM_NONE;
-    else if (RoundScores[0].time < RoundScores[1].time)
-        winner = RoundScores[0].winner == ALLIANCE ? ALLIANCE : HORDE;
-    else
-        winner = RoundScores[1].winner == ALLIANCE ? ALLIANCE : HORDE;
-
-    // win reward
-    if (winner)
+    //win reward
+    if(winner)
     {
+        RewardHonorToTeam(GetBonusHonorFromKill(1), winner);
         RewardXpToTeam(0, 0.8f, winner);
     }
 
@@ -171,7 +163,7 @@ void BattleGroundSA::EndBattleGround(Team winner)
     RewardHonorToTeam(GetBonusHonorFromKill(2), HORDE);
     RewardXpToTeam(0, 0.8f, ALLIANCE);
     RewardXpToTeam(0, 0.8f, HORDE);
-
+    
     BattleGround::EndBattleGround(winner);
 }
 
@@ -197,7 +189,7 @@ void BattleGroundSA::Update(uint32 diff)
                 PlaySoundToAll(BG_SA_SOUND_GYD_VICTORY);
                 SendMessageToAll(defender == ALLIANCE ? LANG_BG_SA_ALLIANCE_TIMEOUT_END_1ROUND : LANG_BG_SA_HORDE_TIMEOUT_END_1ROUND, CHAT_MSG_BG_SYSTEM_NEUTRAL, NULL);
                 RoundScores[0].winner = GetDefender();
-                RoundScores[0].time = 601000;
+                RoundScores[0].time = BG_SA_ROUNDLENGTH;
 
                 for (BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
                 {
@@ -211,7 +203,6 @@ void BattleGroundSA::Update(uint32 diff)
             {
                 SendMessageToAll(defender == ALLIANCE ? LANG_BG_SA_ALLIANCE_TIMEOUT_END_2ROUND : LANG_BG_SA_HORDE_TIMEOUT_END_2ROUND, CHAT_MSG_BG_SYSTEM_NEUTRAL, NULL);
                 RoundScores[1].winner = GetDefender();
-                RoundScores[1].time = 601000;
 
                 for (BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
                 {
@@ -219,7 +210,10 @@ void BattleGroundSA::Update(uint32 diff)
                         plr->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 52459);
                 }
 
-                BattleGroundSA::EndBattleGround(defender);
+                if (RoundScores[0].winner == GetDefender())
+                    EndBattleGround(GetDefender());
+                else
+                    EndBattleGround(TEAM_NONE);
                 return;
             }
         }
@@ -259,7 +253,6 @@ void BattleGroundSA::Update(uint32 diff)
                     // Message to chatlog
                     RewardHonorToTeam(85, (teamIndex == 0) ? ALLIANCE:HORDE);
                     RewardXpToTeam(0, 0.6f, (teamIndex == 0) ? ALLIANCE:HORDE);
-                    RewardReputationToTeam((teamIndex == 0) ? 1050:1085, 65, (teamIndex == 0) ? ALLIANCE:HORDE);
 
                     switch(gyd)
                     {
@@ -444,6 +437,7 @@ void BattleGroundSA::ResetBattle(uint32 winner, Team teamDefending)
     }
 
     UpdatePhase();
+    ResetWorldStates();
 }
 
 void BattleGroundSA::Reset()
@@ -458,9 +452,6 @@ void BattleGroundSA::Reset()
     m_ActiveEvents[SA_EVENT_ADD_NPC] = BG_EVENT_NONE;
     m_ActiveEvents[SA_EVENT_ADD_SPIR] = BG_EVENT_NONE;
     m_ActiveEvents[SA_EVENT_ADD_BOMB] = BG_EVENT_NONE;
-    m_ActiveEvents[SA_EVENT_ADD_BOMB1] = BG_EVENT_NONE;
-    m_ActiveEvents[SA_EVENT_ADD_BOMB2] = BG_EVENT_NONE;
-    m_ActiveEvents[SA_EVENT_ADD_BOMB3] = BG_EVENT_NONE;
     m_ActiveEvents[SA_EVENT_ADD_VECH_E] = BG_EVENT_NONE;
     m_ActiveEvents[SA_EVENT_ADD_VECH_W] = BG_EVENT_NONE;
     // spiritguides and flags not spawned at beginning
@@ -475,16 +466,10 @@ void BattleGroundSA::UpdatePhase()
         SpawnEvent(SA_EVENT_ADD_VECH_W, 0, false);
         SpawnEvent(SA_EVENT_ADD_BOMB, 0, false);
         SpawnEvent(SA_EVENT_ADD_BOMB, 1, false);
-        SpawnEvent(SA_EVENT_ADD_BOMB1, 0, false);
-        SpawnEvent(SA_EVENT_ADD_BOMB1, 1, false);
-        SpawnEvent(SA_EVENT_ADD_BOMB2, 0, false);
-        SpawnEvent(SA_EVENT_ADD_BOMB2, 1, false);
-        SpawnEvent(SA_EVENT_ADD_BOMB3, 0, false);
-        SpawnEvent(SA_EVENT_ADD_BOMB3, 1, false);
         SpawnEvent(SA_EVENT_ADD_NPC, 0, false);
         SpawnEvent(BG_EVENT_DOOR, 0, true);
 
-        Round_timer = 0;
+        Round_timer = (BG_SA_ROUNDLENGTH - RoundScores[0].time);
         SetStatus(STATUS_WAIT_JOIN);
         SendMessageToAll(LANG_BG_SA_START_TWO_MINUTE, CHAT_MSG_BG_SYSTEM_NEUTRAL, NULL);
     }
@@ -548,7 +533,7 @@ bool BattleGroundSA::SetupShips()
                 }
 
                 if (GameObject* boat = GetBGObject(i))
-                    boat->SetTransportPathRotation(0.0f, 0.0f, 1.0f, 0.0002f);
+                    boat->SetTransportPathRotation(QuaternionData(0.0f, 0.0f, 1.0f, 0.0002f));
                 break;
             case BG_SA_BOAT_TWO:
                 boatid = GetDefender() == ALLIANCE ? BG_SA_BOAT_TWO_H : BG_SA_BOAT_TWO_A;
@@ -559,7 +544,7 @@ bool BattleGroundSA::SetupShips()
                 }
 
                 if (GameObject* boat = GetBGObject(i))
-                    boat->SetTransportPathRotation(0, 0, 1.0f, 0.00001f);
+                    boat->SetTransportPathRotation(QuaternionData(0, 0, 1.0f, 0.00001f));
                 break;
         }
     }
@@ -739,9 +724,13 @@ void BattleGroundSA::SendMessageSA(Player *player, uint32 type, uint32 name)
         SendMessage2ToAll(entryMSG,CHAT_MSG_BG_SYSTEM_HORDE, player, name);
 }
 
-void BattleGroundSA::EventPlayerDamageGO(Player *player, GameObject* target_obj, uint32 eventId)
+void BattleGroundSA::EventPlayerDamageGO(Player *player, GameObject* target_obj, uint32 eventId, uint32 doneBy)
 {
     BattleGroundTeamIndex teamIndex = GetTeamIndexByTeamId(player->GetTeam());
+
+    // Seaforium Charge Explosion
+    if (doneBy == 52408)
+        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 60937);
 
     uint32 type = NULL;
     switch (target_obj->GetEntry())
@@ -769,7 +758,6 @@ void BattleGroundSA::EventPlayerDamageGO(Player *player, GameObject* target_obj,
                     UpdateWorldState(BG_SA_GateStatus[type], GateStatus[type] = BG_SA_GO_GATES_DESTROY);
                     UpdatePlayerScore(player, SCORE_GATES_DESTROYED, 1);
                     RewardHonorToTeam(100, (teamIndex == 0) ? ALLIANCE:HORDE);
-                    RewardReputationToTeam((teamIndex == 0) ? 1050:1085, 75, (teamIndex == 0) ? ALLIANCE:HORDE);
                     relicGateDestroyed = true;
                     break;
             }
@@ -798,7 +786,6 @@ void BattleGroundSA::EventPlayerDamageGO(Player *player, GameObject* target_obj,
                     UpdateWorldState(BG_SA_GateStatus[type], GateStatus[type] = BG_SA_GO_GATES_DESTROY);
                     UpdatePlayerScore(player, SCORE_GATES_DESTROYED, 1);
                     RewardHonorToTeam(85, (teamIndex == 0) ? ALLIANCE:HORDE);
-                    RewardReputationToTeam((teamIndex == 0) ? 1050:1085, 65, (teamIndex == 0) ? ALLIANCE:HORDE);
                     break;
             }
             break;
@@ -826,7 +813,6 @@ void BattleGroundSA::EventPlayerDamageGO(Player *player, GameObject* target_obj,
                     UpdateWorldState(BG_SA_GateStatus[type], GateStatus[type] = BG_SA_GO_GATES_DESTROY);
                     UpdatePlayerScore(player, SCORE_GATES_DESTROYED, 1);
                     RewardHonorToTeam(85, (teamIndex == 0) ? ALLIANCE:HORDE);
-                    RewardReputationToTeam((teamIndex == 0) ? 1050:1085, 65, (teamIndex == 0) ? ALLIANCE:HORDE);
                     break;
             }
             break;
@@ -854,7 +840,6 @@ void BattleGroundSA::EventPlayerDamageGO(Player *player, GameObject* target_obj,
                     UpdateWorldState(BG_SA_GateStatus[type], GateStatus[type] = BG_SA_GO_GATES_DESTROY);
                     UpdatePlayerScore(player, SCORE_GATES_DESTROYED, 1);
                     RewardHonorToTeam(85, (teamIndex == 0) ? ALLIANCE:HORDE);
-                    RewardReputationToTeam((teamIndex == 0) ? 1050:1085, 65, (teamIndex == 0) ? ALLIANCE:HORDE);
                     break;
             }
             break;
@@ -882,7 +867,6 @@ void BattleGroundSA::EventPlayerDamageGO(Player *player, GameObject* target_obj,
                     UpdateWorldState(BG_SA_GateStatus[type], GateStatus[type] = BG_SA_GO_GATES_DESTROY);
                     UpdatePlayerScore(player, SCORE_GATES_DESTROYED, 1);
                     RewardHonorToTeam(85, (teamIndex == 0) ? ALLIANCE:HORDE);
-                    RewardReputationToTeam((teamIndex == 0) ? 1050:1085, 65, (teamIndex == 0) ? ALLIANCE:HORDE);
                     break;
             }
             break;
@@ -910,7 +894,6 @@ void BattleGroundSA::EventPlayerDamageGO(Player *player, GameObject* target_obj,
                     UpdateWorldState(BG_SA_GateStatus[type], GateStatus[type] = BG_SA_GO_GATES_DESTROY);
                     UpdatePlayerScore(player, SCORE_GATES_DESTROYED, 1);
                     RewardHonorToTeam(85, (teamIndex == 0) ? ALLIANCE:HORDE);
-                    RewardReputationToTeam((teamIndex == 0) ? 1050:1085, 65, (teamIndex == 0) ? ALLIANCE:HORDE);
                     break;
             }
             break;
@@ -932,19 +915,16 @@ void BattleGroundSA::EventPlayerDamageGO(Player *player, GameObject* target_obj,
                     PlaySoundToAll(BG_SA_SOUND_GYD_VICTORY);
                     SendMessageToAll(defender == HORDE ? LANG_BG_SA_ALLIANCE_END_1ROUND : LANG_BG_SA_HORDE_END_1ROUND, CHAT_MSG_BG_SYSTEM_NEUTRAL, NULL);
                     RewardHonorToTeam(150, (teamIndex == 0) ? ALLIANCE:HORDE);
-                    RewardReputationToTeam((teamIndex == 0) ? 1050:1085, 100, (teamIndex == 0) ? ALLIANCE:HORDE);
                     player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65246);   // Storm the Beach in first round
                     ResetBattle(player->GetTeam(), GetDefender());
                 }
                 else // Victory at second round
                 {
                     RoundScores[1].winner = GetDefender() == ALLIANCE ? HORDE : ALLIANCE;
-                    RoundScores[1].time = Round_timer;
                     SendMessageToAll(defender == HORDE ? LANG_BG_SA_ALLIANCE_END_2ROUND : LANG_BG_SA_HORDE_END_2ROUND, CHAT_MSG_BG_SYSTEM_NEUTRAL, NULL);
                     RewardHonorToTeam(150, (teamIndex == 0) ? ALLIANCE:HORDE);
-                    RewardReputationToTeam((teamIndex == 0) ? 1050:1085, 100, (teamIndex == 0) ? ALLIANCE:HORDE);
                     player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65246);
-                    BattleGroundSA::EndBattleGround(player->GetTeam());
+                    EndBattleGround(player->GetTeam());
                 }
             }
             break;
@@ -969,11 +949,6 @@ void BattleGroundSA::HandleKillUnit(Creature* unit, Player* killer)
     {
         UpdatePlayerScore(killer, SCORE_DEMOLISHERS_DESTROYED, 1);
         isDemolisherDestroyed[killer->GetTeam() == HORDE ? 0 : 1] = true;
-    }
-
-    if (unit->GetEntry() == 50000) // bomb
-    {
-        killer->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL, 1843);
     }
 }
 

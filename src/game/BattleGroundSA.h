@@ -138,11 +138,7 @@ enum BG_SA_Events
     SA_EVENT_ADD_NPC = 7,
     SA_EVENT_ADD_GO = 8,
     SA_EVENT_ADD_VECH_E = 9,
-    SA_EVENT_ADD_VECH_W = 10,
-    SA_EVENT_ADD_BOMB1 = 11,
-    SA_EVENT_ADD_BOMB2 = 12,
-    SA_EVENT_ADD_BOMB3 = 13,
-    SA_EVENT_OP_DOOR = 254
+    SA_EVENT_ADD_VECH_W = 10
 };
 
 enum BG_SA_Boats
@@ -231,7 +227,7 @@ class BattleGroundSA : public BattleGround
         virtual void AddPlayer(Player *plr);
         virtual void StartingEventCloseDoors();
         virtual void StartingEventOpenDoors();
-        virtual void EventPlayerDamageGO(Player *player, GameObject* target_obj, uint32 eventId);
+        virtual void EventPlayerDamageGO(Player *player, GameObject* target_obj, uint32 eventId, uint32 doneBy = 0);
         virtual void EventSpawnGOSA(Player *owner, Creature* obj, float x, float y, float z);
         virtual void FillInitialWorldStates(WorldPacket& data, uint32& count);
         virtual void EventPlayerClickedOnFlag(Player *source, GameObject* target_obj);
