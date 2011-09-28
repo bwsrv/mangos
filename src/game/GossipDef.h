@@ -50,6 +50,7 @@ enum Gossip_Option
     GOSSIP_OPTION_UNLEARNTALENTS    = 16,                   //UNIT_NPC_FLAG_TRAINER             (16) (bonus option for GOSSIP_OPTION_TRAINER)
     GOSSIP_OPTION_UNLEARNPETSKILLS  = 17,                   //UNIT_NPC_FLAG_TRAINER             (16) (bonus option for GOSSIP_OPTION_TRAINER)
     GOSSIP_OPTION_AUTOSCRIPT        = 18,
+    GOSSIP_OPTION_MAILBOX           = 19,                   //UNIT_NPC_FLAG_GOSSIP
     GOSSIP_OPTION_MAX
 };
 
