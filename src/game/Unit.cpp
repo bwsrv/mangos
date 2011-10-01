@@ -5045,16 +5045,21 @@ void Unit::RemoveAurasDueToItemSpell(Item* castItem,uint32 spellId)
 
 void Unit::RemoveAurasWithInterruptFlags(uint32 flags)
 {
-    for (SpellAuraHolderMap::iterator iter = m_spellAuraHolders.begin(); iter != m_spellAuraHolders.end(); )
+    std::set<SpellAuraHolderPtr> holdersToRemove;
     {
-        SpellAuraHolderPtr holder = iter->second;
-        if (holder && holder->GetSpellProto()->AuraInterruptFlags & flags)
+        MAPLOCK_READ(this,MAP_LOCK_TYPE_AURAS);
+        for (SpellAuraHolderMap::iterator iter = m_spellAuraHolders.begin(); iter != m_spellAuraHolders.end(); ++iter)
         {
-            RemoveSpellAuraHolder(holder);
-            iter = m_spellAuraHolders.begin();
+            SpellAuraHolderPtr holder = iter->second;
+            if (holder && !holder->IsDeleted() &&  holder->GetSpellProto()->AuraInterruptFlags & flags)
+                holdersToRemove.insert(holder);
         }
-        else
-            ++iter;
+    }
+
+    if (!holdersToRemove.empty())
+    {
+        for(std::set<SpellAuraHolderPtr>::const_iterator i = holdersToRemove.begin(); i != holdersToRemove.end(); ++i)
+            RemoveSpellAuraHolder((*i));
     }
 }
 
