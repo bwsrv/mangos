@@ -889,8 +889,8 @@ LexicsCutterNoActionOnGM = 1
 #        Default: 10
 #
 #    CheckGOInPath
-#        very simple checking for GO in unit path (for avoid problems with teleport throwgh door ).
-#        may use many CPU resources!
+#        Very simple check for gameobjects' presence on unit path (for example to avoid problems with teleport through closed doors).
+#        May use many CPU resources!
 #        Default: 0
 #
 ###################################################################################################################
