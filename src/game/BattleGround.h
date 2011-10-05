@@ -281,6 +281,9 @@ class BattleGroundScore
     public:
         BattleGroundScore() : KillingBlows(0), Deaths(0), HonorableKills(0),
             BonusHonor(0), DamageDone(0), HealingDone(0)
+        /** World of Warcraft Armory **/
+        , DamageTaken(0), HealingTaken(0)
+        /** World of Warcraft Armory **/
         {}
         virtual ~BattleGroundScore() {}                     //virtual destructor is used when deleting score from scores map
 
