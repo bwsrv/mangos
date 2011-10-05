@@ -221,7 +221,6 @@ Unit::Unit() :
     //m_Aura = NULL;
     //m_AurasCheck = 2000;
     //m_removeAuraTimer = 4;
-    m_spellAuraHoldersUpdateIterator = m_spellAuraHolders.end();
     m_AuraFlags = 0;
 
     m_Visibility = VISIBILITY_ON;
@@ -3703,31 +3702,44 @@ void Unit::_UpdateSpells( uint32 time )
             m_currentSpells[i] = NULL;                      // remove pointer
         }
     }
-
+    std::queue<SpellAuraHolderPtr> updateQueue;
     // update auras
-    // m_AurasUpdateIterator can be updated in inderect called code at aura remove to skip next planned to update but removed auras
-    for (m_spellAuraHoldersUpdateIterator = m_spellAuraHolders.begin(); m_spellAuraHoldersUpdateIterator != m_spellAuraHolders.end();)
     {
-        SpellAuraHolderPtr i_holder = m_spellAuraHoldersUpdateIterator->second;
-        ++m_spellAuraHoldersUpdateIterator;                            // need shift to next for allow update if need into aura update
+        MAPLOCK_READ(this,MAP_LOCK_TYPE_AURAS);
+        for (SpellAuraHolderMap::iterator itr = m_spellAuraHolders.begin(); itr != m_spellAuraHolders.end(); ++itr)
+            if (itr->second && !itr->second->IsDeleted())
+                updateQueue.push(itr->second);
+
+    }
+
+    while(!updateQueue.empty())
+    {
+        SpellAuraHolderPtr i_holder = updateQueue.front();
         if (i_holder && !i_holder->IsDeleted() && !i_holder->IsEmptyHolder() && !i_holder->IsInUse())
         {
             i_holder->UpdateHolder(time);
         }
+        updateQueue.pop();
     }
 
     // remove expired auras
-    for (SpellAuraHolderMap::iterator iter = m_spellAuraHolders.begin(); iter != m_spellAuraHolders.end();)
     {
-        SpellAuraHolderPtr holder = iter->second;
+        MAPLOCK_READ(this,MAP_LOCK_TYPE_AURAS);
+        for (SpellAuraHolderMap::iterator itr = m_spellAuraHolders.begin(); itr != m_spellAuraHolders.end(); ++itr)
+            if (itr->second && !itr->second->IsDeleted()
+                && !(itr->second->IsPermanent() || itr->second->IsPassive())
+                && itr->second->GetAuraDuration() == 0)
+                updateQueue.push(itr->second);
+    }
 
-        if (holder && !(holder->IsPermanent() || holder->IsPassive()) && holder->GetAuraDuration() == 0)
+    while(!updateQueue.empty())
+    {
+        SpellAuraHolderPtr i_holder = updateQueue.front();
+        if (i_holder && !i_holder->IsDeleted())
         {
-            RemoveSpellAuraHolder(holder, AURA_REMOVE_BY_EXPIRE);
-            iter = m_spellAuraHolders.begin();
+            RemoveSpellAuraHolder(i_holder, AURA_REMOVE_BY_EXPIRE);
         }
-        else
-            ++iter;
+        updateQueue.pop();
     }
 
     if(!m_gameObj.empty())
@@ -5146,9 +5158,6 @@ void Unit::RemoveSpellAuraHolder(SpellAuraHolderPtr holder, AuraRemoveMode mode)
     if (IsChanneledSpell(AurSpellInfo) && caster)
         if (caster->GetTypeId()==TYPEID_UNIT && ((Creature*)caster)->IsTotem() && ((Totem*)caster)->GetTotemType()==TOTEM_STATUE)
             statue = ((Totem*)caster);
-
-    if (m_spellAuraHoldersUpdateIterator != m_spellAuraHolders.end() && m_spellAuraHoldersUpdateIterator->second == holder)
-        ++m_spellAuraHoldersUpdateIterator;
 
     SpellAuraHolderBounds bounds = GetSpellAuraHolderBounds(holder->GetId());
     for (SpellAuraHolderMap::iterator itr = bounds.first; itr != bounds.second; ++itr)

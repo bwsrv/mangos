@@ -13650,6 +13650,9 @@ void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId)
                     canSeeQuests = false;
                 continue;
             }
+
+            if (itr->second.option_id == GOSSIP_OPTION_AUTOSCRIPT)
+                GetMap()->ScriptsStart(sGossipScripts, itr->second.action_script_id, this, pSource);
         }
 
         if (pSource->GetTypeId() == TYPEID_UNIT)
@@ -13730,6 +13733,7 @@ void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId)
                 case GOSSIP_OPTION_PETITIONER:
                 case GOSSIP_OPTION_TABARDDESIGNER:
                 case GOSSIP_OPTION_AUCTIONEER:
+                case GOSSIP_OPTION_MAILBOX:
                     break;                                  // no checks
                 default:
                     sLog.outErrorDb("Creature entry %u have unknown gossip option %u for menu %u", pCreature->GetEntry(), itr->second.option_id, itr->second.menu_id);
@@ -13955,6 +13959,10 @@ void Player::OnGossipSelect(WorldObject* pSource, uint32 gossipListId, uint32 me
             break;
         case GOSSIP_OPTION_AUCTIONEER:
             GetSession()->SendAuctionHello(((Creature*)pSource));
+            break;
+        case GOSSIP_OPTION_MAILBOX:
+            PlayerTalkClass->CloseGossip();
+            GetSession()->SendShowMailBox(guid);
             break;
         case GOSSIP_OPTION_SPIRITGUIDE:
             PrepareGossipMenu(pSource);
