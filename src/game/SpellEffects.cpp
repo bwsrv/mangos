@@ -5549,14 +5549,16 @@ void Spell::DoSummonGroupPets(SpellEffectIndex eff_idx)
         return;
     }
 
-    //uint32 level = m_caster->getLevel();
-
-    if (pet_entry == 37994)    // Mage: Water Elemental from Glyph
-        m_duration = 86400000; // 24 hours
-
     if (m_duration > 0)
+    {
         if (Player* modOwner = m_caster->GetSpellModOwner())
             modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, m_duration);
+    }
+    else if (m_duration < 0)
+    {
+        DEBUG_LOG("Spell::DoSummonGroupPets: attempt to summon pet with negative duration (%i)",m_duration);
+        m_duration = 0;
+    }
 
     uint32 amount = damage;
 
