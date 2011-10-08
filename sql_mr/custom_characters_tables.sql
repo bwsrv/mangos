@@ -157,11 +157,6 @@ ALTER TABLE `groups`
     DROP `mainTank`,
     DROP `mainAssistant`;
 
--- dungeon DBC encounters support
-
-ALTER TABLE `instance`
-    ADD COLUMN `encountersMask` INT(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Dungeon encounter bit mask' AFTER `difficulty`;
-
 -- Instance Extend LFG
 -- Commit 020d4e346d38b961bf62
 
