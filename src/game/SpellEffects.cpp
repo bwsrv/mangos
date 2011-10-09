@@ -8944,6 +8944,17 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         charmer->CastSpell(charmer, damage, true);
                     return;
                 }
+                case 64456:                                 // Feral Essence Application Removal
+                {
+                    if (unitTarget && unitTarget->HasAura(m_spellInfo->CalculateSimpleValue(eff_idx)))
+                    {
+                        if (SpellAuraHolderPtr pEssenceHolder = unitTarget->GetSpellAuraHolder(m_spellInfo->CalculateSimpleValue(eff_idx)))
+                            if (pEssenceHolder->ModStackAmount(-1))
+                                unitTarget->RemoveAurasDueToSpell(m_spellInfo->CalculateSimpleValue(eff_idx));
+                    }
+
+                    return;
+                }
                 case 66477:                                 // Bountiful Feast
                 {
                     if (!unitTarget)
