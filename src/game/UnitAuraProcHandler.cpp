@@ -3308,11 +3308,11 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
             // Blood-Caked Blade
             if (dummySpell->SpellIconID == 138)
             {
-                // only main hand melee auto attack affected and Rune Strike
-                if ((procFlag & PROC_FLAG_SUCCESSFUL_OFFHAND_HIT) || procSpell && procSpell->Id != 56815)
+                // only melee auto attack affected and Rune Strike & Offhand Rune Strike
+                if ( procSpell && !procSpell->SpellFamilyFlags.test<CF_DEATHKNIGHT_RUNE_STRIKE>())
                     return SPELL_AURA_PROC_FAILED;
-
-                // triggered_spell_id in spell data
+                if (procFlag & PROC_FLAG_SUCCESSFUL_OFFHAND_HIT)
+                    triggered_spell_id=61895; // Offhand Blood-Caked Strike
                 break;
             }
             break;
