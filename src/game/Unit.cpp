@@ -11329,8 +11329,15 @@ void Unit::SetConfused(bool apply, ObjectGuid casterGuid, uint32 spellID)
     {
         RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
 
-        StopMoving();
         GetMotionMaster()->MovementExpired(false);
+
+        if (GetTypeId() == TYPEID_PLAYER)
+        {
+            //Clear unit movement flags
+            ((Player*)this)->m_movementInfo.SetMovementFlags(MOVEFLAG_NONE);
+        }
+        else
+            StopMoving();
 
         if (GetTypeId() != TYPEID_PLAYER && isAlive())
         {
