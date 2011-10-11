@@ -8731,14 +8731,6 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         ((Player*)m_caster)->learnSpell(discoveredSpell, false);
                     return;
                 }
-                case 69200:                                 // Raging Spirit
-                {
-                    if (!unitTarget)
-                        return;
-
-                    unitTarget->CastSpell(unitTarget, 69201, true);
-                    return;
-                }
                 case 60123: // Lightwell
                 {
                    if (m_caster->GetTypeId() != TYPEID_UNIT)
@@ -8954,13 +8946,11 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                 }
                 case 64456:                                 // Feral Essence Application Removal
                 {
-                    if (unitTarget && unitTarget->HasAura(m_spellInfo->CalculateSimpleValue(eff_idx)))
-                    {
-                        if (SpellAuraHolderPtr pEssenceHolder = unitTarget->GetSpellAuraHolder(m_spellInfo->CalculateSimpleValue(eff_idx)))
-                            if (pEssenceHolder->ModStackAmount(-1))
-                                unitTarget->RemoveAurasDueToSpell(m_spellInfo->CalculateSimpleValue(eff_idx));
-                    }
+                    if (!unitTarget)
+                        return;
 
+                    uint32 spellId = m_spellInfo->CalculateSimpleValue(eff_idx);
+                    unitTarget->RemoveAuraHolderFromStack(spellId);
                     return;
                 }
                 case 66477:                                 // Bountiful Feast
@@ -9078,6 +9068,14 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     // Actually this spell should be sent with SMSG_SPELL_START
                     unitTarget->CastSpell(m_caster, 69023, true);
+                    return;
+                }
+                case 69200:                                 // Raging Spirit
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->CastSpell(unitTarget, 69201, true);
                     return;
                 }
                 case 69377:                                 // Fortitude
