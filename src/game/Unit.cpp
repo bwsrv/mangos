@@ -6300,9 +6300,20 @@ bool Unit::Attack(Unit *victim, bool meleeAttack)
 
 void Unit::AttackedBy(Unit *attacker)
 {
+    if (IsFriendlyTo(attacker) || attacker->IsFriendlyTo(this))
+        return;
+
     // trigger AI reaction
     if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->AI())
+    {
         ((Creature*)this)->AI()->AttackedBy(attacker);
+        if (!isInCombat())
+        {
+            AddThreat(attacker);
+            SetInCombatWith(attacker);
+            attacker->SetInCombatWith(this);
+        }
+    }
 
     // trigger pet AI reaction
     if (attacker->IsHostileTo(this))
