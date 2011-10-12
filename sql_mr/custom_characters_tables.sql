@@ -158,11 +158,6 @@ ALTER TABLE `groups`
     DROP `mainTank`,
     DROP `mainAssistant`;
 
--- dungeon DBC encounters support
-
-ALTER TABLE `instance`
-    ADD COLUMN `encountersMask` INT(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Dungeon encounter bit mask' AFTER `difficulty`;
-
 -- Instance Extend LFG
 -- Commit 020d4e346d38b961bf62
 
@@ -201,6 +196,8 @@ CREATE TABLE IF NOT EXISTS hidden_rating (
     PRIMARY KEY  (guid)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
+-- do not delete tickets, only flag them as "closed" 
+ALTER TABLE `character_ticket` ADD COLUMN `closed` smallint;
 -- ADVANCE CHARACTERS TABLE
 
 SET FOREIGN_KEY_CHECKS=0;
