@@ -2936,7 +2936,8 @@ void ObjectMgr::LoadAntiCheatConfig()
                                                            "intparam1, intparam2,  floatparam1,  floatparam2,"
     //                                                            9              10        11             12
                                                            "action1,   actionparam1,  action2,  actionparam2,"
-                                                           "description FROM anticheat_config");
+    //                                                                 13           14
+                                                           "disabledzones, description FROM anticheat_config");
 
     uint32 count = 0;
 
@@ -2990,7 +2991,16 @@ void ObjectMgr::LoadAntiCheatConfig()
             AntiCheatConfigEntry.actionParam[i] = fields[6+ANTICHEAT_CHECK_PARAMETERS*2+i*2].GetUInt32();
         };
 
-        AntiCheatConfigEntry.description  = fields[5+ANTICHEAT_CHECK_PARAMETERS*2+ANTICHEAT_ACTIONS*2].GetCppString();
+        std::string zonesList = fields[5+ANTICHEAT_CHECK_PARAMETERS*2+ANTICHEAT_ACTIONS*2].GetCppString();
+
+        Tokens _list = StrSplit(zonesList, " ");
+        if (!_list.empty())
+        {
+            for (Tokens::iterator itr = _list.begin(); itr != _list.end(); ++itr)
+                AntiCheatConfigEntry.disabledZones.insert(atol(itr->c_str()));
+        }
+
+        AntiCheatConfigEntry.description  = fields[6+ANTICHEAT_CHECK_PARAMETERS*2+ANTICHEAT_ACTIONS*2].GetCppString();
 
         m_AntiCheatConfig.insert(std::make_pair(AntiCheatConfigEntry.checkType, AntiCheatConfigEntry));
 

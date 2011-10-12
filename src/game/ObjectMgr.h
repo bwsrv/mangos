@@ -253,6 +253,7 @@ struct AntiCheatConfig
         {
             checkFloatParam[i] = 0.0f;
         }
+        disabledZones.clear();
     }
 
     uint32 checkType;
@@ -264,6 +265,7 @@ struct AntiCheatConfig
     float  checkFloatParam[ANTICHEAT_CHECK_PARAMETERS];
     uint32 actionType[ANTICHEAT_ACTIONS];
     uint32 actionParam[ANTICHEAT_ACTIONS];
+    std::set<uint32> disabledZones;
     std::string description;
 
 };

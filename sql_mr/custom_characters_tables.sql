@@ -25,6 +25,7 @@ CREATE TABLE `anticheat_config` (
     `actionparam1` mediumint(8) NOT NULL default '0' COMMENT 'Action parameter 1',
     `action2` mediumint(8) NOT NULL default '0' COMMENT 'Action 1',
     `actionparam2` mediumint(8) NOT NULL default '0' COMMENT 'Action parameter 1',
+    `disabledzones` varchar(255) NOT NULL DEFAULT '' COMMENT 'List of zones, in which check disabled.',
     PRIMARY KEY (`checktype`)
 ) DEFAULT CHARSET=utf8 PACK_KEYS=0 COMMENT='Anticheat configuration';
 
