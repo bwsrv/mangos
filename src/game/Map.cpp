@@ -97,6 +97,7 @@ Map::Map(uint32 id, time_t expiry, uint32 InstanceId, uint8 SpawnMode)
 
     MapPersistentState* persistentState = sMapPersistentStateMgr.AddPersistentState(i_mapEntry, GetInstanceId(), GetDifficulty(), 0, IsDungeon());
     persistentState->SetUsedByMapState(this);
+    SetBroken(false);
 }
 
 MapPersistentState* Map::GetPersistentState() const
@@ -3378,4 +3379,54 @@ void Map::RemoveAttackersStorageFor(ObjectGuid targetGuid)
     {
         m_attackersMap.erase(itr);
     }
+}
+
+void Map::ForcedUnload()
+{
+    sLog.outError("Map::ForcedUnload called for map %u instance %u. Map crushed. Cleaning up...", GetId(), GetInstanceId());
+    Map::PlayerList const& pList = GetPlayers();
+    for (PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
+    {
+        Player* player = itr->getSource();
+        if (!player || !player->GetSession())
+            continue;
+
+        switch (sWorld.getConfig(CONFIG_UINT32_VMSS_MAPFREEMETHOD))
+        {
+            case 0:
+            {
+                player->RemoveAllAurasOnDeath();
+                if (Pet* pet = player->GetPet())
+                    pet->RemoveAllAurasOnDeath();
+                player->GetSession()->LogoutPlayer(true);
+                break;
+            }
+            case 1:
+            {
+                player->GetSession()->KickPlayer();
+                break;
+            }
+            case 2:
+            {
+                player->GetSession()->LogoutPlayer(false);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    switch (sWorld.getConfig(CONFIG_UINT32_VMSS_MAPFREEMETHOD))
+    {
+        case 0:
+            if (InstanceData* iData = GetInstanceData())
+                iData->Save();
+            break;
+        default:
+            break;
+    }
+
+    UnloadAll(true);
+
+    SetBroken(false);
 }
