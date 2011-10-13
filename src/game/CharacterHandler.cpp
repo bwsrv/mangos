@@ -1256,6 +1256,17 @@ void WorldSession::HandleCharFactionOrRaceChangeOpcode(WorldPacket& recv_data)
         }
     }
 
+    // The player was uninvited already on logout so just remove from group
+    // immediately remove from group before start change process
+    QueryResult* resultGroup = CharacterDatabase.PQuery("SELECT groupId FROM group_member WHERE memberGuid='%u'", guid.GetCounter());
+    if (resultGroup)
+    {
+        uint32 groupId = (*resultGroup)[0].GetUInt32();
+        delete resultGroup;
+        if (Group* group = sObjectMgr.GetGroupById(groupId))
+            Player::RemoveFromGroup(group, guid);
+    }
+
     CharacterDatabase.escape_string(newname);
     Player::Customize(guid, gender, skin, face, hairStyle, hairColor, facialHair);
     CharacterDatabase.BeginTransaction();
@@ -1323,15 +1334,6 @@ void WorldSession::HandleCharFactionOrRaceChangeOpcode(WorldPacket& recv_data)
         CharacterDatabase.PExecute("DELETE FROM petition_sign WHERE ownerguid = '%u'", guid.GetCounter());
         // Reset Language (will be added automatically after faction change)
         CharacterDatabase.PExecute("DELETE FROM `character_spell` WHERE `spell` IN (668, 7340, 671, 672, 814, 29932, 17737, 816, 7341, 669, 813, 670) AND guid ='%u'", guid.GetCounter());
-        // The player was uninvited already on logout so just remove from group
-        QueryResult *resultGroup = CharacterDatabase.PQuery("SELECT groupId FROM group_member WHERE memberGuid='%u'", guid.GetCounter());
-        if (resultGroup)
-        {
-            uint32 groupId = (*resultGroup)[0].GetUInt32();
-            delete resultGroup;
-            if (Group* group = sObjectMgr.GetGroupById(groupId))
-                Player::RemoveFromGroup(group, guid);
-        }
 
         // Search each faction is targeted
         BattleGroundTeamIndex team = BG_TEAM_ALLIANCE;
