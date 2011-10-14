@@ -80,7 +80,8 @@ public:
         {
             ACE_Based::Thread::Sleep(sWorld.getConfig(CONFIG_UINT32_VMSS_FREEZECHECKPERIOD));
 
-            sMapMgr.GetMapUpdater()->FreezeDetect();
+            if (sWorld.getConfig(CONFIG_BOOL_VMSS_ENABLE))
+                sMapMgr.GetMapUpdater()->FreezeDetect();
 
             uint32 curtime = WorldTimer::getMSTime();
             //DEBUG_LOG("anti-freeze: time=%u, counters=[%u; %u]",curtime,Master::m_masterLoopCounter,World::m_worldLoopCounter);
@@ -611,6 +612,10 @@ void Master::_OnSignal(int s)
             }
             else
             {
+                #ifdef _WIN32
+                if ( s == SIGUSR1)
+                    s = SIGABRT;
+                #endif
                 signal(s, SIG_DFL);
                 ACE_OS::kill(getpid(), s);
             }

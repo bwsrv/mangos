@@ -1997,6 +1997,6 @@ PlayerbotAI.RestrictBotLevel = 80
 VMSS.Enable = 0
 VMSS.MaxThreadBreaks = 5
 VMSS.ThreadBreakRememberTime = 3600
-VMSS.MapFreeMethod = 0
+VMSS.MapFreeMethod = 1
 VMSS.FreezeCheckPeriod = 1000
 VMSS.MapFreezeDetectTime = 1000
