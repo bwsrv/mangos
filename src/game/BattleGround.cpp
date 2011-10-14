@@ -449,6 +449,25 @@ void BattleGround::Update(uint32 diff)
 
     if (GetStatus() == STATUS_WAIT_JOIN && GetPlayersSize())
     {
+        // -- hacky anti-buggers check - prevent players from leave start BG location before BG actually starts
+        // -- only Arathi Basin and Eye of the Storm supported for now
+        float deadly_Z = 0.0f;
+        if (GetMapId() == 529)                              // Arathi Basin
+            deadly_Z = -20.0f;
+        else if (GetMapId() == 566)                         // Eye of the Storm
+            deadly_Z = 1260.0f;
+
+        for (BattleGroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+        {
+            if (Player* plr = sObjectMgr.GetPlayer(itr->first))
+            {
+                BattleGroundTeamIndex teamIndex = GetTeamIndexByTeamId(plr->GetTeam());
+                if (!plr->isGameMaster() && plr->GetPositionZ() < deadly_Z)
+                    plr->TeleportTo(GetMapId(), m_TeamStartLocX[teamIndex], m_TeamStartLocY[teamIndex], m_TeamStartLocZ[teamIndex], m_TeamStartLocO[teamIndex]);
+            }
+        }
+        // ----------------------------------------------------------------------------------------------------
+        
         ModifyStartDelayTime(diff);
 
         if (!(m_Events & BG_STARTING_EVENT_1))
