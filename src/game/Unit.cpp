@@ -5057,21 +5057,22 @@ void Unit::RemoveAurasDueToItemSpell(Item* castItem,uint32 spellId)
 
 void Unit::RemoveAurasWithInterruptFlags(uint32 flags)
 {
-    std::set<SpellAuraHolderPtr> holdersToRemove;
+    std::set<uint32> spellsToRemove;
     {
         MAPLOCK_READ(this,MAP_LOCK_TYPE_AURAS);
-        for (SpellAuraHolderMap::iterator iter = m_spellAuraHolders.begin(); iter != m_spellAuraHolders.end(); ++iter)
+        SpellAuraHolderMap const& holdersMap = GetSpellAuraHolderMap();
+        for (SpellAuraHolderMap::const_iterator iter = holdersMap.begin(); iter != holdersMap.end(); ++iter)
         {
             SpellAuraHolderPtr holder = iter->second;
-            if (holder && !holder->IsDeleted() &&  holder->GetSpellProto()->AuraInterruptFlags & flags)
-                holdersToRemove.insert(holder);
+            if (holder && !holder->IsDeleted() && (holder->GetSpellProto()->AuraInterruptFlags & flags))
+                spellsToRemove.insert(iter->first);
         }
     }
 
-    if (!holdersToRemove.empty())
+    if (!spellsToRemove.empty())
     {
-        for(std::set<SpellAuraHolderPtr>::const_iterator i = holdersToRemove.begin(); i != holdersToRemove.end(); ++i)
-            RemoveSpellAuraHolder((*i));
+        for(std::set<uint32>::const_iterator i = spellsToRemove.begin(); i != spellsToRemove.end(); ++i)
+            RemoveAurasDueToSpell(*i);
     }
 }
 
