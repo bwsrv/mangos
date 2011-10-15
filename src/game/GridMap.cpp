@@ -985,7 +985,7 @@ GridMapLiquidStatus TerrainInfo::getLiquidStatus(float x, float y, float z, uint
     return result;
 }
 
-bool TerrainInfo::IsInWater(float x, float y, float pZ, GridMapLiquidData *data) const
+bool TerrainInfo::IsInWater(float x, float y, float pZ, GridMapLiquidData *data, float min_depth) const
 {
     // Check surface in x, y point for liquid
     if (const_cast<TerrainInfo*>(this)->GetGrid(x, y))
@@ -1002,7 +1002,7 @@ bool TerrainInfo::IsInWater(float x, float y, float pZ, GridMapLiquidData *data)
         else if (status & LIQUID_MAP_IN_WATER ||
                  status & LIQUID_MAP_UNDER_WATER )
             {
-                if (liquid_ptr && (liquid_ptr->level - liquid_ptr->depth_level > 2)) // avoid water with depth < 2
+                if (liquid_ptr && (liquid_ptr->level - liquid_ptr->depth_level > min_depth)) // avoid water with depth < 2
                     return true;
                 else
                     return false;
