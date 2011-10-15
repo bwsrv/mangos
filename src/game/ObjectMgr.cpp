@@ -820,12 +820,6 @@ void ObjectMgr::LoadCreatureAddons(SQLStorage& creatureaddons, char const* entry
             const_cast<CreatureDataAddon*>(addon)->emote = 0;
         }
 
-        if (addon->splineFlags & (SPLINEFLAG_TRAJECTORY|SPLINEFLAG_UNKNOWN3))
-        {
-            sLog.outErrorDb("Creature (%s %u) spline flags mask defined in `%s` include forbidden flags (" I32FMT ") that can crash client, cleanup at load.", entryName, addon->guidOrEntry, creatureaddons.GetTableName(), (SPLINEFLAG_TRAJECTORY|SPLINEFLAG_UNKNOWN3));
-            const_cast<CreatureDataAddon*>(addon)->splineFlags &= ~(SPLINEFLAG_TRAJECTORY|SPLINEFLAG_UNKNOWN3);
-        }
-
         ConvertCreatureAddonAuras(const_cast<CreatureDataAddon*>(addon), creatureaddons.GetTableName(), entryName);
     }
 }
@@ -7960,7 +7954,7 @@ bool PlayerCondition::Meets(Player const * player) const
             return player->GetQuestRewardStatus(value1);
         case CONDITION_QUESTTAKEN:
         {
-            return player->IsCurrentQuest(value1);
+            return player->IsCurrentQuest(value1, value2);
         }
         case CONDITION_AD_COMMISSION_AURA:
         {
@@ -8227,7 +8221,7 @@ bool PlayerCondition::IsValid(ConditionType condition, uint32 value1, uint32 val
                 return false;
             }
 
-            if (value2)
+            if (value2 && condition != CONDITION_QUESTTAKEN)
                 sLog.outErrorDb("Quest condition (%u) has useless data in value2 (%u)!", condition, value2);
             break;
         }
