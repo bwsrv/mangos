@@ -955,7 +955,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             // FORM_SPIRITOFREDEMPTION and related auras
             pVictim->CastSpell(pVictim,27827,true,NULL,spiritOfRedemtionTalentReady);
         }
-        else
+        else if (pVictim->IsInWorld())
             pVictim->SetHealth(0);
 
         // remember victim PvP death for corpse type and corpse reclaim delay
