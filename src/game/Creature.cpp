@@ -547,7 +547,6 @@ void Creature::Update(uint32 update_diff, uint32 diff)
             }
             else
             {
-                Unit::Update(update_diff, diff);
                 m_corpseDecayTimer -= update_diff;
                 if (m_groupLootId)
                 {
