@@ -483,7 +483,7 @@ void MotionMaster::UpdateFinalDistanceToTarget(float fDistance)
         top()->UpdateFinalDistance(fDistance);
 }
 
-void MotionMaster::MoveJump(float x, float y, float z, float horizontalSpeed, float max_height, uint32 id, bool isKnockBack)
+void MotionMaster::MoveJump(float x, float y, float z, float horizontalSpeed, float max_height, uint32 id)
 {
     Movement::MoveSplineInit init(*m_owner);
     init.MoveTo(x,y,z);
@@ -491,4 +491,26 @@ void MotionMaster::MoveJump(float x, float y, float z, float horizontalSpeed, fl
     init.SetVelocity(horizontalSpeed);
     init.Launch();
     Mutate(new EffectMovementGenerator(id));
+}
+
+void MotionMaster::MoveFall()
+{
+    // use larger distance for vmap height search than in most other cases
+    float tz = m_owner->GetTerrain()->GetHeight(m_owner->GetPositionX(), m_owner->GetPositionY(), m_owner->GetPositionZ(), true, MAX_FALL_DISTANCE);
+    if (tz <= INVALID_HEIGHT)
+    {
+        DEBUG_LOG("MotionMaster::MoveFall: unit %u at map %u (x: %f, y: %f, z: %f), not able to retrive a proper GetHeight (z: %f).",
+            m_owner->GetMap()->GetId(), m_owner->GetPositionX(), m_owner->GetPositionX(), m_owner->GetPositionZ(), tz);
+        return;
+    }
+
+    // Abort too if the ground is very near
+    if (fabs(m_owner->GetPositionZ() - tz) < 0.1f)
+        return;
+
+    Movement::MoveSplineInit init(*m_owner);
+    init.MoveTo(m_owner->GetPositionX(),m_owner->GetPositionY(),tz);
+    init.SetFall();
+    init.Launch();
+    Mutate(new EffectMovementGenerator(0));
 }
