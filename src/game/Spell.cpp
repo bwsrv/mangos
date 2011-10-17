@@ -7805,9 +7805,15 @@ void Spell::FillRaidOrPartyHealthPriorityTargets(UnitList &targetUnitMap, Unit* 
     FillRaidOrPartyTargets(targetUnitMap, member, center, radius, raid, withPets, withCaster);
 
     PrioritizeHealthUnitQueue healthQueue;
-    for(UnitList::const_iterator itr = targetUnitMap.begin(); itr != targetUnitMap.end(); ++itr)
-        if (!(*itr)->isDead())
-            healthQueue.push(PrioritizeHealthUnitWraper(*itr));
+    for (UnitList::const_iterator itr = targetUnitMap.begin(); itr != targetUnitMap.end(); ++itr)
+    {
+        Unit* unit = *itr;
+        if (!unit)
+            continue;
+        if (unit->isDead())
+            continue;
+        healthQueue.push(PrioritizeHealthUnitWraper(unit));
+    }
 
     targetUnitMap.clear();
     while(!healthQueue.empty() && targetUnitMap.size() < count)
