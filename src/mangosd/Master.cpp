@@ -584,7 +584,7 @@ void Master::_OnSignal(int s)
 
                 if (MapID const* mapPair = sMapMgr.GetMapUpdater()->GetMapPairByThreadId(threadId))
                 {
-                    sLog.outError("Signal Handler: Thread "I64FMT" is update map %u instance %u",threadId,mapPair->nMapId, mapPair->nInstanceId);
+                    sLog.outError("Signal Handler: crushed thread is update map %u instance %u",mapPair->nMapId, mapPair->nInstanceId);
                     if (Map* map = sMapMgr.FindMap(mapPair->nMapId, mapPair->nInstanceId))
                         map->SetBroken(true);
                     sMapMgr.GetMapUpdater()->MapBrokenEvent(mapPair);

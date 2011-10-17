@@ -3451,6 +3451,19 @@ void Map::ForcedUnload()
         if (!player || !player->GetSession())
             continue;
 
+        if (player->IsBeingTeleportedFar())
+        {
+            WorldLocation old_loc;
+            player->GetPosition(old_loc);
+            if (!player->TeleportTo(old_loc))
+            {
+                DETAIL_LOG("Map::ForcedUnload: %s is in teleport state, cannot be ported to his previous place, teleporting him to his homebind place...",
+                    player->GetGuidStr().c_str());
+                player->TeleportToHomebind();
+            }
+            player->SetSemaphoreTeleportFar(false);
+        }
+
         switch (sWorld.getConfig(CONFIG_UINT32_VMSS_MAPFREEMETHOD))
         {
             case 0:
