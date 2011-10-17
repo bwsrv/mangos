@@ -299,7 +299,7 @@ Unit::Unit() :
 
 Unit::~Unit()
 {
-#ifndef WIN32
+#ifndef NOTSAFE_SEMAPHORE_OVERHANDLING
     MAPLOCK_WRITE(this, MAP_LOCK_TYPE_DEFAULT);
     MAPLOCK_WRITE1(this, MAP_LOCK_TYPE_AURAS);
 #endif
