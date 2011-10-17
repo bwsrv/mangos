@@ -47,6 +47,7 @@
 #include "CellImpl.h"
 #include "TemporarySummon.h"
 #include "movement/MoveSplineInit.h"
+#include "CreatureLinkingMgr.h"
 
 // apply implementation of the singletons
 #include "Policies/SingletonImp.h"
@@ -1350,11 +1351,11 @@ bool Creature::LoadFromDB(uint32 guidlow, Map *map)
         {
             m_deathState = DEAD;
 
-            // Just set to Dead, so need to relocate like abouve
-            if(CanFly())
+            // Just set to dead, so need to relocate like above
+            if (CanFly())
             {
                 float tz = GetTerrain()->GetHeight(data->posX, data->posY, data->posZ, false);
-                if(data->posZ - tz > 0.1)
+                if (data->posZ - tz > 0.1)
                     Relocate(data->posX, data->posY, tz);
             }
         }
@@ -1370,7 +1371,7 @@ bool Creature::LoadFromDB(uint32 guidlow, Map *map)
 
     AIM_Initialize();
 
-    // Creature Linking, Initial load id handled like respawn
+    // Creature Linking, Initial load is handled like respawn
     if (m_isCreatureLinkingTrigger && isAlive())
         GetMap()->GetCreatureLinkingHolder()->DoCreatureLinkingEvent(LINKING_EVENT_RESPAWN, this);
 

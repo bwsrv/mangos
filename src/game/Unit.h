@@ -2057,6 +2057,8 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         void _SetAINotifyScheduled(bool on) { m_AINotifyScheduled = on;}       // only for call from RelocationNotifyEvent code
         void OnRelocated();
 
+        bool IsLinkingEventTrigger() { return m_isCreatureLinkingTrigger; }
+
     protected:
         explicit Unit ();
 

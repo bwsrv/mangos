@@ -1035,7 +1035,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             if (InstanceData* mapInstance = cVictim->GetInstanceData())
                 mapInstance->OnCreatureDeath(cVictim);
 
-            if (m_isCreatureLinkingTrigger)
+            if (cVictim->IsLinkingEventTrigger())
                 cVictim->GetMap()->GetCreatureLinkingHolder()->DoCreatureLinkingEvent(LINKING_EVENT_DIE, cVictim);
 
             // Dungeon specific stuff, only applies to players killing creatures
