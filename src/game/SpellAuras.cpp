@@ -11485,7 +11485,8 @@ void SpellAuraHolder::HandleSpellSpecificBoostsForward(bool apply)
 
 SpellAuraHolder::~SpellAuraHolder()
 {
-    DEBUG_LOG("SpellAuraHolder:: destructor for spell %u called.", GetId());
+    m_aurasStorage.clear();
+//    DEBUG_LOG("SpellAuraHolder:: destructor for SpellAuraHolder of spell %u called.", GetId());
 }
 
 void SpellAuraHolder::Update(uint32 diff)
