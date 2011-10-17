@@ -171,7 +171,7 @@ void MapUpdater::FreezeDetect()
             if (MapID const* mapPair = GetMapPairByThreadId(itr->first))
             {
                 DEBUG_LOG("MapUpdater::FreezeDetect thread "I64FMT" possible freezed (is update map %u instance %u). Killing.",itr->first,mapPair->nMapId, mapPair->nInstanceId);
-                ACE_OS::thr_kill(itr->first, SIGUSR1);
+                ACE_OS::thr_kill(itr->first, SIGABRT);
             }
         }
     }

@@ -573,7 +573,6 @@ void Master::_OnSignal(int s)
         case SIGSEGV:
         case SIGABRT:
         case SIGFPE:
-        case SIGUSR1:
             if (sWorld.getConfig(CONFIG_BOOL_VMSS_ENABLE))
             {
                 ACE_thread_t const threadId = ACE_OS::thr_self();
@@ -612,10 +611,6 @@ void Master::_OnSignal(int s)
             }
             else
             {
-                #ifdef _WIN32
-                if ( s == SIGUSR1)
-                    s = SIGABRT;
-                #endif
                 signal(s, SIG_DFL);
                 ACE_OS::kill(getpid(), s);
             }
@@ -637,7 +632,6 @@ void Master::_HookSignals()
     signal(SIGSEGV,  _OnSignal);
     signal(SIGABRT,  _OnSignal);
     signal(SIGFPE ,  _OnSignal);
-    signal(SIGUSR1,  _OnSignal);
 }
 
 /// Unhook the signals before leaving
@@ -651,5 +645,4 @@ void Master::_UnhookSignals()
     signal(SIGSEGV,  SIG_DFL);
     signal(SIGABRT,  SIG_DFL);
     signal(SIGFPE ,  SIG_DFL);
-    signal(SIGUSR1,  SIG_DFL);
 }
