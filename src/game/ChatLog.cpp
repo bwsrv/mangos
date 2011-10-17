@@ -22,12 +22,10 @@
 #include "Chat.h"
 #include "Group.h"
 #include "Guild.h"
-#include "ObjectMgr.h"
 #include "GuildMgr.h"
-#include "ObjectGuid.h"
+#include "ObjectMgr.h"
 #include "SpellAuras.h"
 #include "Policies/SingletonImp.h"
-#include "Config/Config.h"
 
 INSTANTIATE_SINGLETON_1( ChatLog );
 
@@ -42,11 +40,41 @@ ChatLog::ChatLog()
     Lexics = NULL;
     fn_innormative = "";
     f_innormative = NULL;
-
-    Initialize();
 }
 
 ChatLog::~ChatLog()
+{
+    Uninitialize();
+}
+
+void ChatLog::Initialize()
+{
+    if (fn_analogsfile == "" || fn_wordsfile == "")
+    {
+        LexicsCutterEnable = false;
+    }
+
+    if (LexicsCutterEnable)
+    {
+        // initialize lexics cutter
+        Lexics = new LexicsCutter;
+        if (Lexics) Lexics->Read_Letter_Analogs(fn_analogsfile);
+        if (Lexics) Lexics->Read_Innormative_Words(fn_wordsfile);
+        if (Lexics) Lexics->Map_Innormative_Words();
+
+        // read additional parameters
+        Lexics->IgnoreLetterRepeat = LexicsCutterIgnoreLetterRepeat;
+        Lexics->IgnoreMiddleSpaces = LexicsCutterIgnoreMiddleSpaces;
+    }
+
+    // open all files (with aliasing)
+    OpenAllFiles();
+
+    // write timestamps (init)
+    WriteInitStamps();
+}
+
+void ChatLog::Uninitialize()
 {
     // close all files (avoiding double-close)
     CloseAllFiles();
@@ -56,85 +84,6 @@ ChatLog::~ChatLog()
         delete Lexics;
         Lexics = NULL;
     }
-}
-
-void ChatLog::Initialize()
-{
-    // determine, if the chat logs are enabled
-    ChatLogEnable = sConfig.GetBoolDefault("ChatLogEnable", false);
-    ChatLogDateSplit = sConfig.GetBoolDefault("ChatLogDateSplit", false);
-    ChatLogUTFHeader = sConfig.GetBoolDefault("ChatLogUTFHeader", false);
-    ChatLogIgnoreUnprintable = sConfig.GetBoolDefault("ChatLogIgnoreUnprintable", false);
-
-    if (ChatLogEnable)
-    {
-        // read chat log file names
-        names[CHAT_LOG_CHAT] = sConfig.GetStringDefault("ChatLogChatFile", "");
-        names[CHAT_LOG_PARTY] = sConfig.GetStringDefault("ChatLogPartyFile", "");
-        names[CHAT_LOG_GUILD] = sConfig.GetStringDefault("ChatLogGuildFile", "");
-        names[CHAT_LOG_WHISPER] = sConfig.GetStringDefault("ChatLogWhisperFile", "");
-        names[CHAT_LOG_CHANNEL] = sConfig.GetStringDefault("ChatLogChannelFile", "");
-        names[CHAT_LOG_RAID] = sConfig.GetStringDefault("ChatLogRaidFile", "");
-        names[CHAT_LOG_BATTLEGROUND] = sConfig.GetStringDefault("ChatLogBattleGroundFile", "");
-
-        // read screen log flags
-        screenflag[CHAT_LOG_CHAT] = sConfig.GetBoolDefault("ChatLogChatScreen", false);
-        screenflag[CHAT_LOG_PARTY] = sConfig.GetBoolDefault("ChatLogPartyScreen", false);
-        screenflag[CHAT_LOG_GUILD] = sConfig.GetBoolDefault("ChatLogGuildScreen", false);
-        screenflag[CHAT_LOG_WHISPER] = sConfig.GetBoolDefault("ChatLogWhisperScreen", false);
-        screenflag[CHAT_LOG_CHANNEL] = sConfig.GetBoolDefault("ChatLogChannelScreen", false);
-        screenflag[CHAT_LOG_RAID] = sConfig.GetBoolDefault("ChatLogRaidScreen", false);
-        screenflag[CHAT_LOG_BATTLEGROUND] = sConfig.GetBoolDefault("ChatLogBattleGroundScreen", false);
-    }
-
-    // lexics cutter
-    LexicsCutterEnable = sConfig.GetBoolDefault("LexicsCutterEnable", false);
-
-    if (LexicsCutterEnable)
-    {
-        // initialize lexics cutter parameters
-        LexicsCutterInnormativeCut = sConfig.GetBoolDefault("LexicsCutterInnormativeCut", true);
-        LexicsCutterNoActionOnGM = sConfig.GetBoolDefault("LexicsCutterNoActionOnGM", true);
-        LexicsCutterScreenLog = sConfig.GetBoolDefault("LexicsCutterScreenLog", false);
-        LexicsCutterCutReplacement = sConfig.GetStringDefault("LexicsCutterCutReplacement", "&!@^%!^&*!!! [gibberish]");
-        LexicsCutterAction = sConfig.GetIntDefault("LexicsCutterAction", 0);
-        LexicsCutterActionDuration = sConfig.GetIntDefault("LexicsCutterActionDuration", 60000);
-        std::string fn_analogsfile = sConfig.GetStringDefault("LexicsCutterAnalogsFile", "");
-        std::string fn_wordsfile = sConfig.GetStringDefault("LexicsCutterWordsFile", "");
-
-        // read lexics cutter flags
-        cutflag[CHAT_LOG_CHAT] = sConfig.GetBoolDefault("LexicsCutInChat", true);
-        cutflag[CHAT_LOG_PARTY] = sConfig.GetBoolDefault("LexicsCutInParty", true);
-        cutflag[CHAT_LOG_GUILD] = sConfig.GetBoolDefault("LexicsCutInGuild", true);
-        cutflag[CHAT_LOG_WHISPER] = sConfig.GetBoolDefault("LexicsCutInWhisper", true);
-        cutflag[CHAT_LOG_CHANNEL] = sConfig.GetBoolDefault("LexicsCutInChannel", true);
-        cutflag[CHAT_LOG_RAID] = sConfig.GetBoolDefault("LexicsCutInRaid", true);
-        cutflag[CHAT_LOG_BATTLEGROUND] = sConfig.GetBoolDefault("LexicsCutInBattleGround", true);
-
-        if (fn_analogsfile == "" || fn_wordsfile == "")
-        {
-            LexicsCutterEnable = false;
-        }
-        else
-        {
-            // initialize lexics cutter
-            Lexics = new LexicsCutter;
-            if (Lexics) Lexics->Read_Letter_Analogs(fn_analogsfile);
-            if (Lexics) Lexics->Read_Innormative_Words(fn_wordsfile);
-            if (Lexics) Lexics->Map_Innormative_Words();
-
-            // read additional parameters
-            Lexics->IgnoreLetterRepeat = sConfig.GetBoolDefault("LexicsCutterIgnoreRepeats", true);
-            Lexics->IgnoreMiddleSpaces = sConfig.GetBoolDefault("LexicsCutterIgnoreSpaces", true);
-            fn_innormative = sConfig.GetStringDefault("LexicsCutterLogFile", "");
-        }
-    }
-
-    // open all files (with aliasing)
-    OpenAllFiles();
-
-    // write timestamps (init)
-    WriteInitStamps();
 }
 
 bool ChatLog::_ChatCommon(int ChatType, Player *player, std::string &msg)
@@ -218,8 +167,8 @@ void ChatLog::PartyMsg(Player *player, std::string &msg)
         // obtain group information
         log_str.append("[");
 
-        //uint8 gm_count = group->GetMembersCount();
-        //uint8 gm_count_m1 = gm_count - 1;
+        uint8 gm_count = group->GetMembersCount();
+        uint8 gm_count_m1 = gm_count - 1;
         ObjectGuid gm_leader_GUID = group->GetLeaderGuid();
         Player *gm_member;
 
@@ -418,8 +367,8 @@ void ChatLog::RaidMsg(Player *player, std::string &msg, uint32 type)
         // obtain group information
         log_str.append("[");
 
-        //uint8 gm_count = group->GetMembersCount();
-        //uint8 gm_count_m1 = gm_count - 1;
+        uint8 gm_count = group->GetMembersCount();
+        uint8 gm_count_m1 = gm_count - 1;
         ObjectGuid gm_leader_GUID = group->GetLeaderGuid();
         Player *gm_member;
 
@@ -496,8 +445,8 @@ void ChatLog::BattleGroundMsg(Player *player, std::string &msg, uint32 type)
         // obtain group information
         log_str.append("[");
 
-        //uint8 gm_count = group->GetMembersCount();
-        //uint8 gm_count_m1 = gm_count - 1;
+        uint8 gm_count = group->GetMembersCount();
+        uint8 gm_count_m1 = gm_count - 1;
         ObjectGuid gm_leader_GUID = group->GetLeaderGuid();
         Player *gm_member;
 
@@ -732,14 +681,14 @@ void ChatLog::ChatBadLexicsAction(Player* player, std::string& msg)
         case LEXICS_ACTION_SHEEP:
         {
             // sheep me, yeah, yeah, sheep me
-            player->_AddAura(118,LexicsCutterActionDuration);
+            player->_AddAura(118, LexicsCutterActionDuration);
         }
         break;
 
         case LEXICS_ACTION_STUN:
         {
             // stunned surprised
-            player->_AddAura(13005,LexicsCutterActionDuration);
+            player->_AddAura(13005, LexicsCutterActionDuration);
         }
         break;
 
@@ -757,6 +706,7 @@ void ChatLog::ChatBadLexicsAction(Player* player, std::string& msg)
         }
         break;
 
+
         case LEXICS_ACTION_SILENCE:
         {
             // glue the mouth
@@ -768,21 +718,21 @@ void ChatLog::ChatBadLexicsAction(Player* player, std::string& msg)
         case LEXICS_ACTION_STUCK:
         {
             // yo, the Matrix has had you :) [by KAPATEJIb]
-            player->_AddAura(23312,LexicsCutterActionDuration);
+            player->_AddAura(23312, LexicsCutterActionDuration);
         }
         break;
 
         case LEXICS_ACTION_SICKNESS:
         {
             // for absence of censorship, there is punishment [by Koshei]
-            player->_AddAura(15007,LexicsCutterActionDuration);
+            player->_AddAura(15007, LexicsCutterActionDuration);
         }
         break;
 
         case LEXICS_ACTION_SHEAR:
         {
             // Lord Illidan to watch you [by Koshei]
-            player->_AddAura(41032,LexicsCutterActionDuration);
+            player->_AddAura(41032, LexicsCutterActionDuration);
         }
         break;
 
