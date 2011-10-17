@@ -102,7 +102,14 @@ Map::Map(uint32 id, time_t expiry, uint32 InstanceId, uint8 SpawnMode)
 
 MapPersistentState* Map::GetPersistentState() const
 {
-    return sMapPersistentStateMgr.GetPersistentState(GetId(), GetInstanceId());
+    MapPersistentState* state = sMapPersistentStateMgr.GetPersistentState(GetId(), GetInstanceId());
+    if (!state)
+    {
+        sLog.outError("Map::GetPersistentState requested, but map ( id %u, instance %u, difficulty %u ) not have this!", GetId(), GetInstanceId(), GetDifficulty());
+        state = sMapPersistentStateMgr.AddPersistentState(i_mapEntry, GetInstanceId(), GetDifficulty(), 0, IsDungeon());
+        state->SetUsedByMapState(const_cast<Map*>(this));
+    }
+    return state;
 }
 
 void Map::InitVisibilityDistance()
