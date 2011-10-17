@@ -10400,8 +10400,9 @@ Unit* SpellAuraHolder::GetCaster() const
     if (!m_target)
         return NULL;
 
-    if (GetCasterGuid() == m_target->GetObjectGuid())
-        return m_target;
+    if (m_target->IsInWorld())
+        if (GetCasterGuid() == m_target->GetObjectGuid())
+            return m_target;
 
     return ObjectAccessor::GetUnit(*m_target, m_casterGuid);// player will search at any maps
 }
