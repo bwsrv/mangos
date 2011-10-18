@@ -16719,6 +16719,12 @@ void Player::_LoadAuras(QueryResult *result, uint32 timediff)
                 continue;
             }
 
+            if (caster_guid.IsEmpty() || !caster_guid.IsUnit())
+            {
+                sLog.outError("Player::LoadAuras Unknown caster %u, ignore.",fields[0].GetUInt64());
+                continue;
+            }
+
             if (remaintime != -1 && !IsPositiveSpell(spellproto))
             {
                 if (remaintime/IN_MILLISECONDS <= int32(timediff))
