@@ -1601,7 +1601,8 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn)
         SetDeathState(JUST_DIED);
 
     RemoveCorpse();
-    SetHealth(0);                                           // just for nice GM-mode view
+    if (IsInWorld())
+        SetHealth(0);                                           // just for nice GM-mode view
 
     if (IsTemporarySummon())
          ((TemporarySummon*)this)->UnSummon();
