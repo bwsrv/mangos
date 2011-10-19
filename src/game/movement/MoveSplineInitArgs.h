@@ -46,7 +46,7 @@ namespace Movement
         {
             path.reserve(path_capacity);
         }
-       
+
         PointsArray path;
         FacingInfo facing;
         MoveSplineFlag flags;
