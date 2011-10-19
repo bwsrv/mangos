@@ -3233,19 +3233,15 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell)
     tmp += resist_mech;
     if (roll < tmp)
         return SPELL_MISS_RESIST;
-
     bool canDodge = true;
     bool canParry = true;
 
-    // Same spells cannot be parry/dodge
-    if (spell->Attributes & SPELL_ATTR_IMPOSSIBLE_DODGE_PARRY_BLOCK)
-        return SPELL_MISS_NONE;
-
-
     bool from_behind = !pVictim->HasInArc(M_PI_F,this);
 
-    // Ranged attack cannot be parry/dodge only deflect
-    if (attType == RANGED_ATTACK)
+    // Ranged attack cannot be parry/dodge, only deflect
+    // Some spells cannot be parry/dodge/blocked, but may be deflected
+    if (spell->Attributes & SPELL_ATTR_IMPOSSIBLE_DODGE_PARRY_BLOCK
+        || attType == RANGED_ATTACK)
     {
         // only if in front or special ability
         if (!from_behind || pVictim->HasAuraType(SPELL_AURA_MOD_PARRY_FROM_BEHIND_PERCENT))
