@@ -6468,7 +6468,7 @@ void Aura::HandlePeriodicDamage(bool apply, bool Real)
             target->CastSpell(target, 74799, true, NULL, NULL, GetCasterGuid());
         // Void Shifted
         else if (spellProto->Id == 54361 || spellProto->Id == 59743)
-            target->CastSpell(target, 54343, true, NULL, NULL, GetCaster()->GetObjectGuid());
+            target->CastSpell(target, 54343, true, NULL, NULL, GetCasterGuid());
     }
 }
 
@@ -10565,8 +10565,9 @@ Unit* SpellAuraHolder::GetCaster() const
     if (!m_target)
         return NULL;
 
-    if (GetCasterGuid() == m_target->GetObjectGuid())
-        return m_target;
+    if (m_target->IsInWorld())
+        if (GetCasterGuid() == m_target->GetObjectGuid())
+            return m_target;
 
     return ObjectAccessor::GetUnit(*m_target, m_casterGuid);// player will search at any maps
 }
@@ -11650,7 +11651,8 @@ void SpellAuraHolder::HandleSpellSpecificBoostsForward(bool apply)
 
 SpellAuraHolder::~SpellAuraHolder()
 {
-    DEBUG_LOG("SpellAuraHolder:: destructor for spell %u called.", GetId());
+    m_aurasStorage.clear();
+//    DEBUG_LOG("SpellAuraHolder:: destructor for SpellAuraHolder of spell %u called.", GetId());
 }
 
 void SpellAuraHolder::Update(uint32 diff)

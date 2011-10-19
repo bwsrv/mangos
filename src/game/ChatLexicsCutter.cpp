@@ -20,17 +20,6 @@
 #include "ChatLexicsCutter.h"
 #include "Log.h"
 
-static int const trailingBytesForUTF8[256] = {
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2, 3,3,3,3,3,3,3,3,4,4,4,4,5,5,5,5
-};
-
 LexicsCutter::LexicsCutter()
 {
     InvalidChars = "~`!@#$%^&*()-_+=[{]}|\\;:'\",<.>/?";
@@ -219,11 +208,11 @@ void LexicsCutter::Map_Innormative_Words()
 
 bool LexicsCutter::Compare_Word(std::string& str, unsigned int pos, LC_WordVector word)
 {
-   std::string lchar_prev;
+    std::string lchar_prev;
     std::string lchar;
 
-   // read first letter of the word into lchar_prev
-   ReadUTF8(str, lchar, pos);
+    // read first letter of the word into lchar_prev
+    ReadUTF8(str, lchar, pos);
 
     // okay, here we go, comparing word
     // first letter is already okay, we do begin from second and go on
@@ -236,23 +225,23 @@ bool LexicsCutter::Compare_Word(std::string& str, unsigned int pos, LC_WordVecto
         // check, if the letter is in the set
         LC_LetterSet ls = *i;
         if (ls.count(lchar) == 0)
-       {
-           // letter is not in set, but we must check, if it is not space or repeat
-           if ( (!(IgnoreMiddleSpaces && (lchar == " "))) &&
-               (!(IgnoreLetterRepeat && (lchar == lchar_prev))) )
-           {
-               // no checks viable
-               return(false);
-           }
-       }
-       else
-       {
-           // next word letter
-           i++;
-       }
-       // set previous string letter to compare if needed (this check can really conserve time)
-       if (IgnoreLetterRepeat) lchar_prev = lchar;
-   }
+        {
+            // letter is not in set, but we must check, if it is not space or repeat
+            if ( (!(IgnoreMiddleSpaces && (lchar == " "))) &&
+                (!(IgnoreLetterRepeat && (lchar == lchar_prev))) )
+            {
+                // no checks viable
+                return(false);
+            }
+        }
+        else
+        {
+            // next word letter
+            i++;
+        }
+        // set previous string letter to compare if needed (this check can really conserve time)
+        if (IgnoreLetterRepeat) lchar_prev = lchar;
+    }
 
     return(true);
 }
@@ -278,7 +267,7 @@ bool LexicsCutter::Check_Lexics(std::string& Phrase)
     }
 
     // string prepared, now parse it and scan for all the words
-   unsigned int pos_prev = 0;
+    unsigned int pos_prev = 0;
     pos = 0;
     while (ReadUTF8(str, lchar, pos))
     {

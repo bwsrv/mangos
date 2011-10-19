@@ -25,6 +25,7 @@ CREATE TABLE `anticheat_config` (
     `actionparam1` mediumint(8) NOT NULL default '0' COMMENT 'Action parameter 1',
     `action2` mediumint(8) NOT NULL default '0' COMMENT 'Action 1',
     `actionparam2` mediumint(8) NOT NULL default '0' COMMENT 'Action parameter 1',
+    `disabledzones` varchar(255) NOT NULL DEFAULT '' COMMENT 'List of zones, in which check disabled.',
     PRIMARY KEY (`checktype`)
 ) DEFAULT CHARSET=utf8 PACK_KEYS=0 COMMENT='Anticheat configuration';
 
@@ -156,11 +157,6 @@ ALTER TABLE `group_member`
 ALTER TABLE `groups`
     DROP `mainTank`,
     DROP `mainAssistant`;
-
--- dungeon DBC encounters support
-
-ALTER TABLE `instance`
-    ADD COLUMN `encountersMask` INT(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Dungeon encounter bit mask' AFTER `difficulty`;
 
 -- Instance Extend LFG
 -- Commit 020d4e346d38b961bf62

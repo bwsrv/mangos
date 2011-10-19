@@ -1,13 +1,4 @@
-DROP TABLE IF EXISTS creature_linking_template;
-CREATE TABLE creature_linking_template (
-  entry INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'creature_template.entry of the slave mob that is linked',
-  map MEDIUMINT(8) UNSIGNED NOT NULL COMMENT 'Id of map of the mobs',
-  master_entry INT(10) UNSIGNED NOT NULL COMMENT 'master to trigger events',
-  flag MEDIUMINT(8) UNSIGNED NOT NULL COMMENT 'flag - describing what should happen when',
-  PRIMARY KEY (entry, map)
-)
-ENGINE = InnoDB;
-
+-- example for creature_linking
 /* Example behaviour, MOLTEN CORE
  *
  *  TEST WITHOUT SD2, as SD2 has parts of the same functionality already
@@ -27,8 +18,7 @@ ENGINE = InnoDB;
  *   FLAG_CANT_SPAWN_IF_BOSS_ALIVE  = 0x0800, 2048
  */
 
-TRUNCATE creature_linking_template;
-INSERT INTO creature_linking_template VALUES
+INSERT IGNORE INTO creature_linking_template VALUES
 (12119, 409, 12118, 521), -- Lucifron
 (11661, 409, 12259, 7), -- Gehennas
 (11673, 409, 11982, 1024), -- Magmadar, testing, prevent respawning of his dogs

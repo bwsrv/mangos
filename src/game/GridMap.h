@@ -219,7 +219,7 @@ public:
     float GetHeight(float x, float y, float z, bool pCheckVMap=true, float maxSearchDist=DEFAULT_HEIGHT_SEARCH) const;
     float GetWaterLevel(float x, float y, float z, float* pGround = NULL) const;
     float GetWaterOrGroundLevel(float x, float y, float z, float* pGround = NULL, bool swim = false) const;
-    bool IsInWater(float x, float y, float z, GridMapLiquidData *data = 0) const;
+    bool IsInWater(float x, float y, float z, GridMapLiquidData *data = 0, float min_depth = 2.0f) const;
     bool IsUnderWater(float x, float y, float z) const;
 
     GridMapLiquidStatus getLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, GridMapLiquidData *data = 0) const;

@@ -47,7 +47,6 @@
 #include "CellImpl.h"
 #include "TemporarySummon.h"
 #include "movement/MoveSplineInit.h"
-#include "movement/MoveSpline.h"
 #include "CreatureLinkingMgr.h"
 
 // apply implementation of the singletons
@@ -531,6 +530,8 @@ void Creature::Update(uint32 update_diff, uint32 diff)
         }
         case CORPSE:
         {
+            Unit::Update(update_diff, diff);
+
             if (m_isDeadByDefault)
                 break;
 
@@ -548,7 +549,6 @@ void Creature::Update(uint32 update_diff, uint32 diff)
             }
             else
             {
-                Unit::Update(update_diff, diff);
                 m_corpseDecayTimer -= update_diff;
                 if (m_groupLootId)
                 {
@@ -612,10 +612,6 @@ void Creature::Update(uint32 update_diff, uint32 diff)
 
             RegenerateAll(update_diff);
             break;
-        }
-        case CORPSE_FALLING:
-        {
-            SetDeathState(CORPSE);
         }
         default:
             break;
@@ -1356,11 +1352,11 @@ bool Creature::LoadFromDB(uint32 guidlow, Map *map)
         {
             m_deathState = DEAD;
 
-            // Just set to Dead, so need to relocate like abouve
-            if(CanFly())
+            // Just set to dead, so need to relocate like above
+            if (CanFly())
             {
                 float tz = GetTerrain()->GetHeight(data->posX, data->posY, data->posZ, false);
-                if(data->posZ - tz > 0.1)
+                if (data->posZ - tz > 0.1)
                     Relocate(data->posX, data->posY, tz);
             }
         }
@@ -1376,7 +1372,7 @@ bool Creature::LoadFromDB(uint32 guidlow, Map *map)
 
     AIM_Initialize();
 
-    // Creature Linking, Initial load id handled like respawn
+    // Creature Linking, Initial load is handled like respawn
     if (m_isCreatureLinkingTrigger && isAlive())
         GetMap()->GetCreatureLinkingHolder()->DoCreatureLinkingEvent(LINKING_EVENT_RESPAWN, this);
 
@@ -1536,11 +1532,8 @@ void Creature::SetDeathState(DeathState s)
         if (Pet* pet = GetPet())
             pet->Unsummon(PET_SAVE_AS_DELETED, this);
 
-        // return, since we promote to CORPSE_FALLING. CORPSE_FALLING is promoted to CORPSE at next update.
-        if (CanFly() && FallGround())
-            return;
-        else
-            SetLevitate(false);
+        if (CanFly())
+            i_motionMaster.MoveFall();
 
         Unit::SetDeathState(CORPSE);
     }
@@ -1577,41 +1570,6 @@ void Creature::SetDeathState(DeathState s)
     }
 }
 
-bool Creature::FallGround()
-{
-    // Only if state is JUST_DIED. CORPSE_FALLING is set below and promoted to CORPSE later
-    if (getDeathState() != JUST_DIED)
-        return false;
-
-    // use larger distance for vmap height search than in most other cases
-    float tz = GetTerrain()->GetHeight(GetPositionX(), GetPositionY(), GetPositionZ(), true, MAX_FALL_DISTANCE);
-
-    if (tz <= INVALID_HEIGHT)
-    {
-        DEBUG_LOG("FallGround: creature %u at map %u (x: %f, y: %f, z: %f), not able to retrive a proper GetHeight (z: %f).",
-            GetEntry(), GetMap()->GetId(), GetPositionX(), GetPositionX(), GetPositionZ(), tz);
-        return false;
-    }
-
-    // Abort too if the ground is very near
-    if (fabs(GetPositionZ() - tz) < 0.1f)
-        return false;
-
-    Unit::SetDeathState(CORPSE_FALLING);
-
-    // For creatures that are moving towards target and dies, the visual effect is not nice.
-    // It is possibly caused by a xyz mismatch in DestinationHolder's GetLocationNow and the location
-    // of the mob in client. For mob that are already reached target or dies while not moving
-    // the visual appear to be fairly close to the expected.
-
-    Movement::MoveSplineInit init(*this);
-    init.MoveTo(GetPositionX(),GetPositionY(),tz);
-    init.SetFall();
-    init.Launch();
-
-    return true;
-}
-
 void Creature::Respawn()
 {
     RemoveCorpse();
@@ -1646,7 +1604,8 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn)
         SetDeathState(JUST_DIED);
 
     RemoveCorpse();
-    SetHealth(0);                                           // just for nice GM-mode view
+    if (IsInWorld())
+        SetHealth(0);                                           // just for nice GM-mode view
 
     if (IsTemporarySummon())
          ((TemporarySummon*)this)->UnSummon();
@@ -2037,22 +1996,15 @@ bool Creature::LoadCreatureAddon(bool reload)
     {
         for (uint32 const* cAura = cainfo->auras; *cAura; ++cAura)
         {
-            SpellEntry const *AdditionalSpellInfo = sSpellStore.LookupEntry(*cAura);
-            if (!AdditionalSpellInfo)
-            {
-                sLog.outErrorDb("Creature (GUIDLow: %u Entry: %u ) has wrong spell %u defined in `auras` field.",GetGUIDLow(),GetEntry(), *cAura);
-                continue;
-            }
-
             if (HasAura(*cAura))
             {
                 if (!reload)
-                    sLog.outErrorDb("Creature (GUIDLow: %u Entry: %u) has duplicate spell %u in `auras` field.", GetGUIDLow(), GetEntry(), *cAura);
+                    sLog.outErrorDb("Creature (GUIDLow: %u Entry: %u) has spell %u in `auras` field, but aura is already applied.", GetGUIDLow(), GetEntry(), *cAura);
 
                 continue;
             }
 
-            CastSpell(this, AdditionalSpellInfo, true);
+            CastSpell(this, *cAura, true);
         }
     }
     return true;
@@ -2492,26 +2444,6 @@ void Creature::ClearTemporaryFaction()
 
     m_temporaryFactionFlags = TEMPFACTION_NONE;
     setFaction(GetCreatureInfo()->faction_A);
-}
-
-void Creature::SetActiveObjectState( bool on )
-{
-    if (m_isActiveObject==on)
-        return;
-
-    bool world = IsInWorld();
-
-    Map* map;
-    if (world)
-    {
-        map = GetMap();
-        map->Remove(this,false);
-    }
-
-    m_isActiveObject = on;
-
-    if (world)
-        map->Add(this);
 }
 
 void Creature::SendAreaSpiritHealerQueryOpcode(Player *pl)

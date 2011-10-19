@@ -160,6 +160,8 @@ class MANGOS_DLL_DECL MapManager : public MaNGOS::Singleton<MapManager, MaNGOS::
         template<typename Do>
         void DoForAllMapsWithMapId(uint32 mapId, Do& _do);
 
+        MapUpdater* GetMapUpdater() { return &m_updater; };
+
     private:
 
         // debugging code, should be deleted some day

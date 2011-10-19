@@ -36,11 +36,12 @@
 #define CREATURE_LINKING_MGR_H
 
 #include "Common.h"
-#include "ObjectGuid.h"
 #include "Policies/Singleton.h"
+#include "ObjectGuid.h"
+#include <functional>
 
-class Creature;
 class Unit;
+class Creature;
 
 // enum on which Events an action for linked NPCs can trigger
 enum CreatureLinkingEvent
@@ -67,10 +68,10 @@ enum CreatureLinkingFlags
     FLAG_RESPAWN_ON_RESPAWN         = 0x0080,
     FLAG_DESPAWN_ON_RESPAWN         = 0x0100,
 
-    // Dynamic behaviour, out of combat                     // TODO, Not yet finished
+    // Dynamic behaviour, out of combat
     FLAG_FOLLOW                     = 0x0200,
 
-    // Passive behaviour                                    // TODO, NYI
+    // Passive behaviour
     FLAG_CANT_SPAWN_IF_BOSS_DEAD    = 0x0400,
     FLAG_CANT_SPAWN_IF_BOSS_ALIVE   = 0x0800,
 
@@ -113,17 +114,17 @@ class CreatureLinkingMgr
         CreatureLinkingInfo const* GetLinkedTriggerInformation(Creature* pCreature);
 
     private:
-        typedef std::multimap<uint32, CreatureLinkingInfo> CreatureLinkingMap;
+        typedef std::multimap<uint32 /*slaveEntry*/, CreatureLinkingInfo> CreatureLinkingMap;
         typedef std::pair<CreatureLinkingMap::const_iterator, CreatureLinkingMap::const_iterator> CreatureLinkingMapBounds;
 
         // Storage of Data: npc_entry_slave, (map, npc_entry_master, flag, master_db_guid[If Unique])
         CreatureLinkingMap m_creatureLinkingMap;
 
         // Lookup Storage for fast access:
-        std::set<uint32> m_eventTriggers;                   // master
+        UNORDERED_SET<uint32> m_eventTriggers;              // master
 
         // Check-routine
-        bool IsLinkingEntryValid(uint32 entry, CreatureLinkingInfo* pInfo);
+        bool IsLinkingEntryValid(uint32 slaveEntry, CreatureLinkingInfo* pInfo);
 };
 
 /**
@@ -150,6 +151,9 @@ class CreatureLinkingHolder
         // Function to check if a passive spawning condition is met
         bool CanSpawn(Creature* pCreature);
 
+        // This function lets a slave refollow his master
+        bool TryFollowMaster(Creature* pCreature);
+
     private:
         typedef std::list<ObjectGuid> GuidList;
         // Structure associated to a master
@@ -159,10 +163,14 @@ class CreatureLinkingHolder
             GuidList linkedGuids;
         };
 
-        typedef std::multimap<uint32, FlagAndGuids> HolderMap;
+        typedef std::multimap<uint32 /*masterEntry*/, FlagAndGuids> HolderMap;
         typedef std::pair<HolderMap::iterator, HolderMap::iterator> HolderMapBounds;
-        typedef std::map<uint32, ObjectGuid> BossGuidMap;
+        typedef UNORDERED_MAP<uint32 /*Entry*/, ObjectGuid> BossGuidMap;
 
+        // Helper function, to process a slave list
+        void ProcessSlaveGuidList(CreatureLinkingEvent eventType, Creature* pSource, uint32 flag, GuidList& slaveGuidList, Unit* pEnemy);
+        // Helper function, to process a single slave
+        void ProcessSlave(CreatureLinkingEvent eventType, Creature* pSource, uint32 flag, Creature* pSlave, Unit* pEnemy);
         // Helper function to set following
         void SetFollowing(Creature* pWho, Creature* pWhom);
 

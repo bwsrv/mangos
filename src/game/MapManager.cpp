@@ -238,13 +238,21 @@ MapManager::Update(uint32 diff)
     for (MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
     {
         if (m_updater.activated())
+        {
             m_updater.schedule_update(*iter->second, (uint32)i_timer.GetCurrent());
+        }
         else
             iter->second->Update((uint32)i_timer.GetCurrent());
     }
 
     if (m_updater.activated())
         m_updater.wait();
+
+    if (m_updater.IsBroken())
+    {
+        m_updater.ReActivate(sWorld.getConfig(CONFIG_UINT32_NUMTHREADS));
+        DEBUG_LOG("Map:Update map virtual server pool reactivated, thread num is %u", sWorld.getConfig(CONFIG_UINT32_NUMTHREADS));
+    }
 
     for (TransportSet::iterator iter = m_Transports.begin(); iter != m_Transports.end(); ++iter)
     {

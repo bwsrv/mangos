@@ -48,9 +48,6 @@ void BattleGroundDS::Update(uint32 diff)
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
         // push people from the tubes
-        //if (pushbackCheck)
-
-        // knockback
         if (m_uiKnockback < diff)
         {
             for (BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
@@ -58,9 +55,6 @@ void BattleGroundDS::Update(uint32 diff)
                 Player *plr = sObjectMgr.GetPlayer(itr->first);
                 if (!plr)
                     continue;
-
-                if (GameObject* obj = plr->GetGameObject(48018))                         // Remove Demonic Circle
-                    obj->Delete();
 
                 if (plr->GetPositionZ() < 11.0f)
                     continue;

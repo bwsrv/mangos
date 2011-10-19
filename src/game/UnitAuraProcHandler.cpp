@@ -294,7 +294,7 @@ pAuraProcHandler AuraProcHandler[TOTAL_AURAS]=
     &Unit::HandleNULLProc,                                  //259 corrupt healing over time spell
     &Unit::HandleNULLProc,                                  //260 SPELL_AURA_SCREEN_EFFECT (miscvalue = id in ScreenEffect.dbc) not required any code
     &Unit::HandleNULLProc,                                  //261 SPELL_AURA_PHASE undetectable invisibility?
-    &Unit::HandleNULLProc,                                  //262 SPELL_AURA_IGNORE_UNIT_STATE
+    &Unit::HandleIgnoreUnitStateAuraProc,                   //262 SPELL_AURA_IGNORE_UNIT_STATE
     &Unit::HandleNULLProc,                                  //263 SPELL_AURA_ALLOW_ONLY_ABILITY player can use only abilities set in SpellClassMask
     &Unit::HandleNULLProc,                                  //264 unused (3.0.8a-3.2.2a)
     &Unit::HandleNULLProc,                                  //265 unused (3.0.8a-3.2.2a)
@@ -3335,11 +3335,11 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
             // Blood-Caked Blade
             if (dummySpell->SpellIconID == 138)
             {
-                // only main hand melee auto attack affected and Rune Strike
-                if ((procFlag & PROC_FLAG_SUCCESSFUL_OFFHAND_HIT) || procSpell && procSpell->Id != 56815)
+                // only melee auto attack affected and Rune Strike & Offhand Rune Strike
+                if ( procSpell && !procSpell->SpellFamilyFlags.test<CF_DEATHKNIGHT_RUNE_STRIKE>())
                     return SPELL_AURA_PROC_FAILED;
-
-                // triggered_spell_id in spell data
+                if (procFlag & PROC_FLAG_SUCCESSFUL_OFFHAND_HIT)
+                    triggered_spell_id=61895; // Offhand Blood-Caked Strike
                 break;
             }
             break;
@@ -3505,6 +3505,11 @@ SpellAuraProcResult Unit::HandleProcTriggerSpellAuraProc(Unit *pVictim, uint32 d
                 //case 44819: break;                        // Hate Monster (Spar Buddy) (>30% Health)
                 //case 44820: break;                        // Hate Monster (Spar) (<30%)
                 case 45057:                                 // Evasive Maneuvers (Commendation of Kael`thas trinket)
+                case 52420:                                 // Deflection        ( Soul Harvester's Charm )
+                case 71634:                                 // Item - Icecrown 25 Normal Tank Trinket 1
+                case 71640:                                 // Item - Icecrown 25 Heroic Tank Trinket 1
+                case 75475:                                 // Item - Chamber of Aspects 25 Tank Trinket
+                case 75481:                                 // Item - Chamber of Aspects 25 Heroic Tank Trinket
                     // reduce you below $s1% health (in fact in this specific case can proc from any attack while health in result less $s1%)
                     if (int32(GetHealth()) - int32(damage) >= int32(GetMaxHealth() * triggerAmount / 100))
                         return SPELL_AURA_PROC_FAILED;
@@ -4782,6 +4787,15 @@ SpellAuraProcResult Unit::HandleAddPctModifierAuraProc(Unit* /*pVictim*/, uint32
             }
             break;
         }
+        case SPELLFAMILY_WARRIOR:
+        {
+            if (spellInfo->Id == 46916)           // Slam!
+            {
+                if (!(procSpell && procSpell->Id==50782))
+                    return SPELL_AURA_PROC_CANT_TRIGGER;
+            }
+            break;
+        }
     }
     return SPELL_AURA_PROC_OK;
 }
@@ -5157,4 +5171,14 @@ SpellAuraProcResult Unit::HandleRemoveByDamageChanceProc(Unit* pVictim, uint32 d
     }
 
     return SPELL_AURA_PROC_FAILED;
+}
+SpellAuraProcResult Unit::HandleIgnoreUnitStateAuraProc(Unit* /*pVictim*/, uint32 /*damage*/, Aura* triggeredByAura, SpellEntry const * procSpell, uint32 /*procFlag*/, uint32 /*procEx*/, uint32 /*cooldown*/)
+{
+    SpellEntry const *spellInfo = triggeredByAura->GetSpellProto();
+    if (spellInfo->Id == 52437 && procSpell && procSpell->Id==20647)   // Sudden Death must proc only from dummy part of Execute
+    {
+        //Remove only single aura from stack
+        return SPELL_AURA_PROC_CANT_TRIGGER;
+    }
+    return SPELL_AURA_PROC_OK;
 }

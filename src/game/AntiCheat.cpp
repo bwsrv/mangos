@@ -370,6 +370,14 @@ bool AntiCheat::CheckNeeded(AntiCheatCheck checktype)
     if (GetMover()->HasAuraType(SPELL_AURA_MOD_CONFUSE))
         return false;
 
+    if (!m_currentConfig->disabledZones.empty())
+    {
+        uint32 zone, area;
+        GetPlayer()->GetZoneAndAreaId(zone,area);
+        if (m_currentConfig->disabledZones.find(zone) != m_currentConfig->disabledZones.end())
+            return false;
+    }
+
     AntiCheatCheck checkMainType =  (checktype >= 100) ? AntiCheatCheck(checktype / 100) : checktype;
 
     switch( checkMainType)
@@ -380,6 +388,7 @@ bool AntiCheat::CheckNeeded(AntiCheatCheck checktype)
         case CHECK_MOVEMENT:
             if (   GetPlayer()->GetTransport()
                 || GetPlayer()->HasMovementFlag(MOVEFLAG_ONTRANSPORT)
+                || GetPlayer()->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED)
                 || GetMover()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE
                 || GetPlayer()->IsTaxiFlying())
                 return false;

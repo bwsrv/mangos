@@ -1366,6 +1366,12 @@ void Pet::_LoadAuras(uint32 timediff)
                 continue;
             }
 
+            if (casterGuid.IsEmpty() || !casterGuid.IsUnit())
+            {
+                sLog.outError("Pet::LoadAuras Unknown caster %u, ignore.",fields[0].GetUInt64());
+                continue;
+            }
+
             // do not load single target auras (unless they were cast by the player)
             if (casterGuid != GetObjectGuid() && IsSingleTargetSpell(spellproto))
                 continue;

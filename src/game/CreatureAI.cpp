@@ -142,15 +142,5 @@ bool CreatureAI::AttackByType(WeaponAttackType attType)
 
 bool CreatureAI::DoMeleeAttackIfReady()
 {
-    // Check target
-    if (!m_creature->getVictim())
-        return false;
-
-    if (AttackByType(BASE_ATTACK))
-        return true;
-
-    if (m_creature->haveOffhandWeapon())
-        return AttackByType(OFF_ATTACK);
-
-    return false;
+    return m_creature->UpdateMeleeAttackingState();
 }

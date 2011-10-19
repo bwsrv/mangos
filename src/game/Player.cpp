@@ -392,7 +392,7 @@ Player::Player (WorldSession *session): Unit(), m_mover(this), m_camera(this), m
 
     m_valuesCount = PLAYER_END;
 
-    m_isActiveObject = true;                                // player is always active object
+    SetActiveObjectState(true);                                // player is always active object
 
     m_session = session;
 
@@ -1273,71 +1273,11 @@ void Player::Update( uint32 update_diff, uint32 p_time )
 
     if (hasUnitState(UNIT_STAT_MELEE_ATTACKING))
     {
-        Unit *pVictim = (getVictim() && getVictim()->IsInWorld()) ? getVictim() : NULL;
+        UpdateMeleeAttackingState();
+
+        Unit *pVictim = getVictim();
         if (pVictim && !IsNonMeleeSpellCasted(false))
         {
-            // default combat reach 10
-            // TODO add weapon,skill check
-
-            if (isAttackReady(BASE_ATTACK))
-            {
-                if (!CanReachWithMeleeAttack(pVictim, 0.0f))
-                {
-                    setAttackTimer(BASE_ATTACK,100);
-                    if (m_swingErrorMsg != 1)               // send single time (client auto repeat)
-                    {
-                        SendAttackSwingNotInRange();
-                        m_swingErrorMsg = 1;
-                    }
-                }
-                //120 degrees of radiant range
-                else if (!HasInArc(2*M_PI_F/3, pVictim))
-                {
-                    setAttackTimer(BASE_ATTACK,100);
-                    if (m_swingErrorMsg != 2)               // send single time (client auto repeat)
-                    {
-                        SendAttackSwingBadFacingAttack();
-                        m_swingErrorMsg = 2;
-                    }
-                }
-                else
-                {
-                    m_swingErrorMsg = 0;                    // reset swing error state
-
-                    // prevent base and off attack in same time, delay attack at 0.2 sec
-                    if (haveOffhandWeapon())
-                    {
-                        uint32 off_att = getAttackTimer(OFF_ATTACK);
-                        if (off_att < ATTACK_DISPLAY_DELAY)
-                            setAttackTimer(OFF_ATTACK,ATTACK_DISPLAY_DELAY);
-                    }
-                    AttackerStateUpdate(pVictim, BASE_ATTACK);
-                    resetAttackTimer(BASE_ATTACK);
-                }
-            }
-
-            if (haveOffhandWeapon() && isAttackReady(OFF_ATTACK))
-            {
-                if (!CanReachWithMeleeAttack(pVictim, 0.0f))
-                {
-                    setAttackTimer(OFF_ATTACK,100);
-                }
-                else if (!HasInArc(2*M_PI_F/3, pVictim))
-                {
-                    setAttackTimer(OFF_ATTACK,100);
-                }
-                else
-                {
-                    // prevent base and off attack in same time, delay attack at 0.2 sec
-                    uint32 base_att = getAttackTimer(BASE_ATTACK);
-                    if (base_att < ATTACK_DISPLAY_DELAY)
-                        setAttackTimer(BASE_ATTACK,ATTACK_DISPLAY_DELAY);
-                    // do attack
-                    AttackerStateUpdate(pVictim, OFF_ATTACK);
-                    resetAttackTimer(OFF_ATTACK);
-                }
-            }
-
             Player *vOwner = pVictim->GetCharmerOrOwnerPlayerOrPlayerItself();
             if (vOwner && vOwner->IsPvP() && !IsInDuelWith(vOwner))
             {
@@ -1725,41 +1665,37 @@ bool Player::BuildEnumData( QueryResult * result, WorldPacket * p_data )
     return true;
 }
 
-bool Player::ToggleAFK()
+void Player::ToggleAFK()
 {
     ToggleFlag(PLAYER_FLAGS, PLAYER_FLAGS_AFK);
 
-    bool state = HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_AFK);
-
     // afk player not allowed in battleground
-    if (state && InBattleGround() && !InArena())
+    if (isAFK() && InBattleGround() && !InArena())
         LeaveBattleground();
-
-    return state;
 }
 
-bool Player::ToggleDND()
+void Player::ToggleDND()
 {
     ToggleFlag(PLAYER_FLAGS, PLAYER_FLAGS_DND);
-
-    return HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_DND);
 }
 
 uint8 Player::chatTag() const
 {
     // it's bitmask
-    // 0x8 - ??
-    // 0x4 - gm
-    // 0x2 - dnd
     // 0x1 - afk
-    if (isGMChat())
+    // 0x2 - dnd
+    // 0x4 - gm
+    // 0x8 - ??
+
+    if (isGMChat())                                         // Always show GM icons if activated
         return 4;
-    else if (isDND())
-        return 3;
+
     if (isAFK())
         return 1;
-    else
-        return 0;
+    if (isDND())
+        return 3;
+
+    return 0;
 }
 
 bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options)
@@ -11639,7 +11575,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
     Item *pItem = Item::CreateItem(item, count, this, randomPropertyId);
     if (pItem)
     {
-        ResetEquipGearScore();
+        ResetCachedGearScore();
         ItemAddedQuestCheck( item, count );
         GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM, item, count);
         pItem = StoreItem( dest, pItem, update );
@@ -11802,7 +11738,7 @@ Item* Player::EquipNewItem( uint16 pos, uint32 item, bool update )
 {
     if (Item *pItem = Item::CreateItem(item, 1, this))
     {
-        ResetEquipGearScore();
+        ResetCachedGearScore();
         ItemAddedQuestCheck( item, 1 );
         GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM, item, 1);
         return EquipItem( pos, pItem, update );
@@ -14173,13 +14109,21 @@ bool Player::IsActiveQuest( uint32 quest_id ) const
     return itr != mQuestStatus.end() && itr->second.m_status != QUEST_STATUS_NONE;
 }
 
-bool Player::IsCurrentQuest( uint32 quest_id ) const
+bool Player::IsCurrentQuest(uint32 quest_id, uint8 completed_or_not) const
 {
     QuestStatusMap::const_iterator itr = mQuestStatus.find(quest_id);
     if (itr == mQuestStatus.end())
         return false;
 
-    return itr->second.m_status == QUEST_STATUS_INCOMPLETE || (itr->second.m_status == QUEST_STATUS_COMPLETE && !itr->second.m_rewarded);
+    switch (completed_or_not)
+    {
+        case 1:
+            return itr->second.m_status == QUEST_STATUS_INCOMPLETE;
+        case 2:
+            return itr->second.m_status == QUEST_STATUS_COMPLETE && !itr->second.m_rewarded;
+        default:
+            return itr->second.m_status == QUEST_STATUS_INCOMPLETE || (itr->second.m_status == QUEST_STATUS_COMPLETE && !itr->second.m_rewarded);
+    }
 }
 
 Quest const* Player::GetNextQuest(ObjectGuid guid, Quest const *pQuest)
@@ -16776,6 +16720,12 @@ void Player::_LoadAuras(QueryResult *result, uint32 timediff)
                 continue;
             }
 
+            if (caster_guid.IsEmpty() || !caster_guid.IsUnit())
+            {
+                sLog.outError("Player::LoadAuras Unknown caster %u, ignore.",fields[0].GetUInt64());
+                continue;
+            }
+
             if (remaintime != -1 && !IsPositiveSpell(spellproto))
             {
                 if (remaintime/IN_MILLISECONDS <= int32(timediff))
@@ -19253,40 +19203,29 @@ void Player::Whisper(const std::string& text, uint32 language, ObjectGuid receiv
 
     Player *rPlayer = sObjectMgr.GetPlayer(receiver);
 
-    // when player you are whispering to is dnd, he cannot receive your message, unless you are in gm mode
-    if(!rPlayer->isDND() || isGameMaster())
-    {
-        WorldPacket data(SMSG_MESSAGECHAT, 200);
-        BuildPlayerChat(&data, CHAT_MSG_WHISPER, text, language);
-        rPlayer->GetSession()->SendPacket(&data);
+    WorldPacket data(SMSG_MESSAGECHAT, 200);
+    BuildPlayerChat(&data, CHAT_MSG_WHISPER, text, language);
+    rPlayer->GetSession()->SendPacket(&data);
 
-        // not send confirmation for addon messages
-        if (language != LANG_ADDON)
-        {
-            data.Initialize(SMSG_MESSAGECHAT, 200);
-            rPlayer->BuildPlayerChat(&data, CHAT_MSG_WHISPER_INFORM, text, language);
-            GetSession()->SendPacket(&data);
-        }
-    }
-    else
+    // not send confirmation for addon messages
+    if (language != LANG_ADDON)
     {
-        // announce to player that player he is whispering to is dnd and cannot receive his message
-        ChatHandler(this).PSendSysMessage(LANG_PLAYER_DND, rPlayer->GetName(), rPlayer->dndMsg.c_str());
+        data.Initialize(SMSG_MESSAGECHAT, 200);
+        rPlayer->BuildPlayerChat(&data, CHAT_MSG_WHISPER_INFORM, text, language);
+        GetSession()->SendPacket(&data);
     }
 
-    if(!isAcceptWhispers())
+    if (!isAcceptWhispers())
     {
         SetAcceptWhispers(true);
         ChatHandler(this).SendSysMessage(LANG_COMMAND_WHISPERON);
     }
 
-    // announce to player that player he is whispering to is afk
+    // announce afk or dnd message
     if (rPlayer->isAFK())
-        ChatHandler(this).PSendSysMessage(LANG_PLAYER_AFK, rPlayer->GetName(), rPlayer->afkMsg.c_str());
-
-    // if player whisper someone, auto turn of dnd to be able to receive an answer
-    if (isDND() && !rPlayer->isGameMaster())
-        ToggleDND();
+        ChatHandler(this).PSendSysMessage(LANG_PLAYER_AFK, rPlayer->GetName(), rPlayer->autoReplyMsg.c_str());
+    else if (rPlayer->isDND())
+        ChatHandler(this).PSendSysMessage(LANG_PLAYER_DND, rPlayer->GetName(), rPlayer->autoReplyMsg.c_str());
 }
 
 void Player::PetSpellInitialize()
@@ -24362,31 +24301,38 @@ uint32 Player::GetEquipGearScore(bool withBags, bool withBank)
     if (withBags && withBank && m_cachedGS > 0)
         return m_cachedGS;
 
-    GearScoreMap gearScore (MAX_INVTYPE);
+    GearScoreVec gearScore (EQUIPMENT_SLOT_END);
+    uint32 twoHandScore = 0;
 
-    for (uint8 i = INVTYPE_NON_EQUIP; i < MAX_INVTYPE; ++i)
+    for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
+    {
         gearScore[i] = 0;
+    }
 
     for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
     {
         if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-            _fillGearScoreData(item, &gearScore);
+            _fillGearScoreData(item, &gearScore, twoHandScore);
     }
 
     if (withBags)
     {
-        for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
+        // check inventory
+        for(int i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; ++i)
         {
             if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+                _fillGearScoreData(item, &gearScore, twoHandScore);
+        }
+
+        // check bags
+        for(int i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
+        {
+            if(Bag* pBag = (Bag*)GetItemByPos(INVENTORY_SLOT_BAG_0, i))
             {
-                if (item->IsBag())
+                for(uint32 j = 0; j < pBag->GetBagSize(); ++j)
                 {
-                    Bag* bag = (Bag*)item;
-                    for (uint8 j = 0; j < bag->GetBagSize(); ++j)
-                    {
-                        if (Item* item2 = bag->GetItemByPos(j))
-                            _fillGearScoreData(item2, &gearScore);
-                    }
+                    if (Item* item2 = pBag->GetItemByPos(j))
+                        _fillGearScoreData(item2, &gearScore, twoHandScore);
                 }
             }
         }
@@ -24394,10 +24340,10 @@ uint32 Player::GetEquipGearScore(bool withBags, bool withBank)
 
     if (withBank)
     {
-        for (uint8 i = BANK_SLOT_ITEM_START; i < BANK_SLOT_ITEM_START; ++i)
+        for (uint8 i = BANK_SLOT_ITEM_START; i < BANK_SLOT_ITEM_END; ++i)
         {
             if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-                _fillGearScoreData(item, &gearScore);
+                _fillGearScoreData(item, &gearScore, twoHandScore);
         }
 
         for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
@@ -24410,39 +24356,44 @@ uint32 Player::GetEquipGearScore(bool withBags, bool withBank)
                     for (uint8 j = 0; j < bag->GetBagSize(); ++j)
                     {
                         if (Item* item2 = bag->GetItemByPos(j))
-                            _fillGearScoreData(item2, &gearScore);
+                            _fillGearScoreData(item2, &gearScore, twoHandScore);
                     }
                 }
             }
         }
     }
 
-    uint8 count = 0;
-    uint32 summ = 0;
+    uint8 count = EQUIPMENT_SLOT_END - 2;   // ignore body and tabard slots
+    uint32 sum = 0;
 
-    for (uint8 i = INVTYPE_NON_EQUIP; i < MAX_INVTYPE; ++i)
+    // check if 2h hand is higher level than main hand + off hand
+    if ((gearScore[EQUIPMENT_SLOT_MAINHAND] + gearScore[EQUIPMENT_SLOT_OFFHAND]) / 2 < twoHandScore)
     {
-        if (gearScore[i] == 0)
-            continue;
-        ++count;
-        summ += gearScore[i];
+        gearScore[EQUIPMENT_SLOT_OFFHAND] = 0;  // off hand is ignored in calculations if 2h weapon has higher score
+        --count;
+        gearScore[EQUIPMENT_SLOT_MAINHAND] = twoHandScore;
+    }
+
+    for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
+    {
+       sum += gearScore[i];
     }
 
     if (count)
     {
-        DEBUG_LOG("Player: calculating gear score for %u. Result is %u",GetObjectGuid().GetCounter(), uint32( summ / count ));
+        uint32 res = uint32(sum / count);
+        DEBUG_LOG("Player: calculating gear score for %u. Result is %u", GetObjectGuid().GetCounter(), res);
+
         if (withBags && withBank)
-        {
-            m_cachedGS = uint32( summ / count );
-            return m_cachedGS;
-        }
-        else
-            return uint32( summ / count );
+            m_cachedGS = res;
+
+        return res;
     }
-    else return 0;
+    else 
+        return 0;
 }
 
-void Player::_fillGearScoreData(Item* item, GearScoreMap* gearScore)
+void Player::_fillGearScoreData(Item* item, GearScoreVec* gearScore, uint32& twoHandScore)
 {
     if (!item)
         return;
@@ -24456,49 +24407,83 @@ void Player::_fillGearScoreData(Item* item, GearScoreMap* gearScore)
     switch (type)
     {
         case INVTYPE_2HWEAPON:
-            (*gearScore)[INVTYPE_WEAPON] = std::max((*gearScore)[INVTYPE_WEAPON], level);
-            (*gearScore)[INVTYPE_SHIELD] = std::max((*gearScore)[INVTYPE_SHIELD], level);
+            twoHandScore = std::max(twoHandScore, level);
             break;
         case INVTYPE_WEAPON:
         case INVTYPE_WEAPONMAINHAND:
-            (*gearScore)[INVTYPE_WEAPON] = std::max((*gearScore)[INVTYPE_WEAPON], level);
+            (*gearScore)[SLOT_MAIN_HAND] = std::max((*gearScore)[SLOT_MAIN_HAND], level);
             break;
         case INVTYPE_SHIELD:
         case INVTYPE_WEAPONOFFHAND:
-            (*gearScore)[INVTYPE_SHIELD] = std::max((*gearScore)[INVTYPE_SHIELD], level);
+            (*gearScore)[EQUIPMENT_SLOT_OFFHAND] = std::max((*gearScore)[EQUIPMENT_SLOT_OFFHAND], level);
             break;
         case INVTYPE_THROWN:
         case INVTYPE_RANGEDRIGHT:
+        case INVTYPE_RANGED:
         case INVTYPE_QUIVER:
         case INVTYPE_RELIC:
-            (*gearScore)[INVTYPE_THROWN] = std::max((*gearScore)[INVTYPE_THROWN], level);
+            (*gearScore)[EQUIPMENT_SLOT_RANGED] = std::max((*gearScore)[EQUIPMENT_SLOT_RANGED], level);
             break;
         case INVTYPE_HEAD:
-        case INVTYPE_NECK:
-        case INVTYPE_SHOULDERS:
-        case INVTYPE_BODY:
-        case INVTYPE_CHEST:
-        case INVTYPE_WAIST:
-        case INVTYPE_LEGS:
-        case INVTYPE_FEET:
-        case INVTYPE_WRISTS:
-        case INVTYPE_HANDS:
-        case INVTYPE_FINGER:
-        case INVTYPE_TRINKET:
-        case INVTYPE_RANGED:
-        case INVTYPE_CLOAK:
-            (*gearScore)[type] = std::max((*gearScore)[type], level);
+            (*gearScore)[EQUIPMENT_SLOT_HEAD] = std::max((*gearScore)[EQUIPMENT_SLOT_HEAD], level);
             break;
-        case INVTYPE_NON_EQUIP:
-        case INVTYPE_BAG:
-        case INVTYPE_HOLDABLE:
-        case INVTYPE_AMMO:
-        case INVTYPE_TABARD:
-        case INVTYPE_ROBE:
+        case INVTYPE_NECK:
+            (*gearScore)[EQUIPMENT_SLOT_NECK] = std::max((*gearScore)[EQUIPMENT_SLOT_NECK], level);
+            break;
+        case INVTYPE_SHOULDERS:
+            (*gearScore)[EQUIPMENT_SLOT_SHOULDERS] = std::max((*gearScore)[EQUIPMENT_SLOT_SHOULDERS], level);
+            break;
+        case INVTYPE_BODY:
+            (*gearScore)[EQUIPMENT_SLOT_BODY] = std::max((*gearScore)[EQUIPMENT_SLOT_BODY], level);
+            break;
+        case INVTYPE_CHEST:
+            (*gearScore)[EQUIPMENT_SLOT_CHEST] = std::max((*gearScore)[EQUIPMENT_SLOT_CHEST], level);
+            break;
+        case INVTYPE_WAIST:
+            (*gearScore)[EQUIPMENT_SLOT_WAIST] = std::max((*gearScore)[EQUIPMENT_SLOT_WAIST], level);
+            break;
+        case INVTYPE_LEGS:
+            (*gearScore)[EQUIPMENT_SLOT_LEGS] = std::max((*gearScore)[EQUIPMENT_SLOT_LEGS], level);
+            break;
+        case INVTYPE_FEET:
+            (*gearScore)[EQUIPMENT_SLOT_FEET] = std::max((*gearScore)[EQUIPMENT_SLOT_FEET], level);
+            break;
+        case INVTYPE_WRISTS:
+            (*gearScore)[EQUIPMENT_SLOT_WRISTS] = std::max((*gearScore)[EQUIPMENT_SLOT_WRISTS], level);
+            break;
+        case INVTYPE_HANDS:
+            (*gearScore)[EQUIPMENT_SLOT_HEAD] = std::max((*gearScore)[EQUIPMENT_SLOT_HEAD], level);
+            break;
+        // equipped gear score check uses both rings and trinkets for calculation, assume that for bags/banks it is the same
+        // with keeping second highest score at second slot
+        case INVTYPE_FINGER:    
+        {
+            if ((*gearScore)[EQUIPMENT_SLOT_FINGER1] < level)
+            {
+                (*gearScore)[EQUIPMENT_SLOT_FINGER2] = (*gearScore)[EQUIPMENT_SLOT_FINGER1];
+                (*gearScore)[EQUIPMENT_SLOT_FINGER1] = level;
+            }
+            else if ((*gearScore)[EQUIPMENT_SLOT_FINGER2] < level)
+                (*gearScore)[EQUIPMENT_SLOT_FINGER2] = level;
+            break;
+        }
+        case INVTYPE_TRINKET:
+        {
+            if ((*gearScore)[EQUIPMENT_SLOT_TRINKET1] < level)
+            {
+                (*gearScore)[EQUIPMENT_SLOT_TRINKET2] = (*gearScore)[EQUIPMENT_SLOT_TRINKET1];
+                (*gearScore)[EQUIPMENT_SLOT_TRINKET1] = level;
+            }
+            else if ((*gearScore)[EQUIPMENT_SLOT_TRINKET2] < level)
+                (*gearScore)[EQUIPMENT_SLOT_TRINKET2] = level;
+            break;
+        }
+        case INVTYPE_CLOAK:
+            (*gearScore)[EQUIPMENT_SLOT_BACK] = std::max((*gearScore)[EQUIPMENT_SLOT_BACK], level);
+            break;
         default:
             break;
     }
-
 }
 
 uint8 Player::GetTalentsCount(uint8 tab)

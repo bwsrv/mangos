@@ -1961,3 +1961,42 @@ PlayerbotAI.FollowDistanceMin = 0.5
 PlayerbotAI.FollowDistanceMax = 1.0
 PlayerbotAI.MaxNumBots = 9
 PlayerbotAI.RestrictBotLevel = 80
+
+###################################################################################################################
+# Virtual map serving system (VMSS) configuration
+#
+#    VMSS.Enable
+#        Enabling VMSS support (signals handling)
+#        Default: 0 - off
+#                 1 - on
+#
+#    VMSS.MaxThreadBreaks
+#        Maximum single instance map fails before stopping world
+#        Default: 5
+#
+#    VMSS.ThreadBreakRememberTime
+#        Time (in seconds) before cleaning counter of MaxThreadBreaks
+#        Default: 3600 (1 hour)
+#
+#    VMSS.MapFreeMethod
+#        Method for freeing breaked map
+#        0 - safe cleaning (clean auras, save and logout player)
+#        1 - not safe cleaning (kick players, not clean auras, not save players/worldstates)
+#        2 - not safe cleaning (another type - logout players without save)
+#        Default: 0
+#
+#    VMSS.FreezeCheckPeriod
+#        Time period (in milliseconds) for activate FreezeDetect thread
+#        Default: 1000 (1 sec) - default mangos freeze detect period.
+#
+#    VMSS.MapFreezeDetectTime
+#        Time (in milliseconds) for detect freeze in map thread
+#        Default: 1000 (1 sec)
+#
+###################################################################################################################
+VMSS.Enable = 0
+VMSS.MaxThreadBreaks = 5
+VMSS.ThreadBreakRememberTime = 3600
+VMSS.MapFreeMethod = 1
+VMSS.FreezeCheckPeriod = 1000
+VMSS.MapFreezeDetectTime = 1000

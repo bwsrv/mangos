@@ -21,13 +21,12 @@
  * @{
  *
  * @file CreatureLinkingMgr.cpp
- * This file contains the the code needed for MaNGOS to link npcs together
+ * This file contains the code needed for MaNGOS to link npcs together
  * Currently implemented
  * - Aggro on boss aggro, also reversed
  * - Despawning/ Selfkill on death of mob if the NPC it is linked to dies
  * - Respawning on leaving combat if the linked to NPC evades, also reversed
  * - Respawning on death of the linked to NPC
- * TODO
  * - (Re)Spawning dependend on boss Alive/ Dead
  * - Following NPCs
  *
@@ -36,11 +35,11 @@
 #include "CreatureLinkingMgr.h"
 #include "Policies/SingletonImp.h"
 #include "ProgressBar.h"
+#include "Database/DatabaseEnv.h"
+#include "ObjectMgr.h"
 #include "SharedDefines.h"
 #include "Creature.h"
 #include "CreatureAI.h"
-#include "ObjectMgr.h"
-
 
 INSTANTIATE_SINGLETON_1(CreatureLinkingMgr);
 
@@ -109,7 +108,7 @@ void CreatureLinkingMgr::LoadFromDB()
         ++count;
 
         // Add it to the map
-        m_creatureLinkingMap.insert(std::pair<uint32, CreatureLinkingInfo>(entry, tmp));
+        m_creatureLinkingMap.insert(CreatureLinkingMap::value_type(entry, tmp));
 
         // Store master_entry
         m_eventTriggers.insert(tmp.masterId);
@@ -122,13 +121,13 @@ void CreatureLinkingMgr::LoadFromDB()
 }
 
 // This function is used to check if a DB-Entry is valid
-bool CreatureLinkingMgr::IsLinkingEntryValid(uint32 entry, CreatureLinkingInfo* pTmp)
+bool CreatureLinkingMgr::IsLinkingEntryValid(uint32 slaveEntry, CreatureLinkingInfo* pTmp)
 {
     // Basic checks first
-    CreatureInfo const* pInfo = ObjectMgr::GetCreatureTemplate(entry);
+    CreatureInfo const* pInfo = ObjectMgr::GetCreatureTemplate(slaveEntry);
     if (!pInfo)
     {
-        sLog.outErrorDb("`creature_linking_template` has a non existing creature (ID: %u) defined, skipped.", entry);
+        sLog.outErrorDb("`creature_linking_template` has a non existing slave_entry (ID: %u), skipped.", slaveEntry);
         return false;
     }
 
@@ -141,14 +140,14 @@ bool CreatureLinkingMgr::IsLinkingEntryValid(uint32 entry, CreatureLinkingInfo* 
 
     if (pTmp->linkingFlag & ~(LINKING_FLAG_INVALID - 1)  || pTmp->linkingFlag == 0)
     {
-        sLog.outErrorDb("`creature_linking_template` has invalid flag, (entry: %u, map: %u, flags: %u), skipped", entry, pTmp->mapId, pTmp->linkingFlag);
+        sLog.outErrorDb("`creature_linking_template` has invalid flag, (entry: %u, map: %u, flags: %u), skipped", slaveEntry, pTmp->mapId, pTmp->linkingFlag);
         return false;
     }
 
     // Additional checks, depending on flags
-    if (pTmp->linkingFlag & FLAG_DESPAWN_ON_RESPAWN && entry == pTmp->masterId)
+    if (pTmp->linkingFlag & FLAG_DESPAWN_ON_RESPAWN && slaveEntry == pTmp->masterId)
     {
-        sLog.outErrorDb("`creature_linking_template` has pointless FLAG_DESPAWN_ON_RESPAWN for self, (entry: %u, map: %u), skipped", entry, pTmp->mapId);
+        sLog.outErrorDb("`creature_linking_template` has pointless FLAG_DESPAWN_ON_RESPAWN for self, (entry: %u, map: %u), skipped", slaveEntry, pTmp->mapId);
         return false;
     }
 
@@ -160,7 +159,7 @@ bool CreatureLinkingMgr::IsLinkingEntryValid(uint32 entry, CreatureLinkingInfo* 
         if (result)
         {
             if ((*result)[0].GetUInt32() > 1)
-                sLog.outErrorDb("`creature_linking_template` has FLAG_FOLLOW, but non unique master, (entry: %u, map: %u, master: %u)", entry, pTmp->mapId, pTmp->masterId);
+                sLog.outErrorDb("`creature_linking_template` has FLAG_FOLLOW, but non unique master, (entry: %u, map: %u, master: %u)", slaveEntry, pTmp->mapId, pTmp->masterId);
             delete result;
         }
     }
@@ -247,7 +246,7 @@ void CreatureLinkingHolder::AddSlaveToHolder(Creature* pCreature)
         FlagAndGuids tmp;
         tmp.linkedGuids.push_back(pCreature->GetObjectGuid());
         tmp.linkingFlag = pInfo->linkingFlag;
-        m_holderMap.insert(std::pair<uint32, FlagAndGuids>(pInfo->masterId, tmp));
+        m_holderMap.insert(HolderMap::value_type(pInfo->masterId, tmp));
     }
 }
 
@@ -261,7 +260,6 @@ void CreatureLinkingHolder::AddMasterToHolder(Creature* pCreature)
     if (!sCreatureLinkingMgr.IsLinkedMaster(pCreature))
         return;
 
-    // TODO More checks needed?
     m_masterGuid[pCreature->GetEntry()] = pCreature->GetObjectGuid();
 }
 
@@ -279,137 +277,27 @@ void CreatureLinkingHolder::DoCreatureLinkingEvent(CreatureLinkingEvent eventTyp
     if (eventType == LINKING_EVENT_AGGRO && !pEnemy)
         return;
 
+    uint32 eventFlagFilter = 0;
+    uint32 reverseEventFlagFilter = 0;
+
+    switch (eventType)
+    {
+        case LINKING_EVENT_AGGRO: eventFlagFilter = EVENT_MASK_ON_AGGRO;     reverseEventFlagFilter = FLAG_TO_AGGRO_ON_AGGRO;   break;
+        case LINKING_EVENT_EVADE: eventFlagFilter = EVENT_MASK_ON_EVADE;     reverseEventFlagFilter = FLAG_TO_RESPAWN_ON_EVADE; break;
+        case LINKING_EVENT_DIE: eventFlagFilter = EVENT_MASK_ON_DIE;         reverseEventFlagFilter = 0;                        break;
+        case LINKING_EVENT_RESPAWN: eventFlagFilter = EVENT_MASK_ON_RESPAWN; reverseEventFlagFilter = FLAG_FOLLOW;              break;
+    }
+
     // Process Slaves
     HolderMapBounds bounds = m_holderMap.equal_range(pSource->GetEntry());
     // Get all holders for this boss
     for (HolderMap::iterator itr = bounds.first; itr != bounds.second; ++itr)
-    {
-        switch (eventType)
-        {
-            case LINKING_EVENT_AGGRO:
-                if (itr->second.linkingFlag & EVENT_MASK_ON_AGGRO)
-                {
-                    for (GuidList::iterator slave_itr = itr->second.linkedGuids.begin(); slave_itr != itr->second.linkedGuids.end();)
-                    {
-                        Creature* pSlave = pSource->GetMap()->GetCreature(*slave_itr);
-                        if (!pSlave)
-                        {
-                            // Remove old guid first
-                            itr->second.linkedGuids.erase(slave_itr++);
-                            continue;
-                        }
-
-                        if (pSlave->IsControlledByPlayer())
-                        {
-                            ++slave_itr;
-                            continue;
-                        }
-
-                        if (pSlave->isInCombat())
-                            pSlave->SetInCombatWith(pEnemy);
-                        else
-                            pSlave->AI()->AttackStart(pEnemy);
-
-                        ++slave_itr;
-                    }
-                }
-                break;
-            case LINKING_EVENT_EVADE:
-                if (itr->second.linkingFlag & EVENT_MASK_ON_EVADE)
-                {
-                    for (GuidList::iterator slave_itr = itr->second.linkedGuids.begin(); slave_itr != itr->second.linkedGuids.end();)
-                    {
-                        Creature* pSlave = pSource->GetMap()->GetCreature(*slave_itr);
-                        if (!pSlave)
-                        {
-                            // Remove old guid first
-                            itr->second.linkedGuids.erase(slave_itr++);
-                            continue;
-                        }
-
-                        if (!pSlave->isAlive())
-                            pSlave->Respawn();
-
-                        ++slave_itr;
-                    }
-                }
-                break;
-            case LINKING_EVENT_DIE:
-                if (itr->second.linkingFlag & EVENT_MASK_ON_DIE)
-                {
-                    for (GuidList::iterator slave_itr = itr->second.linkedGuids.begin(); slave_itr != itr->second.linkedGuids.end();)
-                    {
-                        Creature* pSlave = pSource->GetMap()->GetCreature(*slave_itr);
-                        if (!pSlave)
-                        {
-                            // Remove old guid first
-                            itr->second.linkedGuids.erase(slave_itr++);
-                            continue;
-                        }
-
-                        // Don't play with pets
-                        if (pSlave->IsPet())
-                        {
-                            ++slave_itr;
-                            continue;
-                        }
-
-                        if (itr->second.linkingFlag & FLAG_SELFKILL_ON_DEATH && pSlave->isAlive())
-                            pSlave->DealDamage(pSlave, pSlave->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                        if (itr->second.linkingFlag & FLAG_DESPAWN_ON_DEATH && pSlave->isAlive())
-                            pSlave->ForcedDespawn();
-                        if (itr->second.linkingFlag & FLAG_RESPAWN_ON_DEATH && !pSlave->isAlive())
-                                pSlave->Respawn();
-
-                        ++slave_itr;
-                    }
-                }
-                break;
-            case LINKING_EVENT_RESPAWN:
-                if (itr->second.linkingFlag & EVENT_MASK_ON_RESPAWN)
-                {
-                    for (GuidList::iterator slave_itr = itr->second.linkedGuids.begin(); slave_itr != itr->second.linkedGuids.end();)
-                    {
-                        Creature* pSlave = pSource->GetMap()->GetCreature(*slave_itr);
-                        if (!pSlave)
-                        {
-                            // Remove old guid first
-                            itr->second.linkedGuids.erase(slave_itr++);
-                            continue;
-                        }
-
-                        // Don't play with pets
-                        if (pSlave->IsPet())
-                        {
-                            ++slave_itr;
-                            continue;
-                        }
-
-                        if (itr->second.linkingFlag & FLAG_RESPAWN_ON_RESPAWN)
-                        {
-                            // Additional check to prevent endless loops (in case whole group respawns on first respawn)
-                            if (!pSlave->isAlive() && pSlave->GetRespawnTime() > time(NULL))
-                                pSlave->Respawn();
-                        }
-                        else if (itr->second.linkingFlag & FLAG_DESPAWN_ON_RESPAWN && pSlave->isAlive())
-                            pSlave->ForcedDespawn();
-
-                        if (itr->second.linkingFlag & FLAG_FOLLOW && pSlave->isAlive() && !pSlave->isInCombat())
-                            SetFollowing(pSlave, pSource);
-
-                        ++slave_itr;
-                    }
-                }
-                break;
-        }
-    }
+        ProcessSlaveGuidList(eventType, pSource, itr->second.linkingFlag & eventFlagFilter, itr->second.linkedGuids, pEnemy);
 
     // Process Master
     if (CreatureLinkingInfo const* pInfo = sCreatureLinkingMgr.GetLinkedTriggerInformation(pSource))
     {
-        if ((eventType == LINKING_EVENT_AGGRO && pInfo->linkingFlag & FLAG_TO_AGGRO_ON_AGGRO)
-         || (eventType == LINKING_EVENT_EVADE && pInfo->linkingFlag & FLAG_TO_RESPAWN_ON_EVADE)
-         || (eventType == LINKING_EVENT_RESPAWN && pInfo->linkingFlag & FLAG_FOLLOW))
+        if (pInfo->linkingFlag & reverseEventFlagFilter)
         {
             BossGuidMap::const_iterator find = m_masterGuid.find(pInfo->masterId);
             if (find != m_masterGuid.end())
@@ -441,6 +329,79 @@ void CreatureLinkingHolder::DoCreatureLinkingEvent(CreatureLinkingEvent eventTyp
     }
 }
 
+// Helper function, to process a slave list
+void CreatureLinkingHolder::ProcessSlaveGuidList(CreatureLinkingEvent eventType, Creature* pSource, uint32 flag, GuidList& slaveGuidList, Unit* pEnemy)
+{
+    if (!flag)
+        return;
+
+    for (GuidList::iterator slave_itr = slaveGuidList.begin(); slave_itr != slaveGuidList.end();)
+    {
+        Creature* pSlave = pSource->GetMap()->GetCreature(*slave_itr);
+        if (!pSlave)
+        {
+            // Remove old guid first
+            slaveGuidList.erase(slave_itr++);
+            continue;
+        }
+
+        ++slave_itr;
+
+        // Ignore Pets
+        if (pSlave->IsPet())
+            continue;
+
+        // Handle single slave
+        ProcessSlave(eventType, pSource, flag, pSlave, pEnemy);
+    }
+}
+
+// Helper function, to process a single slave
+void CreatureLinkingHolder::ProcessSlave(CreatureLinkingEvent eventType, Creature* pSource, uint32 flag, Creature* pSlave, Unit* pEnemy)
+{
+    switch (eventType)
+    {
+        case LINKING_EVENT_AGGRO:
+            if (flag & FLAG_AGGRO_ON_AGGRO)
+            {
+                if (pSlave->IsControlledByPlayer())
+                    return;
+
+                if (pSlave->isInCombat())
+                    pSlave->SetInCombatWith(pEnemy);
+                else
+                    pSlave->AI()->AttackStart(pEnemy);
+            }
+            break;
+        case LINKING_EVENT_EVADE:
+            if (flag & FLAG_RESPAWN_ON_EVADE && !pSlave->isAlive())
+                pSlave->Respawn();
+            break;
+        case LINKING_EVENT_DIE:
+            if (flag & FLAG_SELFKILL_ON_DEATH && pSlave->isAlive())
+                pSlave->DealDamage(pSlave, pSlave->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            if (flag & FLAG_DESPAWN_ON_DEATH && pSlave->isAlive())
+                pSlave->ForcedDespawn();
+            if (flag & FLAG_RESPAWN_ON_DEATH && !pSlave->isAlive())
+                pSlave->Respawn();
+            break;
+        case LINKING_EVENT_RESPAWN:
+            if (flag & FLAG_RESPAWN_ON_RESPAWN)
+            {
+                // Additional check to prevent endless loops (in case whole group respawns on first respawn)
+                if (!pSlave->isAlive() && pSlave->GetRespawnTime() > time(NULL))
+                    pSlave->Respawn();
+            }
+            else if (flag & FLAG_DESPAWN_ON_RESPAWN && pSlave->isAlive())
+                pSlave->ForcedDespawn();
+
+            if (flag & FLAG_FOLLOW && pSlave->isAlive() && !pSlave->isInCombat())
+                SetFollowing(pSlave, pSource);
+
+            break;
+    }
+}
+
 // Helper function to set following
 void CreatureLinkingHolder::SetFollowing(Creature* pWho, Creature* pWhom)
 {
@@ -455,7 +416,7 @@ void CreatureLinkingHolder::SetFollowing(Creature* pWho, Creature* pWhom)
     dz = sZ - mZ;
 
     float dist = sqrt(dx*dx + dy*dy + dz*dz);
-    // TODO this code needs the same distance calculation that is used for following
+    // REMARK: This code needs the same distance calculation that is used for following
     // Atm this means we have to subtract the bounding radiuses
     dist = dist - pWho->GetObjectBoundingRadius() - pWhom->GetObjectBoundingRadius();
     if (dist < 0.0f)
@@ -472,7 +433,6 @@ void CreatureLinkingHolder::SetFollowing(Creature* pWho, Creature* pWhom)
 bool CreatureLinkingHolder::CanSpawn(Creature* pCreature)
 {
     CreatureLinkingInfo const*  pInfo = sCreatureLinkingMgr.GetLinkedTriggerInformation(pCreature);
-
     if (!pInfo || !pInfo->masterDBGuid)
         return true;
 
@@ -482,6 +442,27 @@ bool CreatureLinkingHolder::CanSpawn(Creature* pCreature)
         return pCreature->GetMap()->GetPersistentState()->GetCreatureRespawnTime(pInfo->masterDBGuid) > 0;
 
     return true;
+}
+
+// This function lets a slave refollow his master
+bool CreatureLinkingHolder::TryFollowMaster(Creature* pCreature)
+{
+    CreatureLinkingInfo const*  pInfo = sCreatureLinkingMgr.GetLinkedTriggerInformation(pCreature);
+    if (!pInfo || !(pInfo->linkingFlag & FLAG_FOLLOW))
+        return false;
+
+    BossGuidMap::const_iterator find = m_masterGuid.find(pInfo->masterId);
+    if (find != m_masterGuid.end())
+    {
+        Creature* pMaster = pCreature->GetMap()->GetCreature(find->second);
+        if (pMaster && pMaster->isAlive())
+        {
+            SetFollowing(pCreature, pMaster);
+            return true;
+        }
+    }
+
+    return false;
 }
 
 /*! @} */

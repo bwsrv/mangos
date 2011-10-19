@@ -50,13 +50,14 @@ enum LexicsActions
     LEXICS_ACTION_SHEAR = 8,
 };
 
-class ChatLog : public MaNGOS::Singleton<ChatLog, MaNGOS::ClassLevelLockable<ChatLog, /*ZThread::Mutex*/ACE_Thread_Mutex> >
+class ChatLog : public MaNGOS::Singleton<ChatLog, MaNGOS::ClassLevelLockable<ChatLog, ACE_Thread_Mutex> >
 {
     public:
         ChatLog();
         ~ChatLog();
 
         void Initialize();
+        void Uninitialize();
 
         void ChatMsg(Player *player, std::string &msg, uint32 type);
         void PartyMsg(Player *player, std::string &msg);
@@ -68,21 +69,13 @@ class ChatLog : public MaNGOS::Singleton<ChatLog, MaNGOS::ClassLevelLockable<Cha
 
         void ChatBadLexicsAction(Player *player, std::string &msg);
 
-    private:
-        bool _ChatCommon(int ChatType, Player *player, std::string &msg);
-
         bool ChatLogEnable;
         bool ChatLogDateSplit;
         bool ChatLogUTFHeader;
         bool ChatLogIgnoreUnprintable;
 
-        int lastday;
-
-        FILE* files[CHATLOG_CHAT_TYPES_COUNT];
         std::string names[CHATLOG_CHAT_TYPES_COUNT];
         bool screenflag[CHATLOG_CHAT_TYPES_COUNT];
-
-        LexicsCutter* Lexics;
         bool cutflag[CHATLOG_CHAT_TYPES_COUNT];
 
         bool LexicsCutterEnable;
@@ -92,7 +85,21 @@ class ChatLog : public MaNGOS::Singleton<ChatLog, MaNGOS::ClassLevelLockable<Cha
         std::string LexicsCutterCutReplacement;
         int LexicsCutterAction;
         int LexicsCutterActionDuration;
+        bool LexicsCutterIgnoreMiddleSpaces;
+        bool LexicsCutterIgnoreLetterRepeat;
+
+        std::string fn_analogsfile;
+        std::string fn_wordsfile;
         std::string fn_innormative;
+    private:
+        bool _ChatCommon(int ChatType, Player *player, std::string &msg);
+
+        FILE* files[CHATLOG_CHAT_TYPES_COUNT];
+
+        int lastday;
+
+        LexicsCutter* Lexics;
+
         FILE* f_innormative;
 
         void OpenAllFiles();
@@ -105,3 +112,4 @@ class ChatLog : public MaNGOS::Singleton<ChatLog, MaNGOS::ClassLevelLockable<Cha
 
 #define sChatLog MaNGOS::Singleton<ChatLog>::Instance()
 #endif
+
