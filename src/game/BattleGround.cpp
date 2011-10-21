@@ -467,7 +467,7 @@ void BattleGround::Update(uint32 diff)
             }
         }
         // ----------------------------------------------------------------------------------------------------
-        
+
         ModifyStartDelayTime(diff);
 
         if (!(m_Events & BG_STARTING_EVENT_1))
@@ -896,7 +896,7 @@ void BattleGround::EndBattleGround(Team winner)
 
                     sql_query << "INSERT INTO armory_game_chart (gameid, teamid, guid, changeType, ratingChange, teamRating, damageDone, deaths, healingDone, damageTaken, healingTaken, killingBlows, mapId, start, end) VALUES ('" <<
                     // Actually, "start" is not arena start time, it is arena _duration_ time (in milliseconds). I don't touch this DB field name because some people can use this web wow armory.
-                    //  gameid,             teamid,                   guid,                                         changeType,             ratingChange,              teamRating,               damageDone,                          deaths,                          healingDone,                          damageTaken,                          healingTaken,                          killingBlows,                          mapId,               start,                   end                        
+                    //  gameid,             teamid,                   guid,                                         changeType,             ratingChange,              teamRating,               damageDone,                          deaths,                          healingDone,                          damageTaken,                          healingTaken,                          killingBlows,                          mapId,               start,                   end
                         gameID << "', '" << resultTeamID << "', '" << plr->GetObjectGuid().GetCounter()<< "', '" << changeType << "', '" << ratingChange  << "', '" << resultRating << "', '" << itr->second->DamageDone << "', '" << itr->second->Deaths << "', '" << itr->second->HealingDone << "', '" << itr->second->DamageTaken << "', '" << itr->second->HealingTaken << "', '" << itr->second->KillingBlows << "', '" << m_MapId << "', '" << m_StartTime << "', '" << iRealEndTime << "')";
                     CharacterDatabase.Execute(sql_query.str().c_str());
                 }
@@ -1442,8 +1442,17 @@ void BattleGround::AddPlayer(Player *plr)
         plr->CastSpell(plr, SPELL_BATTLEGROUND_DAMPENING, true);
     }
 
-    plr->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE, ACHIEVEMENT_CRITERIA_CONDITION_MAP, GetMapId());
+    plr->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, ACHIEVEMENT_CRITERIA_CONDITION_MAP, GetMapId());
+    plr->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, ACHIEVEMENT_CRITERIA_CONDITION_MAP, GetMapId());
     plr->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE, ACHIEVEMENT_CRITERIA_CONDITION_MAP, GetMapId());
+    plr->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, ACHIEVEMENT_CRITERIA_CONDITION_MAP, GetMapId());
+    plr->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL, ACHIEVEMENT_CRITERIA_CONDITION_MAP, GetMapId());
+    plr->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, ACHIEVEMENT_CRITERIA_CONDITION_MAP, GetMapId());
+    plr->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA, ACHIEVEMENT_CRITERIA_CONDITION_MAP, GetMapId());
+    plr->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE, ACHIEVEMENT_CRITERIA_CONDITION_MAP, GetMapId());
+    plr->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS, ACHIEVEMENT_CRITERIA_CONDITION_MAP, GetMapId());
+    plr->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL, ACHIEVEMENT_CRITERIA_CONDITION_MAP, GetMapId());
+    plr->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL, ACHIEVEMENT_CRITERIA_CONDITION_MAP, GetMapId());
 
     // setup BG group membership
     PlayerAddedToBGCheckIfBGIsRunning(plr);
@@ -1977,6 +1986,10 @@ void BattleGround::HandleKillPlayer( Player *player, Player *killer )
         UpdatePlayerScore(killer, SCORE_HONORABLE_KILLS, 1);
         UpdatePlayerScore(killer, SCORE_KILLING_BLOWS, 1);
 
+        killer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS, 1);
+        killer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL, 1, 0, killer);
+        killer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA, 1);
+
         for(BattleGroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
         {
             Player *plr = sObjectMgr.GetPlayer(itr->first);
@@ -1985,7 +1998,13 @@ void BattleGround::HandleKillPlayer( Player *player, Player *killer )
                 continue;
 
             if (plr->GetTeam() == killer->GetTeam() && plr->IsAtGroupRewardDistance(player))
+            {
                 UpdatePlayerScore(plr, SCORE_HONORABLE_KILLS, 1);
+
+                plr->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL, 1);
+                plr->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL, 1, 0, plr);
+                plr->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA, 1);
+            }
         }
     }
 
