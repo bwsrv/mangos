@@ -8592,6 +8592,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         return;
 
                     unitTarget->CastSpell(unitTarget, 57085, true);
+                    unitTarget->CastSpell(unitTarget, m_spellInfo->Id == 58475 ? 58477 : 58467, true);
                     break;
                 }
                 case 58418:                                 // Portal to Orgrimmar
