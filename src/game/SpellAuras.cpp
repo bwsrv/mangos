@@ -8468,7 +8468,7 @@ void Aura::PeriodicTick()
                     int32 remainingTicks = ticks - GetAuraTicks();
                     int32 addition = int32(amount)*ticks*(-6+2*remainingTicks)/100;
 
-                    if (GetAuraTicks() != 1)
+                    if (GetAuraTicks() > 1 && ticks > 1)
                         // Item - Druid T10 Restoration 2P Bonus
                         if (Aura *aura = pCaster->GetAura(70658, EFFECT_INDEX_0))
                             addition += abs(int32((addition * aura->GetModifier()->m_amount) / ((ticks-1)* 100)));
