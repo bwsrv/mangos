@@ -33,4 +33,3 @@ INSERT INTO `player_factionchange_reputations` VALUES ('0', '54', 'Gnomeregan Ex
 INSERT INTO `player_factionchange_reputations` VALUES ('0', '69', 'Darnassus', '0', '68', 'Undercity');
 INSERT INTO `player_factionchange_reputations` VALUES ('0', '72', 'Stormwind', '0', '76', 'Orgrimmar');
 INSERT INTO `player_factionchange_reputations` VALUES ('0', '930', 'Exodar', '0', '911', 'Silvermoon City');
-
