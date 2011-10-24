@@ -20,6 +20,7 @@ CREATE TABLE `player_factionchange_items` (
 -- Records of player_factionchange_items
 -- ----------------------------
 INSERT INTO `player_factionchange_items` VALUES ('0', '15196', 'Private\'s Tabard', '0', '15197', 'Scout\'s Tabard');
+INSERT INTO `player_factionchange_items` VALUES ('0', '18606', 'Alliance Battle Standard', '0', '18607', 'Horde Battle Standard');
 INSERT INTO `player_factionchange_items` VALUES ('0', '19032', 'Stormpike Battle Tabard', '0', '19031', 'Frostwolf Battle Tabard');
 INSERT INTO `player_factionchange_items` VALUES ('0', '19506', 'Silverwing Battle Tabard', '0', '19505', 'Warsong Battle Tabard');
 INSERT INTO `player_factionchange_items` VALUES ('0', '20132', 'Arathor Battle Tabard', '0', '20131', 'Battle Tabard of the Defilers');
@@ -756,4 +757,3 @@ INSERT INTO `player_factionchange_items` VALUES ('0', '17902', 'Stormpike Insign
 INSERT INTO `player_factionchange_items` VALUES ('0', '17903', 'Stormpike Insignia Rank 5', '0', '17908', 'Frostwolf Insignia Rank 5');
 INSERT INTO `player_factionchange_items` VALUES ('0', '17904', 'Stormpike Insignia Rank 6', '0', '17909', 'Frostwolf Insignia Rank 6');
 INSERT INTO `player_factionchange_items` VALUES ('0', '15198', 'Knight\'s Colors', '0', '15199', 'Stone Guard\'s Herald');
-
