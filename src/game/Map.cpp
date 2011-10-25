@@ -1027,11 +1027,15 @@ void Map::RemoveAllObjectsInRemoveList()
             case TYPEID_CORPSE:
             {
                 // ??? WTF
-                Corpse* corpse = GetCorpse(obj->GetObjectGuid());
-                if (!corpse)
-                    sLog.outError("Try delete corpse/bones %u that not in map", obj->GetGUIDLow());
-                else
-                    Remove(corpse,true);
+                ObjectGuid guid = obj->GetObjectGuid();
+                if (guid && guid.IsUnit())
+                {
+                    Corpse* corpse = GetCorpse(guid);
+                    if (!corpse)
+                        sLog.outError("Try delete corpse/bones %u that not in map", obj->GetGUIDLow());
+                    else
+                        Remove(corpse,true);
+                }
                 break;
             }
             case TYPEID_DYNAMICOBJECT:
