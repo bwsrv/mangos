@@ -2402,6 +2402,11 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             {
                 FillRaidOrPartyTargets(targetUnitMap, m_caster, m_caster, radius, false, true, true);
             }
+            // Custom cases
+            if (m_spellInfo->Id ==59754)                    //Rune Tap triggered from Glyph of Rune Tap
+            {
+                targetUnitMap.remove(m_caster);
+            }
             break;
         }
         case TARGET_ALL_PARTY_AROUND_CASTER_2:
