@@ -120,7 +120,7 @@ void ObjectAccessor::KickPlayer(ObjectGuid guid)
 Corpse*
 ObjectAccessor::GetCorpseForPlayerGUID(ObjectGuid guid)
 {
-    Guard guard(i_corpseGuard);
+    ReadGuard guard(i_guard);
 
     Player2CorpsesMapType::iterator iter = i_player2corpse.find(guid);
     if (iter == i_player2corpse.end())
@@ -136,7 +136,7 @@ ObjectAccessor::RemoveCorpse(Corpse *corpse)
 {
     MANGOS_ASSERT(corpse && corpse->GetType() != CORPSE_BONES);
 
-    Guard guard(i_corpseGuard);
+    WriteGuard guard(i_guard);
     Player2CorpsesMapType::iterator iter = i_player2corpse.find(corpse->GetOwnerGuid());
     if( iter == i_player2corpse.end() )
         return;
@@ -156,7 +156,7 @@ ObjectAccessor::AddCorpse(Corpse *corpse)
 {
     MANGOS_ASSERT(corpse && corpse->GetType() != CORPSE_BONES);
 
-    Guard guard(i_corpseGuard);
+    WriteGuard guard(i_guard);
     MANGOS_ASSERT(i_player2corpse.find(corpse->GetOwnerGuid()) == i_player2corpse.end());
     i_player2corpse[corpse->GetOwnerGuid()] = corpse;
 
@@ -170,7 +170,7 @@ ObjectAccessor::AddCorpse(Corpse *corpse)
 void
 ObjectAccessor::AddCorpsesToGrid(GridPair const& gridpair,GridType& grid,Map* map)
 {
-    Guard guard(i_corpseGuard);
+    ReadGuard guard(i_guard);
     for(Player2CorpsesMapType::iterator iter = i_player2corpse.begin(); iter != i_player2corpse.end(); ++iter)
         if(iter->second->GetGrid() == gridpair)
     {
