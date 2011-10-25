@@ -3226,15 +3226,21 @@ void Map::SendObjectUpdates()
     {
         Object* obj = *i_objectsToClientUpdate.begin();
         i_objectsToClientUpdate.erase(i_objectsToClientUpdate.begin());
-        obj->BuildUpdateData(update_players);
+        if (obj && obj->IsInWorld())
+            obj->BuildUpdateData(update_players);
     }
 
-    WorldPacket packet;                                     // here we allocate a std::vector with a size of 0x10000
-    for(UpdateDataMapType::iterator iter = update_players.begin(); iter != update_players.end(); ++iter)
+    if (!update_players.empty())
     {
-        if (iter->second.BuildPacket(&packet))
-            iter->first->GetSession()->SendPacket(&packet);
-        packet.clear();                                     // clean the string
+        for (UpdateDataMapType::iterator iter = update_players.begin(); iter != update_players.end(); ++iter)
+        {
+            if (!iter->first || !iter->first->IsInWorld())
+                continue;
+
+            WorldPacket packet;                                     // here we allocate a std::vector with a size of 0x10000
+            if (iter->second.BuildPacket(&packet))
+                iter->first->GetSession()->SendPacket(&packet);
+        }
     }
 }
 
