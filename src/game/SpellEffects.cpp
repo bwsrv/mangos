@@ -4538,7 +4538,9 @@ void Spell::EffectApplyAura(SpellEffectIndex eff_idx)
 
     Aura* aur = m_spellAuraHolder->CreateAura(m_spellInfo, eff_idx, &m_currentBasePoints[eff_idx], m_spellAuraHolder, unitTarget, caster, m_CastItem);
 
-    if (!aur)
+    SpellAuraHolderPtr _holder = aur->GetHolder();
+
+    if (!aur || !_holder)
     {
         sLog.outError("Spell::EffectApplyAura cannot create aura, spell %u effect %u", m_spellInfo->Id, eff_idx);
         return;
