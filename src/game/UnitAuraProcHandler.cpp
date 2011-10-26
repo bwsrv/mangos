@@ -1451,20 +1451,6 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 triggered_spell_id = 26654;
                 break;
             }
-            // Glyph of Sunder Armor
-            if (dummySpell->Id == 58387)
-            {
-                if (!procSpell)
-                    return SPELL_AURA_PROC_FAILED;
-
-                target = SelectRandomUnfriendlyTarget(pVictim);
-
-                if (!target)
-                    return SPELL_AURA_PROC_FAILED;
-
-                triggered_spell_id = 58567;
-                break;
-            }
             break;
         }
         case SPELLFAMILY_WARLOCK:
