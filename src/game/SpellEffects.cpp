@@ -6807,19 +6807,34 @@ void Spell::EffectWeaponDmg(SpellEffectIndex eff_idx)
                 // Sunder Armor
                 Aura* sunder = unitTarget->GetAura<SPELL_AURA_MOD_RESISTANCE_PCT, SPELLFAMILY_WARRIOR, CF_WARRIOR_SUNDER_ARMOR>(m_caster->GetObjectGuid());
 
+                uint32 stack = 0;
+                uint32 stackMax = 0;
+
                 // Devastate bonus and sunder armor refresh
                 if (sunder)
                 {
                     sunder->GetHolder()->RefreshHolder();
-                    spell_bonus += sunder->GetStackAmount() * CalculateDamage(EFFECT_INDEX_2, unitTarget);
+                    stack = sunder->GetStackAmount();
+                    stackMax = sunder->GetSpellProto()->StackAmount;
+                    spell_bonus += stack * CalculateDamage(EFFECT_INDEX_2, unitTarget);
+                }
+                else
+                {
+                    SpellEntry const* spellInfo = sSpellStore.LookupEntry(58567);
+                    if (spellInfo)
+                       stackMax = spellInfo->StackAmount;
                 }
 
                 // Devastate causing Sunder Armor Effect
                 // and no need to cast over max stack amount
-                if (!sunder || sunder->GetStackAmount() < sunder->GetSpellProto()->StackAmount)
+                if (!stack || stack < stackMax)
+                {
                     m_caster->CastSpell(unitTarget, 58567, true);
-                    if (m_caster->GetDummyAura(58388))
-                        m_caster->CastSpell (unitTarget, 58567, true);
+
+                    // Glyph of Devastate
+                    if (++stack < stackMax && m_caster->GetDummyAura(58388))
+                        m_caster->CastSpell(unitTarget, 58567, true);
+                }
             }
             break;
         }
