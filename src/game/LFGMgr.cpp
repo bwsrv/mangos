@@ -1338,12 +1338,25 @@ void LFGMgr::UpdateProposal(uint32 ID, ObjectGuid guid, bool accept)
     if (!group)
     {
         LFGQueueSet proposalGuidsTmp = pProposal->GetMembers();
+        if (proposalGuidsTmp.empty())
+        {
+            DEBUG_LOG("LFGMgr::UpdateProposal:%u cannot make group, guid set is empty!", pProposal->ID);
+            pProposal->SetDeleted();
+            return;
+        }
         Player* leader = LeaderElection(&proposalGuidsTmp);
+        if (!leader)
+        {
+            DEBUG_LOG("LFGMgr::UpdateProposal:%u cannot make group, cannot set leader!", pProposal->ID);
+            pProposal->SetDeleted();
+            return;
+        }
 
         if (leader->GetGroup())
             leader->RemoveFromGroup();
 
         leader->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_GROUP_FOUND, leader->GetLFGState()->GetType());
+        leader->GetLFGState()->AddRole(ROLE_LEADER);
 
         group = new Group();
         group->Create(leader->GetObjectGuid(), leader->GetName());
@@ -2172,8 +2185,7 @@ Player* LFGMgr::LeaderElection(LFGQueueSet* playerGuids)
             }
         }
     }
-    MANGOS_ASSERT(leader);
-    leader->GetLFGState()->AddRole(ROLE_LEADER);
+    // leader may be NULL!
     return leader;
 }
 
