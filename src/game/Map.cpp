@@ -401,7 +401,7 @@ void Map::MessageBroadcast(WorldObject *obj, WorldPacket *msg)
     //we have alot of blinking mobs because monster move packet send is broken...
     MaNGOS::ObjectMessageDeliverer post_man(*obj,msg);
     TypeContainerVisitor<MaNGOS::ObjectMessageDeliverer, WorldTypeMapContainer > message(post_man);
-    cell.Visit(p, message, *this, *obj, GetVisibilityDistance());
+    cell.Visit(p, message, *this, *obj, GetVisibilityDistance(obj));
 }
 
 void Map::MessageDistBroadcast(Player *player, WorldPacket *msg, float dist, bool to_self, bool own_team_only)
@@ -903,7 +903,7 @@ void Map::UpdateObjectVisibility( WorldObject* obj, Cell cell, CellPair cellpair
     cell.SetNoCreate();
     MaNGOS::VisibleChangesNotifier notifier(*obj);
     TypeContainerVisitor<MaNGOS::VisibleChangesNotifier, WorldTypeMapContainer > player_notifier(notifier);
-    cell.Visit(cellpair, player_notifier, *this, *obj, GetVisibilityDistance());
+    cell.Visit(cellpair, player_notifier, *this, *obj, GetVisibilityDistance(obj));
 }
 
 void Map::SendInitSelf( Player * player )
@@ -3522,4 +3522,12 @@ void Map::ForcedUnload()
     UnloadAll(true);
 
     SetBroken(false);
+}
+
+float Map::GetVisibilityDistance(WorldObject* obj) const 
+{
+    if (obj && obj->GetObjectGuid().IsGameObject())
+        return (m_VisibleDistance + ((GameObject*)obj)->GetDeterminativeSize());
+    else
+        return m_VisibleDistance; 
 }
