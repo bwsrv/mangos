@@ -1019,6 +1019,9 @@ void Map::RemoveAllObjectsInRemoveList()
         WorldObject* obj = *i_objectsToRemove.begin();
         i_objectsToRemove.erase(i_objectsToRemove.begin());
 
+        if (!obj)
+            continue;
+
         switch(obj->GetTypeId())
         {
             case TYPEID_CORPSE:
