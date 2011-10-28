@@ -8292,6 +8292,11 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             }
             break;
         }
+        case 59754:                    //Rune Tap triggered from Glyph of Rune Tap
+        {
+            FillRaidOrPartyTargets(targetUnitMap, m_caster, m_caster, radius, false, true, false);
+            break;
+        }
         case 61999: // Raise ally
         {
             WorldObject* result = FindCorpseUsing<MaNGOS::RaiseAllyObjectCheck>();
