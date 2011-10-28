@@ -52,7 +52,8 @@ enum TempSummonType
     TEMPSUMMON_CORPSE_DESPAWN              = 5,             // despawns instantly after death
     TEMPSUMMON_CORPSE_TIMED_DESPAWN        = 6,             // despawns after a specified time after death
     TEMPSUMMON_DEAD_DESPAWN                = 7,             // despawns when the creature disappears
-    TEMPSUMMON_MANUAL_DESPAWN              = 8              // despawns when UnSummon() is called
+    TEMPSUMMON_MANUAL_DESPAWN              = 8,             // despawns when UnSummon() is called
+    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT_OR_DEAD_DESPAWN = 9 // despawns after a specified time after the creature is out of combat OR when the creature disappears
 };
 
 enum PhaseMasks
