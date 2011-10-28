@@ -5253,14 +5253,16 @@ void Unit::RemoveSpellAuraHolder(SpellAuraHolderPtr holder, AuraRemoveMode mode)
         if (caster->GetTypeId()==TYPEID_UNIT && ((Creature*)caster)->IsTotem() && ((Totem*)caster)->GetTotemType()==TOTEM_STATUE)
             statue = ((Totem*)caster);
 
-    SpellAuraHolderBounds bounds = GetSpellAuraHolderBounds(holder->GetId());
-    for (SpellAuraHolderMap::iterator itr = bounds.first; itr != bounds.second; ++itr)
     {
-        if (itr->second == holder)
+        MAPLOCK_WRITE(this,MAP_LOCK_TYPE_AURAS);
+        SpellAuraHolderBounds bounds = GetSpellAuraHolderBounds(holder->GetId());
+        for (SpellAuraHolderMap::iterator itr = bounds.first; itr != bounds.second; ++itr)
         {
-            MAPLOCK_WRITE(this,MAP_LOCK_TYPE_AURAS);
-            m_spellAuraHolders.erase(itr);
-            break;
+            if (itr->second == holder)
+            {
+                m_spellAuraHolders.erase(itr);
+                break;
+            }
         }
     }
 
