@@ -5130,7 +5130,10 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flags)
         for (SpellAuraHolderMap::const_iterator iter = holdersMap.begin(); iter != holdersMap.end(); ++iter)
         {
             SpellAuraHolderPtr holder = iter->second;
-            if (holder && !holder->IsDeleted() && (holder->GetSpellProto()->AuraInterruptFlags & flags))
+            if (!holder || holder->IsDeleted() || !holder->GetSpellProto())
+                continue;
+
+            if (holder->GetSpellProto()->AuraInterruptFlags & flags)
                 spellsToRemove.insert(iter->first);
         }
     }
