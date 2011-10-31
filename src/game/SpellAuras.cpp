@@ -771,7 +771,7 @@ void Aura::AreaAuraUpdate(uint32 diff)
 
             for(Spell::UnitList::iterator tIter = targets.begin(); tIter != targets.end(); tIter++)
             {
-                // flag for seelction is need apply aura to current iteration target
+                // flag for selection is need apply aura to current iteration target
                 bool apply = true;
 
                 // we need ignore present caster self applied are auras sometime
@@ -780,6 +780,9 @@ void Aura::AreaAuraUpdate(uint32 diff)
                 if (!i_target)
                     continue;
 
+                if (i_target->IsImmuneToSpell(GetSpellProto()))
+                    continue;
+                else
                 {
                     MAPLOCK_READ(i_target,MAP_LOCK_TYPE_AURAS);
                     Unit::SpellAuraHolderBounds spair = i_target->GetSpellAuraHolderBounds(GetId());
