@@ -11845,10 +11845,17 @@ float Unit::GetAPMultiplier(WeaponAttackType attType, bool normalized)
 
 Aura* Unit::GetDummyAura( uint32 spell_id ) const
 {
+    MAPLOCK_READ(const_cast<Unit*>(this),MAP_LOCK_TYPE_AURAS);
     Unit::AuraList const& mDummy = GetAurasByType(SPELL_AURA_DUMMY);
-    for(Unit::AuraList::const_iterator itr = mDummy.begin(); itr != mDummy.end(); ++itr)
-        if ((*itr)->GetId() == spell_id)
+    for (Unit::AuraList::const_iterator itr = mDummy.begin(); itr != mDummy.end(); ++itr)
+    {
+        SpellAuraHolderPtr holder = (*itr)->GetHolder();
+        if (!holder || holder->IsDeleted())
+            continue;
+
+        if (holder->GetId() == spell_id)
             return *itr;
+    }
 
     return NULL;
 }
