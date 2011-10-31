@@ -776,38 +776,45 @@ void Aura::AreaAuraUpdate(uint32 diff)
 
                 // we need ignore present caster self applied are auras sometime
                 // in cases if this only auras applied for spell effect
-                Unit::SpellAuraHolderBounds spair = (*tIter)->GetSpellAuraHolderBounds(GetId());
-                for(Unit::SpellAuraHolderMap::const_iterator i = spair.first; i != spair.second; ++i)
+                Unit* i_target = *tIter;
+                if (!i_target)
+                    continue;
+
                 {
-                    SpellAuraHolderPtr holder = i->second;
-                    if (!holder || holder->IsDeleted())
-                        continue;
-
-                    Aura *aur = holder->GetAuraByEffectIndex(m_effIndex);
-
-                    if (!aur)
-                        continue;
-
-                    switch(m_areaAuraType)
+                    MAPLOCK_READ(i_target,MAP_LOCK_TYPE_AURAS);
+                    Unit::SpellAuraHolderBounds spair = i_target->GetSpellAuraHolderBounds(GetId());
+                    for(Unit::SpellAuraHolderMap::const_iterator i = spair.first; i != spair.second; ++i)
                     {
-                        case AREA_AURA_ENEMY:
-                            // non caster self-casted auras (non stacked)
-                            if (aur->GetModifier()->m_auraname != SPELL_AURA_NONE)
+                        SpellAuraHolderPtr holder = i->second;
+                        if (!holder || holder->IsDeleted())
+                            continue;
+
+                        Aura *aur = holder->GetAuraByEffectIndex(m_effIndex);
+
+                        if (!aur)
+                            continue;
+
+                        switch(m_areaAuraType)
+                        {
+                            case AREA_AURA_ENEMY:
+                                // non caster self-casted auras (non stacked)
+                                if (aur->GetModifier()->m_auraname != SPELL_AURA_NONE)
+                                    apply = false;
+                                break;
+                            case AREA_AURA_RAID:
+                                // non caster self-casted auras (stacked from diff. casters)
+                                if (aur->GetModifier()->m_auraname != SPELL_AURA_NONE  || i->second->GetCasterGuid() == GetCasterGuid())
+                                    apply = false;
+                                break;
+                            default:
+                                // in generic case not allow stacking area auras
                                 apply = false;
-                            break;
-                        case AREA_AURA_RAID:
-                            // non caster self-casted auras (stacked from diff. casters)
-                            if (aur->GetModifier()->m_auraname != SPELL_AURA_NONE  || i->second->GetCasterGuid() == GetCasterGuid())
-                                apply = false;
-                            break;
-                        default:
-                            // in generic case not allow stacking area auras
-                            apply = false;
+                                break;
+                        }
+
+                        if(!apply)
                             break;
                     }
-
-                    if(!apply)
-                        break;
                 }
 
                 if(!apply)
@@ -820,18 +827,17 @@ void Aura::AreaAuraUpdate(uint32 diff)
                     if (actualSpellInfo != GetSpellProto())
                         actualBasePoints = actualSpellInfo->CalculateSimpleValue(m_effIndex);
 
-                    SpellAuraHolderPtr holder = (*tIter)->GetSpellAuraHolder(actualSpellInfo->Id, GetCasterGuid());
+                    SpellAuraHolderPtr holder = i_target->GetSpellAuraHolder(actualSpellInfo->Id, GetCasterGuid());
 
                     if (!holder || holder->IsDeleted())
                     {
-                        SpellAuraHolderPtr newholder = CreateSpellAuraHolder(actualSpellInfo, (*tIter), caster);
+                        SpellAuraHolderPtr newholder = CreateSpellAuraHolder(actualSpellInfo, i_target, caster);
                         newholder->SetAuraDuration(GetAuraDuration());
-                        Aura* aura = newholder->CreateAura(AURA_CLASS_AREA_AURA, m_effIndex, &actualBasePoints, newholder, (*tIter), caster, NULL);
-                        (*tIter)->AddSpellAuraHolder(newholder);
+                        Aura* aura = newholder->CreateAura(AURA_CLASS_AREA_AURA, m_effIndex, &actualBasePoints, newholder, i_target, caster, NULL);
+                        i_target->AddSpellAuraHolder(newholder);
                     }
                     else
                     {
-
                         holder->SetAuraDuration(GetAuraDuration());
                         Aura* aura = holder->GetAuraByEffectIndex(m_effIndex);
                         if (aura)
@@ -844,8 +850,8 @@ void Aura::AreaAuraUpdate(uint32 diff)
                         }
                         else
                         {
-                            Aura* aura = holder->CreateAura(AURA_CLASS_AREA_AURA, m_effIndex, &actualBasePoints, holder, (*tIter), caster, NULL);
-                            (*tIter)->AddAuraToModList(aura);
+                            Aura* aura = holder->CreateAura(AURA_CLASS_AREA_AURA, m_effIndex, &actualBasePoints, holder, i_target, caster, NULL);
+                            i_target->AddAuraToModList(aura);
                             holder->SetInUse(true);
                             aura->ApplyModifier(true,true);
                             holder->SetInUse(false);
