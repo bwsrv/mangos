@@ -79,6 +79,7 @@ enum BG_WS_Objectives
     WS_OBJECTIVE_CAPTURE_FLAG     = 42,
     WS_OBJECTIVE_RETURN_FLAG      = 44
 };
+
 enum BG_WS_Graveyards
 {
     WS_GRAVEYARD_FLAGROOM_ALLIANCE = 769,

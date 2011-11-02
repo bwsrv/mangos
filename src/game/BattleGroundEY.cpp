@@ -483,10 +483,8 @@ void BattleGroundEY::HandleKillPlayer(Player *player, Player *killer)
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    if (killer->GetAreaId() == player->GetAreaId())
-        killer->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA);
-
     BattleGround::HandleKillPlayer(player, killer);
+
     EventPlayerDroppedFlag(player);
 }
 

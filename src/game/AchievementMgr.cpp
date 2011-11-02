@@ -1804,15 +1804,16 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             }
             case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
             {
-                if(GetPlayer()->GetAreaId() != achievementCriteria->honorable_kill_at_area.areaID)
+                if (GetPlayer()->GetAreaId() != achievementCriteria->honorable_kill_at_area.areaID)
                     continue;
 
-                SetCriteriaProgress(achievementCriteria, achievement, miscvalue1, PROGRESS_ACCUMULATE);
+                change = miscvalue1;
+                progressType = PROGRESS_ACCUMULATE;
                 break;
             }
             case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
             {
-                if (!miscvalue2 || miscvalue2 != achievementCriteria->objective_capture.captureID)
+                if (!miscvalue1 || !miscvalue2 || miscvalue2 != achievementCriteria->objective_capture.captureID)
                     continue;
 
                 BattleGround* bg = GetPlayer()->GetBattleGround();
@@ -1822,40 +1823,56 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 // some hardcoded requirements
                 switch(achievementCriteria->objective_capture.captureID)
                 {
-                    case WS_OBJECTIVE_CAPTURE_FLAG:    // WS, capture a flag
+                    case WS_OBJECTIVE_CAPTURE_FLAG:      // WS, capture a flag
                     {
                         if (bg->GetTypeID(true) != BATTLEGROUND_WS)
                             continue;
-                                                      // WS, capture 3 flags without dying
+                                                         // WS, capture 3 flags without dying
                         if (achievementCriteria->referredAchievement == 204)
                         {
-                            if ((bg->GetPlayerScore(GetPlayer(), SCORE_DEATHS) != 0) && (bg->GetPlayerScore(GetPlayer(), SCORE_FLAG_CAPTURES) < 3))
+                            if (!(bg->GetPlayerScore(GetPlayer(), SCORE_DEATHS) == 0 && bg->GetPlayerScore(GetPlayer(), SCORE_FLAG_CAPTURES) >= 3))
                                 continue;
                         }
                         break;
                     }
-                    case WS_OBJECTIVE_RETURN_FLAG:     // WS, return a flag
+                    case WS_OBJECTIVE_RETURN_FLAG:       // WS, return a flag
                     {
                         if (bg->GetTypeID(true) != BATTLEGROUND_WS)
                             continue;
                         break;
                     }
-                    case EY_OBJECTIVE_CAPTURE_FLAG:     // EY, capture a flag
+                    case AV_OBJECTIVE_ASSAULT_TOWER:     // AV, assault a tower
+                    case AV_OBJECTIVE_ASSAULT_GRAVEYARD: // AV, assault a graveyard
+                    case AV_OBJECTIVE_DEFEND_TOWER:      // AV, defend a tower
+                    case AV_OBJECTIVE_DEFEND_GRAVEYARD:  // AV, defend a graveyard
+                    {
+                        if (bg->GetTypeID(true) != BATTLEGROUND_AV)
+                            continue;
+                        break;
+                    }
+                    case AB_OBJECTIVE_ASSAULT_BASE:      // AB, assault a base
+                    case AB_OBJECTIVE_DEFEND_BASE:       // AB, defend a base
+                    {
+                        if (bg->GetTypeID(true) != BATTLEGROUND_AB)
+                            continue;
+                        break;
+                    }
+                    case EY_OBJECTIVE_CAPTURE_FLAG:      // EY, capture a flag
                     {
                         if (bg->GetTypeID(true) != BATTLEGROUND_EY)
                             continue;
 
                         switch(achievementCriteria->referredAchievement)
                         {
-                            case 211:                   // EY, capture flag while controling all 4 bases
+                            case 211:                    // EY, capture flag while controling all 4 bases
                             {
                                 if (!bg->IsAllNodesConrolledByTeam(GetPlayer()->GetTeam()))
                                     continue;
                                 break;
                             }
-                            case 216:                   // EY, capture 3 flags without dying
+                            case 216:                    // EY, capture 3 flags without dying
                             {
-                                if ((bg->GetPlayerScore(GetPlayer(), SCORE_DEATHS) != 0) && (bg->GetPlayerScore(GetPlayer(), SCORE_FLAG_CAPTURES) < 3))
+                                if (!(bg->GetPlayerScore(GetPlayer(), SCORE_DEATHS) == 0 && bg->GetPlayerScore(GetPlayer(), SCORE_FLAG_CAPTURES) >= 3))
                                     continue;
                                 break;
                             }
@@ -1864,7 +1881,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     }
                 }
 
-                change = 1;
+                change = miscvalue1;
                 progressType = PROGRESS_ACCUMULATE;
                 break;
             }
