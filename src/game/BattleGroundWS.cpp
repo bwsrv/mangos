@@ -414,7 +414,7 @@ void BattleGroundWS::EventPlayerClickedOnFlag(Player* Source, GameObject* target
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    uint8 event = (sBattleGroundMgr.GetGameObjectEventIndex(target_obj->GetDBTableGUIDLow())).event1;
+    uint8 event = (sBattleGroundMgr.GetGameObjectEventIndex(target_obj->GetGUIDLow())).event1;
 
     bool A = Source->GetTeam() == ALLIANCE;
 
