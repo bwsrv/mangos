@@ -38,6 +38,7 @@
 #include "BattleGround.h"
 #include "BattleGroundAB.h"
 #include "BattleGroundAV.h"
+#include "BattleGroundEY.h"
 #include "BattleGroundSA.h"
 #include "BattleGroundWS.h"
 #include "Map.h"
