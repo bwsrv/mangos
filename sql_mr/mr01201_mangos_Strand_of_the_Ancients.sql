@@ -174,7 +174,7 @@ INSERT INTO creature_battleground VALUES
 (200023, 2, 4),
 (200024, 2, 3);
 
-DELETE FROM mangos_string WHERE entry IN (20000, 20001, 20002, 20003, 20004, 20005, 20006, 20007, 20008, 20009, 20010, 20011, 20012, 20013, 20014, 20015, 20016, 20017, 20018, 20019, 20020, 20021, 20022);
+DELETE FROM mangos_string WHERE entry IN (20000, 20001, 20002, 20003, 20004, 20005, 20006, 20007, 20008, 20009, 20010, 20011, 20012, 20013, 20014, 20015, 20016, 20017, 20018, 20019, 20020, 20021, 20022, 20023, 20024, 20025, 20026, 20027, 20028, 20029, 20030, 20031, 20032, 20033, 20034, 20035, 20036, 20037, 20038, 20039, 20040, 20041, 20042, 20043, 20044);
 INSERT INTO mangos_string (entry, content_default, content_loc1, content_loc2, content_loc3, content_loc4, content_loc5, content_loc6, content_loc7, content_loc8) VALUES
 (20000, 'The battle for Strand of the Ancients begins in 2 minute.', NULL, NULL, 'Die Schlacht um den Strand der Uralten beginnt in 2 Minuten.', NULL, NULL, 'La batalla por la Playa de los Ancestros comenzará en 2 minutos.', 'La batalla por la Playa de los Ancestros comenzará en 2 minutos.', 'Битва за Берег Древних начнется через 2 минуты.'),
 (20001, 'The battle for Strand of the Ancients begins in 1 minute.', NULL, NULL, 'Die Schlacht um den Strand der Uralten beginnt in 1 Minute.', NULL, NULL, 'La batalla por la Playa de los Ancestros comenzará en 1 minuto.', 'La batalla por la Playa de los Ancestros comenzará en 1 minuto.', 'Битва за Берег Древних начнется через 1 минуту.'),
@@ -481,8 +481,6 @@ INSERT INTO gameobject (guid, id, map, spawnMask, phaseMask, position_x, positio
 (200058 , 194086 , 607 , 3 , 1 , 1370.35 , 197.361 , 30.9349 , 1.08689 , 0 , 0 , 0 , 0 , 0 , 0 , 0),
 (200059 , 194086 , 607 , 3 , 1 , 1369.47 , 197.941 , 30.9349 , 0.984787 , 0 , 0 , 0 , 0 , 0 , 0 , 0);
 
-
-
 -- Eastern base bombs
 DELETE FROM gameobject WHERE guid BETWEEN 200060 AND 200106;
 INSERT INTO gameobject (guid, id, map, spawnMask, phaseMask, position_x, position_y, position_z, orientation, rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state) VALUES
@@ -534,9 +532,7 @@ INSERT INTO gameobject (guid, id, map, spawnMask, phaseMask, position_x, positio
 
 -- Dock bombs
 DELETE FROM gameobject WHERE guid BETWEEN 200107 AND 200124;
-INSERT INTO gameobject (guid, id, map, spawnMask, phaseMask, position_x, position_y, position_z, orientation, rotation0, rotation1, rotation2, rotation3,  
-spawntimesecs, animprogress, state) VALUES
-
+INSERT INTO gameobject (guid, id, map, spawnMask, phaseMask, position_x, position_y, position_z, orientation, rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state) VALUES
 (200107 , 190753 , 607 , 3 , 1 , 1342.06 , -304.049 , 30.9532 , 5.59507 , 0 , 0 , 0 , 0 , 0 , 0 , 0),
 (200108 , 190753 , 607 , 3 , 1 , 1340.96 , -304.536 , 30.9458 , 1.28323 , 0 , 0 , 0 , 0 , 0 , 0 , 0),
 (200109 , 190753 , 607 , 3 , 1 , 1341.22 , -303.316 , 30.9413 , 0.486051 , 0 , 0 , 0 , 0 , 0 , 0 , 0),
@@ -558,9 +554,7 @@ spawntimesecs, animprogress, state) VALUES
 
 -- Middle bombs (both beach and relic side)
 DELETE FROM gameobject WHERE guid BETWEEN 200125 AND 200174;
-INSERT INTO gameobject (guid, id, map, spawnMask, phaseMask, position_x, position_y, position_z, orientation, rotation0, rotation1, rotation2, rotation3,  
-spawntimesecs, animprogress, state) VALUES
-
+INSERT INTO gameobject (guid, id, map, spawnMask, phaseMask, position_x, position_y, position_z, orientation, rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state) VALUES
 (200125 , 190753 , 607 , 3 , 1 , 1100.52 , -2.41391 , 70.2984 , 0.131054 , 0 , 0 , 0 , 0 , 0 , 0 , 0),
 (200126 , 190753 , 607 , 3 , 1 , 1099.35 , -2.13851 , 70.3375 , 4.4586 , 0 , 0 , 0 , 0 , 0 , 0 , 0),
 (200127 , 190753 , 607 , 3 , 1 , 1099.59 , -1.00329 , 70.238 , 2.49903 , 0 , 0 , 0 , 0 , 0 , 0 , 0),
@@ -621,6 +615,3 @@ INSERT INTO gameobject VALUES
 (200178, 180101, 607, 3, 1, 1315.55, 11.8483, 31.2072, 2.85221, 0, 0, 0.989551, 0.144186, 86400, 100, 1),
 (200179, 180100, 607, 3, 1, 1206.8, -68.2148, 70.0845, 3.14279, 0, 0, 1, -0.00059919, 86400, 100, 1),
 (200180, 180101, 607, 3, 1, 1206.8, -68.2148, 70.0845, 3.14279, 0, 0, 1, -0.00059919, 86400, 100, 1);
-
--- Fix Rotation for all Objects in Map
-UPDATE gameobject SET rotation0=0, rotation1=0, rotation2=SIN(orientation*0.5), rotation3=COS(orientation*0.5) WHERE map =  607;
