@@ -888,6 +888,12 @@ LexicsCutterNoActionOnGM = 1
 #        May use many CPU resources!
 #        Default: 0
 #
+#    CrowdControlHPBase
+#        Base HP part for calculation CrowdControl effects (from MAX HP!).
+#        Default: 0.1  (10% max HP)
+#        min:     0.0  (default mangos method)
+#        max:     1.0  (full CrowdControl, auras like Fear not breaked by damage anyway)
+#
 ###################################################################################################################
 
 GameType = 1
@@ -966,6 +972,7 @@ WaitAtStartupError = 0
 Motd = "Welcome to the Massive Network Game Object Server."
 Raid.MinLevel = 10
 CheckGOInPath = 0
+CrowdControlHPBase = 0.1
 
 ###################################################################################################################
 # PLAYER INTERACTION

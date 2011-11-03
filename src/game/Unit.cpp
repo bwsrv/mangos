@@ -1182,9 +1182,8 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
                     if (holder->GetSpellProto()->procFlags)
                         continue;
 
-                    if (SpellProcEventEntry const* spellProcEvent = sSpellMgr.GetSpellProcEvent(holder->GetId()))
-                        if (spellProcEvent->procFlags)
-                            continue;
+                    if (GetProcFlag(holder->GetSpellProto()))
+                        continue;
 
                     if (holder->GetSpellProto()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_DAMAGE)
                     {
@@ -5484,6 +5483,21 @@ void Unit::_ApplyAllAuraMods()
 bool Unit::HasAuraType(AuraType auraType) const
 {
     return !GetAurasByType(auraType).empty();
+}
+
+bool Unit::HasNegativeAuraType(AuraType auraType) const
+{
+    Unit::AuraList const& auras = GetAurasByType(auraType);
+
+    if (auras.empty())
+        return false;
+
+    for (Unit::AuraList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+    {
+        if (!(*itr)->GetHolder()->IsPositive())
+            return true;
+    }
+    return false;
 }
 
 bool Unit::HasAffectedAura(AuraType auraType, SpellEntry const* spellProto) const
@@ -11531,6 +11545,15 @@ void Unit::SetStandState(uint8 state)
 bool Unit::IsPolymorphed() const
 {
     return GetSpellSpecific(getTransForm())==SPELL_MAGE_POLYMORPH;
+}
+
+bool Unit::IsCrowdControlled() const
+{
+    return  HasNegativeAuraType(SPELL_AURA_MOD_CONFUSE) ||
+            HasNegativeAuraType(SPELL_AURA_MOD_FEAR) ||
+            HasNegativeAuraType(SPELL_AURA_MOD_STUN) ||
+            HasNegativeAuraType(SPELL_AURA_MOD_ROOT) ||
+            HasNegativeAuraType(SPELL_AURA_TRANSFORM);
 }
 
 void Unit::SetDisplayId(uint32 modelId)

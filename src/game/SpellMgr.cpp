@@ -4394,3 +4394,20 @@ SpellEntry const* GetSpellEntryByDifficulty(uint32 id, Difficulty difficulty, bo
 
     return NULL;
 }
+
+uint32 GetProcFlag(SpellEntry const* spellInfo)
+{
+    if (!spellInfo)
+        return 0;
+
+    SpellProcEventEntry const* spellProcEvent = sSpellMgr.GetSpellProcEvent(spellInfo->Id);
+
+    // Get EventProcFlag
+    uint32 EventProcFlag = 0;
+    if (spellProcEvent && spellProcEvent->procFlags) // if exist get custom spellProcEvent->procFlags
+        EventProcFlag = spellProcEvent->procFlags;
+    else
+        EventProcFlag = spellInfo->procFlags;       // else get from spell proto
+
+    return EventProcFlag;
+}
