@@ -1871,7 +1871,6 @@ void LFGMgr::Teleport(Player* player, bool out, bool fromOpcode /*= false*/)
 
         DETAIL_LOG("LFGMgr: Sending %s to map %u, difficulty %u X %f, Y %f, Z %f, O %f", player->GetName(), uint8(difficulty), mapid, x, y, z, orientation);
 
-        player->CastSpell(player,LFG_SPELL_LUCK_OF_THE_DRAW,true);
         player->TeleportTo(mapid, x, y, z, orientation);
         player->GetLFGState()->SetState(LFG_STATE_DUNGEON);
         player->GetLFGState()->SetTeleported();
@@ -3036,7 +3035,6 @@ void LFGMgr::RemoveMemberFromLFDGroup(Group* group, ObjectGuid guid)
     if (player->HasAura(LFG_SPELL_DUNGEON_COOLDOWN) && !sWorld.getConfig(CONFIG_BOOL_LFG_DEBUG_ENABLE))
         player->CastSpell(player,LFG_SPELL_DUNGEON_DESERTER,true);
 
-    player->RemoveAurasDueToSpell(LFG_SPELL_LUCK_OF_THE_DRAW);
 
     if (!group || !group->isLFDGroup())
     {
@@ -3155,6 +3153,38 @@ void LFGMgr::LoadLFDGroupPropertiesForPlayer(Player* player)
         }
         default:
            break;
+    }
+}
+
+void LFGMgr::OnPlayerEnterMap(Player* player, Map* map)
+{
+    if (!player || !player->IsInWorld() || !map)
+        return;
+
+    Group* group = player->GetGroup();
+
+    if (!group || !group->isLFDGroup())
+        return;
+
+    if (map->IsDungeon() && group->isLFGGroup())
+        player->CastSpell(player,LFG_SPELL_LUCK_OF_THE_DRAW,true);
+    else if (map->IsRaid() && group->isLFRGroup() && sWorld.getConfig(CONFIG_BOOL_LFR_ENABLE))
+        player->CastSpell(player,LFG_SPELL_LUCK_OF_THE_DRAW,true);
+    else
+        player->RemoveAurasDueToSpell(LFG_SPELL_LUCK_OF_THE_DRAW);
+}
+
+void LFGMgr::OnPlayerLeaveMap(Player* player, Map* map)
+{
+    if (!player || !player->IsInWorld() || !map)
+        return;
+
+    Group* group = player->GetGroup();
+
+    if (player->HasAura(LFG_SPELL_LUCK_OF_THE_DRAW))
+    {
+        if (!group || !group->isLFDGroup())
+            player->RemoveAurasDueToSpell(LFG_SPELL_LUCK_OF_THE_DRAW);
     }
 }
 
