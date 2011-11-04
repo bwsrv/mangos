@@ -10111,6 +10111,9 @@ void Spell::DoSummonTotem(SpellEffectIndex eff_idx, uint8 slot_dbc)
     if (m_spellInfo->Id == 16190)
         damage = m_caster->GetMaxHealth() * m_spellInfo->CalculateSimpleValue(EFFECT_INDEX_1) / 100;
 
+    if (m_spellInfo->Id == 51052) // Anti-Magic Zone
+        damage += m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 2; //AP bonus;
+
     if (damage)                                             // if not spell info, DB values used
     {
         pTotem->SetMaxHealth(damage);
