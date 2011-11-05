@@ -5554,6 +5554,8 @@ Aura* Unit::GetScalingAura(AuraType type, uint32 stat)
                     if (aura->GetModifier()->m_miscvalue == Stats(stat))
                         return aura;
                     break;
+                case SPELL_AURA_HASTE_ALL:
+                    return aura;
                 default:
                     break;
             }
@@ -11782,6 +11784,8 @@ void Unit::ApplyAttackTimePercentMod( WeaponAttackType att,float val, bool apply
         ApplyPercentModFloatVar(m_modAttackSpeedPct[att], -val, apply);
         ApplyPercentModFloatValue(UNIT_FIELD_BASEATTACKTIME+att,-val,apply);
     }
+    if (GetTypeId() == TYPEID_PLAYER && IsInWorld())
+        ((Player*)this)->CallForAllControlledUnits(ApplyScalingBonusWithHelper(SCALING_TARGET_ATTACKSPEED, 0, false),CONTROLLED_PET|CONTROLLED_GUARDIANS);
 }
 
 void Unit::ApplyCastTimePercentMod(float val, bool apply )
