@@ -7775,6 +7775,16 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     }
                     break;
                 }
+                case 44436:                                 // Tricky Treat
+                {
+                    if (!unitTarget)
+                        return;
+
+                    if (roll_chance_i(25))                  // chance unknown, using 25, Script Effect Cast Upset Tummy
+                        unitTarget->CastSpell(unitTarget, 42966, true);
+
+                    return;
+                }
                 case 44455:                                 // Character Script Effect Reverse Cast
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
