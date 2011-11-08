@@ -3470,7 +3470,15 @@ void Map::RemoveAttackersStorageFor(ObjectGuid targetGuid)
 void Map::ForcedUnload()
 {
     sLog.outError("Map::ForcedUnload called for map %u instance %u. Map crushed. Cleaning up...", GetId(), GetInstanceId());
-    Map::PlayerList const& pList = GetPlayers();
+
+    // Immediately cleanup update sets/queues
+    i_objectsToClientUpdate.clear();
+    i_objectsToClientNotUpdate.clear();
+    while (!i_objectsToClientUpdateQueue.empty())
+        i_objectsToClientUpdateQueue.pop();
+
+
+    Map::PlayerList const pList = GetPlayers();
     for (PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
     {
         Player* player = itr->getSource();
