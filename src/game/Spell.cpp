@@ -1327,7 +1327,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, uint32 effectMask)
 
     // Get Data Needed for Diminishing Returns, some effects may have multiple auras, so this must be done on spell hit, not aura add
     // Diminishing must not affect spells, casted on self
-    if (realCaster && unit && realCaster != unit)
+    if (realCaster && unit && realCaster != unit || (m_spellFlags & SPELL_FLAG_REFLECTED))
     {
         m_diminishGroup = GetDiminishingReturnsGroupForSpell(m_spellInfo,m_triggeredByAuraSpell);
         m_diminishLevel = unit->GetDiminishing(m_diminishGroup);
