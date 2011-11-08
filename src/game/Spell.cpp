@@ -1954,6 +1954,9 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             {
                 // caster included here?
                 FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_ALL);
+
+                if (targetUnitMap.empty());
+                    targetUnitMap.push_back(m_caster);
             }
             else if (IsPositiveSpell(m_spellInfo->Id))
                     targetUnitMap.push_back(m_caster);
