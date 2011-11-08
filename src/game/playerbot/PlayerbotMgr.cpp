@@ -9,7 +9,6 @@
 #include "../Chat.h"
 #include "../Language.h"
 #include "../Guild.h"
-#include "../World.h"
 
 class LoginQueryHolder;
 class CharacterHandler;

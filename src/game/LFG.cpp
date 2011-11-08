@@ -23,7 +23,6 @@
 #include "LFGMgr.h"
 #include "Group.h"
 #include "Player.h"
-#include "World.h"
 
 void LFGStateStructure::SetDungeons(LFGDungeonSet* dungeons)
 {

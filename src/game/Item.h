@@ -23,6 +23,7 @@
 #include "Object.h"
 #include "LootMgr.h"
 #include "ItemPrototype.h"
+#include "World.h"
 
 struct SpellEntry;
 class Bag;

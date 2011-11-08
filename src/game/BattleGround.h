@@ -206,9 +206,14 @@ enum ScoreType
     SCORE_TOWERS_ASSAULTED      = 13,
     SCORE_TOWERS_DEFENDED       = 14,
     SCORE_SECONDARY_OBJECTIVES  = 15,
+    /** World of Warcraft Armory **/
+    SCORE_DAMAGE_TAKEN          = 16,
+    SCORE_HEALING_TAKEN         = 17,
+    /** World of Warcraft Armory **/
     //SA
     SCORE_GATES_DESTROYED       = 18,
     SCORE_DEMOLISHERS_DESTROYED = 19
+
 };
 
 enum BattleGroundType
@@ -276,6 +281,9 @@ class BattleGroundScore
     public:
         BattleGroundScore() : KillingBlows(0), Deaths(0), HonorableKills(0),
             BonusHonor(0), DamageDone(0), HealingDone(0)
+        /** World of Warcraft Armory **/
+        , DamageTaken(0), HealingTaken(0)
+        /** World of Warcraft Armory **/
         {}
         virtual ~BattleGroundScore() {}                     //virtual destructor is used when deleting score from scores map
 
@@ -285,6 +293,10 @@ class BattleGroundScore
         uint32 BonusHonor;
         uint32 DamageDone;
         uint32 HealingDone;
+        /** World of Warcraft Armory **/
+        uint32 DamageTaken;
+        uint32 HealingTaken;
+        /** World of Warcraft Armory **/
 };
 
 /*
