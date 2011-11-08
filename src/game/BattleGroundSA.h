@@ -23,7 +23,7 @@ class BattleGround;
 
 #define BG_SA_GRY_MAX 3
 #define BG_SA_GATE_MAX 6
-#define BG_SA_MAX_WS 3
+#define BG_SA_MAX_WS 4
 
 enum BG_SA_WorldStates
 {
@@ -39,7 +39,6 @@ enum BG_SA_WorldStates
     BG_SA_GREEN_GATEWS = 3623,
     BG_SA_YELLOW_GATEWS = 3638,
     BG_SA_ANCIENT_GATEWS = 3849,
-
 
     BG_SA_LEFT_GY_ALLIANCE = 3635,
     BG_SA_RIGHT_GY_ALLIANCE = 3636,
@@ -64,22 +63,17 @@ enum BG_SA_WorldStates
 
 enum BG_SA_Sounds
 {
-    BG_SA_SOUND_GYD_CLAIMED = 8192,
-    BG_SA_SOUND_GYD_CAPTURED_ALLIANCE = 8173,
-    BG_SA_SOUND_GYD_CAPTURED_HORDE = 8213,
-    BG_SA_SOUND_GYD_ASSAULTED_ALLIANCE = 8212,
-    BG_SA_SOUND_GYD_ASSAULTED_HORDE = 8174,
-    BG_SA_SOUND_GYD_VICTORY = 8456
+    BG_SA_SOUND_GYD_CAPTURED_ALLIANCE  = 8173,
+    BG_SA_SOUND_GYD_CAPTURED_HORDE     = 8213,
+    BG_SA_SOUND_GYD_VICTORY            = 8456
 };
 
 enum BG_SA_GraveYardStatus
 {
-    BG_SA_GARVE_TYPE_CONTESTED = 1,
-    BG_SA_GARVE_STATUS_ALLY_CONTESTED = 1,
-    BG_SA_GARVE_STATUS_HORDE_CONTESTED = 2,
-    BG_SA_GARVE_TYPE_OCCUPIED = 3,
-    BG_SA_GARVE_STATUS_ALLY_OCCUPIED = 3,
-    BG_SA_GARVE_STATUS_HORDE_OCCUPIED = 4
+    BG_SA_GARVE_STATUS_ALLY_CONTESTED    = 1, // owned by the allies, capturable by horde
+    BG_SA_GARVE_STATUS_HORDE_CONTESTED   = 2,
+    BG_SA_GARVE_STATUS_ALLY_OCCUPIED     = 3,
+    BG_SA_GARVE_STATUS_HORDE_OCCUPIED    = 4
 };
 
 enum BG_SA_GraveYard
@@ -87,12 +81,12 @@ enum BG_SA_GraveYard
     BG_SA_GARVE_E = 0,
     BG_SA_GARVE_W = 1,
     BG_SA_GARVE_S = 2,
+    BG_SA_GARVE_A = 3,                        // Last defender graveyard, at the ancient shrine
     BG_SA_GARVE_ERROR = 255
 };
 
 enum BG_SA_Timers
 {
-    BG_SA_FLAG_CAPTURING_TIME = 60000,
     BG_SA_ROUNDLENGTH = 600000,
     BG_SA_BOAT_START = 70000
 };
@@ -102,12 +96,6 @@ enum BG_SA_GateStatus
     BG_SA_GO_GATES_NORMAL = 1,
     BG_SA_GO_GATES_DAMAGE = 2,
     BG_SA_GO_GATES_DESTROY = 3
-};
-
-enum BG_SA_TeamIndex
-{
-    BG_SA_ALLIANCE = 0,
-    BG_SA_HORDE = 1
 };
 
 enum BG_SA_GoId
@@ -228,7 +216,6 @@ class BattleGroundSA : public BattleGround
         virtual void StartingEventCloseDoors();
         virtual void StartingEventOpenDoors();
         virtual void EventPlayerDamageGO(Player *player, GameObject* target_obj, uint32 eventId, uint32 doneBy = 0);
-        virtual void EventSpawnGOSA(Player *owner, Creature* obj, float x, float y, float z);
         virtual void FillInitialWorldStates(WorldPacket& data, uint32& count);
         virtual void EventPlayerClickedOnFlag(Player *source, GameObject* target_obj);
         virtual void HandleKillUnit(Creature* unit, Player* killer);
@@ -276,7 +263,6 @@ class BattleGroundSA : public BattleGround
     private:
         uint8 m_Gyd[BG_SA_GRY_MAX];
         uint8 m_prevGyd[BG_SA_GRY_MAX]; // used for performant wordlstate-updating
-        uint32 m_GydTimers[BG_SA_GRY_MAX];
         BG_SA_RoundScore RoundScores[2];
         /* Gameobject spawning/despawning */
         void _CreateBanner(uint8 node, uint8 type, uint8 teamIndex, bool delay);

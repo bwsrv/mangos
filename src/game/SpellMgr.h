@@ -265,6 +265,8 @@ inline bool IsCrowdControlAura(AuraType aura)
             aura == SPELL_AURA_TRANSFORM   );
 }
 
+uint32 GetProcFlag(SpellEntry const* spellInfo);
+
 inline bool IsDeathPersistentSpell(SpellEntry const *spellInfo)
 {
     return spellInfo->AttributesEx3 & SPELL_ATTR_EX3_DEATH_PERSISTENT;
@@ -647,6 +649,15 @@ enum ProcFlags
                                  PROC_FLAG_SUCCESSFUL_AOE_SPELL_HIT      | \
                                  PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL     | \
                                  PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT)
+
+#define DAMAGE_OR_HIT_TRIGGER_MASK (PROC_FLAG_TAKEN_MELEE_HIT | \
+                                    PROC_FLAG_TAKEN_MELEE_SPELL_HIT | \
+                                    PROC_FLAG_TAKEN_RANGED_HIT | \
+                                    PROC_FLAG_TAKEN_AOE_SPELL_HIT | \
+                                    PROC_FLAG_TAKEN_NEGATIVE_SPELL_HIT | \
+                                    PROC_FLAG_TAKEN_ANY_DAMAGE | \
+                                    PROC_FLAG_ON_TRAP_ACTIVATION)
+
 enum ProcFlagsEx
 {
     PROC_EX_NONE                = 0x0000000,                // If none can tigger on Hit/Crit only (passive spells MUST defined by SpellFamily flag)

@@ -851,11 +851,6 @@ LexicsCutterNoActionOnGM = 1
 #        Default: 0 - flags not unique
 #                 1 - flags unique, not more then 1 player may have this flag
 #
-#    WOWArmorySupport
-#        Support collect statistics for Shadez WOW Armory frontend
-#        Default: 0 - don't support
-#                 1 - supported
-#
 #    ClientCacheVersion
 #        Client cache version for client cache data reset. Use any different from DB value and not recently used for triggering reset.
 #        Default: 0 (use DB value from world DB db_version.cache_id field)
@@ -892,6 +887,12 @@ LexicsCutterNoActionOnGM = 1
 #        Very simple check for gameobjects' presence on unit path (for example to avoid problems with teleport through closed doors).
 #        May use many CPU resources!
 #        Default: 0
+#
+#    CrowdControlHPBase
+#        Base HP part for calculation CrowdControl effects (from MAX HP!).
+#        Default: 0.1  (10% max HP)
+#        min:     0.0  (default mangos method)
+#        max:     1.0  (full CrowdControl, auras like Fear not breaked by damage anyway)
 #
 ###################################################################################################################
 
@@ -963,7 +964,6 @@ PetUnsummonAtMount = 1
 PetSaveAllInDB = 0
 RaidFlags.Unique = 0
 AllowFlightOnOldMaps = 0
-WOWArmorySupport = 0
 ClientCacheVersion = 0
 Event.Announce = 0
 BeepAtStart = 1
@@ -972,6 +972,7 @@ WaitAtStartupError = 0
 Motd = "Welcome to the Massive Network Game Object Server."
 Raid.MinLevel = 10
 CheckGOInPath = 0
+CrowdControlHPBase = 0.1
 
 ###################################################################################################################
 # PLAYER INTERACTION
@@ -1372,7 +1373,7 @@ GM.AnnounceBan           = 0
 
 Visibility.GroupMode = 0
 Visibility.Distance.Continents    = 90
-Visibility.Distance.Instances     = 120
+Visibility.Distance.Instances     = 400
 Visibility.Distance.BGArenas      = 180
 Visibility.Distance.InFlight      = 100
 Visibility.Distance.Grey.Unit   = 1

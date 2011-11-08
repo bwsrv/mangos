@@ -1327,7 +1327,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, uint32 effectMask)
 
     // Get Data Needed for Diminishing Returns, some effects may have multiple auras, so this must be done on spell hit, not aura add
     // Diminishing must not affect spells, casted on self
-    if (realCaster && unit && realCaster != unit)
+    if (realCaster && unit && realCaster != unit || (m_spellFlags & SPELL_FLAG_REFLECTED))
     {
         m_diminishGroup = GetDiminishingReturnsGroupForSpell(m_spellInfo,m_triggeredByAuraSpell);
         m_diminishLevel = unit->GetDiminishing(m_diminishGroup);
@@ -1784,8 +1784,8 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
         }
         case SPELLFAMILY_WARRIOR:
         {
-            // Sunder Armor (main spell)
-            if (m_spellInfo->SpellFamilyFlags.test<CF_WARRIOR_SUNDER_ARMOR>() && m_spellInfo->SpellVisual[0] == 406)
+            // Sunder Armor (triggered spell)
+            if (m_spellInfo->SpellFamilyFlags.test<CF_WARRIOR_SUNDER_ARMOR>() && m_spellInfo->SpellVisual[0] == 0)
                 if (m_caster->HasAura(58387))               // Glyph of Sunder Armor
                     EffectChainTarget = 2;
             break;
@@ -1967,6 +1967,9 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             {
                 // caster included here?
                 FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_ALL);
+
+                if (targetUnitMap.empty());
+                    targetUnitMap.push_back(m_caster);
             }
             else if (IsPositiveSpell(m_spellInfo->Id))
                     targetUnitMap.push_back(m_caster);
@@ -3700,10 +3703,18 @@ void Spell::cast(bool skipCheck)
     }
     else
     {
-        m_caster->ProcDamageAndSpell(procTarget, m_procAttacker, 0, PROC_EX_CAST_END, 0, m_attackType, m_spellInfo);
+        if (GetCastTime())
+        {
+            m_caster->ProcDamageAndSpell(procTarget, m_procAttacker, 0, PROC_EX_CAST_END, 0, m_attackType, m_spellInfo);
+            // Immediate spell, no big deal
+            handle_immediate();
+        }
+        else
+        {
+            handle_immediate();
+            m_caster->ProcDamageAndSpell(procTarget, m_procAttacker, 0, PROC_EX_CAST_END, 0, m_attackType, m_spellInfo);
+        }
 
-        // Immediate spell, no big deal
-        handle_immediate();
     }
 
     m_caster->DecreaseCastCounter();
@@ -5889,7 +5900,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 {
                     // In BattleGround players can use only flags and banners
                     if ( ((Player*)m_caster)->InBattleGround() &&
-                        !((Player*)m_caster)->CanUseBattleGroundObject() )
+                        !((Player*)m_caster)->CanUseBattleGroundObject() && m_spellInfo->Id!= 1842 ) // Disarm Trap can be used
                         return SPELL_FAILED_TRY_AGAIN;
 
                     lockId = go->GetGOInfo()->GetLockId();
@@ -8327,6 +8338,11 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
                 }
                 uiPhaseIndex++;
             }
+            break;
+        }
+        case 59754:                    //Rune Tap triggered from Glyph of Rune Tap
+        {
+            FillRaidOrPartyTargets(targetUnitMap, m_caster, m_caster, radius, false, true, false);
             break;
         }
         case 61999: // Raise ally

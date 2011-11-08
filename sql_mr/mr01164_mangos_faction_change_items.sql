@@ -20,6 +20,7 @@ CREATE TABLE `player_factionchange_items` (
 -- Records of player_factionchange_items
 -- ----------------------------
 INSERT INTO `player_factionchange_items` VALUES ('0', '15196', 'Private\'s Tabard', '0', '15197', 'Scout\'s Tabard');
+INSERT INTO `player_factionchange_items` VALUES ('0', '18606', 'Alliance Battle Standard', '0', '18607', 'Horde Battle Standard');
 INSERT INTO `player_factionchange_items` VALUES ('0', '19032', 'Stormpike Battle Tabard', '0', '19031', 'Frostwolf Battle Tabard');
 INSERT INTO `player_factionchange_items` VALUES ('0', '19506', 'Silverwing Battle Tabard', '0', '19505', 'Warsong Battle Tabard');
 INSERT INTO `player_factionchange_items` VALUES ('0', '20132', 'Arathor Battle Tabard', '0', '20131', 'Battle Tabard of the Defilers');
@@ -749,4 +750,10 @@ INSERT INTO `player_factionchange_items` VALUES ('0', '49234', 'Boots of the Gri
 INSERT INTO `player_factionchange_items` VALUES ('0', '49235', 'Boots of Tortured Space(232)', '0', '49236', 'Sabatons of Tortured Space(232)');
 INSERT INTO `player_factionchange_items` VALUES ('0', '49238', 'Boots of Tortured Space(245)', '0', '49237', 'Sabatons of Tortured Space(245)');
 INSERT INTO `player_factionchange_items` VALUES ('0', '51377', 'Medallion of the Alliance(264)', '0', '51378', 'Medallion of the Horde(264)');
-
+INSERT INTO `player_factionchange_items` VALUES ('0', '17691', 'Stormpike Insignia Rank 1', '0', '17690', 'Frostwolf Insignia Rank 1');
+INSERT INTO `player_factionchange_items` VALUES ('0', '17900', 'Stormpike Insignia Rank 2', '0', '17905', 'Frostwolf Insignia Rank 2');
+INSERT INTO `player_factionchange_items` VALUES ('0', '17901', 'Stormpike Insignia Rank 3', '0', '17906', 'Frostwolf Insignia Rank 3');
+INSERT INTO `player_factionchange_items` VALUES ('0', '17902', 'Stormpike Insignia Rank 4', '0', '17907', 'Frostwolf Insignia Rank 4');
+INSERT INTO `player_factionchange_items` VALUES ('0', '17903', 'Stormpike Insignia Rank 5', '0', '17908', 'Frostwolf Insignia Rank 5');
+INSERT INTO `player_factionchange_items` VALUES ('0', '17904', 'Stormpike Insignia Rank 6', '0', '17909', 'Frostwolf Insignia Rank 6');
+INSERT INTO `player_factionchange_items` VALUES ('0', '15198', 'Knight\'s Colors', '0', '15199', 'Stone Guard\'s Herald');

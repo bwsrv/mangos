@@ -478,6 +478,7 @@ class MANGOS_DLL_SPEC Aura
         Unit* GetTriggerTarget() const;
 
         uint32 CalculateCrowdControlBreakDamage();
+        bool   IsAffectedByCrowdControlEffect(uint32 damage);
 
         // add/remove SPELL_AURA_MOD_SHAPESHIFT (36) linked auras
         void HandleShapeshiftBoosts(bool apply);

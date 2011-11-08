@@ -2260,10 +2260,6 @@ class MANGOS_DLL_SPEC Player : public Unit
         uint32 GetSaveTimer() const { return m_nextSave; }
         void   SetSaveTimer(uint32 timer) { m_nextSave = timer; }
 
-        /** World of Warcraft Armory **/
-        void WriteWowArmoryDatabaseLog(uint32 type, uint32 data);
-        /** World of Warcraft Armory **/
-
         // Recall position
         uint32 m_recallMap;
         float  m_recallX;

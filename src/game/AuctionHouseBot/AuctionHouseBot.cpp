@@ -1158,14 +1158,16 @@ bool AuctionBotSeller::Initialize()
                     if (!sAuctionBotConfig.getConfig(CONFIG_BOOL_AHBOT_PETS_ENABLED))
                         continue;
                 }
-
-                if ((prototype->BagFamily & BAG_FAMILY_MASK_INSCRIPTION_SUPP) && (prototype->Class == ITEM_CLASS_QUEST))
+                break;
+            }
+            case ITEM_CLASS_QUEST:
+            {
+                if (prototype->BagFamily & BAG_FAMILY_MASK_INSCRIPTION_SUPP)
                 {
                     // skip darkmoon cards if disabled
                     if (!sAuctionBotConfig.getConfig(CONFIG_BOOL_AHBOT_DM_CARDS_ENABLED))
                         continue;
                 }
-
                 break;
             }
             case ITEM_CLASS_GLYPH:

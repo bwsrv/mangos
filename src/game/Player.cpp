@@ -1226,11 +1226,6 @@ void Player::Update( uint32 update_diff, uint32 p_time )
         setAttackTimer(RANGED_ATTACK, (update_diff >= ranged_att ? 0 : ranged_att - update_diff) );
     }
 
-    if (uint32 off_att = getAttackTimer(OFF_ATTACK))
-    {
-        setAttackTimer(OFF_ATTACK, (update_diff >= off_att ? 0 : off_att - update_diff) );
-    }
-
     time_t now = time (NULL);
 
     UpdatePvPFlag(now);
@@ -5722,10 +5717,10 @@ bool Player::UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step)
     return false;
 }
 
-void Player::UpdateWeaponSkill (WeaponAttackType attType)
+void Player::UpdateWeaponSkill(WeaponAttackType attType)
 {
     // no skill gain in pvp
-    Unit *pVictim = getVictim();
+    Unit* pVictim = getVictim();
     if (pVictim && pVictim->IsCharmerOrOwnerPlayerOrPlayerItself())
         return;
 
@@ -5735,31 +5730,14 @@ void Player::UpdateWeaponSkill (WeaponAttackType attType)
     if (GetShapeshiftForm() == FORM_TREE)
         return;                                             // use weapon but not skill up
 
-    uint32 weapon_skill_gain = sWorld.getConfig(CONFIG_UINT32_SKILL_GAIN_WEAPON);
+    uint32 weaponSkillGain = sWorld.getConfig(CONFIG_UINT32_SKILL_GAIN_WEAPON);
 
-    switch(attType)
-    {
-        case BASE_ATTACK:
-        {
-            Item *tmpitem = GetWeaponForAttack(attType,true,true);
+    Item* pWeapon = GetWeaponForAttack(attType, true, true);
+    if (pWeapon && pWeapon->GetProto()->SubClass != ITEM_SUBCLASS_WEAPON_FISHING_POLE)
+        UpdateSkill(pWeapon->GetSkill(), weaponSkillGain);
+    else if (!pWeapon && attType == BASE_ATTACK)
+        UpdateSkill(SKILL_UNARMED, weaponSkillGain);
 
-            if (!tmpitem)
-                UpdateSkill(SKILL_UNARMED,weapon_skill_gain);
-            else if (tmpitem->GetProto()->SubClass != ITEM_SUBCLASS_WEAPON_FISHING_POLE)
-                UpdateSkill(tmpitem->GetSkill(),weapon_skill_gain);
-            break;
-        }
-        case OFF_ATTACK:
-        case RANGED_ATTACK:
-        {
-            Item *tmpitem = GetWeaponForAttack(attType,true,true);
-            if (tmpitem)
-                UpdateSkill(tmpitem->GetSkill(),weapon_skill_gain);
-            break;
-        }
-        default:
-            break;
-    }
     UpdateAllCritPercentages();
 }
 
@@ -17961,20 +17939,6 @@ void Player::SaveToDB()
     DEBUG_FILTER_LOG(LOG_FILTER_PLAYER_STATS, "The value of player %s at save: ", m_name.c_str());
     outDebugStatsValues();
 
-    /** World of Warcraft Armory **/
-    if (sWorld.getConfig(CONFIG_BOOL_ARMORY_SUPPORT))
-    {
-        std::ostringstream ps;
-        ps << "REPLACE INTO armory_character_stats (guid,data) VALUES ('" << GetGUIDLow() << "', '";
-        for(uint16 i = 0; i < m_valuesCount; ++i )
-        {
-            ps << GetUInt32Value(i) << " ";
-        }
-        ps << "')";
-        CharacterDatabase.Execute( ps.str().c_str() );
-    }
-    /** World of Warcraft Armory **/
-
     CharacterDatabase.BeginTransaction();
 
     static SqlStatementID delChar ;
@@ -24185,45 +24149,6 @@ bool Player::IsReferAFriendLinked(Player* target)
     return false;
 }
 
-/** World of Warcraft Armory **/
-void Player::WriteWowArmoryDatabaseLog(uint32 type, uint32 data)
-{
-    if (!sWorld.getConfig(CONFIG_BOOL_ARMORY_SUPPORT))
-        return;
-    /*
-        Log types:
-        1 - achievement feed
-        2 - loot feed
-        3 - boss kill feed
-    */
-    uint32 pGuid = GetGUIDLow();
-    sLog.outDetail("WoWArmory: write feed log (guid: %u, type: %u, data: %u", pGuid, type, data);
-    if (type <= 0 || type > 3)    // Unknown type
-    {
-        sLog.outError("WoWArmory: unknown type id: %d, ignore.", type);
-        return;
-    }
-    if (type == 3)    // Do not write same bosses many times - just update counter.
-    {
-        uint8 Difficulty = GetMap()->GetDifficulty();
-        QueryResult *result = CharacterDatabase.PQuery("SELECT counter FROM armory_character_feed_log WHERE guid='%u' AND type=3 AND data='%u' AND difficulty='%u' LIMIT 1", pGuid, data, Difficulty);
-        if (result)
-        {
-            CharacterDatabase.PExecute("UPDATE armory_character_feed_log SET counter=counter+1, date=UNIX_TIMESTAMP(NOW()) WHERE guid='%u' AND type=3 AND data='%u' AND difficulty='%u' LIMIT 1", pGuid, data, Difficulty);
-        }
-        else
-        {
-            CharacterDatabase.PExecute("INSERT INTO armory_character_feed_log (guid, type, data, date, counter, difficulty) VALUES('%u', '%d', '%u', UNIX_TIMESTAMP(NOW()), 1, '%u')", pGuid, type, data, Difficulty);
-        }
-        delete result;
-    }
-    else
-    {
-        CharacterDatabase.PExecute("REPLACE INTO armory_character_feed_log (guid, type, data, date, counter) VALUES('%u', '%d', '%u', UNIX_TIMESTAMP(NOW()), 1)", pGuid, type, data);
-    }
-}
-/** World of Warcraft Armory **/
-
 AreaLockStatus Player::GetAreaTriggerLockStatus(AreaTrigger const* at, Difficulty difficulty)
 {
 
@@ -24306,11 +24231,6 @@ uint32 Player::GetEquipGearScore(bool withBags, bool withBank)
 
     for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
     {
-        gearScore[i] = 0;
-    }
-
-    for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
-    {
         if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
             _fillGearScoreData(item, &gearScore, twoHandScore);
     }
@@ -24367,7 +24287,7 @@ uint32 Player::GetEquipGearScore(bool withBags, bool withBank)
     uint32 sum = 0;
 
     // check if 2h hand is higher level than main hand + off hand
-    if ((gearScore[EQUIPMENT_SLOT_MAINHAND] + gearScore[EQUIPMENT_SLOT_OFFHAND]) / 2 < twoHandScore)
+    if (gearScore[EQUIPMENT_SLOT_MAINHAND] + gearScore[EQUIPMENT_SLOT_OFFHAND] < twoHandScore * 2)
     {
         gearScore[EQUIPMENT_SLOT_OFFHAND] = 0;  // off hand is ignored in calculations if 2h weapon has higher score
         --count;
@@ -24389,7 +24309,7 @@ uint32 Player::GetEquipGearScore(bool withBags, bool withBank)
 
         return res;
     }
-    else 
+    else
         return 0;
 }
 
@@ -24456,7 +24376,7 @@ void Player::_fillGearScoreData(Item* item, GearScoreVec* gearScore, uint32& two
             break;
         // equipped gear score check uses both rings and trinkets for calculation, assume that for bags/banks it is the same
         // with keeping second highest score at second slot
-        case INVTYPE_FINGER:    
+        case INVTYPE_FINGER:
         {
             if ((*gearScore)[EQUIPMENT_SLOT_FINGER1] < level)
             {

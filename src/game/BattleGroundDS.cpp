@@ -48,32 +48,39 @@ void BattleGroundDS::Update(uint32 diff)
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
         // push people from the tubes
-        if (m_uiKnockback < diff)
+        if (pushbackCheck)
         {
-            for (BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+            // knockback
+            if (m_uiKnockback < diff)
             {
-                Player *plr = sObjectMgr.GetPlayer(itr->first);
-                if (!plr)
-                    continue;
+                for (BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+                {
+                    Player *plr = sObjectMgr.GetPlayer(itr->first);
+                    if (!plr)
+                        continue;
 
-                if (plr->GetPositionZ() < 11.0f)
-                    continue;
+                    if (GameObject* obj = plr->GetGameObject(48018))                         // Remove Demonic Circle
+                        obj->Delete();
 
-                float angle = (plr->GetBGTeam() == ALLIANCE /*gold*/) ? plr->GetAngle(1259.58f, 764.43f) : plr->GetAngle(1325.84f, 817.304f);
+                    if (plr->GetPositionZ() < 11.0f)
+                        continue;
 
-                plr->KnockBackPlayerWithAngle(angle, 45, 7);
+                    float angle = (plr->GetBGTeam() == ALLIANCE /*gold*/) ? plr->GetAngle(1259.58f, 764.43f) : plr->GetAngle(1325.84f, 817.304f);
 
-                if (plr->IsWithinDist2d(1214, 765, 50) && plr->IsWithinLOS(1214, 765, 14))
-                    plr->KnockBackPlayerWithAngle(6.40f,55,7);
+                    plr->KnockBackPlayerWithAngle(angle, 45, 7);
 
-                if (plr->IsWithinDist2d(1369, 817, 50) && plr->IsWithinLOS(1369, 817, 14))
-                    plr->KnockBackPlayerWithAngle(3.03f,55,7);
+                    if (plr->IsWithinDist2d(1214, 765, 50) && plr->IsWithinLOS(1214, 765, 14))
+                        plr->KnockBackPlayerWithAngle(6.40f,55,7);
+
+                    if (plr->IsWithinDist2d(1369, 817, 50) && plr->IsWithinLOS(1369, 817, 14))
+                        plr->KnockBackPlayerWithAngle(3.03f,55,7);
+                }
+                pushbackCheck = false;
+                m_uiKnockback = 1000;
             }
-            pushbackCheck = false;
-            m_uiKnockback = 1000;
+            else
+                m_uiKnockback -= diff;
         }
-        else
-            m_uiKnockback -= diff;
 
         // in case pushback failed
         if (teleportCheck)

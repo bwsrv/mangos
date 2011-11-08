@@ -90,6 +90,13 @@ void BattleGroundEY::Update(uint32 diff)
             CheckSomeoneLeftPoint();
             UpdatePointStatuses();
             m_TowerCapCheckTimer = BG_EY_FPOINTS_TICK_TIME;
+
+            // areatrigger for Fel Reaver was removed? so:
+            if (m_FlagState)
+                if (Player* plr = sObjectMgr.GetPlayer(GetFlagPickerGuid()))
+                    if (plr->GetDistance2d(2043.99f, 1729.91f) < 2)
+                        if (m_PointState[BG_EY_NODE_FEL_REAVER] == EY_POINT_UNDER_CONTROL && m_PointOwnedByTeam[BG_EY_NODE_FEL_REAVER] == plr->GetTeam())
+                            EventPlayerCapturedFlag(plr, BG_EY_NODE_FEL_REAVER);
         }
     }
 }
@@ -103,7 +110,7 @@ void BattleGroundEY::StartingEventOpenDoors()
     // eye-doors are despawned, not opened
     SpawnEvent(BG_EVENT_DOOR, 0, false);
 
-    for(uint32 i = 0; i < BG_EY_NODES_MAX; ++i)
+    for (uint32 i = 0; i < BG_EY_NODES_MAX; ++i)
     {
         //randomly spawn buff
         uint8 buff = urand(0, 2);
@@ -165,7 +172,7 @@ void BattleGroundEY::CheckSomeoneLeftPoint()
     //reset current point counts
     for (uint8 i = 0; i < 2*BG_EY_NODES_MAX; ++i)
         m_CurrentPointPlayersCount[i] = 0;
-    for(uint8 i = 0; i < BG_EY_NODES_MAX; ++i)
+    for (uint8 i = 0; i < BG_EY_NODES_MAX; ++i)
     {
         uint8 j = 0;
         while (j < m_PlayersNearPoint[i].size())
@@ -200,7 +207,7 @@ void BattleGroundEY::CheckSomeoneLeftPoint()
 
 void BattleGroundEY::UpdatePointStatuses()
 {
-    for(uint8 point = 0; point < BG_EY_NODES_MAX; ++point)
+    for (uint8 point = 0; point < BG_EY_NODES_MAX; ++point)
     {
         if (m_PlayersNearPoint[point].empty())
             continue;
@@ -319,7 +326,7 @@ void BattleGroundEY::RemovePlayer(Player *plr, ObjectGuid guid)
     // sometimes flag aura not removed :(
     for (int j = BG_EY_NODES_MAX; j >= 0; --j)
     {
-        for(size_t i = 0; i < m_PlayersNearPoint[j].size(); ++i)
+        for (size_t i = 0; i < m_PlayersNearPoint[j].size(); ++i)
             if (m_PlayersNearPoint[j][i] == guid)
                 m_PlayersNearPoint[j].erase(m_PlayersNearPoint[j].begin() + i);
     }
@@ -343,7 +350,7 @@ void BattleGroundEY::HandleAreaTrigger(Player *Source, uint32 Trigger)
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    if(!Source->isAlive())                                  //hack code, must be removed later
+    if (!Source->isAlive())                                  //hack code, must be removed later
         return;
 
     switch(Trigger)
@@ -427,7 +434,7 @@ void BattleGroundEY::Reset()
     bool isBGWeekend = BattleGroundMgr::IsBGWeekend(GetTypeID());
     m_HonorTics = (isBGWeekend) ? BG_EY_EYWeekendHonorTicks : BG_EY_NotEYWeekendHonorTicks;
 
-    for(uint8 i = 0; i < BG_EY_NODES_MAX; ++i)
+    for (uint8 i = 0; i < BG_EY_NODES_MAX; ++i)
     {
         m_PointOwnedByTeam[i] = TEAM_NONE;
         m_PointState[i] = EY_POINT_STATE_UNCONTROLLED;
@@ -477,6 +484,7 @@ void BattleGroundEY::HandleKillPlayer(Player *player, Player *killer)
         return;
 
     BattleGround::HandleKillPlayer(player, killer);
+
     EventPlayerDroppedFlag(player);
 }
 
@@ -646,16 +654,17 @@ void BattleGroundEY::EventPlayerCapturedFlag(Player *Source, BG_EY_Nodes node)
     UpdatePlayerScore(Source, SCORE_FLAG_CAPTURES, 1);
 }
 
-void BattleGroundEY::UpdatePlayerScore(Player *Source, uint32 type, uint32 value)
+void BattleGroundEY::UpdatePlayerScore(Player* Source, uint32 type, uint32 value)
 {
     BattleGroundScoreMap::iterator itr = m_PlayerScores.find(Source->GetObjectGuid());
-    if(itr == m_PlayerScores.end())                         // player not found
+    if (itr == m_PlayerScores.end())                         // player not found
         return;
 
     switch(type)
     {
         case SCORE_FLAG_CAPTURES:                           // flags captured
             ((BattleGroundEYScore*)itr->second)->FlagCaptures += value;
+            Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, 1, EY_OBJECTIVE_CAPTURE_FLAG);
             break;
         default:
             BattleGround::UpdatePlayerScore(Source, type, value);
@@ -732,7 +741,7 @@ WorldSafeLocsEntry const *BattleGroundEY::GetClosestGraveYard(Player* player)
     distance = (entry->x - plr_x)*(entry->x - plr_x) + (entry->y - plr_y)*(entry->y - plr_y) + (entry->z - plr_z)*(entry->z - plr_z);
     nearestDistance = distance;
 
-    for(uint8 i = 0; i < BG_EY_NODES_MAX; ++i)
+    for (uint8 i = 0; i < BG_EY_NODES_MAX; ++i)
     {
         if (m_PointOwnedByTeam[i]==player->GetTeam() && m_PointState[i]==EY_POINT_UNDER_CONTROL)
         {
@@ -756,7 +765,7 @@ WorldSafeLocsEntry const *BattleGroundEY::GetClosestGraveYard(Player* player)
 
 bool BattleGroundEY::IsAllNodesConrolledByTeam(Team team) const
 {
-    for(int i = 0; i < BG_EY_NODES_MAX; ++i)
+    for (int i = 0; i < BG_EY_NODES_MAX; ++i)
         if (m_PointState[i] != EY_POINT_UNDER_CONTROL || m_PointOwnedByTeam[i] != team)
             return false;
 

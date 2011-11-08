@@ -770,6 +770,8 @@ class MANGOS_DLL_SPEC GameObject : public WorldObject
         uint32 GetHealth() const { return m_health; }
         uint32 GetMaxHealth() const { return m_goInfo->destructibleBuilding.intactNumHits + m_goInfo->destructibleBuilding.damagedNumHits; }
 
+        float GetDeterminativeSize() const;
+
     protected:
         uint32      m_spellId;
         time_t      m_respawnTime;                          // (secs) time of next respawn (or despawn if GO have owner()),

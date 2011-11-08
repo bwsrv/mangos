@@ -440,6 +440,13 @@ m_isPersistent(false), m_in_use(0), m_spellAuraHolder(holder)
     if (!(spellproto->AttributesEx5 & SPELL_ATTR_EX5_START_PERIODIC_AT_APPLY))
         m_periodicTimer = m_modifier.periodictime;
 
+    // Calculate CrowdControl damage start value
+    if (IsCrowdControlAura(m_modifier.m_auraname))
+    {
+        if (uint32 cc_base_damage = CalculateCrowdControlBreakDamage())
+            m_modifier.m_baseamount = cc_base_damage;
+    }
+
     m_stacking = IsEffectStacking();
 
     switch (type)
@@ -771,7 +778,7 @@ void Aura::AreaAuraUpdate(uint32 diff)
 
             for(Spell::UnitList::iterator tIter = targets.begin(); tIter != targets.end(); tIter++)
             {
-                // flag for seelction is need apply aura to current iteration target
+                // flag for selection is need apply aura to current iteration target
                 bool apply = true;
 
                 // The Might of Mograine must not affect scourge soldiers, must affect only players and DK bosses
@@ -780,38 +787,48 @@ void Aura::AreaAuraUpdate(uint32 diff)
 
                 // we need ignore present caster self applied are auras sometime
                 // in cases if this only auras applied for spell effect
-                Unit::SpellAuraHolderBounds spair = (*tIter)->GetSpellAuraHolderBounds(GetId());
-                for(Unit::SpellAuraHolderMap::const_iterator i = spair.first; i != spair.second; ++i)
+                Unit* i_target = *tIter;
+                if (!i_target)
+                    continue;
+
+                if (i_target->IsImmuneToSpell(GetSpellProto()))
+                    continue;
+                else
                 {
-                    SpellAuraHolderPtr holder = i->second;
-                    if (!holder || holder->IsDeleted())
-                        continue;
-
-                    Aura *aur = holder->GetAuraByEffectIndex(m_effIndex);
-
-                    if (!aur)
-                        continue;
-
-                    switch(m_areaAuraType)
+                    MAPLOCK_READ(i_target,MAP_LOCK_TYPE_AURAS);
+                    Unit::SpellAuraHolderBounds spair = i_target->GetSpellAuraHolderBounds(GetId());
+                    for(Unit::SpellAuraHolderMap::const_iterator i = spair.first; i != spair.second; ++i)
                     {
-                        case AREA_AURA_ENEMY:
-                            // non caster self-casted auras (non stacked)
-                            if (aur->GetModifier()->m_auraname != SPELL_AURA_NONE)
+                        SpellAuraHolderPtr holder = i->second;
+                        if (!holder || holder->IsDeleted())
+                            continue;
+
+                        Aura *aur = holder->GetAuraByEffectIndex(m_effIndex);
+
+                        if (!aur)
+                            continue;
+
+                        switch(m_areaAuraType)
+                        {
+                            case AREA_AURA_ENEMY:
+                                // non caster self-casted auras (non stacked)
+                                if (aur->GetModifier()->m_auraname != SPELL_AURA_NONE)
+                                    apply = false;
+                                break;
+                            case AREA_AURA_RAID:
+                                // non caster self-casted auras (stacked from diff. casters)
+                                if (aur->GetModifier()->m_auraname != SPELL_AURA_NONE  || i->second->GetCasterGuid() == GetCasterGuid())
+                                    apply = false;
+                                break;
+                            default:
+                                // in generic case not allow stacking area auras
                                 apply = false;
-                            break;
-                        case AREA_AURA_RAID:
-                            // non caster self-casted auras (stacked from diff. casters)
-                            if (aur->GetModifier()->m_auraname != SPELL_AURA_NONE  || i->second->GetCasterGuid() == GetCasterGuid())
-                                apply = false;
-                            break;
-                        default:
-                            // in generic case not allow stacking area auras
-                            apply = false;
+                                break;
+                        }
+
+                        if(!apply)
                             break;
                     }
-
-                    if(!apply)
-                        break;
                 }
 
                 if(!apply)
@@ -824,18 +841,17 @@ void Aura::AreaAuraUpdate(uint32 diff)
                     if (actualSpellInfo != GetSpellProto())
                         actualBasePoints = actualSpellInfo->CalculateSimpleValue(m_effIndex);
 
-                    SpellAuraHolderPtr holder = (*tIter)->GetSpellAuraHolder(actualSpellInfo->Id, GetCasterGuid());
+                    SpellAuraHolderPtr holder = i_target->GetSpellAuraHolder(actualSpellInfo->Id, GetCasterGuid());
 
                     if (!holder || holder->IsDeleted())
                     {
-                        SpellAuraHolderPtr newholder = CreateSpellAuraHolder(actualSpellInfo, (*tIter), caster);
+                        SpellAuraHolderPtr newholder = CreateSpellAuraHolder(actualSpellInfo, i_target, caster);
                         newholder->SetAuraDuration(GetAuraDuration());
-                        Aura* aura = newholder->CreateAura(AURA_CLASS_AREA_AURA, m_effIndex, &actualBasePoints, newholder, (*tIter), caster, NULL);
-                        (*tIter)->AddSpellAuraHolder(newholder);
+                        Aura* aura = newholder->CreateAura(AURA_CLASS_AREA_AURA, m_effIndex, &actualBasePoints, newholder, i_target, caster, NULL);
+                        i_target->AddSpellAuraHolder(newholder);
                     }
                     else
                     {
-
                         holder->SetAuraDuration(GetAuraDuration());
                         Aura* aura = holder->GetAuraByEffectIndex(m_effIndex);
                         if (aura)
@@ -848,8 +864,8 @@ void Aura::AreaAuraUpdate(uint32 diff)
                         }
                         else
                         {
-                            Aura* aura = holder->CreateAura(AURA_CLASS_AREA_AURA, m_effIndex, &actualBasePoints, holder, (*tIter), caster, NULL);
-                            (*tIter)->AddAuraToModList(aura);
+                            Aura* aura = holder->CreateAura(AURA_CLASS_AREA_AURA, m_effIndex, &actualBasePoints, holder, i_target, caster, NULL);
+                            i_target->AddAuraToModList(aura);
                             holder->SetInUse(true);
                             aura->ApplyModifier(true,true);
                             holder->SetInUse(false);
@@ -8242,9 +8258,10 @@ void Aura::HandleSchoolAbsorb(bool apply, bool Real)
 void Aura::PeriodicTick()
 {
     Unit* target = GetTarget();
+    SpellAuraHolderPtr holder = GetHolder();
     SpellEntry const* spellProto = GetSpellProto();
 
-    if (!target || !spellProto)
+    if (!holder || !target || !spellProto)
         return;
 
     if (target->IsImmuneToSpell(spellProto))
@@ -8594,7 +8611,7 @@ void Aura::PeriodicTick()
                     int32 remainingTicks = ticks - GetAuraTicks();
                     int32 addition = int32(amount)*ticks*(-6+2*remainingTicks)/100;
 
-                    if (GetAuraTicks() != 1)
+                    if (GetAuraTicks() > 1 && ticks > 1)
                         // Item - Druid T10 Restoration 2P Bonus
                         if (Aura *aura = pCaster->GetAura(70658, EFFECT_INDEX_0))
                             addition += abs(int32((addition * aura->GetModifier()->m_amount) / ((ticks-1)* 100)));
@@ -11694,6 +11711,9 @@ void SpellAuraHolder::Update(uint32 diff)
         if (Aura *aura = GetAuraByEffectIndex(SpellEffectIndex(i)))
             aura->UpdateAura(diff);
 
+    if (!m_target || !m_target->IsInWorld())
+        return;
+
     // Channeled aura required check distance from caster
     if (IsChanneledSpell(m_spellProto) && GetCasterGuid() != m_target->GetObjectGuid())
     {
@@ -11907,17 +11927,14 @@ void Aura::HandleAuraFactionChange(bool apply, bool real)
 
 uint32 Aura::CalculateCrowdControlBreakDamage()
 {
-    // Damage cap for CC effects
     if (!GetTarget())
         return 0;
 
     if (!IsCrowdControlAura(m_modifier.m_auraname))
         return 0;
 
-    // The chance to dispel an aura depends on the damage taken with respect to the casters level.
-    // uint32 damageCap = getLevel() > 8 ? 25 * getLevel() - 150 : 50;
-
-    uint32 damageCap = (int32)((float)GetTarget()->GetCreateHealth() * 0.20f);
+    // Damage cap for CC effects
+    uint32 damageCap = (int32)((float)GetTarget()->GetMaxHealth() * sWorld.getConfig(CONFIG_FLOAT_CROWDCONTROL_HP_BASE));
 
     if (damageCap < 50)
         damageCap = 50;
@@ -11944,4 +11961,19 @@ uint32 Aura::CalculateCrowdControlBreakDamage()
         }
     }
     return damageCap;
+}
+
+bool Aura::IsAffectedByCrowdControlEffect(uint32 damage)
+{
+    if (!IsCrowdControlAura(m_modifier.m_auraname))
+        return false;
+
+    if (damage > m_modifier.m_baseamount)
+    {
+        m_modifier.m_baseamount = 0;
+        return false;
+    }
+
+    m_modifier.m_baseamount -= damage;
+    return true;
 }

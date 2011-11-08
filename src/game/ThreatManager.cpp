@@ -224,11 +224,10 @@ void ThreatContainer::clearReferences()
 HostileReference* ThreatContainer::getReferenceByTarget(Unit* pVictim)
 {
     HostileReference* result = NULL;
-    MAPLOCK_READ(pVictim, MAP_LOCK_TYPE_DEFAULT);
     ObjectGuid guid = pVictim->GetObjectGuid();
     for(ThreatList::const_iterator i = iThreatList.begin(); i != iThreatList.end(); ++i)
     {
-        if ((*i) && (*i)->getUnitGuid() == guid)
+        if ((*i)->getUnitGuid() == guid)
         {
             result = (*i);
             break;

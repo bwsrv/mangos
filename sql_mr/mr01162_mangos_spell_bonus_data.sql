@@ -7,7 +7,7 @@ INSERT INTO `spell_bonus_data`
     (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`)
 VALUES
     -- Gargoyle Strike
-    (51963, 0, 0, 0, 0,'Gargoyle Strike'),
+    (51963, 0, 0, 0.33, 0,'Gargoyle Strike'),
     -- Healing Stream Totem
     (52042, 0, 0, 0, 0,'Healing Stream Totem'),
     -- Ancestral Awakening

@@ -2537,6 +2537,7 @@ void Pet::ApplyAllScalingBonuses(bool apply)
     ApplySpellHitScalingBonus(apply);
     ApplyExpertizeScalingBonus(apply);
     ApplyPowerregenScalingBonus(apply);
+    ApplyAttackSpeedScalingBonus(apply);
 }
 
 void Pet::ApplyHitScalingBonus(bool apply)
@@ -2649,6 +2650,28 @@ void Pet::ApplyPowerregenScalingBonus(bool apply)
 
     if (needRecalculateStat)
         UpdateManaRegen();
+}
+
+void Pet::ApplyAttackSpeedScalingBonus(bool apply)
+{
+    Unit* owner = GetOwner();
+
+    // Don't apply scaling bonuses if no owner or owner is not player
+    if (!owner || owner->GetTypeId() != TYPEID_PLAYER || m_removed)
+        return;
+
+    int32 m_attackspeed = int32((1.0f - owner->m_modAttackSpeedPct[BASE_ATTACK])*100.0f);
+
+    if (m_baseBonusData->attackspeedScale == m_attackspeed && !apply)
+        return;
+
+    m_baseBonusData->attackspeedScale = m_attackspeed;
+
+    int32 basePoints = int32((float)m_baseBonusData->attackspeedScale * float(CalculateScalingData()->attackspeedScale) / 100.0f);
+
+    if (Aura* aura = GetScalingAura(SPELL_AURA_HASTE_ALL))
+        ReapplyScalingAura(aura, basePoints);
+
 }
 
 bool Pet::Summon()
@@ -2851,6 +2874,7 @@ bool Pet::ReapplyScalingAura(Aura* aura, int32 basePoints)
         return false;
 
     SetCanModifyStats(false);
+    DEBUG_LOG("Pet::ReapplyScalingAura pet %u, spell %u, index %u, oldValue %u, newValue %u", GetObjectGuid().GetCounter(), holder->GetId(), aura->GetEffIndex(), aura->GetModifier()->m_amount, basePoints);
     holder->SetInUse(true);
     {
         MAPLOCK_READ(this,MAP_LOCK_TYPE_AURAS);
@@ -3136,6 +3160,9 @@ void Pet::ApplyScalingBonus(ScalingAction* action)
             break;
         case SCALING_TARGET_POWERREGEN:
             ApplyPowerregenScalingBonus(action->apply);
+            break;
+        case SCALING_TARGET_ATTACKSPEED:
+            ApplyAttackSpeedScalingBonus(action->apply);
             break;
         case SCALING_TARGET_MAX:
         default:

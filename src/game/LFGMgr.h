@@ -54,6 +54,7 @@ enum LFGEventType
 
 class Group;
 class Player;
+class Map;
 struct LFGDungeonExpansionEntry;
 
 // forward struct declarations
@@ -306,6 +307,10 @@ class LFGMgr
         // Sheduler
         void SheduleEvent();
         void AddEvent(ObjectGuid guid, LFGEventType type, time_t delay = DEFAULT_LFG_DELAY, uint8 param = 0);
+
+        // Scripts
+        void OnPlayerEnterMap(Player* player, Map* map);
+        void OnPlayerLeaveMap(Player* player, Map* map);
 
         // multithread locking
         typedef   ACE_RW_Thread_Mutex          LockType;

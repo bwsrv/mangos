@@ -117,6 +117,11 @@ enum BG_EY_Nodes
     BG_EY_PLAYERS_OUT_OF_POINTS   = 4,                      // used for store out of node players data
 };
 
+enum BG_EY_Objectives
+{
+    EY_OBJECTIVE_CAPTURE_FLAG     = 183
+};
+
 #define BG_EY_NODES_MAX             4
 #define BG_EY_NODES_MAX_WITH_SPEIAL 5
 

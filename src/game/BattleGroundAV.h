@@ -69,8 +69,6 @@
 #define BG_AV_REP_OWNED_MINE                24
 #define BG_AV_REP_OWNED_MINE_HOLIDAY        36
 
-#define BG_AV_EVENT_START_BATTLE            9166
-
 enum BG_AV_Sounds
 {
     BG_AV_SOUND_NEAR_LOSE               = 8456,             // not confirmed yet
@@ -295,6 +293,14 @@ struct BG_AV_NodeInfo
     bool         Tower;
 };
 
+enum BG_AV_Objectives
+{
+    AV_OBJECTIVE_ASSAULT_TOWER       = 61,
+    AV_OBJECTIVE_ASSAULT_GRAVEYARD   = 63,
+    AV_OBJECTIVE_DEFEND_TOWER        = 64,
+    AV_OBJECTIVE_DEFEND_GRAVEYARD    = 65
+};
+
 inline BG_AV_Nodes &operator++(BG_AV_Nodes &i)
 {
     return i = BG_AV_Nodes(i + 1);
@@ -387,7 +393,6 @@ class BattleGroundAV : public BattleGround
         uint32 m_Mine_Reclaim_Timer[BG_AV_MAX_MINES];
 
         bool m_IsInformedNearLose[BG_TEAMS_COUNT];
-        bool m_captainAlive[BG_TEAMS_COUNT];
 
         uint32 m_HonorMapComplete;
         uint32 m_RepTowerDestruction;

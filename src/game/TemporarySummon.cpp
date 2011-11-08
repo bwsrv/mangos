@@ -130,6 +130,29 @@ void TemporarySummon::Update( uint32 update_diff,  uint32 diff )
                 m_timer -= update_diff;
             break;
         }
+        case TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT_OR_DEAD_DESPAWN:
+        {
+            if (IsDespawned())
+            {
+                UnSummon();
+                return;
+            }
+
+            if (!isInCombat())
+            {
+                if (m_timer <= update_diff)
+                {
+                    UnSummon();
+                    return;
+                }
+
+                m_timer -= update_diff;
+            }
+            else if (m_timer != m_lifetime)
+                m_timer = m_lifetime;
+
+            break;
+        }
         default:
             UnSummon();
             sLog.outError("Temporary summoned creature (entry: %u) have unknown type %u of ",GetEntry(),m_type);
