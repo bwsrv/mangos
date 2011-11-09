@@ -951,20 +951,3 @@ bool ArenaTeam::IsFighting() const
     }
     return false;
 }
-
-uint32 ArenaTeam::GetAverageMMR(Group* group) const
-{
-    if (!group) //should never happen
-        return 0;
-
-    uint32 matchmakerrating = 0;
-    for (MemberList::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
-    {
-        if (group->IsMember(itr->guid))
-            matchmakerrating += itr->matchmaker_rating;
-    }
-
-    matchmakerrating /= GetType();
-
-    return matchmakerrating;
-}
