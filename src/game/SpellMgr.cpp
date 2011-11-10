@@ -716,7 +716,6 @@ bool IsPositiveEffect(SpellEntry const *spellproto, SpellEffectIndex effIndex)
         case 552:                                           // Abolish Disease
         case 12042:                                         // Arcane Power
         case 24732:                                         // Bat Costume
-        case 36032:                                         // Arcane Blast
         case 59286:                                         // Opening
         case 43730:                                         // Electrified
         case 47540:                                         // Penance start dummy aura - Rank 1
