@@ -88,6 +88,8 @@ INSERT INTO spell_proc_event VALUES (62459, 0x00, 0x0F, 0x00000004, 0x00000004, 
 
 -- (56817) Rune Strike
 DELETE FROM spell_proc_event WHERE entry = 56817;
+INSERT INTO spell_proc_event VALUES
+(56817, 0, 15, 0, 0, 0, 0x20000000, 0x20000000, 0x20000000, 0, 0, 0, 0x10, 0, 0, 0, 0);
 
 -- (51123) Killing Machine 
 DELETE FROM spell_proc_event WHERE entry IN (51123, 51127, 51128, 51129, 51130);
