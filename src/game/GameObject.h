@@ -46,6 +46,15 @@ struct GameObjectInfo
     uint32  flags;
     float   size;
     uint32  questItems[6];
+
+    // helpers
+    HighGuid GetHighGuid() const
+    {
+        return HIGHGUID_GAMEOBJECT;
+    }
+
+    ObjectGuid GetObjectGuid(uint32 lowguid) const { return ObjectGuid(GetHighGuid(), id, lowguid); }
+
     union                                                   // different GO types have different data field
     {
         //0 GAMEOBJECT_TYPE_DOOR

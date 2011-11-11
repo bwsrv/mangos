@@ -74,7 +74,7 @@ Map::Map(uint32 id, time_t expiry, uint32 InstanceId, uint8 SpawnMode)
   m_VisibleDistance(DEFAULT_VISIBILITY_DISTANCE),
   m_activeNonPlayersIter(m_activeNonPlayers.end()),
   i_gridExpiry(expiry), m_TerrainData(sTerrainMgr.LoadTerrain(id)),
-  i_data(NULL), i_script_id(0)
+  i_data(NULL), i_script_id(0), i_eventId(0), i_Team(0)
 {
     m_CreatureGuids.Set(sObjectMgr.GetFirstTemporaryCreatureLowGuid());
     m_GameObjectGuids.Set(sObjectMgr.GetFirstTemporaryGameObjectLowGuid());
@@ -303,6 +303,9 @@ bool Map::Add(Player *player)
     player->SetMap(this);
     CreateAttackersStorageFor(player->GetObjectGuid());
 
+    if (IsDungeonOrRaid() && !GetMapTeam())
+        SetMapTeam(player->GetTeam());
+
     // update player state for other player and visa-versa
     CellPair p = MaNGOS::ComputeCellPair(player->GetPositionX(), player->GetPositionY());
     Cell cell(p);
@@ -331,7 +334,7 @@ Map::Add(T *obj)
     MANGOS_ASSERT(obj);
 
     CellPair p = MaNGOS::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
-    if(p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP )
+    if (p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP )
     {
         sLog.outError("Map::Add: Object (GUID: %u TypeId: %u) have invalid coordinates X:%f Y:%f grid cell [%u:%u]", obj->GetGUIDLow(), obj->GetTypeId(), obj->GetPositionX(), obj->GetPositionY(), p.x_coord, p.y_coord);
         return;
@@ -342,7 +345,7 @@ Map::Add(T *obj)
         CreateAttackersStorageFor(obj->GetObjectGuid());
 
     Cell cell(p);
-    if(obj->isActiveObject())
+    if (obj->isActiveObject())
         EnsureGridLoadedAtEnter(cell);
     else
         EnsureGridCreated(GridPair(cell.GridX(), cell.GridY()));
@@ -1179,7 +1182,7 @@ void Map::RemoveFromActive( WorldObject* obj )
 
 void Map::CreateInstanceData(bool load)
 {
-    if(i_data != NULL)
+    if (i_data != NULL)
         return;
 
     if (Instanceable())
@@ -1197,7 +1200,7 @@ void Map::CreateInstanceData(bool load)
         return;
 
     i_data = sScriptMgr.CreateInstanceData(this);
-    if(!i_data)
+    if (!i_data)
         return;
 
     if (load)

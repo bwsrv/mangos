@@ -68,6 +68,7 @@
 #include "CreatureLinkingMgr.h"
 #include "LFGMgr.h"
 #include "WardenDataStorage.h"
+#include "ObjectScriptSpawnMgr.h"
 
 INSTANTIATE_SINGLETON_1( World );
 
@@ -1204,6 +1205,9 @@ void World::SetInitialWorldSettings()
 
     sLog.outString( "Loading CreatureLinking Data..." );    // must be after Creatures
     sCreatureLinkingMgr.LoadFromDB();
+
+    sLog.outString( "Loading Script Spawn Data..." );
+    sObjectScriptSpawnMgr.LoadFromDB();
 
     sLog.outString( "Loading Objects Pooling Data...");
     sPoolMgr.LoadFromDB();

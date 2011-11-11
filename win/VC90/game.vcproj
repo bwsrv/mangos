@@ -1463,6 +1463,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\game\ObjectScriptSpawnMgr.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\ObjectScriptSpawnMgr.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\game\Pet.cpp"
 				>
 			</File>

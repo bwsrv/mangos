@@ -77,6 +77,7 @@ void GameEventMgr::StartEvent( uint16 event_id, bool overwrite /*=false*/, bool 
         if(mGameEvent[event_id].end <= mGameEvent[event_id].start)
             mGameEvent[event_id].end = mGameEvent[event_id].start+mGameEvent[event_id].length;
     }
+    //SendEventIdForAllInstanceData();
 }
 
 void GameEventMgr::StopEvent( uint16 event_id, bool overwrite )

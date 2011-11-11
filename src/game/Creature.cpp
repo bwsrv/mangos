@@ -48,6 +48,7 @@
 #include "TemporarySummon.h"
 #include "movement/MoveSplineInit.h"
 #include "CreatureLinkingMgr.h"
+#include "ObjectScriptSpawnMgr.h"
 
 // apply implementation of the singletons
 #include "Policies/SingletonImp.h"
@@ -1305,6 +1306,9 @@ bool Creature::LoadFromDB(uint32 guidlow, Map *map)
 
     // Creature can be loaded already in map if grid has been unloaded while creature walk to another grid
     if (map->GetCreature(cinfo->GetObjectGuid(guidlow)))
+        return false;
+
+    if (!sObjectScriptSpawnMgr.CreatureCanSpawn(guidlow, map))
         return false;
 
     CreatureCreatePos pos(map, data->posX, data->posY, data->posZ, data->orientation, data->phaseMask);
