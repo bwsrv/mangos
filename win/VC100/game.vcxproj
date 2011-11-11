@@ -452,6 +452,7 @@
     <ClCompile Include="..\..\src\game\ObjectMgr.cpp" />
     <ClCompile Include="..\..\src\game\ObjectGuid.cpp" />
     <ClCompile Include="..\..\src\game\ObjectPosSelector.cpp" />
+    <ClCompile Include="..\..\src\game\ObjectScriptSpawnMgr.cpp" />
     <ClCompile Include="..\..\src\game\Opcodes.cpp" />
     <ClCompile Include="..\..\src\game\pchdef.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -640,6 +641,7 @@
     <ClInclude Include="..\..\src\game\ObjectGridLoader.h" />
     <ClInclude Include="..\..\src\game\ObjectMgr.h" />
     <ClInclude Include="..\..\src\game\ObjectPosSelector.h" />
+    <ClInclude Include="..\..\src\game\ObjectScriptSpawnMgr.h" />
     <ClInclude Include="..\..\src\game\Opcodes.h" />
     <ClInclude Include="..\..\src\game\Path.h" />
     <ClInclude Include="..\..\src\game\pchdef.h" />
@@ -673,7 +675,7 @@
     <ClInclude Include="..\..\src\game\SkillExtraItems.h" />
     <ClInclude Include="..\..\src\game\SocialMgr.h" />
     <ClInclude Include="..\..\src\game\Spell.h" />
-	<ClInclude Include="..\..\src\game\SpellClassMask.h" />
+    <ClInclude Include="..\..\src\game\SpellClassMask.h" />
     <ClInclude Include="..\..\src\game\SpellAuraDefines.h" />
     <ClInclude Include="..\..\src\game\SpellAuras.h" />
     <ClInclude Include="..\..\src\game\SpellMgr.h" />
