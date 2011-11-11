@@ -751,6 +751,9 @@ void WorldSession::HandleBattlemasterJoinArena( WorldPacket & recv_data )
 
         avg_pers_rating /= grp->GetMembersCount();
 
+        /* Save mmr before enter arena (matchmaker rating fix) */
+        at->SetBattleRating(avg_pers_rating);
+
         arenaRating = avg_pers_rating;
     }
 
