@@ -1882,6 +1882,7 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 // Glyph of Shred
                 case 54815:
                 {
+                    basepoints[1] = triggerAmount;
                     triggered_spell_id = 63974;
                     break;
                 }
