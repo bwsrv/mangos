@@ -2141,6 +2141,14 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(m_caster, 48385, true);
                     return;
                 }
+                case 48593:                                 // Summon Avenging Spirit
+                {
+                    for (int i = 0; i < 4; ++i)
+                    {
+                        m_caster->CastSpell(m_caster, 48592, true);
+                    }
+                    return;
+                }
                 case 48790:                                 // Neltharion's Flame
                 {
                     if (!unitTarget)
