@@ -8461,6 +8461,25 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             }
             break;
         }
+        case 70728: // Exploit Weakness triggered
+        case 70840: // Devious Minds triggered
+        {
+            targetUnitMap.push_back(m_caster);
+            if (m_caster->GetObjectGuid().IsPet())
+            {
+                if (Unit* owner = m_caster->GetOwner())
+                    targetUnitMap.push_back(owner);
+            }
+            else
+            {
+               GroupPetList const& groupPets = m_caster->GetPets();
+               if (!groupPets.empty())
+                   for (GroupPetList::const_iterator itr = groupPets.begin(); itr != groupPets.end(); ++itr)
+                       if (Pet* pet = m_caster->GetMap()->GetPet(*itr))
+                           targetUnitMap.push_back((Unit*)pet);
+            }
+            break;
+        }
         case 72378: // Blood Nova
         case 73058:
         {
