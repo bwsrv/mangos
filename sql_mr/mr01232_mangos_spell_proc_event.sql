@@ -390,6 +390,10 @@ INSERT INTO spell_proc_event VALUES (57761, 0x00, 0x03, 0x00000000, 0x00000000, 
 -- (44401) Missile Barrage
 DELETE FROM spell_proc_event WHERE entry = 44401;
 
+-- (44445) Hot Streak
+DELETE FROM spell_proc_event WHERE entry = 44445;
+INSERT INTO spell_proc_event VALUES (44445, 0x0, 0x03, 0x13, 0x13, 0x13, 0x011000, 0x011000, 0x011000, 0, 0, 0, 0, 0, 0, 0, 0);
+
 -- Warlock
 -- (63156) Decimation
 DELETE FROM spell_proc_event WHERE entry = 63156;
