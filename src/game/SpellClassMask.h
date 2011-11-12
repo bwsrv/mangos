@@ -395,6 +395,15 @@ enum ClassFlag
     CF_DRUID_SWIPE_CAT                      = 74,   // CM2 00000400
     CF_DRUID_TIGERS_FURY                    = 75,   // CM2 00000800
     CF_DRUID_NATURES_GRASP2                 = 76,   // CM2 00001000
+    CF_DRUID_SOOTHE                         = 77,   // CM2 00002000
+    CF_DRUID_UNK78                          = 78,   // CM2 00004000
+    CF_DRUID_HIBERNATE                      = 79,   // CM2 00008000
+    CF_DRUID_UNK80                          = 80,   // CM2 00010000
+    CF_DRUID_UNK81                          = 81,   // CM2 00020000
+    CF_DRUID_CLAW_CAT                       = 82,   // CM2 00040000
+    CF_DRUID_UNK83                          = 83,   // CM2 00080000
+    CF_DRUID_ECLIPSE                        = 84,   // CM2 00100000
+    CF_DRUID_RIP                            = 85,   // CM2 00200000
 
     // -- Rogue (8)
     CF_ROGUE_THROW                          = 0,    // CM0 00000001
