@@ -284,7 +284,7 @@ void BattleGroundIC::AddPlayer(Player *plr)
     }
 }
 
-void BattleGroundIC::RemovePlayer(Player* plr, uint64 /*guid*/)
+void BattleGroundIC::RemovePlayer(Player* plr)
 {
     if (plr)
     {

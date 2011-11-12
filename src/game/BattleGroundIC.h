@@ -313,7 +313,7 @@ class BattleGroundIC : public BattleGround
 
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
-        void RemovePlayer(Player *plr,uint64 guid);
+        void RemovePlayer(Player* plr);
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
         bool SetupBattleGround();
         void EndBattleGround(Team winner);
