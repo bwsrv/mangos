@@ -100,21 +100,24 @@ Map* MapManager::CreateMap(uint32 id, const WorldObject* obj)
     Map * m = NULL;
 
     const MapEntry* entry = sMapStore.LookupEntry(id);
-    if(!entry)
+    if (!entry)
         return NULL;
 
-    if(entry->Instanceable())
+    if (entry->Instanceable())
     {
         MANGOS_ASSERT(obj->GetTypeId() == TYPEID_PLAYER);
         //create DungeonMap object
-        if(obj->GetTypeId() == TYPEID_PLAYER)
+        if (obj->GetTypeId() == TYPEID_PLAYER)
+        {
             m = CreateInstance(id, (Player*)obj);
+            m->InitializeTeamSpawn((Player*)obj);
+        }
     }
     else
     {
         //create regular non-instanceable map
         m = FindMap(id);
-        if( m == NULL )
+        if ( m == NULL )
         {
             m = new WorldMap(id, i_gridCleanUpDelay);
             //add map into container

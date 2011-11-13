@@ -676,11 +676,11 @@ bool Player::Create( uint32 guidlow, const std::string& name, uint8 race, uint8 
     SetLocationMapId(info->mapId);
     Relocate(info->positionX,info->positionY,info->positionZ, info->orientation);
 
+    setFactionForRace(race);
+
     SetMap(sMapMgr.CreateMap(info->mapId, this));
 
     uint8 powertype = cEntry->powerType;
-
-    setFactionForRace(race);
 
     SetByteValue(UNIT_FIELD_BYTES_0, 0, race);
     SetByteValue(UNIT_FIELD_BYTES_0, 1, class_);

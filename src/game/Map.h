@@ -288,6 +288,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
         void ForcedUnload();
 
         //Spawn system
+        void InitializeTeamSpawn(Player* player);
         void SetMapTeam(uint32 Team) { i_Team = Team; }
         uint32 GetMapTeam() { return i_Team; }
         uint32 GetMapProcess() { return i_eventId; }
