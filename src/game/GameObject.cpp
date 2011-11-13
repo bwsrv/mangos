@@ -165,18 +165,18 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMa
         SetGoAnimProgress(255);
     }
 
-    //Notify the map's instance data.
-    //Only works if you create the object in it, not if it is moves to that map.
-    //Normally non-players do not teleport to other maps.
-    if (InstanceData* iData = map->GetInstanceData())
-        iData->OnObjectCreate(this);
-
     if (goinfo->type == GAMEOBJECT_TYPE_TRANSPORT)
     {
         SetUInt32Value(GAMEOBJECT_LEVEL, goinfo->transport.pause);
         if (goinfo->transport.startOpen)
             SetGoState(GO_STATE_ACTIVE);
     }
+
+    //Notify the map's instance data.
+    //Only works if you create the object in it, not if it is moves to that map.
+    //Normally non-players do not teleport to other maps.
+    if (InstanceData* iData = map->GetInstanceData())
+        iData->OnObjectCreate(this);
 
     return true;
 }
