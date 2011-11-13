@@ -38,14 +38,14 @@ UPDATE creature_template SET vehicle_id = 453, iconName = 'vehichleCursor', fact
 UPDATE creature_template SET vehicle_id = 160, iconName = 'vehichleCursor', faction_A = 35, faction_H = 35, unit_flags = unit_flags | 4, ScriptName = 'npc_ic_cannon' WHERE entry = 34944;
 UPDATE creature_template SET unit_flags = unit_flags | 4 WHERE entry = 34944;
 -- Catapult
-UPDATE creature_template SET vehicle_id = 438, iconName = 'vehichleCursor', faction_A = 35, faction_H = 35, speed_walk = 2.4, speed_run = 2.8, ScriptName = 'npc_ic_vehicle' WHERE entry = 34793;
+UPDATE creature_template SET powertype = 3, vehicle_id = 438, iconName = 'vehichleCursor', faction_A = 35, faction_H = 35, speed_walk = 2.4, speed_run = 2.8, ScriptName = 'npc_ic_vehicle' WHERE entry = 34793;
 UPDATE creature_template SET speed_walk = 2.4, speed_run = 2.8 WHERE entry = 35413;
 -- Demolisher
 UPDATE creature_template SET vehicle_id = 509, iconName = 'vehichleCursor', faction_A = 35, faction_H = 35, ScriptName = 'npc_ic_vehicle' WHERE entry = 34775;
 -- Alli Siege Engine
-UPDATE creature_template SET vehicle_id = 447, iconName = 'vehichleCursor', faction_A = 3, faction_H = 3 WHERE entry = 34776;
+UPDATE creature_template SET powertype = 3, vehicle_id = 447, iconName = 'vehichleCursor', faction_A = 3, faction_H = 3 WHERE entry = 34776;
 -- Horde Siege Engine
-UPDATE creature_template SET vehicle_id = 436, iconName = 'vehichleCursor', faction_A = 6, faction_H = 6 WHERE entry = 35069;
+UPDATE creature_template SET powertype = 3, vehicle_id = 436, iconName = 'vehichleCursor', faction_A = 6, faction_H = 6 WHERE entry = 35069;
 -- Alli Glaive Thrower
 UPDATE creature_template SET vehicle_id = 447, iconName = 'vehichleCursor', faction_A = 3, faction_H = 3, ScriptName = 'npc_ic_vehicle' WHERE entry = 34802;
 -- Horde Glaive Thrower
