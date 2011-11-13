@@ -10497,6 +10497,9 @@ bool SpellAuraHolder::ModStackAmount(int32 num)
     if (!protoStackAmount)
         return true;
 
+    if (num != 0)
+        HandleSpellSpecificBoostsForward(num > 0);
+
     // Modify stack but limit it
     int32 stackAmount = m_stackAmount + num;
     if (stackAmount > (int32)protoStackAmount)
@@ -11123,6 +11126,16 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                     caster->CastCustomSpell(m_target, 64801, &heal, NULL, NULL, true, NULL);
                 }
             }
+            // Rip
+            else if (GetSpellProto()->SpellFamilyFlags.test<CF_DRUID_RIP>())
+            {
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
+                if (caster->HasAura(63974))                 // Glyph of Shred triggered
+                    caster->RemoveAurasDueToSpell(63974);
+            }
             // Barkskin
             else if (GetId()==22812 && m_target->HasAura(63057)) // Glyph of Barkskin
                 spellId1 = 63058;                           // Glyph - Barkskin 01
@@ -11628,6 +11641,30 @@ void SpellAuraHolder::HandleSpellSpecificBoostsForward(bool apply)
             }
             else
                 return;
+            break;
+        }
+        case SPELLFAMILY_HUNTER:
+        {
+            // Cobra strike
+            if (m_spellProto->Id == 53257)
+            {
+                if (m_target->GetObjectGuid().IsPet())
+                {
+                    if (!apply)
+                        if (Unit* owner = ((Pet*)m_target)->GetOwner())
+                            if (SpellAuraHolderPtr holder = owner->GetSpellAuraHolder(m_spellProto->Id))
+                                if (holder->ModStackAmount(-1))
+                                    owner->RemoveSpellAuraHolder(holder);
+                }
+                else if (apply)
+                {
+                    if (Pet* pet = m_target->GetPet())
+                        if (pet->isAlive())
+                            pet->CastSpell(pet,m_spellProto->Id,true);
+                }
+                return;
+            }
+            else
             break;
         }
         default:

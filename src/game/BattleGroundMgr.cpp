@@ -1366,13 +1366,17 @@ void BattleGroundMgr::BuildPvpLogDataPacket(WorldPacket *data, BattleGround *bg)
                 *data << (uint32)((BattleGroundSAScore*)itr->second)->DemolishersDestroyed; // demolishers destroyed
                 *data << (uint32)((BattleGroundSAScore*)itr->second)->GatesDestroyed;       // gates destroyed
                 break;
+            case BATTLEGROUND_IC:                           // wotlk
+                *data << uint32(0x00000002);                // count of next fields
+                *data << uint32(((BattleGroundICScore*)itr->second)->BasesAssaulted);       // bases asssulted
+                *data << uint32(((BattleGroundICScore*)itr->second)->BasesDefended);        // bases defended
+                break;
             case BATTLEGROUND_NA:
             case BATTLEGROUND_BE:
             case BATTLEGROUND_AA:
             case BATTLEGROUND_RL:
             case BATTLEGROUND_DS:                           // wotlk
             case BATTLEGROUND_RV:                           // wotlk
-            case BATTLEGROUND_IC:                           // wotlk
             case BATTLEGROUND_RB:                           // wotlk
                 *data << (int32)0;                          // 0
                 break;

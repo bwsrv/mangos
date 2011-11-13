@@ -1072,7 +1072,7 @@ uint32 BattleGroundSA::GetCorrectFactionSA(uint8 vehicleType) const
     {
         switch(vehicleType)
         {
-            case VEHICLE_SA_DEMOLISHER:
+            case VEHICLE_BG_DEMOLISHER:
             {
                 if (GetDefender() == ALLIANCE)
                     return VEHICLE_FACTION_HORDE;

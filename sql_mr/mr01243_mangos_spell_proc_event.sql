@@ -88,6 +88,8 @@ INSERT INTO spell_proc_event VALUES (62459, 0x00, 0x0F, 0x00000004, 0x00000004, 
 
 -- (56817) Rune Strike
 DELETE FROM spell_proc_event WHERE entry = 56817;
+INSERT INTO spell_proc_event VALUES
+(56817, 0, 15, 0, 0, 0, 0x20000000, 0x20000000, 0x20000000, 0, 0, 0, 0x10, 0, 0, 0, 0);
 
 -- (51123) Killing Machine 
 DELETE FROM spell_proc_event WHERE entry IN (51123, 51127, 51128, 51129, 51130);
@@ -387,6 +389,10 @@ INSERT INTO spell_proc_event VALUES (57761, 0x00, 0x03, 0x00000000, 0x00000000, 
 
 -- (44401) Missile Barrage
 DELETE FROM spell_proc_event WHERE entry = 44401;
+
+-- (44445) Hot Streak
+DELETE FROM spell_proc_event WHERE entry = 44445;
+INSERT INTO spell_proc_event VALUES (44445, 0x0, 0x03, 0x13, 0x13, 0x13, 0x011000, 0x011000, 0x011000, 0, 0, 0, 0, 0, 0, 0, 0);
 
 -- Warlock
 -- (63156) Decimation
@@ -699,3 +705,7 @@ INSERT INTO spell_proc_event VALUES (51124, 0x00, 0x0F, 0x00000000, 0x00000000, 
 -- (49796) Deathchill
 DELETE FROM spell_proc_event WHERE entry IN (49796);
 INSERT INTO spell_proc_event VALUES (49796, 0x00, 0x0F, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00010010, 0x00080000, 0, 0, 0);
+
+-- (56453) Lock and load triggered
+DELETE FROM `spell_proc_event` WHERE `entry` IN (56453);
+INSERT INTO `spell_proc_event` VALUES (56453, 0x00, 0x09, 0x00000800, 0x00000000, 0x00000000, 0x80000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00080000, 0, 0, 0);

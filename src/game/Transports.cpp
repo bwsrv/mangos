@@ -606,3 +606,17 @@ void Transport::DoEventIfAny(WayPointMap::value_type const& node, bool departure
             GetMap()->ScriptsStart(sEventScripts, eventid, this, this);
     }
 }
+
+void Transport::BuildStartMovePacket(Map const* targetMap)
+{
+    SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+    SetGoState(GO_STATE_ACTIVE);
+    UpdateForMap(targetMap);
+}
+
+void Transport::BuildStopMovePacket(Map const* targetMap)
+{
+    RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+    SetGoState(GO_STATE_READY);
+    UpdateForMap(targetMap);
+}

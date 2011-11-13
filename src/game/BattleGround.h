@@ -29,6 +29,8 @@
 #define BG_EVENT_NONE 255
 // those generic events should get a high event id
 #define BG_EVENT_DOOR 254
+#define IC_EVENT_BOSS_A 251
+#define IC_EVENT_BOSS_H 252
 // only arena event
 // cause this buff apears 90sec after start in every bg i implement it here
 #define ARENA_BUFF_EVENT 253
@@ -213,7 +215,6 @@ enum ScoreType
     //SA
     SCORE_GATES_DESTROYED       = 18,
     SCORE_DEMOLISHERS_DESTROYED = 19
-
 };
 
 enum BattleGroundType
@@ -233,6 +234,21 @@ enum BattleGroundTeamIndex
 {
     BG_TEAM_ALLIANCE        = 0,
     BG_TEAM_HORDE           = 1
+};
+
+enum VehicleFactions
+{
+    VEHICLE_FACTION_NEUTRAL = 35,
+    VEHICLE_FACTION_ALLIANCE = 3,
+    VEHICLE_FACTION_HORDE = 6
+};
+
+enum VehicleTypes
+{
+    VEHICLE_UNK = 0,
+    VEHICLE_BG_DEMOLISHER = 1,
+    VEHICLE_SA_CANNON = 2,
+    VEHICLE_IC_CATAPULT = 3,
 };
 
 #define BG_TEAMS_COUNT  2
