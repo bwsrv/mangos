@@ -2102,8 +2102,8 @@ void Unit::CalculateDamageAbsorbAndResist(Unit *pCaster, SpellSchoolMask schoolM
     // Magic damage, check for resists
     if ((schoolMask & SPELL_SCHOOL_MASK_NORMAL)==0)
     {
-        // Get base victim resistance for school
-        float tmpvalue2 = (float)GetResistance(GetFirstSchoolInMask(schoolMask));
+        // Get base resistance for schoolmask
+        float tmpvalue2 = (float)GetResistance(schoolMask);
         // Ignore resistance by self SPELL_AURA_MOD_TARGET_RESISTANCE aura
         tmpvalue2 += (float)pCaster->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_TARGET_RESISTANCE, schoolMask);
 
@@ -12831,4 +12831,20 @@ void Unit::DisableSpline()
 {
     m_movementInfo.RemoveMovementFlag(MovementFlags(MOVEFLAG_SPLINE_ENABLED|MOVEFLAG_FORWARD));
     movespline->_Interrupt();
+}
+
+uint32 Unit::GetResistance(SpellSchoolMask schoolMask) const
+{
+    uint32 resistance = 0;
+
+    for (int i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
+    {
+        if (schoolMask & (1 << i))
+        {
+            if (resistance < GetResistance(SpellSchools(i)))
+                resistance = GetResistance(SpellSchools(i));
+                // by some sources, may be resistance += GetResistance(SpellSchools(i)), but i not sure (/dev/rsa)
+        }
+    }
+    return resistance;
 }
