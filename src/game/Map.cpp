@@ -297,14 +297,17 @@ void Map::LoadGrid(const Cell& cell, bool no_unload)
         getNGrid(cell.GridX(), cell.GridY())->setUnloadExplicitLock(true);
 }
 
+void Map::InitializeTeamSpawn(Player* player)
+{
+    if (IsDungeonOrRaid() && !GetMapTeam())
+        SetMapTeam(player->GetTeam());
+}
+
 bool Map::Add(Player *player)
 {
     player->GetMapRef().link(this, player);
     player->SetMap(this);
     CreateAttackersStorageFor(player->GetObjectGuid());
-
-    if (IsDungeonOrRaid() && !GetMapTeam())
-        SetMapTeam(player->GetTeam());
 
     // update player state for other player and visa-versa
     CellPair p = MaNGOS::ComputeCellPair(player->GetPositionX(), player->GetPositionY());
