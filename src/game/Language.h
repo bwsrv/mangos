@@ -1046,6 +1046,31 @@ enum MangosStrings
     LANG_BG_SA_END_1ROUND                         = 20043,
     LANG_BG_WIN_NONE                              = 20044,
 
+    // Isle of Conquest
+    LANG_BG_IC_START_TWO_MINUTES        = 20080,
+    LANG_BG_IC_START_ONE_MINUTE         = 20081,
+    LANG_BG_IC_START_HALF_MINUTE        = 20082,
+    LANG_BG_IC_HAS_BEGUN                = 20083,
+    LANG_BG_IC_ALLIANCE_KEEP            = 20084,
+    LANG_BG_IC_HORDE_KEEP               = 20085,
+    LANG_BG_IC_ALLIANCE_WINS            = 20086,
+    LANG_BG_IC_HORDE_WINS               = 20087,
+    LANG_BG_IC_A_WEST_GATE_DESTROYED    = 20088,
+    LANG_BG_IC_A_EAST_GATE_DESTROYED    = 20089,
+    LANG_BG_IC_A_FRONT_GATE_DESTROYED   = 20090,
+    LANG_BG_IC_H_WEST_GATE_DESTROYED    = 20091,
+    LANG_BG_IC_H_EAST_GATE_DESTROYED    = 20092,
+    LANG_BG_IC_H_FRONT_GATE_DESTROYED   = 20093,
+    LANG_BG_IC_NODE_ASSAULTED           = 20094,
+    LANG_BG_IC_NODE_DEFENDED            = 20095,
+    LANG_BG_IC_NODE_CLAIMED             = 20096,
+    LANG_BG_IC_NODE_TAKEN               = 20097,
+    LANG_BG_IC_NODE_WORKSHOP            = 20098,
+    LANG_BG_IC_NODE_DOCKS               = 20099,
+    LANG_BG_IC_NODE_REFINERY            = 20100,
+    LANG_BG_IC_NODE_QUARRY              = 20101,
+    LANG_BG_IC_NODE_HANGAR              = 20102,
+
     // NOT RESERVED IDS                   12000-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)
     // For other tables maybe             2000010000-2147483647 (max index)

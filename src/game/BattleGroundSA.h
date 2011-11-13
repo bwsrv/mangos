@@ -156,26 +156,12 @@ enum BG_SA_type_gyd_attack
     STATUS_CONQUESTED = 1
 };
 
-enum VehicleFactions
-{
-    VEHICLE_FACTION_NEUTRAL = 35,
-    VEHICLE_FACTION_ALLIANCE = 3,
-    VEHICLE_FACTION_HORDE = 6
-};
-
 enum BG_SA_Boat
 {
     BG_SA_BOAT_ONE_A = 193182,
     BG_SA_BOAT_TWO_H = 193183,
     BG_SA_BOAT_ONE_H = 193184,
     BG_SA_BOAT_TWO_A = 193185
-};
-
-enum VehicleTypes
-{
-    VEHICLE_UNK = 0,
-    VEHICLE_SA_DEMOLISHER = 1,
-    VEHICLE_SA_CANNON = 2
 };
 
 enum BG_SA_Phase
