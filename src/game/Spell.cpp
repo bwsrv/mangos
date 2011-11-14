@@ -1934,6 +1934,64 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
 
             break;
         }
+        case TARGET_LEAP_FORWARD:
+        {
+            Unit* target = m_targets.getUnitTarget();
+            if (!target)
+                target = m_caster;
+
+            float ox, oy, oz;
+            target->GetPosition(ox, oy, oz);
+            float direction = target->GetOrientation();
+            float distance = radius;
+
+            //Glyph of blink or etc this type
+            if (m_caster->GetTypeId() == TYPEID_PLAYER)
+                ((Player*)m_caster)->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, distance, this);
+
+            float fx = target->GetPositionX() + distance * cos(direction);
+            float fy = target->GetPositionY() + distance * sin(direction);
+            float fz = oz + 5.0f;
+
+            MaNGOS::NormalizeMapCoord(fx);
+            MaNGOS::NormalizeMapCoord(fy);
+            target->UpdateAllowedPositionZ(fx, fy, fz);
+
+            TerrainInfo const* terrain = target->GetTerrain();
+            if (terrain)
+            {
+                if (terrain->CheckPathAccurate(ox,oy,oz,fx,fy,fz, sWorld.getConfig(CONFIG_BOOL_CHECK_GO_IN_PATH) ? target : NULL ))
+                    DEBUG_LOG("Spell::EffectLeap/Teleport unit %u forwarded on %f", target->GetObjectGuid().GetCounter(), target->GetDistance(fx,fy,fz));
+                else
+                    DEBUG_LOG("Spell::EffectLeap/Teleport unit %u NOT forwarded on %f, real distance is %f", target->GetObjectGuid().GetCounter(), distance, target->GetDistance(fx,fy,fz));
+            }
+            m_targets.setDestination(fx,fy,fz);
+
+            break;
+        }
+        case TARGET_RANDOM_POINT_NEAR_TARGET:
+        case TARGET_RANDOM_POINT_NEAR_TARGET_2:
+        {
+            // First effect already may set TARGET_FLAG_DEST_LOCATION - use his for source (and set source point)
+            if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
+            {
+                m_targets.setSource(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ);
+                m_caster->GetRandomPoint(m_targets.m_srcX, m_targets.m_srcY, m_targets.m_srcZ, radius, m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ);
+                targetUnitMap.push_back(m_caster);
+            }
+            else
+            {
+                Unit* target = m_targets.getUnitTarget();
+                if (!target)
+                    target = m_caster;
+                float angle = 2.0f * M_PI_F * rand_norm_f();
+                float dest_x, dest_y, dest_z;
+                target->GetClosePoint(dest_x, dest_y, dest_z, 0.0f, radius, angle);
+                m_targets.setDestination(dest_x, dest_y, dest_z);
+                targetUnitMap.push_back(target);
+            }
+            break;
+        }
         case TARGET_TOTEM_EARTH:
         case TARGET_TOTEM_WATER:
         case TARGET_TOTEM_AIR:
@@ -6028,6 +6086,21 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 break;
             }
+            case SPELL_EFFECT_LEAP:
+            {
+                // Check destination point (if setted it SetTargetMap())
+                if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
+                {
+                    // spell failed, if distance less then 1.0f
+                    if (m_caster->GetDistance2d(m_targets.m_destX,m_targets.m_destY) < 1.0f)
+                        return SPELL_FAILED_TRY_AGAIN;
+
+                    if (fabs(m_caster->GetPositionZ() - m_targets.m_destZ) > 8.0f)
+                        return SPELL_FAILED_TRY_AGAIN;
+                }
+                // Target point setted after first time check
+            }
+            // no break here!
             case SPELL_EFFECT_LEAP_BACK:
             {
                 if (m_spellInfo->Id == 781)
@@ -6035,19 +6108,10 @@ SpellCastResult Spell::CheckCast(bool strict)
                         return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
             }
             // no break here!
-            case SPELL_EFFECT_LEAP:
             case SPELL_EFFECT_TELEPORT_UNITS_FACE_CASTER:
             {
                 if (m_caster->hasUnitState(UNIT_STAT_ROOT))
                     return SPELL_FAILED_ROOTED;
-
-                float direction = (m_spellInfo->Effect[i] == SPELL_EFFECT_LEAP_BACK ? M_PI + m_caster->GetOrientation() : m_caster->GetOrientation());
-                float dis = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
-                float fx = m_caster->GetPositionX() + dis * cos(direction);
-                float fy = m_caster->GetPositionY() + dis * sin(direction);
-                // simple check for avoid falling under map
-                if (!m_caster->GetTerrain()->IsNextZcoordOK(fx, fy, m_caster->GetPositionZ(),8.0f))
-                    return SPELL_FAILED_TRY_AGAIN;
 
                 // not allow use this effect at battleground until battleground start
                 if (m_caster->GetTypeId() == TYPEID_PLAYER)

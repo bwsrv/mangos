@@ -1247,6 +1247,7 @@ enum Targets
     TARGET_AREAEFFECT_GO_AROUND_DEST   = 52,                // gameobject around destination, select by spell_script_target
     TARGET_CURRENT_ENEMY_COORDINATES   = 53,                // set unit coordinates as dest, only 16 target B imlemented
     TARGET_LARGE_FRONTAL_CONE          = 54,
+    TARGET_LEAP_FORWARD                = 55,                // Target point must be calculated in target selection
     TARGET_ALL_RAID_AROUND_CASTER      = 56,
     TARGET_SINGLE_FRIEND_2             = 57,
     TARGET_NARROW_FRONTAL_CONE         = 60,
@@ -1258,6 +1259,8 @@ enum Targets
     TARGET_LEFT_FROM_VICTIM            = 67,
     TARGET_RANDOM_NEARBY_LOC           = 72,                // used in teleport onto nearby locations
     TARGET_RANDOM_CIRCUMFERENCE_POINT  = 73,
+    TARGET_RANDOM_POINT_NEAR_TARGET    = 74,                // Target point must be calculated in target selection
+    TARGET_RANDOM_POINT_NEAR_TARGET_2  = 75,                // Target point must be calculated in target selection
     TARGET_DYNAMIC_OBJECT_COORDINATES  = 76,
     TARGET_SINGLE_ENEMY                = 77,
     TARGET_POINT_AT_NORTH              = 78,                // 78-85 possible _COORDINATES at radius with pi/4 step around target in unknown order, N?
