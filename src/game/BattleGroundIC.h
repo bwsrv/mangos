@@ -151,8 +151,8 @@ enum BG_IC_GoId
     BG_IC_GO_HORDE_GATE_2    = 195495, // east
     BG_IC_GO_HORDE_GATE_3    = 195494, // front
 
-    BG_IC_GO_ALLIANCE_FRONT  = 195703, // the actual gate that opens, without frame, needs to be spawned separately just at front gates
-    BG_IC_GO_HORDE_FRONT     = 195491
+    BG_IC_GO_ALLIANCE_PORT  = 195703, // the actual portcullis that opens, without frame, needs to be spawned separately just at front gates
+    BG_IC_GO_HORDE_PORT     = 195491
 };
 
 enum BG_IC_GoType
@@ -165,10 +165,15 @@ enum BG_IC_GoType
     BG_IC_GO_T_HORDE_GATE_2,
     BG_IC_GO_T_HORDE_GATE_3,
 
+    BG_IC_GO_T_ALLIANCE_WEST,
+    BG_IC_GO_T_ALLIANCE_EAST,
     BG_IC_GO_T_ALLIANCE_FRONT,
+
+    BG_IC_GO_T_HORDE_WEST,
+    BG_IC_GO_T_HORDE_EAST,
     BG_IC_GO_T_HORDE_FRONT,
 
-    BG_IC_MAXOBJ = 8
+    BG_IC_MAXOBJ = 12
 };
 
 enum BG_IC_GUNSHIPS
@@ -267,7 +272,7 @@ const float allianceGunshipPassengers[5][4] =
     {-2.81125f, 26.2077f, 21.6566f, 1.60659f}
 };*/
 
-static float const BG_IC_GATELOCS[8][4] =
+static float const BG_IC_GATELOCS[6][4] =
 {
     // west / east / front alli gate
     {351.615f,  -762.75f,   48.9162f,   -1.5708f},
@@ -277,9 +282,6 @@ static float const BG_IC_GATELOCS[8][4] =
     {1217.9f,   -676.948f,  47.6341f,   1.5708f},
     {1218.74f,  -851.155f,  48.2533f,   -1.5708f},
     {1150.9f,   -762.606f,  47.5077f,   3.14159f},
-    // front gates (the actual gates that open)
-    {413.479f,  -833.95f,   48.5238f,   3.14159f},
-    {1150.9f,   -762.606f,  47.0f,      3.14159f}
 };
 
 class BattleGroundICScore : public BattleGroundScore

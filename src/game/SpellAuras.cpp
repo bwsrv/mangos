@@ -9817,6 +9817,14 @@ void Aura::HandleAuraLinked(bool apply, bool Real)
             int32 bp1 = int32(((float)spellInfo->EffectBasePoints[EFFECT_INDEX_1] + bonus) * 100);
             int32 bp2 = int32(((float)spellInfo->EffectBasePoints[EFFECT_INDEX_2] + bonus) * 100);
 
+            // don't lower stats of vehicle, if GS player below then calculation base
+            if (bp0 < 0)
+                bp0 = 0;
+            if (bp1 < 0)
+                bp1 = 0;
+            if (bp2 < 0)
+                bp2 = 0;
+
             pTarget->CastCustomSpell(pTarget, spellInfo, &bp0, &bp1, &bp2, true, NULL, this, GetCasterGuid(), GetSpellProto());
             pTarget->SetHealth(uint32((float)pTarget->GetMaxHealth() * curHealthRatio));
         }
@@ -11978,6 +11986,11 @@ uint32 Aura::CalculateCrowdControlBreakDamage()
 
     if (damageCap < 50)
         damageCap = 50;
+
+    // some specific values
+    // Hungering Cold - any damage
+    if (GetSpellProto()->SpellIconID == 2797)
+        damageCap = 1;
 
     Unit* caster = GetCaster();
 

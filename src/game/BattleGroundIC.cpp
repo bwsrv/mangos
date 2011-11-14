@@ -162,11 +162,11 @@ void BattleGroundIC::Update(uint32 diff)
         if (closeFortressDoorsTimer <= diff)
         {
             // correct visual of closed gates is at "damaged" flag
-            GetBGObject(BG_IC_GO_T_ALLIANCE_GATE_3)->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
-            GetBGObject(BG_IC_GO_T_HORDE_GATE_3)->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
+            for (int i = BG_IC_GO_T_ALLIANCE_GATE_1; i <= BG_IC_GO_T_HORDE_GATE_3; ++i)
+                GetBGObject(i)->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
 
-            DelObject(BG_IC_GO_T_ALLIANCE_FRONT);
-            DelObject(BG_IC_GO_T_HORDE_FRONT);
+            for (int i = BG_IC_GO_T_ALLIANCE_WEST; i <= BG_IC_GO_T_HORDE_FRONT; ++i)
+                DelObject(i);
 
             doorsClosed = true;
         } else closeFortressDoorsTimer -= diff;
@@ -240,18 +240,13 @@ void BattleGroundIC::Update(uint32 diff)
 
 void BattleGroundIC::StartingEventCloseDoors()
 {
-    // Show Full Gate Displays
-    GetBGObject(BG_IC_GO_T_ALLIANCE_GATE_1)->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
-    GetBGObject(BG_IC_GO_T_ALLIANCE_GATE_2)->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
-    GetBGObject(BG_IC_GO_T_HORDE_GATE_1)->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
-    GetBGObject(BG_IC_GO_T_HORDE_GATE_2)->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
 }
 
 void BattleGroundIC::StartingEventOpenDoors()
 {
     OpenDoorEvent(BG_EVENT_DOOR);                        // used for activating teleport effects + opening tower gates
-    DoorOpen(m_BgObjects[BG_IC_GO_T_ALLIANCE_FRONT]);
-    DoorOpen(m_BgObjects[BG_IC_GO_T_HORDE_FRONT]);
+    for (int i = BG_IC_GO_T_ALLIANCE_WEST; i <= BG_IC_GO_T_HORDE_FRONT; ++i)
+        DoorOpen(m_BgObjects[i]);
     SpawnEvent(IC_EVENT_ADD_VEH, 0, true);
 
     // make teleporters clickable
@@ -409,17 +404,16 @@ void BattleGroundIC::SpawnGates()
     AddObject(BG_IC_GO_T_HORDE_GATE_1, BG_IC_GO_HORDE_GATE_1, BG_IC_GATELOCS[3][0], BG_IC_GATELOCS[3][1], BG_IC_GATELOCS[3][2], BG_IC_GATELOCS[3][3], 0.0f, 0.0f, 0.0f, 0.0f, RESPAWN_IMMEDIATELY);
     AddObject(BG_IC_GO_T_HORDE_GATE_2, BG_IC_GO_HORDE_GATE_2, BG_IC_GATELOCS[4][0], BG_IC_GATELOCS[4][1], BG_IC_GATELOCS[4][2], BG_IC_GATELOCS[4][3], 0.0f, 0.0f, 0.0f, 0.0f, RESPAWN_IMMEDIATELY);
     AddObject(BG_IC_GO_T_HORDE_GATE_3, BG_IC_GO_HORDE_GATE_3, BG_IC_GATELOCS[5][0], BG_IC_GATELOCS[5][1], BG_IC_GATELOCS[5][2], BG_IC_GATELOCS[5][3], 0.0f, 0.0f, 0.0f, 0.0f, RESPAWN_IMMEDIATELY);
-    AddObject(BG_IC_GO_T_ALLIANCE_FRONT, BG_IC_GO_ALLIANCE_FRONT, BG_IC_GATELOCS[6][0], BG_IC_GATELOCS[6][1], BG_IC_GATELOCS[6][2], BG_IC_GATELOCS[6][3], 0.0f, 0.0f, 0.0f, 0.0f, RESPAWN_IMMEDIATELY);
-    AddObject(BG_IC_GO_T_HORDE_FRONT, BG_IC_GO_HORDE_FRONT, BG_IC_GATELOCS[7][0], BG_IC_GATELOCS[7][1], BG_IC_GATELOCS[7][2], BG_IC_GATELOCS[7][3], 0.0f, 0.0f, 0.0f, 0.0f, RESPAWN_IMMEDIATELY);
 
-    SpawnBGObject(m_BgObjects[BG_IC_GO_T_ALLIANCE_GATE_1], RESPAWN_IMMEDIATELY);
-    SpawnBGObject(m_BgObjects[BG_IC_GO_T_ALLIANCE_GATE_2], RESPAWN_IMMEDIATELY);
-    SpawnBGObject(m_BgObjects[BG_IC_GO_T_ALLIANCE_GATE_3], RESPAWN_IMMEDIATELY);
-    SpawnBGObject(m_BgObjects[BG_IC_GO_T_HORDE_GATE_1], RESPAWN_IMMEDIATELY);
-    SpawnBGObject(m_BgObjects[BG_IC_GO_T_HORDE_GATE_2], RESPAWN_IMMEDIATELY);
-    SpawnBGObject(m_BgObjects[BG_IC_GO_T_HORDE_GATE_3], RESPAWN_IMMEDIATELY);
-    SpawnBGObject(m_BgObjects[BG_IC_GO_T_ALLIANCE_FRONT], RESPAWN_IMMEDIATELY);
-    SpawnBGObject(m_BgObjects[BG_IC_GO_T_HORDE_FRONT], RESPAWN_IMMEDIATELY);
+    AddObject(BG_IC_GO_T_ALLIANCE_WEST, BG_IC_GO_ALLIANCE_PORT, BG_IC_GATELOCS[0][0], BG_IC_GATELOCS[0][1], BG_IC_GATELOCS[0][2], BG_IC_GATELOCS[0][3], 0.0f, 0.0f, 0.0f, 0.0f, RESPAWN_IMMEDIATELY);
+    AddObject(BG_IC_GO_T_ALLIANCE_EAST, BG_IC_GO_ALLIANCE_PORT, BG_IC_GATELOCS[1][0], BG_IC_GATELOCS[1][1], BG_IC_GATELOCS[1][2], BG_IC_GATELOCS[1][3], 0.0f, 0.0f, 0.0f, 0.0f, RESPAWN_IMMEDIATELY);
+    AddObject(BG_IC_GO_T_ALLIANCE_FRONT, BG_IC_GO_ALLIANCE_PORT, BG_IC_GATELOCS[2][0], BG_IC_GATELOCS[2][1], BG_IC_GATELOCS[2][2], BG_IC_GATELOCS[2][3], 0.0f, 0.0f, 0.0f, 0.0f, RESPAWN_IMMEDIATELY);
+    AddObject(BG_IC_GO_T_HORDE_WEST, BG_IC_GO_HORDE_PORT, BG_IC_GATELOCS[3][0], BG_IC_GATELOCS[3][1], BG_IC_GATELOCS[3][2], BG_IC_GATELOCS[3][3], 0.0f, 0.0f, 0.0f, 0.0f, RESPAWN_IMMEDIATELY);
+    AddObject(BG_IC_GO_T_HORDE_EAST, BG_IC_GO_HORDE_PORT, BG_IC_GATELOCS[4][0], BG_IC_GATELOCS[4][1], BG_IC_GATELOCS[4][2], BG_IC_GATELOCS[4][3], 0.0f, 0.0f, 0.0f, 0.0f, RESPAWN_IMMEDIATELY);
+    AddObject(BG_IC_GO_T_HORDE_FRONT, BG_IC_GO_HORDE_PORT, BG_IC_GATELOCS[5][0], BG_IC_GATELOCS[5][1], BG_IC_GATELOCS[5][2], BG_IC_GATELOCS[5][3], 0.0f, 0.0f, 0.0f, 0.0f, RESPAWN_IMMEDIATELY);
+
+    for (int i = 0; i < BG_IC_MAXOBJ; ++i)
+        SpawnBGObject(m_BgObjects[i], RESPAWN_IMMEDIATELY);
 }
 
 void BattleGroundIC::HandleKillUnit(Creature *creature, Player *killer)

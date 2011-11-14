@@ -6441,18 +6441,23 @@ void Spell::DoSummonVehicle(SpellEffectIndex eff_idx, uint32 forceFaction)
 
 void Spell::EffectTeleUnitsFaceCaster(SpellEffectIndex eff_idx)
 {
-    if (!unitTarget)
+    if (!unitTarget || unitTarget->IsTaxiFlying())
         return;
 
-    if (unitTarget->IsTaxiFlying())
-        return;
+    if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
+    {
+        unitTarget->NearTeleportTo(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, -m_caster->GetOrientation(), unitTarget == m_caster);
+    }
+    else
+    {
+        float dis = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[eff_idx]));
 
-    float dis = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[eff_idx]));
+        float fx, fy, fz;
+        m_caster->GetClosePoint(fx, fy, fz, unitTarget->GetObjectBoundingRadius(), dis);
 
-    float fx, fy, fz;
-    m_caster->GetClosePoint(fx, fy, fz, unitTarget->GetObjectBoundingRadius(), dis);
-
-    unitTarget->NearTeleportTo(fx, fy, fz, -m_caster->GetOrientation(), unitTarget==m_caster);
+        unitTarget->NearTeleportTo(fx, fy, fz, -m_caster->GetOrientation(), unitTarget == m_caster);
+//        DEBUG_LOG("Spell::EffectTeleUnitsFaceCaster teleport %s  desination point not setted. Use old method.", unitTarget->GetObjectGuid().GetString().c_str()););
+    }
 }
 
 void Spell::EffectLearnSkill(SpellEffectIndex eff_idx)
@@ -10730,41 +10735,15 @@ void Spell::EffectBlock(SpellEffectIndex /*eff_idx*/)
 
 void Spell::EffectLeapForward(SpellEffectIndex eff_idx)
 {
-    if (unitTarget->IsTaxiFlying())
+    if (!unitTarget || unitTarget->IsTaxiFlying())
         return;
 
-    if (m_spellInfo->rangeIndex == 1)                       //self range
+    if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
     {
-        TerrainInfo const* terrain = unitTarget->GetTerrain();
-        if (!terrain)
-            return;
-
-        float distance = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[eff_idx]));
-
-        //Glyph of blink
-        if (m_caster->GetTypeId() == TYPEID_PLAYER)
-            ((Player*)m_caster)->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, distance, this);
-
-        float ox, oy, oz;
-        unitTarget->GetPosition(ox, oy, oz);
-        float fx, fy, fz;
-        fz = oz+2.0;
-        fx = unitTarget->GetPositionX() + distance * cos(unitTarget->GetOrientation());
-        fy = unitTarget->GetPositionY() + distance * sin(unitTarget->GetOrientation());
-
-        MaNGOS::NormalizeMapCoord(fx);
-        MaNGOS::NormalizeMapCoord(fy);
-
-        if (terrain->CheckPathAccurate(ox,oy,oz,fx,fy,fz, sWorld.getConfig(CONFIG_BOOL_CHECK_GO_IN_PATH) ? unitTarget : NULL ))
-            DEBUG_LOG("Spell::EffectLeapForward unit %u forwarded on %f",unitTarget->GetObjectGuid().GetCounter(), unitTarget->GetDistance(fx,fy,fz));
-        else
-            DEBUG_LOG("Spell::EffectLeapForward unit %u NOT forwarded on %f, real distance is %f",unitTarget->GetObjectGuid().GetCounter(), distance, unitTarget->GetDistance(fx,fy,fz));
-
-        //Prevent Falling during swap building/outerspace
-        unitTarget->UpdateAllowedPositionZ(fx, fy, fz);
-
-        unitTarget->NearTeleportTo(fx, fy, fz, unitTarget->GetOrientation(), unitTarget == m_caster);
+        unitTarget->NearTeleportTo(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, m_caster->GetOrientation(), unitTarget == m_caster);
     }
+    else
+        sLog.outError("Spell::EffectLeapForward teleport %s failed - desination point not setted.", unitTarget->GetObjectGuid().GetString().c_str());
 }
 
 void Spell::EffectLeapBack(SpellEffectIndex eff_idx)
@@ -11057,6 +11036,9 @@ void Spell::EffectSendTaxi(SpellEffectIndex eff_idx)
 void Spell::EffectPlayerPull(SpellEffectIndex eff_idx)
 {
     if (!unitTarget)
+        return;
+
+    if (unitTarget->hasUnitState(UNIT_STAT_ROOT))
         return;
 
     float dist = unitTarget->GetDistance2d(m_caster);
