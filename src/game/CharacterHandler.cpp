@@ -478,12 +478,10 @@ void WorldSession::HandleCharCreateOpcode( WorldPacket & recv_data )
         return;
     }
 
-    Player *pNewChar = new Player(this);
-    if (!pNewChar->Create(sObjectMgr.GeneratePlayerLowGuid(), name, race_, class_, gender, skin, face, hairStyle, hairColor, facialHair, outfitId))
+    Player pNewChar(this);
+    if (!pNewChar.Create(sObjectMgr.GeneratePlayerLowGuid(), name, race_, class_, gender, skin, face, hairStyle, hairColor, facialHair, outfitId))
     {
         // Player not create (race/class problem?)
-        delete pNewChar;
-
         data << (uint8)CHAR_CREATE_ERROR;
         SendPacket( &data );
 
@@ -491,12 +489,12 @@ void WorldSession::HandleCharCreateOpcode( WorldPacket & recv_data )
     }
 
     if ((have_same_race && skipCinematics == CINEMATICS_SKIP_SAME_RACE) || skipCinematics == CINEMATICS_SKIP_ALL)
-        pNewChar->setCinematic(1);                          // not show intro
+        pNewChar.setCinematic(1);                          // not show intro
 
-    pNewChar->SetAtLoginFlag(AT_LOGIN_FIRST);               // First login
+    pNewChar.SetAtLoginFlag(AT_LOGIN_FIRST);               // First login
 
     // Player created, save it now
-    pNewChar->SaveToDB();
+    pNewChar.SaveToDB();
     charcount += 1;
 
     LoginDatabase.PExecute("DELETE FROM realmcharacters WHERE acctid= '%u' AND realmid = '%u'", GetAccountId(), realmID);
@@ -506,10 +504,8 @@ void WorldSession::HandleCharCreateOpcode( WorldPacket & recv_data )
     SendPacket( &data );
 
     std::string IP_str = GetRemoteAddress();
-    BASIC_LOG("Account: %d (IP: %s) Create Character:[%s] (guid: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), pNewChar->GetGUIDLow());
-    sLog.outChar("Account: %d (IP: %s) Create Character:[%s] (guid: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), pNewChar->GetGUIDLow());
-
-    delete pNewChar;                                        // created only to call SaveToDB()
+    BASIC_LOG("Account: %d (IP: %s) Create Character:[%s] (guid: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), pNewChar.GetGUIDLow());
+    sLog.outChar("Account: %d (IP: %s) Create Character:[%s] (guid: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), pNewChar.GetGUIDLow());
 }
 
 void WorldSession::HandleCharDeleteOpcode( WorldPacket & recv_data )
