@@ -1786,6 +1786,10 @@ void BattleGround::SpawnBGCreature(ObjectGuid guid, uint32 respawntime)
         obj->SetRespawnDelay(respawntime);
         obj->SetDeathState(JUST_DIED);
         obj->RemoveCorpse();
+
+        float x, y, z, o;
+        obj->GetRespawnCoord(x,y,z,&o);
+        obj->NearTeleportTo(x,y,z,o);
     }
 }
 
