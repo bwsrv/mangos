@@ -1,3 +1,23 @@
+/*
+* Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+* Copyright (C) 2010 Blueboy
+* Copyright (C) 2011 MangosR2 
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+
 // an improved Hunter by rrtn & Runsttren :)
 
 #include "PlayerbotHunterAI.h"
@@ -81,6 +101,11 @@ PlayerbotHunterAI::PlayerbotHunterAI(Player* const master, Player* const bot, Pl
 
 PlayerbotHunterAI::~PlayerbotHunterAI() {}
 
+bool PlayerbotHunterAI::DoFirstCombatManeuver(Unit *pTarget)
+{
+    return false;
+}
+
 bool PlayerbotHunterAI::HasPet(Player* bot)
 {
     QueryResult* result = CharacterDatabase.PQuery("SELECT * FROM character_pet WHERE owner = '%u' AND (slot = '%u' OR slot = '%u')", bot->GetGUIDLow(), PET_SAVE_AS_CURRENT, PET_SAVE_NOT_IN_SLOT);
@@ -102,14 +127,11 @@ void PlayerbotHunterAI::DoNextCombatManeuver(Unit *pTarget)
         case PlayerbotAI::SCENARIO_DUEL:
             ai->CastSpell(RAPTOR_STRIKE);
             return;
-        default:
-            break;
     }
 
     // ------- Non Duel combat ----------
 
     // Hunter
-    ai->SetInFront(pTarget);
     Player *m_bot = GetPlayerBot();
     Unit* pVictim = pTarget->getVictim();
 
@@ -136,7 +158,7 @@ void PlayerbotHunterAI::DoNextCombatManeuver(Unit *pTarget)
     //ai->TellMaster( "Berserking." );
 
     // check if ranged combat is possible (set m_rangedCombat and switch auras
-    float dist = m_bot->GetDistance(pTarget);
+    float dist = m_bot->GetCombatDistance(pTarget);
     if ((dist <= ATTACK_DISTANCE || !m_bot->GetUInt32Value(PLAYER_AMMO_ID)) && m_rangedCombat)
     {
         // switch to melee combat (target in melee range, out of ammo)
@@ -355,7 +377,7 @@ void PlayerbotHunterAI::DoNonCombatActions()
 
                     if (pet->HaveInDiet(pItemProto)) // is pItem in pets diet
                     {
-                        //sLog.outDebug("Food for pet: %s",pItemProto->Name1);
+                        // DEBUG_LOG ("[PlayerbotHunterAI]: DoNonCombatActions - Food for pet: %s",pItemProto->Name1);
                         caster->CastSpell(caster, 51284, true); // pet feed visual
                         uint32 count = 1; // number of items used
                         int32 benefit = pet->GetCurrentFoodBenefitLevel(pItemProto->ItemLevel); // nutritional value of food
@@ -383,7 +405,7 @@ void PlayerbotHunterAI::DoNonCombatActions()
 
                             if (pet->HaveInDiet(pItemProto)) // is pItem in pets diet
                             {
-                                //sLog.outDebug("Food for pet: %s",pItemProto->Name1);
+                                // DEBUG_LOG ("[PlayerbotHunterAI]: DoNonCombatActions - Food for pet: %s",pItemProto->Name1);
                                 caster->CastSpell(caster, 51284, true); // pet feed visual
                                 uint32 count = 1; // number of items used
                                 int32 benefit = pet->GetCurrentFoodBenefitLevel(pItemProto->ItemLevel); // nutritional value of food

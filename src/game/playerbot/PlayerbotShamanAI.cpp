@@ -1,3 +1,22 @@
+/*
+* Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+* Copyright (C) 2010 Blueboy
+* Copyright (C) 2011 MangosR2 
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 
 #include "PlayerbotShamanAI.h"
 
@@ -70,10 +89,15 @@ PlayerbotShamanAI::PlayerbotShamanAI(Player* const master, Player* const bot, Pl
 
 PlayerbotShamanAI::~PlayerbotShamanAI() {}
 
+bool PlayerbotShamanAI::DoFirstCombatManeuver(Unit *pTarget)
+{
+    return false;
+}
+
 void PlayerbotShamanAI::HealTarget(Unit &target, uint8 hp)
 {
     PlayerbotAI* ai = GetAI();
-    //Player *m_bot = GetPlayerBot();
+    Player *m_bot = GetPlayerBot();
 
     if (hp < 30 && HEALING_WAVE > 0 && ai->GetManaPercent() >= 32)
         ai->CastSpell(HEALING_WAVE, target);
@@ -97,13 +121,9 @@ void PlayerbotShamanAI::DoNextCombatManeuver(Unit *pTarget)
         case PlayerbotAI::SCENARIO_DUEL:
             ai->CastSpell(LIGHTNING_BOLT);
             return;
-        default:
-            break;
     }
 
     // ------- Non Duel combat ----------
-
-    ai->SetMovementOrder(PlayerbotAI::MOVEMENT_FOLLOW, GetMaster());   // dont want to melee mob <----changed
 
     Player *m_bot = GetPlayerBot();
     Group *m_group = m_bot->GetGroup();
@@ -143,7 +163,6 @@ void PlayerbotShamanAI::DoNextCombatManeuver(Unit *pTarget)
     }
 
     // Damage Spells
-    ai->SetInFront(pTarget);
 
     switch (SpellSequence)
     {
@@ -515,6 +534,9 @@ void PlayerbotShamanAI::DoNonCombatActions()
         {
             Player *tPlayer = sObjectMgr.GetPlayer(itr->guid);
             if (!tPlayer || !tPlayer->isAlive())
+                continue;
+
+            if (tPlayer->IsInDuelWith(GetMaster()))
                 continue;
 
             // heal

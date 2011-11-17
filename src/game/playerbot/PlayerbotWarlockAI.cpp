@@ -1,3 +1,22 @@
+/*
+* Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+* Copyright (C) 2010 Blueboy
+* Copyright (C) 2011 MangosR2 
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 
 #include "PlayerbotWarlockAI.h"
 
@@ -77,6 +96,11 @@ PlayerbotWarlockAI::PlayerbotWarlockAI(Player* const master, Player* const bot, 
 
 PlayerbotWarlockAI::~PlayerbotWarlockAI() {}
 
+bool PlayerbotWarlockAI::DoFirstCombatManeuver(Unit *pTarget)
+{
+    return false;
+}
+
 void PlayerbotWarlockAI::DoNextCombatManeuver(Unit *pTarget)
 {
     PlayerbotAI* ai = GetAI();
@@ -86,18 +110,17 @@ void PlayerbotWarlockAI::DoNextCombatManeuver(Unit *pTarget)
     switch (ai->GetScenarioType())
     {
         case PlayerbotAI::SCENARIO_DUEL:
+        {
             if (SHADOW_BOLT > 0)
                 ai->CastSpell(SHADOW_BOLT);
             return;
+        }
         default:
             break;
     }
 
     // ------- Non Duel combat ----------
 
-    //ai->SetMovementOrder( PlayerbotAI::MOVEMENT_FOLLOW, GetMaster() ); // dont want to melee mob
-
-    ai->SetInFront(pTarget);
     Player *m_bot = GetPlayerBot();
     Unit* pVictim = pTarget->getVictim();
     Pet *pet = m_bot->GetPet();

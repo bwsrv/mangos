@@ -13821,12 +13821,12 @@ void Player::OnGossipSelect(WorldObject* pSource, uint32 gossipListId, uint32 me
         }
     }
 
-    GossipMenuItemData pMenuData = gossipmenu.GetItemData(gossipListId);
-
     switch(gossipOptionId)
     {
         case GOSSIP_OPTION_GOSSIP:
         {
+            GossipMenuItemData pMenuData = gossipmenu.GetItemData(gossipListId);
+
             if (pMenuData.m_gAction_poi)
                 PlayerTalkClass->SendPointOfInterest(pMenuData.m_gAction_poi);
 

@@ -1,4 +1,24 @@
 /*
+* Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+* Copyright (C) 2010 Blueboy
+* Copyright (C) 2011 MangosR2 
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+
+/*
    Name    : PlayerbotPaladinAI.cpp
    Complete: maybe around 27% :D
    Author  : Natsukawa
@@ -16,6 +36,12 @@ PlayerbotPaladinAI::PlayerbotPaladinAI(Player* const master, Player* const bot, 
     CRUSADER_AURA                 = ai->initSpell(CRUSADER_AURA_1);
     CRUSADER_STRIKE               = ai->initSpell(CRUSADER_STRIKE_1);
     SEAL_OF_COMMAND               = ai->initSpell(SEAL_OF_COMMAND_1);
+    SEAL_OF_RIGHTEOUSNESS         = ai->initSpell(SEAL_OF_RIGHTEOUSNESS_1);
+    SEAL_OF_CORRUPTION            = ai->initSpell(SEAL_OF_CORRUPTION_1);
+    SEAL_OF_JUSTICE               = ai->initSpell(SEAL_OF_JUSTICE_1);
+    SEAL_OF_LIGHT                 = ai->initSpell(SEAL_OF_LIGHT_1);
+    SEAL_OF_VENGEANCE             = ai->initSpell(SEAL_OF_VENGEANCE_1);
+    SEAL_OF_WISDOM                = ai->initSpell(SEAL_OF_WISDOM_1);
     JUDGEMENT_OF_LIGHT            = ai->initSpell(JUDGEMENT_OF_LIGHT_1);
     JUDGEMENT_OF_WISDOM           = ai->initSpell(JUDGEMENT_OF_WISDOM_1);
     JUDGEMENT_OF_JUSTICE          = ai->initSpell(JUDGEMENT_OF_JUSTICE_1);
@@ -77,6 +103,11 @@ PlayerbotPaladinAI::PlayerbotPaladinAI(Player* const master, Player* const bot, 
 
 PlayerbotPaladinAI::~PlayerbotPaladinAI() {}
 
+bool PlayerbotPaladinAI::DoFirstCombatManeuver(Unit *pTarget)
+{
+    return false;
+}
+
 bool PlayerbotPaladinAI::HealTarget(Unit *target)
 {
     PlayerbotAI* ai = GetAI();
@@ -110,15 +141,12 @@ void PlayerbotPaladinAI::DoNextCombatManeuver(Unit *pTarget)
             if (HAMMER_OF_JUSTICE > 0)
                 ai->CastSpell(HAMMER_OF_JUSTICE);
             return;
-        default:
-            break;
     }
 
     // damage spells
-    ai->SetInFront(pTarget);
     Player *m_bot = GetPlayerBot();
     Group *m_group = m_bot->GetGroup();
-    float dist = m_bot->GetDistance(pTarget);
+    float dist = m_bot->GetCombatDistance(pTarget);
     std::ostringstream out;
 
     //Shield master if low hp.
@@ -329,12 +357,20 @@ void PlayerbotPaladinAI::DoNonCombatActions()
         return;
 
     // Buff myself
-    if (ai->GetCombatOrder() == ai->ORDERS_TANK)
-        ai->SelfBuff(RIGHTEOUS_FURY);
+    if (ai->GetCombatOrder() == PlayerbotAI::ORDERS_TANK) ai->SelfBuff(RIGHTEOUS_FURY);
+    if (SEAL_OF_WISDOM > 0 && !m_bot->HasAura(SEAL_OF_WISDOM, EFFECT_INDEX_0) && ai->GetManaPercent() <= 30)
+        ai->CastSpell(SEAL_OF_WISDOM, *m_bot);
+    else if (m_bot->HasAura(SEAL_OF_WISDOM, EFFECT_INDEX_0) && ai->GetManaPercent() < 85)
+    { }
+    else if (SEAL_OF_LIGHT > 0 && !m_bot->HasAura(SEAL_OF_LIGHT, EFFECT_INDEX_0) && ai->GetHealthPercent() < 40)
+        ai->CastSpell(SEAL_OF_LIGHT, *m_bot);
+    else if (SEAL_OF_RIGHTEOUSNESS > 0 && !m_bot->HasAura(SEAL_OF_RIGHTEOUSNESS, EFFECT_INDEX_0))
+        ai->CastSpell(SEAL_OF_RIGHTEOUSNESS, *m_bot);
     BuffPlayer(m_bot);
 
     // Buff master
-    BuffPlayer(ai->GetMaster());
+    if(!GetMaster()->IsInDuel(GetMaster()))
+        BuffPlayer(GetMaster());
 
     // mana check
     if (m_bot->getStandState() != UNIT_STAND_STATE_STAND)
@@ -377,6 +413,9 @@ void PlayerbotPaladinAI::DoNonCombatActions()
         {
             Player *tPlayer = sObjectMgr.GetPlayer(itr->guid);
             if (!tPlayer)
+                continue;
+
+            if (tPlayer->IsInDuelWith(GetMaster()))
                 continue;
 
             if (!tPlayer->isAlive())
