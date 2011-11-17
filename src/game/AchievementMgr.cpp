@@ -957,6 +957,17 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                                 continue;
                             break;
                         }
+                        case 220:               // AV, win while your towers and captain are ok, enemy towers destroyed (alliance)
+                        case 873:               // AV, win while your towers and captain are ok, enemy towers destroyed (horde)
+                        {
+                            if (bg->GetTypeID(true) != BATTLEGROUND_AV)
+                                continue;
+
+                            int8 team = bg->GetTeamIndexByTeamId(GetPlayer()->GetTeam());
+                            if(!((BattleGroundAV*)bg)->hasAllTowers(team))
+                                continue;
+                            break;
+                        }
                         default:
                         {
                             // those requirements couldn't be found in the dbc
