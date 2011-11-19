@@ -661,3 +661,9 @@ INSERT INTO creature_battleground (guid, event1, event2) VALUES
 (300066 , 8 , 0),
 (300067 , 8 , 0),
 (300068 , 8 , 0);
+
+DELETE FROM achievement_criteria_requirement WHERE criteria_id IN (12066, 12067, 12163);
+INSERT INTO achievement_criteria_requirement VALUES
+(12066, 0, 0, 0),  -- A-bomb-inable
+(12067, 0, 0, 0),  -- A-bomb-ination
+(12163, 0, 0, 0);  -- Back Door Job
