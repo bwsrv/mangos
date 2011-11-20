@@ -14,6 +14,11 @@ UPDATE gameobject_template SET data2 = 1, data4 = 1, data7 = 10 WHERE entry = 19
 -- UPDATE `gameobject_template` SET faction = 3 WHERE entry = 190753;
 -- UPDATE `gameobject_template` SET faction = 6 WHERE entry = 194086;
 
+-- Achievements
+DELETE FROM achievement_criteria_requirement WHERE criteria_id IN (6447);
+INSERT INTO achievement_criteria_requirement VALUES
+(6447, 6, 4384, 0);
+
 -- Doors
 UPDATE gameobject_template SET faction = 14 WHERE entry IN (192549, 190727, 190726, 190723, 190724, 190722);
 -- make Titan Relic clickable (hack, must be done via core, when door to Chamber of Ancient Relics is destroyed)

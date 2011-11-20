@@ -454,6 +454,10 @@ void BattleGroundIC::HandleKillUnit(Creature *creature, Player *killer)
             EndBattleGround(ALLIANCE);
             break;
     }
+
+    if (creature->IsVehicle())
+        // must be killing blow
+        killer->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 68357);
 }
 
 void BattleGroundIC::HandleKillPlayer(Player* player, Player* killer)
@@ -525,6 +529,7 @@ void BattleGroundIC::EventPlayerClickedOnFlag(Player *source, GameObject* target
     if (m_Nodes[node] == BG_IC_NODE_TYPE_NEUTRAL)
     {
         UpdatePlayerScore(source, SCORE_BASES_ASSAULTED, 1);
+        source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE,1,245);
         m_prevNodes[node] = m_Nodes[node];
         m_Nodes[node] = teamIndex + 1;
         // create new contested banner
@@ -562,6 +567,7 @@ void BattleGroundIC::EventPlayerClickedOnFlag(Player *source, GameObject* target
         else
         {
             UpdatePlayerScore(source, SCORE_BASES_DEFENDED, 1);
+            source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE,1,246);
             m_prevNodes[node] = m_Nodes[node];
             m_Nodes[node] = teamIndex + BG_IC_NODE_TYPE_OCCUPIED;
             // create new occupied banner
@@ -581,6 +587,7 @@ void BattleGroundIC::EventPlayerClickedOnFlag(Player *source, GameObject* target
     else
     {
         UpdatePlayerScore(source, SCORE_BASES_ASSAULTED, 1);
+        source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE,1,245);
         m_prevNodes[node] = m_Nodes[node];
         m_Nodes[node] = teamIndex + BG_IC_NODE_TYPE_CONTESTED;
         // create new contested banner

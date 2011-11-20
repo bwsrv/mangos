@@ -1021,8 +1021,8 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                                 continue;
                             break;
                         }
-                        case 3846:              // IoC, win while controlling each 5 nodes (alliance)
-                        case 4176:              // IoC, win while controlling each 5 nodes (horde)
+                        case 3846:                          // IoC, win while controlling each 5 nodes (alliance)
+                        case 4176:                          // IoC, win while controlling each 5 nodes (horde)
                         {
                             if (bg->GetTypeID(true) != BATTLEGROUND_IC)
                                 continue;
