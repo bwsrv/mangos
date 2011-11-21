@@ -3643,11 +3643,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 }
                 case 51690:                                 // Killing Spree
                 {
-                    if (!unitTarget || m_caster->hasUnitState(UNIT_STAT_STUNNED) || m_caster->isFeared())
-                        return;
-
-                    m_caster->CastSpell(unitTarget, 57840, true);
-                    m_caster->CastSpell(unitTarget, 57841, true);
+                    m_caster->CastSpell(m_caster, 61851, true);
                     return;
                 }
             }
