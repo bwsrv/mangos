@@ -2488,6 +2488,9 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         target->CastSpell(target, 48331, true);   //Cast Swirl Sword
                         target->CastSpell(target, 54159, true);   //Cast Remove Equipment
                         return;
+                    case 43885:                             // Headless Horseman - Horseman Laugh, Maniacal
+                        target->PlayDirectSound(11965);     // triggered by spells delaying laugh
+                        return;
                     case 50756:                             // Drakos Shpere Passive
                         target->CastSpell(target, 50758, true);
                         return;
@@ -5658,10 +5661,6 @@ void Aura::HandleAuraModUseNormalSpeed(bool /*apply*/, bool Real)
 void Aura::HandleModMechanicImmunity(bool apply, bool /*Real*/)
 {
     uint32 misc  = m_modifier.m_miscvalue;
-    // Forbearance
-    // in DBC wrong mechanic immune since 3.0.x
-    if (GetId() == 25771)
-        misc = MECHANIC_IMMUNE_SHIELD;
 
     Unit *target = GetTarget();
 

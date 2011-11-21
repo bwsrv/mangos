@@ -37,7 +37,7 @@ UPDATE creature_template SET vehicle_id = 452, iconName = 'vehichleCursor', fact
 UPDATE creature_template SET vehicle_id = 453, iconName = 'vehichleCursor', faction_A = 6, faction_H = 6, ScriptName = '' WHERE entry = 34935;
 -- Keep Cannon
 UPDATE creature_template SET vehicle_id = 160, iconName = 'vehichleCursor', faction_A = 35, faction_H = 35, unit_flags = unit_flags | 4, ScriptName = 'npc_ic_cannon' WHERE entry = 34944;
-UPDATE creature_template SET unit_flags = unit_flags | 4 WHERE entry = 34944;
+UPDATE creature_template SET unit_flags = unit_flags | 4 WHERE entry = 35429;
 -- Catapult
 UPDATE creature_template SET powertype = 3, vehicle_id = 438, iconName = 'vehichleCursor', faction_A = 35, faction_H = 35, speed_walk = 2.4, speed_run = 2.8, ScriptName = 'npc_ic_vehicle' WHERE entry = 34793;
 UPDATE creature_template SET speed_walk = 2.4, speed_run = 2.8 WHERE entry = 35413;
@@ -68,11 +68,16 @@ INSERT INTO npc_spellclick_spells (npc_entry, spell_id, quest_start, quest_start
 (34935, 60968, 0, 0, 0, 1),
 (34944, 60968, 0, 0, 0, 1),
 (34793, 60968, 0, 0, 0, 1),
+(34793, 68362, 0, 0, 0, 3),
 (34775, 60968, 0, 0, 0, 1),
+(34775, 68365, 0, 0, 0, 3),
 (34776, 60968, 0, 0, 0, 1),
+(34776, 68364, 0, 0, 0, 3),
 (35069, 60968, 0, 0, 0, 1),
 (34802, 60968, 0, 0, 0, 1),
+(34802, 68363, 0, 0, 0, 3),
 (35273, 60968, 0, 0, 0, 1),
+(35273, 68363, 0, 0, 0, 3),
 (34778, 60968, 0, 0, 0, 1),
 (36356, 60968, 0, 0, 0, 1),
 (34777, 60968, 0, 0, 0, 1),
@@ -164,6 +169,19 @@ INSERT INTO creature_template_addon (entry, auras) VALUES
 (36356, 52455),
 (34777, 52455),
 (36355, 52455);
+
+-- Achievements
+DELETE FROM achievement_criteria_requirement WHERE criteria_id IN (11492, 11493, 11494, 11495, 12059, 12066, 12067, 12132, 12163);
+INSERT INTO achievement_criteria_requirement VALUES
+(11492, 6, 4710, 0),  -- Four Car Garage (x4)
+(11493, 6, 4710, 0),
+(11494, 6, 4710, 0),
+(11495, 6, 4710, 0),
+(12059, 6, 4710, 0),  -- Isle of Conquest All-Star
+(12066, 6, 4710, 0),  -- A-bomb-inable
+(12067, 6, 4710, 0),  -- A-bomb-ination
+(12132, 6, 4710, 0),  -- Cut the Blue Wire... No the Red Wire!
+(12163, 6, 4710, 0);  -- Back Door Job
 
 ###############################
 -- SPAWNING STATIC OBJECTS
@@ -661,3 +679,9 @@ INSERT INTO creature_battleground (guid, event1, event2) VALUES
 (300066 , 8 , 0),
 (300067 , 8 , 0),
 (300068 , 8 , 0);
+
+DELETE FROM achievement_criteria_requirement WHERE criteria_id IN (12066, 12067, 12163);
+INSERT INTO achievement_criteria_requirement VALUES
+(12066, 0, 0, 0),  -- A-bomb-inable
+(12067, 0, 0, 0),  -- A-bomb-ination
+(12163, 0, 0, 0);  -- Back Door Job

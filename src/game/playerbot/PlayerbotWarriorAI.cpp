@@ -1,4 +1,24 @@
 /*
+* Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+* Copyright (C) 2010 Blueboy
+* Copyright (C) 2011 MangosR2 
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+
+/*
    Name    : PlayerbotWarriorAI.cpp
    Complete: maybe around 37%
    Author  : Natsukawa
@@ -82,7 +102,7 @@ bool PlayerbotWarriorAI::DoFirstCombatManeuver(Unit *pTarget)
     Player *m_bot = GetPlayerBot();
     PlayerbotAI *ai = GetAI();
     PlayerbotAI::CombatOrderType co = ai->GetCombatOrder();
-    float fTargetDist = m_bot->GetDistance(pTarget);
+    float fTargetDist = m_bot->GetCombatDistance(pTarget);
 
     if ((co & PlayerbotAI::ORDERS_TANK) && DEFENSIVE_STANCE > 0 && !m_bot->HasAura(DEFENSIVE_STANCE, EFFECT_INDEX_0) && ai->CastSpell(DEFENSIVE_STANCE))
     {
@@ -135,32 +155,23 @@ void PlayerbotWarriorAI::DoNextCombatManeuver(Unit *pTarget)
             if (HEROIC_STRIKE > 0)
                 ai->CastSpell(HEROIC_STRIKE);
             return;
-        default:
-            break;
     }
     // ------- Non Duel combat ----------
 
-    //ai->SetMovementOrder( PlayerbotAI::MOVEMENT_FOLLOW, GetMaster() ); // dont want to melee mob
-
     // Damage Attacks
 
-    ai->SetInFront(pTarget);
     Player *m_bot = GetPlayerBot();
     Unit* pVictim = pTarget->getVictim();
-    //float fTargetDist = m_bot->GetDistance(pTarget);
+    float fTargetDist = m_bot->GetCombatDistance(pTarget);
     PlayerbotAI::CombatOrderType co = ai->GetCombatOrder();
 
     // decide what stance to use
     if ((co & PlayerbotAI::ORDERS_TANK) && !m_bot->HasAura(DEFENSIVE_STANCE, EFFECT_INDEX_0) && ai->CastSpell(DEFENSIVE_STANCE))
-    {
         if (ai->GetManager()->m_confDebugWhisper)
             ai->TellMaster("Stance > Defensive");
         else if (!(co & PlayerbotAI::ORDERS_TANK) && !m_bot->HasAura(BATTLE_STANCE, EFFECT_INDEX_0) && ai->CastSpell(BATTLE_STANCE))
-        {
             if (ai->GetManager()->m_confDebugWhisper)
                 ai->TellMaster("Stance > Battle");
-        }
-    }
 
     // get spell sequence
     if (pTarget->IsNonMeleeSpellCasted(true))
@@ -174,20 +185,14 @@ void PlayerbotWarriorAI::DoNextCombatManeuver(Unit *pTarget)
 
     // do shouts, berserker rage, etc...
     if (BERSERKER_RAGE > 0 && !m_bot->HasAura(BERSERKER_RAGE, EFFECT_INDEX_0) && ai->CastSpell(BERSERKER_RAGE))
-    {
         if (ai->GetManager()->m_confDebugWhisper)
             ai->TellMaster("Pre > Berseker Rage");
         else if (DEMORALIZING_SHOUT > 0 && ai->GetRageAmount() >= 10 && !pTarget->HasAura(DEMORALIZING_SHOUT, EFFECT_INDEX_0) && ai->CastSpell(DEMORALIZING_SHOUT))
-        {
             if (ai->GetManager()->m_confDebugWhisper)
                 ai->TellMaster("Pre > Demoralizing Shout");
             else if (BATTLE_SHOUT > 0 && ai->GetRageAmount() >= 10 && !m_bot->HasAura(BATTLE_SHOUT, EFFECT_INDEX_0) && ai->CastSpell(BATTLE_SHOUT))
-            {
                 if (ai->GetManager()->m_confDebugWhisper)
                     ai->TellMaster("Pre > Battle Shout");
-            }
-        }
-    }
 
     std::ostringstream out;
     switch (SpellSequence)

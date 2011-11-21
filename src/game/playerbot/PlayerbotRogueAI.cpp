@@ -1,4 +1,24 @@
 /*
+* Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+* Copyright (C) 2010 Blueboy
+* Copyright (C) 2011 MangosR2 
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+
+/*
    Name    : PlayerbotRogueAI.cpp
    Complete: maybe around 28%
    Author    : Natsukawa
@@ -92,17 +112,18 @@ void PlayerbotRogueAI::DoNextCombatManeuver(Unit *pTarget)
     switch (ai->GetScenarioType())
     {
         case PlayerbotAI::SCENARIO_DUEL:
+        {
             if (SINISTER_STRIKE > 0)
                 ai->CastSpell(SINISTER_STRIKE);
             return;
+        }
         default:
             break;
     }
 
-    ai->SetInFront(pTarget);
     Player *m_bot = GetPlayerBot();
     Unit* pVictim = pTarget->getVictim();
-    float fTargetDist = m_bot->GetDistance(pTarget);
+    float fTargetDist = m_bot->GetCombatDistance(pTarget);
 
     // TODO: make this work better...
     /*if (pVictim)
@@ -224,13 +245,13 @@ void PlayerbotRogueAI::DoNextCombatManeuver(Unit *pTarget)
                     out << " > Shadowstep";
                 else if (m_bot->getRace() == RACE_BLOODELF && !pTarget->HasAura(ARCANE_TORRENT, EFFECT_INDEX_0) && ai->CastSpell(ARCANE_TORRENT, *pTarget))
                     out << " > Arcane Torrent";
-                else if (m_bot->getRace() == RACE_HUMAN && m_bot->hasUnitState(UNIT_STAT_STUNNED) || m_bot->HasAuraType(SPELL_AURA_MOD_FEAR) || m_bot->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED) || m_bot->HasAuraType(SPELL_AURA_MOD_CHARM) && ai->CastSpell(EVERY_MAN_FOR_HIMSELF, *m_bot))
+                else if ((m_bot->getRace() == RACE_HUMAN && m_bot->hasUnitState(UNIT_STAT_STUNNED)) || m_bot->HasAuraType(SPELL_AURA_MOD_FEAR) || m_bot->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED) || (m_bot->HasAuraType(SPELL_AURA_MOD_CHARM) && ai->CastSpell(EVERY_MAN_FOR_HIMSELF, *m_bot)))
                     out << " > Every Man for Himself";
-                else if (m_bot->getRace() == RACE_UNDEAD && m_bot->HasAuraType(SPELL_AURA_MOD_FEAR) || m_bot->HasAuraType(SPELL_AURA_MOD_CHARM) && ai->CastSpell(WILL_OF_THE_FORSAKEN, *m_bot))
+                else if ((m_bot->getRace() == RACE_UNDEAD && m_bot->HasAuraType(SPELL_AURA_MOD_FEAR)) || (m_bot->HasAuraType(SPELL_AURA_MOD_CHARM) && ai->CastSpell(WILL_OF_THE_FORSAKEN, *m_bot)))
                     out << " > Will of the Forsaken";
                 else if (m_bot->getRace() == RACE_DWARF && m_bot->HasAuraState(AURA_STATE_DEADLY_POISON) && ai->CastSpell(STONEFORM, *m_bot))
                     out << " > Stoneform";
-                else if (m_bot->getRace() == RACE_GNOME && m_bot->hasUnitState(UNIT_STAT_STUNNED) || m_bot->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED) && ai->CastSpell(ESCAPE_ARTIST, *m_bot))
+                else if ((m_bot->getRace() == RACE_GNOME && m_bot->hasUnitState(UNIT_STAT_STUNNED)) || (m_bot->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED) && ai->CastSpell(ESCAPE_ARTIST, *m_bot)))
                     out << " > Escape Artist";
                 else if (m_bot->getRace() == RACE_ORC && !m_bot->HasAura(BLOOD_FURY, EFFECT_INDEX_0) && ai->CastSpell(BLOOD_FURY, *m_bot))
                     out << " > Blood Fury";

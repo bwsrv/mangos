@@ -1,3 +1,23 @@
+/*
+* Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+* Copyright (C) 2010 Blueboy
+* Copyright (C) 2011 MangosR2 
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+
 #ifndef _PlayerbotPaladinAI_H
 #define _PlayerbotPaladinAI_H
 
@@ -65,11 +85,11 @@ enum PaladinSpells
     RIGHTEOUS_FURY_1                = 25780,
     SACRED_SHIELD_1                 = 53601,
     SEAL_OF_COMMAND_1               = 20375,
-    SEAL_OF_CORRUPTION              = 53736,
+    SEAL_OF_CORRUPTION_1            = 53736,
     SEAL_OF_JUSTICE_1               = 20164,
     SEAL_OF_LIGHT_1                 = 20165,
     SEAL_OF_RIGHTEOUSNESS_1         = 21084,
-    SEAL_OF_VENGEANCE               = 31801,
+    SEAL_OF_VENGEANCE_1             = 31801,
     SEAL_OF_WISDOM_1                = 20166,
     SENSE_UNDEAD_1                  = 5502,
     SHADOW_RESISTANCE_AURA_1        = 19876,
@@ -85,6 +105,7 @@ public:
     virtual ~PlayerbotPaladinAI();
 
     // all combat actions go here
+    bool DoFirstCombatManeuver(Unit*);
     void DoNextCombatManeuver(Unit*);
 
     // all non combat actions go here, ex buffs, heals, rezzes
@@ -130,7 +151,13 @@ private:
            LAY_ON_HANDS,
            EXORCISM,
            REDEMPTION,
-           DIVINE_PLEA;
+           DIVINE_PLEA,
+           SEAL_OF_CORRUPTION,
+           SEAL_OF_JUSTICE,
+           SEAL_OF_LIGHT,
+           SEAL_OF_RIGHTEOUSNESS,
+           SEAL_OF_VENGEANCE,
+           SEAL_OF_WISDOM;
 
     // Protection
     uint32 GREATER_BLESSING_OF_KINGS,

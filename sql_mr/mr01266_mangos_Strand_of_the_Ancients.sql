@@ -14,6 +14,11 @@ UPDATE gameobject_template SET data2 = 1, data4 = 1, data7 = 10 WHERE entry = 19
 -- UPDATE `gameobject_template` SET faction = 3 WHERE entry = 190753;
 -- UPDATE `gameobject_template` SET faction = 6 WHERE entry = 194086;
 
+-- Achievements
+DELETE FROM achievement_criteria_requirement WHERE criteria_id IN (6447);
+INSERT INTO achievement_criteria_requirement VALUES
+(6447, 6, 4384, 0);
+
 -- Doors
 UPDATE gameobject_template SET faction = 14 WHERE entry IN (192549, 190727, 190726, 190723, 190724, 190722);
 -- make Titan Relic clickable (hack, must be done via core, when door to Chamber of Ancient Relics is destroyed)
@@ -24,8 +29,8 @@ UPDATE gameobject_template SET faction=0 , ScriptName = 'go_sa_def_portal' WHERE
 -- Seaforium barrels
 DELETE FROM gameobject_template WHERE entry IN (190753, 194086);
 INSERT INTO gameobject_template (entry, type, displayId, name, IconName, castBarCaption, unk1, faction, flags, size, questItem1, questItem2, questItem3, questItem4, questItem5, questItem6, data0, data1, data2, data3, data4, data5, data6, data7, data8, data9, data10, data11, data12, data13, data14, data15, data16, data17, data18, data19, data20, data21, data22, data23, ScriptName) VALUES
-(190753, 22, 8582, 'Seaforium Barrel', '', '', '', 12, 0, 2, 0, 0, 0, 0, 0, 0, 52415, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ''),
-(194086, 22, 8582, 'Seaforium Barrel', '', '', '', 29, 0, 2, 0, 0, 0, 0, 0, 0, 52415, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '');
+(190753, 22, 8582, 'Seaforium Barrel', '', '', '', 12, 0, 2, 0, 0, 0, 0, 0, 0, 52415, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'go_sa_bomb'),
+(194086, 22, 8582, 'Seaforium Barrel', '', '', '', 29, 0, 2, 0, 0, 0, 0, 0, 0, 52415, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'go_sa_bomb');
 UPDATE locales_gameobject SET name_loc3 = 'Zephyriumbombe', name_loc6 = 'Barril de Seforio', name_loc7 = 'Barril de Seforio' WHERE entry IN (190753, 194086);
 
 -- Banners - horde/alli occupied, not clickable banner

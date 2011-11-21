@@ -330,6 +330,12 @@ class BattleGroundIC : public BattleGround
         uint32 GetVehicleFaction(uint8 vehicleType) const { return GetCorrectFactionIC(vehicleType); }
         uint32 GetCorrectFactionIC(uint8 vehicleType) const;
 
+        // for achievement Mine
+        bool hasAllNodes(int8 team);
+
+        // for achievement Resource Glut
+        bool hasAllResNodes(int8 team);
+
     private:
         uint32 closeFortressDoorsTimer;
         uint32 m_resource_Timer[BG_IC_MAX_RESOURCE_NODES];

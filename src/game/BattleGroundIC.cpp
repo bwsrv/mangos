@@ -288,11 +288,29 @@ void BattleGroundIC::RemovePlayer(Player* plr)
     }
 }
 
-void BattleGroundIC::HandleAreaTrigger(Player * /*Source*/, uint32 /*Trigger*/)
+void BattleGroundIC::HandleAreaTrigger(Player * Source, uint32 Trigger)
 {
     // this is wrong way to implement these things. On official it done by gameobject spell cast.
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
+
+    switch (Trigger)
+    {
+        case 5535:
+            if (Source->GetTeam() == ALLIANCE && hOpen == false)
+                Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 68502);
+            break;
+        case 5555:
+            if (Source->GetTeam() == HORDE && aOpen == false)
+                Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 68502);
+            break;
+        case 5536:
+            break;
+        default:
+            sLog.outError("WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
+            Source->GetSession()->SendAreaTriggerMessage("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
+            break;
+    }
 }
 
 /*  type: 0-neutral, 1-contested, 3-occupied
@@ -436,6 +454,10 @@ void BattleGroundIC::HandleKillUnit(Creature *creature, Player *killer)
             EndBattleGround(ALLIANCE);
             break;
     }
+
+    if (creature->IsVehicle())
+        // must be killing blow
+        killer->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 68357);
 }
 
 void BattleGroundIC::HandleKillPlayer(Player* player, Player* killer)
@@ -507,6 +529,7 @@ void BattleGroundIC::EventPlayerClickedOnFlag(Player *source, GameObject* target
     if (m_Nodes[node] == BG_IC_NODE_TYPE_NEUTRAL)
     {
         UpdatePlayerScore(source, SCORE_BASES_ASSAULTED, 1);
+        source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE,1,245);
         m_prevNodes[node] = m_Nodes[node];
         m_Nodes[node] = teamIndex + 1;
         // create new contested banner
@@ -544,6 +567,7 @@ void BattleGroundIC::EventPlayerClickedOnFlag(Player *source, GameObject* target
         else
         {
             UpdatePlayerScore(source, SCORE_BASES_DEFENDED, 1);
+            source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE,1,246);
             m_prevNodes[node] = m_Nodes[node];
             m_Nodes[node] = teamIndex + BG_IC_NODE_TYPE_OCCUPIED;
             // create new occupied banner
@@ -563,6 +587,7 @@ void BattleGroundIC::EventPlayerClickedOnFlag(Player *source, GameObject* target
     else
     {
         UpdatePlayerScore(source, SCORE_BASES_ASSAULTED, 1);
+        source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE,1,245);
         m_prevNodes[node] = m_Nodes[node];
         m_Nodes[node] = teamIndex + BG_IC_NODE_TYPE_CONTESTED;
         // create new contested banner
@@ -586,6 +611,14 @@ void BattleGroundIC::EventPlayerClickedOnFlag(Player *source, GameObject* target
 void BattleGroundIC::EventPlayerDamageGO(Player *player, GameObject* target_obj, uint32 eventId, uint32 doneBy)
 {
     BattleGroundTeamIndex teamIndex = GetTeamIndexByTeamId(player->GetTeam());
+
+    // Seaforium Charge Explosion (A-bomb-inable)
+    if (doneBy == 66676)
+        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL, 68366);
+
+    // Huge Seaforium Charge Explosion (A-bomb-ination)
+    if (doneBy == 66672)
+        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL, 68367);
 
     uint32 type = NULL;
     switch (target_obj->GetEntry())
@@ -864,4 +897,22 @@ uint32 BattleGroundIC::GetCorrectFactionIC(uint8 vehicleType) const
         }
     }
     return VEHICLE_FACTION_NEUTRAL;
+}
+
+bool BattleGroundIC::hasAllNodes(int8 team)
+{
+    for (int i = BG_IC_NODE_DOCKS; i <= BG_IC_NODE_REFINERY; ++i)
+        if (m_Nodes[i] != BG_IC_NODE_TYPE_OCCUPIED + team)
+            return false;
+
+    return true;
+}
+
+bool BattleGroundIC::hasAllResNodes(int8 team)
+{
+    for (int i = BG_IC_NODE_QUARRY; i <= BG_IC_NODE_REFINERY; ++i)
+        if (m_Nodes[i] != BG_IC_NODE_TYPE_OCCUPIED + team)
+            return false;
+
+    return true;
 }

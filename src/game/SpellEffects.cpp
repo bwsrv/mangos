@@ -1722,6 +1722,23 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                         m_caster->CastSpell(m_caster, 42288, true);
                     return;
                 }
+                case 42339:                                 // Bucket Lands
+                {
+                     // remove aura Has Bucket from caster
+                   m_caster->RemoveAurasDueToSpell(42336);
+                    if (!unitTarget)
+                        return;
+                    // if target has aura Has Bucket do nothing
+                    if (unitTarget->HasAura(42336))
+                         return;
+
+                    // apply aura Has Bucket
+                    unitTarget->CastSpell(unitTarget, 42336, true);
+                    // create new bucket for target
+                    m_caster->CastSpell(unitTarget, 42349, true);
+                    return;
+
+                }
                 case 42793:                                 // Burn Body
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT || m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -5441,7 +5458,7 @@ void Spell::SendLoot(ObjectGuid guid, LootType loottype, LockType lockType)
                 break;
 
             case GAMEOBJECT_TYPE_TRAP:
-                if (lockType == LOCKTYPE_DISARM_TRAP)
+                if (lockType == LOCKTYPE_DISARM_TRAP || gameObjTarget->GetEntry() == 190752 || gameObjTarget->GetEntry() == 195235 || gameObjTarget->GetEntry() == 195331)
                 {
                     gameObjTarget->SetLootState(GO_JUST_DEACTIVATED);
                     return;
@@ -5487,7 +5504,7 @@ void Spell::EffectOpenLock(SpellEffectIndex eff_idx)
             if (BattleGround *bg = player->GetBattleGround())
             {
                 // check if it's correct bg
-                if (bg->GetTypeID(true) == BATTLEGROUND_AB || bg->GetTypeID(true) == BATTLEGROUND_AV || bg->GetTypeID(true) == BATTLEGROUND_SA)
+                if (bg->GetTypeID(true) == BATTLEGROUND_AB || bg->GetTypeID(true) == BATTLEGROUND_AV || bg->GetTypeID(true) == BATTLEGROUND_SA || bg->GetTypeID(true) == BATTLEGROUND_IC)
                     bg->EventPlayerClickedOnFlag(player, gameObjTarget);
                 return;
             }

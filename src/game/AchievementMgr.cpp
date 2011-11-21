@@ -39,6 +39,7 @@
 #include "BattleGroundAB.h"
 #include "BattleGroundAV.h"
 #include "BattleGroundEY.h"
+#include "BattleGroundIC.h"
 #include "BattleGroundSA.h"
 #include "BattleGroundWS.h"
 #include "Map.h"
@@ -957,6 +958,28 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                                 continue;
                             break;
                         }
+                        case 220:               // AV, win while your towers and captain are ok, enemy towers destroyed (alliance)
+                        case 873:               // AV, win while your towers and captain are ok, enemy towers destroyed (horde)
+                        {
+                            if (bg->GetTypeID(true) != BATTLEGROUND_AV)
+                                continue;
+
+                            int8 team = bg->GetTeamIndexByTeamId(GetPlayer()->GetTeam());
+                            if(!((BattleGroundAV*)bg)->hasAllTowers(team))
+                                continue;
+                            break;
+                        }
+                        case 3851:              // IoC, win while controlling each 5 nodes (alliance)
+                        case 4177:              // IoC, win while controlling each 5 nodes (horde)
+                        {
+                            if (bg->GetTypeID(true) != BATTLEGROUND_IC)
+                                continue;
+
+                            int8 team = bg->GetTeamIndexByTeamId(GetPlayer()->GetTeam());
+                            if(!((BattleGroundIC*)bg)->hasAllNodes(team))
+                                continue;
+                            break;
+                        }
                         default:
                         {
                             // those requirements couldn't be found in the dbc
@@ -995,6 +1018,17 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                                 continue;
 
                             if (((BattleGroundSA*)bg)->isDemolisherDestroyed[GetPlayer()->GetTeam() == ALLIANCE ? 0 : 1])
+                                continue;
+                            break;
+                        }
+                        case 3846:                          // IoC, win while controlling each 5 nodes (alliance)
+                        case 4176:                          // IoC, win while controlling each 5 nodes (horde)
+                        {
+                            if (bg->GetTypeID(true) != BATTLEGROUND_IC)
+                                continue;
+
+                            int8 team = bg->GetTeamIndexByTeamId(GetPlayer()->GetTeam());
+                            if(!((BattleGroundIC*)bg)->hasAllResNodes(team))
                                 continue;
                             break;
                         }
