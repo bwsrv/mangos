@@ -570,6 +570,7 @@ void BattleGroundSA::EventPlayerClickedOnFlag(Player *source, GameObject* target
         m_Gyd[gyd] += (GetDefender() == ALLIANCE) ? BG_SA_GARVE_STATUS_ALLY_OCCUPIED : BG_SA_GARVE_STATUS_ALLY_CONTESTED;
         // create new occupied banner (attacker one, not clickable by anyone)
         _CreateBanner(gyd, (GetDefender() == ALLIANCE ? BG_SA_GARVE_STATUS_HORDE_OCCUPIED : BG_SA_GARVE_STATUS_ALLY_OCCUPIED), teamIndex, true);
+        MakeInteractive(gyd, (GetDefender() == ALLIANCE) ? BG_SA_GARVE_STATUS_HORDE_OCCUPIED : BG_SA_GARVE_STATUS_ALLY_OCCUPIED, false);
         _GydOccupied(gyd,(teamIndex == 0) ? ALLIANCE:HORDE);
 
         RewardHonorToTeam(85, (teamIndex == 0) ? ALLIANCE:HORDE);
