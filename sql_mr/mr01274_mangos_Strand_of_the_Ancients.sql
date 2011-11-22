@@ -175,7 +175,7 @@ INSERT INTO creature (guid, id, map, spawnMask, phaseMask, modelid, equipment_id
 (200035, 13117, 607, 3, 1, 0, 0, 952.963, -192.742, 92.3584, 0.35779, 25, 0, 0, 37420, 6310, 0, 0),
 (200036, 13116, 607, 3, 1, 0, 0, 952.963, -192.742, 92.3584, 0.35779, 25, 0, 0, 37890, 6310, 0, 0);
 
-DELETE FROM creature_battleground WHERE guid BETWEEN 200017 AND 200036;
+DELETE FROM creature_battleground WHERE guid BETWEEN 200021 AND 200036;
 INSERT INTO creature_battleground VALUES
 (200021, 5, 2),
 (200022, 5, 1),
