@@ -11510,7 +11510,7 @@ void Spell::EffectWMODamage(SpellEffectIndex eff_idx)
 
     DEBUG_LOG( "Spell::EffectWMODamage,  spell ID %u, object %u, damage %u", m_spellInfo->Id,gameObjTarget->GetEntry(),uint32(damage));
 
-    gameObjTarget->DamageTaken(caster, uint32(damage));
+    gameObjTarget->DamageTaken(caster, uint32(damage), m_spellInfo->Id);
 
     WorldPacket data(SMSG_DESTRUCTIBLE_BUILDING_DAMAGE, 8+8+8+4+4);
     data << gameObjTarget->GetPackGUID();

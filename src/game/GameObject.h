@@ -764,7 +764,7 @@ class MANGOS_DLL_SPEC GameObject : public WorldObject
         GridReference<GameObject> &GetGridRef() { return m_gridRef; }
 
         bool IsInRange(float x, float y, float z, float radius) const;
-        void DamageTaken(Unit *pDoneBy, uint32 uiDamage);
+        void DamageTaken(Unit *pDoneBy, uint32 uiDamage, uint32 spellId = 0);
         void Rebuild(Unit *pWho);
 
         uint32 GetHealth() const { return m_health; }
