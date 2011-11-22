@@ -121,12 +121,14 @@ enum BG_SA_GoType
 
 enum BG_SA_Events
 {
-    SA_EVENT_ADD_SPIR = 5,
-    SA_EVENT_ADD_BOMB = 6,
-    SA_EVENT_ADD_NPC = 7,
-    SA_EVENT_ADD_GO = 8,
-    SA_EVENT_ADD_VECH_E = 9,
-    SA_EVENT_ADD_VECH_W = 10
+    SA_EVENT_ADD_SPIR_A     = 3,        // ancient relic area
+    SA_EVENT_ADD_BOMB_ANC   = 4,        // bombs at the ancient relic area + near the yellow gate
+    SA_EVENT_ADD_SPIR       = 5,
+    SA_EVENT_ADD_BOMB       = 6,        // bombs at the beach
+    SA_EVENT_ADD_NPC        = 7,
+    SA_EVENT_ADD_GO         = 8,
+    SA_EVENT_ADD_VECH_E     = 9,
+    SA_EVENT_ADD_VECH_W     = 10
 };
 
 enum BG_SA_Boats
@@ -260,6 +262,7 @@ class BattleGroundSA : public BattleGround
         void _GydOccupied(uint8 node,Team team);
         void ToggleTimer();
         void ResetWorldStates();
+        void HandleInteractivity();
         /* check to avoid to much messages */
         bool GateRoomAncientShrineDamaged;
         bool GateGreenEmeraldDamaged;

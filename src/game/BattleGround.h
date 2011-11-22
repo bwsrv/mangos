@@ -563,6 +563,7 @@ class BattleGround
         bool AddObject(uint32 type, uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime = 0);
         void SpawnBGCreature(ObjectGuid guid, uint32 respawntime);
         bool DelObject(uint32 type);
+        void MakeInteractive(uint8 event1, uint8 event2, bool interactive);
 
         void DoorOpen(ObjectGuid guid);
         void DoorClose(ObjectGuid guid);
