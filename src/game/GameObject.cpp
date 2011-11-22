@@ -1287,7 +1287,7 @@ void GameObject::Use(Unit* user)
                         if (BattleGround *bg = player->GetBattleGround())
                         {
                             if (bg->GetTypeID(true) == BATTLEGROUND_SA)
-                                bg->EventPlayerDamageGO(player, this, info->goober.eventId);
+                                bg->EventPlayerDamageGO(player, this, info->goober.eventId, 0);
                         }
                     }
                 }
@@ -1950,7 +1950,7 @@ bool GameObject::IsInRange(float x, float y, float z, float radius) const
         && dz < info->maxZ + radius && dz > info->minZ - radius;
 }
 
-void GameObject::DamageTaken(Unit* pDoneBy, uint32 damage)
+void GameObject::DamageTaken(Unit* pDoneBy, uint32 damage, uint32 spellId)
 {
     if (GetGoType() != GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING || !m_health)
         return;
@@ -1970,7 +1970,7 @@ void GameObject::DamageTaken(Unit* pDoneBy, uint32 damage)
          m_health -= damage;
          if (pWho)
              if (BattleGround *bg = pWho->GetBattleGround())
-                 bg->EventPlayerDamageGO(pWho, this, m_goInfo->destructibleBuilding.damageEvent);
+                 bg->EventPlayerDamageGO(pWho, this, m_goInfo->destructibleBuilding.damageEvent, spellId);
     }
 
     else
@@ -1987,7 +1987,7 @@ void GameObject::DamageTaken(Unit* pDoneBy, uint32 damage)
             if (pWho)
             {
                 if (BattleGround *bg = pWho->GetBattleGround())
-                    bg->EventPlayerDamageGO(pWho, this, m_goInfo->destructibleBuilding.destroyedEvent);
+                    bg->EventPlayerDamageGO(pWho, this, m_goInfo->destructibleBuilding.destroyedEvent, spellId);
             }
         }
     }
@@ -2012,7 +2012,7 @@ void GameObject::DamageTaken(Unit* pDoneBy, uint32 damage)
             if (pWho)
                 if (BattleGround *bg = pWho->GetBattleGround())
                 {
-                    bg->EventPlayerDamageGO(pWho, this, m_goInfo->destructibleBuilding.damagedEvent);
+                    bg->EventPlayerDamageGO(pWho, this, m_goInfo->destructibleBuilding.damagedEvent, spellId);
                 }
          }
     }
