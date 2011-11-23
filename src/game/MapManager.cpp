@@ -184,6 +184,39 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
                     return false;
                 }
             }
+            // ICC Heroic Mode check
+            if (mapid == 631)
+            {
+                if (Group *pGroup= player->GetGroup())
+                {
+                    Difficulty diff = pGroup->GetRaidDifficulty();
+
+                    if (diff == RAID_DIFFICULTY_10MAN_HEROIC || diff == RAID_DIFFICULTY_25MAN_HEROIC)
+                    {
+                        Player *pLeader = sObjectMgr.GetPlayer(pGroup->GetLeaderGuid());
+                        uint32 achievId = diff == RAID_DIFFICULTY_10MAN_HEROIC ? 4530 : 4597;
+
+                        if (!pLeader || !pLeader->GetAchievementMgr().HasAchievement(achievId))
+                        {
+                            switch (LocaleConstant currentlocale = player->GetSession()->GetSessionDbcLocale())
+                            {
+                                case LOCALE_esES:
+                                     player->GetSession()->SendAreaTriggerMessage("Tienes que derrotar al Rey Exánime en modo normal antes de poder entrar en %s heroico", mapName);
+                                     break;
+                                case LOCALE_esMX:
+                                     player->GetSession()->SendAreaTriggerMessage("Tienes que derrotar al Rey Exánime en modo normal antes de poder entrar en %s heroico", mapName);
+                                     break;
+                                case LOCALE_enUS:
+                                case LOCALE_enGB:
+                                default:
+                                     player->GetSession()->SendAreaTriggerMessage("You must have the Lich King defeated first.. to enter %s heroic", mapName);
+                            }
+                            player->SendTransferAborted(mapid, TRANSFER_ABORT_DIFFICULTY, diff);
+                            return false;
+                        }
+                    }
+                }
+            }
         }
 
         //The player has a heroic mode and tries to enter into instance which has no a heroic mode
