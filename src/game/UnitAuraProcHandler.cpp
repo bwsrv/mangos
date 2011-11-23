@@ -1646,6 +1646,51 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                     triggered_spell_id = 47753;
                     break;
                 }
+                // Rapture
+                case 2894:
+                {
+                    // Proc only on first effect
+                    if (triggeredByAura->GetEffIndex() != EFFECT_INDEX_1)
+                        return SPELL_AURA_PROC_CANT_TRIGGER;
+
+                    Unit* pCaster = triggeredByAura->GetCaster();
+                    if (!pCaster || !pCaster->IsInWorld())
+                        return SPELL_AURA_PROC_FAILED;
+
+                    // energize caster
+                    int32 manapct1000 = 5 * (sSpellMgr.GetSpellRank(triggeredByAura->GetId()) + 2);
+                    int32 bp0 = pCaster->GetMaxPower(POWER_MANA) * manapct1000 / 1000;
+                    pCaster->CastCustomSpell(pCaster, 47755, &bp0, NULL, NULL, true);
+
+                    if (!roll_chance_i(triggeredByAura->GetModifier()->m_amount) || pCaster->HasAura(63853))
+                        return SPELL_AURA_PROC_FAILED;
+                    else
+                        //cooldown aura
+                        pCaster->CastSpell(pCaster, 63853, true);
+
+                    switch(pVictim->getPowerType())
+                    {
+                        case POWER_RUNIC_POWER:
+                            triggered_spell_id = 63652;
+                            break;
+                        case POWER_RAGE:
+                            triggered_spell_id = 63653;
+                            break;
+                        case POWER_MANA:
+                        {
+                            basepoints[0] = pVictim->GetMaxPower(POWER_MANA) * 2 / 100;
+                            triggered_spell_id = 63654;
+                            break;
+                        }
+                        case POWER_ENERGY:
+                            triggered_spell_id = 63655;
+                            break;
+                        default:
+                            break;
+                    }
+                    target = pVictim;
+                    break;
+                }
                 // Empowered Renew
                 case 3021:
                 {
