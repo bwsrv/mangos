@@ -624,7 +624,11 @@ enum ProcFlags
     PROC_FLAG_TAKEN_OFFHAND_HIT             = 0x00400000,   // 22 Taken off-hand melee attacks(not used)
     PROC_FLAG_SUCCESSFUL_OFFHAND_HIT        = 0x00800000,   // 23 Successful off-hand melee attacks
 
-    PROC_FLAG_ON_DEATH                      = 0x01000000    // 24 On caster's death
+    PROC_FLAG_ON_DEATH                      = 0x01000000,   // 24 On caster's death
+
+    // Custom proc flag system (must be used for write proc-like effects over procsystem)
+    PROC_FLAG_ON_AURA_APPLY                 = 0x04000000,   // 26 On apply aura (require SpellClassMask and custom proc ex flags)
+    PROC_FLAG_ON_AURA_FADE                  = 0x08000000,   // 27 On fade aura  (require SpellClassMask and custom proc ex flags)
 };
 
 #define MELEE_BASED_TRIGGER_MASK (PROC_FLAG_SUCCESSFUL_MELEE_HIT        | \
@@ -681,7 +685,12 @@ enum ProcFlagsEx
     PROC_EX_EX_ONE_TIME_TRIGGER = 0x0020000,                // If set trigger always but only one time (not used)
     PROC_EX_PERIODIC_POSITIVE   = 0x0040000,                // For periodic heal
     PROC_EX_CAST_END            = 0x0080000,                // procs on end of cast
-    PROC_EX_DIRECT_DAMAGE       = 0x0100000                 // do not proc from absorbed damage
+
+    // Custom proc ex flag system
+    PROC_EX_DIRECT_DAMAGE       = 0x0100000,                // do not proc from absorbed damage
+    PROC_EX_SHIELD_BREAK        = 0x0200000,                // proc at remove aura by shield break
+    PROC_EX_DISPEL              = 0x0400000,                // proc at remove aura by dispel
+    PROC_EX_EXPIRE              = 0x0800000,                // proc at remove aura by expire
 };
 
 struct SpellProcEventEntry

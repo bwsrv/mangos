@@ -5037,7 +5037,7 @@ SpellAuraProcResult Unit::IsTriggeredAtCustomProcEvent(Unit *pVictim, SpellAuraH
                 }
                 case SPELL_AURA_DAMAGE_SHIELD:
                     if (procFlag & PROC_FLAG_TAKEN_MELEE_HIT)
-                        return SPELL_AURA_PROC_OK;;
+                        return SPELL_AURA_PROC_OK;
                     break;
                 case SPELL_AURA_MOD_STEALTH:
                 case SPELL_AURA_MOD_INVISIBILITY:

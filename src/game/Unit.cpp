@@ -5237,6 +5237,8 @@ void Unit::RemoveSpellAuraHolder(SpellAuraHolderPtr holder, AuraRemoveMode mode)
     if (!holder)
         return;
 
+    holder->SetRemoveMode(mode);
+
     if (mode != AURA_REMOVE_BY_DELETE)
         holder->HandleSpellSpecificBoostsForward(false);
 
@@ -5261,7 +5263,6 @@ void Unit::RemoveSpellAuraHolder(SpellAuraHolderPtr holder, AuraRemoveMode mode)
         }
     }
 
-    holder->SetRemoveMode(mode);
     holder->UnregisterSingleCastHolder();
 
     for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)
