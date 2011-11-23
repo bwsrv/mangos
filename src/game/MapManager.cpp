@@ -207,7 +207,6 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
                                      player->GetSession()->SendAreaTriggerMessage("Tienes que derrotar al Rey Exánime en modo normal antes de poder entrar en %s heroico", mapName);
                                      break;
                                 case LOCALE_enUS:
-                                case LOCALE_enGB:
                                 default:
                                      player->GetSession()->SendAreaTriggerMessage("You must have the Lich King defeated first.. to enter %s heroic", mapName);
                             }
