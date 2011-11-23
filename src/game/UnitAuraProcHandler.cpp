@@ -1375,6 +1375,29 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                     basepoints[0] = damage * 15 / 100;
                     break;
                 }
+                // Item - Mage T8 4P Bonus
+                case 64869:
+                {
+                    if (!roll_chance_i(triggeredByAura->GetModifier()->m_amount))
+                        return SPELL_AURA_PROC_FAILED;
+
+                    SpellAuraHolderPtr holder;
+                    // Missile Barrage
+                    if (SpellAuraHolderPtr _holder = GetSpellAuraHolder(44401, GetObjectGuid()))
+                        holder = _holder;
+                    // Hot Streak
+                    else if (SpellAuraHolderPtr _holder = GetSpellAuraHolder(48108, GetObjectGuid()))
+                        holder = _holder;
+                    // Brain Freeze
+                    else if (SpellAuraHolderPtr _holder = GetSpellAuraHolder(57761, GetObjectGuid()))
+                        holder = _holder;
+
+                    if (!holder || holder->GetAuraCharges() > 1)
+                        return SPELL_AURA_PROC_FAILED;
+
+                    holder->SetAuraCharges(holder->GetAuraCharges() + 1, false);
+                    return SPELL_AURA_PROC_OK;
+                }
                 // Fingers of Frost
                 case 74396:
                 {
