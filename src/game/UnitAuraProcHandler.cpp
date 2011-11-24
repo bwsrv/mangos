@@ -1375,6 +1375,29 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                     basepoints[0] = damage * 15 / 100;
                     break;
                 }
+                // Item - Mage T8 4P Bonus
+                case 64869:
+                {
+                    if (!roll_chance_i(triggeredByAura->GetModifier()->m_amount))
+                        return SPELL_AURA_PROC_FAILED;
+
+                    SpellAuraHolderPtr holder;
+                    // Missile Barrage
+                    if (SpellAuraHolderPtr _holder = GetSpellAuraHolder(44401, GetObjectGuid()))
+                        holder = _holder;
+                    // Hot Streak
+                    else if (SpellAuraHolderPtr _holder = GetSpellAuraHolder(48108, GetObjectGuid()))
+                        holder = _holder;
+                    // Brain Freeze
+                    else if (SpellAuraHolderPtr _holder = GetSpellAuraHolder(57761, GetObjectGuid()))
+                        holder = _holder;
+
+                    if (!holder || holder->GetAuraCharges() > 1)
+                        return SPELL_AURA_PROC_FAILED;
+
+                    holder->SetAuraCharges(holder->GetAuraCharges() + 1, false);
+                    return SPELL_AURA_PROC_OK;
+                }
                 // Fingers of Frost
                 case 74396:
                 {
@@ -1671,6 +1694,51 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                     if (basepoints[0] > levelbonus)
                         basepoints[0] = levelbonus;
                     triggered_spell_id = 47753;
+                    break;
+                }
+                // Rapture
+                case 2894:
+                {
+                    // Proc only on first effect
+                    if (triggeredByAura->GetEffIndex() != EFFECT_INDEX_1)
+                        return SPELL_AURA_PROC_CANT_TRIGGER;
+
+                    Unit* pCaster = triggeredByAura->GetCaster();
+                    if (!pCaster || !pCaster->IsInWorld())
+                        return SPELL_AURA_PROC_FAILED;
+
+                    // energize caster
+                    int32 manapct1000 = 5 * (sSpellMgr.GetSpellRank(triggeredByAura->GetId()) + 2);
+                    int32 bp0 = pCaster->GetMaxPower(POWER_MANA) * manapct1000 / 1000;
+                    pCaster->CastCustomSpell(pCaster, 47755, &bp0, NULL, NULL, true);
+
+                    if (!roll_chance_i(triggeredByAura->GetModifier()->m_amount) || pCaster->HasAura(63853))
+                        return SPELL_AURA_PROC_FAILED;
+                    else
+                        //cooldown aura
+                        pCaster->CastSpell(pCaster, 63853, true);
+
+                    switch(pVictim->getPowerType())
+                    {
+                        case POWER_RUNIC_POWER:
+                            triggered_spell_id = 63652;
+                            break;
+                        case POWER_RAGE:
+                            triggered_spell_id = 63653;
+                            break;
+                        case POWER_MANA:
+                        {
+                            basepoints[0] = pVictim->GetMaxPower(POWER_MANA) * 2 / 100;
+                            triggered_spell_id = 63654;
+                            break;
+                        }
+                        case POWER_ENERGY:
+                            triggered_spell_id = 63655;
+                            break;
+                        default:
+                            break;
+                    }
+                    target = pVictim;
                     break;
                 }
                 // Empowered Renew
@@ -5078,7 +5146,7 @@ SpellAuraProcResult Unit::IsTriggeredAtCustomProcEvent(Unit *pVictim, SpellAuraH
                 }
                 case SPELL_AURA_DAMAGE_SHIELD:
                     if (procFlag & PROC_FLAG_TAKEN_MELEE_HIT)
-                        return SPELL_AURA_PROC_OK;;
+                        return SPELL_AURA_PROC_OK;
                     break;
                 case SPELL_AURA_MOD_STEALTH:
                 case SPELL_AURA_MOD_INVISIBILITY:

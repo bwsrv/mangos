@@ -1041,9 +1041,10 @@ float TerrainInfo::GetWaterOrGroundLevel(float x, float y, float z, float* pGrou
         float ground_z = GetHeight(x, y, z, true, DEFAULT_WATER_SEARCH) + 0.05f;
         if (pGround)
             *pGround = ground_z;
+
         GridMapLiquidData liquid_status;
 
-        if (!IsInWater(x,y,x,&liquid_status))
+        if (!IsInWater(x, y, z, &liquid_status))
             return ground_z;
         else
             return swim ? liquid_status.level - 2.0f : liquid_status.level;
