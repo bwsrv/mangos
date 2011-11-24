@@ -670,6 +670,8 @@ void BattleGroundSA::EventPlayerDamageGO(Player *player, GameObject* target_obj,
                     UpdateWorldState(BG_SA_GateStatus[type], GateStatus[type] = BG_SA_GO_GATES_DESTROY);
                     UpdatePlayerScore(player, SCORE_GATES_DESTROYED, 1);
                     RewardHonorToTeam(85, (teamIndex == 0) ? ALLIANCE:HORDE);
+                    for (int i = BG_SA_GARVE_E; i <= BG_SA_GARVE_W; i++)
+                        MakeInteractive(i, (GetDefender() == ALLIANCE) ? BG_SA_GARVE_STATUS_ALLY_CONTESTED : BG_SA_GARVE_STATUS_HORDE_CONTESTED, true);
                     break;
             }
             break;
@@ -695,6 +697,8 @@ void BattleGroundSA::EventPlayerDamageGO(Player *player, GameObject* target_obj,
                     UpdateWorldState(BG_SA_GateStatus[type], GateStatus[type] = BG_SA_GO_GATES_DESTROY);
                     UpdatePlayerScore(player, SCORE_GATES_DESTROYED, 1);
                     RewardHonorToTeam(85, (teamIndex == 0) ? ALLIANCE:HORDE);
+                    for (int i = BG_SA_GARVE_E; i <= BG_SA_GARVE_W; i++)
+                        MakeInteractive(i, (GetDefender() == ALLIANCE) ? BG_SA_GARVE_STATUS_ALLY_CONTESTED : BG_SA_GARVE_STATUS_HORDE_CONTESTED, true);
                     break;
             }
             break;
@@ -720,6 +724,7 @@ void BattleGroundSA::EventPlayerDamageGO(Player *player, GameObject* target_obj,
                     UpdateWorldState(BG_SA_GateStatus[type], GateStatus[type] = BG_SA_GO_GATES_DESTROY);
                     UpdatePlayerScore(player, SCORE_GATES_DESTROYED, 1);
                     RewardHonorToTeam(85, (teamIndex == 0) ? ALLIANCE:HORDE);
+                    MakeInteractive(BG_SA_GARVE_S, (GetDefender() == ALLIANCE) ? BG_SA_GARVE_STATUS_ALLY_CONTESTED : BG_SA_GARVE_STATUS_HORDE_CONTESTED, true);
                     break;
             }
             break;
@@ -745,6 +750,7 @@ void BattleGroundSA::EventPlayerDamageGO(Player *player, GameObject* target_obj,
                     UpdateWorldState(BG_SA_GateStatus[type], GateStatus[type] = BG_SA_GO_GATES_DESTROY);
                     UpdatePlayerScore(player, SCORE_GATES_DESTROYED, 1);
                     RewardHonorToTeam(85, (teamIndex == 0) ? ALLIANCE:HORDE);
+                    MakeInteractive(BG_SA_GARVE_S, (GetDefender() == ALLIANCE) ? BG_SA_GARVE_STATUS_ALLY_CONTESTED : BG_SA_GARVE_STATUS_HORDE_CONTESTED, true);
                     break;
             }
             break;
