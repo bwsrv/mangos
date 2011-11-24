@@ -2512,7 +2512,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         void _SaveSkills();
         void _SaveSpells();
         void _SaveEquipmentSets();
-        void _SaveBGData();
+        void _SaveBGData(bool forceClean = false);
         void _SaveGlyphs();
         void _SaveTalents();
         void _SaveStats();
