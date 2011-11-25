@@ -4535,7 +4535,8 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolderPtr holder)
     if (!holdersToRemove.empty())
     {
         for(std::set<SpellAuraHolderPtr>::const_iterator i = holdersToRemove.begin(); i != holdersToRemove.end(); ++i)
-            RemoveSpellAuraHolder((*i),AURA_REMOVE_BY_STACK);
+            if ((*i) && !(*i)->IsDeleted())
+                RemoveSpellAuraHolder((*i),AURA_REMOVE_BY_STACK);
     }
     else if (holderToStackAdd)
     {
@@ -11810,7 +11811,12 @@ bool Unit::hasNegativeAuraWithInterruptFlag(uint32 flag)
     MAPLOCK_READ(this,MAP_LOCK_TYPE_AURAS);
     for (SpellAuraHolderMap::const_iterator iter = m_spellAuraHolders.begin(); iter != m_spellAuraHolders.end(); ++iter)
     {
-        if (!iter->second->IsPositive() && iter->second->GetSpellProto()->AuraInterruptFlags & flag)
+        SpellAuraHolderPtr holder = iter->second;
+
+        if (!holder || holder->IsDeleted())
+            continue;
+
+        if (!holder->IsPositive() && holder->GetSpellProto()->AuraInterruptFlags & flag)
             return true;
     }
     return false;

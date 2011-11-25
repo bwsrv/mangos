@@ -1597,7 +1597,7 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn)
         return;
     }
 
-    if (isAlive())
+    if (IsInWorld() && isAlive())
         SetDeathState(JUST_DIED);
 
     RemoveCorpse();
