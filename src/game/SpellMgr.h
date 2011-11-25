@@ -766,6 +766,33 @@ struct SpellTargetPosition
 
 typedef UNORDERED_MAP<uint32, SpellTargetPosition> SpellTargetPositionMap;
 
+// Spell linked types
+enum SpellLinkedType
+{
+    SPELL_LINKED_TYPE_NONE              = 0,
+    SPELL_LINKED_TYPE_BOOST             = 1,
+    SPELL_LINKED_TYPE_BOOSTFORWARD      = 2,
+    SPELL_LINKED_TYPE_PRECAST           = 3,
+    SPELL_LINKED_TYPE_TRIGGERED         = 4,
+    SPELL_LINKED_TYPE_PROC              = 5,
+    SPELL_LINKED_TYPE_REMOVEONCAST      = 6,
+    SPELL_LINKED_TYPE_REMOVEONREMOVE    = 7,
+    SPELL_LINKED_TYPE_CASTONREMOVE      = 8,
+    SPELL_LINKED_TYPE_MAX,
+};
+
+struct SpellLinkedEntry
+{
+    uint32 spellId;
+    uint32 linkedId;
+    uint32 type;
+    uint32 effectMask;
+};
+
+typedef std::multimap<uint32, SpellLinkedEntry>  SpellLinkedMap;
+typedef std::pair<SpellLinkedMap::const_iterator,SpellLinkedMap::const_iterator> SpellLinkedMapBounds;
+typedef std::set<uint32>  SpellLinkedSet;
+
 // Spell pet auras
 class PetAura
 {
@@ -1223,6 +1250,13 @@ class SpellMgr
             return mSpellAreaForAreaMap.equal_range(area_id);
         }
 
+        SpellLinkedMapBounds GetSpellLinkedMapBounds(uint32 spell_id) const
+        {
+            return mSpellLinkedMap.equal_range(spell_id);
+        }
+
+        SpellLinkedSet GetSpellLinked(uint32 spell_id, SpellLinkedType type) const;
+
     // Modifiers
     public:
         static SpellMgr& Instance();
@@ -1238,6 +1272,7 @@ class SpellMgr
         void LoadSpellProcEvents();
         void LoadSpellProcItemEnchant();
         void LoadSpellBonuses();
+        void LoadSpellLinked();
         void LoadSpellTargetPositions();
         void LoadSpellThreats();
         void LoadSkillLineAbilityMap();
@@ -1261,6 +1296,7 @@ class SpellMgr
         SpellProcEventMap  mSpellProcEventMap;
         SpellProcItemEnchantMap mSpellProcItemEnchantMap;
         SpellBonusMap      mSpellBonusMap;
+        SpellLinkedMap     mSpellLinkedMap;
         SkillLineAbilityMap mSkillLineAbilityMap;
         SkillRaceClassInfoMap mSkillRaceClassInfoMap;
         SpellPetAuraMap     mSpellPetAuraMap;

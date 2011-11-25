@@ -488,6 +488,7 @@ class MANGOS_DLL_SPEC ChatHandler
         bool HandleReloadSpellThreatsCommand(char* args);
         bool HandleReloadSpellPetAurasCommand(char* args);
 
+        bool HandleReloadSpellLinkedCommand(char* args);
         bool HandleReloadSpellDisabledCommand(char* args);
         bool HandleReloadAntiCheatCommand(char* args);
 

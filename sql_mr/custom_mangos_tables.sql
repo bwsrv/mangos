@@ -287,3 +287,13 @@ CREATE TABLE IF NOT EXISTS  `player_factionchange_spells` (
     `commentH` varchar(255) DEFAULT NULL,
     PRIMARY KEY (`race_A`,`alliance_id`,`race_H`,`horde_id`)
 ) DEFAULT CHARSET=UTF8;
+
+-- Implement spell linked definitions storage
+CREATE TABLE IF NOT EXISTS `spell_linked` (
+    `entry`            int(10) unsigned NOT NULL COMMENT 'Spell entry',
+    `linked_entry`     int(10) unsigned NOT NULL COMMENT 'Linked spell entry',
+    `type`             int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Type of link',
+    `effect_mask`      int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'mask of effect (NY)',
+    `comment`          varchar(255) NOT NULL DEFAULT '',
+     PRIMARY KEY (`entry`,`linked_entry`,`type`)
+) DEFAULT CHARSET=utf8 PACK_KEYS=0 COMMENT='Linked spells storage';
