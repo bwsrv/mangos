@@ -972,9 +972,9 @@ void Spell::AddGOTarget(GameObject* pVictim, SpellEffectIndex effIndex)
     {
         float dist = 5.0f;
         if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
-            dist = m_caster->GetDistance(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ);
+            dist = affectiveObject->GetDistance(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ);
         else
-            dist = m_caster->GetDistance(pVictim->GetPositionX(), pVictim->GetPositionY(), pVictim->GetPositionZ());
+            dist = affectiveObject->GetDistance(pVictim->GetPositionX(), pVictim->GetPositionY(), pVictim->GetPositionZ());
 
         float speed = m_targets.GetSpeed() * cos(m_targets.GetElevation());
 
