@@ -864,7 +864,7 @@ uint32 BattleGroundIC::GetCorrectFactionIC(uint8 vehicleType) const
 {
     switch (vehicleType)
     {
-        case VEHICLE_DEMOLISHER:
+        case VEHICLE_BG_DEMOLISHER:
         {
             if (m_Nodes[BG_IC_NODE_WORKSHOP] == BG_IC_NODE_STATUS_ALLY_OCCUPIED)
                 return VEHICLE_FACTION_ALLIANCE;

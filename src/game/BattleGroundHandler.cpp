@@ -188,6 +188,7 @@ void WorldSession::HandleBattlemasterJoinOpcode( WorldPacket & recv_data )
                 ChatHandler(_player).PSendSysMessage("|cffff0000You cannot get in battleground queue as premade because you have bots in your group. Adding you in queue as single player.");
                 have_bots = true;
                 joinAsGroup = false;
+                break;
             }
         }
         if (!have_bots)
