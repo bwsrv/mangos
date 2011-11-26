@@ -3732,7 +3732,6 @@ void Spell::cast(bool skipCheck)
     }
 
     // Linked spells (triggered chain)
-    linkedSet.clear();
     linkedSet = sSpellMgr.GetSpellLinked(m_spellInfo->Id, SPELL_LINKED_TYPE_TRIGGERED);
     if (linkedSet.size() > 0)
     {

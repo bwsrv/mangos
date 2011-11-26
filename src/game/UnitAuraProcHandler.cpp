@@ -3390,7 +3390,7 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
             {
                 if (target == NULL)
                     target = !(procFlag & PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL) && IsPositiveSpell(*itr) ? this : pVictim;
-                CastSpell(this, *itr, true, castItem, triggeredByAura);
+                CastSpell(target, *itr, true, castItem, triggeredByAura);
                 if (cooldown && GetTypeId()==TYPEID_PLAYER)
                     ((Player*)this)->AddSpellCooldown(*itr,0,time(NULL) + cooldown);
             }
