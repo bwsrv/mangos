@@ -176,9 +176,26 @@ void WorldSession::HandleBattlemasterJoinOpcode( WorldPacket & recv_data )
             return;
         if (grp->GetLeaderGuid() != _player->GetObjectGuid())
             return;
-        err = grp->CanJoinBattleGroundQueue(bg, bgQueueTypeId, 0, bg->GetMaxPlayersPerTeam(), false, 0);
-        isPremade = sWorld.getConfig(CONFIG_UINT32_BATTLEGROUND_PREMADE_GROUP_WAIT_FOR_MATCH) &&
-            (grp->GetMembersCount() >= bg->GetMinPlayersPerTeam());
+
+        bool have_bots = false;
+        for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
+        {
+            Player* member = itr->getSource();
+            if (!member)
+                continue;                                   // this should never happen
+            if (member->GetPlayerbotAI())
+            {
+                ChatHandler(_player).PSendSysMessage("|cffff0000You cannot get in battleground queue as premade because you have bots in your group. Adding you in queue as single player.");
+                have_bots = true;
+                joinAsGroup = false;
+            }
+        }
+        if (!have_bots)
+        {
+            err = grp->CanJoinBattleGroundQueue(bg, bgQueueTypeId, 0, bg->GetMaxPlayersPerTeam(), false, 0);
+            isPremade = sWorld.getConfig(CONFIG_UINT32_BATTLEGROUND_PREMADE_GROUP_WAIT_FOR_MATCH) &&
+                (grp->GetMembersCount() >= bg->GetMinPlayersPerTeam());
+        }
     }
     // if we're here, then the conditions to join a bg are met. We can proceed in joining.
 
