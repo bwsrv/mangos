@@ -1944,8 +1944,19 @@ LFG.OnlyLastEncounterForCompleteDungeon = 0
 #    PlayerbotAI.DebugWhisper
 #        Enable debug output by whispering master
 #        Default: 0 - off
+#
+#    PlayerbotAI.RestrictBotLevel
 #        Restrict the allowed bot level (Current Max 80)
 #        Default: 80
+#
+#    PlayerbotAI.MinBotLevel
+#        Minimum allowed bot level
+#        Default: 1
+#
+#    PlayerbotAI.AllowSummonOppositeFaction
+#        Allow or not to summon bots from opposite faction
+#        Default: 0 - off
+#                 1 - on
 #
 #    PlayerbotAI.Collect.Combat
 #        Enable collection option for after combat corpse loot ( needs to be on to loot corpses even for quest item)
@@ -1991,6 +2002,8 @@ PlayerbotAI.FollowDistanceMin = 0.5
 PlayerbotAI.FollowDistanceMax = 1.0
 PlayerbotAI.MaxNumBots = 9
 PlayerbotAI.RestrictBotLevel = 80
+PlayerbotAI.MinBotLevel = 1
+PlayerbotAI.AllowSummonOppositeFaction = 0
 PlayerbotAI.Collect.Combat = 0
 PlayerbotAI.Collect.Quest = 0
 PlayerbotAI.Collect.Profession = 0
