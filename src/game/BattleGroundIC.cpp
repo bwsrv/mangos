@@ -249,12 +249,7 @@ void BattleGroundIC::StartingEventOpenDoors()
         DoorOpen(m_BgObjects[i]);
 
     // make teleporters clickable
-    uint32 objEvent = MAKE_PAIR32(IC_EVENT_ADD_TELEPORT, 0);
-    for (std::vector<ObjectGuid>::iterator itr = m_EventObjects[objEvent].gameobjects.begin(); itr != m_EventObjects[objEvent].gameobjects.end(); ++itr)
-        if (GameObject * pEventGameObject = GetBgMap()->GetGameObject((*itr)))
-            if ((pEventGameObject->GetEntry() == 195313) || (pEventGameObject->GetEntry() == 195314) || (pEventGameObject->GetEntry() == 195315) || (pEventGameObject->GetEntry() == 195316))
-                if (pEventGameObject->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT))
-                    pEventGameObject->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
+    MakeInteractive(IC_EVENT_ADD_TELEPORT, 0, true);
 }
 
 void BattleGroundIC::AddPlayer(Player *plr)
@@ -267,15 +262,11 @@ void BattleGroundIC::AddPlayer(Player *plr)
 
     SendTransportInit(plr);
 
-    if (GetStatus() == STATUS_IN_PROGRESS)
-    {
-        uint32 objEvent = MAKE_PAIR32(IC_EVENT_ADD_TELEPORT, 0);
-        for (std::vector<ObjectGuid>::iterator itr = m_EventObjects[objEvent].gameobjects.begin(); itr != m_EventObjects[objEvent].gameobjects.end(); ++itr)
-            if (GameObject * pEventGameObject = GetBgMap()->GetGameObject((*itr)))
-                if ((pEventGameObject->GetEntry() == 195313) || (pEventGameObject->GetEntry() == 195314) || (pEventGameObject->GetEntry() == 195315) || (pEventGameObject->GetEntry() == 195316))
-                    if (pEventGameObject->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT))
-                        pEventGameObject->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
-    }
+    if (GetStatus() != STATUS_IN_PROGRESS)
+        MakeInteractive(IC_EVENT_ADD_TELEPORT, 0, false);
+    else
+        // default behaviour of teleports is "clickable", so this could be also skipped
+        MakeInteractive(IC_EVENT_ADD_TELEPORT, 0, true);
 }
 
 void BattleGroundIC::RemovePlayer(Player* plr)
