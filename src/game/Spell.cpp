@@ -2398,6 +2398,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             }
             break;
         }
+        case TARGET_GO_IN_FRONT_OF_CASTER_90:
         case TARGET_OBJECT_AREA_SRC:
         case TARGET_AREAEFFECT_GO_AROUND_DEST:
         {
@@ -2426,7 +2427,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 z = m_targets.m_destZ;
             }
             else
-                break;
+                m_caster->GetPosition(x, y, z);
 
             // It may be possible to fill targets for some spell effects
             // automatically (SPELL_EFFECT_WMO_REPAIR(88) for example) but
@@ -2460,8 +2461,21 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
 
             if (!tempTargetGOList.empty())
             {
-                for(std::list<GameObject*>::iterator iter = tempTargetGOList.begin(); iter != tempTargetGOList.end(); ++iter)
-                    AddGOTarget(*iter, effIndex);
+                for (std::list<GameObject*>::iterator iter = tempTargetGOList.begin(); iter != tempTargetGOList.end(); ++iter)
+                {
+                    switch (targetMode)
+                    {
+                        case TARGET_GO_IN_FRONT_OF_CASTER_90:
+                            if (m_caster->isInFront(*iter, radius, M_PI_F/2))
+                                AddGOTarget(*iter, effIndex);
+                            break;
+                        case TARGET_OBJECT_AREA_SRC:
+                        case TARGET_AREAEFFECT_GO_AROUND_DEST:
+                        default:
+                            AddGOTarget(*iter, effIndex);
+                            break;
+                    }
+                }
             }
 
             break;
