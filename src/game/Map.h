@@ -310,7 +310,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
             return i_grids[x][y];
         }
 
-        bool isGridObjectDataLoaded(uint32 x, uint32 y) const { return (getNGrid(x,y) ? getNGrid(x,y)->isGridObjectDataLoaded() : NULL); }
+        bool isGridObjectDataLoaded(uint32 x, uint32 y) const { return getNGrid(x,y) ? getNGrid(x,y)->isGridObjectDataLoaded() : false; }
         void setGridObjectDataLoaded(bool pLoaded, uint32 x, uint32 y) { getNGrid(x,y)->setGridObjectDataLoaded(pLoaded); }
 
         void setNGrid(NGridType* grid, uint32 x, uint32 y);
