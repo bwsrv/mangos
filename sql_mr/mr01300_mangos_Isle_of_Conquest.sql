@@ -141,10 +141,10 @@ UPDATE gameobject_template SET faction = 1997, flags = 0, data5 = 0 WHERE entry 
 UPDATE gameobject_template SET faction = 1995, flags = 0, data5 = 0 WHERE entry IN (195332, 195237);
 
 -- horde teleporters
-UPDATE gameobject_template SET faction = 1995, flags = 16 WHERE entry IN (195313, 195314);
+UPDATE gameobject_template SET faction = 1995, flags = 0 WHERE entry IN (195313, 195314);
 UPDATE gameobject_template SET faction = 1995 WHERE entry = 195326;
 -- alliance teleporters
-UPDATE gameobject_template SET faction = 1997, flags = 16 WHERE entry IN (195315, 195316);
+UPDATE gameobject_template SET faction = 1997, flags = 0 WHERE entry IN (195315, 195316);
 UPDATE gameobject_template SET faction = 1997 WHERE entry = 195320;
 
 -- scriptnames
