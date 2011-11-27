@@ -12,3 +12,5 @@ UPDATE battleground_template SET AllianceStartO = 4.83, HordeStartO = 1.7 WHERE 
 UPDATE battleground_template SET HordeStartO = 3.14 WHERE id = 10;
 -- The Ring of Valor
 UPDATE battleground_template SET AllianceStartO = 4.72, HordeStartO = 1.6 WHERE id = 11;
+-- Isle of Conquest
+UPDATE battleground_template SET AllianceStartO = 0, HordeStartO = 3.14159 WHERE id = 30;
