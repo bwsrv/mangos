@@ -1153,23 +1153,20 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
 
     if (GetMapId() == 617) // Waterfall DA BattleGround
     {
-        if (GameObject * pWaterfall = ((WorldObject*)this)->GetClosestGameObjectWithEntry(this, 194395, 60))
+        if (GameObject *pWaterfall = const_cast<WorldObject*>(this)->GetClosestGameObjectWithEntry(this, 194395, 60.0f))
         {
-            if (pWaterfall->isSpawned())
-                if (pWaterfall->IsInBetween(this, obj, pWaterfall->GetObjectBoundingRadius()))
-                    return false;
+            if (pWaterfall->isSpawned() && pWaterfall->IsInBetween(this, obj, pWaterfall->GetObjectBoundingRadius()))
+                return false;
         }
     }
-
-    if (GetMapId() == 618) // Pillars RV BattleGround
+    else if (GetMapId() == 618) // Pillars RV BattleGround
     {
-        for (int i = 0; i < 4; ++i)
+        uint32 const pillars[] = {194583, 194584, 194585, 194587};
+        for (size_t i = 0; i < countof(pillars); ++i)
         {
-            const int pillars[4] = {194583, 194584, 194585, 194587};
-            if (GameObject * pPillar = ((WorldObject*)this)->GetClosestGameObjectWithEntry(this, pillars[i], 35))
-                if (pPillar->GetGoState() == GO_STATE_ACTIVE)
-                    if (pPillar->IsInBetween(this, obj, pPillar->GetObjectBoundingRadius()))
-                        return false;
+            if (GameObject *pPillar = const_cast<WorldObject*>(this)->GetClosestGameObjectWithEntry(this, pillars[i], 35.0f))
+                if (pPillar->GetGoState() == GO_STATE_ACTIVE && pPillar->IsInBetween(this, obj, pPillar->GetObjectBoundingRadius()))
+                    return false;
         }
     }
 
