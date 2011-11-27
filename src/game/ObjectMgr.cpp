@@ -8240,7 +8240,7 @@ bool PlayerCondition::IsValid(ConditionType condition, uint32 value1, uint32 val
                 sLog.outErrorDb("Aura condition (%u) requires to have non existing spell (Id: %d), skipped", condition, value1);
                 return false;
             }
-            if (value2 > MAX_EFFECT_INDEX)
+            if (value2 >= MAX_EFFECT_INDEX)
             {
                 sLog.outErrorDb("Aura condition (%u) requires to have non existing effect index (%u) (must be 0..%u), skipped", condition, value2, MAX_EFFECT_INDEX-1);
                 return false;
@@ -9589,5 +9589,3 @@ GameObjectDataPair const* FindGOData::GetResult() const
 
     return i_anyData;
 }
-
-
