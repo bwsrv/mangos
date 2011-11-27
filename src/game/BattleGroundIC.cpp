@@ -99,7 +99,7 @@ void BattleGroundIC::Reset()
     m_Nodes[BG_IC_NODE_H_KEEP] = BG_IC_NODE_STATUS_HORDE_OCCUPIED;
 
     SpawnEvent(IC_EVENT_ADD_TELEPORT, 0, true);
-    SpawnEvent(IC_EVENT_ADD_VEH, 0, false);
+    SpawnEvent(IC_EVENT_ADD_VEH, 0, true);
     SpawnEvent(IC_EVENT_BOSS_H, 0, true);
     SpawnEvent(IC_EVENT_BOSS_A, 0, true);
 
@@ -247,7 +247,6 @@ void BattleGroundIC::StartingEventOpenDoors()
     OpenDoorEvent(BG_EVENT_DOOR);                        // used for activating teleport effects + opening tower gates
     for (int i = BG_IC_GO_T_ALLIANCE_WEST; i <= BG_IC_GO_T_HORDE_FRONT; ++i)
         DoorOpen(m_BgObjects[i]);
-    SpawnEvent(IC_EVENT_ADD_VEH, 0, true);
 
     // make teleporters clickable
     uint32 objEvent = MAKE_PAIR32(IC_EVENT_ADD_TELEPORT, 0);
@@ -872,29 +871,26 @@ void BattleGroundIC::HandleBuffs()
 
 uint32 BattleGroundIC::GetCorrectFactionIC(uint8 vehicleType) const
 {
-    if (GetStatus() != STATUS_WAIT_JOIN)
+    switch (vehicleType)
     {
-        switch (vehicleType)
+        case VEHICLE_DEMOLISHER:
         {
-            case VEHICLE_BG_DEMOLISHER:
-            {
-                if (m_Nodes[BG_IC_NODE_WORKSHOP] == BG_IC_NODE_STATUS_ALLY_OCCUPIED)
-                    return VEHICLE_FACTION_ALLIANCE;
+            if (m_Nodes[BG_IC_NODE_WORKSHOP] == BG_IC_NODE_STATUS_ALLY_OCCUPIED)
+                return VEHICLE_FACTION_ALLIANCE;
 
-                else if (m_Nodes[BG_IC_NODE_WORKSHOP] == BG_IC_NODE_STATUS_HORDE_OCCUPIED)
-                    return VEHICLE_FACTION_HORDE;
-            }
-            case VEHICLE_IC_CATAPULT:
-            {
-                if (m_Nodes[BG_IC_NODE_DOCKS] == BG_IC_NODE_STATUS_ALLY_OCCUPIED)
-                    return VEHICLE_FACTION_ALLIANCE;
-
-                else if (m_Nodes[BG_IC_NODE_DOCKS] == BG_IC_NODE_STATUS_HORDE_OCCUPIED)
-                    return VEHICLE_FACTION_HORDE;
-            }
-            default:
-                return VEHICLE_FACTION_NEUTRAL;
+            else if (m_Nodes[BG_IC_NODE_WORKSHOP] == BG_IC_NODE_STATUS_HORDE_OCCUPIED)
+                return VEHICLE_FACTION_HORDE;
         }
+        case VEHICLE_IC_CATAPULT:
+        {
+            if (m_Nodes[BG_IC_NODE_DOCKS] == BG_IC_NODE_STATUS_ALLY_OCCUPIED)
+                return VEHICLE_FACTION_ALLIANCE;
+
+            else if (m_Nodes[BG_IC_NODE_DOCKS] == BG_IC_NODE_STATUS_HORDE_OCCUPIED)
+                return VEHICLE_FACTION_HORDE;
+        }
+        default:
+            return VEHICLE_FACTION_NEUTRAL;
     }
     return VEHICLE_FACTION_NEUTRAL;
 }
