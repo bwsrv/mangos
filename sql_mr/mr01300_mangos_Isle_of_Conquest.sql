@@ -40,7 +40,7 @@ UPDATE creature_template SET vehicle_id = 160, iconName = 'vehichleCursor', fact
 UPDATE creature_template SET unit_flags = unit_flags | 4 WHERE entry = 35429;
 -- Catapult
 UPDATE creature_template SET powertype = 3, vehicle_id = 438, iconName = 'vehichleCursor', faction_A = 35, faction_H = 35, speed_walk = 2.4, speed_run = 2.8, ScriptName = 'npc_ic_vehicle' WHERE entry = 34793;
-UPDATE creature_template SET speed_walk = 2.4, speed_run = 2.8 WHERE entry = 35413;
+UPDATE creature_template SET powertype = 3, speed_walk = 2.4, speed_run = 2.8 WHERE entry = 35413;
 -- Demolisher
 UPDATE creature_template SET vehicle_id = 509, iconName = 'vehichleCursor', faction_A = 35, faction_H = 35, ScriptName = 'npc_ic_vehicle' WHERE entry = 34775;
 -- Alli Siege Engine
