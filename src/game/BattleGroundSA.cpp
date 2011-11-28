@@ -71,6 +71,7 @@ BattleGroundSA::BattleGroundSA()
 
     m_BgObjects.resize(BG_SA_MAXOBJ);
     shipsStarted = false;
+    shipsSpawned = false;
     isDemolisherDestroyed[0] = false; // ALLIANCE
     isDemolisherDestroyed[1] = false; // HORDE
     shipsTimer = BG_SA_BOAT_START;
@@ -473,13 +474,10 @@ bool BattleGroundSA::SetupShips()
 {
     if (Phase == SA_ROUND_TWO)
     {
-        for (uint8 i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; ++i)
+        for (BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
         {
-            for (BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-            {
-                if (Player* plr = sObjectMgr.GetPlayer(itr->first))
-                    SendTransportsRemove(plr);
-            }
+            if (Player* plr = sObjectMgr.GetPlayer(itr->first))
+                SendTransportsRemove(plr);
         }
     }
 
@@ -515,14 +513,12 @@ bool BattleGroundSA::SetupShips()
 
     SpawnBGObject(m_BgObjects[BG_SA_BOAT_ONE], RESPAWN_IMMEDIATELY);
     SpawnBGObject(m_BgObjects[BG_SA_BOAT_TWO], RESPAWN_IMMEDIATELY);
+    shipsSpawned = true;
 
-    for (uint8 i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; ++i)
+    for (BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
     {
-        for (BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-        {
-            if (Player* plr = sObjectMgr.GetPlayer(itr->first))
-                SendTransportInit(plr);
-        }
+        if (Player* plr = sObjectMgr.GetPlayer(itr->first))
+            SendTransportInit(plr);
     }
     return true;
 }
@@ -1059,7 +1055,9 @@ void BattleGroundSA::TeleportPlayerToCorrectLoc(Player *plr, bool resetBattle)
         else
             plr->TeleportTo(607, 1209.7f, -65.16f, 70.1f, 0.0f, 0);
     }
-    SendTransportInit(plr);
+    // AddPlayer is called before SetupShips, so this check is needed for the 1st round to prevent console spam
+    if (shipsSpawned)
+        SendTransportInit(plr);
 }
 
 void BattleGroundSA::SendTransportInit(Player *player)

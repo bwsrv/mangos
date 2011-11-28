@@ -219,6 +219,7 @@ class BattleGroundSA : public BattleGround
         uint32 Round_timer;
         uint32 TimeST2Round;
         bool shipsStarted;
+        bool shipsSpawned;
         bool relicGateDestroyed;
         uint32 shipsTimer;
         uint32 pillarOpenTimer;
