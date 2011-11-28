@@ -43,22 +43,6 @@ UPDATE creature_template SET powertype = 3, vehicle_id = 438, iconName = 'vehich
 UPDATE creature_template SET powertype = 3, speed_walk = 2.4, speed_run = 2.8 WHERE entry = 35413;
 -- Demolisher
 UPDATE creature_template SET vehicle_id = 509, iconName = 'vehichleCursor', faction_A = 35, faction_H = 35, ScriptName = 'npc_ic_vehicle' WHERE entry = 34775;
--- Alli Siege Engine
-UPDATE creature_template SET powertype = 3, vehicle_id = 447, iconName = 'vehichleCursor', faction_A = 3, faction_H = 3 WHERE entry = 34776;
--- Horde Siege Engine
-UPDATE creature_template SET powertype = 3, vehicle_id = 436, iconName = 'vehichleCursor', faction_A = 6, faction_H = 6 WHERE entry = 35069;
--- Alli Glaive Thrower
-UPDATE creature_template SET vehicle_id = 447, iconName = 'vehichleCursor', faction_A = 3, faction_H = 3, ScriptName = 'npc_ic_vehicle' WHERE entry = 34802;
--- Horde Glaive Thrower
-UPDATE creature_template SET vehicle_id = 447, iconName = 'vehichleCursor', faction_A = 6, faction_H = 6, ScriptName = 'npc_ic_vehicle' WHERE entry = 35273;
--- Flame Turret
-UPDATE creature_template SET iconName = 'vehichleCursor' WHERE entry = 34778;
--- Flame Turret
-UPDATE creature_template SET iconName = 'vehichleCursor' WHERE entry = 36356;
--- Siege Turret
-UPDATE creature_template SET iconName = 'vehichleCursor' WHERE entry = 34777;
--- Siege Turret
-UPDATE creature_template SET iconName = 'vehichleCursor' WHERE entry = 36355;
 
 UPDATE creature_template SET mechanic_immune_mask = mechanic_immune_mask|1|2|8|16|32|64|128|1024|2048|4096|8192|131072|262144|8388608|16777216|67108864 WHERE entry IN (34944, 35429, 34793, 35413, 34775, 35415, 34776, 35431, 35069, 35433, 34802, 35419, 35273, 35421);
 
@@ -83,11 +67,6 @@ INSERT INTO npc_spellclick_spells (npc_entry, spell_id, quest_start, quest_start
 (34777, 60968, 0, 0, 0, 1),
 (36355, 60968, 0, 0, 0, 1);
 
-DELETE FROM vehicle_accessory WHERE entry IN (35069, 34776);
-INSERT INTO vehicle_accessory (entry, accessory_entry, seat_id, minion, description) VALUES
-(35069, 36355, 7, 1, 'Isle of Conquest Siege Engine'),
-(34776, 34777, 7, 1, 'Isle of Conquest Siege Engine');
-
 DELETE FROM creature_spell WHERE guid IN (34929, 35410, 34935, 34944, 35429, 34793, 34775, 34776, 35069, 34802, 35273, 34778, 36356, 34777, 36355);
 INSERT INTO creature_spell (guid, spell, `index`) VALUES
 (34929, 69495, 0),
@@ -102,16 +81,61 @@ INSERT INTO creature_spell (guid, spell, `index`) VALUES
 (34776, 69502, 1),
 (35069, 67816, 0),
 (35069, 69502, 1),
-(34802, 68827, 0),
-(34802, 69515, 1),
-(35273, 68827, 0),
-(35273, 69515, 1),
-(34778, 68832, 0),
-(36356, 68832, 0),
+(34802, 66456, 0),
+(34802, 67195, 1),
+(35273, 66456, 0),
+(35273, 67195, 1),
 (34777, 67462, 0),
 (34777, 69505, 1),
 (36355, 67462, 0),
 (36355, 69505, 1);
+
+-- IOC vehicles
+
+-- Alli Glaive Thrower
+UPDATE creature_template SET vehicle_id = 447, iconName = 'vehichleCursor', faction_A = 3, faction_H = 3, ScriptName = 'npc_ic_vehicle' WHERE entry = 34802;
+UPDATE creature_template SET vehicle_id = 447, iconName = 'vehichleCursor', faction_A = 3, faction_H = 3, ScriptName = 'npc_ic_vehicle' WHERE entry = 35419;
+-- Horde Glaive Thrower
+UPDATE creature_template SET vehicle_id = 447, iconName = 'vehichleCursor', faction_A = 6, faction_H = 6, ScriptName = 'npc_ic_vehicle' WHERE entry = 35273;
+UPDATE creature_template SET vehicle_id = 447, iconName = 'vehichleCursor', faction_A = 6, faction_H = 6, ScriptName = 'npc_ic_vehicle' WHERE entry = 35421;
+
+-- Horde Siege Engine
+UPDATE creature_template SET powertype = 3, vehicle_id = 435, iconName = 'vehichleCursor', faction_A = 6, faction_H = 6, AIName = 'NullAI' WHERE entry = 35069;
+UPDATE creature_template SET powertype = 3, vehicle_id = 435, iconName = 'vehichleCursor', faction_A = 6, faction_H = 6, AIName = 'NullAI' WHERE entry = 35433;
+-- Ally Siege Engine
+UPDATE creature_template SET powertype = 3, vehicle_id = 435, iconName = 'vehichleCursor', faction_A = 3, faction_H = 3, AIName = 'NullAI' WHERE entry = 34776;
+UPDATE creature_template SET powertype = 3, vehicle_id = 435, iconName = 'vehichleCursor', faction_A = 3, faction_H = 3, AIName = 'NullAI' WHERE entry = 35431;
+
+-- Ally Siege Turret
+UPDATE creature_template SET powertype = 3, iconName = 'Gunner', `vehicle_id` = 436, AIName = 'NullAI' WHERE entry = 34777;
+UPDATE creature_template SET powertype = 3, iconName = 'Gunner', `vehicle_id` = 436, AIName = 'NullAI' WHERE entry = 35436;
+-- Horde Siege Turret
+UPDATE creature_template SET powertype = 3, iconName = 'Gunner', `vehicle_id` = 436, AIName = 'NullAI' WHERE entry = 36355;
+UPDATE creature_template SET powertype = 3, iconName = 'Gunner', `vehicle_id` = 436, AIName = 'NullAI' WHERE entry = 36357;
+-- Horde Flame Turret
+UPDATE creature_template SET powertype = 3, iconName = 'Gunner', `vehicle_id` = 437, AIName = 'NullAI' WHERE entry = 34778;
+UPDATE creature_template SET powertype = 3, iconName = 'Gunner', `vehicle_id` = 437, AIName = 'NullAI' WHERE entry = 35417;
+-- Ally Flame Turret
+UPDATE creature_template SET powertype = 3, iconName = 'Gunner', `vehicle_id` = 437, AIName = 'NullAI' WHERE entry = 36356;
+UPDATE creature_template SET powertype = 3, iconName = 'Gunner', `vehicle_id` = 437, AIName = 'NullAI' WHERE entry = 36358;
+
+DELETE FROM `vehicle_accessory` WHERE entry IN (35069, 34776);
+INSERT INTO `vehicle_accessory` (entry, accessory_entry, seat_id, minion, description) VALUES
+(35069, 36355, 7, 1, 'Isle of Conquest Siege Engine - main turret (horde)'),
+(35069, 34778, 1, 1, 'Isle of Conquest Siege Engine - flame turret 1 (horde)'),
+(35069, 34778, 2, 1, 'Isle of Conquest Siege Engine - flame turret 2 (horde)'),
+(34776, 34777, 7, 1, 'Isle of Conquest Siege Engine  - main turret (ally)'),
+(34776, 36356, 1, 1, 'Isle of Conquest Siege Engine  - flame turret 1 (ally)'),
+(34776, 36356, 2, 1, 'Isle of Conquest Siege Engine  - flame turret 2 (ally)');
+
+DELETE FROM `creature_spell` WHERE guid IN (34778, 36356);
+INSERT INTO `creature_spell` (`guid`, `spell`, `index`) VALUES
+(34778, 66183, 0),
+(34778, 66186, 1),
+(36356, 66183, 0),
+(36356, 66186, 1);
+
+-- /IOC vehicles by /dev/rsa
 
 -- alliance boss faction
 UPDATE creature_template SET faction_A = 84, faction_H = 84 WHERE entry = 34924;
