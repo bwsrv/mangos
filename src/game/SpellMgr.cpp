@@ -4210,6 +4210,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
             // Freezing Trap & Freezing Arrow & Wyvern Sting
             if  (spellproto->SpellIconID == 180 || spellproto->SpellIconID == 1721)
                 return DIMINISHING_DISORIENT;
+            // Hunters Mark - limit to 2 minutes in PvP
+            else if (spellproto->SpellFamilyFlags.test<CF_HUNTER_HUNTERS_MARK>())
+                return DIMINISHING_LIMITONLY;
             break;
         }
         case SPELLFAMILY_PALADIN:
@@ -4330,6 +4333,9 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellEntry cons
             // Wyvern Sting
             if (spellproto->SpellFamilyFlags.test<CF_HUNTER_WYVERN_STING2>())
                 return 6000;
+            // Hunters Mark - limit to 2 minutes in PvP
+            else if (spellproto->SpellFamilyFlags.test<CF_HUNTER_HUNTERS_MARK>())
+                return 120000;
             break;
         }
         case SPELLFAMILY_PALADIN:
