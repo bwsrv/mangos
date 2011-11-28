@@ -4735,8 +4735,8 @@ void Spell::EffectPowerBurn(SpellEffectIndex eff_idx)
     if (damage < 0)
         return;
 
-    // burn x% of target's mana, up to maximum of 2x% of caster's mana (Mana Burn)
-    if (m_spellInfo->ManaCostPercentage)
+    // burn x% of target's mana, up to maximum of 2x% of caster's mana (Priest's Mana Burn)
+    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PRIEST)
     {
         int32 maxdamage = m_caster->GetMaxPower(powertype) * damage * 2 / 100;
         damage = unitTarget->GetMaxPower(powertype) * damage / 100;
