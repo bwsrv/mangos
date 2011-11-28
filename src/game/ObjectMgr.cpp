@@ -8105,6 +8105,11 @@ bool PlayerCondition::Meets(Player const * player) const
 
             return false;
         }
+        case CONDITION_SKILL_BELOW:
+            if (value2 == 1)
+                return !player->HasSkill(value1);
+            else
+                return player->HasSkill(value1) && player->GetBaseSkillValue(value1) < value2;
         default:
             return false;
     }
@@ -8195,6 +8200,7 @@ bool PlayerCondition::IsValid(ConditionType condition, uint32 value1, uint32 val
             break;
         }
         case CONDITION_SKILL:
+        case CONDITION_SKILL_BELOW:
         {
             SkillLineEntry const *pSkill = sSkillLineStore.LookupEntry(value1);
             if (!pSkill)
@@ -8240,7 +8246,7 @@ bool PlayerCondition::IsValid(ConditionType condition, uint32 value1, uint32 val
                 sLog.outErrorDb("Aura condition (%u) requires to have non existing spell (Id: %d), skipped", condition, value1);
                 return false;
             }
-            if (value2 > MAX_EFFECT_INDEX)
+            if (value2 >= MAX_EFFECT_INDEX)
             {
                 sLog.outErrorDb("Aura condition (%u) requires to have non existing effect index (%u) (must be 0..%u), skipped", condition, value2, MAX_EFFECT_INDEX-1);
                 return false;
@@ -9589,5 +9595,3 @@ GameObjectDataPair const* FindGOData::GetResult() const
 
     return i_anyData;
 }
-
-

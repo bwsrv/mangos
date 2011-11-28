@@ -43,6 +43,8 @@
 #include "TemporarySummon.h"
 #include "movement/packet_builder.h"
 
+#define TERRAIN_LOS_STEP_DISTANCE   3.0f        // sample distance for terrain LoS
+
 Object::Object( )
 {
     m_objectTypeId      = TYPEID_OBJECT;
@@ -1153,23 +1155,20 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
 
     if (GetMapId() == 617) // Waterfall DA BattleGround
     {
-        if (GameObject * pWaterfall = ((WorldObject*)this)->GetClosestGameObjectWithEntry(this, 194395, 60))
+        if (GameObject *pWaterfall = const_cast<WorldObject*>(this)->GetClosestGameObjectWithEntry(this, 194395, 60.0f))
         {
-            if (pWaterfall->isSpawned())
-                if (pWaterfall->IsInBetween(this, obj, pWaterfall->GetObjectBoundingRadius()))
-                    return false;
+            if (pWaterfall->isSpawned() && pWaterfall->IsInBetween(this, obj, pWaterfall->GetObjectBoundingRadius()))
+                return false;
         }
     }
-
-    if (GetMapId() == 618) // Pillars RV BattleGround
+    else if (GetMapId() == 618) // Pillars RV BattleGround
     {
-        for (int i = 0; i < 4; ++i)
+        uint32 const pillars[] = {194583, 194584, 194585, 194587};
+        for (size_t i = 0; i < countof(pillars); ++i)
         {
-            const int pillars[4] = {194583, 194584, 194585, 194587};
-            if (GameObject * pPillar = ((WorldObject*)this)->GetClosestGameObjectWithEntry(this, pillars[i], 35))
-                if (pPillar->GetGoState() == GO_STATE_ACTIVE)
-                    if (pPillar->IsInBetween(this, obj, pPillar->GetObjectBoundingRadius()))
-                        return false;
+            if (GameObject *pPillar = const_cast<WorldObject*>(this)->GetClosestGameObjectWithEntry(this, pillars[i], 35.0f))
+                if (pPillar->GetGoState() == GO_STATE_ACTIVE && pPillar->IsInBetween(this, obj, pPillar->GetObjectBoundingRadius()))
+                    return false;
         }
     }
 
@@ -1180,8 +1179,34 @@ bool WorldObject::IsWithinLOS(float ox, float oy, float oz) const
 {
     float x,y,z;
     GetPosition(x,y,z);
+    z += 2.0f;
+    oz += 2.0f;
+
+    // check for line of sight because of terrain height differences
+    if (!GetMap()->IsDungeon())  // avoid unnecessary calculation inside raid/dungeons
+    {
+        float dx = ox - x, dy = oy - y, dz = oz - z;
+        float dist = sqrt(dx*dx + dy*dy + dz*dz);
+        if (dist > ATTACK_DISTANCE && dist < MAX_VISIBILITY_DISTANCE)
+        {
+            uint32 steps = uint32(dist / TERRAIN_LOS_STEP_DISTANCE);
+            float step_dist = dist / (float)steps;  // to make sampling intervals symmetric in both directions
+            float inc_factor = step_dist / dist;
+            float incx = dx*inc_factor, incy = dy*inc_factor, incz = dz*inc_factor;
+            float px = x, py = y, pz = z;
+            for (; steps; --steps)
+            {
+                if (GetTerrain()->GetHeight(px, py, pz, false) > pz)
+                    return false;   // found intersection with ground
+                px += incx;
+                py += incy;
+                pz += incz;
+            }
+        }
+    }
+
     VMAP::IVMapManager *vMapManager = VMAP::VMapFactory::createOrGetVMapManager();
-    return vMapManager->isInLineOfSight(GetMapId(), x, y, z+2.0f, ox, oy, oz+2.0f);
+    return vMapManager->isInLineOfSight(GetMapId(), x, y, z, ox, oy, oz);
 }
 
 bool WorldObject::GetDistanceOrder(WorldObject const* obj1, WorldObject const* obj2, bool is3D /* = true */) const

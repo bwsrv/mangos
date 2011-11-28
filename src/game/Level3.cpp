@@ -338,6 +338,7 @@ bool ChatHandler::HandleReloadAllSpellCommand(char* /*args*/)
     HandleReloadSpellThreatsCommand((char*)"a");
     HandleReloadSpellPetAurasCommand((char*)"a");
     HandleReloadSpellDisabledCommand((char*)"a");
+    HandleReloadSpellLinkedCommand((char*)"a");
     return true;
 }
 
@@ -1110,6 +1111,17 @@ bool ChatHandler::HandleReloadSpellDisabledCommand(char* /*arg*/)
     sObjectMgr.LoadSpellDisabledEntrys();
 
     SendGlobalSysMessage("DB table `spell_disabled` reloaded.");
+
+    return true;
+}
+
+bool ChatHandler::HandleReloadSpellLinkedCommand(char* /*arg*/)
+{
+    sLog.outString( "Re-Loading spell linked table...");
+
+    sSpellMgr.LoadSpellLinked();
+
+    SendGlobalSysMessage("DB table `spell_linked` reloaded.");
 
     return true;
 }

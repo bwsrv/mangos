@@ -99,7 +99,7 @@ void BattleGroundIC::Reset()
     m_Nodes[BG_IC_NODE_H_KEEP] = BG_IC_NODE_STATUS_HORDE_OCCUPIED;
 
     SpawnEvent(IC_EVENT_ADD_TELEPORT, 0, true);
-    SpawnEvent(IC_EVENT_ADD_VEH, 0, false);
+    SpawnEvent(IC_EVENT_ADD_VEH, 0, true);
     SpawnEvent(IC_EVENT_BOSS_H, 0, true);
     SpawnEvent(IC_EVENT_BOSS_A, 0, true);
 
@@ -247,15 +247,9 @@ void BattleGroundIC::StartingEventOpenDoors()
     OpenDoorEvent(BG_EVENT_DOOR);                        // used for activating teleport effects + opening tower gates
     for (int i = BG_IC_GO_T_ALLIANCE_WEST; i <= BG_IC_GO_T_HORDE_FRONT; ++i)
         DoorOpen(m_BgObjects[i]);
-    SpawnEvent(IC_EVENT_ADD_VEH, 0, true);
 
     // make teleporters clickable
-    uint32 objEvent = MAKE_PAIR32(IC_EVENT_ADD_TELEPORT, 0);
-    for (std::vector<ObjectGuid>::iterator itr = m_EventObjects[objEvent].gameobjects.begin(); itr != m_EventObjects[objEvent].gameobjects.end(); ++itr)
-        if (GameObject * pEventGameObject = GetBgMap()->GetGameObject((*itr)))
-            if ((pEventGameObject->GetEntry() == 195313) || (pEventGameObject->GetEntry() == 195314) || (pEventGameObject->GetEntry() == 195315) || (pEventGameObject->GetEntry() == 195316))
-                if (pEventGameObject->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT))
-                    pEventGameObject->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
+    MakeInteractive(IC_EVENT_ADD_TELEPORT, 0, true);
 }
 
 void BattleGroundIC::AddPlayer(Player *plr)
@@ -268,15 +262,11 @@ void BattleGroundIC::AddPlayer(Player *plr)
 
     SendTransportInit(plr);
 
-    if (GetStatus() == STATUS_IN_PROGRESS)
-    {
-        uint32 objEvent = MAKE_PAIR32(IC_EVENT_ADD_TELEPORT, 0);
-        for (std::vector<ObjectGuid>::iterator itr = m_EventObjects[objEvent].gameobjects.begin(); itr != m_EventObjects[objEvent].gameobjects.end(); ++itr)
-            if (GameObject * pEventGameObject = GetBgMap()->GetGameObject((*itr)))
-                if ((pEventGameObject->GetEntry() == 195313) || (pEventGameObject->GetEntry() == 195314) || (pEventGameObject->GetEntry() == 195315) || (pEventGameObject->GetEntry() == 195316))
-                    if (pEventGameObject->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT))
-                        pEventGameObject->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
-    }
+    if (GetStatus() != STATUS_IN_PROGRESS)
+        MakeInteractive(IC_EVENT_ADD_TELEPORT, 0, false);
+    else
+        // default behaviour of teleports is "clickable", so this could be also skipped
+        MakeInteractive(IC_EVENT_ADD_TELEPORT, 0, true);
 }
 
 void BattleGroundIC::RemovePlayer(Player* plr)
@@ -872,29 +862,26 @@ void BattleGroundIC::HandleBuffs()
 
 uint32 BattleGroundIC::GetCorrectFactionIC(uint8 vehicleType) const
 {
-    if (GetStatus() != STATUS_WAIT_JOIN)
+    switch (vehicleType)
     {
-        switch (vehicleType)
+        case VEHICLE_BG_DEMOLISHER:
         {
-            case VEHICLE_BG_DEMOLISHER:
-            {
-                if (m_Nodes[BG_IC_NODE_WORKSHOP] == BG_IC_NODE_STATUS_ALLY_OCCUPIED)
-                    return VEHICLE_FACTION_ALLIANCE;
+            if (m_Nodes[BG_IC_NODE_WORKSHOP] == BG_IC_NODE_STATUS_ALLY_OCCUPIED)
+                return VEHICLE_FACTION_ALLIANCE;
 
-                else if (m_Nodes[BG_IC_NODE_WORKSHOP] == BG_IC_NODE_STATUS_HORDE_OCCUPIED)
-                    return VEHICLE_FACTION_HORDE;
-            }
-            case VEHICLE_IC_CATAPULT:
-            {
-                if (m_Nodes[BG_IC_NODE_DOCKS] == BG_IC_NODE_STATUS_ALLY_OCCUPIED)
-                    return VEHICLE_FACTION_ALLIANCE;
-
-                else if (m_Nodes[BG_IC_NODE_DOCKS] == BG_IC_NODE_STATUS_HORDE_OCCUPIED)
-                    return VEHICLE_FACTION_HORDE;
-            }
-            default:
-                return VEHICLE_FACTION_NEUTRAL;
+            else if (m_Nodes[BG_IC_NODE_WORKSHOP] == BG_IC_NODE_STATUS_HORDE_OCCUPIED)
+                return VEHICLE_FACTION_HORDE;
         }
+        case VEHICLE_IC_CATAPULT:
+        {
+            if (m_Nodes[BG_IC_NODE_DOCKS] == BG_IC_NODE_STATUS_ALLY_OCCUPIED)
+                return VEHICLE_FACTION_ALLIANCE;
+
+            else if (m_Nodes[BG_IC_NODE_DOCKS] == BG_IC_NODE_STATUS_HORDE_OCCUPIED)
+                return VEHICLE_FACTION_HORDE;
+        }
+        default:
+            return VEHICLE_FACTION_NEUTRAL;
     }
     return VEHICLE_FACTION_NEUTRAL;
 }

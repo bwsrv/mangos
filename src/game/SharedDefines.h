@@ -1293,7 +1293,7 @@ enum Targets
     TARGET_105                         = 105,
     TARGET_106                         = 106,
     TARGET_107                         = 107,
-    TARGET_108                         = 108,
+    TARGET_GO_IN_FRONT_OF_CASTER_90    = 108,
     TARGET_109                         = 109,
     TARGET_110                         = 110,
 };

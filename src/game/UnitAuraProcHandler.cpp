@@ -3421,6 +3421,23 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
             break;
     }
 
+    if (!triggered_spell_id)
+    {
+        // Linked spells (Proc chain)
+        SpellLinkedSet linkedSet = sSpellMgr.GetSpellLinked(dummySpell->Id, SPELL_LINKED_TYPE_PROC);
+        if (linkedSet.size() > 0)
+        {
+            for (SpellLinkedSet::const_iterator itr = linkedSet.begin(); itr != linkedSet.end(); ++itr)
+            {
+                if (target == NULL)
+                    target = !(procFlag & PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL) && IsPositiveSpell(*itr) ? this : pVictim;
+                CastSpell(target, *itr, true, castItem, triggeredByAura);
+                if (cooldown && GetTypeId()==TYPEID_PLAYER)
+                    ((Player*)this)->AddSpellCooldown(*itr,0,time(NULL) + cooldown);
+            }
+        }
+    }
+
     // processed charge only counting case
     if (!triggered_spell_id)
         return SPELL_AURA_PROC_OK;
@@ -4452,6 +4469,23 @@ SpellAuraProcResult Unit::HandleProcTriggerSpellAuraProc(Unit *pVictim, uint32 d
         }
     }
 
+    if (!trigger_spell_id)
+    {
+        // Linked spells (Proc chain)
+        SpellLinkedSet linkedSet = sSpellMgr.GetSpellLinked(auraSpellInfo->Id, SPELL_LINKED_TYPE_PROC);
+        if (linkedSet.size() > 0)
+        {
+            for (SpellLinkedSet::const_iterator itr = linkedSet.begin(); itr != linkedSet.end(); ++itr)
+            {
+                if (target == NULL)
+                    target = !(procFlags & PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL) && IsPositiveSpell(*itr) ? this : pVictim;
+                CastSpell(target, *itr, true, castItem, triggeredByAura);
+                if (cooldown && GetTypeId()==TYPEID_PLAYER)
+                    ((Player*)this)->AddSpellCooldown(*itr,0,time(NULL) + cooldown);
+            }
+        }
+    }
+
     if (cooldown && GetTypeId()==TYPEID_PLAYER && ((Player*)this)->HasSpellCooldown(trigger_spell_id))
         return SPELL_AURA_PROC_FAILED;
 
@@ -4462,6 +4496,7 @@ SpellAuraProcResult Unit::HandleProcTriggerSpellAuraProc(Unit *pVictim, uint32 d
     // default case
     if (!target || (target != this && !target->isAlive()))
         return SPELL_AURA_PROC_FAILED;
+
 
     if (SpellEntry const* triggeredSpellInfo = sSpellStore.LookupEntry(trigger_spell_id))
     {
@@ -5177,27 +5212,16 @@ SpellAuraProcResult Unit::HandleDamageShieldAuraProc(Unit* pVictim, uint32 damag
 
     uint32 retdamage = triggeredByAura->GetModifier()->m_amount;
 
-    // Thorns
-    if (spellProto && spellProto->IsFitToFamily<SPELLFAMILY_DRUID, CF_DRUID_THORNS>())
-    {
-        Unit::AuraList const& dummyList = GetAurasByType(SPELL_AURA_DUMMY);
-        for(Unit::AuraList::const_iterator iter = dummyList.begin(); iter != dummyList.end(); ++iter)
-        {
-            // Brambles
-            if((*iter)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_DRUID &&
-                (*iter)->GetSpellProto()->SpellIconID == 53)
-                {
-                    damage += uint32(damage * (*iter)->GetModifier()->m_amount / 100);
-                    break;
-                }
-        }
-    }
+    retdamage = SpellDamageBonusDone(pVictim,spellProto,uint32(retdamage),SPELL_DIRECT_DAMAGE);
+    retdamage = pVictim->SpellDamageBonusTaken(this, spellProto, uint32(retdamage),SPELL_DIRECT_DAMAGE);
 
-    int32 DoneAdvertisedBenefit = SpellBaseDamageBonusDone(GetSpellSchoolMask(spellProto));
-    int32 realBenefit = int32(float(DoneAdvertisedBenefit)*3.3f/100.0f);
-    retdamage += realBenefit;
-
-    DealDamageMods(pVictim,retdamage,NULL);
+    uint32 absorb=0;
+    uint32 resist=0;
+    CleanDamage cleanDamage =  CleanDamage(0, 0, BASE_ATTACK, MELEE_HIT_NORMAL );
+    pVictim->CalculateDamageAbsorbAndResist(this, GetSpellSchoolMask(spellProto), SPELL_DIRECT_DAMAGE, retdamage, &absorb, &resist, !(spellProto->AttributesEx & SPELL_ATTR_EX_CANT_REFLECTED));
+    cleanDamage.absorb += absorb;
+    cleanDamage.damage=retdamage;
+    DealDamageMods(pVictim, retdamage, &absorb);
 
     uint32 targetHealth = pVictim->GetHealth();
     uint32 overkill = retdamage > targetHealth ? retdamage - targetHealth : 0;
@@ -5211,7 +5235,7 @@ SpellAuraProcResult Unit::HandleDamageShieldAuraProc(Unit* pVictim, uint32 damag
     data << uint32(spellProto->SchoolMask);
     SendMessageToSet(&data, true );
 
-    DealDamage(pVictim, retdamage, 0, SPELL_DIRECT_DAMAGE, GetSpellSchoolMask(spellProto), spellProto, true);
+    DealDamage(pVictim, retdamage, &cleanDamage, SPELL_DIRECT_DAMAGE, GetSpellSchoolMask(spellProto), spellProto, true);
 
     return SPELL_AURA_PROC_OK;
 }
