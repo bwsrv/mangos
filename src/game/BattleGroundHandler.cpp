@@ -501,7 +501,7 @@ void WorldSession::HandleBattleFieldPortOpcode( WorldPacket &recv_data )
             break;
         case 0:                                         // leave queue
             // if player leaves rated arena match before match start, it is counted as he played but he lost
-            if (ginfo.IsRated && ginfo.IsInvitedToBGInstanceGUID)
+            /*if (ginfo.IsRated && ginfo.IsInvitedToBGInstanceGUID)
             {
                 ArenaTeam * at = sObjectMgr.GetArenaTeamById(ginfo.ArenaTeamId);
                 if (at)
@@ -510,7 +510,7 @@ void WorldSession::HandleBattleFieldPortOpcode( WorldPacket &recv_data )
                     at->MemberLost(_player, ginfo.OpponentsTeamRating);
                     at->SaveToDB();
                 }
-            }
+            }*/
             _player->RemoveBattleGroundQueueId(bgQueueTypeId);  // must be called this way, because if you move this call to queue->removeplayer, it causes bugs
             sBattleGroundMgr.BuildBattleGroundStatusPacket(&data, bg, queueSlot, STATUS_NONE, 0, 0, ARENA_TYPE_NONE);
             bgQueue.RemovePlayer(_player->GetObjectGuid(), true);
