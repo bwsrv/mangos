@@ -26,6 +26,9 @@ UPDATE gameobject_template SET flags=flags&~16 WHERE entry = 192829;
 -- make Defender's Portal usable by all factions (rest is handled by script)
 UPDATE gameobject_template SET faction=0 , ScriptName = 'go_sa_def_portal' WHERE entry = 191575;
 
+-- Massive Seaforium Charge (fix wrong use area - "Not valid area" message)
+UPDATE item_template SET area = 0, Map = 607 WHERE entry = 39213;
+
 -- Seaforium barrels
 DELETE FROM gameobject_template WHERE entry IN (190753, 194086);
 INSERT INTO gameobject_template (entry, type, displayId, name, IconName, castBarCaption, unk1, faction, flags, size, questItem1, questItem2, questItem3, questItem4, questItem5, questItem6, data0, data1, data2, data3, data4, data5, data6, data7, data8, data9, data10, data11, data12, data13, data14, data15, data16, data17, data18, data19, data20, data21, data22, data23, ScriptName) VALUES
@@ -572,7 +575,7 @@ INSERT INTO battleground_events (map, event1, event2, description) VALUES
 (607, 8, 4, 'Beach bombs - H occupied'),
 (607, 9, 0, 'Dock demolishers, factory npcs'),
 (607, 10, 0, 'Defender cannons'),
-(607, 11, 0, 'Gameobjects'),			-- flagpoles, defender portals, gates, relic
+(607, 11, 0, 'Gameobjects'),            -- flagpoles, defender portals, gates, relic
 (607, 12, 0, 'E base demolishers'),
 (607, 13, 0, 'W base demolishers');
 
