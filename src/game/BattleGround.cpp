@@ -1752,10 +1752,17 @@ void BattleGround::SpawnBGObject(ObjectGuid guid, uint32 respawntime)
         //we need to change state from GO_JUST_DEACTIVATED to GO_READY in case battleground is starting again
         if (obj->getLootState() == GO_JUST_DEACTIVATED)
             obj->SetLootState(GO_READY);
-        obj->SetRespawnTime(0);
+        obj->Respawn();
         map->Add(obj);
         if (obj->GetGOInfo()->type == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
             obj->Rebuild(NULL);
+
+        GameObjectData const *data = sObjectMgr.GetGOData(obj->GetGUIDLow());
+        if (data)
+        {
+            uint32 respawn = data->spawntimesecs;
+            obj->SetRespawnDelay(respawn);
+        }
     }
     else
     {
@@ -1778,6 +1785,12 @@ void BattleGround::SpawnBGCreature(ObjectGuid guid, uint32 respawntime)
     {
         obj->Respawn();
         map->Add(obj);
+        CreatureData const *data = sObjectMgr.GetCreatureData(obj->GetGUIDLow());
+        if (data)
+        {
+            uint32 respawn = data->spawntimesecs;
+            obj->SetRespawnDelay(respawn);
+        }
     }
     else
     {
