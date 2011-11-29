@@ -1805,6 +1805,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         }
 
         Aura* GetScalingAura(AuraType type, uint32 stat = 0);
+        Aura* GetTriggeredByClientAura(uint32 spellId);
 
         SpellAuraHolderPtr GetSpellAuraHolder(uint32 spellid) const;
         SpellAuraHolderPtr GetSpellAuraHolder(uint32 spellid, ObjectGuid casterGUID) const;
