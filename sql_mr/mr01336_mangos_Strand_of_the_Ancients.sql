@@ -30,7 +30,8 @@ UPDATE gameobject_template SET faction=0 , ScriptName = 'go_sa_def_portal' WHERE
 UPDATE item_template SET area = 0, Map = 607 WHERE entry = 39213;
 
 -- Seaforium barrels
-UPDATE gameobject_template SET data0 = 52415, data1 = 1 WHERE entry IN (190753, 194086);
+UPDATE gameobject_template SET faction = 12, data0 = 52415, data1 = 1 WHERE entry = 190753;
+UPDATE gameobject_template SET faction = 29, data0 = 52415, data1 = 1 WHERE entry = 194086;
 UPDATE locales_gameobject SET name_loc3 = 'Zephyriumbombe', name_loc6 = 'Barril de Seforio', name_loc7 = 'Barril de Seforio' WHERE entry IN (190753, 194086);
 
 -- Banners - horde/alli occupied, clickable banner
