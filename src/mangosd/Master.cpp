@@ -573,29 +573,50 @@ void Master::_OnSignal(int s)
         case SIGSEGV:
         case SIGABRT:
         case SIGFPE:
+        #ifdef __FreeBSD__
+        case SIGBUS:
+        #endif
+        {
             if (sWorld.getConfig(CONFIG_BOOL_VMSS_ENABLE))
             {
                 ACE_thread_t const threadId = ACE_OS::thr_self();
 
-                sLog.outError("Signal Handler: Signal %.2u received from thread "I64FMT".\r\n",s,threadId);
-                ACE_Stack_Trace StackTrace;
-                sLog.outError("\r\n************ BackTrace *************\r\n%s\r\n***********************************\r\n",StackTrace.c_str());
-
+                sLog.outError("VMSS:: Signal %.2u received from thread "I64FMT".\r\n",s,threadId);
+                ACE_Stack_Trace _StackTrace;
+                std::string StackTrace = _StackTrace.c_str();
                 if (MapID const* mapPair = sMapMgr.GetMapUpdater()->GetMapPairByThreadId(threadId))
                 {
-                    sLog.outError("Signal Handler: crushed thread is update map %u instance %u",mapPair->nMapId, mapPair->nInstanceId);
+                    MapBrokenData const* pMBData = sMapMgr.GetMapUpdater()->GetMapBrokenData(mapPair);
+                    uint32 counter = pMBData ? pMBData->count : 0;
+
+                    sLog.outError("VMSS:: crushed thread is update map %u, instance %u, counter %u",mapPair->nMapId, mapPair->nInstanceId, counter);
+                    sLog.outError("VMSS:: BackTrace for map %u: ",mapPair->nMapId);
+
+                    size_t found = 0;
+                    while (found < StackTrace.size())
+                    {
+                        size_t next = StackTrace.find_first_of("\n",found);
+                        std::string to_log = StackTrace.substr(found, (next - found));
+                        if (to_log.size() > 1)
+                            sLog.outError("VMSS:%u: %s",mapPair->nMapId,to_log.c_str());
+                        found = next+1;
+                    }
+                    sLog.outError("VMSS:: /BackTrace for map %u: ",mapPair->nMapId);
+
                     if (Map* map = sMapMgr.FindMap(mapPair->nMapId, mapPair->nInstanceId))
                         map->SetBroken(true);
+
                     sMapMgr.GetMapUpdater()->MapBrokenEvent(mapPair);
-                    if (sMapMgr.GetMapUpdater()->GetMapBrokenData(mapPair)->count > sWorld.getConfig(CONFIG_UINT32_VMSS_MAXTHREADBREAKS))
+
+                    if (counter > sWorld.getConfig(CONFIG_UINT32_VMSS_MAXTHREADBREAKS))
                     {
-                        sLog.outError("Signal Handler: Limit of map restarting (map %u instance %u) exceeded. Stopping world!",mapPair->nMapId, mapPair->nInstanceId);
+                        sLog.outError("VMSS:: Limit of map restarting (map %u instance %u) exceeded. Stopping world!",mapPair->nMapId, mapPair->nInstanceId);
                         signal(s, SIG_DFL);
                         ACE_OS::kill(getpid(), s);
                     }
                     else
                     {
-                        sLog.outError("Signal Handler: Restarting virtual map server (map %u instance %u). Count of restarts: %u",mapPair->nMapId, mapPair->nInstanceId, sMapMgr.GetMapUpdater()->GetMapBrokenData(mapPair)->count);
+                        sLog.outError("VMSS:: Restarting virtual map server (map %u instance %u). Count of restarts: %u",mapPair->nMapId, mapPair->nInstanceId, sMapMgr.GetMapUpdater()->GetMapBrokenData(mapPair)->count);
                         sMapMgr.GetMapUpdater()->unregister_thread(threadId);
                         sMapMgr.GetMapUpdater()->update_finished();
                         sMapMgr.GetMapUpdater()->SetBroken(true);
@@ -604,7 +625,18 @@ void Master::_OnSignal(int s)
                 }
                 else
                 {
-                    sLog.outError("Signal Handler: Thread "I64FMT" is not virtual map server. Stopping world.",threadId);
+                    sLog.outError("VMSS:: Thread "I64FMT" is not virtual map server. Stopping world.",threadId);
+                    sLog.outError("VMSS:: BackTrace: ");
+                    size_t found = 0;
+                    while (found < StackTrace.size())
+                    {
+                        size_t next = StackTrace.find_first_of("\n",found);
+                        std::string to_log = StackTrace.substr(found, (next - found));
+                        if (to_log.size() > 1)
+                            sLog.outError("VMSS:T: %s",to_log.c_str());
+                        found = next+1;
+                    }
+                    sLog.outError("VMSS:: /BackTrace");
                     signal(s, SIG_DFL);
                     ACE_OS::kill(getpid(), s);
                 }
@@ -615,6 +647,7 @@ void Master::_OnSignal(int s)
                 ACE_OS::kill(getpid(), s);
             }
             break;
+        }
         default:
             signal(s, SIG_DFL);
             break;
@@ -632,6 +665,9 @@ void Master::_HookSignals()
     signal(SIGSEGV,  _OnSignal);
     signal(SIGABRT,  _OnSignal);
     signal(SIGFPE ,  _OnSignal);
+    #ifdef __FreeBSD__
+    signal(SIGBUS ,  _OnSignal);
+    #endif
 }
 
 /// Unhook the signals before leaving
@@ -645,4 +681,7 @@ void Master::_UnhookSignals()
     signal(SIGSEGV,  SIG_DFL);
     signal(SIGABRT,  SIG_DFL);
     signal(SIGFPE ,  SIG_DFL);
+    #ifdef __FreeBSD__
+    signal(SIGBUS ,  SIG_DFL);
+    #endif
 }
