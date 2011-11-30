@@ -183,19 +183,25 @@ void WorldSession::HandleEnterPlayerVehicle(WorldPacket &recv_data)
 
 void WorldSession::HandleEjectPassenger(WorldPacket &recv_data)
 {
-    DEBUG_LOG("WORLD: Received CMSG_EJECT_PASSENGER");
     recv_data.hexlike();
 
     ObjectGuid guid;
     recv_data >> guid;
+
+    DEBUG_LOG("WORLD: Received CMSG_EJECT_PASSENGER %s",guid.GetString().c_str());
 
     Unit* passenger = ObjectAccessor::GetUnit(*GetPlayer(), guid);
 
     if (!passenger)
         return;
 
-    if (!passenger->GetVehicle() || passenger->GetVehicle() != GetPlayer()->GetVehicleKit())
+    if (!passenger->GetVehicle() ||
+       ((passenger->GetVehicle() != GetPlayer()->GetVehicleKit()) &&
+        !(passenger->GetVehicle()->GetBase()->GetVehicleInfo()->GetEntry()->m_flags & (VEHICLE_FLAG_ACCESSORY))))
+    {
+        sLog.outError("WorldSession::HandleEjectPassenger %s try eject %s, but not may do this!",GetPlayer()->GetObjectGuid().GetString().c_str(),guid.GetString().c_str());
         return;
+    }
 
     passenger->ExitVehicle();
 

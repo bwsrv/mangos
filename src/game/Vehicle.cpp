@@ -52,7 +52,8 @@ VehicleKit::VehicleKit(Unit* base) : m_pBase(base), m_uiNumFreeSeats(0)
         {
             m_Seats.insert(std::make_pair(i, VehicleSeat(seatInfo)));
 
-            if (seatInfo->IsUsable())
+            if (seatInfo->IsUsable() &&
+                !(seatInfo->m_vehicleEnterAnim < 0 && seatInfo->m_vehicleExitAnim < 0))
                 ++m_uiNumFreeSeats;
         }
     }
@@ -79,7 +80,11 @@ void VehicleKit::RemoveAllPassengers()
 
 bool VehicleKit::HasEmptySeat(int8 seatId) const
 {
+    if (seatId < 0)
+        return (GetNextEmptySeat(0,true) != -1);
+
     SeatMap::const_iterator seat = m_Seats.find(seatId);
+    // need add check on accessories-only seats...
 
     if (seat == m_Seats.end())
         return false;
