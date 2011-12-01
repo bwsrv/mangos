@@ -119,15 +119,6 @@ UPDATE creature_template SET powertype = 3, iconName = 'Gunner', `vehicle_id` = 
 UPDATE creature_template SET powertype = 3, iconName = 'Gunner', `vehicle_id` = 437, AIName = 'NullAI' WHERE entry = 36356;
 UPDATE creature_template SET powertype = 3, iconName = 'Gunner', `vehicle_id` = 437, AIName = 'NullAI' WHERE entry = 36358;
 
-DELETE FROM `vehicle_accessory` WHERE entry IN (35069, 34776);
-INSERT INTO `vehicle_accessory` (entry, accessory_entry, seat_id, minion, description) VALUES
-(35069, 36355, 7, 1, 'Isle of Conquest Siege Engine - main turret (horde)'),
-(35069, 34778, 1, 1, 'Isle of Conquest Siege Engine - flame turret 1 (horde)'),
-(35069, 34778, 2, 1, 'Isle of Conquest Siege Engine - flame turret 2 (horde)'),
-(34776, 34777, 7, 1, 'Isle of Conquest Siege Engine  - main turret (ally)'),
-(34776, 36356, 1, 1, 'Isle of Conquest Siege Engine  - flame turret 1 (ally)'),
-(34776, 36356, 2, 1, 'Isle of Conquest Siege Engine  - flame turret 2 (ally)');
-
 DELETE FROM `creature_spell` WHERE guid IN (34778, 36356);
 INSERT INTO `creature_spell` (`guid`, `spell`, `index`) VALUES
 (34778, 66183, 0),
