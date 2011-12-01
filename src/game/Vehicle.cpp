@@ -52,8 +52,7 @@ VehicleKit::VehicleKit(Unit* base) : m_pBase(base), m_uiNumFreeSeats(0)
         {
             m_Seats.insert(std::make_pair(i, VehicleSeat(seatInfo)));
 
-            if (seatInfo->IsUsable() &&
-                !(seatInfo->m_vehicleEnterAnim < 0 && seatInfo->m_vehicleExitAnim < 0))
+            if (seatInfo->IsUsable())
                 ++m_uiNumFreeSeats;
         }
     }
@@ -104,9 +103,11 @@ Unit *VehicleKit::GetPassenger(int8 seatId) const
 
 int8 VehicleKit::GetNextEmptySeat(int8 seatId, bool next) const
 {
-    SeatMap::const_iterator seat = m_Seats.find(seatId);
+    SeatMap::const_iterator seat = seatId > 0 ? m_Seats.find(seatId) : (next ? m_Seats.begin() : m_Seats.end());
 
-    if (seat == m_Seats.end())
+    if (seatId > 0 && next && seat == m_Seats.end())
+        return -1;
+    else if (!seatId && !next)
         return -1;
 
     while (seat->second.passenger || !seat->second.seatInfo->IsUsable())
