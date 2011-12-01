@@ -172,8 +172,15 @@ void TemporarySummon::Summon(TempSummonType type, uint32 lifetime)
     GetMap()->Add((Creature*)this);
 }
 
-void TemporarySummon::UnSummon()
+void TemporarySummon::UnSummon(uint32 delay)
 {
+    if (delay > 0)
+    {
+        m_type = TEMPSUMMON_TIMED_DESPAWN;
+        m_timer = delay;
+        return;
+    }
+
     CombatStop();
 
     if (GetSummonerGuid().IsCreatureOrVehicle())
