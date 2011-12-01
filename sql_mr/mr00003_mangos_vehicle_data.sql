@@ -382,9 +382,9 @@ UPDATE creature_template SET vehicle_id = 223 WHERE  entry = 31749;
 UPDATE creature_template SET vehicle_id = 220 WHERE  entry = 31752;
 
 UPDATE creature_template SET IconName="vehichleCursor" WHERE entry IN
-(29144,32633,24418,25334,25743,26191,26523,26813,27061,27258,27354,27409,27496,27587,27593,27626, 27661,27692,27714,27755,27756,27838,27839,27850,27883,27905,27996,28851,29563,29598,29602,29708,
-29857,29903,30021,30066,30108,30123,30124,30134,30228,30234,30248,30272,30403,30500,31070,31407,
-31408,31409,31717,31736,31770,31840,31856,31858,31884,32152,32158,32227,32286,32370,32640,33782);
+(29144,32633,24418,25334,25743,26191,26523,26813,27061,27258,26572,27354,27409,27496,27587,27593,27626, 27661,27692,27714,27755,27756,27838,27839,27850,27883,27905,27996,28851,29563,29598,29602,29708,
+29857,29903,30021,30066,30108,30123,30124,30134,30228,30234,30248,30272,30403,30500,31070,31407,27213,
+31408,31409,31717,31736,31770,31840,31856,31858,31884,32152,32158,32227,32286,32370,32640,33782,26472);
 
 UPDATE creature_template SET IconName="Gunner" WHERE entry IN (28319,28366,28833,30236,32629,33067,33080,33139,33264,34111);
 UPDATE creature_template SET IconName = 'vehichleCursor' WHERE vehicle_id > 0 AND IconName IS NULL;
@@ -754,3 +754,41 @@ DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (30021, 33782);
 INSERT INTO `npc_spellclick_spells` VALUES
 (30021, 55785, 0, 0, 0, 3),
 (33782, 63151, 0, 0, 0, 1);
+
+-- Under Development
+
+-- Highland Mustang
+-- DELETE FROM npc_spellclick_spells WHERE npc_entry IN (26472);
+-- INSERT INTO npc_spellclick_spells VALUES (26472, 67373, 0, 0, 0, 1);
+
+-- Kor Kron war Rider
+-- DELETE FROM npc_spellclick_spells WHERE npc_entry IN (26813);
+-- INSERT INTO npc_spellclick_spells VALUES (26813, 47424, 0, 0, 0, 1);
+
+-- Kor Kron war Rider 2
+-- DELETE FROM npc_spellclick_spells WHERE npc_entry IN (26572);
+-- INSERT INTO npc_spellclick_spells VALUES (26572, 47424, 0, 0, 0, 1);
+
+-- Onslaught Warhorse
+-- DELETE FROM npc_spellclick_spells WHERE npc_entry IN (27213);
+-- INSERT INTO npc_spellclick_spells VALUES (27213, 67373, 0, 0, 0, 1);
+
+-- Steel Gate Flying manchine
+-- DELETE FROM npc_spellclick_spells WHERE npc_entry IN (24418);
+-- INSERT INTO npc_spellclick_spells VALUES (24418, 67373, 0, 0, 0, 1);
+
+-- Wintergrasp tower cannon
+-- DELETE FROM npc_spellclick_spells WHERE npc_entry IN (28366);
+-- INSERT INTO npc_spellclick_spells VALUES (28366, 60968, 0, 0, 0, 1);
+
+-- Wooly mammoth bull
+-- DELETE FROM npc_spellclick_spells WHERE npc_entry IN (25743);
+-- INSERT INTO npc_spellclick_spells VALUES (25743, 43695, 0, 0, 0, 0);
+
+-- Wyrmrest skytalon
+-- DELETE FROM npc_spellclick_spells WHERE npc_entry = 32535;
+-- INSERT INTO npc_spellclick_spells VALUES (32535, 61245, 0, 0, 0, 1);
+
+
+
+
