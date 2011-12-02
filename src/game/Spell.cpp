@@ -4700,7 +4700,7 @@ void Spell::SendLogExecute()
 
 void Spell::SendInterrupted(uint8 result)
 {
-    if (!m_caster || m_caster->IsInWorld())
+    if (!m_caster || !m_caster->IsInWorld())
         return;
 
     WorldPacket data(SMSG_SPELL_FAILURE, (8+4+1));
