@@ -103,33 +103,24 @@ Unit *VehicleKit::GetPassenger(int8 seatId) const
 
 int8 VehicleKit::GetNextEmptySeat(int8 seatId, bool next) const
 {
-    SeatMap::const_iterator seat = seatId > 0 ? m_Seats.find(seatId) : (next ? m_Seats.begin() : m_Seats.end());
 
-    if (seatId > 0 && next && seat == m_Seats.end())
-        return -1;
-    else if (!seatId && !next)
+    if (m_Seats.empty() || seatId >= MAX_VEHICLE_SEAT)
         return -1;
 
-    while (seat->second.passenger || !seat->second.seatInfo->IsUsable())
+    if (next)
     {
-        if (next)
-        {
-            ++seat;
-            if (seat == m_Seats.end())
-                seat = m_Seats.begin();
-        }
-        else
-        {
-            if (seat == m_Seats.begin())
-                seat = m_Seats.end();
-            --seat;
-        }
-
-        if (seat->first == seatId)
-            return -1; // no available seat
+        for (SeatMap::const_iterator seat = m_Seats.begin(); seat != m_Seats.end(); ++seat)
+            if ((seatId < 0 || seat->first >= seatId) && !seat->second.passenger && seat->second.seatInfo->IsUsable())
+                return seat->first;
+    }
+    else
+    {
+        for (SeatMap::const_reverse_iterator seat = m_Seats.rbegin(); seat != m_Seats.rend(); --seat)
+            if ((seatId < 0 || seat->first <= seatId) && !seat->second.passenger && seat->second.seatInfo->IsUsable())
+                return seat->first;
     }
 
-    return seat->first;
+    return -1;
 }
 
 bool VehicleKit::AddPassenger(Unit *passenger, int8 seatId)
