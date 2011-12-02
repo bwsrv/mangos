@@ -24247,6 +24247,44 @@ AreaLockStatus Player::GetAreaTriggerLockStatus(AreaTrigger const* at, Difficult
             return AREA_LOCKSTATUS_QUEST_NOT_COMPLETED;
     }
 
+    uint32 achievCheck = 0;
+    if (difficulty == RAID_DIFFICULTY_10MAN_HEROIC)
+        achievCheck = at->achiev0;
+    else if (difficulty == RAID_DIFFICULTY_25MAN_HEROIC)
+        achievCheck = at->achiev1;
+
+    if (achievCheck)
+    {
+        bool bHasAchiev = false;
+        if (GetAchievementMgr().HasAchievement(at->achiev0))
+            bHasAchiev = true;
+        else if (Group* group = GetGroup())
+        {
+            for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+            {
+                Player* member = itr->getSource();
+                if (member && member->IsInWorld())
+                    if (member->GetAchievementMgr().HasAchievement(at->achiev0))
+                        bHasAchiev = true;
+            }
+        }
+        if (!bHasAchiev)
+            return AREA_LOCKSTATUS_QUEST_NOT_COMPLETED;
+    }
+
+    // If the map is not created, assume it is possible to enter it.
+    DungeonPersistentState* state = GetBoundInstanceSaveForSelfOrGroup(at->target_mapId);
+    Map* map = sMapMgr.FindMap(at->target_mapId, state ? state->GetInstanceId() : 0);
+
+    if (map && at->combatMode == 1)
+    {
+        if (map->GetInstanceData() && map->GetInstanceData()->IsEncounterInProgress())
+        {
+            DEBUG_LOG("MAP: Player '%s' can't enter instance '%s' while an encounter is in progress.", GetObjectGuid().GetString().c_str(), map->GetMapName());
+            return AREA_LOCKSTATUS_ZONE_IN_COMBAT;
+        }
+    }
+
     return AREA_LOCKSTATUS_OK;
 };
 

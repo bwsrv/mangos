@@ -806,6 +806,9 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
         case AREA_LOCKSTATUS_TOO_LOW_LEVEL:
             SendAreaTriggerMessage(GetMangosString(LANG_LEVEL_MINREQUIRED), at->requiredLevel);
             return;
+        case AREA_LOCKSTATUS_ZONE_IN_COMBAT:
+            GetPlayer()->SendTransferAborted(at->target_mapId, TRANSFER_ABORT_ZONE_IN_COMBAT);
+            return;
         case AREA_LOCKSTATUS_QUEST_NOT_COMPLETED:
             if(at->target_mapId == 269)
             {
