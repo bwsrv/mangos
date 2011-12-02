@@ -79,7 +79,11 @@ void VehicleKit::RemoveAllPassengers()
 
 bool VehicleKit::HasEmptySeat(int8 seatId) const
 {
+    if (seatId < 0)
+        return (GetNextEmptySeat(0,true) != -1);
+
     SeatMap::const_iterator seat = m_Seats.find(seatId);
+    // need add check on accessories-only seats...
 
     if (seat == m_Seats.end())
         return false;
@@ -99,9 +103,11 @@ Unit *VehicleKit::GetPassenger(int8 seatId) const
 
 int8 VehicleKit::GetNextEmptySeat(int8 seatId, bool next) const
 {
-    SeatMap::const_iterator seat = m_Seats.find(seatId);
+    SeatMap::const_iterator seat = seatId > 0 ? m_Seats.find(seatId) : (next ? m_Seats.begin() : m_Seats.end());
 
-    if (seat == m_Seats.end())
+    if (seatId > 0 && next && seat == m_Seats.end())
+        return -1;
+    else if (!seatId && !next)
         return -1;
 
     while (seat->second.passenger || !seat->second.seatInfo->IsUsable())

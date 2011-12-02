@@ -1709,6 +1709,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 31347:                                 // Doom TODO: exclude top threat target from target selection
                 case 33711:                                 // Murmur's Touch
                 case 38794:                                 // Murmur's Touch (h)
+                case 44869:                                 // Spectral Blast
                 case 45976:                                 // Open Portal
                 case 48278:                                 // Paralyze (Utgarde Pinnacle)
                 case 50988:                                 // Glare of the Tribunal (Halls of Stone)
@@ -6429,6 +6430,28 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (pTarget->HasAuraType(SPELL_AURA_MIRROR_IMAGE))
                     return SPELL_FAILED_BAD_TARGETS;
 
+                break;
+            }
+            case SPELL_AURA_CONTROL_VEHICLE:
+            {
+                Unit* pTarget = m_targets.getUnitTarget();
+
+                if (!pTarget || !pTarget->GetVehicleKit())
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                int32 seat = m_spellInfo->EffectApplyAuraName[i] < 8 ? m_spellInfo->EffectApplyAuraName[i] : -1;
+
+                if (!pTarget->GetVehicleKit()->HasEmptySeat(seat))
+                {
+                    if (seat == -1)
+                        return SPELL_FAILED_BAD_TARGETS;
+
+                    if (!seat && m_caster->GetTypeId() == TYPEID_PLAYER && !pTarget->GetVehicleKit()->HasEmptySeat(-1))
+                        return SPELL_FAILED_BAD_TARGETS;
+
+                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return SPELL_FAILED_BAD_TARGETS;
+                }
                 break;
             }
             default:

@@ -25,6 +25,7 @@
 #include "Vehicle.h"
 #include "ObjectMgr.h"
 #include "SpellAuras.h"
+#include "TemporarySummon.h"
 
 void WorldSession::HandleDismissControlledVehicle(WorldPacket &recv_data)
 {
@@ -178,30 +179,55 @@ void WorldSession::HandleEnterPlayerVehicle(WorldPacket &recv_data)
         return;
 
     if (VehicleKit* pVehicle = player->GetVehicleKit())
-        GetPlayer()->EnterVehicle(pVehicle);
+    {
+        if (pVehicle->HasEmptySeat(-1))
+            GetPlayer()->EnterVehicle(pVehicle, -1);
+        else
+            DEBUG_LOG("WorldSession::HandleEnterPlayerVehicle player %s try seat on vehicle %s, but no free seats.",guid.GetString().c_str(),GetPlayer()->GetObjectGuid().GetString().c_str());
+    }
 }
 
 void WorldSession::HandleEjectPassenger(WorldPacket &recv_data)
 {
-    DEBUG_LOG("WORLD: Received CMSG_EJECT_PASSENGER");
     recv_data.hexlike();
 
     ObjectGuid guid;
     recv_data >> guid;
+
+    DEBUG_LOG("WORLD: Received CMSG_EJECT_PASSENGER %s",guid.GetString().c_str());
 
     Unit* passenger = ObjectAccessor::GetUnit(*GetPlayer(), guid);
 
     if (!passenger)
         return;
 
-    if (!passenger->GetVehicle() || passenger->GetVehicle() != GetPlayer()->GetVehicleKit())
+    VehicleKit* pVehicle = passenger->GetVehicle();
+
+    if (!pVehicle)
         return;
+
+    if (!pVehicle ||
+       ((pVehicle != GetPlayer()->GetVehicleKit()) &&
+        !(pVehicle->GetBase()->GetVehicleInfo()->GetEntry()->m_flags & (VEHICLE_FLAG_ACCESSORY))))
+    {
+        sLog.outError("WorldSession::HandleEjectPassenger %s try eject %s, but not may do this!",GetPlayer()->GetObjectGuid().GetString().c_str(),guid.GetString().c_str());
+        return;
+    }
 
     passenger->ExitVehicle();
 
     // eject and remove creatures of player mounts
     if (passenger->GetTypeId() == TYPEID_UNIT)
-        passenger->AddObjectToRemoveList();
+    {
+        if (((Creature*)passenger)->IsTemporarySummon())
+        {
+            // Fixme: delay must be calculated not from this, but from creature template parameters (off traders ...?).
+            uint32 delay = passenger->GetObjectGuid().IsVehicle() ? 1000: 60000;
+            ((TemporarySummon*)passenger)->UnSummon(delay);
+        }
+        else
+            passenger->AddObjectToRemoveList();
+    }
 }
 
 void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
