@@ -643,12 +643,17 @@ void Aura::AreaAuraUpdate(uint32 diff)
     {
         Unit* caster = GetTarget();
 
+        if (!caster || !caster->GetMap())
+            return;
+
         if ( !caster->hasUnitState(UNIT_STAT_ISOLATED) )
         {
             Unit* owner = caster->GetCharmerOrOwner();
             if (!owner)
                 owner = caster;
-            Spell::UnitList targets;
+
+            ObjectGuidSet targets;
+            Spell::UnitList _targets;
 
             switch(m_areaAuraType)
             {
@@ -668,7 +673,7 @@ void Aura::AreaAuraUpdate(uint32 diff)
                             if (Target && Target->IsInWorld() && Target->isAlive() && Target->GetSubGroup()==subgroup && caster->IsInWorld() && caster->IsFriendlyTo(Target))
                             {
                                 if (caster->IsWithinDistInMap(Target, m_radius))
-                                    targets.push_back(Target);
+                                    targets.insert(Target->GetObjectGuid());
                                 if (Target->GetPet())
                                 {
                                     GroupPetList m_groupPets = Target->GetPets();
@@ -677,7 +682,7 @@ void Aura::AreaAuraUpdate(uint32 diff)
                                         for (GroupPetList::const_iterator itr = m_groupPets.begin(); itr != m_groupPets.end(); ++itr)
                                             if (Pet* _pet = Target->GetMap()->GetPet(*itr))
                                                 if (_pet && _pet->IsInWorld() && _pet->isAlive() && caster->IsWithinDistInMap(_pet, m_radius))
-                                                    targets.push_back(_pet);
+                                                    targets.insert(_pet->GetObjectGuid());
                                     }
                                 }
                             }
@@ -687,7 +692,7 @@ void Aura::AreaAuraUpdate(uint32 diff)
                     {
                         // add owner
                         if ( owner != caster && caster->IsWithinDistInMap(owner, m_radius) )
-                            targets.push_back(owner);
+                            targets.insert(owner->GetObjectGuid());
                         // add caster's pet
                         if (caster->GetPet())
                         {
@@ -697,7 +702,7 @@ void Aura::AreaAuraUpdate(uint32 diff)
                                 for (GroupPetList::const_iterator itr = m_groupPets.begin(); itr != m_groupPets.end(); ++itr)
                                     if (Pet* _pet = caster->GetMap()->GetPet(*itr))
                                         if (_pet && _pet->IsInWorld() && caster->IsWithinDistInMap(_pet, m_radius))
-                                            targets.push_back(_pet);
+                                            targets.insert(_pet->GetObjectGuid());
                             }
                         }
                     }
@@ -718,7 +723,7 @@ void Aura::AreaAuraUpdate(uint32 diff)
                             if (Target && Target->IsInWorld() && Target->isAlive() && caster->IsInWorld() && caster->IsFriendlyTo(Target))
                             {
                                 if (caster->IsWithinDistInMap(Target, m_radius))
-                                    targets.push_back(Target);
+                                    targets.insert(Target->GetObjectGuid());
                                 if (Target->GetPet())
                                 {
                                     GroupPetList m_groupPets = Target->GetPets();
@@ -727,7 +732,7 @@ void Aura::AreaAuraUpdate(uint32 diff)
                                         for (GroupPetList::const_iterator itr = m_groupPets.begin(); itr != m_groupPets.end(); ++itr)
                                             if (Pet* _pet = caster->GetMap()->GetPet(*itr))
                                                 if (_pet && _pet->IsInWorld() && caster->IsWithinDistInMap(_pet, m_radius))
-                                                    targets.push_back(_pet);
+                                                    targets.insert(_pet->GetObjectGuid());
                                     }
                                 }
                             }
@@ -737,7 +742,7 @@ void Aura::AreaAuraUpdate(uint32 diff)
                     {
                         // add owner
                         if ( owner != caster && caster->IsWithinDistInMap(owner, m_radius) )
-                            targets.push_back(owner);
+                            targets.insert(owner->GetObjectGuid());
                         // add caster's pet
                         if (caster->GetPet())
                         {
@@ -747,7 +752,7 @@ void Aura::AreaAuraUpdate(uint32 diff)
                                 for (GroupPetList::const_iterator itr = m_groupPets.begin(); itr != m_groupPets.end(); ++itr)
                                     if (Pet* _pet = caster->GetMap()->GetPet(*itr))
                                         if (_pet && _pet->IsInWorld() && caster->IsWithinDistInMap(_pet, m_radius))
-                                            targets.push_back(_pet);
+                                            targets.insert(_pet->GetObjectGuid());
                             }
                         }
                     }
@@ -756,14 +761,14 @@ void Aura::AreaAuraUpdate(uint32 diff)
                 case AREA_AURA_FRIEND:
                 {
                     MaNGOS::AnyFriendlyUnitInObjectRangeCheck u_check(caster, m_radius);
-                    MaNGOS::UnitListSearcher<MaNGOS::AnyFriendlyUnitInObjectRangeCheck> searcher(targets, u_check);
+                    MaNGOS::UnitListSearcher<MaNGOS::AnyFriendlyUnitInObjectRangeCheck> searcher(_targets, u_check);
                     Cell::VisitAllObjects(caster, searcher, m_radius);
                     break;
                 }
                 case AREA_AURA_ENEMY:
                 {
                     MaNGOS::AnyAoETargetUnitInObjectRangeCheck u_check(caster, m_radius); // No GetCharmer in searcher
-                    MaNGOS::UnitListSearcher<MaNGOS::AnyAoETargetUnitInObjectRangeCheck> searcher(targets, u_check);
+                    MaNGOS::UnitListSearcher<MaNGOS::AnyAoETargetUnitInObjectRangeCheck> searcher(_targets, u_check);
                     Cell::VisitAllObjects(caster, searcher, m_radius);
                     break;
                 }
@@ -771,19 +776,26 @@ void Aura::AreaAuraUpdate(uint32 diff)
                 case AREA_AURA_PET:
                 {
                     if (owner != caster && caster->IsInWorld() && caster->IsWithinDistInMap(owner, m_radius))
-                        targets.push_back(owner);
+                        targets.insert(owner->GetObjectGuid());
                     break;
                 }
+                default:
+                    break;
             }
 
-            for(Spell::UnitList::iterator tIter = targets.begin(); tIter != targets.end(); tIter++)
+            if (!_targets.empty())
+                for (Spell::UnitList::iterator itr = _targets.begin(); itr != _targets.end(); ++itr)
+                    if (*itr)
+                        targets.insert((*itr)->GetObjectGuid());
+
+            for (ObjectGuidSet::const_iterator tIter = targets.begin(); tIter != targets.end(); tIter++)
             {
                 // flag for selection is need apply aura to current iteration target
                 bool apply = true;
 
                 // we need ignore present caster self applied are auras sometime
                 // in cases if this only auras applied for spell effect
-                Unit* i_target = *tIter;
+                Unit* i_target = caster->GetMap()->GetUnit(*tIter);
                 if (!i_target)
                     continue;
 
@@ -833,7 +845,7 @@ void Aura::AreaAuraUpdate(uint32 diff)
                 if(!apply)
                     continue;
 
-                if (SpellEntry const *actualSpellInfo = sSpellMgr.SelectAuraRankForLevel(GetSpellProto(), (*tIter)->getLevel()))
+                if (SpellEntry const *actualSpellInfo = sSpellMgr.SelectAuraRankForLevel(GetSpellProto(), i_target->getLevel()))
                 {
                     int32 actualBasePoints = m_currentBasePoints;
                     // recalculate basepoints for lower rank (all AreaAura spell not use custom basepoints?)
