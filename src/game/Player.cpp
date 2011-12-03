@@ -24256,7 +24256,7 @@ AreaLockStatus Player::GetAreaTriggerLockStatus(AreaTrigger const* at, Difficult
     if (achievCheck)
     {
         bool bHasAchiev = false;
-        if (GetAchievementMgr().HasAchievement(at->achiev0))
+        if (GetAchievementMgr().HasAchievement(achievCheck))
             bHasAchiev = true;
         else if (Group* group = GetGroup())
         {
@@ -24264,7 +24264,7 @@ AreaLockStatus Player::GetAreaTriggerLockStatus(AreaTrigger const* at, Difficult
             {
                 Player* member = itr->getSource();
                 if (member && member->IsInWorld())
-                    if (member->GetAchievementMgr().HasAchievement(at->achiev0))
+                    if (member->GetAchievementMgr().HasAchievement(achievCheck))
                         bHasAchiev = true;
             }
         }
