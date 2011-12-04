@@ -4724,6 +4724,9 @@ void Spell::SendLogExecute()
 
 void Spell::SendInterrupted(uint8 result)
 {
+    if (!m_caster || !m_caster->IsInWorld())
+        return;
+
     WorldPacket data(SMSG_SPELL_FAILURE, (8+4+1));
     data << m_caster->GetPackGUID();
     data << uint8(m_cast_count);

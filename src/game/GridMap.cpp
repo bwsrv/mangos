@@ -759,7 +759,7 @@ float TerrainInfo::GetHeight(float x, float y, float z, bool pUseVmaps, float ma
     if (pUseVmaps)
     {
         VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
-        if (vmgr->isHeightCalcEnabled())
+        if (vmgr && vmgr->isHeightCalcEnabled())
         {
             // if mapHeight has been found search vmap height at least until mapHeight point
             // this prevent case when original Z "too high above ground and vmap height search fail"
@@ -1059,7 +1059,8 @@ GridMap * TerrainInfo::GetGrid( const float x, const float y )
     int gx=(int)(32-x/SIZE_OF_GRIDS);                       //grid x
     int gy=(int)(32-y/SIZE_OF_GRIDS);                       //grid y
 
-    if (gx >= MAX_NUMBER_OF_GRIDS || gy >= MAX_NUMBER_OF_GRIDS)
+    if (gx >= MAX_NUMBER_OF_GRIDS || gy >= MAX_NUMBER_OF_GRIDS ||
+        gx < 0 || gy < 0)
         return NULL;
 
     //quick check if GridMap already loaded

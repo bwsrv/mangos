@@ -2438,6 +2438,9 @@ class MANGOS_DLL_SPEC Player : public Unit
         void SetBotDeathTimer() { m_deathTimer = 0; }
         bool IsInDuel(Player const* player) const { return duel && (duel->opponent == player || duel->initiator == player) && duel->startTime != 0; }
 
+        // Return collision height sent to client
+        float GetCollisionHeight(bool mounted);
+
     protected:
 
         uint32 m_contestedPvPTimer;
@@ -2516,7 +2519,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         void _SaveSkills();
         void _SaveSpells();
         void _SaveEquipmentSets();
-        void _SaveBGData();
+        void _SaveBGData(bool forceClean = false);
         void _SaveGlyphs();
         void _SaveTalents();
         void _SaveStats();
