@@ -112,7 +112,7 @@ public:
         COMBAT_RANGED               = 0x02              // class is ranged attacker
     };
 
-    // masters orders that should be obeyed by the AI during the updteAI routine
+    // masters orders that should be obeyed by the AI during the updateAI routine
     // the master will auto set the target of the bot
     enum CombatOrderType
     {
@@ -425,6 +425,7 @@ public:
     bool Withdraw(const uint32 itemid);
     bool Deposit(const uint32 itemid);
     void BankBalance();
+    std::string Cash(uint32 copper);
 
 private:
     // ****** Closed Actions ********************************

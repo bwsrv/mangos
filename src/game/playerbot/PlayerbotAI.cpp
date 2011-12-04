@@ -443,8 +443,8 @@ void PlayerbotAI::SendNotEquipList(Player& /*player*/)
             }
     }
 
-    TellMaster("Here's all the items in my inventory that I can equip.");
     ChatHandler ch(GetMaster());
+    bool bAnyEquippable = false;
 
     const std::string descr[] = { "head", "neck", "shoulders", "body", "chest",
                                   "waist", "legs", "feet", "wrists", "hands", "finger1", "finger2",
@@ -456,24 +456,28 @@ void PlayerbotAI::SendNotEquipList(Player& /*player*/)
     {
         if (equip[equipSlot] == NULL)
             continue;
+
+        if (!bAnyEquippable)
+        {
+            TellMaster("Here's all the items in my inventory that I can equip:");
+            bAnyEquippable = true;
+        }
+
         std::list<Item*>* itemListForEqSlot = equip[equipSlot];
         std::ostringstream out;
         out << descr[equipSlot] << ": ";
         for (std::list<Item*>::iterator it = itemListForEqSlot->begin(); it != itemListForEqSlot->end(); ++it)
         {
-            const ItemPrototype* const pItemProto = (*it)->GetProto();
-
-            std::string itemName = pItemProto->Name1;
-            ItemLocalization(itemName, pItemProto->ItemId);
-
-            out << " |cffffffff|Hitem:" << pItemProto->ItemId
-                << ":0:0:0:0:0:0:0" << "|h[" << itemName
-                << "]|h|r";
+            if ((*it))
+                MakeItemLink((*it), out, true);
         }
         ch.SendSysMessage(out.str().c_str());
 
         delete itemListForEqSlot; // delete list of Item*
     }
+
+    if (!bAnyEquippable)
+        TellMaster("There are no items in my inventory that I can equip.");
 }
 
 void PlayerbotAI::SendQuestNeedList()
@@ -809,6 +813,47 @@ void PlayerbotAI::HandleBotOutgoingPacket(const WorldPacket& packet)
                 m_bot->SetSelectionGuid(ObjectGuid(playerGuid));
                 m_ignoreAIUpdatesUntilTime = time(0) + 4;
                 m_ScenarioType = SCENARIO_DUEL;
+            }
+            return;
+        }
+
+        case SMSG_BUY_FAILED:
+        {
+            WorldPacket p(packet); // 8+4+4+1
+            ObjectGuid vendorguid;
+            p >> vendorguid;
+            uint32 itemid;
+            p >> itemid;
+            uint8 msg;
+            p >> msg; // error msg
+            p.resize(13);
+
+            switch(msg)
+            {
+                case BUY_ERR_CANT_FIND_ITEM:
+                    break;
+                case BUY_ERR_ITEM_ALREADY_SOLD:
+                    break;
+                case BUY_ERR_NOT_ENOUGHT_MONEY:
+                {
+                    Announce(CANT_AFFORD);
+                    break;
+                }
+                case BUY_ERR_SELLER_DONT_LIKE_YOU:
+                    break;
+                case BUY_ERR_DISTANCE_TOO_FAR:
+                    break;
+                case BUY_ERR_ITEM_SOLD_OUT:
+                    break;
+                case BUY_ERR_CANT_CARRY_MORE:
+                {
+                    Announce(INVENTORY_FULL);
+                    break;
+                }
+                case BUY_ERR_RANK_REQUIRE:
+                    break;
+                case BUY_ERR_REPUTATION_REQUIRE:
+                    break;
             }
             return;
         }
@@ -1152,23 +1197,30 @@ void PlayerbotAI::HandleBotOutgoingPacket(const WorldPacket& packet)
 
                 if (!canObeyCommandFrom(*(m_bot->GetTrader())))
                 {
+                    // TODO: Really? What if I give a bot all my junk so it's inventory is full when a nice green/blue/purple comes along?
                     SendWhisper("I'm not allowed to trade you any of my items, but you are free to give me money or items.", *(m_bot->GetTrader()));
                     return;
                 }
 
                 // list out items available for trade
                 std::ostringstream out;
+                std::list<std::string> lsItemsTradable;
+                std::list<std::string> lsItemsUntradable;
 
-                out << "In my main backpack:";
                 // list out items in main backpack
                 for (uint8 slot = INVENTORY_SLOT_ITEM_START; slot < INVENTORY_SLOT_ITEM_END; slot++)
                 {
                     const Item* const pItem = m_bot->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
                     if (pItem)
+                    {
                         MakeItemLink(pItem, out, true);
+                        if (pItem->CanBeTraded())
+                            lsItemsTradable.push_back(out.str());
+                        else
+                            lsItemsUntradable.push_back(out.str());
+                        out.str("");
+                    }
                 }
-                ChatHandler ch(m_bot->GetTrader());
-                ch.SendSysMessage(out.str().c_str());
 
                 // list out items in other removable backpacks
                 for (uint8 bag = INVENTORY_SLOT_BAG_START; bag < INVENTORY_SLOT_BAG_END; ++bag)
@@ -1176,37 +1228,65 @@ void PlayerbotAI::HandleBotOutgoingPacket(const WorldPacket& packet)
                     const Bag* const pBag = (Bag *) m_bot->GetItemByPos(INVENTORY_SLOT_BAG_0, bag);
                     if (pBag)
                     {
-                        std::ostringstream outbag;
-                        outbag << "In my ";
-                        const ItemPrototype* const pBagProto = pBag->GetProto();
-                        std::string bagName = pBagProto->Name1;
-                        ItemLocalization(bagName, pBagProto->ItemId);
-                        outbag << bagName << ":";
-
                         for (uint8 slot = 0; slot < pBag->GetBagSize(); ++slot)
                         {
                             const Item* const pItem = m_bot->GetItemByPos(bag, slot);
                             if (pItem)
-                                MakeItemLink(pItem, outbag, true);
+                            {
+                                MakeItemLink(pItem, out, true);
+                                if (pItem->CanBeTraded())
+                                    lsItemsTradable.push_back(out.str());
+                                else
+                                    lsItemsUntradable.push_back(out.str());
+                                out.str("");
+                            }
                         }
-                        ch.SendSysMessage(outbag.str().c_str());
                     }
                 }
 
-                // calculate how much money bot has
-                uint32 copper = m_bot->GetMoney();
-                uint32 gold = uint32(copper / 10000);
-                copper -= (gold * 10000);
-                uint32 silver = uint32(copper / 100);
-                copper -= (silver * 100);
+                ChatHandler ch(m_bot->GetTrader());
+                out.str("");
+                out << "Items I have but cannot trade:";
+                uint32 count = 0;
+                for (std::list<std::string>::iterator iter = lsItemsUntradable.begin(); iter != lsItemsUntradable.end(); iter++)
+                {
+                    out << (*iter);
+                    // Why this roundabout way of posting max 20 items per whisper? To keep the list scrollable.
+                    count++;
+                    if (count % 20 == 0)
+                    {
+                        ch.SendSysMessage(out.str().c_str());
+                        out.str("");
+                    }
+                }
+                if (count > 0)
+                    ch.SendSysMessage(out.str().c_str());
 
+                out.str("");
+                out << "I could give you:";
+                count = 0;
+                for (std::list<std::string>::iterator iter = lsItemsTradable.begin(); iter != lsItemsTradable.end(); iter++)
+                {
+                    out << (*iter);
+                    // Why this roundabout way of posting max 20 items per whisper? To keep the list scrollable.
+                    count++;
+                    if (count % 20 == 0)
+                    {
+                        ch.SendSysMessage(out.str().c_str());
+                        out.str("");
+                    }
+                }
+                if (count > 0)
+                    ch.SendSysMessage(out.str().c_str());
+                else
+                    ch.SendSysMessage("I have nothing to give you.");
+
+                // calculate how much money bot has
                 // send bot the message
-                std::ostringstream whisper;
-                whisper << "I have |cff00ff00" << gold
-                        << "|r|cfffffc00g|r|cff00ff00" << silver
-                        << "|r|cffcdcdcds|r|cff00ff00" << copper
-                        << "|r|cffffd333c|r";
-                SendWhisper(whisper.str().c_str(), *(m_bot->GetTrader()));
+                uint32 copper = m_bot->GetMoney();
+                out.str("");
+                out << "I have |cff00ff00" << Cash(copper) << "|r";
+                SendWhisper(out.str().c_str(), *(m_bot->GetTrader()));
             }
             return;
         }
@@ -1390,6 +1470,45 @@ void PlayerbotAI::HandleBotOutgoingPacket(const WorldPacket& packet)
                 SetIgnoreUpdateTime();
             }
 
+            return;
+        }
+        case SMSG_BUY_ITEM:
+        {
+            WorldPacket p(packet);  // (8+4+4+4)
+            ObjectGuid vguid;
+            p >> vguid;
+            uint32 vendorslot;
+            p >> vendorslot;
+            p.resize(20);
+
+            vendorslot = vendorslot - 1;
+            Creature *pCreature = m_bot->GetNPCIfCanInteractWith(vguid, UNIT_NPC_FLAG_VENDOR);
+            if (!pCreature)
+                return;
+
+            VendorItemData const* vItems = pCreature->GetVendorItems();
+            VendorItemData const* tItems = pCreature->GetVendorTemplateItems();
+            if ((!vItems || vItems->Empty()) && (!tItems || tItems->Empty()))
+                return;
+
+            uint32 vCount = vItems ? vItems->GetItemCount() : 0;
+            uint32 tCount = tItems ? tItems->GetItemCount() : 0;
+
+            if (vendorslot >= vCount+tCount)
+                return;
+
+            VendorItem const* crItem = vendorslot < vCount ? vItems->GetItem(vendorslot) : tItems->GetItem(vendorslot - vCount);
+            if (!crItem)
+                return;
+
+            ItemPrototype const *pProto = ObjectMgr::GetItemPrototype(crItem->item);
+            if(pProto)
+            {
+                std::ostringstream out;
+                out << "|cff009900" << "I received item: |r";
+                MakeItemLink(pProto,out);
+                TellMaster(out.str().c_str());
+            }
             return;
         }
 
@@ -1988,6 +2107,9 @@ void PlayerbotAI::DoNextCombatManeuver()
         GetDuelTarget(GetMaster());
     else
         GetCombatTarget();
+    // check if we have a target - fixes crash reported by rrtn (kill hunter's pet bug)
+    // if current target for attacks doesn't make sense anymore
+    // clear our orders so we can get orders in next update
     if (!m_targetCombat || m_targetCombat->isDead() || !m_targetCombat->IsInWorld() || !m_bot->IsHostileTo(m_targetCombat) || !m_bot->IsInMap(m_targetCombat))
     {
         m_bot->AttackStop();
@@ -3315,7 +3437,7 @@ bool PlayerbotAI::CastSpell(uint32 spellId)
     if (castTimeEntry && castTimeEntry->CastTime)
     {
         CastTime = (castTimeEntry->CastTime / 1000);
-        DEBUG_LOG ("[PLayerbotAI]: CastSpell - Bot movement reset for casting %s (%u)", pSpellInfo->SpellName[0], spellId);
+        DEBUG_LOG ("[PlayerbotAI]: CastSpell - Bot movement reset for casting %s (%u)", pSpellInfo->SpellName[0], spellId);
         m_bot->StopMoving();
     }
 
@@ -4821,16 +4943,7 @@ void PlayerbotAI::_doSellItem(Item* const item, std::ostringstream &report, std:
         MakeItemLink(item, report, true);
         report << " for ";
 
-        uint32 gold = uint32(cost / 10000);
-        cost -= (gold * 10000);
-        uint32 silver = uint32(cost / 100);
-        cost -= (silver * 100);
-
-        if (gold > 0)
-            report << gold << " |TInterface\\Icons\\INV_Misc_Coin_01:8|t";
-        if (silver > 0)
-            report << silver << " |TInterface\\Icons\\INV_Misc_Coin_03:8|t";
-        report << cost << " |TInterface\\Icons\\INV_Misc_Coin_05:8|t\n";
+        report << Cash(cost);
     }
     else if (item->GetProto()->SellPrice > 0)
         MakeItemLink(item, canSell, true);
@@ -5024,6 +5137,25 @@ bool PlayerbotAI::RemoveAuction(const uint32 auctionid)
     return true;
 }
 
+std::string PlayerbotAI::Cash(uint32 copper)
+{
+    using namespace std;
+    std::ostringstream change;
+
+    uint32 gold = uint32(copper / 10000);
+    copper -= (gold * 10000);
+    uint32 silver = uint32(copper / 100);
+    copper -= (silver * 100);
+
+    if (gold > 0)
+        change << gold <<  " |TInterface\\Icons\\INV_Misc_Coin_01:8|t";
+    if (silver > 0)
+        change << silver << " |TInterface\\Icons\\INV_Misc_Coin_03:8|t";
+    change << copper << " |TInterface\\Icons\\INV_Misc_Coin_05:8|t";
+
+    return change.str();
+}
+
 void PlayerbotAI::ListQuests(WorldObject * questgiver)
 {
     if (!questgiver)
@@ -5163,16 +5295,7 @@ void PlayerbotAI::ListAuctions()
                     if (sObjectMgr.GetPlayerNameByGUID(guid, bidder_name))
                         report << " " << bidder_name << ": ";
 
-                    uint32 gold = uint32(bid / 10000);
-                    bid -= (gold * 10000);
-                    uint32 silver = uint32(bid / 100);
-                    bid -= (silver * 100);
-
-                    if (gold > 0)
-                        report << gold << " |TInterface\\Icons\\INV_Misc_Coin_01:8|t";
-                    if (silver > 0)
-                        report << silver << " |TInterface\\Icons\\INV_Misc_Coin_03:8|t";
-                    report << bid << " |TInterface\\Icons\\INV_Misc_Coin_05:8|t";
+                        report << Cash(bid);
                 }
                 if (aItem)
                     report << " ends: " << aTm->tm_hour << "|cff0070dd|hH|h|r " << aTm->tm_min << "|cff0070dd|hmin|h|r";
@@ -5231,16 +5354,7 @@ void PlayerbotAI::Sell(const uint32 itemid)
         MakeItemLink(pItem, report, true);
         report << " for ";
 
-        uint32 gold = uint32(cost / 10000);
-        cost -= (gold * 10000);
-        uint32 silver = uint32(cost / 100);
-        cost -= (silver * 100);
-
-        if (gold > 0)
-            report << gold << " |TInterface\\Icons\\INV_Misc_Coin_01:8|t";
-        if (silver > 0)
-            report << silver << " |TInterface\\Icons\\INV_Misc_Coin_03:8|t";
-        report << cost << " |TInterface\\Icons\\INV_Misc_Coin_05:8|t";
+        report << Cash(cost);
 
         TellMaster(report.str());
     }
@@ -6632,12 +6746,6 @@ void PlayerbotAI::HandleCommand(const std::string& text, Player& fromPlayer)
                         }
                     }
             }
-        }
-        else
-        {
-            std::string msg = "What? follow, stay, (c)ast <spellname>, spells, (e)quip <itemlink>, (u)se <itemlink>, drop <questlink>, report, quests, stats, collect";
-            SendWhisper(msg, fromPlayer);
-            m_bot->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
         }
     }
 }
