@@ -373,7 +373,7 @@ public:
     bool IsInQuestCreatureList(uint32 id) { return m_needCreatureOrGOList.find(id) != m_needCreatureOrGOList.end(); };
     bool IsItemUseful(uint32 itemid);
     void SendOrders(Player& player);
-    bool FollowCheckTeleport(WorldObject &obj);
+    bool DoTeleport(WorldObject &obj);
     void DoLoot();
     void DoFlight();
     void GetTaxi(ObjectGuid guid, BotTaxiNode& nodes);
