@@ -4386,7 +4386,7 @@ float Unit::CheckAuraStackingAndApply(Aura *Aur, UnitMods unitMod, UnitModifierT
 
     if (!Aur->IsStacking())
     {
-        bool bIsPositive = amount > 0;
+        bool bIsPositive = amount >= 0.0f;
 
         if (modifierType == TOTAL_VALUE)
             modifierType = bIsPositive ? NONSTACKING_VALUE_POS : NONSTACKING_VALUE_NEG;
@@ -4407,8 +4407,8 @@ float Unit::CheckAuraStackingAndApply(Aura *Aur, UnitMods unitMod, UnitModifierT
             modifierType = NONSTACKING_PCT_MINOR;
         }
 
-        if (bIsPositive && amount < current ||               // value does not change as a result of applying/removing this aura
-            !bIsPositive && amount > current)
+        if (bIsPositive && amount <= current ||               // value does not change as a result of applying/removing this aura
+            !bIsPositive && amount >= current)
         {
             return 0.0f;
         }
@@ -4437,8 +4437,8 @@ float Unit::CheckAuraStackingAndApply(Aura *Aur, UnitMods unitMod, UnitModifierT
                     amount = (float)GetMaxNegativeAuraModifier(Aur->GetModifier()->m_auraname, true);
             }
         }
-
-        HandleStatModifier(unitMod, modifierType, amount, apply);
+        if (amount != 0.0f)
+            HandleStatModifier(unitMod, modifierType, amount, apply);
 
         if (modifierType == NONSTACKING_VALUE_POS || modifierType == NONSTACKING_VALUE_NEG)
             amount -= current;
