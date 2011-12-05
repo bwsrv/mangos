@@ -128,12 +128,12 @@ INSERT INTO `creature_spell` (`guid`, `spell`, `index`) VALUES
 
 -- /IOC vehicles by /dev/rsa
 
--- alliance boss faction
-UPDATE creature_template SET faction_A = 84, faction_H = 84 WHERE entry = 34924;
+-- alliance boss
+UPDATE creature_template SET faction_A = 84, faction_H = 84, difficulty_entry_1 = 35403, ScriptName = 'boss_bg_ioc' WHERE entry = 34924;
 -- alli boss guard faction
 UPDATE creature_template SET faction_A = 84, faction_H = 84 WHERE entry = 34919;
--- horde boss faction
-UPDATE creature_template SET faction_A = 83, faction_H = 83 WHERE entry = 34922;
+-- horde boss
+UPDATE creature_template SET faction_A = 83, faction_H = 83, difficulty_entry_1 = 35405, ScriptName = 'boss_bg_ioc' WHERE entry = 34922;
 -- horde boss guard faction
 UPDATE creature_template SET faction_A = 83, faction_H = 83 WHERE entry = 34918;
 
