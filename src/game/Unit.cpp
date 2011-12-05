@@ -4377,16 +4377,17 @@ float Unit::GetTotalAuraMultiplierByMiscValueForMask(AuraType auratype, uint32 m
     return multiplier * ((nonStackingPos + 100.0f) / 100.0f) * ((nonStackingNeg + 100.0f) / 100.0f);
 }
 
-float Unit::CheckAuraStackingAndApply(Aura *Aur, UnitMods unitMod, UnitModifierType modifierType, float amount, bool apply, int32 miscMask, int32 miscValue)
+float Unit::CheckAuraStackingAndApply(Aura* aura, UnitMods unitMod, UnitModifierType modifierType, float amount, bool apply, int32 miscMask, int32 miscValue)
 {
-    if (!Aur)
+    // not apply values below 1% (rounding errors?)
+    if (!aura || fabs(amount) < 0.009f)
         return 0.0f;
 
-    SpellEntry const *spellProto = Aur->GetSpellProto();
+    SpellEntry const *spellProto = aura->GetSpellProto();
 
-    if (!Aur->IsStacking())
+    if (!aura->IsStacking())
     {
-        bool bIsPositive = amount > 0;
+        bool bIsPositive = amount >= 0.0f;
 
         if (modifierType == TOTAL_VALUE)
             modifierType = bIsPositive ? NONSTACKING_VALUE_POS : NONSTACKING_VALUE_NEG;
@@ -4399,8 +4400,8 @@ float Unit::CheckAuraStackingAndApply(Aura *Aur, UnitMods unitMod, UnitModifierT
 
         // special case: minor and major categories for armor reduction debuffs
         // TODO: find some better way of dividing to categories
-        if (Aur->GetModifier()->m_auraname == SPELL_AURA_MOD_RESISTANCE_PCT &&
-            (Aur->GetId() == 770 ||                                              // Faerie Fire
+        if (aura->GetModifier()->m_auraname == SPELL_AURA_MOD_RESISTANCE_PCT &&
+            (aura->GetId() == 770 ||                                              // Faerie Fire
             spellProto->IsFitToFamily<SPELLFAMILY_HUNTER, CF_HUNTER_PET_SPELLS>() ||            // Sting (Hunter Pet)
             spellProto->IsFitToFamily<SPELLFAMILY_WARLOCK, CF_WARLOCK_CURSE_OF_WEAKNESS>()))    // Curse of Weakness
         {
@@ -4418,25 +4419,28 @@ float Unit::CheckAuraStackingAndApply(Aura *Aur, UnitMods unitMod, UnitModifierT
             if (miscMask)
             {
                 if (bIsPositive)
-                    amount = (float)GetMaxPositiveAuraModifierByMiscMask(Aur->GetModifier()->m_auraname, miscMask, true);
+                    amount = (float)GetMaxPositiveAuraModifierByMiscMask(aura->GetModifier()->m_auraname, miscMask, true);
                 else
-                    amount = (float)GetMaxNegativeAuraModifierByMiscMask(Aur->GetModifier()->m_auraname, miscMask, true);
+                    amount = (float)GetMaxNegativeAuraModifierByMiscMask(aura->GetModifier()->m_auraname, miscMask, true);
             }
             else if(miscValue)
             {
                 if (bIsPositive)
-                    amount = (float)GetMaxPositiveAuraModifierByMiscValue(Aur->GetModifier()->m_auraname, miscValue-1, true);
+                    amount = (float)GetMaxPositiveAuraModifierByMiscValue(aura->GetModifier()->m_auraname, miscValue-1, true);
                 else
-                    amount = (float)GetMaxNegativeAuraModifierByMiscValue(Aur->GetModifier()->m_auraname, miscValue-1, true);
+                    amount = (float)GetMaxNegativeAuraModifierByMiscValue(aura->GetModifier()->m_auraname, miscValue-1, true);
             }
             else
             {
                 if (bIsPositive)
-                    amount = (float)GetMaxPositiveAuraModifier(Aur->GetModifier()->m_auraname, true);
+                    amount = (float)GetMaxPositiveAuraModifier(aura->GetModifier()->m_auraname, true);
                 else
-                    amount = (float)GetMaxNegativeAuraModifier(Aur->GetModifier()->m_auraname, true);
+                    amount = (float)GetMaxNegativeAuraModifier(aura->GetModifier()->m_auraname, true);
             }
         }
+        // not apply values below 1% (rounding errors?)
+        if (fabs(amount) < 0.009f)
+            amount = 0.0f;
 
         HandleStatModifier(unitMod, modifierType, amount, apply);
 
@@ -10206,25 +10210,25 @@ bool Unit::HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, f
 
 float Unit::GetModifierValue(UnitMods unitMod, UnitModifierType modifierType) const
 {
+    double retvalue = 0.0f;
+
     if ( unitMod >= UNIT_MOD_END || modifierType >= MODIFIER_TYPE_END)
     {
-        sLog.outError("attempt to access nonexistent modifier value from UnitMods!");
-        return 0.0f;
+        sLog.outError("Unit::GetModifierValue attempt to access nonexistent modifier value (type %u) from UnitMods!", modifierType);
     }
-
-    if(modifierType == TOTAL_PCT)
+    else if (modifierType == TOTAL_PCT)
     {
-        if(m_auraModifiersGroup[unitMod][modifierType] <= 0.0f)
-            return 0.0f;
-        else
-            return m_auraModifiersGroup[unitMod][TOTAL_PCT] * ((m_auraModifiersGroup[unitMod][NONSTACKING_PCT] + m_auraModifiersGroup[unitMod][NONSTACKING_PCT_MINOR] + 100.0f) / 100.0f);
+        if (m_auraModifiersGroup[unitMod][modifierType] > 0.009f)
+            retvalue = m_auraModifiersGroup[unitMod][TOTAL_PCT] * ((m_auraModifiersGroup[unitMod][NONSTACKING_PCT] + m_auraModifiersGroup[unitMod][NONSTACKING_PCT_MINOR] + 100.0f) / 100.0f);
     }
     else if(modifierType == TOTAL_VALUE)
     {
-        return m_auraModifiersGroup[unitMod][TOTAL_VALUE] + m_auraModifiersGroup[unitMod][NONSTACKING_VALUE_POS] + m_auraModifiersGroup[unitMod][NONSTACKING_VALUE_NEG];
+        retvalue = m_auraModifiersGroup[unitMod][TOTAL_VALUE] + m_auraModifiersGroup[unitMod][NONSTACKING_VALUE_POS] + m_auraModifiersGroup[unitMod][NONSTACKING_VALUE_NEG];
     }
     else
-        return m_auraModifiersGroup[unitMod][modifierType];
+        retvalue = m_auraModifiersGroup[unitMod][modifierType];
+
+    return round_pct(retvalue);
 }
 
 float Unit::GetTotalStatValue(Stats stat) const
