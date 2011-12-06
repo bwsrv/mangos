@@ -1145,7 +1145,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         typedef std::multimap< uint32, SpellAuraHolderPtr> SpellAuraHolderMap;
         typedef std::pair<SpellAuraHolderMap::iterator, SpellAuraHolderMap::iterator> SpellAuraHolderBounds;
         typedef std::pair<SpellAuraHolderMap::const_iterator, SpellAuraHolderMap::const_iterator> SpellAuraHolderConstBounds;
-        typedef std::list<SpellAuraHolderPtr> SpellAuraHolderList;
+        typedef std::set<SpellAuraHolderPtr> SpellAuraHolderSet;
         typedef std::list<Aura *> AuraList;
         typedef std::list<DiminishingReturn> Diminishing;
         typedef std::set<ObjectGuid> ComboPointHolderSet;
@@ -1588,7 +1588,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         void RemoveSingleAuraFromSpellAuraHolder(SpellAuraHolderPtr holder, SpellEffectIndex index, AuraRemoveMode mode = AURA_REMOVE_BY_DEFAULT);
         void RemoveSingleAuraFromSpellAuraHolder(uint32 id, SpellEffectIndex index, ObjectGuid casterGuid, AuraRemoveMode mode = AURA_REMOVE_BY_DEFAULT);
 
-        void AddSpellAuraHolderToRemoveList(SpellAuraHolderPtr holder) { m_deletedHolders.push_back(holder);};
+        void AddSpellAuraHolderToRemoveList(SpellAuraHolderPtr holder);
 
         // removing specific aura stacks by diff reasons and selections
         void RemoveAurasDueToSpell(uint32 spellId, SpellAuraHolderPtr except = SpellAuraHolderPtr(NULL), AuraRemoveMode mode = AURA_REMOVE_BY_DEFAULT);
@@ -2080,7 +2080,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         DeathState m_deathState;
 
         SpellAuraHolderMap m_spellAuraHolders;
-        SpellAuraHolderList m_deletedHolders;
+        SpellAuraHolderSet m_deletedHolders;
 
         SingleCastSpellTargetMap m_singleCastSpellTargets;  // casted by unit single per-caster auras
 
@@ -2130,7 +2130,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         bool m_isSpawningLinked;
 
     private:
-        void CleanupDeletedAuras();
+        void CleanupDeletedHolders(bool force = false);
         void UpdateSplineMovement(uint32 t_diff);
 
         // player or player's pet

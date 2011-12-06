@@ -9898,7 +9898,7 @@ m_permanent(false), m_isRemovedOnShapeLost(true), m_deleted(false), m_in_use(0)
 {
     MANGOS_ASSERT(target);
     MANGOS_ASSERT(spellproto && spellproto == sSpellStore.LookupEntry( spellproto->Id ) && "`info` must be pointer to sSpellStore element");
-    m_aurasStorage.clear();
+    m_aurasStorage.get_allocator().allocate(MAX_EFFECT_INDEX);
 
     if (!caster)
         m_casterGuid = target->GetObjectGuid();
@@ -9965,9 +9965,12 @@ void SpellAuraHolder::AddAura(Aura aura, SpellEffectIndex index)
         DEBUG_LOG("SpellAuraHolder::AddAura attempt to add aura (effect %u) to holder of spell %u, but holder already have active aura!", index, GetId());
         RemoveAura(index);
     }
-    AuraStorage::iterator itr = m_aurasStorage.find(index);
-    if (itr != m_aurasStorage.end())
-        m_aurasStorage.erase(index);
+    if (!m_aurasStorage.empty())
+    {
+        AuraStorage::iterator itr = m_aurasStorage.find(index);
+        if (itr != m_aurasStorage.end())
+            m_aurasStorage.erase(itr);
+    }
 
     m_aurasStorage.insert(std::make_pair(index,aura));
     m_auraFlags |= (1 << index);
@@ -9982,12 +9985,14 @@ void SpellAuraHolder::CleanupsBeforeDelete()
 {
     for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)
         RemoveAura(SpellEffectIndex(i));
-    m_aurasStorage.clear();
+
+    if (!m_aurasStorage.empty())
+        m_aurasStorage.clear();
 }
 
 Aura* SpellAuraHolder::GetAuraByEffectIndex(SpellEffectIndex index)
 {
-    if (m_auraFlags & (1 << index))
+    if (m_auraFlags & (1 << index) && !m_aurasStorage.empty())
     {
         AuraStorage::iterator itr = m_aurasStorage.find(index);
         if (itr != m_aurasStorage.end())
@@ -9998,7 +10003,7 @@ Aura* SpellAuraHolder::GetAuraByEffectIndex(SpellEffectIndex index)
 
 Aura const* SpellAuraHolder::GetAura(SpellEffectIndex index) const
 {
-    if (m_auraFlags & (1 << index))
+    if (m_auraFlags & (1 << index) && !m_aurasStorage.empty())
     {
         AuraStorage::const_iterator itr = m_aurasStorage.find(index);
         if (itr != m_aurasStorage.end())

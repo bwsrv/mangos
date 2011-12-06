@@ -313,7 +313,7 @@ Unit::~Unit()
         }
     }
 
-    CleanupDeletedAuras();
+    CleanupDeletedHolders(true);
 
     delete m_charmInfo;
     delete m_vehicleInfo;
@@ -345,7 +345,7 @@ void Unit::Update( uint32 update_diff, uint32 p_time )
 
     {
         MAPLOCK_WRITE(this,MAP_LOCK_TYPE_AURAS);
-        CleanupDeletedAuras();
+        CleanupDeletedHolders(false);
     }
 
     if (m_lastManaUseTimer)
@@ -3795,11 +3795,8 @@ void Unit::_UpdateSpells( uint32 time )
 
     while(!updateQueue.empty())
     {
-        SpellAuraHolderPtr i_holder = updateQueue.front();
-        if (i_holder && !i_holder->IsDeleted() && !i_holder->IsEmptyHolder())
-        {
-            i_holder->UpdateHolder(time);
-        }
+        if (updateQueue.front() && !updateQueue.front()->IsDeleted() && !updateQueue.front()->IsEmptyHolder())
+            updateQueue.front()->UpdateHolder(time);
         updateQueue.pop();
     }
 
@@ -3815,11 +3812,8 @@ void Unit::_UpdateSpells( uint32 time )
 
     while(!updateQueue.empty())
     {
-        SpellAuraHolderPtr i_holder = updateQueue.front();
-        if (i_holder && !i_holder->IsDeleted())
-        {
-            RemoveSpellAuraHolder(i_holder, AURA_REMOVE_BY_EXPIRE);
-        }
+        if (updateQueue.front() && !updateQueue.front()->IsDeleted())
+            RemoveSpellAuraHolder(updateQueue.front(), AURA_REMOVE_BY_EXPIRE);
         updateQueue.pop();
     }
 
@@ -5034,11 +5028,7 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGuid, U
         {
             foundHolder->SetAuraDuration(new_max_dur);
             foundHolder->SetAuraCharges(foundHolder->GetAuraCharges()+1, true);
-            if (new_holder->IsInUse())
-            {
-                new_holder->SetDeleted();
-                m_deletedHolders.push_back(new_holder);
-            }
+            AddSpellAuraHolderToRemoveList(new_holder);
             return;
         }
         else
@@ -5129,8 +5119,7 @@ void Unit::RemoveAurasDueToItemSpell(Item* castItem,uint32 spellId)
     SpellAuraHolderBounds bounds = GetSpellAuraHolderBounds(spellId);
     for (SpellAuraHolderMap::iterator iter = bounds.first; iter != bounds.second; )
     {
-        SpellAuraHolderPtr holder = iter->second;
-        if (holder && holder->GetCastItemGuid() == castItem->GetObjectGuid())
+        if (iter->second && iter->second->GetCastItemGuid() == castItem->GetObjectGuid())
         {
             RemoveSpellAuraHolder(iter->second);
             bounds = GetSpellAuraHolderBounds(spellId);
@@ -5149,11 +5138,10 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flags)
         SpellAuraHolderMap const& holdersMap = GetSpellAuraHolderMap();
         for (SpellAuraHolderMap::const_iterator iter = holdersMap.begin(); iter != holdersMap.end(); ++iter)
         {
-            SpellAuraHolderPtr holder = iter->second;
-            if (!holder || holder->IsDeleted() || !holder->GetSpellProto())
+            if (!iter->second || iter->second->IsDeleted() || !iter->second->GetSpellProto())
                 continue;
 
-            if (holder->GetSpellProto()->AuraInterruptFlags & flags)
+            if (iter->second->GetSpellProto()->AuraInterruptFlags & flags)
                 spellsToRemove.insert(iter->first);
         }
     }
@@ -5169,10 +5157,9 @@ void Unit::RemoveAurasWithAttribute(uint32 flags)
 {
     for (SpellAuraHolderMap::iterator iter = m_spellAuraHolders.begin(); iter != m_spellAuraHolders.end(); )
     {
-        SpellAuraHolderPtr holder = iter->second;
-        if (holder && holder->GetSpellProto()->Attributes & flags)
+        if (iter->second && iter->second->GetSpellProto()->Attributes & flags)
         {
-            RemoveSpellAuraHolder(holder);
+            RemoveSpellAuraHolder(iter->second);
             iter = m_spellAuraHolders.begin();
         }
         else
@@ -5300,10 +5287,7 @@ void Unit::RemoveSpellAuraHolder(SpellAuraHolderPtr holder, AuraRemoveMode mode)
     // If holder in use (removed from code that plan access to it data after return)
     // store it in holder list with delayed deletion
     if (holder && !holder->IsDeleted())
-    {
-        holder->SetDeleted();
-        m_deletedHolders.push_back(holder);
-    }
+        AddSpellAuraHolderToRemoveList(holder);
 
     if (mode != AURA_REMOVE_BY_EXPIRE && IsChanneledSpell(AurSpellInfo) && !IsAreaOfEffectSpell(AurSpellInfo) &&
         caster && caster->GetObjectGuid() != GetObjectGuid())
@@ -10571,7 +10555,10 @@ void Unit::RemoveFromWorld()
         UnsummonAllTotems();
         RemoveAllGameObjects();
         RemoveAllDynObjects();
-//        CleanupDeletedAuras();
+        {
+            MAPLOCK_WRITE(this,MAP_LOCK_TYPE_AURAS);
+            CleanupDeletedHolders(true);
+        }
         GetViewPoint().Event_RemovedFromWorld();
     }
 
@@ -12531,18 +12518,42 @@ bool Unit::IsIgnoreUnitState(SpellEntry const *spell, IgnoreUnitState ignoreStat
     return false;
 }
 
-void Unit::CleanupDeletedAuras()
+void Unit::CleanupDeletedHolders(bool force)
 {
-    for (SpellAuraHolderList::const_iterator iter = m_deletedHolders.begin(); iter != m_deletedHolders.end(); ++iter)
+    if (m_deletedHolders.empty())
+        return;
+
+    for (SpellAuraHolderSet::const_iterator iter = m_deletedHolders.begin(); iter != m_deletedHolders.end(); ++iter)
     {
-        SpellAuraHolderPtr holder = *iter;
-        if (holder)
+        if (*iter)
+            (*iter)->CleanupsBeforeDelete();
+    }
+
+    if (force)
+        m_deletedHolders.clear();
+    else if (!m_deletedHolders.empty())
+    {
+        for (SpellAuraHolderSet::iterator iter = m_deletedHolders.begin(); iter != m_deletedHolders.end();)
         {
-            holder->CleanupsBeforeDelete();
+            if (!(*iter)->IsInUse())
+            {
+                m_deletedHolders.erase(*iter++);
+            }
+            else
+                ++iter;
         }
     }
-    m_deletedHolders.clear();
 }
+
+void Unit::AddSpellAuraHolderToRemoveList(SpellAuraHolderPtr holder)
+{
+    if (!holder || holder->IsDeleted())
+        return;
+
+    MAPLOCK_READ(this, MAP_LOCK_TYPE_AURAS);
+    holder->SetDeleted();
+    m_deletedHolders.insert(holder);
+};
 
 bool Unit::CheckAndIncreaseCastCounter()
 {
