@@ -80,7 +80,10 @@ class PrioritizeHealthUnitWraper
 public:
     explicit PrioritizeHealthUnitWraper(Unit* unit) : i_unit(unit)
     {
-        i_percent = unit->GetHealth() * 100 / unit->GetMaxHealth();
+        if (!unit || unit->GetMaxHealth() == 0)
+            i_percent = 100;
+        else
+            i_percent = unit->GetHealth() * 100 / unit->GetMaxHealth();
     }
     Unit* getUnit() const { return i_unit; }
     uint32 getPercent() const { return i_percent; }
@@ -1440,16 +1443,10 @@ void Spell::DoSpellHitOnUnit(Unit *unit, uint32 effectMask)
         }
         else
         {
-            if (!m_spellAuraHolder || m_spellAuraHolder->IsDeleted())
-                return;
-
             m_spellAuraHolder->SetInUse(false);
 
-            if (m_spellAuraHolder->IsInUse())
-            {
-                m_spellAuraHolder->SetDeleted();
+            if (!m_spellAuraHolder->IsDeleted())
                 unit->AddSpellAuraHolderToRemoveList(m_spellAuraHolder);
-            }
         }
     }
 }

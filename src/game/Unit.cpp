@@ -313,7 +313,7 @@ Unit::~Unit()
         }
     }
 
-    CleanupDeletedAuras();
+    CleanupDeletedHolders(true);
 
     delete m_charmInfo;
     delete m_vehicleInfo;
@@ -345,7 +345,7 @@ void Unit::Update( uint32 update_diff, uint32 p_time )
 
     {
         MAPLOCK_WRITE(this,MAP_LOCK_TYPE_AURAS);
-        CleanupDeletedAuras();
+        CleanupDeletedHolders(false);
     }
 
     if (m_lastManaUseTimer)
@@ -3809,11 +3809,8 @@ void Unit::_UpdateSpells( uint32 time )
 
     while(!updateQueue.empty())
     {
-        SpellAuraHolderPtr i_holder = updateQueue.front();
-        if (i_holder && !i_holder->IsDeleted() && !i_holder->IsEmptyHolder())
-        {
-            i_holder->UpdateHolder(time);
-        }
+        if (updateQueue.front() && !updateQueue.front()->IsDeleted() && !updateQueue.front()->IsEmptyHolder())
+            updateQueue.front()->UpdateHolder(time);
         updateQueue.pop();
     }
 
@@ -3829,11 +3826,8 @@ void Unit::_UpdateSpells( uint32 time )
 
     while(!updateQueue.empty())
     {
-        SpellAuraHolderPtr i_holder = updateQueue.front();
-        if (i_holder && !i_holder->IsDeleted())
-        {
-            RemoveSpellAuraHolder(i_holder, AURA_REMOVE_BY_EXPIRE);
-        }
+        if (updateQueue.front() && !updateQueue.front()->IsDeleted())
+            RemoveSpellAuraHolder(updateQueue.front(), AURA_REMOVE_BY_EXPIRE);
         updateQueue.pop();
     }
 
@@ -4391,14 +4385,15 @@ float Unit::GetTotalAuraMultiplierByMiscValueForMask(AuraType auratype, uint32 m
     return multiplier * ((nonStackingPos + 100.0f) / 100.0f) * ((nonStackingNeg + 100.0f) / 100.0f);
 }
 
-float Unit::CheckAuraStackingAndApply(Aura *Aur, UnitMods unitMod, UnitModifierType modifierType, float amount, bool apply, int32 miscMask, int32 miscValue)
+float Unit::CheckAuraStackingAndApply(Aura* aura, UnitMods unitMod, UnitModifierType modifierType, float amount, bool apply, int32 miscMask, int32 miscValue)
 {
-    if (!Aur)
+    // not apply values below 1% (rounding errors?)
+    if (!aura || fabs(amount) < 0.009f)
         return 0.0f;
 
-    SpellEntry const *spellProto = Aur->GetSpellProto();
+    SpellEntry const *spellProto = aura->GetSpellProto();
 
-    if (!Aur->IsStacking())
+    if (!aura->IsStacking())
     {
         bool bIsPositive = amount >= 0.0f;
 
@@ -4413,16 +4408,16 @@ float Unit::CheckAuraStackingAndApply(Aura *Aur, UnitMods unitMod, UnitModifierT
 
         // special case: minor and major categories for armor reduction debuffs
         // TODO: find some better way of dividing to categories
-        if (Aur->GetModifier()->m_auraname == SPELL_AURA_MOD_RESISTANCE_PCT &&
-            (Aur->GetId() == 770 ||                                              // Faerie Fire
+        if (aura->GetModifier()->m_auraname == SPELL_AURA_MOD_RESISTANCE_PCT &&
+            (aura->GetId() == 770 ||                                              // Faerie Fire
             spellProto->IsFitToFamily<SPELLFAMILY_HUNTER, CF_HUNTER_PET_SPELLS>() ||            // Sting (Hunter Pet)
             spellProto->IsFitToFamily<SPELLFAMILY_WARLOCK, CF_WARLOCK_CURSE_OF_WEAKNESS>()))    // Curse of Weakness
         {
             modifierType = NONSTACKING_PCT_MINOR;
         }
 
-        if (bIsPositive && amount <= current ||               // value does not change as a result of applying/removing this aura
-            !bIsPositive && amount >= current)
+        if (bIsPositive && amount < current ||               // value does not change as a result of applying/removing this aura
+            !bIsPositive && amount > current)
         {
             return 0.0f;
         }
@@ -4432,27 +4427,30 @@ float Unit::CheckAuraStackingAndApply(Aura *Aur, UnitMods unitMod, UnitModifierT
             if (miscMask)
             {
                 if (bIsPositive)
-                    amount = (float)GetMaxPositiveAuraModifierByMiscMask(Aur->GetModifier()->m_auraname, miscMask, true);
+                    amount = (float)GetMaxPositiveAuraModifierByMiscMask(aura->GetModifier()->m_auraname, miscMask, true);
                 else
-                    amount = (float)GetMaxNegativeAuraModifierByMiscMask(Aur->GetModifier()->m_auraname, miscMask, true);
+                    amount = (float)GetMaxNegativeAuraModifierByMiscMask(aura->GetModifier()->m_auraname, miscMask, true);
             }
             else if(miscValue)
             {
                 if (bIsPositive)
-                    amount = (float)GetMaxPositiveAuraModifierByMiscValue(Aur->GetModifier()->m_auraname, miscValue-1, true);
+                    amount = (float)GetMaxPositiveAuraModifierByMiscValue(aura->GetModifier()->m_auraname, miscValue-1, true);
                 else
-                    amount = (float)GetMaxNegativeAuraModifierByMiscValue(Aur->GetModifier()->m_auraname, miscValue-1, true);
+                    amount = (float)GetMaxNegativeAuraModifierByMiscValue(aura->GetModifier()->m_auraname, miscValue-1, true);
             }
             else
             {
                 if (bIsPositive)
-                    amount = (float)GetMaxPositiveAuraModifier(Aur->GetModifier()->m_auraname, true);
+                    amount = (float)GetMaxPositiveAuraModifier(aura->GetModifier()->m_auraname, true);
                 else
-                    amount = (float)GetMaxNegativeAuraModifier(Aur->GetModifier()->m_auraname, true);
+                    amount = (float)GetMaxNegativeAuraModifier(aura->GetModifier()->m_auraname, true);
             }
         }
-        if (amount != 0.0f)
-            HandleStatModifier(unitMod, modifierType, amount, apply);
+        // not apply values below 1% (rounding errors?)
+        if (fabs(amount) < 0.009f)
+            amount = 0.0f;
+
+        HandleStatModifier(unitMod, modifierType, amount, apply);
 
         if (modifierType == NONSTACKING_VALUE_POS || modifierType == NONSTACKING_VALUE_NEG)
             amount -= current;
@@ -5044,11 +5042,7 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGuid, U
         {
             foundHolder->SetAuraDuration(new_max_dur);
             foundHolder->SetAuraCharges(foundHolder->GetAuraCharges()+1, true);
-            if (new_holder->IsInUse())
-            {
-                new_holder->SetDeleted();
-                m_deletedHolders.push_back(new_holder);
-            }
+            AddSpellAuraHolderToRemoveList(new_holder);
             return;
         }
         else
@@ -5139,8 +5133,7 @@ void Unit::RemoveAurasDueToItemSpell(Item* castItem,uint32 spellId)
     SpellAuraHolderBounds bounds = GetSpellAuraHolderBounds(spellId);
     for (SpellAuraHolderMap::iterator iter = bounds.first; iter != bounds.second; )
     {
-        SpellAuraHolderPtr holder = iter->second;
-        if (holder && holder->GetCastItemGuid() == castItem->GetObjectGuid())
+        if (iter->second && iter->second->GetCastItemGuid() == castItem->GetObjectGuid())
         {
             RemoveSpellAuraHolder(iter->second);
             bounds = GetSpellAuraHolderBounds(spellId);
@@ -5159,11 +5152,10 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flags)
         SpellAuraHolderMap const& holdersMap = GetSpellAuraHolderMap();
         for (SpellAuraHolderMap::const_iterator iter = holdersMap.begin(); iter != holdersMap.end(); ++iter)
         {
-            SpellAuraHolderPtr holder = iter->second;
-            if (!holder || holder->IsDeleted() || !holder->GetSpellProto())
+            if (!iter->second || iter->second->IsDeleted() || !iter->second->GetSpellProto())
                 continue;
 
-            if (holder->GetSpellProto()->AuraInterruptFlags & flags)
+            if (iter->second->GetSpellProto()->AuraInterruptFlags & flags)
                 spellsToRemove.insert(iter->first);
         }
     }
@@ -5179,10 +5171,9 @@ void Unit::RemoveAurasWithAttribute(uint32 flags)
 {
     for (SpellAuraHolderMap::iterator iter = m_spellAuraHolders.begin(); iter != m_spellAuraHolders.end(); )
     {
-        SpellAuraHolderPtr holder = iter->second;
-        if (holder && holder->GetSpellProto()->Attributes & flags)
+        if (iter->second && iter->second->GetSpellProto()->Attributes & flags)
         {
-            RemoveSpellAuraHolder(holder);
+            RemoveSpellAuraHolder(iter->second);
             iter = m_spellAuraHolders.begin();
         }
         else
@@ -5310,10 +5301,7 @@ void Unit::RemoveSpellAuraHolder(SpellAuraHolderPtr holder, AuraRemoveMode mode)
     // If holder in use (removed from code that plan access to it data after return)
     // store it in holder list with delayed deletion
     if (holder && !holder->IsDeleted())
-    {
-        holder->SetDeleted();
-        m_deletedHolders.push_back(holder);
-    }
+        AddSpellAuraHolderToRemoveList(holder);
 
     if (mode != AURA_REMOVE_BY_EXPIRE && IsChanneledSpell(AurSpellInfo) && !IsAreaOfEffectSpell(AurSpellInfo) &&
         caster && caster->GetObjectGuid() != GetObjectGuid())
@@ -10274,25 +10262,25 @@ bool Unit::HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, f
 
 float Unit::GetModifierValue(UnitMods unitMod, UnitModifierType modifierType) const
 {
+    double retvalue = 0.0f;
+
     if ( unitMod >= UNIT_MOD_END || modifierType >= MODIFIER_TYPE_END)
     {
-        sLog.outError("attempt to access nonexistent modifier value from UnitMods!");
-        return 0.0f;
+        sLog.outError("Unit::GetModifierValue attempt to access nonexistent modifier value (type %u) from UnitMods!", modifierType);
     }
-
-    if(modifierType == TOTAL_PCT)
+    else if (modifierType == TOTAL_PCT)
     {
-        if(m_auraModifiersGroup[unitMod][modifierType] <= 0.0f)
-            return 0.0f;
-        else
-            return m_auraModifiersGroup[unitMod][TOTAL_PCT] * ((m_auraModifiersGroup[unitMod][NONSTACKING_PCT] + m_auraModifiersGroup[unitMod][NONSTACKING_PCT_MINOR] + 100.0f) / 100.0f);
+        if (m_auraModifiersGroup[unitMod][modifierType] > 0.009f)
+            retvalue = m_auraModifiersGroup[unitMod][TOTAL_PCT] * ((m_auraModifiersGroup[unitMod][NONSTACKING_PCT] + m_auraModifiersGroup[unitMod][NONSTACKING_PCT_MINOR] + 100.0f) / 100.0f);
     }
     else if(modifierType == TOTAL_VALUE)
     {
-        return m_auraModifiersGroup[unitMod][TOTAL_VALUE] + m_auraModifiersGroup[unitMod][NONSTACKING_VALUE_POS] + m_auraModifiersGroup[unitMod][NONSTACKING_VALUE_NEG];
+        retvalue = m_auraModifiersGroup[unitMod][TOTAL_VALUE] + m_auraModifiersGroup[unitMod][NONSTACKING_VALUE_POS] + m_auraModifiersGroup[unitMod][NONSTACKING_VALUE_NEG];
     }
     else
-        return m_auraModifiersGroup[unitMod][modifierType];
+        retvalue = m_auraModifiersGroup[unitMod][modifierType];
+
+    return round_pct(retvalue);
 }
 
 float Unit::GetTotalStatValue(Stats stat) const
@@ -10635,7 +10623,10 @@ void Unit::RemoveFromWorld()
         UnsummonAllTotems();
         RemoveAllGameObjects();
         RemoveAllDynObjects();
-//        CleanupDeletedAuras();
+        {
+            MAPLOCK_WRITE(this,MAP_LOCK_TYPE_AURAS);
+            CleanupDeletedHolders(true);
+        }
         GetViewPoint().Event_RemovedFromWorld();
     }
 
@@ -12595,18 +12586,42 @@ bool Unit::IsIgnoreUnitState(SpellEntry const *spell, IgnoreUnitState ignoreStat
     return false;
 }
 
-void Unit::CleanupDeletedAuras()
+void Unit::CleanupDeletedHolders(bool force)
 {
-    for (SpellAuraHolderList::const_iterator iter = m_deletedHolders.begin(); iter != m_deletedHolders.end(); ++iter)
+    if (m_deletedHolders.empty())
+        return;
+
+    for (SpellAuraHolderSet::const_iterator iter = m_deletedHolders.begin(); iter != m_deletedHolders.end(); ++iter)
     {
-        SpellAuraHolderPtr holder = *iter;
-        if (holder)
+        if (*iter)
+            (*iter)->CleanupsBeforeDelete();
+    }
+
+    if (force)
+        m_deletedHolders.clear();
+    else if (!m_deletedHolders.empty())
+    {
+        for (SpellAuraHolderSet::iterator iter = m_deletedHolders.begin(); iter != m_deletedHolders.end();)
         {
-            holder->CleanupsBeforeDelete();
+            if (!(*iter)->IsInUse())
+            {
+                m_deletedHolders.erase(*iter++);
+            }
+            else
+                ++iter;
         }
     }
-    m_deletedHolders.clear();
 }
+
+void Unit::AddSpellAuraHolderToRemoveList(SpellAuraHolderPtr holder)
+{
+    if (!holder || holder->IsDeleted())
+        return;
+
+    MAPLOCK_READ(this, MAP_LOCK_TYPE_AURAS);
+    holder->SetDeleted();
+    m_deletedHolders.insert(holder);
+};
 
 bool Unit::CheckAndIncreaseCastCounter()
 {
