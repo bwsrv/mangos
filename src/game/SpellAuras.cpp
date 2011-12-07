@@ -5743,18 +5743,17 @@ void Aura::HandleAuraModSchoolImmunity(bool apply, bool Real)
         Unit::SpellAuraHolderMap& Auras = target->GetSpellAuraHolderMap();
         for(Unit::SpellAuraHolderMap::iterator iter = Auras.begin(); iter != Auras.end(); ++iter)
         {
-            SpellAuraHolderPtr holder = iter->second;
-            if (!holder || holder->IsDeleted())
+            if (!iter->second || iter->second->IsDeleted())
                 continue;
 
-            SpellEntry const *spell = holder->GetSpellProto();
+            SpellEntry const* spell = iter->second->GetSpellProto();
 
             if((GetSpellSchoolMask(spell) & school_mask)//Check for school mask
                 && !( spell->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY)   //Spells unaffected by invulnerability
-                && !holder->IsPositive()                //Don't remove positive spells
+                && !iter->second->IsPositive()                //Don't remove positive spells
                 && spell->Id != GetId() )               //Don't remove self
             {
-                toRemoveSpellList.insert(holder->GetId());
+                toRemoveSpellList.insert(iter->second->GetId());
             }
         }
         for (std::set<uint32>::iterator i = toRemoveSpellList.begin(); i != toRemoveSpellList.end(); ++i)
