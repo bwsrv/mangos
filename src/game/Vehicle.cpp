@@ -115,7 +115,7 @@ int8 VehicleKit::GetNextEmptySeat(int8 seatId, bool next) const
     }
     else
     {
-        for (SeatMap::const_reverse_iterator seat = m_Seats.rbegin(); seat != m_Seats.rend(); --seat)
+        for (SeatMap::const_reverse_iterator seat = m_Seats.rbegin(); seat != m_Seats.rend(); ++seat)
             if ((seatId < 0 || seat->first <= seatId) && !seat->second.passenger && seat->second.seatInfo->IsUsable())
                 return seat->first;
     }
