@@ -581,7 +581,7 @@ INSERT INTO battleground_events (map, event1, event2, description) VALUES
 (607, 12, 0, 'E base demolishers'),
 (607, 13, 0, 'W base demolishers'),
 (607, 14, 1, 'Titan Relic - A attacking'),
-(607, 14, 2, 'Titan Relic - H attacking'),
+(607, 14, 2, 'Titan Relic - H attacking');
 
 -- Fix Rotation for all Objects in Map
 UPDATE gameobject SET rotation0=0, rotation1=0, rotation2=SIN(orientation*0.5), rotation3=COS(orientation*0.5) WHERE map = 607;
