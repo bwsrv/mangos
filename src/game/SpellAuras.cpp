@@ -9898,7 +9898,7 @@ m_permanent(false), m_isRemovedOnShapeLost(true), m_deleted(false), m_in_use(0)
 {
     MANGOS_ASSERT(target);
     MANGOS_ASSERT(spellproto && spellproto == sSpellStore.LookupEntry( spellproto->Id ) && "`info` must be pointer to sSpellStore element");
-    m_aurasStorage.get_allocator().allocate(MAX_EFFECT_INDEX);
+    m_aurasStorage.clear();
 
     if (!caster)
         m_casterGuid = target->GetObjectGuid();
