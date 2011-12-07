@@ -21,8 +21,10 @@ INSERT INTO achievement_criteria_requirement VALUES
 
 -- Doors
 UPDATE gameobject_template SET faction = 14 WHERE entry IN (192549, 190727, 190726, 190723, 190724, 190722);
--- make Titan Relic clickable (hack, must be done via core, when door to Chamber of Ancient Relics is destroyed)
-UPDATE gameobject_template SET flags=flags&~16 WHERE entry = 192829;
+-- Cleanup for UDB, as ytdb doesnt have flag 16 there..
+-- UPDATE gameobject_template SET flags=flags|16 WHERE entry = 192829;
+UPDATE gameobject_template SET faction = 3 WHERE entry = 194082;
+UPDATE gameobject_template SET faction = 6 WHERE entry = 194083;
 -- make Defender's Portal usable by all factions (rest is handled by script)
 UPDATE gameobject_template SET faction=0 , ScriptName = 'go_sa_def_portal' WHERE entry = 191575;
 
@@ -60,9 +62,10 @@ INSERT INTO npc_spellclick_spells VALUES
 (32795, 60968, 0, 0, 0, 0);
 
 -- Titan Relic & Doors
-DELETE FROM gameobject WHERE guid IN (200001, 200002, 200003, 200004, 200005, 200006, 200007);
+DELETE FROM gameobject WHERE guid IN (200001, 200002, 200003, 200004, 200005, 200006, 200007, 200178);
 INSERT INTO gameobject VALUES
-(200001, 192829, 607, 3, 1, 836.502, -108.811, 111.587, 0.121379, 0, 0, 0.0606524, 0.998159, 5, 0, 1),
+(200001, 194082, 607, 3, 1, 836.502, -108.811, 111.587, 0.121379, 0, 0, 0.0606524, 0.998159, 86400, 0, 1),
+(200178, 194083, 607, 3, 1, 836.502, -108.811, 111.587, 0.121379, 0, 0, 0.0606524, 0.998159, 86400, 0, 1),
 (200002, 190727, 607, 3, 1, 1054.47, -107.76, 82.16, 0.06, 0, 0, 0.008726535, 0.9999619, 600, 0, 1),
 (200003, 190726, 607, 3, 1, 1228.62, -212.12, 55.34, 0.48, 0, 0, 0.008726535, 0.9999619, 600, 0, 1),
 (200004, 190723, 607, 3, 1, 1215.82, 80.64, 53.38, 5.68, 0, 0, 0.008726535, 0.9999619, 600, 0, 1),
@@ -70,15 +73,16 @@ INSERT INTO gameobject VALUES
 (200006, 190722, 607, 3, 1, 1413.15, 107.78, 28.69, 5.42, 0, 0, 0.008726535, 0.9999619, 600, 0, 1),
 (200007, 192549, 607, 3, 1, 873.3, -108.286, 117.171, 0.00894308, 0, 0, 0.00447152, 0.99999, 600, 0, 1);
 
-DELETE FROM gameobject_battleground WHERE guid BETWEEN 200001 AND 200007;
+DELETE FROM gameobject_battleground WHERE guid IN (200001, 200002, 200003, 200004, 200005, 200006, 200007, 200178);
 INSERT INTO gameobject_battleground VALUES
-(200001, 11, 0),
+(200001, 14, 1),
 (200002, 11, 0),
 (200003, 11, 0),
 (200004, 11, 0),
 (200005, 11, 0),
 (200006, 11, 0),
-(200007, 11, 0);
+(200007, 11, 0),
+(200178, 14, 2);
 
 -- Rigger Sparklight
 DELETE FROM creature WHERE guid BETWEEN 200001 AND 200020;
@@ -575,7 +579,9 @@ INSERT INTO battleground_events (map, event1, event2, description) VALUES
 (607, 10, 0, 'Defender cannons'),
 (607, 11, 0, 'Gameobjects'),            -- flagpoles, defender portals, gates, relic
 (607, 12, 0, 'E base demolishers'),
-(607, 13, 0, 'W base demolishers');
+(607, 13, 0, 'W base demolishers'),
+(607, 14, 1, 'Titan Relic - A attacking'),
+(607, 14, 2, 'Titan Relic - H attacking');
 
 -- Fix Rotation for all Objects in Map
 UPDATE gameobject SET rotation0=0, rotation1=0, rotation2=SIN(orientation*0.5), rotation3=COS(orientation*0.5) WHERE map = 607;
