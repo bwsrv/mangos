@@ -18528,10 +18528,8 @@ void Player::_SaveQuestStatus()
 
     static SqlStatementID updateQuestStatus ;
 
-    QuestStatusMap cachedQuestStatus = getQuestStatusMap();
-
     // we don't need transactions here.
-    for( QuestStatusMap::iterator i = cachedQuestStatus.begin( ); i != cachedQuestStatus.end( ); ++i )
+    for( QuestStatusMap::iterator i = mQuestStatus.begin( ); i != mQuestStatus.end( ); ++i )
     {
         switch (i->second.uState)
         {
