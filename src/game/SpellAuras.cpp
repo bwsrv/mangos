@@ -3729,7 +3729,7 @@ void Aura::HandleAuraWaterWalk(bool apply, bool Real)
     if(!Real)
         return;
 
-    // Dont remove flag if player has another water-walk effect
+    // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
     if (!apply && GetTarget()->HasAuraType(SPELL_AURA_WATER_WALK))
         return;
 
@@ -3751,12 +3751,9 @@ void Aura::HandleAuraFeatherFall(bool apply, bool Real)
 
     Unit *target = GetTarget();
 
-    if (!apply)
-    {
-        // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
-        if (target->HasAuraType(SPELL_AURA_FEATHER_FALL))
-            return;
-    }
+    // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
+    if (!apply && target->HasAuraType(SPELL_AURA_FEATHER_FALL))
+        return;
 
     WorldPacket data;
     if (apply)
@@ -3797,12 +3794,9 @@ void Aura::HandleAuraHover(bool apply, bool Real)
     if(!Real)
         return;
 
-    if (!apply)
-    {
-        // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
-        if (GetTarget()->HasAuraType(SPELL_AURA_HOVER))
-            return;
-    }
+    // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
+    if (!apply && GetTarget()->HasAuraType(SPELL_AURA_HOVER))
+        return;
 
     WorldPacket data;
     if (apply)
