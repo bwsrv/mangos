@@ -4485,25 +4485,24 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolderPtr holder)
         // take out same spell
         for (SpellAuraHolderMap::iterator iter = spair.first; iter != spair.second; ++iter)
         {
-            SpellAuraHolderPtr foundHolder = iter->second;
-            if (foundHolder && !foundHolder->IsDeleted() &&
-                foundHolder->GetCasterGuid() == holder->GetCasterGuid() ||
-                foundHolder->GetCasterGuid().IsCreatureOrPet() && holder->GetCasterGuid().IsCreatureOrPet())
+            if (iter->second && !iter->second->IsDeleted() &&
+                iter->second->GetCasterGuid() == holder->GetCasterGuid() ||
+                iter->second->GetCasterGuid().IsCreatureOrPet() && holder->GetCasterGuid().IsCreatureOrPet())
             {
                 // Aura can stack on self -> Stack it;
                 if (aurSpellInfo->StackAmount)
                 {
-                    holderToStackAdd = foundHolder;
+                    holderToStackAdd = iter->second;
                     break;
                 }
 
                 // Check for coexisting Weapon-proced Auras
                 if  (holder->IsWeaponBuffCoexistableWith() &&
-                    foundHolder->GetCastItemGuid() && foundHolder->GetCastItemGuid() != holder->GetCastItemGuid())
+                    iter->second->GetCastItemGuid() && iter->second->GetCastItemGuid() != holder->GetCastItemGuid())
                     continue;
 
                 // Carry over removed Aura's remaining damage if Aura still has ticks remaining
-                if (foundHolder->GetSpellProto()->AttributesEx4 & SPELL_ATTR_EX4_STACK_DOT_MODIFIER)
+                if (iter->second->GetSpellProto()->AttributesEx4 & SPELL_ATTR_EX4_STACK_DOT_MODIFIER)
                 {
                     for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)
                     {
@@ -4514,7 +4513,7 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolderPtr holder)
 
                             if (aurNameReal == SPELL_AURA_PERIODIC_DAMAGE && aur->GetAuraDuration() > 0)
                             {
-                                if (Aura* existing = foundHolder->GetAuraByEffectIndex(SpellEffectIndex(i)))
+                                if (Aura* existing = iter->second->GetAuraByEffectIndex(SpellEffectIndex(i)))
                                 {
                                     int32 remainingTicks = existing->GetAuraMaxTicks() - existing->GetAuraTicks();
                                     int32 remainingDamage = existing->GetModifier()->m_amount * remainingTicks;
@@ -4529,9 +4528,9 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolderPtr holder)
                 }
 
                 // only one holder per caster on same target
-                if (foundHolder->GetCasterGuid() == holder->GetCasterGuid())
+                if (iter->second->GetCasterGuid() == holder->GetCasterGuid())
                 {
-                    holdersToRemove.insert(foundHolder);
+                    holdersToRemove.insert(iter->second);
                     break;
                 }
             }
@@ -4539,7 +4538,7 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolderPtr holder)
             // stacking of holders from different casters
             // some holders stack, but their auras dont (i.e. only strongest aura effect works)
             if (!sSpellMgr.IsStackableSpellAuraHolder(aurSpellInfo))
-                holdersToRemove.insert(foundHolder);
+                holdersToRemove.insert(iter->second);
         }
     }
 
