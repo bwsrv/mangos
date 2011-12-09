@@ -810,11 +810,10 @@ void Aura::AreaAuraUpdate(uint32 diff)
                     Unit::SpellAuraHolderBounds spair = i_target->GetSpellAuraHolderBounds(GetId());
                     for(Unit::SpellAuraHolderMap::const_iterator i = spair.first; i != spair.second; ++i)
                     {
-                        SpellAuraHolderPtr holder = i->second;
-                        if (!holder || holder->IsDeleted())
+                        if (!i->second || i->second->IsDeleted())
                             continue;
 
-                        Aura* aur = holder->GetAuraByEffectIndex(m_effIndex);
+                        Aura* aur = i->second->GetAuraByEffectIndex(m_effIndex);
 
                         if (!aur)
                             continue;
@@ -11478,6 +11477,9 @@ void SpellAuraHolder::HandleSpellSpecificBoostsForward(bool apply)
     Unit* pCaster = GetCaster();
     if (!pCaster)
         pCaster = m_target;
+
+    if (!pCaster)
+        return;
 
     uint32 procFlag = apply ? PROC_FLAG_ON_AURA_APPLY : PROC_FLAG_ON_AURA_FADE;
     uint32 procEx   = 0;
