@@ -6122,6 +6122,15 @@ void Aura::HandleAuraPeriodicDummy(bool apply, bool Real)
                         caster->CastCustomSpell(target, 63278, 0, &(spell->EffectBasePoints[0]), 0, false, 0, 0, caster->GetObjectGuid() , spell);
                     return;
                 }
+                case 64217:                                 // Overcharged (spell from Emalon adds)
+                {
+                    if (GetHolder()->GetStackAmount() > 11)
+                    {
+                        target->CastSpell(target, 64219, true);
+                        target->DealDamage(target, target->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    }
+                    return;
+                }
             }
         }
         case SPELLFAMILY_ROGUE:
