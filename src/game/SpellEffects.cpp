@@ -7861,16 +7861,6 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(m_caster, 50217, true);
                     return;
                 }
-                case 43375:                                 // Mixing Vrykul Blood
-                {
-                    if (!unitTarget)
-                        return;
-
-                    uint32 triggeredSpell[] = {43376, 43378, 43970, 43377};
-
-                    unitTarget->CastSpell(unitTarget, triggeredSpell[urand(0, 3)], true);
-                    return;
-                }
                 case 44364:                                 // Rock Falcon Primer
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
@@ -7881,17 +7871,16 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, m_spellInfo->CalculateSimpleValue(eff_idx), true, NULL, NULL, unitTarget->GetObjectGuid(), m_spellInfo);
                     return;
                 }
-                case 43375:
-                case 43972:                                // Mixing Blood for Quest 11306
+                case 43375:                                 // Mixing Vrykul Blood
+                case 43972:                                 // Mixing Blood for Quest 11306
                 {
-                    switch(urand(0, 3))
-                    {
-                        case 0 : m_caster->CastSpell(m_caster, 43378, true); break;
-                        case 1 : m_caster->CastSpell(m_caster, 43376, true); break;
-                        case 2 : m_caster->CastSpell(m_caster, 43377, true); break;
-                        case 3 : m_caster->CastSpell(m_caster, 43970, true); break;
-                    }
-                    break;
+                    if (!unitTarget)
+                        return;
+
+                    uint32 triggeredSpell[] = {43376, 43378, 43970, 43377};
+
+                    unitTarget->CastSpell(unitTarget, triggeredSpell[urand(0, 3)], true);
+                    return;
                 }
                 case 44436:                                 // Tricky Treat
                 {
