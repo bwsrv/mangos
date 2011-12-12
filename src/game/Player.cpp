@@ -23210,6 +23210,7 @@ void Player::UnsummonPetTemporaryIfAny(bool full)
                 else
                     pet->Unsummon(PET_SAVE_NOT_IN_SLOT, this);
             }
+            DEBUG_LOG("Player::UnsummonPetTemporaryIfAny tempusummon pet %s ",(*itr).GetString().c_str());
         }
     }
 

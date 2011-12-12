@@ -12245,13 +12245,16 @@ void Unit::EnterVehicle(VehicleKit *vehicle, int8 seatId)
     InterruptNonMeleeSpells(false);
     RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
 
+    if (GetTypeId() == TYPEID_PLAYER)
+        ((Player*)this)->UnsummonPetTemporaryIfAny(true);
+    else
+        if (Pet *pet = GetPet())
+            pet->Unsummon(PET_SAVE_AS_CURRENT,this);
+
     if (!vehicle->AddPassenger(this, seatId))
         return;
 
     m_pVehicle = vehicle;
-
-    if (Pet *pet = GetPet())
-        pet->Unsummon(PET_SAVE_AS_CURRENT,this);
 
     if (GetTypeId() == TYPEID_PLAYER)
     {
@@ -12286,15 +12289,14 @@ void Unit::ExitVehicle()
 
     m_pVehicle = NULL;
 
-    if (GetTypeId() == TYPEID_PLAYER)
-        ((Player*)this)->ResummonPetTemporaryUnSummonedIfAny();
-
     float x = GetPositionX();
     float y = GetPositionY();
     float z = GetPositionZ() + 2.0f;
     GetClosePoint(x, y, z, 2.0f);
     UpdateAllowedPositionZ(x, y, z);
     MonsterMoveWithSpeed(x, y, z + 0.5f, 28);
+    if (GetTypeId() == TYPEID_PLAYER)
+        ((Player*)this)->ResummonPetTemporaryUnSummonedIfAny();
 }
 
 void Unit::SetPvP( bool state )

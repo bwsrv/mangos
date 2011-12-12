@@ -9556,9 +9556,6 @@ void Aura::HandleAuraControlVehicle(bool apply, bool Real)
 
     if (apply)
     {
-        if (caster->GetTypeId() == TYPEID_PLAYER)
-            ((Player*)caster)->RemovePet(PET_SAVE_AS_CURRENT);
-
         // TODO: find a way to make this work properly
         // some spells seem like store vehicle seat info in basepoints, but not true for all of them, so... ;/
         int32 seat = -1;
@@ -9588,9 +9585,6 @@ void Aura::HandleAuraControlVehicle(bool apply, bool Real)
 
         if (caster->GetVehicle() == target->GetVehicleKit())
             caster->ExitVehicle();
-
-        if (caster->GetTypeId() == TYPEID_PLAYER)
-            ((Player*)caster)->ResummonPetTemporaryUnSummonedIfAny();
     }
 }
 
