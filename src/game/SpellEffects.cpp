@@ -9004,6 +9004,17 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(unitTarget, (m_spellInfo->Id == 62707) ? 62717 : 63477, true); // DoT/Immunity
                     break;
                 }
+                case 63027:                                 // Proximity Mines for Mimiron Encounter
+                {
+                    if (!unitTarget)
+                        return;
+
+                    for(uint8 i = 0; i < urand(8, 10); ++i)
+                    {
+                        unitTarget->CastSpell(unitTarget, 65347, true);
+                    }
+                    break;
+                }
                 case 63795:                                 // Psychosis normal (Ulduar - Yogg Saron)
                 case 65301:                                 // Psychosis heroic (Ulduar - Yogg Saron)
                 case 64164:                                 // Lunatic Gaze spell from Yogg Saron
