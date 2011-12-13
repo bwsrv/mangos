@@ -2063,7 +2063,7 @@ void Player::RegenerateAll(uint32 diff)
 {
     // Not in combat or they have regeneration
     if (!isInCombat() || HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT) ||
-        HasAuraType(SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT) || IsPolymorphed() )
+        HasAuraType(SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT) || IsPolymorphed() || m_baseHealthRegen )
     {
         RegenerateHealth(diff);
         if (!isInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
@@ -4192,7 +4192,7 @@ bool Player::HasActiveSpell(uint32 spell) const
         itr->second.active && !itr->second.disabled);
 }
 
-TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell) const
+TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell, uint32 reqLevel) const
 {
     if (!trainer_spell)
         return TRAINER_SPELL_RED;
@@ -4212,7 +4212,7 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
 
     // check level requirement
     if (!prof || GetSession()->GetSecurity() < AccountTypes(sWorld.getConfig(CONFIG_UINT32_TRADE_SKILL_GMIGNORE_LEVEL)))
-        if (getLevel() < trainer_spell->reqLevel)
+        if (getLevel() < reqLevel)
             return TRAINER_SPELL_RED;
 
     if (SpellChainNode const* spell_chain = sSpellMgr.GetSpellChainNode(trainer_spell->learnedSpell))
@@ -13433,6 +13433,10 @@ void Player::ApplyEnchantment(Item *item, EnchantmentSlot slot, bool apply, bool
                             ((Player*)this)->ApplySpellPowerBonus(enchant_amount, apply);
                             DEBUG_LOG("+ %u SPELL_POWER", enchant_amount);
                             break;
+                        case ITEM_MOD_HEALTH_REGEN:
+                            ((Player*)this)->ApplyHealthRegenBonus(enchant_amount, apply);
+                            DEBUG_LOG("+ %u HEALTH_REGENERATION", enchant_amount);
+                            break;
                         case ITEM_MOD_BLOCK_VALUE:
                             HandleBaseModValue(SHIELD_BLOCK_VALUE, FLAT_MOD, float(enchant_amount), apply);
                             break;
@@ -18543,10 +18547,8 @@ void Player::_SaveQuestStatus()
 
     static SqlStatementID updateQuestStatus ;
 
-    QuestStatusMap cachedQuestStatus = getQuestStatusMap();
-
     // we don't need transactions here.
-    for( QuestStatusMap::iterator i = cachedQuestStatus.begin( ); i != cachedQuestStatus.end( ); ++i )
+    for( QuestStatusMap::iterator i = mQuestStatus.begin( ); i != mQuestStatus.end( ); ++i )
     {
         switch (i->second.uState)
         {
@@ -18566,9 +18568,6 @@ void Player::_SaveQuestStatus()
                     for (int k = 0; k < QUEST_ITEM_OBJECTIVES_COUNT; ++k)
                         stmt.addUInt32(i->second.m_itemcount[k]);
                     stmt.Execute();
-                    QuestStatusMap::iterator itr = mQuestStatus.find(i->first);
-                    if (itr != mQuestStatus.end())
-                        itr->second.uState = QUEST_UNCHANGED;
                 }
                 break;
             case QUEST_CHANGED :
@@ -18587,15 +18586,12 @@ void Player::_SaveQuestStatus()
                     stmt.addUInt32(GetGUIDLow());
                     stmt.addUInt32(i->first);
                     stmt.Execute();
-                    QuestStatusMap::iterator itr = mQuestStatus.find(i->first);
-                    if (itr != mQuestStatus.end())
-                        itr->second.uState = QUEST_UNCHANGED;
                 }
                 break;
             case QUEST_UNCHANGED:
-            default:
                 break;
         };
+        i->second.uState = QUEST_UNCHANGED;
     }
 }
 
@@ -21776,11 +21772,9 @@ void Player::RemoveItemDependentAurasAndCasts( Item * pItem )
     SpellAuraHolderMap& auras = GetSpellAuraHolderMap();
     for(SpellAuraHolderMap::const_iterator itr = auras.begin(); itr != auras.end(); )
     {
-        SpellAuraHolderPtr holder = itr->second;
-
         // skip passive (passive item dependent spells work in another way) and not self applied auras
-        SpellEntry const* spellInfo = holder->GetSpellProto();
-        if (holder->IsPassive() ||  holder->GetCasterGuid() != GetObjectGuid())
+        SpellEntry const* spellInfo = itr->second->GetSpellProto();
+        if (itr->second->IsPassive() ||  itr->second->GetCasterGuid() != GetObjectGuid())
         {
             ++itr;
             continue;
@@ -21789,7 +21783,7 @@ void Player::RemoveItemDependentAurasAndCasts( Item * pItem )
         // Remove spells triggered by equipped item auras
         if (pItem->HasTriggeredByAuraSpell(spellInfo))
         {
-            RemoveAurasDueToSpell(holder->GetId());
+            RemoveAurasDueToSpell(itr->second->GetId());
             itr = auras.begin();
             continue;
         }
@@ -21802,7 +21796,7 @@ void Player::RemoveItemDependentAurasAndCasts( Item * pItem )
         }
 
         // no alt item, remove aura, restart check
-        RemoveAurasDueToSpell(holder->GetId());
+        RemoveAurasDueToSpell(itr->second->GetId());
         itr = auras.begin();
     }
 
@@ -22927,6 +22921,7 @@ void Player::HandleFall(MovementInfo const& movementInfo)
             DEBUG_LOG("FALLDAMAGE z=%f sz=%f pZ=%f FallTime=%d mZ=%f damage=%d SF=%d" , movementInfo.GetPos()->z, height, GetPositionZ(), movementInfo.GetFallTime(), height, damage, safe_fall);
         }
     }
+    RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LANDING);     // Remove auras that should be removed at landing
 }
 
 void Player::UpdateAchievementCriteria( AchievementCriteriaTypes type, uint32 miscvalue1/*=0*/, uint32 miscvalue2/*=0*/, Unit *unit/*=NULL*/, uint32 time/*=0*/ )
@@ -23234,6 +23229,7 @@ void Player::UnsummonPetTemporaryIfAny(bool full)
                 else
                     pet->Unsummon(PET_SAVE_NOT_IN_SLOT, this);
             }
+            DEBUG_LOG("Player::UnsummonPetTemporaryIfAny tempusummon pet %s ",(*itr).GetString().c_str());
         }
     }
 

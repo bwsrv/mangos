@@ -814,11 +814,10 @@ void Aura::AreaAuraUpdate(uint32 diff)
                     Unit::SpellAuraHolderBounds spair = i_target->GetSpellAuraHolderBounds(GetId());
                     for(Unit::SpellAuraHolderMap::const_iterator i = spair.first; i != spair.second; ++i)
                     {
-                        SpellAuraHolderPtr holder = i->second;
-                        if (!holder || holder->IsDeleted())
+                        if (!i->second || i->second->IsDeleted())
                             continue;
 
-                        Aura* aur = holder->GetAuraByEffectIndex(m_effIndex);
+                        Aura* aur = i->second->GetAuraByEffectIndex(m_effIndex);
 
                         if (!aur)
                             continue;
@@ -3780,6 +3779,10 @@ void Aura::HandleAuraWaterWalk(bool apply, bool Real)
     if(!Real)
         return;
 
+    // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
+    if (!apply && GetTarget()->HasAuraType(SPELL_AURA_WATER_WALK))
+        return;
+
     WorldPacket data;
     if (apply)
         data.Initialize(SMSG_MOVE_WATER_WALK, 8+4);
@@ -3795,7 +3798,13 @@ void Aura::HandleAuraFeatherFall(bool apply, bool Real)
     // only at real add/remove aura
     if(!Real)
         return;
+
     Unit *target = GetTarget();
+
+    // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
+    if (!apply && target->HasAuraType(SPELL_AURA_FEATHER_FALL))
+        return;
+
     WorldPacket data;
     if (apply)
         data.Initialize(SMSG_MOVE_FEATHER_FALL, 8+4);
@@ -3833,6 +3842,10 @@ void Aura::HandleAuraHover(bool apply, bool Real)
 {
     // only at real add/remove aura
     if(!Real)
+        return;
+
+    // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
+    if (!apply && GetTarget()->HasAuraType(SPELL_AURA_HOVER))
         return;
 
     WorldPacket data;
@@ -5799,18 +5812,17 @@ void Aura::HandleAuraModSchoolImmunity(bool apply, bool Real)
         Unit::SpellAuraHolderMap& Auras = target->GetSpellAuraHolderMap();
         for(Unit::SpellAuraHolderMap::iterator iter = Auras.begin(); iter != Auras.end(); ++iter)
         {
-            SpellAuraHolderPtr holder = iter->second;
-            if (!holder || holder->IsDeleted())
+            if (!iter->second || iter->second->IsDeleted())
                 continue;
 
-            SpellEntry const *spell = holder->GetSpellProto();
+            SpellEntry const* spell = iter->second->GetSpellProto();
 
             if((GetSpellSchoolMask(spell) & school_mask)//Check for school mask
                 && !( spell->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY)   //Spells unaffected by invulnerability
-                && !holder->IsPositive()                //Don't remove positive spells
+                && !iter->second->IsPositive()                //Don't remove positive spells
                 && spell->Id != GetId() )               //Don't remove self
             {
-                toRemoveSpellList.insert(holder->GetId());
+                toRemoveSpellList.insert(iter->second->GetId());
             }
         }
         for (std::set<uint32>::iterator i = toRemoveSpellList.begin(); i != toRemoveSpellList.end(); ++i)
@@ -6110,10 +6122,13 @@ void Aura::HandleAuraPeriodicDummy(bool apply, bool Real)
                     {
                         if (target)
                         {
-                            target->CastSpell(target, 49618, true);
-                            target->CastSpell(target, 51270, true);
-                            target->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);
-                            target->SetDeathState(JUST_DIED);
+                            if (Unit *caster = GetCaster())
+                            {
+                                target->CastSpell(target, 49618, true, 0, 0, caster->GetObjectGuid());
+                                target->CastSpell(target, 51270, true);
+                                target->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);
+                                target->SetDeathState(JUST_DIED);
+                            }
                         }
                     }
                     break;
@@ -6122,10 +6137,13 @@ void Aura::HandleAuraPeriodicDummy(bool apply, bool Real)
                     {
                         if (target)
                         {
-                            target->CastSpell(target, 59809, true);
-                            target->CastSpell(target, 51270, true);
-                            target->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);
-                            target->SetDeathState(JUST_DIED);
+                            if (Unit *caster = GetCaster())
+                            {
+                                target->CastSpell(target, 59809, true, 0, 0, caster->GetObjectGuid());
+                                target->CastSpell(target, 51270, true);
+                                target->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);
+                                target->SetDeathState(JUST_DIED);
+                            }
                         }
                     }
                     break;
@@ -6196,6 +6214,15 @@ void Aura::HandleAuraPeriodicDummy(bool apply, bool Real)
 
                     if (caster && target)
                         caster->CastCustomSpell(target, 63278, 0, &(spell->EffectBasePoints[0]), 0, false, 0, 0, caster->GetObjectGuid() , spell);
+                    return;
+                }
+                case 64217:                                 // Overcharged (spell from Emalon adds)
+                {
+                    if (GetHolder()->GetStackAmount() > 11)
+                    {
+                        target->CastSpell(target, 64219, true);
+                        target->DealDamage(target, target->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    }
                     return;
                 }
                 case 68721:                             // Rocket Pack (Icecrown Citadel, Gunship Battle)
@@ -9709,9 +9736,6 @@ void Aura::HandleAuraControlVehicle(bool apply, bool Real)
 
     if (apply)
     {
-        if (caster->GetTypeId() == TYPEID_PLAYER)
-            ((Player*)caster)->RemovePet(PET_SAVE_AS_CURRENT);
-
         // TODO: find a way to make this work properly
         // some spells seem like store vehicle seat info in basepoints, but not true for all of them, so... ;/
         int32 seat = -1;
@@ -9741,9 +9765,6 @@ void Aura::HandleAuraControlVehicle(bool apply, bool Real)
 
         if (caster->GetVehicle() == target->GetVehicleKit())
             caster->ExitVehicle();
-
-        if (caster->GetTypeId() == TYPEID_PLAYER)
-            ((Player*)caster)->ResummonPetTemporaryUnSummonedIfAny();
     }
 }
 
@@ -11630,6 +11651,9 @@ void SpellAuraHolder::HandleSpellSpecificBoostsForward(bool apply)
     Unit* pCaster = GetCaster();
     if (!pCaster)
         pCaster = m_target;
+
+    if (!pCaster)
+        return;
 
     uint32 procFlag = apply ? PROC_FLAG_ON_AURA_APPLY : PROC_FLAG_ON_AURA_FADE;
     uint32 procEx   = 0;

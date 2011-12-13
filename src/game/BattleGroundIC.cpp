@@ -849,11 +849,8 @@ void BattleGroundIC::HandleBuffs()
             }
             // parachute handling
             float height = plr->GetPositionZ();
-            if(!plr->m_movementInfo.HasMovementFlag(MovementFlags(MOVEFLAG_FALLING)) && height >= 180)
+            if (height >= 180)
                 continue;
-
-            if (!plr->m_movementInfo.HasMovementFlag(MovementFlags(MOVEFLAG_FALLING)) && plr->HasAura(SPELL_PARACHUTE))
-                plr->RemoveAurasDueToSpell(SPELL_PARACHUTE);
 
             if (height < 180 && height > 140 && (!plr->HasAura(SPELL_PARACHUTE)))
                 plr->CastSpell(plr, SPELL_PARACHUTE, true);

@@ -161,8 +161,6 @@ bool VehicleKit::AddPassenger(Unit *passenger, int8 seatId)
 
     if (passenger->GetTypeId() == TYPEID_PLAYER)
     {
-        ((Player*)passenger)->UnsummonPetTemporaryIfAny();
-
         ((Player*)passenger)->GetCamera().SetView(m_pBase);
 
         WorldPacket data(SMSG_FORCE_MOVE_ROOT, 8+4);
@@ -329,8 +327,6 @@ void VehicleKit::RemovePassenger(Unit *passenger)
         data << passenger->GetPackGUID();
         data << uint32(2);
         passenger->SendMessageToSet(&data, true);
-
-        ((Player*)passenger)->ResummonPetTemporaryUnSummonedIfAny();
     }
     passenger->UpdateAllowedPositionZ(px, py, pz);
     passenger->SetPosition(px, py, pz + 0.5f, po);

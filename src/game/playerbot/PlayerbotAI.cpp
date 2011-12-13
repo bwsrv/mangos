@@ -6480,7 +6480,7 @@ void PlayerbotAI::HandleCommand(const std::string& text, Player& fromPlayer)
                     if  (sSpellMgr.IsPrimaryProfessionFirstRankSpell(tSpell->learnedSpell) && m_bot->HasSpell(tSpell->learnedSpell))
                         continue;
 
-                    TrainerSpellState state =  m_bot->GetTrainerSpellState(tSpell);
+                    TrainerSpellState state =  m_bot->GetTrainerSpellState(tSpell, m_bot->getLevel());
                     if (state != TRAINER_SPELL_GREEN)
                         continue;
 
