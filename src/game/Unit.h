@@ -1408,10 +1408,12 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 
         SpellAuraHolderBounds GetSpellAuraHolderBounds(uint32 spell_id)
         {
+            MAPLOCK_READ(this,MAP_LOCK_TYPE_AURAS);
             return m_spellAuraHolders.equal_range(spell_id);
         }
         SpellAuraHolderConstBounds GetSpellAuraHolderBounds(uint32 spell_id) const
         {
+            MAPLOCK_READ(const_cast<Unit*>(this),MAP_LOCK_TYPE_AURAS);
             return m_spellAuraHolders.equal_range(spell_id);
         }
 
@@ -1421,6 +1423,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         bool HasAura(uint32 spellId, SpellEffectIndex effIndex) const;
         bool HasAura(uint32 spellId) const
         {
+            MAPLOCK_READ(const_cast<Unit*>(this),MAP_LOCK_TYPE_AURAS);
             return m_spellAuraHolders.find(spellId) != m_spellAuraHolders.end();
         }
         bool HasAuraOfDifficulty(uint32 spellId) const;
@@ -1464,6 +1467,8 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         void SendSpellNonMeleeDamageLog(Unit *target,uint32 SpellID, uint32 Damage, SpellSchoolMask damageSchoolMask, uint32 AbsorbedDamage, uint32 Resist, bool PhysicalDamage, uint32 Blocked, bool CriticalHit = false);
         void SendPeriodicAuraLog(SpellPeriodicAuraLogInfo *pInfo);
         void SendSpellMiss(Unit *target, uint32 spellID, SpellMissInfo missInfo);
+        void SendSpellDamageResist(Unit* target, uint32 spellId);
+        void SendSpellDamageImmune(Unit* target, uint32 spellId);
 
         void NearTeleportTo(float x, float y, float z, float orientation, bool casting = false);
         void MonsterMoveJump(float x, float y, float z, float o, float speed, float height, bool isKnockBack = false);

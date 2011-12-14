@@ -12633,14 +12633,16 @@ bool Unit::CheckAndIncreaseCastCounter()
     return true;
 }
 
-SpellAuraHolderPtr Unit::GetSpellAuraHolder (uint32 spellid) const
+SpellAuraHolderPtr Unit::GetSpellAuraHolder(uint32 spellid) const
 {
+    MAPLOCK_READ(const_cast<Unit*>(this), MAP_LOCK_TYPE_AURAS);
     SpellAuraHolderMap::const_iterator itr = m_spellAuraHolders.find(spellid);
     return itr != m_spellAuraHolders.end() ? itr->second : SpellAuraHolderPtr(NULL);
 }
 
-SpellAuraHolderPtr Unit::GetSpellAuraHolder (uint32 spellid, ObjectGuid casterGuid) const
+SpellAuraHolderPtr Unit::GetSpellAuraHolder(uint32 spellid, ObjectGuid casterGuid) const
 {
+    MAPLOCK_READ(const_cast<Unit*>(this), MAP_LOCK_TYPE_AURAS);
     SpellAuraHolderConstBounds bounds = GetSpellAuraHolderBounds(spellid);
     for (SpellAuraHolderMap::const_iterator iter = bounds.first; iter != bounds.second; ++iter)
         if (iter->second->GetCasterGuid() == casterGuid)
@@ -13049,4 +13051,30 @@ uint32 Unit::GetResistance(SpellSchoolMask schoolMask) const
         }
     }
     return resistance;
+}
+
+void Unit::SendSpellDamageResist(Unit* target, uint32 spellId)
+{
+    if (!target)
+        return;
+
+    WorldPacket data(SMSG_PROCRESIST, 8+8+4+1);
+    data << GetObjectGuid();
+    data << target->GetObjectGuid();
+    data << spellId;
+    data << uint8(0);                 // bool - log format: 0-default, 1-debug
+    SendMessageToSet(&data, true);
+}
+
+void Unit::SendSpellDamageImmune(Unit* target, uint32 spellId)
+{
+    if (!target)
+        return;
+
+    WorldPacket data(SMSG_SPELLORDAMAGE_IMMUNE, 8+8+4+1);
+    data << GetObjectGuid();
+    data << target->GetObjectGuid();
+    data << uint32(spellId);
+    data << uint8(0);                 // bool - log format: 0-default, 1-debug
+    SendMessageToSet(&data, true);
 }
