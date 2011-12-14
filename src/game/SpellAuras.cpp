@@ -634,6 +634,16 @@ void Aura::Update(uint32 diff)
             PeriodicTick();
         }
     }
+    else
+    {
+        if (m_periodicTimer <= 0)
+        {
+            m_periodicTimer = SPELL_SPELL_CHANNEL_UPDATE_INTERVAL;
+            PeriodicCheck();
+        }
+        else
+            m_periodicTimer -= diff;
+    }
 }
 
 void Aura::AreaAuraUpdate(uint32 diff)
@@ -9485,6 +9495,44 @@ void Aura::PeriodicDummyTick()
                 uint32 deal = m_modifier.m_amount * target->GetMaxHealth() / 100;
                 target->DealDamage(target, deal, NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 return;
+            }
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+void Aura::PeriodicCheck()
+{
+
+    SpellAuraHolderPtr holder = GetHolder();
+    SpellEntry const* spellProto = GetSpellProto();
+
+    if (!holder || !spellProto)
+        return;
+
+    Unit* target = GetTarget();
+    Unit* caster = GetCaster();
+
+    if (!caster || !target)
+        return;
+
+    switch(m_modifier.m_auraname)
+    {
+        case SPELL_AURA_MOD_CONFUSE:
+        case SPELL_AURA_MOD_FEAR:
+        case SPELL_AURA_MOD_STUN:
+        case SPELL_AURA_MOD_ROOT:
+        case SPELL_AURA_TRANSFORM:
+        {
+            if (caster->GetObjectGuid().IsPlayer() && target->GetObjectGuid().IsCreatureOrVehicle())
+            {
+                if (caster->MagicSpellHitResult(target, spellProto) != SPELL_MISS_NONE)
+                {
+                    caster->SendSpellDamageResist(target, spellProto->Id);
+                    target->RemoveAurasDueToSpell(GetId());
+                }
             }
             break;
         }
