@@ -5853,7 +5853,7 @@ void Spell::EffectDispel(SpellEffectIndex eff_idx)
     Unit::SpellAuraHolderMap const& auras = unitTarget->GetSpellAuraHolderMap();
     for(Unit::SpellAuraHolderMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
     {
-        if (!itr->second || !itr->second->IsDeleted())
+        if (!itr->second || itr->second->IsDeleted())
             continue;
 
         if ((1 << itr->second->GetSpellProto()->Dispel) & dispelMask)
