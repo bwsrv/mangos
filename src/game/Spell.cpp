@@ -1756,10 +1756,8 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 69674:                                 // Mutated Infection
                 case 71224:
                 case 72091:                                 // Frozen Orb (Vault of Archavon, Toravon encounter, normal)
-                case 72378:                                 // Blood Nova
                 case 73022:                                 // Mutated Infection (heroic)
                 case 73023:                                 // Mutated Infection (heroic)
-                case 73058:                                 // Blood Nova
                 case 73142:                                 // Bone Spike Graveyard (during Bone Storm) (Icecrown Citadel, Lord Marrowgar encounter, 10N)
                 case 73144:                                 // Bone Spike Graveyard (during Bone Storm) (Icecrown Citadel, Lord Marrowgar encounter, 10H)
                 case 51146:                                 // Searching Gaze (Halls Of Stone)
@@ -8741,20 +8739,24 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
         case 72378: // Blood Nova
         case 73058:
         {
-            UnitList tempTargetUnitMap;
-            FillAreaTargets(tempTargetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
-            if (!tempTargetUnitMap.empty())
+            UnitList tmpUnitMap, tgtUnitMap;
+            FillAreaTargets(tmpUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+
+            if (tmpUnitMap.empty())
+                break;
+
+            for (UnitList::const_iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end(); ++itr)
             {
-                for (UnitList::const_iterator iter = tempTargetUnitMap.begin(); iter != tempTargetUnitMap.end(); ++iter)
-                {
-                    if (!(*iter)->GetObjectGuid().IsPlayerOrPet())
-                        continue;
+                if (*itr && (*itr)->GetObjectGuid().IsPlayerOrPet() && m_caster->GetDistance(*itr) > 8.0f)
+                    tgtUnitMap.push_back(*itr);
+            }
 
-                    if (m_caster->GetDistance(*iter) < 8.0f)
-                        continue;
-
-                    targetUnitMap.push_back((*iter));
-                }
+            if (!tgtUnitMap.empty())
+            {
+                UnitList::iterator itr = tgtUnitMap.begin();
+                std::advance(itr, urand(0, tgtUnitMap.size()-1));
+                if (*itr)
+                    targetUnitMap.push_back(*itr);
             }
             break;
         }
