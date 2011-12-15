@@ -1408,12 +1408,10 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 
         SpellAuraHolderBounds GetSpellAuraHolderBounds(uint32 spell_id)
         {
-            MAPLOCK_READ(this,MAP_LOCK_TYPE_AURAS);
             return m_spellAuraHolders.equal_range(spell_id);
         }
         SpellAuraHolderConstBounds GetSpellAuraHolderBounds(uint32 spell_id) const
         {
-            MAPLOCK_READ(const_cast<Unit*>(this),MAP_LOCK_TYPE_AURAS);
             return m_spellAuraHolders.equal_range(spell_id);
         }
 
@@ -1423,7 +1421,6 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         bool HasAura(uint32 spellId, SpellEffectIndex effIndex) const;
         bool HasAura(uint32 spellId) const
         {
-            MAPLOCK_READ(const_cast<Unit*>(this),MAP_LOCK_TYPE_AURAS);
             return m_spellAuraHolders.find(spellId) != m_spellAuraHolders.end();
         }
         bool HasAuraOfDifficulty(uint32 spellId) const;
