@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS `spell_dbc` (
   `AttributesEx5` int(10) unsigned NOT NULL DEFAULT '0',
   `AttributesEx6` int(10) unsigned NOT NULL DEFAULT '0',
   `AttributesEx7` int(10) unsigned NOT NULL DEFAULT '0',
-  `Stances` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `Stances` int(10) unsigned NOT NULL DEFAULT '0',
   `StancesNot` int(10) unsigned NOT NULL DEFAULT '0',
   `Targets` int(10) unsigned NOT NULL DEFAULT '0',
   `RequiresSpellFocus` int(10) unsigned NOT NULL DEFAULT '0',
