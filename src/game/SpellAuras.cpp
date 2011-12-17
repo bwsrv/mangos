@@ -3023,15 +3023,9 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
             }
             case 43681:                                     // Inactive
             {
-                if (!target || target->GetTypeId() != TYPEID_PLAYER || m_removeMode != AURA_REMOVE_BY_EXPIRE)
+                if (!target || target->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                if (target->GetMap()->IsBattleGround())
-                    ((Player*)target)->LeaveBattleground();
-                return;
-            }
-            case 43681:                                     // Inactive
-            {
                 if (m_removeMode == AURA_REMOVE_BY_EXPIRE && target->GetTypeId() == TYPEID_PLAYER)
                     ((Player*)target)->ToggleAFK();
                 return;
