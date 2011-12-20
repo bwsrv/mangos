@@ -3066,11 +3066,11 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
             }
             case 43681:                                     // Inactive
             {
-                if (!target || target->GetTypeId() != TYPEID_PLAYER || m_removeMode != AURA_REMOVE_BY_EXPIRE)
+                if (!target || target->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                if (target->GetMap()->IsBattleGround())
-                    ((Player*)target)->LeaveBattleground();
+                if (m_removeMode == AURA_REMOVE_BY_EXPIRE && target->GetTypeId() == TYPEID_PLAYER)
+                    ((Player*)target)->ToggleAFK();
                 return;
             }
             case 43969:                                     // Feathered Charm
@@ -6218,14 +6218,6 @@ void Aura::HandleAuraPeriodicDummy(bool apply, bool Real)
                         GetHolder()->ModStackAmount(20);
                     return;
                 }
-                case 63276:                                   // Mark of the Faceless (General Vezax - Ulduar)
-                {
-                    Unit *caster = GetCaster();
-
-                    if (caster && target)
-                        caster->CastCustomSpell(target, 63278, 0, &(spell->EffectBasePoints[0]), 0, false, 0, 0, caster->GetObjectGuid() , spell);
-                    return;
-                }
                 case 64217:                                 // Overcharged (spell from Emalon adds)
                 {
                     if (GetHolder()->GetStackAmount() > 11)
@@ -9323,6 +9315,15 @@ void Aura::PeriodicDummyTick()
                         caster->CastSpell(target, (spell->Id == 62717) ? 65722 : 65723, true, 0, this, this->GetCasterGuid(), this->GetSpellProto());
                     return;
                 }
+                case 63276:                                   // Mark of the Faceless (General Vezax - Ulduar)
+                {
+
+                    Unit *caster = GetCaster();
+
+                    if (caster && target)
+                        caster->CastCustomSpell(target, 63278, 0, &(spell->EffectBasePoints[0]), 0, false, 0, 0, caster->GetObjectGuid() , spell);
+                    return;
+                }
                 case 69008:                                 // Soulstorm (OOC aura)
                 case 68870:                                 // Soulstorm
                 {
@@ -9444,9 +9445,6 @@ void Aura::PeriodicDummyTick()
             // Prey on the Weak
             if (spell->SpellIconID == 2983)
             {
-                if (target->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
                 Unit *victim = target->getVictim();
                 if (victim && (target->GetHealth() * 100 / target->GetMaxHealth() > victim->GetHealth() * 100 / victim->GetMaxHealth()))
                 {
@@ -10105,8 +10103,8 @@ void Aura::HandleAuraStopNaturalManaRegen(bool apply, bool Real)
 {
     if (!Real)
         return;
-
-    GetTarget()->ApplyModFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER, !apply && !GetTarget()->IsUnderLastManaUseEffect());
+    if (GetTarget()->getClass() != CLASS_DEATH_KNIGHT)
+        GetTarget()->ApplyModFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER, !apply && !GetTarget()->IsUnderLastManaUseEffect());
 }
 
 bool Aura::IsLastAuraOnHolder()
@@ -12073,16 +12071,15 @@ uint32 Aura::CalculateCrowdControlBreakDamage()
     if (!IsCrowdControlAura(m_modifier.m_auraname))
         return 0;
 
+    // auras with this attribute not have damage cap
+    if (GetSpellProto()->AttributesEx & SPELL_ATTR_EX_BREAKABLE_BY_ANY_DAMAGE)
+        return 0;
+
     // Damage cap for CC effects
     uint32 damageCap = (int32)((float)GetTarget()->GetMaxHealth() * sWorld.getConfig(CONFIG_FLOAT_CROWDCONTROL_HP_BASE));
 
     if (damageCap < 50)
         damageCap = 50;
-
-    // some specific values
-    // Hungering Cold - any damage
-    if (GetSpellProto()->SpellIconID == 2797)
-        damageCap = 1;
 
     Unit* caster = GetCaster();
 

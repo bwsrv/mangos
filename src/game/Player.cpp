@@ -2132,7 +2132,8 @@ void Player::Regenerate(Powers power, uint32 diff)
         {
             float RunicPowerDecreaseRate = sWorld.getConfig(CONFIG_FLOAT_RATE_POWER_RUNICPOWER_LOSS);
             addvalue = 30 * RunicPowerDecreaseRate;         // 3 RunicPower by tick
-        }   break;
+            break;
+        }
         case POWER_RUNE:
         {
             if (getClass() != CLASS_DEATH_KNIGHT)
@@ -2171,6 +2172,7 @@ void Player::Regenerate(Powers power, uint32 diff)
         case POWER_FOCUS:
         case POWER_HAPPINESS:
         case POWER_HEALTH:
+        default:
             break;
     }
 
@@ -22486,7 +22488,7 @@ bool Player::ActivateRunes(RuneType type, uint32 count)
     bool modify = false;
     for(uint32 j = 0; count > 0 && j < MAX_RUNES; ++j)
     {
-        if (GetRuneCooldown(j) && GetCurrentRune(j) == type)
+        if (GetCurrentRune(j) == type && GetRuneCooldown(j) > 0)
         {
             SetRuneCooldown(j, 0);
             --count;
@@ -24272,6 +24274,10 @@ AreaLockStatus Player::GetAreaTriggerLockStatus(AreaTrigger const* at, Difficult
     if (getLevel() < at->requiredLevel && !sWorld.getConfig(CONFIG_BOOL_INSTANCE_IGNORE_LEVEL))
         return AREA_LOCKSTATUS_TOO_LOW_LEVEL;
 
+    if (mapEntry->IsDungeon() && mapEntry->IsRaid() && !sWorld.getConfig(CONFIG_BOOL_INSTANCE_IGNORE_RAID))
+        if (!GetGroup() || !GetGroup()->isRaidGroup())
+            return AREA_LOCKSTATUS_RAID_LOCKED;
+
     // must have one or the other, report the first one that's missing
     if (at->requiredItem)
     {
@@ -24380,12 +24386,22 @@ bool Player::CheckTransferPossibility(uint32 mapId)
 
     AreaTrigger const* at = sObjectMgr.GetMapEntranceTrigger(mapId);
     if (!at)
+    {
+        if (targetMapEntry->IsContinent())
+        {
+            if (isGameMaster())
+                return true;
+            if (GetSession()->Expansion() < targetMapEntry->Expansion())
+                return false;
+            return true;
+        }
         return false;
+    }
 
-    return CheckTransferPossibility(at);
+    return CheckTransferPossibility(at, targetMapEntry->IsContinent());
 }
 
-bool Player::CheckTransferPossibility(AreaTrigger const*& at)
+bool Player::CheckTransferPossibility(AreaTrigger const*& at, bool b_onlyMainReq)
 {
     if (!at)
         return false;
@@ -24448,6 +24464,21 @@ bool Player::CheckTransferPossibility(AreaTrigger const*& at)
 
     DEBUG_LOG("Player::CheckTransferPossibility %s check lock status of map %u (difficulty %u), result is %u", GetObjectGuid().GetString().c_str(), at->target_mapId, GetDifficulty(targetMapEntry->IsRaid()), status);
 
+    if (b_onlyMainReq)
+    {
+        switch (status)
+        {
+            case AREA_LOCKSTATUS_MISSING_ITEM:
+            case AREA_LOCKSTATUS_QUEST_NOT_COMPLETED:
+            case AREA_LOCKSTATUS_INSTANCE_IS_FULL:
+            case AREA_LOCKSTATUS_ZONE_IN_COMBAT:
+            case AREA_LOCKSTATUS_TOO_LOW_LEVEL:
+                return true;
+            default:
+                break;
+        }
+    }
+
     switch (status)
     {
         case AREA_LOCKSTATUS_OK:
@@ -24493,6 +24524,9 @@ bool Player::CheckTransferPossibility(AreaTrigger const*& at)
             return false;
         // TODO: messages for other cases
         case AREA_LOCKSTATUS_RAID_LOCKED:
+            SendTransferAborted(at->target_mapId, TRANSFER_ABORT_NEED_GROUP);
+            return false;
+        // TODO: messages for other cases
         case AREA_LOCKSTATUS_UNKNOWN_ERROR:
         default:
             SendTransferAborted(at->target_mapId, TRANSFER_ABORT_ERROR);
