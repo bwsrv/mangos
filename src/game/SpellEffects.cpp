@@ -9565,6 +9565,32 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     }
                     return;
                 }
+                case 67590:                                 // Powering Up (Trial of the Crusader, Twin Val'kyr encounter)
+                case 67602:
+                case 67603:
+                case 67604:
+                {
+                    if (!unitTarget)
+                        return;
+
+                    if (Aura* pAur = unitTarget->GetAura(m_spellInfo->Id, EFFECT_INDEX_0))
+                    {
+                        if (SpellAuraHolderPtr pHolder = pAur->GetHolder())
+                        {
+                            if (pHolder->GetStackAmount() >= 99)
+                            {
+                                uint32 uiSpell = 0;
+                                if (unitTarget->HasAuraOfDifficulty(65684))
+                                    uiSpell = 65724;
+                                else if (unitTarget->HasAuraOfDifficulty(65686))
+                                    uiSpell = 65748;
+                                
+                                unitTarget->CastSpell(unitTarget, uiSpell, true);
+                            }
+                        }
+                    }
+                    return;
+                }
                 case 68861:                                 // Consume Soul (ICC FoS: Bronjahm)
                 {
                     if (unitTarget)
