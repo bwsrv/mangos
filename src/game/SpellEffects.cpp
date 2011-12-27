@@ -4436,7 +4436,7 @@ void Spell::EffectJump(SpellEffectIndex eff_idx)
         speed_xy = 150;
 
     if (pTarget == m_caster)
-        pTraget = NULL;
+        pTarget = NULL;
 
     m_caster->MonsterMoveJump(x, y, z, o, float(speed_xy) / 2, float(speed_z) / 10, pTarget);
 }
