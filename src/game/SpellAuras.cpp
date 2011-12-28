@@ -4265,8 +4265,9 @@ void Aura::HandleAuraTransform(bool apply, bool Real)
                     //break;
                 //case 53806:                               // Pygmy Oil
                     //break;
-                //case 62847:                               // NPC Appearance - Valiant 02
-                    //break;
+                case 62847:                                 // NPC Appearance - Valiant 02
+                    target->SetDisplayId(target->getGender() == GENDER_MALE ? 26185 : 26186);
+                    break;
                 //case 62852:                               // NPC Appearance - Champion 01
                     //break;
                 //case 63965:                               // NPC Appearance - Champion 02
@@ -11164,7 +11165,7 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                 else
                     return;
             }
-            // Power Word: Shield 
+            // Power Word: Shield
             else if (apply && m_spellProto->SpellFamilyFlags.test<CF_PRIEST_POWER_WORD_SHIELD>() && m_spellProto->Mechanic == MECHANIC_SHIELD)
             {
                 Unit* caster = GetCaster();
@@ -11997,9 +11998,9 @@ void SpellAuraHolder::UnregisterSingleCastHolder()
     }
 }
 
-void SpellAuraHolder::SetVisibleAura(bool remove) 
-{ 
-    m_target->SetVisibleAura(m_auraSlot, remove ? 0 : GetId()); 
+void SpellAuraHolder::SetVisibleAura(bool remove)
+{
+    m_target->SetVisibleAura(m_auraSlot, remove ? 0 : GetId());
 }
 
 void Aura::HandleAuraModReflectSpells(bool Apply, bool Real)
