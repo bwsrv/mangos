@@ -11934,8 +11934,9 @@ uint32 Aura::CalculateCrowdControlBreakDamage()
         return 0;
 
     // auras with this attribute not have damage cap
-    if (GetSpellProto()->AttributesEx & SPELL_ATTR_EX_BREAKABLE_BY_ANY_DAMAGE
-        && GetSpellProto()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_DIRECT_DAMAGE)
+    if (GetSpellProto()->AttributesEx & SPELL_ATTR_EX_BREAKABLE_BY_ANY_DAMAGE &&
+        (GetSpellProto()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_DIRECT_DAMAGE ||
+        GetSpellProto()->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE))
         return 0;
 
     // Damage cap for CC effects
