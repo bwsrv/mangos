@@ -476,6 +476,10 @@ Aura::~Aura()
 {
 }
 
+ObjectGuid const& Aura::GetCastItemGuid() const { return GetHolder() ? GetHolder()->GetCastItemGuid() : ObjectGuid::Null; }
+
+ObjectGuid const& Aura::GetCasterGuid() const { return GetHolder() ? GetHolder()->GetCasterGuid() : ObjectGuid::Null; }
+
 void Aura::AreaAura(SpellEntry const* spellproto, SpellEffectIndex eff, int32 *currentBasePoints, SpellAuraHolderPtr holder, Unit *target,Unit *caster, Item* castItem)
 {
     m_isAreaAura = true;
