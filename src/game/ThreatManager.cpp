@@ -107,13 +107,13 @@ void HostileReference::addThreat(float pMod)
     // if the link was cut before relink it again
     if(!isOnline())
         updateOnlineStatus();
-    if(pMod != 0.0f)
+    if(fabs(pMod) > M_NULL_F)
     {
         ThreatRefStatusChangeEvent event(UEV_THREAT_REF_THREAT_CHANGE, this, pMod);
         fireStatusChanged(event);
     }
 
-    if(isValid() && pMod >= 0)
+    if(isValid() && pMod >= 0.0f)
     {
         Unit* victim_owner = getTarget()->GetOwner();
         if(victim_owner && victim_owner->isAlive())
@@ -520,7 +520,7 @@ void ThreatManager::tauntApply(Unit* pTaunter)
         if(getCurrentVictim() && (ref->getThreat() < getCurrentVictim()->getThreat()))
         {
             // Ok, temp threat is unused
-            if(ref->getTempThreatModifyer() == 0.0f)
+            if(fabs(ref->getTempThreatModifyer()) < M_NULL_F)
             {
                 ref->setTempThreat(getCurrentVictim()->getThreat()*1.4f);
                 iUpdateNeed = true;

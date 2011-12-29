@@ -1338,7 +1338,7 @@ void ObjectMgr::LoadCreatures()
         }
         else if(data.movementType == RANDOM_MOTION_TYPE)
         {
-            if(data.spawndist == 0.0f)
+            if(fabs(data.spawndist) < M_NULL_F)
             {
                 sLog.outErrorDb("Table `creature` have creature (GUID: %u Entry: %u) with `MovementType`=1 (random movement) but with `spawndist`=0, replace by idle movement type (0).",guid,data.id );
                 data.movementType = IDLE_MOTION_TYPE;
@@ -1346,7 +1346,7 @@ void ObjectMgr::LoadCreatures()
         }
         else if(data.movementType == IDLE_MOTION_TYPE)
         {
-            if(data.spawndist != 0.0f)
+            if(fabs(data.spawndist) > M_NULL_F)
             {
                 sLog.outErrorDb("Table `creature` have creature (GUID: %u Entry: %u) with `MovementType`=0 (idle) have `spawndist`<>0, set to 0.",guid,data.id );
                 data.spawndist = 0.0f;
