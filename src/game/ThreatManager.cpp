@@ -34,7 +34,7 @@
 float ThreatCalcHelper::CalcThreat(Unit* pHatedUnit, Unit* /*pHatingUnit*/, float threat, bool crit, SpellSchoolMask schoolMask, SpellEntry const *pThreatSpell)
 {
     // all flat mods applied early
-    if (!threat)
+    if (fabs(threat) < M_NULL_F)
         return 0.0f;
 
     if (pThreatSpell)
@@ -438,7 +438,7 @@ void ThreatManager::addThreat(Unit* pVictim, float pThreat, bool crit, SpellScho
 
     float threat = ThreatCalcHelper::CalcThreat(pVictim, iOwner, pThreat, crit, schoolMask, pThreatSpell);
 
-    if (threat > 0.0f)
+    if (threat > M_NULL_F)
     {
         if (float redirectedMod = pVictim->getHostileRefManager().GetThreatRedirectionMod())
         {
