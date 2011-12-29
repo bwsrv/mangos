@@ -4351,7 +4351,7 @@ void Spell::EffectTriggerSpell(SpellEffectIndex effIndex)
 
         MaNGOS::NormalizeMapCoord(x);
         MaNGOS::NormalizeMapCoord(y);
-        m_caster->UpdateGroundPositionZ(x,y,z);
+        m_caster->UpdateAllowedPositionZ(x,y,z);
 
         m_caster->CastSpell(x, y, z, spellInfo, true, NULL, NULL, m_originalCasterGUID);
         return;
