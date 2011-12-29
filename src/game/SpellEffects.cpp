@@ -4691,7 +4691,10 @@ void Spell::EffectApplyAura(SpellEffectIndex eff_idx)
         {
             if (caster->HasSpell(aur->GetSpellProto()->EffectTriggerSpell[0]))
             {
-               duration *= 2.0f;
+                // do not exceed 2 hours duration (cause of ApplyAura effect triggered twiceapplied twice)
+                if(duration < 2 * HOUR * IN_MILLISECONDS)
+                    duration *= 2.0f; // Increase duration by 2x
+
                aur->GetModifier()->m_amount *= 1.3f;
             }
         }
