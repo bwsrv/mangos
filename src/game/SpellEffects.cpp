@@ -10189,15 +10189,12 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                 }
                 case 70920:                                 // Unbound Plague Search Effect
                 {
-                    // don't pass the plague for the first 5 seconds
-                    if (m_caster->GetDummyAura(70955))
-                        return;
-
                     if (unitTarget)
                     {
                         m_caster->CastSpell(unitTarget, 70911, true);   // apply Plague to new target
-                        m_caster->RemoveAurasDueToSpell(70911);         // remove Plague from the previous target
+                        m_caster->RemoveAurasDueToSpell(70911);
                     }
+
                     return;
                 }
                 case 71255:                                 // Choking Gas Bomb (Putricide)

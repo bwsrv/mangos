@@ -9111,12 +9111,14 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             {
                 // target only other players which dont have Mutated Transformation aura on self
                 if ((*iter) && (*iter)->GetTypeId() == TYPEID_PLAYER &&
-                    (*iter) != m_caster && !(*iter)->GetDummyAura(70308))
+                    !(*iter)->GetDummyAura(70308))
                 {
                     targetUnitMap.push_back(*iter);
                 }
             }
             
+            targetUnitMap.remove(m_caster);
+
             // random 1 target
             if (!targetUnitMap.empty())
             {
