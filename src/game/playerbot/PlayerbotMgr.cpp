@@ -772,8 +772,11 @@ void PlayerbotMgr::LogoutAllBots()
     {
         PlayerBotMap::const_iterator itr = GetPlayerBotsBegin();
         if (itr == GetPlayerBotsEnd()) break;
-        Player* bot = itr->second;
-        LogoutPlayerBot(bot->GetObjectGuid());
+        if (Player* bot = itr->second)
+        {
+            LogoutPlayerBot(bot->GetObjectGuid());
+            m_botCount--;
+        }
     }
     RemoveAllBotsFromGroup();                   ///-> If bot are logging out remove them group
 }
@@ -800,7 +803,6 @@ void PlayerbotMgr::LogoutPlayerBot(ObjectGuid guid)
         m_playerBots.erase(guid);    // deletes bot player ptr inside this WorldSession PlayerBotMap
         botWorldSessionPtr->LogoutPlayer(true); // this will delete the bot Player object and PlayerbotAI object
         delete botWorldSessionPtr;  // finally delete the bot's WorldSession
-        m_botCount--;
     }
 }
 
@@ -820,7 +822,6 @@ void PlayerbotMgr::OnBotLogin(Player * const bot)
 
     // tell the world session that they now manage this new bot
     m_playerBots[bot->GetObjectGuid()] = bot;
-    m_botCount++;
 
     // if bot is in a group and master is not in group then
     // have bot leave their group
@@ -1133,6 +1134,7 @@ bool ChatHandler::HandlePlayerbotCommand(char* args)
         CharacterDatabase.DirectPExecute("UPDATE characters SET online = 1 WHERE guid = '%u'", guid.GetCounter());
         mgr->AddPlayerBot(guid);
         PSendSysMessage("Bot added successfully.");
+        ++mgr->m_botCount;
     }
     else if (cmdStr == "remove" || cmdStr == "logout")
     {
@@ -1145,6 +1147,7 @@ bool ChatHandler::HandlePlayerbotCommand(char* args)
         CharacterDatabase.DirectPExecute("UPDATE characters SET online = 0 WHERE guid = '%u'", guid.GetCounter());
         mgr->LogoutPlayerBot(guid);
         PSendSysMessage("Bot removed successfully.");
+        --mgr->m_botCount;
     }
     else if (cmdStr == "co" || cmdStr == "combatorder")
     {

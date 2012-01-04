@@ -13612,9 +13612,6 @@ void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId)
                     canSeeQuests = false;
                 continue;
             }
-
-            if (itr->second.option_id == GOSSIP_OPTION_AUTOSCRIPT)
-                GetMap()->ScriptsStart(sGossipScripts, itr->second.action_script_id, this, pSource);
         }
 
         if (pSource->GetTypeId() == TYPEID_UNIT)
@@ -13846,7 +13843,7 @@ void Player::OnGossipSelect(WorldObject* pSource, uint32 gossipListId, uint32 me
 
     GossipMenuItemData pMenuData = gossipmenu.GetItemData(gossipListId);
 
-    switch(gossipOptionId)
+    switch (gossipOptionId)
     {
         case GOSSIP_OPTION_GOSSIP:
         {
@@ -13864,15 +13861,6 @@ void Player::OnGossipSelect(WorldObject* pSource, uint32 gossipListId, uint32 me
                 PlayerTalkClass->CloseGossip();
                 TalkedToCreature(pSource->GetEntry(), pSource->GetObjectGuid());
             }
-
-            if (pMenuData.m_gAction_script)
-            {
-                if (pSource->GetTypeId() == TYPEID_GAMEOBJECT)
-                    GetMap()->ScriptsStart(sGossipScripts, pMenuData.m_gAction_script, this, pSource);
-                else if (pSource->GetTypeId() == TYPEID_UNIT)
-                    GetMap()->ScriptsStart(sGossipScripts, pMenuData.m_gAction_script, pSource, this);
-            }
-
             break;
         }
         case GOSSIP_OPTION_SPIRITHEALER:
@@ -13943,6 +13931,14 @@ void Player::OnGossipSelect(WorldObject* pSource, uint32 gossipListId, uint32 me
             GetSession()->SendBattlegGroundList(guid, bgTypeId);
             break;
         }
+    }
+
+    if (pMenuData.m_gAction_script)
+    {
+        if (pSource->GetTypeId() == TYPEID_UNIT)
+            GetMap()->ScriptsStart(sGossipScripts, pMenuData.m_gAction_script, pSource, this);
+        else if (pSource->GetTypeId() == TYPEID_GAMEOBJECT)
+            GetMap()->ScriptsStart(sGossipScripts, pMenuData.m_gAction_script, this, pSource);
     }
 }
 
@@ -19815,7 +19811,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     }
 
     // check node starting pos data set case if provided
-    if (node->x != 0.0f || node->y != 0.0f || node->z != 0.0f)
+    if (fabs(node->x) > M_NULL_F || fabs(node->y) > M_NULL_F || fabs(node->z) > M_NULL_F)
     {
         if (node->map_id != GetMapId() ||
             (node->x - GetPositionX())*(node->x - GetPositionX())+
@@ -22066,17 +22062,21 @@ void Player::UpdateZoneDependentAuras()
 void Player::UpdateAreaDependentAuras()
 {
     // remove auras from spells with area limitations
-    for(SpellAuraHolderMap::iterator iter = m_spellAuraHolders.begin(); iter != m_spellAuraHolders.end();)
+    SpellIdSet toRemoveSpellList;
     {
-        // use m_zoneUpdateId for speed: UpdateArea called from UpdateZone or instead UpdateZone in both cases m_zoneUpdateId up-to-date
-        if (iter->second && (sSpellMgr.GetSpellAllowedInLocationError(iter->second->GetSpellProto(), GetMapId(), m_zoneUpdateId, m_areaUpdateId, this) != SPELL_CAST_OK))
+        MAPLOCK_READ(this,MAP_LOCK_TYPE_AURAS);
+        SpellAuraHolderMap const& holdersMap = GetSpellAuraHolderMap();
+        for(SpellAuraHolderMap::const_iterator iter = holdersMap.begin(); iter != holdersMap.end(); ++iter)
         {
-            RemoveSpellAuraHolder(iter->second);
-            iter = m_spellAuraHolders.begin();
+            // use m_zoneUpdateId for speed: UpdateArea called from UpdateZone or instead UpdateZone in both cases m_zoneUpdateId up-to-date
+            if (iter->second && (sSpellMgr.GetSpellAllowedInLocationError(iter->second->GetSpellProto(), GetMapId(), m_zoneUpdateId, m_areaUpdateId, this) != SPELL_CAST_OK))
+                toRemoveSpellList.insert(iter->first);
         }
-        else
-            ++iter;
     }
+
+    if (!toRemoveSpellList.empty())
+        for (SpellIdSet::iterator i = toRemoveSpellList.begin(); i != toRemoveSpellList.end(); ++i)
+            RemoveAurasDueToSpell(*i);
 
     // some auras applied at subzone enter
     SpellAreaForAreaMapBounds saBounds = sSpellMgr.GetSpellAreaForAreaMapBounds(m_areaUpdateId);
