@@ -672,7 +672,7 @@ void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement)
         guild->BroadcastWorker(say_do,GetPlayer());
     }
 
-    if(achievement->flags & (ACHIEVEMENT_FLAG_REALM_FIRST_KILL|ACHIEVEMENT_FLAG_REALM_FIRST_REACH))
+    if(achievement->flags & (ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
     {
         // broadcast realm first reached
         WorldPacket data(SMSG_SERVER_FIRST_ACHIEVEMENT, strlen(GetPlayer()->GetName())+1+8+4+4);
@@ -2137,7 +2137,10 @@ bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achieve
     if(achievement->flags & ACHIEVEMENT_FLAG_COUNTER)
         return false;
 
-    if(achievement->flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
+    if(achievement->flags & ACHIEVEMENT_FLAG_REALM_FIRST_REACH)
+        return false;
+
+    if(achievement->flags & ACHIEVEMENT_FLAG_REALM_FIRST_KILL)
     {
         // someone on this realm has already completed that achievement
         if(sAchievementMgr.IsRealmCompleted(achievement))
