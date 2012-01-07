@@ -9609,7 +9609,12 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced, float ratio)
         }
     }
 
-    SetSpeedRate(mtype, speed * ratio, forced);
+    // RP Morph System
+    float rp_ratio = 1;
+    if (GetTypeId() == TYPEID_PLAYER)
+        rp_ratio = ((Player*)this)->GetRP_speed_run();
+
+    SetSpeedRate(mtype, speed * ratio * rp_ratio, forced);
 }
 
 float Unit::GetSpeed( UnitMoveType mtype ) const

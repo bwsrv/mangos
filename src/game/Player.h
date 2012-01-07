@@ -2241,6 +2241,16 @@ class MANGOS_DLL_SPEC Player : public Unit
         std::vector<uint32> m_referalAccounts;
 
         /*********************************************************/
+        /*** RP MORPH SYSTEM ***/
+        /*********************************************************/
+        uint32 GetRP_model() { return m_RP_model; }
+        void SetRP_model(uint32 uiRP_model) { m_RP_model = uiRP_model; }
+        float GetRP_scale() { return m_RP_scale; }
+        void SetRP_scale(float uiRP_scale) { m_RP_scale = uiRP_scale; }
+        float GetRP_speed_run() { return m_RP_speed_run; }
+        void SetRP_speed_run(float uiRP_speed_run) { m_RP_speed_run = uiRP_speed_run; }
+
+        /*********************************************************/
         /***                 VARIOUS SYSTEMS                   ***/
         /*********************************************************/
         bool HasMovementFlag(MovementFlags f) const;        // for script access to m_movementInfo.HasMovementFlag
@@ -2693,6 +2703,11 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         /// class dependent melee diminishing constant for dodge/parry/missed chances
         static const float m_diminishing_k[MAX_CLASSES];
+
+        // RP Morph System
+        uint32 m_RP_model;
+        float m_RP_scale;
+        float m_RP_speed_run;
 
     private:
         void _HandleDeadlyPoison(Unit* Target, WeaponAttackType attType, SpellEntry const *spellInfo);
