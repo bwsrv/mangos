@@ -687,7 +687,6 @@ Map::Remove(T *obj, bool remove)
             obj->SaveRespawnTime();
 
         // Note: In case resurrectable corpse and pet its removed from global lists in own destructor
-        WriteGuard Guard(GetLock(MAP_LOCK_TYPE_AURAS));
         delete obj;
     }
 }
