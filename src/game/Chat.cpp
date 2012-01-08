@@ -782,6 +782,8 @@ ChatCommand * ChatHandler::getCommandTable()
         { "rpdemorph",      SEC_ADMINISTRATOR,  false, &ChatHandler::HandleRPDeMorphCommand,           "", NULL },
         { "rpscale",        SEC_ADMINISTRATOR,  false, &ChatHandler::HandleRPScaleCommand,             "", NULL },
         { "rpspeedrun",     SEC_ADMINISTRATOR,  false, &ChatHandler::HandleRPSpeedRunCommand,          "", NULL },
+        { "rpallow",        SEC_ADMINISTRATOR,  false, &ChatHandler::HandleRPAllowCommand,             "", NULL },
+        { "rpdisallow",     SEC_ADMINISTRATOR,  false, &ChatHandler::HandleRPDisallowCommand,          "", NULL },
         { "die",            SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDieCommand,                 "", NULL },
         { "revive",         SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleReviveCommand,              "", NULL },
         { "dismount",       SEC_PLAYER,         false, &ChatHandler::HandleDismountCommand,            "", NULL },

@@ -3974,6 +3974,70 @@ bool ChatHandler::HandleRPSpeedRunCommand(char* args)
     return true;
 }
 
+bool ChatHandler::HandleRPAllowCommand(char* args)
+{
+    if (!*args)
+    {
+        SendSysMessage("Usage: .rpdallow ACCOUNT_NAME");
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    std::string safe_account = args;
+    LoginDatabase.escape_string(safe_account);
+    QueryResult* result = LoginDatabase.PQuery("SELECT * FROM account WHERE username = '%s'", safe_account.c_str());
+    if (!result)
+    {
+        SendSysMessage("Account does not exist.");
+        SendSysMessage("Usage: .rpdisallow ACCOUNT_NAME");
+        return false;
+    }
+
+    if (LoginDatabase.PExecute("UPDATE `account` SET `rp_allow` = 1 WHERE `username` = '%s'", safe_account.c_str()))
+    {
+        SendSysMessage("RP realm was successfully unlocked for this account.");
+        return true;
+    }
+    {
+        SendSysMessage("RP realm was not unlocked for this account. Something gone wrong...");
+        return false;
+    }
+    
+    return false;
+}
+
+bool ChatHandler::HandleRPDisallowCommand(char* args)
+{
+    if (!*args)
+    {
+        SendSysMessage("Usage: .rpdisallow ACCOUNT_NAME");
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    std::string safe_account = args;
+    LoginDatabase.escape_string(safe_account);
+    QueryResult* result = LoginDatabase.PQuery("SELECT * FROM account WHERE username = '%s'", safe_account.c_str());
+    if (!result)
+    {
+        SendSysMessage("Account does not exist.");
+        SendSysMessage("Usage: .rpdisallow ACCOUNT_NAME");
+        return false;
+    }
+
+    if (LoginDatabase.PExecute("UPDATE `account` SET `rp_allow` = 0 WHERE `username` = '%s'", safe_account.c_str()))
+    {
+        SendSysMessage("RP realm was successfully locked for this account.");
+        return true;
+    }
+    {
+        SendSysMessage("RP realm was not locked for this account. Something gone wrong...");
+        return false;
+    }
+    
+    return false;
+}
+
 bool ChatHandler::HandleDieCommand(char* /*args*/)
 {
     Unit* target = getSelectedUnit();

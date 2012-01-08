@@ -576,6 +576,8 @@ class MANGOS_DLL_SPEC ChatHandler
         bool HandleRPDeMorphCommand(char* args);
         bool HandleRPScaleCommand(char* args);
         bool HandleRPSpeedRunCommand(char* args);
+        bool HandleRPAllowCommand(char* args);
+        bool HandleRPDisallowCommand(char* args);
         bool HandlePInfoCommand(char* args);
         bool HandleMuteCommand(char* args);
         bool HandleUnmuteCommand(char* args);
