@@ -3730,20 +3730,26 @@ void Spell::cast(bool skipCheck)
             else if (m_spellInfo->Id == 62124)
             {
                 if (m_targets.getUnitTarget() && m_targets.getUnitTarget()->getVictim() != m_caster)
-                    AddPrecastSpell(67485);                 // Hand of Rekoning (no typos in name ;) )
+                    AddPrecastSpell(67485);                 // Hand of Reckoning
             }
             // Divine Shield, Divine Protection or Hand of Protection
             else if (m_spellInfo->SpellFamilyFlags.test<CF_PALADIN_HAND_OF_PROTECTION, CF_PALADIN_DIVINE_SHIELD>())
             {
                 AddPrecastSpell(25771);                     // Forbearance
-                AddPrecastSpell(61987);                     // Avenging Wrath Marker
+
+                // only for self cast
+                if (m_caster == m_targets.getUnitTarget())
+                    AddPrecastSpell(61987);                     // Avenging Wrath Marker
             }
             // Lay on Hands
             else if (m_spellInfo->SpellFamilyFlags.test<CF_PALADIN_LAY_ON_HANDS>())
             {
                 // only for self cast
                 if (m_caster == m_targets.getUnitTarget())
+                {
                     AddPrecastSpell(25771);                     // Forbearance
+                    AddPrecastSpell(61987);                     // Avenging Wrath Marker
+                }
             }
             // Avenging Wrath
             else if (m_spellInfo->SpellFamilyFlags.test<CF_PALADIN_AVENGING_WRATH>())
@@ -4433,6 +4439,9 @@ void Spell::SendSpellGo()
         castFlags |= CAST_FLAG_PREDICTED_RUNES;             // rune cooldowns list
     }
 
+    if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION && m_targets.GetSpeed() > 0.0f)
+        castFlags |= CAST_FLAG_ADJUST_MISSILE;             // spell has trajectory (guess parameters)
+
     Unit *caster = m_triggeredByAuraSpell && IsChanneledSpell(m_triggeredByAuraSpell) ? GetAffectiveCaster() : m_caster;
 
     if (!caster)
@@ -4475,8 +4484,8 @@ void Spell::SendSpellGo()
 
     if (castFlags & CAST_FLAG_ADJUST_MISSILE)               // adjust missile trajectory duration
     {
-        data << float(0);
-        data << uint32(0);
+        data << float(m_targets.GetElevation());            // Elevation of missile
+        data << uint32(m_delayMoment);                      // Calculated trajectory delay time.
     }
 
     if (castFlags & CAST_FLAG_AMMO)                         // projectile info

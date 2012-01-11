@@ -1041,7 +1041,7 @@ void Map::RemoveAllObjectsInRemoveList()
                 {
                     Corpse* corpse = GetCorpse(guid);
                     if (!corpse)
-                        sLog.outError("Try delete corpse/bones %u that not in map", obj->GetGUIDLow());
+                        sLog.outError("Try delete corpse/bones, but corpse of %s not exists!", guid.GetString().c_str());
                     else
                         Remove(corpse,true);
                 }

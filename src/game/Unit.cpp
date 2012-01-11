@@ -1039,7 +1039,10 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             }
 
             if (InstanceData* mapInstance = cVictim->GetInstanceData())
+            {
+                MAPLOCK_WRITE(cVictim,MAP_LOCK_TYPE_DEFAULT);
                 mapInstance->OnCreatureDeath(cVictim);
+            }
 
             if (cVictim->IsLinkingEventTrigger())
                 cVictim->GetMap()->GetCreatureLinkingHolder()->DoCreatureLinkingEvent(LINKING_EVENT_DIE, cVictim);
@@ -5234,7 +5237,7 @@ void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase)
     // single target auras from other casters
     for (SpellAuraHolderMap::iterator iter = m_spellAuraHolders.begin(); iter != m_spellAuraHolders.end(); )
     {
-        if (iter->second->GetCasterGuid() != GetObjectGuid() && iter->second->IsSingleTarget())
+        if (iter->second && !iter->second->IsDeleted() && iter->second->GetCasterGuid() != GetObjectGuid() && iter->second->IsSingleTarget())
         {
             if (!newPhase)
             {
@@ -5720,7 +5723,7 @@ bool Unit::HasAura(uint32 spellId, SpellEffectIndex effIndex) const
     {
         MAPLOCK_READ(const_cast<Unit*>(this), MAP_LOCK_TYPE_AURAS);
         for(SpellAuraHolderMap::const_iterator i_holder = spair.first; i_holder != spair.second; ++i_holder)
-            if (i_holder->second->GetAuraByEffectIndex(effIndex))
+            if (i_holder->second && !i_holder->second->IsDeleted() && i_holder->second->GetAuraByEffectIndex(effIndex))
                 return true;
     }
     return false;
@@ -11391,15 +11394,15 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
     ProcTriggeredList procTriggered;
     // Fill procTriggered list
     {
-        MAPLOCK_READ(this,MAP_LOCK_TYPE_AURAS);
         SpellAuraHolderMap const& holderMap = GetSpellAuraHolderMap();
+        MAPLOCK_READ(this,MAP_LOCK_TYPE_AURAS);
         for (SpellAuraHolderMap::const_iterator itr = holderMap.begin(); itr != holderMap.end(); ++itr)
         {
             // skip deleted auras (possible at recursive triggered call
             if (!itr->second || itr->second->IsDeleted())
                 continue;
 
-            SpellProcEventEntry const* spellProcEvent = sSpellMgr.GetSpellProcEvent(itr->second->GetId());
+            SpellProcEventEntry const* spellProcEvent = sSpellMgr.GetSpellProcEvent(itr->first);
             if(!IsTriggeredAtSpellProcEvent(pTarget, itr->second, procSpell, procFlag, procExtra, attType, isVictim, spellProcEvent))
                continue;
 
