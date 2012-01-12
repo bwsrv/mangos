@@ -2514,18 +2514,7 @@ void Unit::CalculateDamageAbsorbAndResist(Unit *pCaster, SpellSchoolMask schoolM
         {
             if ((*i)->GetHolder() && !(*i)->GetHolder()->IsDeleted() && (*i)->GetModifier()->m_amount <= 0)
             {
-                // Resistant Skin (Blood Beasts in ICC)
-                // it has effect absorbing 100 dmg, maybe wrong data in dbc? ;/
-                // anyway, this hack prevents expiring of the buff after breaking shield
-                if ((*i)->GetId() == 72723)
-                {
-                    AuraList::const_iterator next = i;
-                    ++next;
-                    RemoveAura(*i, AURA_REMOVE_BY_SHIELD_BREAK);
-                    i = next;
-                }
-                else
-                    toRemoveSpellList.insert((*i)->GetId());
+                toRemoveSpellList.insert((*i)->GetId());
             }
         }
         for (SpellIdSet::iterator _i = toRemoveSpellList.begin(); _i != toRemoveSpellList.end(); ++_i)
