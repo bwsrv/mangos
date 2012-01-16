@@ -1941,7 +1941,7 @@ void Aura::TriggerSpell()
 
                         if (triggerTarget->GetPower(POWER_MANA) < -damage)
                         {
-                            damage = -triggerTarget->GetPower(POWER_MANA);
+                            damage = -int32(triggerTarget->GetPower(POWER_MANA));
                             triggerTarget->RemoveAurasDueToSpell(auraId);
                         }
 
