@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -256,6 +256,14 @@ inline char * mangos_strdup(const char * source)
 
 #ifndef countof
 #define countof(array) (sizeof(array) / sizeof((array)[0]))
+#endif
+
+#if defined WIN32
+#     define NOTSAFE_SEMAPHORE_OVERHANDLING "Win32"
+#elif defined  (__FreeBSD__)
+#    define NOTSAFE_SEMAPHORE_OVERHANDLING "FreeBSD"
+#elif defined(__APPLE__)
+#    define NOTSAFE_SEMAPHORE_OVERHANDLING "MacOS"
 #endif
 
 #endif

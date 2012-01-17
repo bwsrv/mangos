@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -143,8 +143,15 @@ bool VehicleKit::AddPassenger(Unit *passenger, int8 seatId)
     if (seatId < 0) // no specific seat requirement
     {
         for (seat = m_Seats.begin(); seat != m_Seats.end(); ++seat)
+        {
             if (!seat->second.passenger && (seat->second.seatInfo->IsUsable() || (seat->second.seatInfo->m_flags & SEAT_FLAG_UNCONTROLLED)))
                 break;
+
+        // some weird behaviour of some vehicles: Abomination (Putricide), Val'kyrs and Strangulate Vehicle (Lich King)
+            if (GetBase()->GetEntry() == 37672 || GetBase()->GetEntry() == 38285 ||
+                GetBase()->GetEntry() == 36609 || GetBase()->GetEntry() == 36598)
+                break;
+        }
 
         if (seat == m_Seats.end()) // no available seat
             return false;
@@ -484,7 +491,7 @@ VehicleSeatEntry const* VehicleKit::GetSeatInfo(Unit* passenger)
     for (SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
     {
         if (Unit *_passenger = itr->second.passenger)
-            if (_passenger = passenger)
+            if (_passenger == passenger)
                 return itr->second.seatInfo;
     }
     return NULL;
@@ -495,7 +502,7 @@ int8 VehicleKit::GetSeatId(Unit* passenger)
     for (SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
     {
         if (Unit *_passenger = itr->second.passenger)
-            if (_passenger = passenger)
+            if (_passenger == passenger)
                 return itr->first;
     }
     return -1;

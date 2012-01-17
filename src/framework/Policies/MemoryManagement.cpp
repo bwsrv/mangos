@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2009-2011 MaNGOS <http://getmangos.com/>
+* Copyright (C) 2009-2012 MaNGOS <http://getmangos.com/>
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -77,7 +77,7 @@ void operator delete[](void* ptr, const std::nothrow_t&) throw()
     scalable_free(ptr);
 }
 
-#else if PLATFORM == PLATFORM_WINDOWS || defined(USE_FASTMM_MALLOC)
+#elseif PLATFORM == PLATFORM_WINDOWS || defined(USE_FASTMM_MALLOC)
 
 #include "../../dep/fastmm/FastMM.h"
 
