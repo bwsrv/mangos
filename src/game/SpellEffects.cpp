@@ -3467,15 +3467,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(m_caster, spell_id, true);
                     return;
                 }
-                case 68576:                                 // Eject All Passengers
-                {
-                    if (!unitTarget)
-                        return;
-
-                    if (VehicleKit* vehicle = unitTarget->GetVehicleKit())
-                        vehicle->RemoveAllPassengers();
-                    return;
-                }
                 case 67366:                                 // C-14 Gauss Rifle
                 {
                     if (!unitTarget)
