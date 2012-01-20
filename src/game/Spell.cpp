@@ -505,11 +505,14 @@ void Spell::FillTargetMap()
         // but need it support in some know cases
         switch(m_spellInfo->EffectImplicitTargetA[i])
         {
-            case 0:
+            case TARGET_NONE:
                 switch(m_spellInfo->EffectImplicitTargetB[i])
                 {
-                    case 0:
-                        SetTargetMap(SpellEffectIndex(i), TARGET_EFFECT_SELECT, tmpUnitMap);
+                    case TARGET_NONE:
+                        if (m_caster->GetObjectGuid().IsPet())
+                            SetTargetMap(SpellEffectIndex(i), TARGET_SELF, tmpUnitMap);
+                        else
+                            SetTargetMap(SpellEffectIndex(i), TARGET_EFFECT_SELECT, tmpUnitMap);
                         break;
                     default:
                         SetTargetMap(SpellEffectIndex(i), m_spellInfo->EffectImplicitTargetB[i], tmpUnitMap);
@@ -519,7 +522,7 @@ void Spell::FillTargetMap()
             case TARGET_SELF:
                 switch(m_spellInfo->EffectImplicitTargetB[i])
                 {
-                    case 0:
+                    case TARGET_NONE:
                     case TARGET_EFFECT_SELECT:
                         SetTargetMap(SpellEffectIndex(i), m_spellInfo->EffectImplicitTargetA[i], tmpUnitMap);
                         break;
@@ -540,7 +543,7 @@ void Spell::FillTargetMap()
             case TARGET_EFFECT_SELECT:
                 switch(m_spellInfo->EffectImplicitTargetB[i])
                 {
-                    case 0:
+                    case TARGET_NONE:
                     case TARGET_EFFECT_SELECT:
                         SetTargetMap(SpellEffectIndex(i), m_spellInfo->EffectImplicitTargetA[i], tmpUnitMap);
                         break;
@@ -1275,11 +1278,13 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     // Call scripted function for AI if this spell is casted by a creature
     if (m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->AI())
         ((Creature*)m_caster)->AI()->SpellHitTarget(unit, m_spellInfo);
+    if (real_caster && real_caster != m_caster && real_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)real_caster)->AI())
+        ((Creature*)real_caster)->AI()->SpellHitTarget(unit, m_spellInfo);
 }
 
 void Spell::DoSpellHitOnUnit(Unit *unit, uint32 effectMask)
 {
-    if (!unit || !effectMask && !damage)
+    if (!unit || (!effectMask && !damage))
         return;
 
     Unit* realCaster = GetAffectiveCaster();
@@ -1343,10 +1348,6 @@ void Spell::DoSpellHitOnUnit(Unit *unit, uint32 effectMask)
                     !unit->isInCombat() && unit->GetTypeId() != TYPEID_PLAYER && ((Creature*)unit)->AI())
                     unit->AttackedBy(realCaster);
 
-                unit->AddThreat(realCaster);
-                unit->SetInCombatWith(realCaster);
-                realCaster->SetInCombatWith(unit);
-
                 if (Player *attackedPlayer = unit->GetCharmerOrOwnerPlayerOrPlayerItself())
                     realCaster->SetContestedPvP(attackedPlayer);
             }
@@ -1375,7 +1376,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, uint32 effectMask)
 
     // Get Data Needed for Diminishing Returns, some effects may have multiple auras, so this must be done on spell hit, not aura add
     // Diminishing must not affect spells, casted on self
-    if (realCaster && unit && realCaster != unit || (m_spellFlags & SPELL_FLAG_REFLECTED))
+    if ((realCaster && unit && realCaster != unit) || (m_spellFlags & SPELL_FLAG_REFLECTED))
     {
         m_diminishGroup = GetDiminishingReturnsGroupForSpell(m_spellInfo,m_triggeredByAuraSpell);
         m_diminishLevel = unit->GetDiminishing(m_diminishGroup);
@@ -7760,7 +7761,7 @@ bool Spell::IsTriggeredSpellWithRedundentData() const
 {
     return m_triggeredByAuraSpell || m_triggeredBySpellInfo ||
         // possible not need after above check?
-        m_IsTriggeredSpell && (m_spellInfo->manaCost || m_spellInfo->ManaCostPercentage);
+        (m_IsTriggeredSpell && (m_spellInfo->manaCost || m_spellInfo->ManaCostPercentage));
 }
 
 bool Spell::HaveTargetsForEffect(SpellEffectIndex effect) const
@@ -8392,12 +8393,12 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             unitTarget = m_targets.getUnitTarget();
 
             // Cast on corpses...
-            if (unitTarget &&
+            if ((unitTarget &&
                 unitTarget->getDeathState() == CORPSE &&
-                (unitTarget->GetCreatureTypeMask() & CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL) == 0 ||
+                (unitTarget->GetCreatureTypeMask() & CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL) == 0) ||
                     // ...or own Risen Ghoul pet - self explode effect
                 (unitTarget && unitTarget->GetEntry() == 26125 &&
-                unitTarget->GetCreatorGuid() == m_caster->GetObjectGuid()) )
+                unitTarget->GetCreatorGuid() == m_caster->GetObjectGuid()))
             {
                 targetUnitMap.push_back(unitTarget);
             }
@@ -9385,7 +9386,7 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
 
             if (!targetUnitMap.empty())
             {
-                int max = 2;
+                uint32 max = 2;
                 if (m_caster->GetMap()->GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL ||
                     m_caster->GetMap()->GetDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC)
                 {

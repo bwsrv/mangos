@@ -6569,6 +6569,7 @@ void Unit::AttackedBy(Unit *attacker)
     if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->AI())
     {
         ((Creature*)this)->AI()->AttackedBy(attacker);
+
         if (!isInCombat())
         {
             AddThreat(attacker);
