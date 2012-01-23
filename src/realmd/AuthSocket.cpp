@@ -945,7 +945,26 @@ void AuthSocket::LoadRealmlist(ByteBuffer &pkt, uint32 acctid)
                 pkt << uint32(i->second.icon);              // realm type
                 pkt << uint8(realmflags);                   // realmflags
                 pkt << name;                                // name
-                pkt << i->second.address;                   // address
+
+                // --- hardcode LAN server address
+                std::string client_ip = get_remote_address(), client_ip_byte1, client_ip_byte2, server_ip, server_address, server_port;
+                std::string::size_type dot1_pos, dot2_pos, colon_pos;
+                dot1_pos= client_ip.find(".", 0);
+                client_ip_byte1 = client_ip.substr(0, dot1_pos);
+                dot2_pos = client_ip.find(".", dot1_pos + 1);
+                client_ip_byte2 = client_ip.substr(dot1_pos + 1, dot2_pos - dot1_pos - 1);
+                colon_pos = i->second.address.find(":", 0);
+                server_ip = i->second.address.substr(0, colon_pos);
+                server_port = i->second.address.substr(colon_pos, i->second.address.size());
+                server_address = i->second.address;
+                int client_ip_byte2_int = atoi(client_ip_byte2.c_str());
+                if ((client_ip_byte1 == "10" || (client_ip_byte1 == "192" && client_ip_byte2 == "168") ||
+                    (client_ip_byte1 == "172" && client_ip_byte2_int >= 16 && client_ip_byte2_int <= 31)) &&
+                    (server_ip != "127.0.0.1" && server_ip != "localhost"))
+                    server_address = "192.168.101.102" + server_port;
+                // -------------------------------
+
+                pkt << server_address;                      // address
                 pkt << float(i->second.populationLevel);
                 pkt << uint8(AmountOfCharacters);
                 pkt << uint8(i->second.timezone);           // realm category
@@ -1003,7 +1022,26 @@ void AuthSocket::LoadRealmlist(ByteBuffer &pkt, uint32 acctid)
                 pkt << uint8(lock);                         // flags, if 0x01, then realm locked
                 pkt << uint8(realmFlags);                   // see enum RealmFlags
                 pkt << i->first;                            // name
-                pkt << i->second.address;                   // address
+                
+                // --- hardcode LAN server address
+                std::string client_ip = get_remote_address(), client_ip_byte1, client_ip_byte2, server_ip, server_address, server_port;
+                std::string::size_type dot1_pos, dot2_pos, colon_pos;
+                dot1_pos= client_ip.find(".", 0);
+                client_ip_byte1 = client_ip.substr(0, dot1_pos);
+                dot2_pos = client_ip.find(".", dot1_pos + 1);
+                client_ip_byte2 = client_ip.substr(dot1_pos + 1, dot2_pos - dot1_pos - 1);
+                colon_pos = i->second.address.find(":", 0);
+                server_ip = i->second.address.substr(0, colon_pos);
+                server_port = i->second.address.substr(colon_pos, i->second.address.size());
+                server_address = i->second.address;
+                int client_ip_byte2_int = atoi(client_ip_byte2.c_str());
+                if ((client_ip_byte1 == "10" || (client_ip_byte1 == "192" && client_ip_byte2 == "168") ||
+                    (client_ip_byte1 == "172" && client_ip_byte2_int >= 16 && client_ip_byte2_int <= 31)) &&
+                    (server_ip != "127.0.0.1" && server_ip != "localhost"))
+                    server_address = "192.168.101.102" + server_port;
+                // -------------------------------
+
+                pkt << server_address;                      // address
                 pkt << float(i->second.populationLevel);
                 pkt << uint8(AmountOfCharacters);
                 pkt << uint8(i->second.timezone);           // realm category (Cfg_Categories.dbc)
