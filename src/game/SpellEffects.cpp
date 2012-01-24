@@ -47,6 +47,7 @@
 #include "BattleGroundEY.h"
 #include "BattleGroundWS.h"
 #include "BattleGroundSA.h"
+#include "WorldPvP/WorldPvPMgr.h"
 #include "Language.h"
 #include "SocialMgr.h"
 #include "VMapFactory.h"
@@ -5758,6 +5759,14 @@ void Spell::EffectOpenLock(SpellEffectIndex eff_idx)
                 return;
             }
         }
+        else if(goInfo->type == GAMEOBJECT_TYPE_GOOBER)
+        {
+            // Check if object is handled by outdoor pvp
+            // GameObject is handling some events related to world battleground events
+            if (sWorldPvPMgr.HandleObjectUse(player, gameObjTarget))
+                return;
+        }
+
         lockId = goInfo->GetLockId();
         guid = gameObjTarget->GetObjectGuid();
     }
@@ -8773,13 +8782,12 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(m_caster, m_spellInfo->Id == 49380 ? 49381 : 59805, true, NULL, NULL, m_caster->GetObjectGuid());
                     return;
                 }
-                case 49405:                                 // Taunt Invider Trigger (Trollgore - Drak'Tharon Keep)
+                case 49405:                                 //Invader Taunt Trigger
                 {
                     if (!unitTarget)
                         return;
 
-                    //cast back Trollgore -> Taunt Invider
-                    unitTarget->CastSpell(m_caster, 49406, true);
+                    unitTarget->CastSpell(m_caster, m_spellInfo->CalculateSimpleValue(eff_idx), true);
                     return;
                 }
                 case 48590:                                 // Avenging Spirits (summon Avenging Spirit Summoners)
@@ -9929,14 +9937,12 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         unitTarget->RemoveAurasDueToSpell(m_spellInfo->CalculateSimpleValue(eff_idx));
                     return;
                 }
-                case 70117:                                 // Ice grip (Sindragosa pull effect)
+                case 70117:                                 // Icy grip (Sindragosa pull effect)
                 {
-                    if (!unitTarget)
-                        return;
-                    float fPosX, fPosY, fPosZ;
-                    m_caster->GetPosition(fPosX, fPosY, fPosZ);
-                    m_caster->GetRandomPoint(fPosX, fPosY, fPosZ, m_caster->GetObjectBoundingRadius(), fPosX, fPosY, fPosZ);
-                    unitTarget->NearTeleportTo(fPosX, fPosY, fPosZ+1.0f, -unitTarget->GetOrientation(), false);
+                    if (unitTarget)
+                        unitTarget->CastSpell(m_caster, 70122, true);
+
+                    m_caster->CastSpell(m_caster, 70123, false); // trigger Blistering Cold
                     return;
                 }
                 case 70360:                                 // Eat Ooze (Putricide)

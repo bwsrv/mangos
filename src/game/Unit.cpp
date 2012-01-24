@@ -42,6 +42,7 @@
 #include "Vehicle.h"
 #include "BattleGround.h"
 #include "InstanceData.h"
+#include "WorldPvP/WorldPvP.h"
 #include "MapPersistentStateMgr.h"
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
@@ -969,6 +970,10 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
         if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->AI())
             ((Creature*)this)->AI()->KilledUnit(pVictim);
 
+        // Call World pvp scripts for player kill
+        if (pVictim->GetTypeId() == TYPEID_PLAYER && GetTypeId() == TYPEID_PLAYER)
+            sWorldPvPMgr.HandlePlayerKill((Player*)this, pVictim);
+
         // Call AI OwnerKilledUnit (for any current summoned minipet/guardian/protector)
         PetOwnerKilledUnit(pVictim);
 
@@ -1037,6 +1042,9 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             if (InstanceData* mapInstance = cVictim->GetInstanceData())
                 mapInstance->OnCreatureDeath(cVictim);
 
+            if (m_zoneScript = sWorldPvPMgr.GetZoneScript(GetZoneId()))
+                m_zoneScript->OnCreatureDeath(((Creature*)cVictim));
+
             if (cVictim->IsLinkingEventTrigger())
                 cVictim->GetMap()->GetCreatureLinkingHolder()->DoCreatureLinkingEvent(LINKING_EVENT_DIE, cVictim);
 
@@ -1092,6 +1100,13 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             he->CombatStopWithPets(true);
 
             he->DuelComplete(DUEL_INTERUPTED);
+        }
+
+        // handle player kill in outdoor pvp
+        if (player_tap && this != pVictim)
+        {
+            if (WorldPvP* pWorldBg = player_tap->GetWorldPvP())
+                pWorldBg->HandlePlayerKillInsideArea(player_tap, pVictim);
         }
 
         // battleground things (do this at the end, so the death state flag will be properly set to handle in the bg->handlekill)
@@ -5009,6 +5024,23 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGuid, U
     int32 new_max_dur = max_dur > dur ? dur : max_dur;
     new_holder->SetAuraMaxDuration(new_max_dur);
     new_holder->SetAuraDuration(new_max_dur);
+
+    // some specific events after stealing aura
+    // Lifebloom
+    if (spellProto->SpellFamilyName == SPELLFAMILY_DRUID && spellProto->SpellFamilyFlags.test<CF_DRUID_LIFEBLOOM>())
+    {
+        if (Aura* dotAura = GetAura<SPELL_AURA_DUMMY, SPELLFAMILY_DRUID, CF_DRUID_LIFEBLOOM>(casterGuid))
+        {
+            int32 amount = dotAura->GetModifier()->m_amount;
+            CastCustomSpell(this, 33778, &amount, NULL, NULL, true, NULL, dotAura, casterGuid);
+
+            if (Unit* caster = dotAura->GetCaster())
+            {
+                int32 returnmana = (spellProto->ManaCostPercentage * caster->GetCreateMana() / 100) * dotAura->GetStackAmount() / 2;
+                caster->CastCustomSpell(caster, 64372, &returnmana, NULL, NULL, true, NULL, dotAura, casterGuid);
+            }
+        }
+    }
 
     for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)
     {
