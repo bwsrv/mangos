@@ -1542,10 +1542,6 @@
 				RelativePath="..\..\src\game\Vehicle.h"
 				>
 			</File>
-			<File
-				RelativePath="..\..\src\game\WardenHandler.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Server"
@@ -1992,6 +1988,82 @@
 			</File>
 			<File
 				RelativePath="..\..\src\game\warden\WardenWin.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="WorldPvP"
+			>
+			<File
+				RelativePath="..\..\src\game\WorldPvP\WorldPvP.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\WorldPvP\WorldPvP.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\WorldPvP\WorldPvPEP.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\WorldPvP\WorldPvPEP.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\WorldPvP\WorldPvPGH.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\WorldPvP\WorldPvPGH.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\WorldPvP\WorldPvPHP.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\WorldPvP\WorldPvPHP.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\WorldPvP\WorldPvPMgr.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\WorldPvP\WorldPvPMgr.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\WorldPvP\WorldPvPNA.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\WorldPvP\WorldPvPNA.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\WorldPvP\WorldPvPSI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\WorldPvP\WorldPvPSI.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\WorldPvP\WorldPvPTF.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\WorldPvP\WorldPvPTF.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\WorldPvP\WorldPvPZM.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\WorldPvP\WorldPvPZM.h"
 				>
 			</File>
 		</Filter>
