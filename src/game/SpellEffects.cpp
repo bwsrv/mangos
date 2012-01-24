@@ -10205,14 +10205,12 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         unitTarget->RemoveAurasDueToSpell(m_spellInfo->CalculateSimpleValue(eff_idx));
                     return;
                 }
-                case 70117:                                 // Ice grip (Sindragosa pull effect)
+                case 70117:                                 // Icy grip (Sindragosa pull effect)
                 {
-                    if (!unitTarget)
-                        return;
-                    float fPosX, fPosY, fPosZ;
-                    m_caster->GetPosition(fPosX, fPosY, fPosZ);
-                    m_caster->GetRandomPoint(fPosX, fPosY, fPosZ, m_caster->GetObjectBoundingRadius(), fPosX, fPosY, fPosZ);
-                    unitTarget->NearTeleportTo(fPosX, fPosY, fPosZ+1.0f, -unitTarget->GetOrientation(), false);
+                    if (unitTarget)
+                        unitTarget->CastSpell(m_caster, 70122, true);
+
+                    m_caster->CastSpell(m_caster, 70123, false); // trigger Blistering Cold
                     return;
                 }
                 case 70360:                                 // Eat Ooze (Putricide)
