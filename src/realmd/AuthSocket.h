@@ -79,6 +79,7 @@ class AuthSocket: public BufferedSocket
         ACE_HANDLE patch_;
 
         void InitPatch();
+        std::string DetermineRealmAddress(std::string client_ip, std::string realm_address);
 };
 #endif
 /// @}
