@@ -260,6 +260,26 @@ void WorldSession::HandleCharCreateOpcode( WorldPacket & recv_data )
                 return;
             }
         }
+
+        uint32 allowable_races_mask = 0, allowable_classes_mask = 0;
+
+        QueryResult* result = LoginDatabase.PQuery("SELECT allowable_races, allowable_classes FROM account WHERE id='%u'", GetAccountId());
+        if (result)
+        {
+            Field* fields = result->Fetch();
+            allowable_races_mask = fields[0].GetUInt32();
+            allowable_classes_mask = fields[1].GetUInt32();
+            delete result;
+        }
+
+        bool creation_enabled = (allowable_races_mask & (1 << (race_ - 1))) && (allowable_classes_mask & (1 << (class_ - 1)));
+
+        if (!creation_enabled)
+        {
+            data << (uint8)CHAR_CREATE_FAILED;
+            SendPacket( &data );
+            return;
+        }
     }
 
     ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(class_);
