@@ -40,6 +40,7 @@
 #include "InstanceData.h"
 #include "MapPersistentStateMgr.h"
 #include "BattleGroundMgr.h"
+#include "WorldPvP/WorldPvPMgr.h"
 #include "Spell.h"
 #include "Util.h"
 #include "GridNotifiers.h"
@@ -522,6 +523,9 @@ void Creature::Update(uint32 update_diff, uint32 diff)
                 if (AI())
                     AI()->JustRespawned();
 
+                if (m_zoneScript)
+                    m_zoneScript->OnCreatureRespawn(this);
+
                 if (m_isCreatureLinkingTrigger)
                     GetMap()->GetCreatureLinkingHolder()->DoCreatureLinkingEvent(LINKING_EVENT_RESPAWN, this);
 
@@ -803,6 +807,11 @@ bool Creature::Create(uint32 guidlow, CreatureCreatePos& cPos, CreatureInfo cons
     //Normally non-players do not teleport to other maps.
     if (InstanceData* iData = GetMap()->GetInstanceData())
         iData->OnCreatureCreate(this);
+
+    // Init and notify outdoor pvp script
+    SetZoneScript();
+    if (m_zoneScript)
+        m_zoneScript->OnCreatureCreate(this);
 
     switch (GetCreatureInfo()->rank)
     {
