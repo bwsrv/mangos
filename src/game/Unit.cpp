@@ -12668,9 +12668,10 @@ void Unit::CleanupDeletedHolders(bool force)
     {
         for (SpellAuraHolderSet::iterator iter = m_deletedHolders.begin(); iter != m_deletedHolders.end();)
         {
-            if ((*iter) && !(*iter)->IsInUse())
+            if ((*iter) && (!(*iter)->IsInUse() || GetTypeId() != TYPEID_PLAYER))
             {
-                m_deletedHolders.erase(*iter++);
+                m_deletedHolders.erase(*iter);
+                iter = m_deletedHolders.begin();
             }
             else
                 ++iter;
