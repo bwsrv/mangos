@@ -3243,10 +3243,6 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell)
     if (pVictim && pVictim->GetObjectGuid() == GetObjectGuid())
         return SPELL_MISS_NONE;
 
-    // hack: Slam dummy/client spell (do not check miss twice)
-    if (spell->SpellFamilyFlags.test<CF_WARRIOR_SLAM>() && spell->Id != 50782)
-        return SPELL_MISS_NONE;
-
     // bonus from skills is 0.04% per skill Diff
     int32 attackerWeaponSkill = (spell->EquippedItemClass == ITEM_CLASS_WEAPON) ? int32(GetWeaponSkillValue(attType,pVictim)) : GetMaxSkillValueForLevel();
     int32 skillDiff = attackerWeaponSkill - int32(pVictim->GetMaxSkillValueForLevel(this));
