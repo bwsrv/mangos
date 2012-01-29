@@ -791,7 +791,8 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
                                 "a.os, "                      //10
                                 "a_fp.accountid, "            //11
                                 "a_fp.realmID, "              //12
-                                "a_fp.security "              //13
+                                "a_fp.security, "             //13
+                                "a.premium "                  //14
                                 "FROM account as a "
                                 "LEFT JOIN account_forcepermission as a_fp "
                                 "ON a.id = a_fp.AccountId "
@@ -868,6 +869,8 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         locale = LOCALE_enUS;
 
     std::string os = fields[10].GetString();
+    // Premium Accounts System
+    uint32 premium = fields[14].GetInt32();
 
     delete result;
 
@@ -942,7 +945,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     stmt.PExecute(address.c_str(), account.c_str());
 
     // NOTE ATM the socket is single-threaded, have this in mind ...
-    ACE_NEW_RETURN(m_Session, WorldSession(id, this, AccountTypes(security), expansion, mutetime, locale), -1);
+    ACE_NEW_RETURN(m_Session, WorldSession(id, this, AccountTypes(security), expansion, mutetime, locale, premium), -1);
 
     m_Crypt.Init(&K);
 

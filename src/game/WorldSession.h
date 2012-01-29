@@ -193,7 +193,7 @@ class MANGOS_DLL_SPEC WorldSession
 {
     friend class CharacterHandler;
     public:
-        WorldSession(uint32 id, WorldSocket *sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale);
+        WorldSession(uint32 id, WorldSocket *sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 uiPremium);
         ~WorldSession();
 
         bool PlayerLoading() const { return m_playerLoading; }
@@ -225,6 +225,9 @@ class MANGOS_DLL_SPEC WorldSession
         uint8 Expansion() const { return m_expansion; }
 
         void InitWarden(BigNumber *K, std::string os);
+
+        /// Premium Accounts System
+        uint32 IsPremium() const { return m_premium; }
 
         /// Session in auth.queue currently
         void SetInQueue(bool state) { m_inQueue = state; }
@@ -894,6 +897,7 @@ class MANGOS_DLL_SPEC WorldSession
         // Warden
         WardenBase *m_Warden;
 
+        uint32 m_premium;
         time_t _logoutTime;
         bool m_inQueue;                                     // session wait in auth.queue
         bool m_playerLoading;                               // code processed in LoginPlayer
