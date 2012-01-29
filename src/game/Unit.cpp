@@ -7455,6 +7455,17 @@ uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, u
      // Custom scripted damage
     switch(spellProto->SpellFamilyName)
     {
+        case SPELLFAMILY_GENERIC:
+        {
+            switch(spellProto->Id)
+            {
+                case 71341: // Pact of the Darkfallen (Lanathel)
+                    // dont get any damage done mods
+                    DoneTotalMod = 1.0f;
+                    break;
+            }
+            break;
+        }
         case SPELLFAMILY_MAGE:
         {
             // Ice Lance
@@ -12770,9 +12781,10 @@ void Unit::CleanupDeletedHolders(bool force)
     {
         for (SpellAuraHolderSet::iterator iter = m_deletedHolders.begin(); iter != m_deletedHolders.end();)
         {
-            if ((*iter) && !(*iter)->IsInUse())
+            if ((*iter) && (!(*iter)->IsInUse() || GetTypeId() != TYPEID_PLAYER))
             {
-                m_deletedHolders.erase(*iter++);
+                m_deletedHolders.erase(*iter);
+                iter = m_deletedHolders.begin();
             }
             else
                 ++iter;
