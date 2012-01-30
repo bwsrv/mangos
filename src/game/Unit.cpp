@@ -12400,12 +12400,123 @@ void Unit::RemoveVehicleKit()
 
     m_pVehicleKit->RemoveAllPassengers();
 
-//    delete m_pVehicleKit;
-//    m_pVehicleKit = NULL;
+    delete m_pVehicleKit;
+    m_pVehicleKit = NULL;
 
     m_updateFlag &= ~UPDATEFLAG_VEHICLE;
     RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
     RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
+}
+
+void Unit::EnterVehicle(VehicleKit* vehicle, int8 seatId)
+{ 
+    if (vehicle)
+        EnterVehicle(vehicle->GetBase(), seatId);
+};
+
+void Unit::EnterVehicle(Unit* vehicleBase, int8 seatId)
+{
+    if (!isAlive() || !vehicleBase ||
+        !vehicleBase->GetVehicleKit() ||
+        GetVehicleKit() == vehicleBase->GetVehicleKit())
+        return;
+
+    if (seatId == -1)
+    {
+        if (vehicleBase->GetVehicleKit()->HasEmptySeat(-1))
+            seatId = vehicleBase->GetVehicleKit()->GetNextEmptySeat(0,true);
+        else
+        {
+            sLog.outError("Unit::EnterVehicle: unit %s try seat to  vehicle %s but no seats!", GetObjectGuid().GetString().c_str(), vehicleBase->GetObjectGuid().GetString().c_str());
+            return;
+        }
+    }
+
+    InterruptNonMeleeSpells(false);
+    RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
+
+    if (GetTypeId() == TYPEID_PLAYER)
+        ((Player*)this)->UnsummonPetTemporaryIfAny(true);
+    else
+        if (Pet *pet = GetPet())
+            pet->Unsummon(PET_SAVE_AS_CURRENT,this);
+
+    SpellEntry const* spellInfo;
+    int32 bp[MAX_EFFECT_INDEX];
+
+    Unit* caster = NULL;
+    Unit* target = NULL;
+    if (GetTypeId() == TYPEID_PLAYER && vehicleBase->GetTypeId() == TYPEID_UNIT)
+    {
+        SpellClickInfoMapBounds clickPair = sObjectMgr.GetSpellClickInfoMapBounds(vehicleBase->GetEntry());
+        if (clickPair.first != clickPair.second)
+        {
+            for (SpellClickInfoMap::const_iterator itr = clickPair.first; itr != clickPair.second; ++itr)
+            {
+                if (itr->second.IsFitToRequirements((Player*)this))
+                {
+                    caster = (itr->second.castFlags & 0x1) ? this : vehicleBase;
+                    target = (itr->second.castFlags & 0x2) ? this : vehicleBase;
+
+                    spellInfo = sSpellStore.LookupEntry(itr->second.spellId);
+                    if (!spellInfo)
+                        return;
+
+                    bool b_controlAura = false;
+                    for (uint32 i = 0; i < MAX_EFFECT_INDEX; ++i)
+                    {
+                        if (IsAuraApplyEffect(spellInfo, SpellEffectIndex(i)))
+                            if (spellInfo->EffectApplyAuraName[i] == SPELL_AURA_CONTROL_VEHICLE)
+                                b_controlAura = true;
+                    }
+                    if (b_controlAura)
+                        break;
+
+                    spellInfo = NULL;
+                }
+            }
+        }
+    }
+
+    if (!spellInfo)
+    {
+        caster = this;
+        target = vehicleBase;
+        spellInfo = sSpellStore.LookupEntry(SPELL_RIDE_VEHICLE_HARDCODED);
+    }
+
+    for (uint32 i = 0; i < MAX_EFFECT_INDEX; ++i)
+    {
+        if (IsAuraApplyEffect(spellInfo, SpellEffectIndex(i)))
+        {
+            if (spellInfo->EffectApplyAuraName[i] == SPELL_AURA_CONTROL_VEHICLE)
+            {
+                bp[i] = seatId + 1;
+            }
+            else
+                bp[i] = NULL;
+        }
+        else
+            bp[i] = NULL;
+    }
+
+    caster->CastCustomSpell(target,spellInfo,&bp[EFFECT_INDEX_0],&bp[EFFECT_INDEX_1],&bp[EFFECT_INDEX_2],true,NULL,NULL,caster->GetObjectGuid());
+    DEBUG_LOG("Unit::EnterVehicle: unit %s enter vehicle %s with control aura %u", GetObjectGuid().GetString().c_str(), vehicleBase->GetObjectGuid().GetString().c_str(),spellInfo->Id);
+}
+
+void Unit::ExitVehicle()
+{
+    if (!GetVehicle() || !GetVehicle()->GetBase())
+        return;
+
+    if (!GetVehicle()->GetBase()->RemoveSpellsCausingAuraByCaster(SPELL_AURA_CONTROL_VEHICLE, GetObjectGuid()))
+    {
+        _ExitVehicle();
+        sLog.outDetail("Unit::ExitVehicle: unit %s leave vehicle %s but no control aura!", GetObjectGuid().GetString().c_str(), GetVehicle()->GetBase()->GetObjectGuid().GetString().c_str());
+    }
+
+    if (isAlive() && GetTypeId() == TYPEID_PLAYER)
+        ((Player*)this)->ResummonPetTemporaryUnSummonedIfAny();
 }
 
 void Unit::ChangeSeat(int8 seatId, bool next)
@@ -12430,7 +12541,7 @@ void Unit::ChangeSeat(int8 seatId, bool next)
     m_pVehicle->AddPassenger(this, seatId);
 }
 
-void Unit::EnterVehicle(VehicleKit *vehicle, int8 seatId)
+void Unit::_EnterVehicle(VehicleKit* vehicle, int8 seatId)
 {
     if (!isAlive() || !vehicle || GetVehicleKit() == vehicle)
         return;
@@ -12447,23 +12558,6 @@ void Unit::EnterVehicle(VehicleKit *vehicle, int8 seatId)
         else
             ExitVehicle();
     }
-
-    if (seatId == -1)
-    {
-        if (vehicle->HasEmptySeat(-1))
-            seatId = vehicle->GetNextEmptySeat(0,true);
-        else
-            return;
-    }
-
-    InterruptNonMeleeSpells(false);
-    RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
-
-    if (GetTypeId() == TYPEID_PLAYER)
-        ((Player*)this)->UnsummonPetTemporaryIfAny(true);
-    else
-        if (Pet *pet = GetPet())
-            pet->Unsummon(PET_SAVE_AS_CURRENT,this);
 
     if (!vehicle->AddPassenger(this, seatId))
         return;
@@ -12494,9 +12588,9 @@ void Unit::EnterVehicle(VehicleKit *vehicle, int8 seatId)
     }
 }
 
-void Unit::ExitVehicle()
+void Unit::_ExitVehicle()
 {
-    if(!m_pVehicle)
+    if(!GetVehicle())
         return;
 
     m_pVehicle->RemovePassenger(this, true);

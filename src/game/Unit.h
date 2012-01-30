@@ -2116,9 +2116,14 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         uint32 GetTransTime() const { return m_movementInfo.GetTransportTime(); }
         int8 GetTransSeat() const { return m_movementInfo.GetTransportSeat(); }
 
-        // Vehicle system
-        void EnterVehicle(VehicleKit *vehicle, int8 seatId = -1);
+        // Vehicle system (over-aura operation)
+        void EnterVehicle(Unit* base, int8 seatId = -1);
+        void EnterVehicle(VehicleKit* vehicle, int8 seatId = -1);
         void ExitVehicle();
+        // Vehicle system (direct operation)
+        void _EnterVehicle(VehicleKit *vehicle, int8 seatId = -1);
+        void _ExitVehicle();
+
         void ChangeSeat(int8 seatId, bool next = true);
         VehicleKit* GetVehicle() const { return m_pVehicle; }
         VehicleKit* GetVehicleKit() const { return m_pVehicleKit; }
