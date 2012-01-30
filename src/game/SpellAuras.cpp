@@ -3556,9 +3556,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 case 50053:                                 // Varos Shield
                     target->ApplyModFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE, apply);
                     target->ApplyModFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE, apply);
-
-                    if (!apply)
-                        target->InterruptNonMeleeSpells(false); //Effect 2 has channel effect
                     return;
                 case 54852:                                 // Drakkari Colossus Stun (Hmmm... I'm lookup all stun effect spell, but not find needed!)
                     if (apply)
