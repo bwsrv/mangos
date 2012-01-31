@@ -879,58 +879,86 @@ enum MeleeHitOutcome
     MELEE_HIT_NORMAL    = 8,
 };
 
-struct CleanDamage
-{
-    CleanDamage(uint32 _damage, uint32 _absorb, WeaponAttackType _attackType, MeleeHitOutcome _hitOutCome) :
-    damage(_damage), absorb(_absorb), attackType(_attackType), hitOutCome(_hitOutCome) {}
-
-    uint32 damage;
-    uint32 absorb;                          // for calculation of rage from absorbed dmg
-    WeaponAttackType attackType;
-    MeleeHitOutcome hitOutCome;
-};
+//struct CleanDamage
+//struct CalcDamageInfo
+//struct SpellNonMeleeDamage
 
 // Struct for use in Unit::CalculateMeleeDamage
-// Need create structure like in SMSG_ATTACKERSTATEUPDATE opcode
-struct CalcDamageInfo
+// Spell damage info structure based on structure sending in SMSG_SPELLNONMELEEDAMAGELOG opcode
+struct DamageInfo
 {
-    Unit  *attacker;             // Attacker
-    Unit  *target;               // Target for damage
-    SpellSchoolMask damageSchoolMask;
+    // Constructors for use with spell damage
+    DamageInfo(Unit *_attacker, Unit *_target, uint32 _SpellID)
+        :  attacker(_attacker), target(_target), SpellID(_SpellID), m_spellInfo(NULL)
+        { Reset(); };
+
+    DamageInfo(Unit *_attacker, Unit *_target, SpellEntry const* spellInfo)
+        :  attacker(_attacker), target(_target), m_spellInfo(spellInfo), SpellID(0)
+        { Reset(); };
+
+    // Constructor for use with melee damage
+    DamageInfo(Unit *_attacker, Unit *_target)
+        : attacker(_attacker), target(_target),  SpellID(0), m_spellInfo(NULL)
+        { Reset(); };
+
+    // Constructors for use on temporary operation
+    DamageInfo(uint32 _damage)
+        : attacker(NULL), target(NULL), SpellID(0), m_spellInfo(NULL)
+        { Reset(); };
+
+    DamageInfo(uint32 _damage, uint32 _SpellID)
+        : attacker(NULL), target(NULL), SpellID(_SpellID), m_spellInfo(NULL)
+        { Reset(); };
+
+    DamageInfo(uint32 _damage, SpellEntry const* spellInfo)
+        : attacker(NULL), target(NULL), m_spellInfo(spellInfo), SpellID(0)
+        { Reset(); };
+
+    // main operations
+    void Reset(uint32 _damage = 0);
+
+    // compartibility methods
+    void CleanDamage(uint32 _damage, uint32 _absorb, WeaponAttackType _attackType, MeleeHitOutcome _hitOutCome)
+        {
+            cleanDamage = _damage;
+            absorb      = _absorb;
+            attackType  = _attackType;
+            hitOutCome  = _hitOutCome;
+        }
+
+    Unit*  attacker;             // Attacker
+    Unit*  target;               // Target for damage
+
+    // Spell parameters
+    uint32            SpellID;
+    SpellEntry const* m_spellInfo;
+    SpellSchoolMask   SchoolMask();
+
+    // Damage divide
     uint32 damage;
     uint32 absorb;
     uint32 resist;
-    uint32 blocked_amount;
+    uint32 blocked;
+    uint32 cleanDamage;          // Used only for rage calculation
+
+    // Various types
+    WeaponAttackType attackType;
+    DamageEffectType damageType;
     uint32 HitInfo;
     uint32 TargetState;
-// Helper
-    WeaponAttackType attackType; //
+    MeleeHitOutcome hitOutCome;  // TODO: remove this field (need use TargetState)
+
+    // Proc states
     uint32 procAttacker;
     uint32 procVictim;
     uint32 procEx;
-    uint32 cleanDamage;          // Used only for rage calculation
-    MeleeHitOutcome hitOutCome;  // TODO: remove this field (need use TargetState)
-};
 
-// Spell damage info structure based on structure sending in SMSG_SPELLNONMELEEDAMAGELOG opcode
-struct SpellNonMeleeDamage{
-    SpellNonMeleeDamage(Unit *_attacker, Unit *_target, uint32 _SpellID, SpellSchoolMask _schoolMask)
-        : target(_target), attacker(_attacker), SpellID(_SpellID), damage(0), schoolMask(_schoolMask),
-        absorb(0), resist(0), physicalLog(false), unused(false), blocked(0), HitInfo(0)
-    {}
-
-    Unit   *target;
-    Unit   *attacker;
-    uint32 SpellID;
-    uint32 damage;
-    SpellSchoolMask schoolMask;
-    uint32 absorb;
-    uint32 resist;
+    // Helpers
     bool   physicalLog;
     bool   unused;
-    uint32 blocked;
-    uint32 HitInfo;
+    bool   IsMeleeDamage() { return !m_spellInfo; };
 };
+
 
 struct SpellPeriodicAuraLogInfo
 {
@@ -946,7 +974,7 @@ struct SpellPeriodicAuraLogInfo
     bool   critical;
 };
 
-uint32 createProcExtendMask(SpellNonMeleeDamage *damageInfo, SpellMissInfo missCondition);
+uint32 createProcExtendMask(DamageInfo *damageInfo, SpellMissInfo missCondition);
 
 enum SpellAuraProcResult
 {
@@ -1344,8 +1372,9 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 
         uint16 GetMaxSkillValueForLevel(Unit const* target = NULL) const { return (target ? GetLevelForTarget(target) : getLevel()) * 5; }
         void DealDamageMods(Unit *pVictim, uint32 &damage, uint32* absorb);
-        uint32 DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellEntry const *spellProto, bool durabilityLoss);
-        int32 DealHeal(Unit *pVictim, uint32 addhealth, SpellEntry const *spellProto, bool critical = false, uint32 absorb = 0);
+        uint32 DealDamage(Unit *pVictim, uint32 damage, DamageInfo* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellEntry const *spellProto, bool durabilityLoss);
+        uint32 DealDamage(Unit* pVictim, DamageInfo* damageInfo, bool durabilityLoss);
+        int32  DealHeal(Unit* pVictim, uint32 addhealth, SpellEntry const* spellProto, bool critical = false, uint32 absorb = 0);
 
         void PetOwnerKilledUnit(Unit* pVictim);
 
@@ -1359,13 +1388,13 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 
         float MeleeMissChanceCalc(const Unit *pVictim, WeaponAttackType attType) const;
 
-        void CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *damageInfo, WeaponAttackType attackType = BASE_ATTACK);
-        void DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss);
+        void CalculateMeleeDamage(Unit *pVictim, uint32 damage, DamageInfo *damageInfo, WeaponAttackType attackType = BASE_ATTACK);
+        void DealMeleeDamage(DamageInfo *damageInfo, bool durabilityLoss);
 
         bool IsAllowedDamageInArea(Unit * pVictim) const;
 
-        void CalculateSpellDamage(SpellNonMeleeDamage *damageInfo, int32 damage, SpellEntry const *spellInfo, WeaponAttackType attackType = BASE_ATTACK, float DamageMultiplier = 1.0f);
-        void DealSpellDamage(SpellNonMeleeDamage *damageInfo, bool durabilityLoss);
+        void CalculateSpellDamage(DamageInfo *damageInfo, int32 damage, SpellEntry const *spellInfo, WeaponAttackType attackType = BASE_ATTACK, float DamageMultiplier = 1.0f);
+        void DealSpellDamage(DamageInfo *damageInfo, bool durabilityLoss);
 
         // player or player's pet resilience (-1%)
         float GetMeleeCritChanceReduction() const { return GetCombatRatingReduction(CR_CRIT_TAKEN_MELEE); }
@@ -1487,9 +1516,8 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 
         void DeMorph();
 
-        void SendAttackStateUpdate(CalcDamageInfo *damageInfo);
-        void SendAttackStateUpdate(uint32 HitInfo, Unit *target, uint8 SwingType, SpellSchoolMask damageSchoolMask, uint32 Damage, uint32 AbsorbDamage, uint32 Resist, VictimState TargetState, uint32 BlockedAmount);
-        void SendSpellNonMeleeDamageLog(SpellNonMeleeDamage *log);
+        void SendAttackStateUpdate(DamageInfo* damageInfo);
+        void SendSpellNonMeleeDamageLog(DamageInfo *log);
         void SendSpellNonMeleeDamageLog(Unit *target,uint32 SpellID, uint32 Damage, SpellSchoolMask damageSchoolMask, uint32 AbsorbedDamage, uint32 Resist, bool PhysicalDamage, uint32 Blocked, bool CriticalHit = false);
         void SendPeriodicAuraLog(SpellPeriodicAuraLogInfo *pInfo);
         void SendSpellMiss(Unit *target, uint32 spellID, SpellMissInfo missInfo);
@@ -1983,7 +2011,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 
         uint32 CalcArmorReducedDamage(Unit* pVictim, const uint32 damage);
         void CalculateDamageAbsorbAndResist(Unit *pCaster, SpellSchoolMask schoolMask, DamageEffectType damagetype, const uint32 damage, uint32 *absorb, uint32 *resist, bool canReflect = false);
-        void CalculateAbsorbResistBlock(Unit *pCaster, SpellNonMeleeDamage *damageInfo, SpellEntry const* spellProto, WeaponAttackType attType = BASE_ATTACK);
+        void CalculateAbsorbResistBlock(Unit *pCaster, DamageInfo *damageInfo, SpellEntry const* spellProto, WeaponAttackType attType = BASE_ATTACK);
         void CalculateHealAbsorb(uint32 heal, uint32 *absorb);
 
         void  UpdateSpeed(UnitMoveType mtype, bool forced, float ratio = 1.0f);

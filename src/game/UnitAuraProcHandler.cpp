@@ -4541,7 +4541,7 @@ SpellAuraProcResult Unit::HandleProcTriggerDamageAuraProc(Unit *pVictim, uint32 
     SpellEntry const *spellInfo = triggeredByAura->GetSpellProto();
     DEBUG_FILTER_LOG(LOG_FILTER_SPELL_CAST, "ProcDamageAndSpell: doing %u damage from spell id %u (triggered by auratype %u of spell %u)",
         triggeredByAura->GetModifier()->m_amount, spellInfo->Id, triggeredByAura->GetModifier()->m_auraname, triggeredByAura->GetId());
-    SpellNonMeleeDamage damageInfo(this, pVictim, spellInfo->Id, SpellSchoolMask(spellInfo->SchoolMask));
+    DamageInfo damageInfo(this, pVictim, spellInfo);
     CalculateSpellDamage(&damageInfo, triggeredByAura->GetModifier()->m_amount, spellInfo);
     damageInfo.target->CalculateAbsorbResistBlock(this, &damageInfo, spellInfo);
     DealDamageMods(damageInfo.target,damageInfo.damage,&damageInfo.absorb);
@@ -5251,32 +5251,33 @@ SpellAuraProcResult Unit::HandleDamageShieldAuraProc(Unit* pVictim, uint32 damag
     if (!spellProto)
         return SPELL_AURA_PROC_FAILED;
 
-    uint32 retdamage = triggeredByAura->GetModifier()->m_amount;
+    DamageInfo damageInfo =  DamageInfo(this, pVictim, spellProto);
+    
+    damageInfo.damage = triggeredByAura->GetModifier()->m_amount;
 
-    retdamage = SpellDamageBonusDone(pVictim,spellProto,uint32(retdamage),SPELL_DIRECT_DAMAGE);
-    retdamage = pVictim->SpellDamageBonusTaken(this, spellProto, uint32(retdamage),SPELL_DIRECT_DAMAGE);
+    damageInfo.damage = SpellDamageBonusDone(pVictim, spellProto, damageInfo.damage, SPELL_DIRECT_DAMAGE);
+    damageInfo.damage = pVictim->SpellDamageBonusTaken(this, spellProto, damageInfo.damage, SPELL_DIRECT_DAMAGE);
 
-    uint32 absorb=0;
-    uint32 resist=0;
-    CleanDamage cleanDamage =  CleanDamage(0, 0, BASE_ATTACK, MELEE_HIT_NORMAL );
-    pVictim->CalculateDamageAbsorbAndResist(this, GetSpellSchoolMask(spellProto), SPELL_DIRECT_DAMAGE, retdamage, &absorb, &resist, !(spellProto->AttributesEx & SPELL_ATTR_EX_CANT_REFLECTED));
-    cleanDamage.absorb += absorb;
-    cleanDamage.damage=retdamage;
-    DealDamageMods(pVictim, retdamage, &absorb);
+
+    damageInfo.CleanDamage(0, 0, BASE_ATTACK, MELEE_HIT_NORMAL);
+
+    pVictim->CalculateDamageAbsorbAndResist(this, GetSpellSchoolMask(spellProto), SPELL_DIRECT_DAMAGE, damageInfo.damage, &damageInfo.absorb, &damageInfo.resist, !(spellProto->AttributesEx & SPELL_ATTR_EX_CANT_REFLECTED));
+
+    DealDamageMods(pVictim, damageInfo.damage, &damageInfo.absorb);
 
     uint32 targetHealth = pVictim->GetHealth();
-    uint32 overkill = retdamage > targetHealth ? retdamage - targetHealth : 0;
+    uint32 overkill     = damageInfo.damage > targetHealth ? damageInfo.damage - targetHealth : 0;
 
     WorldPacket data(SMSG_SPELLDAMAGESHIELD,(8+8+4+4+4+4));
     data << GetObjectGuid();
     data << pVictim->GetObjectGuid();
     data << uint32(spellProto->Id);
-    data << uint32(retdamage);                  // Damage
+    data << uint32(damageInfo.damage);                  // Damage
     data << uint32(overkill);                   // Overkill
-    data << uint32(spellProto->SchoolMask);
-    SendMessageToSet(&data, true );
+    data << uint32(damageInfo.SchoolMask());
+    SendMessageToSet(&data, true);
 
-    DealDamage(pVictim, retdamage, &cleanDamage, SPELL_DIRECT_DAMAGE, GetSpellSchoolMask(spellProto), spellProto, true);
+    DealDamage(pVictim, &damageInfo, true);
 
     return SPELL_AURA_PROC_OK;
 }
