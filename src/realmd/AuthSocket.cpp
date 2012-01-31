@@ -198,6 +198,27 @@ AuthSocket::~AuthSocket()
         ACE_OS::close(patch_);
 }
 
+std::string AuthSocket::DetermineRealmAddress(std::string client_ip, std::string realm_address)
+{
+    std::string client_ip_byte1, client_ip_byte2, server_ip, server_address, server_port;
+    std::string::size_type dot1_pos, dot2_pos, colon_pos;
+    dot1_pos= client_ip.find(".", 0);
+    client_ip_byte1 = client_ip.substr(0, dot1_pos);
+    dot2_pos = client_ip.find(".", dot1_pos + 1);
+    client_ip_byte2 = client_ip.substr(dot1_pos + 1, dot2_pos - dot1_pos - 1);
+    colon_pos = realm_address.find(":", 0);
+    server_ip = realm_address.substr(0, colon_pos);
+    server_port = realm_address.substr(colon_pos, realm_address.size());
+    int client_ip_byte2_int = atoi(client_ip_byte2.c_str());
+    
+    if ((client_ip_byte1 == "10" || (client_ip_byte1 == "192" && client_ip_byte2 == "168") ||
+        (client_ip_byte1 == "172" && client_ip_byte2_int >= 16 && client_ip_byte2_int <= 31)) &&
+        (server_ip != "127.0.0.1" && server_ip != "localhost"))
+        return "192.168.101.102" + server_port;
+
+    return realm_address;
+}
+
 /// Accept the connection and set the s random value for SRP6
 void AuthSocket::OnAccept()
 {
@@ -945,7 +966,7 @@ void AuthSocket::LoadRealmlist(ByteBuffer &pkt, uint32 acctid)
                 pkt << uint32(i->second.icon);              // realm type
                 pkt << uint8(realmflags);                   // realmflags
                 pkt << name;                                // name
-                pkt << i->second.address;                   // address
+                pkt << DetermineRealmAddress(get_remote_address(), i->second.address); // address
                 pkt << float(i->second.populationLevel);
                 pkt << uint8(AmountOfCharacters);
                 pkt << uint8(i->second.timezone);           // realm category
@@ -1003,7 +1024,7 @@ void AuthSocket::LoadRealmlist(ByteBuffer &pkt, uint32 acctid)
                 pkt << uint8(lock);                         // flags, if 0x01, then realm locked
                 pkt << uint8(realmFlags);                   // see enum RealmFlags
                 pkt << i->first;                            // name
-                pkt << i->second.address;                   // address
+                pkt << DetermineRealmAddress(get_remote_address(), i->second.address); // address
                 pkt << float(i->second.populationLevel);
                 pkt << uint8(AmountOfCharacters);
                 pkt << uint8(i->second.timezone);           // realm category (Cfg_Categories.dbc)
