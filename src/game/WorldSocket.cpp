@@ -792,7 +792,8 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
                                 "a_fp.accountid, "            //11
                                 "a_fp.realmID, "              //12
                                 "a_fp.security, "             //13
-                                "a.premium "                  //14
+                                "a.premium, "                 //14
+                                "a.rp_allow "                 //15
                                 "FROM account as a "
                                 "LEFT JOIN account_forcepermission as a_fp "
                                 "ON a.id = a_fp.AccountId "
@@ -872,6 +873,8 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     // Premium Accounts System
     uint32 premium = fields[14].GetInt32();
 
+    uint32 rp_allow = fields[15].GetInt32();
+
     delete result;
 
     // Re-check account ban (same check as in realmd)
@@ -896,7 +899,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     // Check locked state for server
     AccountTypes allowedAccountType = sWorld.GetPlayerSecurityLimit();
 
-    if (allowedAccountType > SEC_PLAYER && AccountTypes(security) < allowedAccountType)
+    if ((allowedAccountType > SEC_PLAYER && AccountTypes(security) < allowedAccountType) || !rp_allow)
     {
         WorldPacket Packet(SMSG_AUTH_RESPONSE, 1);
         Packet << uint8(AUTH_UNAVAILABLE);
