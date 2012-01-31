@@ -12521,7 +12521,7 @@ void Spell::EffectSuspendGravity(SpellEffectIndex eff_idx)
         float dh = verticalSpeed * verticalSpeed / (2 * 19.23f);
         float time = sqrtf(dh / (0.124976 * verticalSpeed));
         float speed = dist / time;
-        if (SpellAuraHolder* holder = unitTarget->GetSpellAuraHolder(68721))
+        if (SpellAuraHolderPtr holder = unitTarget->GetSpellAuraHolder(68721))
         {
             holder->SetAuraMaxDuration(uint32(time+0.25f)*IN_MILLISECONDS);
             holder->RefreshHolder();
