@@ -1515,9 +1515,18 @@ BattleGround * BattleGroundMgr::CreateNewBattleGround(BattleGroundTypeId bgTypeI
 
     if (bgTypeId==BATTLEGROUND_RB)
     {
-        BattleGroundTypeId random_bgs[] = {BATTLEGROUND_AV, BATTLEGROUND_WS, BATTLEGROUND_AB, BATTLEGROUND_EY, BATTLEGROUND_SA/*, BATTLEGROUND_IC*/};
-        uint32 bg_num = urand(0, sizeof(random_bgs)/sizeof(BattleGroundTypeId)-1);
-        bgTypeId = random_bgs[bg_num];
+        if (urand(0, 9))                                    // 90% - WS, AB, EY, SA
+        {
+            BattleGroundTypeId random_bgs[] = {BATTLEGROUND_WS, BATTLEGROUND_AB, BATTLEGROUND_EY, BATTLEGROUND_SA};
+            uint32 bg_num = urand(0, sizeof(random_bgs)/sizeof(BattleGroundTypeId)-1);
+            bgTypeId = random_bgs[bg_num];
+        }
+        else                                                // 10% - AV, IC
+        {
+            BattleGroundTypeId random_bgs[] = {BATTLEGROUND_AV, BATTLEGROUND_IC};
+            uint32 bg_num = urand(0, sizeof(random_bgs)/sizeof(BattleGroundTypeId)-1);
+            bgTypeId = random_bgs[bg_num];
+        }
         bg_template = GetBattleGroundTemplate(bgTypeId);
         if (!bg_template)
         {
