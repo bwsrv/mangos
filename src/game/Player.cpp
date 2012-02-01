@@ -1757,6 +1757,9 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
     // client without expansion support
 
+    if (Group* grp = GetGroup())
+        grp->SetPlayerMap(GetObjectGuid(), mapid);
+
     // if we were on a transport, leave
     if (!(options & TELE_TO_NOT_LEAVE_TRANSPORT) && m_transport)
     {
@@ -2304,15 +2307,8 @@ Creature* Player::GetNPCIfCanInteractWith(ObjectGuid guid, uint32 npcflagmask)
     if (unit->IsHostileTo(this))
         return NULL;
 
-    // not unfriendly
-    if(FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(unit->getFaction()))
-        if(factionTemplate->faction)
-            if(FactionEntry const* faction = sFactionStore.LookupEntry(factionTemplate->faction))
-                if(faction->reputationListID >= 0 && GetReputationMgr().GetRank(faction, true) <= REP_UNFRIENDLY)
-                    return NULL;
-
     // not too far
-    if(!unit->IsWithinDistInMap(this,INTERACTION_DISTANCE))
+    if (!unit->IsWithinDistInMap(this, INTERACTION_DISTANCE))
         return NULL;
 
     return unit;
@@ -6542,7 +6538,7 @@ void Player::setFactionForRace(uint8 race)
 ReputationRank Player::GetReputationRank(uint32 faction) const
 {
     FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction);
-    return GetReputationMgr().GetRank(factionEntry, false);
+    return GetReputationMgr().GetRank(factionEntry);
 }
 
 //Calculate total reputation percent player gain with quest/creature level
@@ -6645,7 +6641,7 @@ void Player::RewardReputation(Unit *pVictim, float rate)
         int32 donerep1 = CalculateReputationGain(REPUTATION_SOURCE_KILL, Rep->repvalue1, Repfaction1, pVictim->getLevel());
         donerep1 = int32(donerep1*rate);
         FactionEntry const *factionEntry1 = sFactionStore.LookupEntry(Rep->repfaction1);
-        uint32 current_reputation_rank1 = GetReputationMgr().GetRank(factionEntry1, false);
+        uint32 current_reputation_rank1 = GetReputationMgr().GetRank(factionEntry1);
         if (factionEntry1 && current_reputation_rank1 <= Rep->reputation_max_cap1)
             GetReputationMgr().ModifyReputation(factionEntry1, donerep1);
 
@@ -6663,7 +6659,7 @@ void Player::RewardReputation(Unit *pVictim, float rate)
         int32 donerep2 = CalculateReputationGain(REPUTATION_SOURCE_KILL, Rep->repvalue2, Repfaction2, pVictim->getLevel());
         donerep2 = int32(donerep2*rate);
         FactionEntry const *factionEntry2 = sFactionStore.LookupEntry(Rep->repfaction2);
-        uint32 current_reputation_rank2 = GetReputationMgr().GetRank(factionEntry2, false);
+        uint32 current_reputation_rank2 = GetReputationMgr().GetRank(factionEntry2);
         if (factionEntry2 && current_reputation_rank2 <= Rep->reputation_max_cap2)
             GetReputationMgr().ModifyReputation(factionEntry2, donerep2);
 

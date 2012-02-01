@@ -819,6 +819,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\src\shared\revision_BWS.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\src\shared\revision_nr.h"
 			>
 		</File>

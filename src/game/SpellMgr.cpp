@@ -4525,9 +4525,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
             // Judgement of Justice - limit to 10 seconds in PvP
             if (spellproto->SpellFamilyFlags.test<CF_PALADIN_JUDGEMENT_OF_JUSTICE>())
                 return DIMINISHING_LIMITONLY;
-            // Turn Evil - limit to 10 seconds in PvP
+            // Turn Evil
             else if (spellproto->SpellFamilyFlags.test<CF_PALADIN_TURN_EVIL>())
-                return DIMINISHING_LIMITONLY;
+                return DIMINISHING_FEAR_CHARM_BLIND;
             break;
         }
         case SPELLFAMILY_WARLOCK:
@@ -4818,8 +4818,10 @@ bool IsEffectCauseDamage(SpellEntry const *spellInfo, SpellEffectIndex effecIdx)
     switch (spellInfo->Effect[effecIdx])
     {
         // need much more correct effect definition in this check
+        case SPELL_EFFECT_NONE:
         case SPELL_EFFECT_DISPEL:
         case SPELL_EFFECT_TRIGGER_SPELL:
+        case SPELL_EFFECT_DISPEL_MECHANIC:
             return false;
 
         case SPELL_EFFECT_SCHOOL_DAMAGE:
