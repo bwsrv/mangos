@@ -1757,6 +1757,9 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
     // client without expansion support
 
+    if (Group* grp = GetGroup())
+        grp->SetPlayerMap(GetObjectGuid(), mapid);
+
     // if we were on a transport, leave
     if (!(options & TELE_TO_NOT_LEAVE_TRANSPORT) && m_transport)
     {
