@@ -9046,6 +9046,20 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
 
             break;
         }
+        case 70084: // Frost Aura (Sindragosa)
+        case 71050:
+        case 71051:
+        case 71052:
+        {
+            UnitList tempTargetUnitMap;
+            FillAreaTargets(tempTargetUnitMap, radius, PUSH_SELF_CENTER, SPELL_TARGETS_FRIENDLY);
+            for (UnitList::iterator itr = tempTargetUnitMap.begin(); itr != tempTargetUnitMap.end(); ++itr)
+            {
+                if ((*itr) && (*itr)->GetCharmerOrOwnerPlayerOrPlayerItself())
+                    targetUnitMap.push_back(*itr);
+            }
+            break;
+        }
         case 70117: // Icy grip (Sindragosa encounter)
         {
             UnitList tempTargetUnitMap;
