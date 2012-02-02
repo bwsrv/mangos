@@ -2820,7 +2820,7 @@ void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool ex
     // Send log damage message to client
     DealDamageMods(pVictim,damageInfo.damage,&damageInfo.absorb);
     SendAttackStateUpdate(&damageInfo);
-    ProcDamageAndSpell(damageInfo.target, damageInfo.procAttacker, damageInfo.procVictim, damageInfo.procEx, damageInfo.damage, damageInfo.attackType);
+    ProcDamageAndSpell(&damageInfo);
     DealMeleeDamage(&damageInfo,true);
 
     if (GetTypeId() == TYPEID_PLAYER)
@@ -6030,15 +6030,28 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo *pInfo)
     aura->GetTarget()->SendMessageToSet(&data, true);
 }
 
-void Unit::ProcDamageAndSpell(Unit *pVictim, uint32 procAttacker, uint32 procVictim, uint32 procExtra, uint32 amount, WeaponAttackType attType, SpellEntry const *procSpell)
+void Unit::ProcDamageAndSpell(Unit* pVictim, uint32 procAttacker, uint32 procVictim, uint32 procExtra, uint32 amount, WeaponAttackType attType, SpellEntry const* procSpell)
+{
+    // wrapper for old call convention
+    DamageInfo damageInfo(this, pVictim, procSpell);
+    damageInfo.damage        = amount;
+    damageInfo.procAttacker  = procAttacker;
+    damageInfo.procVictim    = procVictim;
+    damageInfo.attackType    = attType;
+    ProcDamageAndSpell(&damageInfo);
+}
+
+void Unit::ProcDamageAndSpell(DamageInfo* damageInfo)
 {
      // Not much to do if no flags are set.
-    if (IsInWorld() && procAttacker)
-        ProcDamageAndSpellFor(false,pVictim,procAttacker, procExtra,attType, procSpell, amount);
+    if (IsInWorld() && damageInfo->procAttacker)
+        ProcDamageAndSpellFor(false, damageInfo);
+
+    Unit* pVictim = damageInfo->target;
     // Now go on with a victim's events'n'auras
     // Not much to do if no flags are set or there is no victim
-    if (pVictim && pVictim->IsInWorld() && pVictim->isAlive() && procVictim)
-        pVictim->ProcDamageAndSpellFor(true,this,procVictim, procExtra, attType, procSpell, amount);
+    if (pVictim && pVictim->IsInWorld() && pVictim->isAlive() && damageInfo->procVictim)
+        pVictim->ProcDamageAndSpellFor(true, damageInfo);
 }
 
 void Unit::SendSpellMiss(Unit *target, uint32 spellID, SpellMissInfo missInfo)
@@ -11304,11 +11317,16 @@ uint32 createProcExtendMask(DamageInfo *damageInfo, SpellMissInfo missCondition)
     return procEx;
 }
 
-void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, SpellEntry const * procSpell, uint32 damage )
+void Unit::ProcDamageAndSpellFor(bool isVictim, DamageInfo* damageInfo)
 {
     // Fixme: need remove this check after make LocationManager
     if (!IsInWorld() || !GetMap())
         return;
+
+    Unit*  pTarget   = isVictim ? damageInfo->attacker : damageInfo->target;
+    uint32 procFlag  = isVictim ? damageInfo->procVictim : damageInfo->procAttacker;
+    uint32 procExtra = damageInfo->procEx;
+    SpellEntry const* procSpell = damageInfo->m_spellInfo;
 
     // For melee/ranged based attack need update skills and set some Aura states
     if (!(procExtra & PROC_EX_CAST_END) && procFlag & MELEE_BASED_TRIGGER_MASK)
@@ -11317,13 +11335,13 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
         if (GetTypeId() == TYPEID_PLAYER)
         {
             // On melee based hit/miss/resist need update skill (for victim and attacker)
-            if (procExtra&(PROC_EX_NORMAL_HIT|PROC_EX_MISS|PROC_EX_RESIST))
+            if (procExtra & (PROC_EX_NORMAL_HIT|PROC_EX_MISS|PROC_EX_RESIST))
             {
                 if (pTarget && pTarget->GetTypeId() != TYPEID_PLAYER && pTarget->GetCreatureType() != CREATURE_TYPE_CRITTER)
-                    ((Player*)this)->UpdateCombatSkills(pTarget, attType, isVictim);
+                    ((Player*)this)->UpdateCombatSkills(pTarget, damageInfo->attackType, isVictim);
             }
             // Update defence if player is victim and parry/dodge/block
-            if (isVictim && procExtra&(PROC_EX_DODGE|PROC_EX_PARRY|PROC_EX_BLOCK))
+            if (isVictim && procExtra & (PROC_EX_DODGE|PROC_EX_PARRY|PROC_EX_BLOCK))
                 ((Player*)this)->UpdateDefense();
         }
         // If exist crit/parry/dodge/block need update aura state (for victim and attacker)
@@ -11333,7 +11351,7 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
             if (isVictim)
             {
                 // if victim and dodge attack
-                if (procExtra&PROC_EX_DODGE)
+                if (procExtra & PROC_EX_DODGE)
                 {
                     //Update AURA_STATE on dodge
                     if (getClass() != CLASS_ROGUE) // skip Rogue Riposte
@@ -11367,7 +11385,7 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
             else //For attacker
             {
                 // Overpower on victim dodge
-                if (procExtra&PROC_EX_DODGE && GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_WARRIOR)
+                if (procExtra & PROC_EX_DODGE && GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_WARRIOR)
                 {
                     AddComboPoints(pTarget, 1);
                     StartReactiveTimer( REACTIVE_OVERPOWER );
@@ -11389,7 +11407,7 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
                 continue;
 
             SpellProcEventEntry const* spellProcEvent = sSpellMgr.GetSpellProcEvent(itr->first);
-            if(!IsTriggeredAtSpellProcEvent(pTarget, itr->second, procSpell, procFlag, procExtra, attType, isVictim, spellProcEvent))
+            if(!IsTriggeredAtSpellProcEvent(pTarget, itr->second, procSpell, procFlag, procExtra, damageInfo->attackType, isVictim, spellProcEvent))
                continue;
 
             // Frost Nova: prevent to remove root effect on self damage
@@ -11451,16 +11469,16 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
 
                     }
                     // don't check dbc FamilyFlags if schoolMask exists
-                    else if (!triggeredByAura->CanProcFrom(procSpell, procFlag, spellProcEvent->procEx, procExtra, damage != 0, !spellProcEvent->schoolMask))
+                    else if (!triggeredByAura->CanProcFrom(procSpell, procFlag, spellProcEvent->procEx, procExtra, damageInfo->damage != 0, !spellProcEvent->schoolMask))
                         continue;
                 }
-                else if (!triggeredByAura->CanProcFrom(procSpell, procFlag, PROC_EX_NONE, procExtra, damage != 0, true))
+                else if (!triggeredByAura->CanProcFrom(procSpell, procFlag, PROC_EX_NONE, procExtra, damageInfo->damage != 0, true))
                     continue;
             }
 
             itr->first->SetInUse(true);
             triggeredByAura->SetInUse(true);
-            SpellAuraProcResult procResult = (*this.*AuraProcHandler[itr->first->GetSpellProto()->EffectApplyAuraName[i]])(pTarget, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown);
+            SpellAuraProcResult procResult = (*this.*AuraProcHandler[itr->first->GetSpellProto()->EffectApplyAuraName[i]])(pTarget, damageInfo, triggeredByAura, procSpell, procFlag, procExtra, cooldown);
             triggeredByAura->SetInUse(false);
             itr->first->SetInUse(false);
 
@@ -11478,7 +11496,7 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
             DEBUG_FILTER_LOG(LOG_FILTER_SPELL_CAST,"Unit::ProcDamageAndSpellFor: %s deal proc on %s, damage %u,  triggeredByAura %u (effect %u), procSpell %u, procFlag %u, procExtra %u, cooldown %u. Proc result %u",
                 GetObjectGuid().GetString().c_str(), 
                 pTarget->GetObjectGuid().GetString().c_str(), 
-                damage, triggeredByAura->GetId(), i,
+                damageInfo->damage, triggeredByAura->GetId(), i,
                 procSpell ? procSpell->Id : 0,
                 procFlag, procExtra, cooldown, procResult);
         }
