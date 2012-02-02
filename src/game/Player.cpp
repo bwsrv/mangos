@@ -10198,7 +10198,7 @@ bool Player::HasItemOrGemWithIdEquipped( uint32 item, uint32 count, uint8 except
                 continue;
 
             Item *pItem = GetItemByPos( INVENTORY_SLOT_BAG_0, i );
-            if ( pItem && pItem->GetProto()->Socket[0].Color)
+            if (pItem && (pItem->GetProto()->Socket[0].Color || pItem->GetEnchantmentId(PRISMATIC_ENCHANTMENT_SLOT)))
             {
                 tempcount += pItem->GetGemCountWithID(item);
                 if ( tempcount >= count )
