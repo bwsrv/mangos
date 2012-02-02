@@ -1207,10 +1207,10 @@ bool Group::_addMember(ObjectGuid guid, const char* name, uint8 group, GroupFlag
     if(IsFull())
         return false;
 
-    if (!guid)
+    if (!guid || !guid.IsPlayer())
         return false;
 
-    Player *player = sObjectMgr.GetPlayer(guid);
+    Player* player = sObjectMgr.GetPlayer(guid);
 
     MemberSlot member;
     member.guid      = guid;
@@ -1218,7 +1218,7 @@ bool Group::_addMember(ObjectGuid guid, const char* name, uint8 group, GroupFlag
     member.group     = group;
     member.flags     = flags;
     member.roles     = roles;
-    member.lastMap   = player->GetMapId();
+    member.lastMap   = player ? player->GetMapId() : 0;
     m_memberSlots.push_back(member);
 
     SubGroupCounterIncrease(group);
