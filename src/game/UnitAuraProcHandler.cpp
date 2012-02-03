@@ -2485,6 +2485,14 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, DamageInfo* damageI
                         return SPELL_AURA_PROC_FAILED;
 
                     triggered_spell_id = 53652;             // Beacon of Light
+                    uint32 radius = GetSpellMaxRange(sSpellRangeStore.LookupEntry(sSpellStore.LookupEntry(triggered_spell_id)->rangeIndex));
+
+                    if (!beacon->IsWithinDistInMap(this, radius) || 
+                        !beacon->IsWithinLOSInMap(this) ||
+                        !beacon->IsWithinDistInMap(pVictim, radius) || 
+                        !beacon->IsWithinLOSInMap(pVictim))
+                        return SPELL_AURA_PROC_FAILED;
+
                     basepoints[0] = triggeredByAura->GetModifier()->m_amount*damage/100;
 
                     // cast with original caster set but beacon to beacon for apply caster mods and avoid LoS check
