@@ -644,6 +644,8 @@ void World::LoadConfigSettings(bool reload)
 
     setConfig(CONFIG_BOOL_CHECK_GO_IN_PATH, "CheckGOInPath", false);
 
+    setConfig(CONFIG_BOOL_ALLOW_CUSTOM_MAPS, "AllowTransferToCustomMap", false);
+
     setConfigMinMax(CONFIG_UINT32_GEAR_CALC_BASE, "Player.GSCalculationBase", 190, 1, 384);
 
     setConfigMinMax(CONFIG_FLOAT_CROWDCONTROL_HP_BASE, "CrowdControlHPBase", 0.1f, 0.0f, 1.0f);
