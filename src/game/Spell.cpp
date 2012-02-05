@@ -1363,13 +1363,8 @@ void Spell::DoSpellHitOnUnit(Unit *unit, uint32 effectMask)
                 return;
             }
 
-            // can cause back attack (if detected), stealth removed at Spell::cast if spell break it
-            if (!(m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_NO_INITIAL_AGGRO) && !(m_spellInfo->AttributesEx & SPELL_ATTR_EX_NO_THREAT) && !IsPositiveSpell(m_spellInfo->Id) &&
-                m_caster->isVisibleForOrDetect(unit, unit, false))
+            if (!(m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_NO_INITIAL_AGGRO) && !(m_spellInfo->AttributesEx & SPELL_ATTR_EX_NO_THREAT) && !IsPositiveSpell(m_spellInfo->Id))
             {
-                // caster can be detected but have stealth aura
-                m_caster->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-
                 if (!unit->IsStandState() && !unit->hasUnitState(UNIT_STAT_STUNNED))
                     unit->SetStandState(UNIT_STAND_STATE_STAND);
 
