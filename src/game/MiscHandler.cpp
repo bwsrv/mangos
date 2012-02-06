@@ -407,12 +407,12 @@ void WorldSession::HandleSetSelectionOpcode( WorldPacket & recv_data )
     ObjectGuid guid;
     recv_data >> guid;
 
+    _player->SetSelectionGuid(guid);
+
     // update reputation list if need
     Unit* unit = ObjectAccessor::GetUnit(*_player, guid );  // can select group members at diff maps
     if (!unit)
         return;
-
-    _player->SetSelectionGuid(guid);
 
     if(FactionTemplateEntry const* factionTemplateEntry = sFactionTemplateStore.LookupEntry(unit->getFaction()))
         _player->GetReputationMgr().SetVisible(factionTemplateEntry);
