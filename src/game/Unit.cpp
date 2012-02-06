@@ -706,18 +706,11 @@ uint32 Unit::DealDamage(Unit *pVictim, DamageInfo* damageInfo, bool durabilityLo
     // remove affects from attacker at any non-DoT damage (including 0 damage)
     if ( damageInfo->damageType != DOT)
     {
-        if (pVictim != this)
-        {
-            // set in combat
-            SetInCombatWith(pVictim);
-            pVictim->SetInCombatWith(this);
-
-            if (Player* attackedPlayer = pVictim->GetCharmerOrOwnerPlayerOrPlayerItself())
-                SetContestedPvP(attackedPlayer);
-        }
-
         if (pVictim->GetTypeId() == TYPEID_PLAYER && !pVictim->IsStandState() && !pVictim->hasUnitState(UNIT_STAT_STUNNED))
             pVictim->SetStandState(UNIT_STAND_STATE_STAND);
+
+        if (pVictim != this)
+            pVictim->AttackedBy(this);
     }
 
     // Blessed Life talent of Paladin
@@ -6575,13 +6568,18 @@ void Unit::AttackedBy(Unit *attacker)
     if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->AI())
     {
         ((Creature*)this)->AI()->AttackedBy(attacker);
+    }
 
-        if (!isInCombat())
-        {
+    if (!isInCombat())
+    {
+        if (GetTypeId() == TYPEID_UNIT  && !GetObjectGuid().IsPet())
             AddThreat(attacker);
-            SetInCombatWith(attacker);
-            attacker->SetInCombatWith(this);
-        }
+
+        if (Player* attackedPlayer = GetCharmerOrOwnerPlayerOrPlayerItself())
+            attacker->SetContestedPvP(attackedPlayer);
+
+        SetInCombatWith(attacker);
+        attacker->SetInCombatWith(this);
     }
 
     // trigger pet AI reaction
