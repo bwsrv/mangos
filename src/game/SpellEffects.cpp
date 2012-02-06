@@ -3100,16 +3100,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 
                     SpellEntry const* spellInfo = sSpellStore.LookupEntry(m_spellInfo->CalculateSimpleValue(eff_idx));
 
-                    // Init dest coordinates
-                    float x,y,z;
-                    x = m_targets.m_destX;
-                    y = m_targets.m_destY;
-                    z = m_targets.m_destZ;
-
-                    MaNGOS::NormalizeMapCoord(x);
-                    MaNGOS::NormalizeMapCoord(y);
-                    m_caster->UpdateGroundPositionZ(x,y,z);
-
                     m_caster->CastSpell(x, y, z, spellInfo, false, NULL, NULL, m_originalCasterGUID);
 
                     return;
@@ -4680,16 +4670,6 @@ void Spell::EffectTriggerMissileSpell(SpellEffectIndex effect_idx)
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
         ((Player*)m_caster)->RemoveSpellCooldown(triggered_spell_id);
-
-    // Init dest coordinates
-    float x,y,z;
-    x = m_targets.m_destX;
-    y = m_targets.m_destY;
-    z = m_targets.m_destZ;
-
-    MaNGOS::NormalizeMapCoord(x);
-    MaNGOS::NormalizeMapCoord(y);
-    m_caster->UpdateGroundPositionZ(x,y,z);
 
     m_caster->CastSpell(x, y, z, spellInfo, true, m_CastItem, 0, m_originalCasterGUID);
 }
