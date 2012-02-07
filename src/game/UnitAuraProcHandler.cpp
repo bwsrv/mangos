@@ -4944,6 +4944,9 @@ SpellAuraProcResult Unit::HandleModDamagePercentDoneAuraProc(Unit* /*pVictim*/, 
     else if (spellInfo->Id == 36032 && procSpell->SpellFamilyName == SPELLFAMILY_MAGE && procSpell->SpellIconID == 2294)
         // prevent proc from self(spell that triggered this aura)
         return SPELL_AURA_PROC_FAILED;
+    else if (spellInfo->Id == 16246)
+        // Shaman clearcasting - must proc only first effect
+        return SPELL_AURA_PROC_FAILED;
 
     return SPELL_AURA_PROC_OK;
 }
