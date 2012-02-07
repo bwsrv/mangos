@@ -1698,6 +1698,24 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, roll_chance_i(50) ? 28059 : 28084, true, 0, 0, m_caster->GetObjectGuid());
                     break;
                 }
+                case 28136:                                 // Spell Lightning Visual (Thaddius)
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
+                        return;
+
+                    ((Creature*)unitTarget)->SetInCombatWithZone();
+                    break;
+                }
+                case 28159:                                 // Spell Shock Overload (Thaddius)
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->RemoveAurasDueToSpell(28160);         // Remove stun
+                    unitTarget->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    unitTarget->CastSpell(unitTarget, 28136, true);   // cast Lightning Effect
+                    break;
+                }
                 case 29200:                                 // Purify Helboar Meat
                 {
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -2772,6 +2790,12 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(m_caster, 52661, true);     // Summon Temper
                     m_caster->CastSpell(unitTarget, 52654, false);  // Temper 2 Vokhan Deal Two Strike
 
+                    return;
+                }
+                case 52480:                                 // Salram Explode Ghoul N
+                case 58825:                                 // Salram Explode Ghoul H
+                {
+                    unitTarget->SetDisplayId(11686);
                     return;
                 }
                 case 52654:                                  // Volkhan Temper 2, Summon Golems
@@ -4689,7 +4713,7 @@ void Spell::EffectTriggerMissileSpell(SpellEffectIndex effect_idx)
 
     MaNGOS::NormalizeMapCoord(x);
     MaNGOS::NormalizeMapCoord(y);
-    m_caster->UpdateGroundPositionZ(x,y,z);
+    m_caster->UpdateAllowedPositionZ(x,y,z);
 
     m_caster->CastSpell(x, y, z, spellInfo, true, m_CastItem, 0, m_originalCasterGUID);
 }
@@ -5685,6 +5709,11 @@ void Spell::EffectEnergisePct(SpellEffectIndex eff_idx)
 
 void Spell::SendLoot(ObjectGuid guid, LootType loottype, LockType lockType)
 {
+    if (!m_caster)
+        return;
+
+    m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_USE);
+
     if (gameObjTarget)
     {
         switch (gameObjTarget->GetGoType())
@@ -11430,7 +11459,7 @@ void Spell::EffectCharge(SpellEffectIndex /*eff_idx*/)
         ((Creature *)unitTarget)->StopMoving();
 
     // Only send MOVEMENTFLAG_WALK_MODE, client has strange issues with other move flags
-    m_caster->MonsterMoveWithSpeed(x, y, z, 24.f);
+    m_caster->MonsterMoveWithSpeed(x, y, z, 24.f, true, true);
 
     // not all charge effects used in negative spells
     if (unitTarget != m_caster && !IsPositiveSpell(m_spellInfo->Id))
@@ -11462,7 +11491,7 @@ void Spell::EffectCharge2(SpellEffectIndex /*eff_idx*/)
     unitTarget->UpdateGroundPositionZ(x, y, z);
 
     // Only send MOVEMENTFLAG_WALK_MODE, client has strange issues with other move flags
-    m_caster->MonsterMoveWithSpeed(x, y, z, 24.f);
+    m_caster->MonsterMoveWithSpeed(x, y, z, 24.f, true, true);
 
     // not all charge effects used in negative spells
     if (unitTarget && unitTarget != m_caster && !IsPositiveSpell(m_spellInfo->Id))

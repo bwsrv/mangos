@@ -1919,6 +1919,17 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     if (Unit* realCaster = GetAffectiveCaster())
                         radius = realCaster->GetObjectScale() * 6;
                     break;
+                case 28241:                                 // Grobbulus Slime pool
+                case 54363:                                 // Grobbulus Slime pool H
+                {
+                    uint32 auraId = (m_spellInfo->Id == 28241 ? 28158 : 54362);
+                    if (m_caster->HasAura(auraId))
+                    {
+                        if (Aura* pAura = m_caster->GetAura(auraId, EFFECT_INDEX_0))
+                            radius = 0.5*(60-(pAura->GetAuraDuration()/IN_MILLISECONDS));
+                    }
+                    break;
+                }
                 case 66881:                                 // Slime Pool (Acidmaw & Dreadscale encounter)
                 case 67638:                                 // (Trial of the Crusader, all difficulties)
                 case 67639:                                 // ----- // -----
@@ -3412,7 +3423,10 @@ void Spell::prepare(SpellCastTargets const* targets, Aura* triggeredByAura)
     // stealth must be removed at cast starting (at show channel bar)
     // skip triggered spell (item equip spell casting and other not explicit character casts/item uses)
     if ( !m_IsTriggeredSpell && isSpellBreakStealth(m_spellInfo) )
+    {
         m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CAST);
+        m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_USE);
+    }
 
     // add non-triggered (with cast time and without)
     if (!m_IsTriggeredSpell)
