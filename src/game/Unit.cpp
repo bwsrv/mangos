@@ -6038,6 +6038,7 @@ void Unit::ProcDamageAndSpell(Unit* pVictim, uint32 procAttacker, uint32 procVic
     damageInfo.damage        = amount;
     damageInfo.procAttacker  = procAttacker;
     damageInfo.procVictim    = procVictim;
+    damageInfo.procEx        = procExtra;
     damageInfo.attackType    = attType;
     ProcDamageAndSpell(&damageInfo);
 }
