@@ -1045,7 +1045,6 @@
     <ClInclude Include="..\..\src\game\Camera.h">
       <Filter>Object</Filter>
     </ClInclude>
-<<<<<<< HEAD
     <ClInclude Include="..\..\src\game\LFG.h">
       <Filter>World/Handlers</Filter>
     </ClInclude>
@@ -1058,14 +1057,12 @@
     <ClInclude Include="..\..\src\game\ChatLog.h" >
       <Filter>Object</Filter>
     </ClInclude>
-=======
     <ClInclude Include="..\..\src\game\MoveMap.h">
       <Filter>World/Handlers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\game\MoveMapSharedDefines.h">
       <Filter>World/Handlers</Filter>
     </ClInclude>
->>>>>>> d53692fd03522cc628e79327feefba3af4408753
     <ClInclude Include="..\..\src\game\AuctionHouseBot\AuctionHouseBot.h">
       <Filter>AhBot</Filter>
     </ClInclude>
