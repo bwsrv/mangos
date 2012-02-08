@@ -2607,6 +2607,17 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         if (target->GetTypeId() == TYPEID_PLAYER)
                             ((Player*)target)->learnSpell(63680, false);
                         return;
+                    case 68645:
+                        // Rocket Pack
+                        if (target->GetTypeId() == TYPEID_PLAYER)
+                        {
+                            // Rocket Burst - visual effect
+                            target->CastSpell(target, 69192, true, NULL, this);
+                            // Rocket Pack - causing damage
+                            target->CastSpell(target, 69193, true, NULL, this);
+                            return;
+                        }
+                        return;
                     case 63651:                             // Revert to One Talent Specialization
                         // Teach Learn Talent Specialization Switches, remove
                         if (target->GetTypeId() == TYPEID_PLAYER)
@@ -3560,12 +3571,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         target->m_AuraFlags |= UNIT_AURAFLAG_ALIVE_INVISIBLE;
                     else
                         target->m_AuraFlags |= ~UNIT_AURAFLAG_ALIVE_INVISIBLE;
-                    return;
-                case 73077:                                 // Rocket Pack (Icecrown Citadel, Gunship Battle)
-                    if (apply)
-                        target->CastSpell(target, 69188, true);
-                    else
-                        target->RemoveAurasDueToSpell(69188);
                     return;
             }
             break;
@@ -6320,19 +6325,6 @@ void Aura::HandleAuraPeriodicDummy(bool apply, bool Real)
                     {
                         target->CastSpell(target, 64219, true);
                         target->DealDamage(target, target->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                    }
-                    return;
-                }
-                case 68721:                             // Rocket Pack (Icecrown Citadel, Gunship Battle)
-                {
-                    if (target->GetTypeId() == TYPEID_PLAYER)
-                    {
-                        // Rocket Burst - slow effect and Visual
-                        target->CastSpell(target, 69192, true, NULL, this);
-                        // Rocket Pack - causing damage
-                        int32 uiDmg = 1000;
-                        uiDmg += GetAuraMaxDuration();
-                        target->CastCustomSpell(target, 69193, &uiDmg, 0, 0, true);
                     }
                     return;
                 }
