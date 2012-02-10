@@ -8312,17 +8312,13 @@ bool Unit::IsImmuneToSpell(SpellEntry const* spellInfo) const
     if (!effectMask)
         return true;
 
-    if (!(spellInfo->AttributesEx & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY) &&
-        IsNonPositiveSpell(spellInfo) &&
-        IsImmunedToSchool(GetSpellSchoolMask(spellInfo)))
-        return true;
-
     SpellImmuneList const& dispelList = m_spellImmune[IMMUNITY_DISPEL];
     for(SpellImmuneList::const_iterator itr = dispelList.begin(); itr != dispelList.end(); ++itr)
         if (itr->type == spellInfo->Dispel)
             return true;
 
-    if (!(spellInfo->AttributesEx & SPELL_ATTR_EX_UNAFFECTED_BY_SCHOOL_IMMUNE) &&         // unaffected by school immunity
+    if (!(spellInfo->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY) &&
+        !(spellInfo->AttributesEx & SPELL_ATTR_EX_UNAFFECTED_BY_SCHOOL_IMMUNE) &&         // unaffected by school immunity
         !(spellInfo->AttributesEx & SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY))              // can remove immune (by dispell or immune it)
     {
         SpellImmuneList const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
@@ -8358,13 +8354,7 @@ bool Unit::IsImmuneToSpellEffect(SpellEntry const* spellInfo, SpellEffectIndex i
     if (spellInfo->Effect[index] == SPELL_EFFECT_NONE)
         return true;
 
-    // in case of trigger spells, check not current spell, but triggered (/dev/rsa)
-    if (spellInfo->Effect[index] == SPELL_EFFECT_TRIGGER_SPELL)
-        if (SpellEntry const* triggeredSpellInfo = sSpellStore.LookupEntry(spellInfo->EffectTriggerSpell[index]))
-            return IsImmuneToSpell(triggeredSpellInfo);
-
-
-    if (!(spellInfo->AttributesEx & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY))
+    if (!(spellInfo->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY))
     {
         //If m_immuneToEffect type contain this effect type, IMMUNE effect.
         uint32 effect = spellInfo->Effect[index];
