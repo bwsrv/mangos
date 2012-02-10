@@ -4091,12 +4091,26 @@ void Unit::SetFacingToObject(WorldObject* pObject)
     SetFacingTo(GetAngle(pObject));
 }
 
-bool Unit::isInAccessablePlaceFor(Creature const* c) const
+bool Unit::isInAccessablePlaceFor(Unit const* unit) const
 {
-    if (IsInWater())
-        return c->CanSwim();
-    else
-        return c->CanWalk() || c->CanFly();
+    if (!unit)
+        return false;
+
+    if (!IsInMap(unit))
+        return false;
+
+    if (!IsWithinDistInMap(unit, GetMap()->GetVisibilityDistance()))
+        return false;
+
+    if (unit->GetObjectGuid().IsAnyTypeCreature())
+    {
+        if (IsInWater())
+            return ((Creature*)unit)->CanSwim();
+        else
+            return ((Creature*)unit)->CanWalk() || ((Creature*)unit)->CanFly();
+    }
+
+    return true;
 }
 
 bool Unit::IsInWater() const
@@ -8350,17 +8364,13 @@ bool Unit::IsImmuneToSpell(SpellEntry const* spellInfo) const
     if (!effectMask)
         return true;
 
-    if (!(spellInfo->AttributesEx & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY) &&
-        IsNonPositiveSpell(spellInfo) &&
-        IsImmunedToSchool(GetSpellSchoolMask(spellInfo)))
-        return true;
-
     SpellImmuneList const& dispelList = m_spellImmune[IMMUNITY_DISPEL];
     for(SpellImmuneList::const_iterator itr = dispelList.begin(); itr != dispelList.end(); ++itr)
         if (itr->type == spellInfo->Dispel)
             return true;
 
-    if (!(spellInfo->AttributesEx & SPELL_ATTR_EX_UNAFFECTED_BY_SCHOOL_IMMUNE) &&         // unaffected by school immunity
+    if (!(spellInfo->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY) &&
+        !(spellInfo->AttributesEx & SPELL_ATTR_EX_UNAFFECTED_BY_SCHOOL_IMMUNE) &&         // unaffected by school immunity
         !(spellInfo->AttributesEx & SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY))              // can remove immune (by dispell or immune it)
     {
         SpellImmuneList const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
@@ -8396,13 +8406,7 @@ bool Unit::IsImmuneToSpellEffect(SpellEntry const* spellInfo, SpellEffectIndex i
     if (spellInfo->Effect[index] == SPELL_EFFECT_NONE)
         return true;
 
-    // in case of trigger spells, check not current spell, but triggered (/dev/rsa)
-    if (spellInfo->Effect[index] == SPELL_EFFECT_TRIGGER_SPELL)
-        if (SpellEntry const* triggeredSpellInfo = sSpellStore.LookupEntry(spellInfo->EffectTriggerSpell[index]))
-            return IsImmuneToSpell(triggeredSpellInfo);
-
-
-    if (!(spellInfo->AttributesEx & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY))
+    if (!(spellInfo->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY))
     {
         //If m_immuneToEffect type contain this effect type, IMMUNE effect.
         uint32 effect = spellInfo->Effect[index];
@@ -10013,7 +10017,7 @@ bool Unit::SelectHostileTarget()
             for (AuraList::const_reverse_iterator aura = tauntAuras.rbegin(); aura != tauntAuras.rend(); ++aura)
             {
                 if ((caster = (*aura)->GetCaster()) && caster->IsInMap(this) &&
-                    caster->isTargetableForAttack() && caster->isInAccessablePlaceFor((Creature*)this) &&
+                    caster->isTargetableForAttack() && caster->isInAccessablePlaceFor(this) &&
 //                  (!IsCombatStationary() || CanReachWithMeleeAttack(caster)) &&
                     !IsSecondChoiceTarget(caster, true))
                 {
@@ -10080,7 +10084,7 @@ bool Unit::SelectHostileTarget()
         for (ObjectGuidSet::const_iterator itr = attackers.begin(); itr != attackers.end(); ++itr)
         {
             Unit* attacker = GetMap()->GetUnit(*itr);
-            if (attacker && attacker->IsInMap(this) && attacker->isTargetableForAttack() && attacker->isInAccessablePlaceFor((Creature*)this))
+            if (attacker && attacker->IsInMap(this) && attacker->isTargetableForAttack() && attacker->isInAccessablePlaceFor(this))
                 return false;
         }
     }
