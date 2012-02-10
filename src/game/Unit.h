@@ -1507,7 +1507,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 
         virtual bool IsInWater() const;
         virtual bool IsUnderWater() const;
-        bool isInAccessablePlaceFor(Creature const* c) const;
+        bool isInAccessablePlaceFor(Unit const* unit) const;
 
         void SendHealSpellLog(Unit *pVictim, uint32 SpellID, uint32 Damage, uint32 OverHeal, bool critical = false, uint32 absorb = 0);
         void SendEnergizeSpellLog(Unit *pVictim, uint32 SpellID, uint32 Damage,Powers powertype);
