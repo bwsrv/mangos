@@ -12547,7 +12547,9 @@ void Unit::EnterVehicle(VehicleKit* vehicle, int8 seatId)
 
 void Unit::EnterVehicle(Unit* vehicleBase, int8 seatId)
 {
-    if (!isAlive() || !vehicleBase ||
+    if (!isAlive() || 
+        !vehicleBase ||
+        !vehicleBase->isAlive() ||
         !vehicleBase->GetVehicleKit() ||
         GetVehicleKit() == vehicleBase->GetVehicleKit())
         return;
@@ -12572,11 +12574,11 @@ void Unit::EnterVehicle(Unit* vehicleBase, int8 seatId)
         if (Pet *pet = GetPet())
             pet->Unsummon(PET_SAVE_AS_CURRENT,this);
 
-    SpellEntry const* spellInfo;
+    SpellEntry const* spellInfo = NULL;
     int32 bp[MAX_EFFECT_INDEX];
-
     Unit* caster = NULL;
     Unit* target = NULL;
+
     if (GetTypeId() == TYPEID_PLAYER && vehicleBase->GetTypeId() == TYPEID_UNIT)
     {
         SpellClickInfoMapBounds clickPair = sObjectMgr.GetSpellClickInfoMapBounds(vehicleBase->GetEntry());
@@ -12586,12 +12588,11 @@ void Unit::EnterVehicle(Unit* vehicleBase, int8 seatId)
             {
                 if (itr->second.IsFitToRequirements((Player*)this))
                 {
-                    caster = (itr->second.castFlags & 0x1) ? this : vehicleBase;
-                    target = (itr->second.castFlags & 0x2) ? this : vehicleBase;
 
                     spellInfo = sSpellStore.LookupEntry(itr->second.spellId);
+
                     if (!spellInfo)
-                        return;
+                        continue;
 
                     bool b_controlAura = false;
                     for (uint32 i = 0; i < MAX_EFFECT_INDEX; ++i)
@@ -12600,8 +12601,13 @@ void Unit::EnterVehicle(Unit* vehicleBase, int8 seatId)
                             if (spellInfo->EffectApplyAuraName[i] == SPELL_AURA_CONTROL_VEHICLE)
                                 b_controlAura = true;
                     }
+
                     if (b_controlAura)
+                    {
+                        caster = (itr->second.castFlags & 0x1) ? this : vehicleBase;
+                        target = (itr->second.castFlags & 0x2) ? this : vehicleBase;
                         break;
+                    }
 
                     spellInfo = NULL;
                 }
@@ -12614,6 +12620,13 @@ void Unit::EnterVehicle(Unit* vehicleBase, int8 seatId)
         caster = this;
         target = vehicleBase;
         spellInfo = sSpellStore.LookupEntry(SPELL_RIDE_VEHICLE_HARDCODED);
+    }
+    else
+    {
+        if (!caster)
+            caster = this;
+        if (!target)
+            target = vehicleBase;
     }
 
     for (uint32 i = 0; i < MAX_EFFECT_INDEX; ++i)
