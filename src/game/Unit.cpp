@@ -12586,13 +12586,17 @@ void Unit::EnterVehicle(Unit* vehicleBase, int8 seatId)
 
 void Unit::ExitVehicle()
 {
-    if (!GetVehicle() || !GetVehicle()->GetBase())
+    if (!GetVehicle())
+        return;
+    Unit* vehicleBase = GetVehicle()->GetBase();
+
+    if (!vehicleBase)
         return;
 
-    if (!GetVehicle()->GetBase()->RemoveSpellsCausingAuraByCaster(SPELL_AURA_CONTROL_VEHICLE, GetObjectGuid()))
+    if (!vehicleBase->RemoveSpellsCausingAuraByCaster(SPELL_AURA_CONTROL_VEHICLE, GetObjectGuid()))
     {
         _ExitVehicle();
-        sLog.outDetail("Unit::ExitVehicle: unit %s leave vehicle %s but no control aura!", GetObjectGuid().GetString().c_str(), GetVehicle()->GetBase()->GetObjectGuid().GetString().c_str());
+        sLog.outDetail("Unit::ExitVehicle: unit %s leave vehicle %s but no control aura!", GetObjectGuid().GetString().c_str(), vehicleBase->GetObjectGuid().GetString().c_str());
     }
 
     if (isAlive() && GetTypeId() == TYPEID_PLAYER)
@@ -12601,7 +12605,7 @@ void Unit::ExitVehicle()
 
 void Unit::ChangeSeat(int8 seatId, bool next)
 {
-    if (!m_pVehicle)
+    if (!GetVehicle())
         return;
 
     if (seatId < 0)
@@ -12613,12 +12617,12 @@ void Unit::ChangeSeat(int8 seatId, bool next)
     else if (seatId == m_movementInfo.GetTransportSeat() || !m_pVehicle->HasEmptySeat(seatId))
         return;
 
-    if (m_pVehicle->GetPassenger(seatId) &&
-       (!m_pVehicle->GetPassenger(seatId)->GetObjectGuid().IsVehicle() || !m_pVehicle->GetSeatInfo(m_pVehicle->GetPassenger(seatId))))
+    if (GetVehicle()->GetPassenger(seatId) &&
+       (!GetVehicle()->GetPassenger(seatId)->GetObjectGuid().IsVehicle() || !GetVehicle()->GetSeatInfo(GetVehicle()->GetPassenger(seatId))))
         return;
 
-    m_pVehicle->RemovePassenger(this);
-    m_pVehicle->AddPassenger(this, seatId);
+    GetVehicle()->RemovePassenger(this);
+    GetVehicle()->AddPassenger(this, seatId);
 }
 
 void Unit::_EnterVehicle(VehicleKit* vehicle, int8 seatId)
@@ -12626,9 +12630,9 @@ void Unit::_EnterVehicle(VehicleKit* vehicle, int8 seatId)
     if (!isAlive() || !vehicle || GetVehicleKit() == vehicle)
         return;
 
-    if (m_pVehicle)
+    if (GetVehicle())
     {
-        if (m_pVehicle == vehicle)
+        if (GetVehicle() == vehicle)
         {
             if (seatId >= 0)
                 ChangeSeat(seatId);
@@ -12655,7 +12659,7 @@ void Unit::_EnterVehicle(VehicleKit* vehicle, int8 seatId)
         player->GetSession()->SendPacket(&data);
 
         data.Initialize(SMSG_BREAK_TARGET, 8);
-        data << vehicle->GetBase()->GetPackGUID();
+        data << GetVehicle()->GetBase()->GetPackGUID();
         player->GetSession()->SendPacket(&data);
     }
 
@@ -12670,15 +12674,12 @@ void Unit::_EnterVehicle(VehicleKit* vehicle, int8 seatId)
 
 void Unit::_ExitVehicle()
 {
-    if(!GetVehicle())
+    if (!GetVehicle())
         return;
 
-    m_pVehicle->RemovePassenger(this, true);
+    GetVehicle()->RemovePassenger(this, true);
 
     m_pVehicle = NULL;
-
-    if (isAlive() && GetTypeId() == TYPEID_PLAYER)
-        ((Player*)this)->ResummonPetTemporaryUnSummonedIfAny();
 }
 
 void Unit::SetPvP( bool state )
