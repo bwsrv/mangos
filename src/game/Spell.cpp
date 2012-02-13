@@ -1116,6 +1116,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         if (target->reflectResult == SPELL_MISS_NONE)       // If reflected spell hit caster -> do all effect on him
         {
             DoSpellHitOnUnit(m_caster, mask);
+            damageInfo.target = m_caster;
             unitTarget = m_caster;
         }
     }
@@ -1759,6 +1760,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 68950:                                 // Fear (ICC: Forge of Souls)
                 case 68912:                                 // Wailing Souls (FoS)
                 case 69048:                                 // Mirrored Soul (FoS)
+                case 69140:                                 // Coldflame (Icecrown Citadel, Lord Marrowgar encounter)
                 case 69674:                                 // Mutated Infection (Rotface)
                 case 70882:                                 // Slime Spray Summon Trigger (Rotface)
                 case 70920:                                 // Unbound Plague Search Effect (Putricide)
@@ -1766,6 +1768,8 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 72091:                                 // Frozen Orb (Vault of Archavon, Toravon encounter, normal)
                 case 73022:                                 // Mutated Infection (heroic)
                 case 73023:                                 // Mutated Infection (heroic)
+                case 73142:                                 // Bone Spike Graveyard (during Bone Storm) (Icecrown Citadel, Lord Marrowgar encounter, 10N)
+                case 73144:                                 // Bone Spike Graveyard (during Bone Storm) (Icecrown Citadel, Lord Marrowgar encounter, 10H)
                 case 51146:                                 // Searching Gaze (Halls Of Stone)
                     unMaxTargets = 1;
                     break;
@@ -1795,6 +1799,8 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 64598:                                 // Cosmic Smash (Algalon 25man) 
                 case 70814:                                 // Bone Slice (Icecrown Citadel, Lord Marrowgar, heroic)
                 case 72095:                                 // Frozen Orb (Vault of Archavon, Toravon encounter, heroic)
+                case 73143:                                 // Bone Spike Graveyard (during Bone Storm) (Icecrown Citadel, Lord Marrowgar encounter, 25N)
+                case 73145:                                 // Bone Spike Graveyard (during Bone Storm) (Icecrown Citadel, Lord Marrowgar encounter, 25H)
                     unMaxTargets = 3;
                     break;
                 case 61916:                                 // Lightning Whirl (Stormcaller Brundir - Ulduar)
@@ -1900,6 +1906,10 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 72769:                                 // Scent of Blood (Saurfang)
                 case 72771:
                 case 72934:                                 // Blood infusion credit
+                case 73142:                                 // Bone Spike Graveyard (during Bone Storm) (Icecrown Citadel, Lord Marrowgar encounter, 10N)
+                case 73143:                                 // Bone Spike Graveyard (during Bone Storm) (Icecrown Citadel, Lord Marrowgar encounter, 25N)
+                case 73144:                                 // Bone Spike Graveyard (during Bone Storm) (Icecrown Citadel, Lord Marrowgar encounter, 10H)
+                case 73145:                                 // Bone Spike Graveyard (during Bone Storm) (Icecrown Citadel, Lord Marrowgar encounter, 25H)
                     radius = DEFAULT_VISIBILITY_INSTANCE;
                     break;
                 case 69845:                                 // Sindragosa Frost bomb (hack!)
@@ -5565,7 +5575,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
         if (IsPositiveSpell(m_spellInfo->Id) && m_caster->IsFriendlyTo(target))
         {
-            if (target->IsImmuneToSpell(m_spellInfo))
+            if (!target->IsImmunedToSchool(GetSpellSchoolMask(m_spellInfo)) && target->IsImmuneToSpell(m_spellInfo))
                 return SPELL_FAILED_TARGET_AURASTATE;
 
             if (target->IsInWorld() && target->IsInMap(m_caster))
@@ -6837,6 +6847,12 @@ SpellCastResult Spell::CheckRange(bool strict)
     Unit *target = m_targets.getUnitTarget();
     GameObject *pGoTarget = m_targets.getGOTarget();
 
+    SpellRangeEntry const* srange = sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex);
+
+    bool friendly = target ? target->IsFriendlyTo(m_caster) : false;
+    float max_range = GetSpellMaxRange(srange, friendly);
+    float min_range = GetSpellMinRange(srange, friendly);
+
     // special range cases
     switch(m_spellInfo->rangeIndex)
     {
@@ -6857,25 +6873,20 @@ SpellCastResult Spell::CheckRange(bool strict)
                     (m_spellInfo->FacingCasterFlags & SPELL_FACING_FLAG_INFRONT) && !m_caster->HasInArc(M_PI_F, target))
                     return SPELL_FAILED_UNIT_NOT_INFRONT;
 
-                float range_mod = strict ? 0.0f : 5.0f;
-                float base = ATTACK_DISTANCE;
+                float range_mod = (strict ? max_range : max_range + 5.0f);
                 if (Player* modOwner = m_caster->GetSpellModOwner())
-                    range_mod += modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, base, this);
+                    modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, range_mod, this);
 
                 // with additional 5 dist for non stricted case (some melee spells have delay in apply
                 return m_caster->CanReachWithMeleeAttack(target, range_mod) ? SPELL_CAST_OK : SPELL_FAILED_OUT_OF_RANGE;
             }
             break;                                          // let continue in generic way for no target
         }
+        default:
+            //add radius of caster and ~5 yds "give" for non stricred (landing) check
+            max_range += (strict ? 1.25f : 6.25f);
+            break;
     }
-
-    //add radius of caster and ~5 yds "give" for non stricred (landing) check
-    float range_mod = strict ? 1.25f : 6.25;
-
-    SpellRangeEntry const* srange = sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex);
-    bool friendly = target ? target->IsFriendlyTo(m_caster) : false;
-    float max_range = GetSpellMaxRange(srange, friendly) + range_mod;
-    float min_range = GetSpellMinRange(srange, friendly);
 
     if (Player* modOwner = m_caster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, max_range, this);
@@ -8511,6 +8522,7 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
         case 54148: // Svala Choose Only Player
         {
             UnitList tmpUnitMap;
+            UnitList playerUnitMap;
             FillAreaTargets(tmpUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
 
             if (tmpUnitMap.empty())
@@ -8518,11 +8530,27 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
 
             for (UnitList::const_iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end(); ++itr)
             {
-                 if (!*itr) continue;
+                if (!*itr) continue;
 
-                 if ((*itr)->GetTypeId() == TYPEID_PLAYER)
-                     targetUnitMap.push_back(*itr);
+                if ((*itr)->GetTypeId() == TYPEID_PLAYER)
+                    playerUnitMap.push_back(*itr);
             }
+
+            if (playerUnitMap.empty())
+                break;
+
+            uint32 t = 0;
+            UnitList::iterator iter = playerUnitMap.begin();
+            while (iter != playerUnitMap.end())
+            {
+                ++t;
+                ++iter;
+            }
+
+            iter = playerUnitMap.begin();
+            std::advance(iter, urand(0, t-1));
+            if (*iter)
+                targetUnitMap.push_back(*iter);
 
             break;
         }
@@ -8752,60 +8780,43 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             }
             break;
         }
-        case 69057:                                 // Bone Spike Graveyard (Icecrown Citadel, Lord Marrowgar encounter, 10N)
-        case 70826:                                 // Bone Spike Graveyard (Icecrown Citadel, Lord Marrowgar encounter, 25N)
-        case 72088:                                 // Bone Spike Graveyard (Icecrown Citadel, Lord Marrowgar encounter, 10H)
-        case 72089:                                 // Bone Spike Graveyard (Icecrown Citadel, Lord Marrowgar encounter, 25H)
-        case 73142:                                 // Bone Spike Graveyard (during Bone Storm) (Icecrown Citadel, Lord Marrowgar encounter, 10N)
-        case 73143:                                 // Bone Spike Graveyard (during Bone Storm) (Icecrown Citadel, Lord Marrowgar encounter, 25N)
-        case 73144:                                 // Bone Spike Graveyard (during Bone Storm) (Icecrown Citadel, Lord Marrowgar encounter, 10H)
-        case 73145:                                 // Bone Spike Graveyard (during Bone Storm) (Icecrown Citadel, Lord Marrowgar encounter, 25H)
+        case 69057: // Lord Marrowgar's Bone Spike Graveyard must affect only players. Tank is excluded too. 10N
+        case 70826: // ----- // ----- 25N
+        case 72088: // ----- // ----- 10H
+        case 72089: // ----- // ----- 25H
         {
-            uint32 maxTargets = 1;
-            switch (m_spellInfo->Id)
+            UnitList tmpUnitMap, playersUnitMap;
+            FillAreaTargets(tmpUnitMap, DEFAULT_VISIBILITY_INSTANCE, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+
+            if (tmpUnitMap.empty())
+                break;
+
+            for (UnitList::const_iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end(); ++itr)
             {
-                case 72089:
-                case 70826:
-                case 73143:
-                case 73145:
-                    maxTargets = 3;
+                if (*itr && (*itr)->GetTypeId() == TYPEID_PLAYER)
+                    playersUnitMap.push_back(*itr);
             }
 
-            radius = DEFAULT_VISIBILITY_INSTANCE;
+            if (!playersUnitMap.empty() && m_caster->getVictim())
+                playersUnitMap.remove(m_caster->getVictim());
 
-            UnitList tmpUnitMap;
-            FillAreaTargets(tmpUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
-            if (!tmpUnitMap.empty())
+            uint8 maxTargets = 1;                           // In normal Bone Spike Graveyard affects one player, in heroic - 3 players.
+            if (m_spellInfo->Id == 70826 || m_spellInfo->Id == 72089)
+                maxTargets = 3;
+
+            for (uint8 i = 0; i < maxTargets; ++i)
             {
-                for (UnitList::const_iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end(); ++itr)
-                {
-                    if ((*itr) && (*itr)->GetTypeId() == TYPEID_PLAYER && // target players only
-                        m_caster->getVictim() &&                        // don't target tank
-                        m_caster->getVictim()->GetObjectGuid() != (*itr)->GetObjectGuid())
-                    {
-                        targetUnitMap.push_back(*itr);
-                    }
-                }
+                if (playersUnitMap.empty())
+                    break;
+
+                UnitList::iterator iter = playersUnitMap.begin();
+                std::advance(iter, urand(0, playersUnitMap.size()-1));
+                if (*iter)
+                    targetUnitMap.push_back(*iter);
+
+                playersUnitMap.remove(*iter);
             }
 
-            if (!targetUnitMap.empty())
-            {
-                // remove random units from the map
-                while (targetUnitMap.size() > maxTargets)
-                {
-                    uint32 poz = urand(0, targetUnitMap.size()-1);
-                    for (UnitList::iterator itr = targetUnitMap.begin(); itr != targetUnitMap.end(); ++itr, --poz)
-                    {
-                        if (!*itr) continue;
-
-                        if (!poz)
-                        {
-                            targetUnitMap.erase(itr);
-                            break;
-                        }
-                    }
-                }
-            }
             break;
         }
         case 69099: // Ice Pulse (Lich King)

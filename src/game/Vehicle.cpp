@@ -31,7 +31,7 @@ VehicleInfo::VehicleInfo(VehicleEntry const* entry) :
 {
 }
 
-VehicleKit::VehicleKit(Unit* base) : m_uiNumFreeSeats(0), m_pBase(base)
+VehicleKit::VehicleKit(Unit* base) :  m_pBase(base), m_uiNumFreeSeats(0)
 {
     for (uint32 i = 0; i < MAX_VEHICLE_SEAT; ++i)
     {
@@ -434,7 +434,7 @@ void VehicleKit::InstallAccessory(VehicleAccessory const* accessory)
         SetDestination(accessory->m_offsetX,accessory->m_offsetY,accessory->m_offsetZ,accessory->m_offsetO,0.0f,0.0f);
         summoned->SetCreatorGuid(ObjectGuid());
         summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-        summoned->EnterVehicle(this, accessory->uiSeat);
+        summoned->EnterVehicle(m_pBase, accessory->uiSeat);
         SetDestination();
         if (summoned->GetVehicle())
             DEBUG_LOG("Vehicle::InstallAccessory %s accessory added, seat %u of %s",summoned->GetObjectGuid().GetString().c_str(), accessory->uiSeat, m_pBase->GetObjectGuid().GetString().c_str());

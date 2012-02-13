@@ -6708,7 +6708,10 @@ void Spell::DoSummonVehicle(SpellEffectIndex eff_idx, uint32 forceFaction)
     if (!vehicle_entry)
         return;
 
-    SpellEntry const* m_mountspell = sSpellStore.LookupEntry(m_spellInfo->EffectBasePoints[eff_idx] != 0 ? m_spellInfo->CalculateSimpleValue(eff_idx) : 46598);
+    SpellEntry const* m_mountspell = sSpellStore.LookupEntry(
+        m_spellInfo->EffectBasePoints[eff_idx] != 0 ?
+        m_spellInfo->CalculateSimpleValue(eff_idx) :
+        SPELL_RIDE_VEHICLE_HARDCODED);
 
     if (!m_mountspell)
         m_mountspell = sSpellStore.LookupEntry(46598);
@@ -9904,27 +9907,23 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         unitTarget->CastSpell(unitTarget, 66334, true);
                     return;
                 }
-                case 69057:                                 // Bone Spike Graveyard (Lord Marrowgar)
-                case 70826:                                 // Bone Spike Graveyard (Lord Marrowgar)
-                case 72088:                                 // Bone Spike Graveyard (Lord Marrowgar)
-                case 72089:                                 // Bone Spike Graveyard (Lord Marrowgar)
-                case 73142:                                 // Bone Spike Graveyard (Lord Marrowgar)
-                case 73143:                                 // Bone Spike Graveyard (Lord Marrowgar)
-                case 73144:                                 // Bone Spike Graveyard (Lord Marrowgar)
-                case 73145:                                 // Bone Spike Graveyard (Lord Marrowgar)
+                case 69057:                                 // Bone Spike Graveyard (Icecrown Citadel, ->
+                case 70826:                                 // -> Lord Marrowgar encounter, all difficulties)
+                case 72088:                                 // ----- // -----
+                case 72089:                                 // ----- // -----
+                case 73142:                                 // Bone Spike Graveyard (during Bone Storm) ->
+                case 73143:                                 // (Icecrown Citadel, -> Lord Marrowgar encounter, ->
+                case 73144:                                 // all difficulties)
+                case 73145:                                 // ----- // -----
                 {
                     if (unitTarget)
-                    {
-                        float x, y, z;
-                        unitTarget->GetPosition(x, y, z);
-
-                        if (Creature *pSpike = unitTarget->SummonCreature(38711, x, y, z, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 2000))
-                        {
-                            unitTarget->CastSpell(pSpike, 46598, true); // enter vehicle
-                            pSpike->CastSpell(unitTarget, m_spellInfo->CalculateSimpleValue(EFFECT_INDEX_1), true, 0, 0, m_caster->GetObjectGuid(), m_spellInfo);
-                        }
-                    }
-
+                        unitTarget->CastSpell(unitTarget, 69062, true);
+                    return;
+                }
+                case 69140:                                 // Coldflame (Lord Marrowgar - Icecrown Citadel)
+                {
+                    if (unitTarget)
+                        unitTarget->CastSpell(m_caster, m_spellInfo->CalculateSimpleValue(eff_idx), true);
                     return;
                 }
                 case 69147:                                 // Coldflame (circle, Lord Marrowgar - Icecrown Citadel)
@@ -12545,28 +12544,23 @@ void Spell::EffectSuspendGravity(SpellEffectIndex eff_idx)
     if (!unitTarget)
         return;
 
-    if (m_spellInfo->Id == 68645)                           // Rocket Pack (Icecrown Citadel, Gunship Battle)
+    float x,y,z;
+
+    if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
     {
-        unitTarget->CastSpell(unitTarget, 68721, true);
-        float dist = unitTarget->GetDistance(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ);
-        float verticalSpeed = (m_spellInfo->EffectMiscValue[eff_idx] / 5);
-        float dh = verticalSpeed * verticalSpeed / (2 * 19.23f);
-        float time = sqrtf(dh / (0.124976 * verticalSpeed));
-        float speed = dist / time;
-        if (SpellAuraHolderPtr holder = unitTarget->GetSpellAuraHolder(68721))
-        {
-            holder->SetAuraMaxDuration(uint32(time+0.25f)*IN_MILLISECONDS);
-            holder->RefreshHolder();
-        }
-        unitTarget->MonsterMoveJump(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, unitTarget->GetAngle(m_targets.m_destX, m_targets.m_destY), speed, dh);
+        x = m_targets.m_destX;
+        y = m_targets.m_destY;
+        z = m_targets.m_destZ;
     }
     else
     {
-        float fTargetX, fTargetY, fTargetZ;
-        unitTarget->GetPosition(fTargetX, fTargetY, fTargetZ);
-        float mapZ = unitTarget->GetTerrain()->GetHeight(fTargetX, fTargetY, fTargetZ);
-        float radius = m_spellInfo->EffectMiscValue[eff_idx]/10;
-        if (fTargetZ < mapZ + 0.5)
-            unitTarget->KnockBackFrom(m_caster, -radius, radius);
+        m_caster->GetClosePoint(x, y, z, m_caster->GetObjectBoundingRadius(), 0.0f, m_caster->GetAngle(unitTarget));
     }
+
+    unitTarget->UpdateAllowedPositionZ(x, y, z);
+
+    float speed  = float(m_spellInfo->EffectMiscValue[eff_idx]/2.0f);
+    float height = float(unitTarget->GetDistance(x,y,z) / 10.0f);
+
+    unitTarget->MonsterMoveJump(x, y, z + 0.1f, unitTarget->GetOrientation(), speed, height, true, m_caster == unitTarget ? NULL : m_caster);
 }

@@ -355,7 +355,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNoImmediateEffect,                         //300 3 spells, share damage (in percent) with aura owner and aura target. implemented in Unit::DealDamage
     &Aura::HandleNULL,                                      //301 SPELL_AURA_HEAL_ABSORB 5 spells
     &Aura::HandleUnused,                                    //302 unused (3.2.2a)
-    &Aura::HandleNULL,                                      //303 17 spells
+    &Aura::HandleNoImmediateEffect,                         //303 SPELL_AURA_DAMAGE_DONE_VERSUS_AURA_STATE_PCT 17 spells implemented in Unit::*DamageBonus
     &Aura::HandleNULL,                                      //304 2 spells (alcohol effect?)
     &Aura::HandleAuraModIncreaseSpeed,                      //305 SPELL_AURA_MOD_MINIMUM_SPEED
     &Aura::HandleNULL,                                      //306 1 spell
@@ -2607,6 +2607,17 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         if (target->GetTypeId() == TYPEID_PLAYER)
                             ((Player*)target)->learnSpell(63680, false);
                         return;
+                    case 68645:
+                        // Rocket Pack
+                        if (target->GetTypeId() == TYPEID_PLAYER)
+                        {
+                            // Rocket Burst - visual effect
+                            target->CastSpell(target, 69192, true, NULL, this);
+                            // Rocket Pack - causing damage
+                            target->CastSpell(target, 69193, true, NULL, this);
+                            return;
+                        }
+                        return;
                     case 63651:                             // Revert to One Talent Specialization
                         // Teach Learn Talent Specialization Switches, remove
                         if (target->GetTypeId() == TYPEID_PLAYER)
@@ -3553,19 +3564,13 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                             target->PlayDirectSound(14972, (Player *)target);
                     }
                     return;
-                case 40131:
+                case 10848:
                 case 27978:
-                case 10848:                                 // Shroud of Death
+                case 40131:
                     if (apply)
                         target->m_AuraFlags |= UNIT_AURAFLAG_ALIVE_INVISIBLE;
                     else
                         target->m_AuraFlags |= ~UNIT_AURAFLAG_ALIVE_INVISIBLE;
-                    return;
-                case 73077:                                 // Rocket Pack (Icecrown Citadel, Gunship Battle)
-                    if (apply)
-                        target->CastSpell(target, 69188, true);
-                    else
-                        target->RemoveAurasDueToSpell(69188);
                     return;
             }
             break;
@@ -6339,19 +6344,6 @@ void Aura::HandleAuraPeriodicDummy(bool apply, bool Real)
                     }
                     return;
                 }
-                case 68721:                             // Rocket Pack (Icecrown Citadel, Gunship Battle)
-                {
-                    if (target->GetTypeId() == TYPEID_PLAYER)
-                    {
-                        // Rocket Burst - slow effect and Visual
-                        target->CastSpell(target, 69192, true, NULL, this);
-                        // Rocket Pack - causing damage
-                        int32 uiDmg = 1000;
-                        uiDmg += GetAuraMaxDuration();
-                        target->CastCustomSpell(target, 69193, &uiDmg, 0, 0, true);
-                    }
-                    return;
-                }
             }
         }
         case SPELLFAMILY_ROGUE:
@@ -8426,7 +8418,7 @@ void Aura::PeriodicTick()
             if (!pCaster)
                 return;
 
-            if (!pCaster->IsInWorld() || !pCaster->isAlive())
+            if (!pCaster->IsInWorld())
                 return;
 
             if (spellProto->Effect[GetEffIndex()] == SPELL_EFFECT_PERSISTENT_AREA_AURA &&
@@ -8552,8 +8544,8 @@ void Aura::PeriodicTick()
             }
 
             DamageInfo damageInfo = DamageInfo(pCaster, target, spellProto);
-
             damageInfo.CleanDamage(0, 0, BASE_ATTACK, MELEE_HIT_NORMAL);
+            damageInfo.damageType = DOT;
 
             // ignore non positive values (can be result apply spellmods to aura damage
             uint32 amount = m_modifier.m_amount > 0 ? m_modifier.m_amount : 0;
@@ -10612,6 +10604,24 @@ void SpellAuraHolder::_AddSpellAuraHolder()
         // Bleeding aura state
         if (GetAllSpellMechanicMask(m_spellProto) & (1 << (MECHANIC_BLEED-1)))
             m_target->ModifyAuraState(AURA_STATE_BLEEDING, true);
+
+        switch(m_spellProto->SpellFamilyName)
+        {
+            case SPELLFAMILY_GENERIC:
+                {
+                    if (GetSpellSchoolMask(m_spellProto) == (SPELL_SCHOOL_MASK_ARCANE | SPELL_SCHOOL_MASK_HOLY))
+                        m_target->ModifyAuraState(AURA_STATE_LIGHT_TARGET, true);
+                    else if (GetSpellSchoolMask(m_spellProto) == (SPELL_SCHOOL_MASK_ARCANE | SPELL_SCHOOL_MASK_SHADOW))
+                        m_target->ModifyAuraState(AURA_STATE_DARK_TARGET, true);
+
+                        // need more correct research for this aura state and effect (mostly Ulduar vehicle spells)
+//                    else if (GetSpellSchoolMask(m_spellProto) == (SPELL_SCHOOL_MASK_ARCANE | SPELL_SCHOOL_MASK_FIRE))
+//                        m_target->ModifyAuraState(AURA_STATE_SPELLFIRE, true);
+                    break;
+                }
+            default:
+                break;
+        }
     }
 }
 
@@ -10695,6 +10705,16 @@ void SpellAuraHolder::_RemoveSpellAuraHolder()
         ClassFamilyMask removeFamilyFlag = m_spellProto->SpellFamilyFlags;
         switch(m_spellProto->SpellFamilyName)
         {
+            case SPELLFAMILY_GENERIC:
+                {
+                    if (GetSpellSchoolMask(m_spellProto) == (SPELL_SCHOOL_MASK_ARCANE | SPELL_SCHOOL_MASK_HOLY))
+                        removeState = AURA_STATE_LIGHT_TARGET;
+                    else if (GetSpellSchoolMask(m_spellProto) == (SPELL_SCHOOL_MASK_ARCANE | SPELL_SCHOOL_MASK_SHADOW))
+                        removeState = AURA_STATE_DARK_TARGET;
+                    else if (GetSpellSchoolMask(m_spellProto) == (SPELL_SCHOOL_MASK_ARCANE | SPELL_SCHOOL_MASK_FIRE))
+                        removeState = AURA_STATE_SPELLFIRE;
+                }
+                break;
             case SPELLFAMILY_PALADIN:
                 if (IsSealSpell(m_spellProto))
                     removeState = AURA_STATE_JUDGEMENT;     // Update Seals information
@@ -10727,6 +10747,9 @@ void SpellAuraHolder::_RemoveSpellAuraHolder()
             case SPELLFAMILY_HUNTER:
                 if (m_spellProto->SpellFamilyFlags.test<CF_HUNTER_PET_SPELLS>())
                     removeState = AURA_STATE_FAERIE_FIRE;   // Sting (hunter versions)
+                break;
+            default:
+                break;
         }
 
         // Remove state (but need check other auras for it)
