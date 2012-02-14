@@ -4740,9 +4740,9 @@ void Aura::HandleModPossess(bool apply, bool Real)
 
         if (CharmInfo *charmInfo = target->InitCharmInfo(target))
         {
+            charmInfo->SetState(CHARM_STATE_REACT,REACT_PASSIVE);
+            charmInfo->SetState(CHARM_STATE_COMMAND,COMMAND_STAY);
             charmInfo->InitPossessCreateSpells();
-            charmInfo->SetReactState(REACT_PASSIVE);
-            charmInfo->SetCommandState(COMMAND_STAY);
         }
 
         p_caster->PossessSpellInitialize();
@@ -4915,8 +4915,8 @@ void Aura::HandleModCharm(bool apply, bool Real)
         {
             ((Creature*)target)->AIM_Initialize();
             CharmInfo *charmInfo = target->InitCharmInfo(target);
+            charmInfo->SetState(CHARM_STATE_REACT,REACT_DEFENSIVE);
             charmInfo->InitCharmCreateSpells();
-            charmInfo->SetReactState( REACT_DEFENSIVE );
 
             if (caster->GetTypeId() == TYPEID_PLAYER && caster->getClass() == CLASS_WARLOCK)
             {
