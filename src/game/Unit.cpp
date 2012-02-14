@@ -3784,7 +3784,7 @@ void Unit::_UpdateSpells( uint32 time )
     // update auras
     {
         MAPLOCK_READ(this,MAP_LOCK_TYPE_AURAS);
-        for (SpellAuraHolderMap::iterator itr = m_spellAuraHolders.begin(); itr != m_spellAuraHolders.end(); ++itr)
+        for (SpellAuraHolderMap::const_iterator itr = m_spellAuraHolders.begin(); itr != m_spellAuraHolders.end(); ++itr)
             if (itr->second && !itr->second->IsDeleted())
                 updateQueue.push(itr->second);
 
@@ -3792,18 +3792,18 @@ void Unit::_UpdateSpells( uint32 time )
 
     while(!updateQueue.empty())
     {
-        if (updateQueue.front() && !updateQueue.front()->IsDeleted() && !updateQueue.front()->IsEmptyHolder())
+        if (updateQueue.front() && !updateQueue.front()->IsDeleted())
             updateQueue.front()->UpdateHolder(time);
         updateQueue.pop();
     }
 
-    // remove expired auras
+    // remove expired auras, cleanup empty holders
     {
         MAPLOCK_READ(this,MAP_LOCK_TYPE_AURAS);
-        for (SpellAuraHolderMap::iterator itr = m_spellAuraHolders.begin(); itr != m_spellAuraHolders.end(); ++itr)
+        for (SpellAuraHolderMap::const_iterator itr = m_spellAuraHolders.begin(); itr != m_spellAuraHolders.end(); ++itr)
             if (itr->second && !itr->second->IsDeleted()
                 && !(itr->second->IsPermanent() || itr->second->IsPassive())
-                && itr->second->GetAuraDuration() == 0)
+                && ((itr->second->GetAuraDuration() == 0) || itr->second->IsEmptyHolder()))
                 updateQueue.push(itr->second);
     }
 
