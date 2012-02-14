@@ -12336,8 +12336,8 @@ void Unit::RemoveAurasAtMechanicImmunity(uint32 mechMask, uint32 exceptSpellId, 
                             }
                             else
                             {
-                                // if this is last aura then remove the holder
-                                spellsToRemove.insert(iter->second->GetId());
+                                // if this is last aura then remove the holder (see below)
+                                removedSingleAura = false;
                                 break;
                             }
                         }
