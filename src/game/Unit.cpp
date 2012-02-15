@@ -171,6 +171,12 @@ bool GlobalCooldownMgr::HasGlobalCooldown(SpellEntry const* spellInfo) const
     return itr != m_GlobalCooldowns.end() && itr->second.duration && WorldTimer::getMSTimeDiff(itr->second.cast_time, WorldTimer::getMSTime()) < itr->second.duration;
 }
 
+uint32 GlobalCooldownMgr::GetGlobalCooldown(SpellEntry const* spellInfo) const
+{
+    GlobalCooldownList::const_iterator itr = m_GlobalCooldowns.find(spellInfo->StartRecoveryCategory);
+    return itr != m_GlobalCooldowns.end() ? itr->second.duration - WorldTimer::getMSTimeDiff(itr->second.cast_time, WorldTimer::getMSTime()) : 0;
+}
+
 void GlobalCooldownMgr::AddGlobalCooldown(SpellEntry const* spellInfo, uint32 gcd)
 {
     m_GlobalCooldowns[spellInfo->StartRecoveryCategory] = GlobalCooldown(gcd, WorldTimer::getMSTime());
@@ -13518,4 +13524,30 @@ void DamageInfo::Reset(uint32 _damage)
 SpellSchoolMask DamageInfo::SchoolMask()
 {
     return m_spellInfo ? GetSpellSchoolMask(m_spellInfo) : SPELL_SCHOOL_MASK_NORMAL;
+}
+
+void Unit::SetLastManaUse()
+{
+    if (GetTypeId() == TYPEID_PLAYER &&
+        !IsUnderLastManaUseEffect() &&
+        HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER))
+        RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
+
+    uint32 lastRegenInterval = IsUnderLastManaUseEffect() ? REGEN_TIME_PRECISE : REGEN_TIME_FULL;
+
+    m_lastManaUseTimer = 5000;
+
+    // Do first interrupted powers regen (not only PRECIZE interval), also set player mana regenerate interval to PRECIZE
+    if (GetTypeId() == TYPEID_PLAYER)
+    {
+        int32 diff = lastRegenInterval - ((Player*)this)->GetRegenTimer();
+        if (diff > 0)
+            ((Player*)this)->RegenerateAll(diff);
+    }
+}
+
+bool ManaUseEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
+{
+    m_caster.SetLastManaUse();
+    return true;
 }

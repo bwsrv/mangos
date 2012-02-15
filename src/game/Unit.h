@@ -1028,6 +1028,8 @@ class GlobalCooldownMgr                                     // Shared by Player 
         void AddGlobalCooldown(SpellEntry const* spellInfo, uint32 gcd);
         void CancelGlobalCooldown(SpellEntry const* spellInfo);
 
+        uint32 GetGlobalCooldown(SpellEntry const* spellInfo) const;
+
     private:
         GlobalCooldownList m_GlobalCooldowns;
 };
@@ -2014,14 +2016,9 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         SpellAuraProcResult HandleDamageShieldAuraProc(Unit *pVictim, DamageInfo* damageInfo, Aura* triggeredByAura, SpellEntry const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
         SpellAuraProcResult HandleDropChargeByDamageProc(Unit *pVictim, DamageInfo* damageInfo, Aura* triggeredByAura, SpellEntry const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
         SpellAuraProcResult HandleIgnoreUnitStateAuraProc(Unit *pVictim, DamageInfo* damageInfo, Aura* triggeredByAura, SpellEntry const *procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
-        void SetLastManaUse()
-        {
-            if (GetTypeId() == TYPEID_PLAYER && !IsUnderLastManaUseEffect())
-                RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
 
-            m_lastManaUseTimer = 5000;
-        }
-        bool IsUnderLastManaUseEffect() const { return m_lastManaUseTimer; }
+        void SetLastManaUse();
+        bool IsUnderLastManaUseEffect() const { return bool(m_lastManaUseTimer > 0); }
 
         uint32 GetRegenTimer() const { return m_regenTimer; }
 
@@ -2356,5 +2353,15 @@ bool Unit::CheckAllControlledUnits(Func const& func, uint32 controlledMask) cons
 
     return false;
 }
+
+class ManaUseEvent : public BasicEvent
+{
+    public:
+        ManaUseEvent(Unit& caster) : BasicEvent(), m_caster(caster) {}
+        bool Execute(uint64 e_time, uint32 p_time);
+
+    private:
+        Unit& m_caster;
+};
 
 #endif

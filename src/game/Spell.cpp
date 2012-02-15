@@ -4966,7 +4966,15 @@ void Spell::TakePower()
 
     // Set the five second timer
     if (powerType == POWER_MANA && m_powerCost > 0)
-        m_caster->SetLastManaUse();
+    {
+        uint32 delay = 0;
+        if (m_caster->GetCharmInfo())
+            delay = m_caster->GetCharmInfo()->GetGlobalCooldownMgr().GetGlobalCooldown(m_spellInfo);
+        else if (m_caster->GetTypeId() == TYPEID_PLAYER)
+            delay = ((Player*)m_caster)->GetGlobalCooldownMgr().HasGlobalCooldown(m_spellInfo);
+
+        m_caster->AddEvent(new ManaUseEvent(*m_caster), delay);
+    }
 }
 
 SpellCastResult Spell::CheckOrTakeRunePower(bool take)
@@ -6997,7 +7005,8 @@ SpellCastResult Spell::CheckPower()
     if (m_powerCost > 0 && m_caster->GetTypeId() == TYPEID_PLAYER)
     {
         Player* playerCaster = (Player*)m_caster;
-        uint32 diff = REGEN_TIME_FULL - m_caster->GetRegenTimer();
+        uint32 lastRegenInterval = playerCaster->IsUnderLastManaUseEffect() ? REGEN_TIME_PRECISE : REGEN_TIME_FULL;
+        int32 diff = lastRegenInterval - m_caster->GetRegenTimer();
         if (diff >= REGEN_TIME_PRECISE)
             playerCaster->RegenerateAll(diff);
     }
