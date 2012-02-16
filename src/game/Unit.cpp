@@ -273,9 +273,6 @@ Unit::Unit() :
 
     m_charmInfo = NULL;
 
-    m_ThreatRedirectionPercent = 0;
-    m_misdirectionTargetGUID.Clear();
-
     // remove aurastates allowing special moves
     for(int i=0; i < MAX_REACTIVE; ++i)
         m_reactiveTimer[i] = 0;
@@ -4755,7 +4752,7 @@ bool Unit::RemoveNoStackAurasDueToAuraHolder(SpellAuraHolderPtr holder)
                 continue;
         }
 
-        if (i_spellId == spellId) 
+        if (i_spellId == spellId)
             continue;
 
         bool is_triggered_by_spell = false;
@@ -11598,8 +11595,8 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, DamageInfo* damageInfo)
             }
             anyAuraProc = true;
             DEBUG_FILTER_LOG(LOG_FILTER_SPELL_CAST,"Unit::ProcDamageAndSpellFor: %s deal proc on %s, damage %u,  triggeredByAura %u (effect %u), procSpell %u, procFlag %u, procExtra %u, cooldown %u. Proc result %u",
-                GetObjectGuid().GetString().c_str(), 
-                pTarget->GetObjectGuid().GetString().c_str(), 
+                GetObjectGuid().GetString().c_str(),
+                pTarget->GetObjectGuid().GetString().c_str(),
                 damageInfo->damage, triggeredByAura->GetId(), i,
                 procSpell ? procSpell->Id : 0,
                 procFlag, procExtra, cooldown, procResult);
@@ -12535,14 +12532,14 @@ void Unit::RemoveVehicleKit()
 }
 
 void Unit::EnterVehicle(VehicleKit* vehicle, int8 seatId)
-{ 
+{
     if (vehicle)
         EnterVehicle(vehicle->GetBase(), seatId);
 };
 
 void Unit::EnterVehicle(Unit* vehicleBase, int8 seatId)
 {
-    if (!isAlive() || 
+    if (!isAlive() ||
         !vehicleBase ||
         !vehicleBase->isAlive() ||
         !vehicleBase->GetVehicleKit() ||
@@ -13458,7 +13455,7 @@ void Unit::SendSpellDamageImmune(Unit* target, uint32 spellId)
     SendMessageToSet(&data, true);
 }
 
-EventProcessor* Unit::GetEvents() 
+EventProcessor* Unit::GetEvents()
 {
     return &m_Events;
 }
@@ -13502,7 +13499,7 @@ void DamageInfo::Reset(uint32 _damage)
     blocked       = 0;
     unused        = false;
     HitInfo       = 0;
-    TargetState   = 0; 
+    TargetState   = 0;
     hitOutCome    = MELEE_HIT_NORMAL;
     procAttacker  = PROC_FLAG_NONE;
     procVictim    = PROC_FLAG_NONE;
