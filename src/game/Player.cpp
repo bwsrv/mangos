@@ -1506,6 +1506,12 @@ void Player::SetDeathState(DeathState s)
     if (s == JUST_DIED && cur && ressSpellId)
         SetUInt32Value(PLAYER_SELF_RES_SPELL, ressSpellId);
 
+    if (!cur && s == ALIVE)
+    {
+        _RemoveAllItemMods();
+        _ApplyAllItemMods();
+    }
+
     if (isAlive() && !cur)
     {
         //clear aura case after resurrection by another way (spells will be applied before next death)
