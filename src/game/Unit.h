@@ -1121,7 +1121,7 @@ enum ActionBarIndex
 
 #define MAX_UNIT_ACTION_BAR_INDEX (ACTION_BAR_INDEX_END-ACTION_BAR_INDEX_START)
 
-struct CharmInfo
+struct MANGOS_DLL_SPEC CharmInfo
 {
     public:
         explicit CharmInfo(Unit* unit);
