@@ -8462,6 +8462,20 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
                 targetUnitMap.remove(unitTarget);
             return true;
         }
+        case 50294: // Starfall triggered in-range damage (all ranks)
+        case 53188:
+        case 53189:
+        case 53190:
+        {
+            Unit* unitTarget = m_targets.getUnitTarget();
+            FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+            if  (unitTarget)
+            {
+                targetUnitMap.remove(unitTarget);
+                m_targets.setDestination(unitTarget->GetPositionX(), unitTarget->GetPositionY(), unitTarget->GetPositionZ());
+            }
+            break;
+        }
         case 57143: // Life Burst (Wyrmrest Skytalon)
         {
             // hack - spell is AoE but implicitTargets dont match here :/
