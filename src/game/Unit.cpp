@@ -581,16 +581,22 @@ void Unit::resetAttackTimer(WeaponAttackType type)
     m_attackTimer[type] = uint32(GetAttackTime(type) * m_modAttackSpeedPct[type]);
 }
 
+float Unit::GetMeleeAttackDistance(Unit* pVictim /* NULL */) const
+{
+    // The measured values show BASE_MELEE_OFFSET in (1.3224, 1.342)
+    float dist = GetFloatValue(UNIT_FIELD_COMBATREACH) + 
+        (pVictim ? pVictim->GetFloatValue(UNIT_FIELD_COMBATREACH) : 0.0f) +
+        BASE_MELEERANGE_OFFSET;
+
+    return (dist < ATTACK_DISTANCE) ? ATTACK_DISTANCE : dist;
+}
+
 bool Unit::CanReachWithMeleeAttack(Unit* pVictim, float flat_mod /*= 0.0f*/) const
 {
     if (!pVictim || !pVictim->IsInWorld())
         return false;
 
-    // The measured values show BASE_MELEE_OFFSET in (1.3224, 1.342)
-    float reach = GetFloatValue(UNIT_FIELD_COMBATREACH) + pVictim->GetFloatValue(UNIT_FIELD_COMBATREACH) +
-        BASE_MELEERANGE_OFFSET + flat_mod;
-    if (reach < ATTACK_DISTANCE)
-        reach = ATTACK_DISTANCE;
+    float reach = GetMeleeAttackDistance(pVictim) + flat_mod;
 
     // This check is not related to bounding radius of both units!
     float dx = GetPositionX() - pVictim->GetPositionX();
