@@ -4023,6 +4023,7 @@ void Aura::HandleAuraModShapeshift(bool apply, bool Real)
         switch (form)
         {
             case FORM_CAT:
+            case FORM_SHADOW_DANCE:
                 PowerType = POWER_ENERGY;
                 break;
             case FORM_BEAR:
