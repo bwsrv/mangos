@@ -191,6 +191,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
         bool Instanceable() const { return i_mapEntry && i_mapEntry->Instanceable(); }
         // NOTE: this duplicate of Instanceable(), but Instanceable() can be changed when BG also will be instanceable
         bool IsDungeon() const { return i_mapEntry && i_mapEntry->IsDungeon(); }
+        bool IsDungeonOrRaid() const { return i_mapEntry && (i_mapEntry->IsDungeon() || i_mapEntry->IsRaid()); }
         bool IsRaid() const { return i_mapEntry && i_mapEntry->IsRaid(); }
         bool IsRaidOrHeroicDungeon() const { return IsRaid() || GetDifficulty() > DUNGEON_DIFFICULTY_NORMAL; }
         bool IsBattleGround() const { return i_mapEntry && i_mapEntry->IsBattleGround(); }
@@ -286,6 +287,13 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
         void SetBroken( bool _value = true ) { m_broken = _value; };
         void ForcedUnload();
 
+        //Spawn system
+        void InitializeTeamSpawn(Player* player);
+        void SetMapTeam(uint32 Team) { i_Team = Team; }
+        uint32 GetMapTeam() { return i_Team; }
+        uint32 GetMapProcess() { return i_eventId; }
+        void ProcessMapEvent(uint32 event, bool process = true);
+
     private:
         void LoadMapAndVMap(int gx, int gy);
 
@@ -332,6 +340,8 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
         uint32 i_id;
         uint32 i_InstanceId;
         uint32 m_unloadTimer;
+        uint32 i_Team;
+        uint32 i_eventId;
         float m_VisibleDistance;
 
         MapRefManager m_mapRefManager;

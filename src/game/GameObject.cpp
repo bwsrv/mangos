@@ -40,6 +40,7 @@
 #include "Util.h"
 #include "ScriptMgr.h"
 #include <G3D/Quat.h>
+#include "ObjectScriptSpawnMgr.h"
 
 GameObject::GameObject() : WorldObject(),
     m_goInfo(NULL),
@@ -789,6 +790,12 @@ bool GameObject::LoadFromDB(uint32 guid, Map *map)
     GOState go_state = data->go_state;
 
     if (!Create(guid,entry, map, phaseMask, x, y, z, ang, data->rotation, animprogress, go_state))
+        return false;
+
+    if (map->GetGameObject(GetGOInfo()->GetObjectGuid(guid)))
+        return false;
+
+    if (!sObjectScriptSpawnMgr.GameObjectCanSpawn(guid, map))
         return false;
 
     if (!GetGOInfo()->GetDespawnPossibility() && !GetGOInfo()->IsDespawnAtAction() && data->spawntimesecs >= 0)

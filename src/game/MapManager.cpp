@@ -116,7 +116,10 @@ Map* MapManager::CreateMap(uint32 id, const WorldObject* obj)
         MANGOS_ASSERT(obj->GetTypeId() == TYPEID_PLAYER);
         //create DungeonMap object
         if(obj->GetTypeId() == TYPEID_PLAYER)
+        {
             m = CreateInstance(id, (Player*)obj);
+            m->InitializeTeamSpawn((Player*)obj);
+        }
     }
     else
     {

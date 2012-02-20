@@ -453,6 +453,7 @@
     <ClCompile Include="..\..\src\game\ObjectMgr.cpp" />
     <ClCompile Include="..\..\src\game\ObjectGuid.cpp" />
     <ClCompile Include="..\..\src\game\ObjectPosSelector.cpp" />
+    <ClCompile Include="..\..\src\game\ObjectScriptSpawnMgr.cpp" />
     <ClCompile Include="..\..\src\game\Opcodes.cpp" />
     <ClCompile Include="..\..\src\game\PathFinder.cpp" />
     <ClCompile Include="..\..\src\game\pchdef.cpp">
@@ -651,6 +652,7 @@
     <ClInclude Include="..\..\src\game\ObjectGridLoader.h" />
     <ClInclude Include="..\..\src\game\ObjectMgr.h" />
     <ClInclude Include="..\..\src\game\ObjectPosSelector.h" />
+    <ClInclude Include="..\..\src\game\ObjectScriptSpawnMgr.h" />
     <ClInclude Include="..\..\src\game\Opcodes.h" />
     <ClInclude Include="..\..\src\game\Path.h" />
     <ClInclude Include="..\..\src\game\PathFinder.h" />

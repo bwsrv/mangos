@@ -88,6 +88,8 @@ class MANGOS_DLL_SPEC InstanceData
         //called on creature death
         virtual void OnCreatureDeath(Creature * /*creature*/) {}
 
+        virtual void OnWorldEventInitialize(uint32 event_id, bool started) {}
+
         //All-purpose data storage 64 bit
         virtual uint64 GetData64(uint32 /*Data*/) { return 0; }
         virtual void SetData64(uint32 /*Data*/, uint64 /*Value*/) { }
