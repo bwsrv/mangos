@@ -11398,20 +11398,21 @@ void Spell::EffectSkinning(SpellEffectIndex /*eff_idx*/)
 
 void Spell::EffectCharge(SpellEffectIndex /*eff_idx*/)
 {
-    if (!unitTarget)
+    if (!unitTarget || !m_caster)
         return;
 
     float x, y, z;
     unitTarget->GetContactPoint(m_caster, x, y, z);
 
     // Try to normalize Z coord cuz GetContactPoint do nothing with Z axis
-    unitTarget->UpdateGroundPositionZ(x, y, z);
+    m_caster->UpdateAllowedPositionZ(x, y, z);
 
     if (unitTarget->GetTypeId() != TYPEID_PLAYER)
-        ((Creature *)unitTarget)->StopMoving();
+        ((Creature*)unitTarget)->StopMoving();
 
-    // Only send MOVEMENTFLAG_WALK_MODE, client has strange issues with other move flags
-    m_caster->MonsterMoveWithSpeed(x, y, z, 24.f, true, true);
+    float speed = m_spellInfo->speed ? m_spellInfo->speed : BASE_CHARGE_SPEED;
+
+    m_caster->MonsterMoveWithSpeed(x, y, z, speed, true, true);
 
     // not all charge effects used in negative spells
     if (unitTarget != m_caster && !IsPositiveSpell(m_spellInfo->Id))
@@ -11440,10 +11441,12 @@ void Spell::EffectCharge2(SpellEffectIndex /*eff_idx*/)
         return;
 
     // Try to normalize Z coord cuz GetContactPoint do nothing with Z axis
-    unitTarget->UpdateGroundPositionZ(x, y, z);
+    m_caster->UpdateAllowedPositionZ(x, y, z);
+
+    float speed = m_spellInfo->speed ? m_spellInfo->speed : BASE_CHARGE_SPEED;
 
     // Only send MOVEMENTFLAG_WALK_MODE, client has strange issues with other move flags
-    m_caster->MonsterMoveWithSpeed(x, y, z, 24.f, true, true);
+    m_caster->MonsterMoveWithSpeed(x, y, z, speed, true, true);
 
     // not all charge effects used in negative spells
     if (unitTarget && unitTarget != m_caster && !IsPositiveSpell(m_spellInfo->Id))
