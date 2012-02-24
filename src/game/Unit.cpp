@@ -590,7 +590,7 @@ void Unit::resetAttackTimer(WeaponAttackType type)
 float Unit::GetMeleeAttackDistance(Unit* pVictim /* NULL */) const
 {
     // The measured values show BASE_MELEE_OFFSET in (1.3224, 1.342)
-    float dist = GetFloatValue(UNIT_FIELD_COMBATREACH) + 
+    float dist = GetFloatValue(UNIT_FIELD_COMBATREACH) +
         (pVictim ? pVictim->GetFloatValue(UNIT_FIELD_COMBATREACH) : 0.0f) +
         BASE_MELEERANGE_OFFSET;
 
@@ -9342,8 +9342,8 @@ bool Unit::isVisibleForOrDetect(Unit const* u, WorldObject const* viewPoint, boo
             // else apply detecting check for stealth
         }
 
-        // none other cases for detect invisibility, so invisible
-        if (invisible)
+        // none other cases for detect invisibility, and self invisible
+        if (m_invisibilityMask != 0)
             return false;
 
         // else apply stealth detecting check
