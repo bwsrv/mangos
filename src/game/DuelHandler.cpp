@@ -71,6 +71,22 @@ void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
         pl->SetPower(POWER_MANA, pl->GetMaxPower(POWER_MANA));
         plTarget->SetHealth(plTarget->GetMaxHealth());
         plTarget->SetPower(POWER_MANA,  plTarget->GetMaxPower(POWER_MANA));
+
+        // set max hp, mana y remove buffs of players' pet if they have
+        Pet* plPet = pl->GetPet();
+        if(plPet != NULL)
+        {
+            plPet->SetHealth(plPet->GetMaxHealth());
+            plPet->SetPower(plPet->getPowerType(), plPet->GetMaxPower(plPet->getPowerType()));
+            plPet->RemoveArenaAuras();
+        }
+        Pet* plPetTarget = plTarget->GetPet();
+        if(plPetTarget != NULL)
+        {
+            plPetTarget->SetHealth(plPetTarget->GetMaxHealth());
+            plPetTarget->SetPower(plPetTarget->getPowerType(), plPetTarget->GetMaxPower(plPetTarget->getPowerType()));
+            plTarget->RemoveArenaAuras();
+        }
     }
 }
 
