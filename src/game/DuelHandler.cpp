@@ -23,6 +23,7 @@
 #include "Opcodes.h"
 #include "UpdateData.h"
 #include "Player.h"
+#include "World.h"
 
 void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
 {
@@ -48,6 +49,45 @@ void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
 
     pl->SendDuelCountdown(3000);
     plTarget->SendDuelCountdown(3000);
+
+    /**
+    * Duel reset script
+    *
+    */
+   
+    uint32 areaId = pl->GetAreaId();
+       
+    if(sWorld.getConfig(CONFIG_BOOL_RESET_DUEL_AREA_ENABLED) && sWorld.IsAreaIdEnabledDuelReset(areaId)){
+        //remove arena cds
+        pl->RemoveArenaSpellCooldowns();
+        plTarget->RemoveArenaSpellCooldowns();
+
+        //remove negative arena auras
+        pl->RemoveArenaAuras(true);
+        plTarget->RemoveArenaAuras(true);
+
+        //set max mana and hp
+        pl->SetHealth(pl->GetMaxHealth());
+        pl->SetPower(POWER_MANA, pl->GetMaxPower(POWER_MANA));
+        plTarget->SetHealth(plTarget->GetMaxHealth());
+        plTarget->SetPower(POWER_MANA,  plTarget->GetMaxPower(POWER_MANA));
+
+        // set max hp, mana and remove buffs of players' pet if they have
+        Pet* plPet = pl->GetPet();
+        if(plPet != NULL)
+        {
+            plPet->SetHealth(plPet->GetMaxHealth());
+            plPet->SetPower(plPet->getPowerType(), plPet->GetMaxPower(plPet->getPowerType()));
+            plPet->RemoveArenaAuras(true);
+        }
+        Pet* plPetTarget = plTarget->GetPet();
+        if(plPetTarget != NULL)
+        {
+            plPetTarget->SetHealth(plPetTarget->GetMaxHealth());
+            plPetTarget->SetPower(plPetTarget->getPowerType(), plPetTarget->GetMaxPower(plPetTarget->getPowerType()));
+            plPetTarget->RemoveArenaAuras(true);
+        }
+    }
 }
 
 void WorldSession::HandleDuelCancelledOpcode(WorldPacket& recvPacket)
