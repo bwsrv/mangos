@@ -9582,6 +9582,31 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->RemoveAurasDueToSpell(m_spellInfo->EffectBasePoints[eff_idx]);
                     return;
                 }
+                case 62003:                                 // Algalon - Black Hole Spawn
+                {
+                    if (!unitTarget)
+                        return;
+
+                    // Apply aura which causes black hole phase/1 sec to hostile targets
+                    unitTarget->CastSpell(m_caster, 62185, true);
+                }
+                case 62168:									// Algalon - Black Hole Damage
+                {
+                    if (!unitTarget)
+                        return;
+                    unitTarget->CastSpell(unitTarget, 62169, true);
+                    return;
+                }
+                case 64122:
+                case 65108:                                 // Algalon - Collapsing start explosion to summon black hole
+                {
+                    if (!unitTarget)
+                        return;
+                    
+                    // Cast Black hole spawn
+                    m_caster->CastSpell(m_caster, 62189, true);
+                    return;
+                }
                 case 65044:                                 // Flames Ulduar
                 {
                     if (!unitTarget)
