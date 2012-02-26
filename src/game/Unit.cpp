@@ -590,7 +590,7 @@ void Unit::resetAttackTimer(WeaponAttackType type)
 float Unit::GetMeleeAttackDistance(Unit* pVictim /* NULL */) const
 {
     // The measured values show BASE_MELEE_OFFSET in (1.3224, 1.342)
-    float dist = GetFloatValue(UNIT_FIELD_COMBATREACH) + 
+    float dist = GetFloatValue(UNIT_FIELD_COMBATREACH) +
         (pVictim ? pVictim->GetFloatValue(UNIT_FIELD_COMBATREACH) : 0.0f) +
         BASE_MELEERANGE_OFFSET;
 
@@ -9380,8 +9380,8 @@ bool Unit::isVisibleForOrDetect(Unit const* u, WorldObject const* viewPoint, boo
             // else apply detecting check for stealth
         }
 
-        // none other cases for detect invisibility, so invisible
-        if (invisible)
+        // none other cases for detect invisibility, and self invisible
+        if (m_invisibilityMask != 0)
             return false;
 
         // else apply stealth detecting check
@@ -11135,7 +11135,7 @@ void CharmInfo::LoadPetActionBar(const std::string& data )
 {
     InitPetActionBar();
 
-    Tokens tokens = StrSplit(data, " ");
+    Tokens tokens(data, ' ');
 
     if (tokens.size() != (ACTION_BAR_INDEX_END-ACTION_BAR_INDEX_START)*2)
         return;                                             // non critical, will reset to default
@@ -11145,9 +11145,9 @@ void CharmInfo::LoadPetActionBar(const std::string& data )
     for(iter = tokens.begin(), index = ACTION_BAR_INDEX_START; index < ACTION_BAR_INDEX_END; ++iter, ++index )
     {
         // use unsigned cast to avoid sign negative format use at long-> ActiveStates (int) conversion
-        uint8 type  = (uint8)atol((*iter).c_str());
+        uint8 type  = (uint8)atol(*iter);
         ++iter;
-        uint32 action = atol((*iter).c_str());
+        uint32 action = atol(*iter);
 
         PetActionBar[index].SetActionAndType(action,ActiveStates(type));
 
@@ -11165,7 +11165,6 @@ void CharmInfo::BuildActionBar( WorldPacket* data )
 
 void CharmInfo::SetSpellAutocast( uint32 spell_id, bool state )
 {
-
     for(int i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
     {
         if (spell_id == PetActionBar[i].GetAction() && PetActionBar[i].IsActionBarForSpell())
@@ -11306,7 +11305,6 @@ void Unit::DoPetAction( Player* owner, uint8 flag, uint32 spellid, ObjectGuid pe
             sLog.outError("WORLD: unknown PET flag Action %i and spellid %i.", uint32(flag), spellid);
             break;
     }
-
 }
 
 void Unit::DoPetCastSpell(Unit* target, uint32 spellId)
@@ -11347,7 +11345,6 @@ void Unit::DoPetCastSpell(Player *owner, uint8 cast_count, SpellCastTargets* tar
     if (GetCharmInfo() && GetCharmInfo()->GetGlobalCooldownMgr().HasGlobalCooldown(spellInfo))
         return;
 
-
     bool triggered = false;
     SpellEntry const* triggeredBy = NULL;
 
@@ -11386,7 +11383,6 @@ void Unit::DoPetCastSpell(Player *owner, uint8 cast_count, SpellCastTargets* tar
         DEBUG_LOG("Unit::DoPetCastSpell: %s tryed to cast spell %u with setted dest. location without target. Set unitTarget to caster.",GetObjectGuid().GetString().c_str(), spellInfo->Id);
 //        targets->setUnitTarget((Unit*)pet);
     }
-
 
     Spell *spell = new Spell(this, spellInfo, triggered, GetObjectGuid(), triggeredBy);
     spell->m_cast_count = cast_count;                       // probably pending spell cast
