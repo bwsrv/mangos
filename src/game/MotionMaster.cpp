@@ -504,7 +504,8 @@ void MotionMaster::MoveJumpTo(float x, float y, float z, float o, Unit* target, 
 {
     Movement::MoveSplineInit init(*m_owner);
     init.MoveTo(x,y,z);
-    init.SetParabolic(max_height, 0);
+    if (max_height > M_NULL_F)
+        init.SetParabolic(max_height, 0);
     init.SetVelocity(horizontalSpeed);
     if (target)
         init.SetFacing(target);
