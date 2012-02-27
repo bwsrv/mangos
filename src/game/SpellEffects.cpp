@@ -4752,7 +4752,7 @@ void Spell::EffectJump(SpellEffectIndex eff_idx)
     if (pTarget == m_caster)
         pTarget = NULL;
 
-    m_caster->MonsterMoveJump(x, y, z, o, float(speed_xy) / 2, float(speed_z) / 10, false, pTarget);
+    m_caster->MonsterMoveToDestination(x, y, z, o, float(speed_xy) / 2, float(speed_z) / 10, false, pTarget);
 }
 
 void Spell::EffectTeleportUnits(SpellEffectIndex eff_idx)
@@ -11450,7 +11450,7 @@ void Spell::EffectCharge(SpellEffectIndex /*eff_idx*/)
 
     float speed = m_spellInfo->speed ? m_spellInfo->speed : BASE_CHARGE_SPEED;
 
-    m_caster->MonsterMoveJump(x, y, z, m_caster->GetOrientation(), speed, 0, false, unitTarget);
+    m_caster->MonsterMoveToDestination(x, y, z, m_caster->GetOrientation(), speed, 0, false, unitTarget);
 
     // not all charge effects used in negative spells
     if (unitTarget != m_caster && !IsPositiveSpell(m_spellInfo->Id))
@@ -11483,7 +11483,7 @@ void Spell::EffectCharge2(SpellEffectIndex /*eff_idx*/)
 
     float speed = m_spellInfo->speed ? m_spellInfo->speed : BASE_CHARGE_SPEED;
 
-    m_caster->MonsterMoveJump(x, y, z, m_caster->GetOrientation(), speed, 0, false, unitTarget);
+    m_caster->MonsterMoveToDestination(x, y, z, m_caster->GetOrientation(), speed, 0, false, unitTarget);
 
     // not all charge effects used in negative spells
     if (unitTarget && unitTarget != m_caster && !IsPositiveSpell(m_spellInfo->Id))
@@ -12555,5 +12555,5 @@ void Spell::EffectSuspendGravity(SpellEffectIndex eff_idx)
     float speed  = float(m_spellInfo->EffectMiscValue[eff_idx]/2.0f);
     float height = float(unitTarget->GetDistance(x,y,z) / 10.0f);
 
-    unitTarget->MonsterMoveJump(x, y, z + 0.1f, unitTarget->GetOrientation(), speed, height, true, m_caster == unitTarget ? NULL : m_caster);
+    unitTarget->MonsterMoveToDestination(x, y, z + 0.1f, unitTarget->GetOrientation(), speed, height, true, m_caster == unitTarget ? NULL : m_caster);
 }
