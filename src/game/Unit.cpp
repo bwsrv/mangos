@@ -8355,10 +8355,12 @@ bool Unit::IsImmunedToDamage(SpellSchoolMask schoolMask) const
         return true;
 
     //If m_immuneToDamage type contain magic, IMMUNE damage.
+    MAPLOCK_READ(const_cast<Unit*>(this), MAP_LOCK_TYPE_AURAS);
     SpellImmuneList const& damageList = m_spellImmune[IMMUNITY_DAMAGE];
-    for (SpellImmuneList::const_iterator itr = damageList.begin(); itr != damageList.end(); ++itr)
-        if (itr->type & schoolMask)
-            return true;
+    if (!damageList.empty())
+        for (SpellImmuneList::const_iterator itr = damageList.begin(); itr != damageList.end(); ++itr)
+            if (itr->type & schoolMask)
+                return true;
 
     return false;
 }
@@ -8366,10 +8368,12 @@ bool Unit::IsImmunedToDamage(SpellSchoolMask schoolMask) const
 bool Unit::IsImmunedToSchool(SpellSchoolMask schoolMask) const
 {
     //If m_immuneToSchool type contain this school type, IMMUNE damage.
+    MAPLOCK_READ(const_cast<Unit*>(this), MAP_LOCK_TYPE_AURAS);
     SpellImmuneList const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
-    for (SpellImmuneList::const_iterator itr = schoolList.begin(); itr != schoolList.end(); ++itr)
-        if (itr->type & schoolMask)
-            return true;
+    if (!schoolList.empty())
+        for (SpellImmuneList::const_iterator itr = schoolList.begin(); itr != schoolList.end(); ++itr)
+            if (itr->type & schoolMask)
+                return true;
 
     return false;
 }
@@ -8388,6 +8392,7 @@ bool Unit::IsImmuneToSpell(SpellEntry const* spellInfo) const
     if (!effectMask)
         return true;
 
+    MAPLOCK_READ(const_cast<Unit*>(this), MAP_LOCK_TYPE_AURAS);
     SpellImmuneList const& dispelList = m_spellImmune[IMMUNITY_DISPEL];
     for(SpellImmuneList::const_iterator itr = dispelList.begin(); itr != dispelList.end(); ++itr)
         if (itr->type == spellInfo->Dispel)
@@ -8430,6 +8435,7 @@ bool Unit::IsImmuneToSpellEffect(SpellEntry const* spellInfo, SpellEffectIndex i
     if (spellInfo->Effect[index] == SPELL_EFFECT_NONE)
         return true;
 
+    MAPLOCK_READ(const_cast<Unit*>(this), MAP_LOCK_TYPE_AURAS);
     if (!(spellInfo->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY))
     {
         //If m_immuneToEffect type contain this effect type, IMMUNE effect.
@@ -8895,6 +8901,7 @@ void Unit::ApplySpellImmune(uint32 spellId, uint32 op, uint32 type, bool apply)
 {
     if (apply)
     {
+        MAPLOCK_WRITE(this, MAP_LOCK_TYPE_AURAS);
         for (SpellImmuneList::iterator itr = m_spellImmune[op].begin(), next; itr != m_spellImmune[op].end(); itr = next)
         {
             next = itr; ++next;
@@ -8911,6 +8918,7 @@ void Unit::ApplySpellImmune(uint32 spellId, uint32 op, uint32 type, bool apply)
     }
     else
     {
+        MAPLOCK_WRITE(this, MAP_LOCK_TYPE_AURAS);
         for (SpellImmuneList::iterator itr = m_spellImmune[op].begin(); itr != m_spellImmune[op].end(); ++itr)
         {
             if (itr->spellId == spellId)
@@ -12589,7 +12597,7 @@ void Unit::MonsterMoveWithSpeed(float x, float y, float z, float speed, bool gen
     init.Launch();
 }
 
-void Unit::MonsterMoveJump(float x, float y, float z, float o, float speed, float height, bool isKnockBack, Unit* target)
+void Unit::MonsterMoveToDestination(float x, float y, float z, float o, float speed, float height, bool isKnockBack, Unit* target)
 {
     MaNGOS::NormalizeMapCoord(x);
     MaNGOS::NormalizeMapCoord(y);
@@ -12600,7 +12608,7 @@ void Unit::MonsterMoveJump(float x, float y, float z, float o, float speed, floa
         InterruptNonMeleeSpells(false);
     }
 
-    GetMotionMaster()->MoveJumpTo(x, y, z, o, target, speed, height, 0);
+    GetMotionMaster()->MoveToDestination(x, y, z, o, target, speed, height, 0);
 }
 
 struct SetPvPHelper
@@ -12881,7 +12889,7 @@ void Unit::KnockBackFrom(Unit* target, float horizontalSpeed, float verticalSpee
         float fy = oy + dis * vsin;
         float fz = oz;
 
-        MonsterMoveJump(fx,fy,fz,GetOrientation(),horizontalSpeed,max_height, true);
+        MonsterMoveToDestination(fx,fy,fz,GetOrientation(),horizontalSpeed,max_height, true);
     }
 }
 
