@@ -74,7 +74,7 @@ bool ChatHandler::HandleMuteCommand(char* args)
     if (!ExtractUInt32(&args, notspeaktime))
         return false;
 
-    uint32 account_id = target ? target->GetSession()->GetAccountId() : sObjectMgr.GetPlayerAccountIdByGUID(target_guid);
+    uint32 account_id = target ? target->GetSession()->GetAccountId() : sAccountMgr.GetPlayerAccountIdByGUID(target_guid);
 
     // find only player from same account if any
     if (!target)
@@ -123,7 +123,7 @@ bool ChatHandler::HandleUnmuteCommand(char* args)
     if (!ExtractPlayerTarget(&args, &target, &target_guid, &target_name))
         return false;
 
-    uint32 account_id = target ? target->GetSession()->GetAccountId() : sObjectMgr.GetPlayerAccountIdByGUID(target_guid);
+    uint32 account_id = target ? target->GetSession()->GetAccountId() : sAccountMgr.GetPlayerAccountIdByGUID(target_guid);
 
     // find only player from same account if any
     if (!target)
@@ -2692,7 +2692,7 @@ void ChatHandler::ShowTicket(GMTicket const* ticket)
     std::string lastupdated = TimeToTimestampStr(ticket->GetLastUpdate());
 
     std::string name;
-    if (!sObjectMgr.GetPlayerNameByGUID(ticket->GetPlayerGuid(), name))
+    if (!sAccountMgr.GetPlayerNameByGUID(ticket->GetPlayerGuid(), name))
         name = GetMangosString(LANG_UNKNOWN);
 
     std::string nameLink = playerLink(name);

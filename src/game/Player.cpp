@@ -61,7 +61,6 @@
 #include "SocialMgr.h"
 #include "AchievementMgr.h"
 #include "Mail.h"
-#include "AccountMgr.h"
 #include "SpellAuras.h"
 
 #include <cmath>
@@ -4428,7 +4427,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
 
                     CharacterDatabase.PExecute("DELETE FROM mail_items WHERE mail_id = '%u'", mail_id);
 
-                    uint32 pl_account = sObjectMgr.GetPlayerAccountIdByGUID(playerguid);
+                    uint32 pl_account = sAccountMgr.GetPlayerAccountIdByGUID(playerguid);
 
                     draft.SetMoney(money).SendReturnToSender(pl_account, playerguid, ObjectGuid(HIGHGUID_PLAYER, sender));
                 }
@@ -4520,7 +4519,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
     }
 
     if (updateRealmChars)
-        sWorld.UpdateRealmCharCount(accountId);
+        sAccountMgr.UpdateCharactersCount(accountId, realmID);
 }
 
 /**
@@ -24468,14 +24467,19 @@ bool Player::CheckRAFConditions()
 
 AccountLinkedState Player::GetAccountLinkedState()
 {
+    RafLinkedList const* referredAccounts = sAccountMgr.GetRAFAccounts(GetSession()->GetAccountId(), true);
+    RafLinkedList const* referalAccounts  = sAccountMgr.GetRAFAccounts(GetSession()->GetAccountId(), false);
 
-    if (!m_referredAccounts.empty() && !m_referalAccounts.empty())
+    if (!referredAccounts || !referalAccounts)
+        return STATE_NOT_LINKED;
+
+    if (!referredAccounts->empty() && !referalAccounts->empty())
         return STATE_DUAL;
 
-    if (!m_referredAccounts.empty())
+    if (!referredAccounts->empty())
         return STATE_REFER;
 
-    if (!m_referalAccounts.empty())
+    if (!referalAccounts->empty())
         return STATE_REFERRAL;
 
     return STATE_NOT_LINKED;
@@ -24483,37 +24487,43 @@ AccountLinkedState Player::GetAccountLinkedState()
 
 void Player::LoadAccountLinkedState()
 {
-    m_referredAccounts.clear();
-    m_referredAccounts = sAccountMgr.GetRAFAccounts(GetSession()->GetAccountId(), true);
+    RafLinkedList const* referredAccounts = sAccountMgr.GetRAFAccounts(GetSession()->GetAccountId(), true);
+    if (referredAccounts)
+    {
+        if (referredAccounts->size() > sWorld.getConfig(CONFIG_UINT32_RAF_MAXREFERERS))
+            sLog.outError("Player:RAF:Warning: loaded %u referred accounts instead of %u for player %s",referredAccounts->size(),sWorld.getConfig(CONFIG_UINT32_RAF_MAXREFERERS),GetObjectGuid().GetString().c_str());
+        else
+            DEBUG_LOG("Player:RAF: loaded %u referred accounts for player %u",referredAccounts->size(),GetObjectGuid().GetString().c_str());
+    }
 
-    if (m_referredAccounts.size() > sWorld.getConfig(CONFIG_UINT32_RAF_MAXREFERERS))
-        sLog.outError("Player:RAF:Warning: loaded " SIZEFMTD " referred accounts instead of %u for player %u",m_referredAccounts.size(),sWorld.getConfig(CONFIG_UINT32_RAF_MAXREFERERS),GetObjectGuid().GetCounter());
-    else
-        DEBUG_LOG("Player:RAF: loaded " SIZEFMTD " referred accounts for player %u",m_referredAccounts.size(),GetObjectGuid().GetCounter());
-
-    m_referalAccounts.clear();
-    m_referalAccounts  = sAccountMgr.GetRAFAccounts(GetSession()->GetAccountId(), false);
-
-    if (m_referalAccounts.size() > sWorld.getConfig(CONFIG_UINT32_RAF_MAXREFERALS))
-        sLog.outError("Player:RAF:Warning: loaded " SIZEFMTD " referal accounts instead of %u for player %u",m_referalAccounts.size(),sWorld.getConfig(CONFIG_UINT32_RAF_MAXREFERALS),GetObjectGuid().GetCounter());
-    else
-        DEBUG_LOG("Player:RAF: loaded " SIZEFMTD " referal accounts for player %u",m_referalAccounts.size(),GetObjectGuid().GetCounter());
+    RafLinkedList const* referalAccounts = sAccountMgr.GetRAFAccounts(GetSession()->GetAccountId(), false);
+    if (referalAccounts)
+    {
+        if (referalAccounts->size() > sWorld.getConfig(CONFIG_UINT32_RAF_MAXREFERALS))
+            sLog.outError("Player:RAF:Warning: loaded %u referal accounts instead of %u for player %u",referalAccounts->size(),sWorld.getConfig(CONFIG_UINT32_RAF_MAXREFERALS),GetObjectGuid().GetString().c_str());
+        else
+            DEBUG_LOG("Player:RAF: loaded %u referal accounts for player %u",referalAccounts->size(),GetObjectGuid().GetString().c_str());
+    }
 }
 
 bool Player::IsReferAFriendLinked(Player* target)
 {
     // check link this(refer) - target(referral)
-    for (std::vector<uint32>::const_iterator itr = m_referalAccounts.begin(); itr != m_referalAccounts.end(); ++itr)
+    RafLinkedList const* referalAccounts = sAccountMgr.GetRAFAccounts(GetSession()->GetAccountId(), false);
+    if (referalAccounts)
     {
-        if ((*itr) == target->GetSession()->GetAccountId())
-            return true;
+        for (RafLinkedList::const_iterator itr = referalAccounts->begin(); itr != referalAccounts->end(); ++itr)
+            if ((*itr) == target->GetSession()->GetAccountId())
+               return true;
     }
 
     // check link target(refer) - this(referral)
-    for (std::vector<uint32>::const_iterator itr = m_referredAccounts.begin(); itr != m_referredAccounts.end(); ++itr)
+    RafLinkedList const* referredAccounts = sAccountMgr.GetRAFAccounts(GetSession()->GetAccountId(), true);
+    if (referredAccounts)
     {
-        if ((*itr) == target->GetSession()->GetAccountId())
-            return true;
+        for (RafLinkedList::const_iterator itr = referredAccounts->begin(); itr != referredAccounts->end(); ++itr)
+            if ((*itr) == target->GetSession()->GetAccountId())
+                return true;
     }
 
     return false;
