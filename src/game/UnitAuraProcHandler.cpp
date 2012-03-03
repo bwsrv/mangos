@@ -2545,7 +2545,12 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, DamageInfo* damageI
                     if (procSpell && IsFriendlyTo(pVictim))
                     {
                         if (procSpell->SpellFamilyFlags.test<CF_PALADIN_FLASH_OF_LIGHT>() && (pVictim->HasAura(53569, EFFECT_INDEX_0) || pVictim->HasAura(53576, EFFECT_INDEX_0)))
+                        {
                             triggered_spell_id = 66922;
+                            basepoints[0] = int32(damage / GetSpellAuraMaxTicks(triggered_spell_id));
+                            if (pVictim->HasAura(53569, EFFECT_INDEX_0))
+                                basepoints[0] = basepoints[0] >> 1;
+                        }
                         else
                             return SPELL_AURA_PROC_FAILED;
                     }
@@ -4638,8 +4643,8 @@ SpellAuraProcResult Unit::HandleOverrideClassScriptAuraProc(Unit *pVictim, Damag
             triggered_spell_id = 28750;                     // Blessing of the Claw
             break;
         case 5497:                                          // Improved Mana Gems (Serpent-Coil Braid)
-            triggered_spell_id = 37445;                     // Mana Surge
-            break;
+            CastSpell(pVictim, 37445, true);                // Mana Surge (direct because triggeredByAura has no duration)
+            return SPELL_AURA_PROC_OK;
         case 6953:                                          // Warbringer
             RemoveAurasAtMechanicImmunity(IMMUNE_TO_ROOT_AND_SNARE_MASK,0,true);
             return SPELL_AURA_PROC_OK;
