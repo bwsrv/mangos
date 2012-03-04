@@ -3737,6 +3737,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank, bo
 
 void Player::RemoveSpellCooldown( uint32 spell_id, bool update /* = false */ )
 {
+    MAPLOCK_WRITE(this, MAP_LOCK_TYPE_DEFAULT);
     m_spellCooldowns.erase(spell_id);
 
     if (update)
@@ -3797,6 +3798,7 @@ void Player::RemoveAllSpellCooldown()
         for(SpellCooldowns::const_iterator itr = m_spellCooldowns.begin();itr != m_spellCooldowns.end(); ++itr)
             SendClearCooldown(itr->first, this);
 
+        MAPLOCK_WRITE(this, MAP_LOCK_TYPE_DEFAULT);
         m_spellCooldowns.clear();
     }
 }
@@ -3854,7 +3856,10 @@ void Player::_SaveSpellCooldowns()
     for(SpellCooldowns::iterator itr = m_spellCooldowns.begin();itr != m_spellCooldowns.end();)
     {
         if (itr->second.end <= curTime)
+        {
+            MAPLOCK_WRITE(this, MAP_LOCK_TYPE_DEFAULT);
             m_spellCooldowns.erase(itr++);
+        }
         else if (itr->second.end <= infTime)                 // not save locked cooldowns, it will be reset or set at reload
         {
             stmt = CharacterDatabase.CreateStatement(insertSpellCooldown, "INSERT INTO character_spell_cooldown (guid,spell,item,time) VALUES( ?, ?, ?, ?)");
@@ -20750,6 +20755,7 @@ void Player::AddSpellCooldown(uint32 spellid, uint32 itemid, time_t end_time)
     SpellCooldown sc;
     sc.end = end_time;
     sc.itemid = itemid;
+    MAPLOCK_WRITE(this, MAP_LOCK_TYPE_DEFAULT);
     m_spellCooldowns[spellid] = sc;
 }
 
