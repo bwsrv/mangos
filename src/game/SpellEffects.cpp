@@ -6474,7 +6474,8 @@ void Spell::DoSummonWild(SpellEffectIndex eff_idx, uint32 forceFaction)
 
     float ox, oy, oz;
     m_caster->GetPosition(ox, oy, oz);
-    m_caster->GetTerrain()->CheckPathAccurate(ox,oy,oz, center_x, center_y, center_z, sWorld.getConfig(CONFIG_BOOL_CHECK_GO_IN_PATH) ? m_caster : NULL );
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+        m_caster->GetTerrain()->CheckPathAccurate(ox,oy,oz, center_x, center_y, center_z, sWorld.getConfig(CONFIG_BOOL_CHECK_GO_IN_PATH) ? m_caster : NULL );
     m_caster->UpdateAllowedPositionZ(center_x,center_y,center_z);
 
     float radius = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[eff_idx]));
@@ -6518,7 +6519,8 @@ void Spell::DoSummonWild(SpellEffectIndex eff_idx, uint32 forceFaction)
             }
         }
 
-        m_caster->GetTerrain()->CheckPathAccurate(ox,oy,oz, px, py, pz, sWorld.getConfig(CONFIG_BOOL_CHECK_GO_IN_PATH) ? m_caster : NULL );
+        if (m_caster->GetTypeId() == TYPEID_PLAYER)
+            m_caster->GetTerrain()->CheckPathAccurate(ox,oy,oz, px, py, pz, sWorld.getConfig(CONFIG_BOOL_CHECK_GO_IN_PATH) ? m_caster : NULL );
         m_caster->UpdateAllowedPositionZ(px,py,pz);
 
         if (Creature* summon = m_caster->SummonCreature(creature_entry, px, py, pz, m_caster->GetOrientation(), summonType, m_duration))
