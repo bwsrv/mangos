@@ -3761,6 +3761,11 @@ SpellAuraProcResult Unit::HandleProcTriggerSpellAuraProc(Unit *pVictim, DamageIn
             if (!auraSpellInfo->SpellFamilyFlags.Flags && auraSpellInfo->SpellIconID == 243)
             {
                 bool bOffHand = procFlags & PROC_FLAG_SUCCESSFUL_OFFHAND_HIT;
+                if (bOffHand && !haveOffhandWeapon())
+                {
+                    sLog.outError("Unit::HandleProcTriggerSpellAuraProc: offhand %u proc without offhand weapon!",auraSpellInfo->Id);
+                    return SPELL_AURA_PROC_FAILED;
+                }
 
                 float weaponSpeed = GetAttackTime(bOffHand ? OFF_ATTACK : BASE_ATTACK)/1000.0f;
                 float weaponDPS   = ((GetFloatValue(bOffHand ? UNIT_FIELD_MINOFFHANDDAMAGE : UNIT_FIELD_MINDAMAGE) +
@@ -3783,7 +3788,7 @@ SpellAuraProcResult Unit::HandleProcTriggerSpellAuraProc(Unit *pVictim, DamageIn
 
                 SpellEntry const* triggerspellInfo = sSpellStore.LookupEntry(trigger_spell_id);
 
-                if (!triggerspellInfo)
+                if (!triggerspellInfo || f_damage < M_NULL_F)
                     return SPELL_AURA_PROC_FAILED;
 
                 uint32 tickcount = GetSpellDuration(triggerspellInfo) / triggerspellInfo->EffectAmplitude[EFFECT_INDEX_0];
