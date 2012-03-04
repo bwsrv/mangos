@@ -3225,8 +3225,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
             case 34477: //Misdirection
             case 57934: //Tricks of Trade
             {
-                if (Unit* caster = GetCaster())
-                    caster->getHostileRefManager().SetThreatRedirection(target->GetObjectGuid(), 100);
+                // Do nothing - all maked in 1'st effect and on aura remove.
                 return;
             }
             case 52098:                                     // Charge Up
