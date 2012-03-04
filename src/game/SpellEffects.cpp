@@ -5688,7 +5688,8 @@ void Spell::SendLoot(ObjectGuid guid, LootType loottype, LockType lockType)
     if (!m_caster)
         return;
 
-    m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_USE);
+    if (!m_IsTriggeredSpell && isSpellBreakStealth(m_spellInfo))
+        m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_USE);
 
     if (gameObjTarget)
     {
