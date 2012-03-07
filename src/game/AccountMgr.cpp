@@ -420,46 +420,52 @@ void AccountMgr::MakePlayerDataCache(Player* player)
 
 PlayerDataCache const* AccountMgr::GetPlayerDataCache(ObjectGuid guid)
 {
-    ReadGuard Guard(GetLock());
-    PlayerDataCacheMap::const_iterator itr = mPlayerDataCacheMap.find(guid);
-    if (itr != mPlayerDataCacheMap.end()) 
-        return &itr->second;
-    else
+    PlayerDataCacheMap::const_iterator itr;
     {
-        if (Player* player = sObjectMgr.GetPlayer(guid))
-        {
-            MakePlayerDataCache(player);
-        }
-        else
-        {
-            QueryResult* result = CharacterDatabase.PQuery("SELECT account, name, race FROM characters WHERE guid = '%u'", guid.GetCounter());
-            if (result)
-            {
-                PlayerDataCache cache;
-                cache.account = (*result)[0].GetUInt32();
-                cache.lowguid = guid.GetCounter();
-                cache.name    = (*result)[1].GetCppString();
-                cache.race    = (*result)[2].GetUInt8();
-                mPlayerDataCacheMap.insert(PlayerDataCacheMap::value_type(guid, cache));
-
-            }
-        }
+        ReadGuard Guard(GetLock());
         itr = mPlayerDataCacheMap.find(guid);
         if (itr != mPlayerDataCacheMap.end()) 
             return &itr->second;
     }
+
+    if (Player* player = sObjectMgr.GetPlayer(guid))
+    {
+        MakePlayerDataCache(player);
+    }
+    else
+    {
+        QueryResult* result = CharacterDatabase.PQuery("SELECT account, name, race FROM characters WHERE guid = '%u'", guid.GetCounter());
+        if (result)
+        {
+            PlayerDataCache cache;
+            cache.account = (*result)[0].GetUInt32();
+            cache.lowguid = guid.GetCounter();
+            cache.name    = (*result)[1].GetCppString();
+            cache.race    = (*result)[2].GetUInt8();
+
+            WriteGuard Guard(GetLock());
+            mPlayerDataCacheMap.insert(PlayerDataCacheMap::value_type(guid, cache));
+        }
+    }
+
+    {
+        ReadGuard Guard(GetLock());
+        itr = mPlayerDataCacheMap.find(guid);
+        if (itr != mPlayerDataCacheMap.end()) 
+            return &itr->second;
+    }
+
     return NULL;
 }
 
 PlayerDataCache const* AccountMgr::GetPlayerDataCache(const std::string& name)
 {
-    ReadGuard Guard(GetLock());
-    for (PlayerDataCacheMap::const_iterator itr = mPlayerDataCacheMap.begin(); itr != mPlayerDataCacheMap.end(); ++itr)
     {
-        if (itr->second.name == name)
-            return &itr->second;
+        ReadGuard Guard(GetLock());
+        for (PlayerDataCacheMap::const_iterator itr = mPlayerDataCacheMap.begin(); itr != mPlayerDataCacheMap.end(); ++itr)
+            if (itr->second.name == name)
+                return &itr->second;
     }
-
 
     ObjectGuid guid;
 
@@ -473,13 +479,17 @@ PlayerDataCache const* AccountMgr::GetPlayerDataCache(const std::string& name)
         cache.name     = name;
 
         guid = ObjectGuid(HIGHGUID_PLAYER, cache.lowguid);
+
+        WriteGuard Guard(GetLock());
         mPlayerDataCacheMap.insert(PlayerDataCacheMap::value_type(guid, cache));
     }
 
-
-    PlayerDataCacheMap::const_iterator itr = mPlayerDataCacheMap.find(guid);
-    if (itr != mPlayerDataCacheMap.end()) 
-        return &itr->second;
+    {
+        ReadGuard Guard(GetLock());
+        PlayerDataCacheMap::const_iterator itr = mPlayerDataCacheMap.find(guid);
+        if (itr != mPlayerDataCacheMap.end()) 
+            return &itr->second;
+    }
 
     return NULL;
 }
