@@ -208,7 +208,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectSuspendGravity,                           //145 SPELL_EFFECT_SUSPEND_GRAVITY          Black Hole Effect
     &Spell::EffectActivateRune,                             //146 SPELL_EFFECT_ACTIVATE_RUNE
     &Spell::EffectQuestFail,                                //147 SPELL_EFFECT_QUEST_FAIL               quest fail
-    &Spell::EffectNULL,                                     //148 SPELL_EFFECT_148                      single spell: Inflicts Fire damage to an enemy.
+    &Spell::EffectTriggerMissileSpell,                      //148 SPELL_EFFECT_TRIGGER_MISSILE_2        single spell: Inflicts Fire damage to an enemy.
     &Spell::EffectCharge2,                                  //149 SPELL_EFFECT_CHARGE2                  swoop
     &Spell::EffectQuestStart,                               //150 SPELL_EFFECT_QUEST_START
     &Spell::EffectTriggerRitualOfSummoning,                 //151 SPELL_EFFECT_TRIGGER_SPELL_2
@@ -4666,7 +4666,7 @@ void Spell::EffectTriggerMissileSpell(SpellEffectIndex effect_idx)
     uint32 triggered_spell_id = m_spellInfo->EffectTriggerSpell[effect_idx];
 
     // normal case
-    SpellEntry const *spellInfo = sSpellStore.LookupEntry( triggered_spell_id );
+    SpellEntry const* spellInfo = sSpellStore.LookupEntry(triggered_spell_id);
 
     if (!spellInfo)
     {
@@ -4681,17 +4681,25 @@ void Spell::EffectTriggerMissileSpell(SpellEffectIndex effect_idx)
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
         ((Player*)m_caster)->RemoveSpellCooldown(triggered_spell_id);
 
-    // Init dest coordinates
-    float x,y,z;
-    x = m_targets.m_destX;
-    y = m_targets.m_destY;
-    z = m_targets.m_destZ;
+    if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION || m_caster == unitTarget )
+    {
+        // Init dest coordinates
+        float x,y,z;
+        x = m_targets.m_destX;
+        y = m_targets.m_destY;
+        z = m_targets.m_destZ;
 
-    MaNGOS::NormalizeMapCoord(x);
-    MaNGOS::NormalizeMapCoord(y);
-    m_caster->UpdateAllowedPositionZ(x,y,z);
+        MaNGOS::NormalizeMapCoord(x);
+        MaNGOS::NormalizeMapCoord(y);
+        m_caster->UpdateAllowedPositionZ(x,y,z);
 
-    m_caster->CastSpell(x, y, z, spellInfo, true, m_CastItem, 0, m_originalCasterGUID);
+        m_caster->CastSpell(x, y, z, spellInfo, true, m_CastItem, NULL, m_originalCasterGUID);
+    }
+    else
+    {
+        Unit* caster = IsSpellWithCasterSourceTargetsOnly(spellInfo) ? unitTarget : m_caster;
+        caster->CastSpell(unitTarget,spellInfo,true,m_CastItem,NULL,m_originalCasterGUID);
+    }
 }
 
 void Spell::EffectJump(SpellEffectIndex eff_idx)
