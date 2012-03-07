@@ -18091,7 +18091,7 @@ void Player::SendRaidInfo()
                 data << uint8((state->GetRealResetTime() > now) ? 1 : 0 );   // expired = 0
                 data << uint8(itr->second.extend ? 1 : 0);      // extended = 1
                 data << uint32(state->GetRealResetTime() > now ? state->GetRealResetTime() - now
-                    : DungeonResetScheduler::CalculateNextResetTime(GetMapDifficultyData(state->GetMapId(), state->GetDifficulty()), now));    // reset time
+                    : DungeonResetScheduler::CalculateNextResetTime(GetMapDifficultyData(state->GetMapId(), state->GetDifficulty())));    // reset time
                 ++counter;
             }
         }
