@@ -2019,7 +2019,7 @@ struct SpellEntry
     uint32    runeCostID;                                   // 226      m_runeCostID
     //uint32    spellMissileID;                             // 227      m_spellMissileID
     //uint32  PowerDisplayId;                               // 228      m_powerDisplayID (PowerDisplay.dbc)
-    //float   effectBonusCoefficient[3];                    // 229-231  m_effectBonusCoefficient
+    float     EffectCoeffs[MAX_EFFECT_INDEX];               // 229-231  3.2.0
     //uint32  spellDescriptionVariableID;                   // 232      m_descriptionVariablesID
     uint32  SpellDifficultyId;                              // 233      m_difficulty (SpellDifficulty.dbc)
 
