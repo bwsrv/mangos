@@ -256,8 +256,11 @@ void WardenWin::RequestData()
     for (std::vector<uint32>::iterator itr = SendDataId.begin(); itr != SendDataId.end(); ++itr)
     {
         wd = WardenDataStorage.GetWardenDataById(*itr);
-
         type = wd->Type;
+
+        // Make copy of BigNumber wd->i for safe use in multithread environment (source method not thread-safe)
+        BigNumber bn_copy = wd->i;
+
         buff << uint8(type ^ xorByte);
         switch (type)
         {
@@ -271,7 +274,7 @@ void WardenWin::RequestData()
             case PAGE_CHECK_A:
             case PAGE_CHECK_B:
             {
-                buff.append(wd->i.AsByteArray(0, false), wd->i.GetNumBytes());
+                buff.append(bn_copy.AsByteArray(0, false), bn_copy.GetNumBytes());
                 buff << uint32(wd->Address);
                 buff << uint8(wd->Length);
                 break;
@@ -284,7 +287,7 @@ void WardenWin::RequestData()
             }
             case DRIVER_CHECK:
             {
-                buff.append(wd->i.AsByteArray(0, false), wd->i.GetNumBytes());
+                buff.append(bn_copy.AsByteArray(0, false), bn_copy.GetNumBytes());
                 buff << uint8(index++);
                 break;
             }
@@ -300,7 +303,7 @@ void WardenWin::RequestData()
             }
             /*case PROC_CHECK:
             {
-                buff.append(wd->i.AsByteArray(0, false), wd->i.GetNumBytes());
+                buff.append(bn_copy.AsByteArray(0, false), bn_copy.GetNumBytes());
                 buff << uint8(index++);
                 buff << uint8(index++);
                 buff << uint32(wd->Address);
@@ -375,17 +378,20 @@ void WardenWin::HandleData(ByteBuffer &buff)
         DEBUG_LOG("WARDEN: Ticks diff %u", ourTicks - newClientTicks);
     }
 
-    WardenDataResult *rs;
-    WardenData *rd;
+    WardenDataResult* rs;
+    WardenData* rd;
+
     uint8 type = 0;
     uint32 checkNum = 0;
 
     for (std::vector<uint32>::iterator itr = SendDataId.begin(); itr != SendDataId.end(); ++itr)
     {
         rd = WardenDataStorage.GetWardenDataById(*itr);
-        rs = WardenDataStorage.GetWardenResultById(*itr);
-
         type = rd->Type;
+
+        rs = WardenDataStorage.GetWardenResultById(*itr);
+        BigNumber bn_rs_copy = rs->res;
+
         switch (type)
         {
             case MEM_CHECK:
@@ -401,7 +407,7 @@ void WardenWin::HandleData(ByteBuffer &buff)
                     continue;
                 }
 
-                if (memcmp(buff.contents() + buff.rpos(), rs->res.AsByteArray(0, false), rd->Length) != 0)
+                if (memcmp(buff.contents() + buff.rpos(), bn_rs_copy.AsByteArray(0, false), rd->Length) != 0)
                 {
                     sLog.outError("WARDEN: RESULT MEM_CHECK fail CheckId %u account Id %u", *itr, Client->GetAccountId());
                     found = true;
@@ -484,7 +490,7 @@ void WardenWin::HandleData(ByteBuffer &buff)
                     continue;
                 }
 
-                if (memcmp(buff.contents() + buff.rpos(), rs->res.AsByteArray(0, false), 20) != 0) // SHA1
+                if (memcmp(buff.contents() + buff.rpos(), bn_rs_copy.AsByteArray(0, false), 20) != 0) // SHA1
                 {
                     sLog.outError("WARDEN: RESULT MPQ_CHECK fail, CheckId %u account Id %u", *itr, Client->GetAccountId());
                     found = true;
