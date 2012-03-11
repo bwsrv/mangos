@@ -6405,15 +6405,37 @@ void Aura::HandlePeriodicHeal(bool apply, bool /*Real*/)
         if (!caster)
             return;
 
-        // Gift of the Naaru (have diff spellfamilies)
-        if (GetSpellProto()->SpellIconID == 329 && GetSpellProto()->SpellVisual[0] == 7625)
+        // Gift of the Naaru (have multiple spellfamilies)
+        if (GetSpellProto()->SpellFamilyFlags.test<CF_ALL_GIFT_OF_THE_NAARU>())
         {
-            int32 ap = int32 (0.22f * caster->GetTotalAttackPowerValue(BASE_ATTACK));
-            int32 holy = caster->SpellBaseDamageBonusDone(GetSpellSchoolMask(GetSpellProto()));
-            if  (holy < 0)
-                holy = 0;
-            holy = int32(holy * 377 / 1000);
-            m_modifier.m_amount += ap > holy ? ap : holy;
+            float add = 0.0f;
+            switch (GetSpellProto()->SpellFamilyName)
+            {
+                case SPELLFAMILY_MAGE:
+                case SPELLFAMILY_WARLOCK:
+                case SPELLFAMILY_PRIEST:
+                    add = 1.885f * (float)caster->SpellBaseDamageBonusDone(GetSpellSchoolMask(GetSpellProto()));
+                    break;
+
+                case SPELLFAMILY_PALADIN:
+                case SPELLFAMILY_SHAMAN:
+                    add = std::max(1.885f * (float)caster->SpellBaseDamageBonusDone(GetSpellSchoolMask(GetSpellProto())), 1.1f * (float)caster->GetTotalAttackPowerValue(BASE_ATTACK));
+                    break;
+
+                case SPELLFAMILY_WARRIOR:
+                case SPELLFAMILY_HUNTER:
+                case SPELLFAMILY_DEATHKNIGHT:
+                    add = 1.1f * (float)std::max(caster->GetTotalAttackPowerValue(BASE_ATTACK), caster->GetTotalAttackPowerValue(RANGED_ATTACK));
+                    break;
+
+                case SPELLFAMILY_GENERIC:
+                default:
+                    sLog.outError("Aura::HandlePeriodicHeal unknown type of aura %u",GetId());
+                    break;
+            }
+
+            int32 add_per_tick = floor(add / GetAuraMaxTicks());
+            m_modifier.m_amount += (add_per_tick > 0 ? add_per_tick : 0);
         }
         // Lifeblood
         else if (GetSpellProto()->SpellIconID == 3088 && GetSpellProto()->SpellVisual[0] == 8145)
@@ -6421,8 +6443,10 @@ void Aura::HandlePeriodicHeal(bool apply, bool /*Real*/)
             int32 healthBonus = int32 (0.0032f * caster->GetMaxHealth());
             m_modifier.m_amount += healthBonus;
         }
-
-        m_modifier.m_amount = caster->SpellHealingBonusDone(target, GetSpellProto(), m_modifier.m_amount, DOT, GetStackAmount());
+        else
+        {
+            m_modifier.m_amount = caster->SpellHealingBonusDone(target, GetSpellProto(), m_modifier.m_amount, DOT, GetStackAmount());
+        }
 
         // Rejuvenation
         if (GetSpellProto()->IsFitToFamily<SPELLFAMILY_DRUID, CF_DRUID_REJUVENATION>())
