@@ -3745,18 +3745,28 @@ void Player::RemoveSpellCooldown( uint32 spell_id, bool update /* = false */ )
 
 void Player::RemoveSpellCategoryCooldown(uint32 cat, bool update /* = false */)
 {
+    if (m_spellCooldowns.empty())
+        return;
+
     SpellCategoryStore::const_iterator ct = sSpellCategoryStore.find(cat);
     if (ct == sSpellCategoryStore.end())
         return;
 
     const SpellCategorySet& ct_set = ct->second;
-    for (SpellCooldowns::const_iterator i = m_spellCooldowns.begin(); i != m_spellCooldowns.end();)
+    SpellCategorySet current_set;
+    SpellCategorySet intersection_set;
     {
-        if (ct_set.find(i->first) != ct_set.end())
-            RemoveSpellCooldown((i++)->first, update);
-        else
-            ++i;
+        MAPLOCK_READ(this, MAP_LOCK_TYPE_DEFAULT);
+        std::transform(m_spellCooldowns.begin(), m_spellCooldowns.end(), std::inserter(current_set, current_set.begin()), select1st<SpellCooldowns::value_type>());
     }
+
+    std::set_intersection(ct_set.begin(),ct_set.end(), current_set.begin(),current_set.end(),std::inserter(intersection_set,intersection_set.begin()));
+
+    if (intersection_set.empty())
+        return;
+
+    for (SpellCategorySet::const_iterator itr = intersection_set.begin(); itr != intersection_set.end(); ++itr)
+        RemoveSpellCooldown(*itr, update);
 }
 
 void Player::RemoveArenaSpellCooldowns()
