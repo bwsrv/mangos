@@ -165,6 +165,8 @@ bool BigNumber::isZero() const
     return BN_is_zero(_bn)!=0;
 }
 
+// Method fully thread-unsafe! Don't use with concurrent execution. Need make copy of whole class
+// before usage in concurrent threads!
 uint8 *BigNumber::AsByteArray(int minSize, bool reverse)
 {
     int length = (minSize >= GetNumBytes()) ? minSize : GetNumBytes();
