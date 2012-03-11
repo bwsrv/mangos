@@ -259,8 +259,7 @@ void WardenWin::RequestData()
         type = wd->Type;
 
         // Make copy of BigNumber wd->i for safe use in multithread environment (source method not thread-safe)
-        BigNumber bn_copy;
-        bn_copy.SetHexStr(wd->i.AsHexStr());
+        BigNumber bn_copy = wd->i;
 
         buff << uint8(type ^ xorByte);
         switch (type)
@@ -391,8 +390,7 @@ void WardenWin::HandleData(ByteBuffer &buff)
         type = rd->Type;
 
         rs = WardenDataStorage.GetWardenResultById(*itr);
-        BigNumber bn_rs_copy;
-        bn_rs_copy.SetHexStr(rs->res.AsHexStr());
+        BigNumber bn_rs_copy = rs->res;
 
         switch (type)
         {
