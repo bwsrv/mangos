@@ -11777,11 +11777,15 @@ void Unit::SetFeared(bool apply, ObjectGuid casterGuid, uint32 spellID, uint32 t
 
         Unit* caster = IsInWorld() ?  GetMap()->GetUnit(casterGuid) : NULL;
 
+        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
+
         GetMotionMaster()->MoveFleeing(caster, time);       // caster==NULL processed in MoveFleeing
     }
     else
     {
         GetUnitStateMgr().DropAction(UNIT_ACTION_FEARED);
+
+        RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
 
         // attack caster if can
         if (GetTypeId() != TYPEID_PLAYER && isAlive())
@@ -11800,10 +11804,12 @@ void Unit::SetConfused(bool apply, ObjectGuid casterGuid, uint32 spellID)
     if (apply)
     {
         CastStop(GetObjectGuid() == casterGuid ? spellID : 0);
+        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
         GetMotionMaster()->MoveConfused();
     }
     else
     {
+        RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
         GetUnitStateMgr().DropAction(UNIT_ACTION_CONFUSED);
     }
 
