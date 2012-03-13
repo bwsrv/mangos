@@ -7931,7 +7931,6 @@ bool Unit::IsSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                                 }
                             }
                         }
-                        break;
                         // Improved Faerie Fire
                         if (pVictim->HasAura(770) || pVictim->HasAura(16857))
                         {
