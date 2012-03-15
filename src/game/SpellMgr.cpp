@@ -1665,9 +1665,15 @@ void SpellMgr::LoadSpellBonuses()
                     }
 
                     if(!isDotEffect)
+                    {
                         sbe.direct_damage = spell->EffectCoeffs[i];
+                        sbe.dot_damage = 0.0f;
+                    }
                     else
+                    {
                         sbe.dot_damage = spell->EffectCoeffs[i];
+                        sbe.direct_damage = 0.0f;
+                    }
 
                     // Disable ap_bonus/ap_dot_bonus by default
                     sbe.ap_bonus = 0.0f;
