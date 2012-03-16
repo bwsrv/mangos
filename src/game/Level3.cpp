@@ -6255,7 +6255,7 @@ bool ChatHandler::HandleMovegensCommand(char* /*args*/)
             case HOME_MOTION_TYPE:
                 if(unit->GetTypeId()==TYPEID_UNIT)
                 {
-                    static_cast<HomeMovementGenerator<Creature> const*>(&*action)->GetResetPosition(const_cast<Creature&>(*((Creature*)unit)),x,y,z);
+                    ((Creature*)unit)->GetRespawnCoord(x,y,z);
                     PSendSysMessage(LANG_MOVEGENS_HOME_CREATURE,x,y,z);
                 }
                 else
