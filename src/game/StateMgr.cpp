@@ -40,6 +40,7 @@ static const class staticActionInfo
         actionInfo[UNIT_ACTION_STUN](UNIT_ACTION_PRIORITY_STUN);
         actionInfo[UNIT_ACTION_ROOT](UNIT_ACTION_PRIORITY_ROOT);
         actionInfo[UNIT_ACTION_ONVEHICLE](UNIT_ACTION_PRIORITY_ONVEHICLE);
+        actionInfo[UNIT_ACTION_TAXI](UNIT_ACTION_PRIORITY_TAXI,ACTION_TYPE_NONRESTOREABLE);
         actionInfo[UNIT_ACTION_EFFECT](UNIT_ACTION_PRIORITY_EFFECT,ACTION_TYPE_NONRESTOREABLE);
     }
 
@@ -320,7 +321,7 @@ void UnitStateMgr::DropAction(UnitActionPriority priority)
     if (priority < UNIT_ACTION_PRIORITY_IDLE)
         return;
 
-    MAPLOCK_WRITE(GetOwner(), MAP_LOCK_TYPE_DEFAULT);
+    MAPLOCK_WRITE(GetOwner(), MAP_LOCK_TYPE_MOVEMENT);
     ActionInfo* oldInfo = CurrentState();
     UnitActionStorage::iterator itr = m_actions.find(priority);
     if (itr != m_actions.end())
@@ -437,7 +438,7 @@ void ActionInfo::Initialize(UnitStateMgr* mgr)
     if (HasFlag(ACTION_STATE_FINALIZED))
         return;
 
-    MAPLOCK_READ(mgr->GetOwner(), MAP_LOCK_TYPE_DEFAULT);
+    MAPLOCK_READ(mgr->GetOwner(), MAP_LOCK_TYPE_MOVEMENT);
     if (!HasFlag(ACTION_STATE_INITIALIZED) && Action())
     {
         DEBUG_FILTER_LOG(LOG_FILTER_AI_AND_MOVEGENSS, "ActionInfo: %s initialize action %s", mgr->GetOwnerStr().c_str(), TypeName());
@@ -459,7 +460,7 @@ void ActionInfo::Finalize(UnitStateMgr* mgr)
         HasFlag(ACTION_STATE_FINALIZED))
         return;
 
-    MAPLOCK_READ(mgr->GetOwner(), MAP_LOCK_TYPE_DEFAULT);
+    MAPLOCK_READ(mgr->GetOwner(), MAP_LOCK_TYPE_MOVEMENT);
     AddFlag(ACTION_STATE_FINALIZED);
     RemoveFlag(ACTION_STATE_ACTIVE);
 
@@ -476,7 +477,7 @@ void ActionInfo::Interrupt(UnitStateMgr* mgr)
         HasFlag(ACTION_STATE_INTERRUPTED))
         return;
 
-    MAPLOCK_READ(mgr->GetOwner(), MAP_LOCK_TYPE_DEFAULT);
+    MAPLOCK_READ(mgr->GetOwner(), MAP_LOCK_TYPE_MOVEMENT);
     AddFlag(ACTION_STATE_INTERRUPTED);
     RemoveFlag(ACTION_STATE_ACTIVE);
 
