@@ -240,6 +240,9 @@ void ChaseMovementGenerator<Creature>::Initialize(Creature &owner)
     owner.SetWalk(false);
     owner.addUnitState(UNIT_STAT_CHASE|UNIT_STAT_CHASE_MOVE);
     _setTargetLocation(owner);
+
+    if (owner.getVictim() && !owner.hasUnitState(UNIT_STAT_MELEE_ATTACKING))
+        owner.Attack(owner.getVictim(), !owner.IsNonMeleeSpellCasted(true));
 }
 
 template<class T>

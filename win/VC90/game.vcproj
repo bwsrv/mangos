@@ -1043,6 +1043,18 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\game\StateMgr.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\StateMgr.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\StateMgrImpl.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\game\TaxiHandler.cpp"
 				>
 			</File>
