@@ -25,6 +25,8 @@
 #include "Policies/Singleton.h"
 #include <string>
 
+class Player;
+
 enum AccountOpResult
 {
     AOR_OK,
