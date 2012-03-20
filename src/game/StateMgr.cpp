@@ -80,6 +80,8 @@ public:
             target->SetStandState(UNIT_STAND_STATE_STAND);// in 1.5 client
         }
 
+        target->SendMeleeAttackStop(NULL);
+
         WorldPacket data(SMSG_FORCE_MOVE_ROOT, target->GetPackGUID().size() + 4);
         data << target->GetPackGUID();
         data << uint32(0);
@@ -127,6 +129,8 @@ public:
         //Clear unit movement flags
         target->m_movementInfo.RemoveMovementFlag(movementFlagsMask);
         target->m_movementInfo.AddMovementFlag(MOVEFLAG_ROOT);
+
+        target->SendMeleeAttackStop(NULL);
 
         if(target->GetTypeId() == TYPEID_PLAYER)
         {
