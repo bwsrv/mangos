@@ -164,17 +164,16 @@ enum UnitStandFlags
     UNIT_STAND_FLAGS_ALL          = 0xFF
 };
 
-// byte flags value (UNIT_FIELD_BYTES_1,2)
-// This corresponds to free talent points (pet case)
-
 // byte flags value (UNIT_FIELD_BYTES_1,3)
 enum UnitBytes1_Flags
 {
     UNIT_BYTE1_FLAG_ALWAYS_STAND = 0x01,
-    UNIT_BYTE1_FLAG_UNK_2        = 0x02,                    // Creature that can fly and are not on the ground appear to have this flag. If they are on the ground, flag is not present.
+    UNIT_BYTE1_FLAG_HOVER        = 0x02,                    // Creature that can fly and are not on the ground appear to have this flag. If they are on the ground, flag is not present.
     UNIT_BYTE1_FLAG_UNK_3        = 0x04,
     UNIT_BYTE1_FLAG_ALL          = 0xFF
 };
+
+#define UNIT_BYTE1_FLAG_UNK_2 UNIT_BYTE1_FLAG_HOVER
 
 // byte value (UNIT_FIELD_BYTES_2,0)
 enum SheathState
