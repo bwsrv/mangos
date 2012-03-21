@@ -52,8 +52,8 @@ enum UnitActionId
     UNIT_ACTION_CHASE,
     UNIT_ACTION_ASSISTANCE,
     UNIT_ACTION_CONTROLLED,
-    UNIT_ACTION_FEARED,
     UNIT_ACTION_CONFUSED,
+    UNIT_ACTION_FEARED,
     UNIT_ACTION_ROOT,
     UNIT_ACTION_STUN,
     UNIT_ACTION_ONVEHICLE,
@@ -73,8 +73,8 @@ enum UnitActionPriority
     UNIT_ACTION_PRIORITY_CONTROLLED  =  4,
     UNIT_ACTION_PRIORITY_CONFUSED    =  5,
     UNIT_ACTION_PRIORITY_FEARED      =  6,
-    UNIT_ACTION_PRIORITY_STUN        =  7,
-    UNIT_ACTION_PRIORITY_ROOT        =  8,
+    UNIT_ACTION_PRIORITY_ROOT        =  7,
+    UNIT_ACTION_PRIORITY_STUN        =  8,
     UNIT_ACTION_PRIORITY_ONVEHICLE   =  9,
     UNIT_ACTION_PRIORITY_TAXI        = 10,
     UNIT_ACTION_PRIORITY_EFFECT      = 11,
@@ -84,16 +84,19 @@ enum UnitActionPriority
 
 enum eActionType
 {
-    ACTION_TYPE_NONRESTOREABLE = 0,
-    ACTION_TYPE_RESTOREABLE    = 1,
+    ACTION_TYPE_NONRESTOREABLE = 0,                   // Action NOT be restored after interrupt (effect type)
+    ACTION_TYPE_RESTOREABLE    = 1,                   // Action be restored after interrupt (normal type)
+    ACTION_TYPE_REPLACEABLE    = 2,                   // Action be restored after interrupt, some attributes 
+                                                      // removed only on finalize, not in interrupted state
 };
 
 enum ActionUpdateState
 {
-    ACTION_STATE_ACTIVE      = 0,
-    ACTION_STATE_INITIALIZED = 1,
-    ACTION_STATE_INTERRUPTED = 3,
-    ACTION_STATE_FINALIZED   = 4,
+    ACTION_STATE_ACTIVE      = 0,                     // updated at least one time and not interrupted
+    ACTION_STATE_INITIALIZED = 1,                     // Already initialized one time
+    ACTION_STATE_EXECUTED    = 2,                     // Executed in current time (NUN)
+    ACTION_STATE_INTERRUPTED = 3,                     // In stack, but interrupted
+    ACTION_STATE_FINALIZED   = 4,                     // Finalized, awaiting delete
     ACTION_STATE_END
 };
 
