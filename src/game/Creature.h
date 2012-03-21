@@ -210,14 +210,6 @@ struct CreatureData
     ObjectGuid GetObjectGuid(uint32 lowguid) const;
 };
 
-/*
-enum SplineFlags
-{
-    SPLINEFLAG_WALKMODE     = 0x00001000,
-    SPLINEFLAG_FLYING       = 0x00002000,
-};
-*/
-
 // from `creature_addon` and `creature_template_addon`tables
 struct CreatureDataAddon
 {
