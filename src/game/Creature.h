@@ -789,4 +789,16 @@ class ForcedDespawnDelayEvent : public BasicEvent
         Creature& m_owner;
 };
 
+class AttackResumeEvent : public BasicEvent
+{
+    public:
+        AttackResumeEvent(Unit& owner) : m_owner(owner), b_force(false) {};
+        AttackResumeEvent(Unit& owner, bool force) : m_owner(owner), b_force(force) {};
+        bool Execute(uint64 e_time, uint32 p_time);
+    private:
+        AttackResumeEvent();
+        Unit&   m_owner;
+        bool    b_force;
+};
+
 #endif
