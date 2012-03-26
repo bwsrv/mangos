@@ -2644,8 +2644,9 @@ bool AttackResumeEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
             CreatureAI* ai = ((Creature*)&m_owner)->AI();
             if (ai)
             {
-                if (CreatureEventAI* eventai = (CreatureEventAI*)ai)
-                    eventai->Reset();
+            // Reset EventAI now unsafe, temp disabled (require correct writing EventAI scripts)
+            //    if (CreatureEventAI* eventai = (CreatureEventAI*)ai)
+            //        eventai->Reset();
                 ai->AttackStart(victim);
             }
             break;
