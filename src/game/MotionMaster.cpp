@@ -353,6 +353,19 @@ void MotionMaster::MoveToDestination(float x, float y, float z, float o, Unit* t
     Mutate(new EffectMovementGenerator(id), UNIT_ACTION_EFFECT);
 }
 
+void MotionMaster::MoveSkyDiving(float x, float y, float z, float o, float horizontalSpeed, float max_height, bool eject)
+{
+    Movement::MoveSplineInit init(*m_owner);
+    init.MoveTo(x,y,z,false);
+    init.SetParabolic(max_height, 0);
+    init.SetVelocity(horizontalSpeed);
+    init.SetFacing(o);
+    if (!eject)
+        init.SetTransportExit();
+    init.Launch();
+    Mutate(new EffectMovementGenerator(0), UNIT_ACTION_EFFECT);
+}
+
 void MotionMaster::MoveFall()
 {
     // use larger distance for vmap height search than in most other cases

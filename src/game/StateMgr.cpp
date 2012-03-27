@@ -80,6 +80,8 @@ public:
             target->SetStandState(UNIT_STAND_STATE_STAND);// in 1.5 client
         }
 
+        target->SendMeleeAttackStop(NULL);
+
         WorldPacket data(SMSG_FORCE_MOVE_ROOT, target->GetPackGUID().size() + 4);
         data << target->GetPackGUID();
         data << uint32(0);
@@ -102,6 +104,7 @@ public:
         data << uint32(0);
         target->SendMessageToSet(&data, true);
         target->m_movementInfo.RemoveMovementFlag(MOVEFLAG_ROOT);
+        target->AddEvent(new AttackResumeEvent(*target), ATTACK_DISPLAY_DELAY);
     }
 
 };
@@ -127,6 +130,8 @@ public:
         //Clear unit movement flags
         target->m_movementInfo.RemoveMovementFlag(movementFlagsMask);
         target->m_movementInfo.AddMovementFlag(MOVEFLAG_ROOT);
+
+        target->SendMeleeAttackStop(NULL);
 
         if(target->GetTypeId() == TYPEID_PLAYER)
         {
@@ -168,6 +173,7 @@ public:
 
         if(target->getVictim())
             target->SetTargetGuid(target->getVictim()->GetObjectGuid());
+        target->AddEvent(new AttackResumeEvent(*target), ATTACK_DISPLAY_DELAY);
     }
 };
 
@@ -291,7 +297,10 @@ void UnitStateMgr::Update(uint32 diff)
     }
 
     if (!state->Update(this, diff))
+    {
+        DEBUG_FILTER_LOG(LOG_FILTER_AI_AND_MOVEGENSS, "UnitStateMgr: %s finished action %s", GetOwnerStr().c_str(), state->TypeName());
         DropAction(state->priority);
+    }
 }
 
 void UnitStateMgr::DropAction(UnitActionId actionId)
@@ -413,7 +422,13 @@ ActionInfo* UnitStateMgr::CurrentState()
 void UnitStateMgr::DropAllStates()
 {
     for (int32 i = UNIT_ACTION_PRIORITY_IDLE; i != UNIT_ACTION_PRIORITY_END; ++i)
-        DropAction(UnitActionPriority(i));
+    {
+        if (ActionInfo* state = GetAction(UnitActionPriority(i)))
+        {
+            DEBUG_FILTER_LOG(LOG_FILTER_AI_AND_MOVEGENSS, "UnitStateMgr:DropAllStates %s drop action %s", GetOwnerStr().c_str(), state->TypeName());
+            DropAction(UnitActionPriority(i));
+        }
+    }
 }
 
 std::string const UnitStateMgr::GetOwnerStr() 
